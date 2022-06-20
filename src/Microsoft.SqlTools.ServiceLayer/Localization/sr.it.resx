@@ -3721,4 +3721,73 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formula</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>All'indice '{0}' non è associata alcuna colonna.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Per la chiave esterna '{0}' non è stata specificata alcuna colonna.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>La colonna con nome '{0}' è già stata aggiunta all'indice '{1}'. Numero di riga: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La colonna con nome '{0}' è già stata aggiunta alla chiave esterna '{1}'. Numero di riga: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>La colonna esterna con nome '{0}' è già stata aggiunta alla chiave esterna '{1}'. Numero di riga: {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>Il nome '{0}' è già utilizzato da un altro vincolo. Numero di riga: {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>Il nome '{0}' è già utilizzato da un'altra colonna. Numero di riga: {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>Il nome '{0}' è già utilizzato da un altro indice. Numero di riga: {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>Per il vincolo perimetrale '{0}' non sono specificate clausole.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>La coppia '{0}' è già definita da un'altra clausola nel vincolo perimetrale. Numero di riga: {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La tabella ottimizzata per la memoria deve contenere una chiave primaria non cluster.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La tabella con versione di sistema deve disporre di una chiave primaria.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>Per la tabella con controllo delle versioni di sistema, devono essere definite le colonne periodo.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Le colonne periodo (generate sempre come Inizio/Fine riga) possono essere definite una sola volta.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Le colonne periodo (generate sempre come Inizio/Fine) devono essere definite come coppia. Qualora se ne definisse solo una, sarà necessario definire anche l'altra.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Le colonne nella chiave primaria non possono ammettere valori Null.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Solo le tabelle ottimizzate per la memoria durevoli (DURABILITY = SCHEMA_AND_DATA) possono essere con controllo delle versioni di sistema.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>Una tabella deve includere almeno una colonna non calcolata definita.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>L'utilizzo di valori di inizializzazione e di incremento diversi da 1 non è supportato con le tabelle ottimizzate per la memoria.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>La tabella contiene più di un vincolo perimetrale. È utile solo come stato temporaneo quando si modificano vincoli perimetrali esistenti e non deve essere usato in altri casi.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Non è possibile usare nomi di colonna duplicati nella chiave primaria. Nome colonna: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>La tabella ottimizzata per la memoria non è supportata per questo database.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>Nello script sono presenti più definizioni di tabella. Solo la prima tabella può essere modificata nella finestra di progettazione.</value>
+  </data>
 </root>

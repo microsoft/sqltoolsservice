@@ -6068,6 +6068,132 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">数式</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="IndexMustHaveColumnsRuleDescription">
+        <source>Index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">インデックス '{0}' には関連付けられた列がありません。</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyMustHaveColumnsRuleDescription">
+        <source>Foreign key '{0}' does not have any columns specified.</source>
+        <target state="translated">外部キー '{0}' には列が指定されていません。</target>
+        <note>.
+ Parameters: 0 - foreignKeyName (string) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInIndexRuleDescription">
+        <source>Column with name '{0}' has already been added to the index '{1}'. Row number: {2}.</source>
+        <target state="translated">'{0}' という名前の列は既にインデックス '{1}' に追加されています。行番号: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription">
+        <source>Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.</source>
+        <target state="translated">'{0}' という名前の列は既に外部キー '{1}' に追加されています。行番号: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription">
+        <source>Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.</source>
+        <target state="translated">'{0}' という名前の外部列は既に外部キー '{1}' に追加されています。行番号: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateConstraintNameRuleDescription">
+        <source>The name '{0}' is already used by another constraint. Row number: {1}.</source>
+        <target state="translated">名前 '{0}' は既に別の成約により使用されています。行番号: {1}。</target>
+        <note>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateColumnNameRuleDescription">
+        <source>The name '{0}' is already used by another column. Row number: {1}.</source>
+        <target state="translated">名前 '{0}' は既に別の列により使用されています。行番号: {1}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateIndexNameRuleDescription">
+        <source>The name '{0}' is already used by another index. Row number: {1}.</source>
+        <target state="translated">名前 '{0}' は既に別のインデックスにより使用されています。行番号: {1}。</target>
+        <note>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="EdgeConstraintMustHaveClausesRuleDescription">
+        <source>Edge constraint '{0}' does not have any clauses specified.</source>
+        <target state="translated">エッジ制約 '{0}' に句が指定されていません。</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="EdgeConstraintNoRepeatingClausesRuleDescription">
+        <source>The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.</source>
+        <target state="translated">ペア '{0}' は、エッジ制約の別の句で既に定義されています。行番号: {1}。</target>
+        <note>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription">
+        <source>Memory-optimized table must have non-clustered primary key.</source>
+        <target state="translated">メモリ最適化テーブルには、非クラスター化プライマリ キーが必要です。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TemporalTableMustHavePrimaryKeyRuleDescription">
+        <source>System versioned table must have primary key.</source>
+        <target state="translated">システム バージョン管理テーブルには、プライマリ キーが必要です。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TemporalTableMustHavePeriodColumnsRuleDescription">
+        <source>System versioned table must have the period columns defined.</source>
+        <target state="translated">システムでバージョン管理されるテーブルでは、期間列が定義されている必要があります。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeriodColumnsRuleMoreThanOneIssueDescription">
+        <source>Period columns (Generated Always As Row Start/End) can only be defined once.</source>
+        <target state="translated">期間列 (常に次の名前で生成 行の開始/終了) は一度だけ定義できます。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeriodColumnsRuleNotMatchIssueDescription">
+        <source>Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined.</source>
+        <target state="translated">期間列 (常に次の名前で生成 行の開始/終了) はペアとして定義する必要があります。一方が定義されている場合は、もう一方も定義する必要があります。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnsInPrimaryKeyCannotBeNullableRuleDescription">
+        <source>Columns in primary key cannot be nullable.</source>
+        <target state="translated">プライマリ キーの列を Null 許容にすることはできません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription">
+        <source>Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned.</source>
+        <target state="translated">持続性 (DURABILITY = SCHEMA_AND_DATA) メモリ最適化したテーブルのみ、システムをバージョンアップできます。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableMustHaveAtLeastOneColumnRuleDescription">
+        <source>A table must have at least one non-computed column defined.</source>
+        <target state="translated">テーブルには、計算列以外の列が 1 つ以上定義されている必要があります。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedTableIdentityColumnRuleDescription">
+        <source>The use of seed and increment values other than 1 is not supported with memory optimized tables.</source>
+        <target state="translated">1 以外のシード値と増分値の使用は、メモリ最適化テーブルではサポートされません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription">
+        <source>The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.</source>
+        <target state="translated">テーブルには、複数のエッジ制約があります。これは、既存のエッジ制約を変更する場合の一時的な状態としてのみ有効であり、他の場合には使用しないでください。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription">
+        <source>Cannot use duplicate column names in primary key, column name: {0}</source>
+        <target state="translated">プライマリ キーに重複する列名を使用できません。列名: {0}</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription">
+        <source>Memory-optimized table is not supported for this database.</source>
+        <target state="translated">メモリ最適化テーブルは、このデータベースではサポートされていません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MutipleCreateTableStatementsInScriptRuleDescription">
+        <source>There are multiple table definitions in the script, only the first table can be edited in the designer.</source>
+        <target state="translated">スクリプトに複数のテーブル定義があり、デザイナーで編集できるのは最初のテーブルのみです。</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

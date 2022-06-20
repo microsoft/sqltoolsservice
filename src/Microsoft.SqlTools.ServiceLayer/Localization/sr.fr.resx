@@ -3721,4 +3721,73 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formule</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>L'index '{0}' n'est associé à aucune colonne.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>La clé étrangère '{0}' n'a aucune colonne spécifiée.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>La colonne portant le nom '{0}' a déjà été ajoutée à l'index '{1}'. Numéro de ligne : {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La colonne portant le nom '{0}' a déjà été ajoutée à la clé étrangère '{1}'. Numéro de ligne : {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>La colonne étrangère avec le nom '{0}' a déjà été ajoutée à la clé étrangère '{1}'. Numéro de ligne : {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>Le nom '{0}' est déjà utilisé par une autre contrainte. Numéro de ligne : {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>Le nom '{0}' est déjà utilisé par une autre colonne. Numéro de ligne : {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>Le nom '{0}' est déjà utilisé par un autre index. Numéro de ligne : {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>Stream Analytics sur appareils de périphérie '{0}' n'a aucune clause spécifiée.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>La paire '{0}' est déjà définie par une autre clause dans la contrainte de bord. Numéro de ligne : {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La table à mémoire optimisée doit avoir une clé primaire non clusterisée.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La table système versionnée doit avoir une clé primaire.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>La table versionnée du système doit avoir les colonnes de période définies.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Les colonnes de période (générées toujours comme début/fin de ligne) ne peuvent être définies qu'une seule fois.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Les colonnes de période (générées toujours en tant que début/fin de ligne) doivent être définies par paire. Si l'un est défini, l'autre doit également être défini.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Les colonnes de la clé primaire ne peuvent pas être nullables.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Seules les tables durables (DURABILITY = SCHEMA_AND_DATA) optimisées en mémoire peuvent être versionnées par le système.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>Une table doit avoir au moins une colonne non calculée définie.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>L'utilisation de valeurs de départ et d'incrément autres que 1 n'est pas prise en charge avec les tables à mémoire optimisée.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>La table comporte plusieurs contraintes de bord. Ceci n'est utile qu'en tant qu'état temporaire lors de la modification de contraintes de bord existantes et ne doit pas être utilisé dans d'autres cas.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Impossible d'utiliser des noms de colonne en double dans la clé primaire, nom de colonne : {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>La table à mémoire optimisée n'est pas prise en charge pour cette base de données.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>Il existe plusieurs définitions de table dans le script, seule la première table peut être modifiée dans le concepteur.</value>
+  </data>
 </root>
