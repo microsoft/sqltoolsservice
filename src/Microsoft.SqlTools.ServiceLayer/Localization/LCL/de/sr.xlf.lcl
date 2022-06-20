@@ -1189,11 +1189,56 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Spalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Fremdspalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ColumnCanOnlyAppearOnceInIndexRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Column with name '{0}' has already been added to the index '{1}'. Row number: {2}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Spalte mit dem Namen „{0}“ wurde dem Index „{1}“ bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot use duplicate column names in primary key, column name: {0}]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Doppelte Spaltennamen können im Primärschlüssel nicht verwendet werden. Spaltenname: {0}]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ColumnReference" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Column Reference]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Spaltenverweis]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ColumnsInPrimaryKeyCannotBeNullableRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Columns in primary key cannot be nullable.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Spalten im Primärschlüssel dürfen keine NULL-Werte zulassen.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1905,6 +1950,24 @@
           <Val><![CDATA[Eager Spool.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Eager Spool.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EdgeConstraintMustHaveClausesRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Edge constraint '{0}' does not have any clauses specified.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Für die Edge-Einschränkung „{0}“ wurden keine Klauseln angegeben.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EdgeConstraintNoRepeatingClausesRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Das Paar „{0}“ ist bereits durch eine andere Klausel in der Edge-Einschränkung definiert. Zeilennummer: {1}.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2857,6 +2920,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ForeignKeyMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Foreign key '{0}' does not have any columns specified.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Für den Fremdschlüssel „{0}“ wurden keine Spalten angegeben.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ForeignKeyReferencesCheck" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Foreign Key References Check]]></Val>
@@ -3432,6 +3504,15 @@
           <Val><![CDATA[Type of index for the referenced object.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Der Indextyp für das Objekt, auf das verwiesen wird.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";IndexMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Index '{0}' does not have any columns associated with it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dem Index „{0}“ sind keine Spalten zugeordnet.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4777,6 +4858,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Memory-optimized table is not supported for this database.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die speicheroptimierte Tabelle wird für diese Datenbank nicht unterstützt.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";MemoryOptimizedTableIdentityColumnRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The use of seed and increment values other than 1 is not supported with memory optimized tables.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Verwendung eines anderen Start- und Inkrementwerts als 1 wird bei speicheroptimierten Tabellen nicht unterstützt.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Memory-optimized table must have non-clustered primary key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die speicheroptimierte Tabelle muss über einen nicht gruppierten Primärschlüssel verfügen.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";MergeInterval" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Merge Interval]]></Val>
@@ -4858,6 +4966,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";MutipleCreateTableStatementsInScriptRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[There are multiple table definitions in the script, only the first table can be edited in the designer.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Das Skript enthält mehrere Tabellendefinitionen, nur die erste Tabelle kann im Designer bearbeitet werden.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";NameValuePair" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[{0}: {1}]]></Val>
@@ -4908,6 +5025,33 @@
           <Val><![CDATA[No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Kein TSQL-Befehl zum Erstellen eines externen Streamingauftrags gefunden (EXEC sp_create_streaming_job-Anweisung).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";NoDuplicateColumnNameRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The name '{0}' is already used by another column. Row number: {1}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Der Name „{0}“ wird bereits von einer anderen Spalte verwendet. Zeilennummer: {1}.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";NoDuplicateConstraintNameRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The name '{0}' is already used by another constraint. Row number: {1}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Der Name „{0}“ wird bereits von einer anderen Einschränkung verwendet. Zeilennummer: {1}.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";NoDuplicateIndexNameRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The name '{0}' is already used by another index. Row number: {1}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Der Name „{0}“ wird bereits von einem anderen Index verwendet. Zeilennummer: {1}.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5196,6 +5340,15 @@
           <Val><![CDATA[Table name for the referenced object.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Der Tabellenname für das Objekt, auf das verwiesen wird.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nur dauerhafte (DURABILITY = SCHEMA_AND_DATA) speicheroptimierte Tabellen können vom System versioniert sein.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5736,6 +5889,24 @@
           <Val><![CDATA[Per-thread counter information.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Threadspezifische Zählerinformationen.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";PeriodColumnsRuleMoreThanOneIssueDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Period columns (Generated Always As Row Start/End) can only be defined once.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zeitraumspalten (immer als Zeilenanfang/-ende generiert) können nur einmal definiert werden.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";PeriodColumnsRuleNotMatchIssueDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zeitraumspalten (immer als Zeilenanfang/-ende generiert) müssen als Paar definiert werden. Wenn eine definiert ist, muss auch die andere definiert werden.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10159,6 +10330,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";TableMustHaveAtLeastOneColumnRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A table must have at least one non-computed column defined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Für eine Tabelle muss mindestens eine nicht berechnete Spalte definiert sein.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";TableNotInitializedException" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Initialization is not properly done for table with id '{0}']]></Val>
@@ -10182,6 +10362,15 @@
           <Val><![CDATA[Scan rows from a table.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Scannt die Zeilen einer Tabelle.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Tabelle weist mehr als eine Edge-Einschränkung auf. Dies ist nur als temporärer Zustand beim Ändern vorhandener Edge-Einschränkungen nützlich, und sollte in anderen Fällen nicht verwendet werden.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10263,6 +10452,24 @@
           <Val><![CDATA[In progress]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[In Bearbeitung]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TemporalTableMustHavePeriodColumnsRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[System versioned table must have the period columns defined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Für die vom System versionierte Tabelle müssen die Zeitraumspalten definiert sein.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";TemporalTableMustHavePrimaryKeyRuleDescription" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[System versioned table must have primary key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die vom System versionierte Tabelle muss über einen Primärschlüssel verfügen.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
