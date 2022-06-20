@@ -587,9 +587,12 @@ FROM MissingEdgeHubInputStream'";
                     DeploymentOptions = new DeploymentOptions()
                     {
                         DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })                       ,
                     }
                 };
+
+                // Updating the OptionsMapTable Since the deployment options model to the DacFx is generated using OptionsMapTable
+                deployParams.DeploymentOptions.OptionsMapTable["Drop objects not in source"].Value = false;
 
                 // expect table3 to not have been dropped and view1 to not have been created
                 await VerifyDeployWithOptions(deployParams, targetDb, service, result.ConnectionInfo, expectedTableResult: "table3", expectedViewResult: null);
@@ -669,6 +672,9 @@ FROM MissingEdgeHubInputStream'";
                     }
                 };
 
+                // Updating the OptionsMapTable Since the deployment options model to the DacFx is generated using OptionsMapTable
+                generateScriptFalseOptionParams.DeploymentOptions.OptionsMapTable["Drop objects not in source"].Value = false;
+
                 var generateScriptFalseOptionOperation = new GenerateDeployScriptOperation(generateScriptFalseOptionParams, result.ConnectionInfo);
                 service.PerformOperation(generateScriptFalseOptionOperation, TaskExecutionMode.Execute);
 
@@ -725,12 +731,12 @@ FROM MissingEdgeHubInputStream'";
         public async Task GetOptionsFromProfile()
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
-
+            
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool>(true);
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool>(true);
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool>(true);
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.OptionsMapTable["Include composite objects"].Value = true;
+            expectedResults.OptionsMapTable["Block on possible data loss"].Value = true;
+            expectedResults.OptionsMapTable["Allow incompatible platform"].Value = true;
+            expectedResults.OptionsMapTable["Disable indexes for data phase"].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -755,7 +761,7 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.OptionsMapTable["Disable indexes for data phase"].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -842,24 +848,35 @@ Streaming query statement contains a reference to missing output stream 'Missing
         private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
+            var optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>(); ;
             foreach (var v in deploymentOptionsProperties)
             {
-                var defaultP = v.GetValue(expected);
-                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP): defaultP;
-                var actualP = v.GetValue(actual);
-                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
-
-                if (v.Name == "ExcludeObjectTypes")
+                if (v.Name != "OptionsMapTable")
                 {
-                    Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                    var defaultP = v.GetValue(expected);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualP = v.GetValue(actual);
+                    var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
+
+                    if (v.Name == "ExcludeObjectTypes")
+                    {
+                        Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                    }
+                    else
+                    {
+                        //Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                         || (defaultPValue).Equals(actualPValue)
+                        , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
                 else
                 {
-                    //Verifying expected and actual deployment options properties are equal
-                    Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
-                     || (defaultPValue).Equals(actualPValue)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    optionsMapTable = v.GetValue(expected) as Dictionary<string, DeploymentOptionProperty<bool>>; 
                 }
+
+                // Verify expected and actual DeploymentOptions OptionsMapTables
+                VerifyExpectedAndActualOptionsMapTables(optionsMapTable, actual.OptionsMapTable);
             }
 
             return true;
@@ -893,6 +910,22 @@ Streaming query statement contains a reference to missing output stream 'Missing
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
+            }
+        }
+
+        /// <summary>
+        /// Verify expected and actual DeploymentOptions OptionsMapTables values
+        /// </summary>
+        /// <param name="expectedOptionsMapTable"></param>
+        /// <param name="actualOptionsMapTable"></param>
+        private void VerifyExpectedAndActualOptionsMapTables(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, Dictionary<string, DeploymentOptionProperty<bool>> actualOptionsMapTable)
+        {
+            foreach (var optionRow in expectedOptionsMapTable)
+            {
+                var expectedValue = optionRow.Value.Value;
+                var actualValue = actualOptionsMapTable[optionRow.Key].Value;
+
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.propertyName}, Actual value: {actualValue} and Expected value: {expectedValue}");
             }
         }
     }

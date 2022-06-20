@@ -73,6 +73,7 @@ END
         {
             var options = new DeploymentOptions();
             options.IgnoreColumnOrder = new DeploymentOptionProperty<bool>(true);
+            options.OptionsMapTable["Ignore column order"].Value = true;
             return options;
         }
 

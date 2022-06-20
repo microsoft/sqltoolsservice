@@ -323,6 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptions(DacDeployOptions options)
         {
+            OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
             SetOptions(options);
         }
 
