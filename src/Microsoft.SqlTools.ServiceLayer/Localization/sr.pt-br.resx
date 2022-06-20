@@ -3721,4 +3721,73 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Fórmula</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>O índice '{0}' não tem nenhuma coluna associada a ele.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>A chave estrangeira '{0}' não tem nenhuma coluna especificada.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>A coluna com o nome '{0}' já foi adicionada ao índice '{1}'. Número da linha: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>A coluna como nome '{0}' já foi adicionada à chave estrangeira '{1}'. Número da linha: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>A coluna estrangeira com o nome '{0}' já foi adicionada à chave estrangeira '{1}'. Número da linha: {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>O nome '{0}' já está sendo usado por outra restrição. Número da linha: {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>O nome '{0}' já está sendo usado por outra coluna. Número da linha: {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>O nome '{0}' já está sendo usado por outro índice. Número da linha: {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>A restrição de borda '{0}' não tem cláusulas especificadas.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>O par '{0}' já está definido por outra cláusula na restrição de borda. Número da linha: {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>A tabela otimizada por memória deve ter uma chave primária não clusterizada.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>A tabela com versão do sistema deve ter a chave primária.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>A tabela de versão do sistema deve ter as colunas de período definidas.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>As colunas de período (Geradas Sempre Como Início/Fim de Linha) só podem ser definidas uma vez.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Colunas de período (Geradas sempre como Início/Fim de Linha) devem ser definidas como pares. Se uma for definida, a outra também deverá ser definida.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>As colunas na chave primária não podem ser anuláveis.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Somente tabela com otimização de memória duráveis (DURABILITY = SCHEMA_AND_DATA) podem ser versionadas para o sistema.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>A tabela deve ter pelo menos uma coluna não computada.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>O uso de semente e valores de incremento diferentes de 1 não tem suporte com tabelas otimizadas para memória.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>A tabela tem mais de uma restrição de borda nela. Isto só é útil como um estado temporário ao modificar restrições de borda existentes e não deve ser usado em outros casos.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Não é possível usar nomes de colunas duplicados na chave primária, nome da coluna: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>A tabela de otimização de memória não tem suporte para este banco de dados.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>Há múltiplas definições de tabela no script, somente a primeira tabela pode ser editada no designer.</value>
+  </data>
 </root>
