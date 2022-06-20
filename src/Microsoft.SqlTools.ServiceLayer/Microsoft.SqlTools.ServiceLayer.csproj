@@ -16,6 +16,12 @@
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(BUILD_STS_DOTNET_TOOL)' == 'true'">
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>$(AssemblyName)</ToolCommandName>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
+	</PropertyGroup>
+
 	<PropertyGroup>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
