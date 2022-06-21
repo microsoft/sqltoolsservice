@@ -18,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
-        public DeploymentOptionProperty(T value, string description = "", string displayName = "")
+        public DeploymentOptionProperty(T value, string description = "", string propertyName = "")
         {
             this.Value = value;
             this.Description = description;
-            this.DisplayName = displayName;
+            this.PropertyName = propertyName;
         }
 
         // Default and selected value of the deployment options
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string Description { get; set; }
 
         // To display the options in ADS extensions UI in SchemaCompare/SQL-DB-Project/Dacpac extensions
-        public string DisplayName { get; set; }
+        public string PropertyName { get; set; }
     }
 
     /// <summary>
@@ -272,139 +272,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptionProperty<bool> RebuildIndexesOfflineForDataPhase { get; set; }
 
-        private Dictionary<string, string> _displayNameMapDict;
+        public DeploymentOptionProperty<bool> IgnoreSensitivityClassifications { get; set; }
+
+        public Dictionary<string, DeploymentOptionProperty<bool>> OptionsMapTable { get; set; }
 
         #endregion
-
-        /// <summary>
-        /// Mapping the DisplayName to the dac deploy option
-        /// Adding new properties here would give easy handling of new option to all extensions
-        /// </summary>
-        private void SetDisplayNameForOption()
-        {
-            #region Display Name and Dac Options Mapping
-            DacDeployOptions d = new DacDeployOptions();
-            _displayNameMapDict = new Dictionary<string, string>();
-
-            // Ex: displayNameMapDict["DacFx Option Name"] = "ADS UI Display Name"
-            _displayNameMapDict[nameof(d.AdditionalDeploymentContributorArguments)] = "Additional Deployment Contributor Arguments";
-            _displayNameMapDict[nameof(d.AdditionalDeploymentContributorPaths)] = "Additional Deployment Contributor Paths";
-            _displayNameMapDict[nameof(d.AdditionalDeploymentContributors)] = "Additional Deployment Contributors";
-            _displayNameMapDict[nameof(d.AllowDropBlockingAssemblies)] = "Allow Drop Blocking Assemblies";
-            _displayNameMapDict[nameof(d.AllowExternalLanguagePaths)] = "Allow External Language Paths";
-            _displayNameMapDict[nameof(d.AllowExternalLibraryPaths)] = "Allow External Library Paths";
-            _displayNameMapDict[nameof(d.AllowIncompatiblePlatform)] = "Allow Incompatible Platform";
-            _displayNameMapDict[nameof(d.AllowUnsafeRowLevelSecurityDataMovement)] = "Allow Unsafe RowLevel Security Data Movement";
-            _displayNameMapDict[nameof(d.AzureSharedAccessSignatureToken)] = "Azure Shared Access Signature Token";
-            _displayNameMapDict[nameof(d.AzureStorageBlobEndpoint)] = "Azure Storage Blob Endpoint";
-            _displayNameMapDict[nameof(d.AzureStorageContainer)] = "Azure Storage Container";
-            _displayNameMapDict[nameof(d.AzureStorageKey)] = "Azure Storage Key";
-            _displayNameMapDict[nameof(d.AzureStorageRootPath)] = "Azure Storage Root Path";
-            _displayNameMapDict[nameof(d.BackupDatabaseBeforeChanges)] = "Backup Database Before Changes";
-            _displayNameMapDict[nameof(d.BlockOnPossibleDataLoss)] = "Block On Possible Data Loss";
-            _displayNameMapDict[nameof(d.BlockWhenDriftDetected)] = "Block When Drift Detected";
-            _displayNameMapDict[nameof(d.CommandTimeout)] = "Command Timeout";
-            _displayNameMapDict[nameof(d.CommentOutSetVarDeclarations)] = "Comment Out SetVar Declarations";
-            _displayNameMapDict[nameof(d.CompareUsingTargetCollation)] = "Compare Using Target Collation";
-            _displayNameMapDict[nameof(d.CreateNewDatabase)] = "Create New Database";
-            _displayNameMapDict[nameof(d.DatabaseLockTimeout)] = "Database Lock Timeout";
-            _displayNameMapDict[nameof(d.DatabaseSpecification)] = "Database Specification";
-            _displayNameMapDict[nameof(d.DataOperationStateProvider)] = "Data Operation State Provider";
-            _displayNameMapDict[nameof(d.DeployDatabaseInSingleUserMode)] = "Deploy Database In Single User Mode";
-            _displayNameMapDict[nameof(d.DisableAndReenableDdlTriggers)] = "Disable And Reenable Ddl Triggers";
-            _displayNameMapDict[nameof(d.DisableIndexesForDataPhase)] = "Disable Indexes For Data Phase";
-            _displayNameMapDict[nameof(d.DisableParallelismForEnablingIndexes)] = "Disable Parallelism For Enabling Indexes";
-            _displayNameMapDict[nameof(d.DoNotAlterChangeDataCaptureObjects)] = "Do Not Alter Change Data Capture Objects";
-            _displayNameMapDict[nameof(d.DoNotAlterReplicatedObjects)] = "Do Not Alter Replicated Objects";
-            _displayNameMapDict[nameof(d.DoNotDropDatabaseWorkloadGroups)] = "Do Not Drop Database Workload Groups";
-            _displayNameMapDict[nameof(d.DoNotDropObjectTypes)] = "Do Not Drop Object Types";
-            _displayNameMapDict[nameof(d.DoNotDropWorkloadClassifiers)] = "Do Not Drop Workload Classifiers";
-            _displayNameMapDict[nameof(d.DoNotEvaluateSqlCmdVariables)] = "Do Not Evaluate Sql Cmd Variables";
-            _displayNameMapDict[nameof(d.DropConstraintsNotInSource)] = "Drop Constraints Not In Source";
-            _displayNameMapDict[nameof(d.DropDmlTriggersNotInSource)] = "Drop Dml Triggers Not In Source";
-            _displayNameMapDict[nameof(d.DropExtendedPropertiesNotInSource)] = "Drop Extended Properties Not In Source";
-            _displayNameMapDict[nameof(d.DropIndexesNotInSource)] = "Drop Indexes Not In Source";
-            _displayNameMapDict[nameof(d.DropObjectsNotInSource)] = "Drop Objects Not In Source";
-            _displayNameMapDict[nameof(d.DropPermissionsNotInSource)] = "Drop Permissions Not In Source";
-            _displayNameMapDict[nameof(d.DropRoleMembersNotInSource)] = "Drop Role Members Not In Source";
-            _displayNameMapDict[nameof(d.DropStatisticsNotInSource)] = "Drop Statistics Not In Source";
-            _displayNameMapDict[nameof(d.EnclaveAttestationProtocol)] = "Enclave Attestation Protocol";
-            _displayNameMapDict[nameof(d.EnclaveAttestationUrl)] = "Enclave Attestation Url";
-            _displayNameMapDict[nameof(d.ExcludeObjectTypes)] = "Exclude Object Types";
-            _displayNameMapDict[nameof(d.GenerateSmartDefaults)] = "Generate Smart Defaults";
-            _displayNameMapDict[nameof(d.HashObjectNamesInLogs)] = "Hash Object Names In Logs";
-            _displayNameMapDict[nameof(d.IgnoreAnsiNulls)] = "Ignore Ansi Nulls";
-            _displayNameMapDict[nameof(d.IgnoreAuthorizer)] = "Ignore Authorizer";
-            _displayNameMapDict[nameof(d.IgnoreColumnCollation)] = "Ignore Column Collation";
-            _displayNameMapDict[nameof(d.IgnoreColumnOrder)] = "Ignore Column Order";
-            _displayNameMapDict[nameof(d.IgnoreComments)] = "Ignore Comments";
-            _displayNameMapDict[nameof(d.IgnoreCryptographicProviderFilePath)] = "Ignore Cryptographic Provider File Path";
-            _displayNameMapDict[nameof(d.IgnoreDatabaseWorkloadGroups)] = "Ignore Database Workload Groups";
-            _displayNameMapDict[nameof(d.IgnoreDdlTriggerOrder)] = "Ignore Ddl Trigger Order";
-            _displayNameMapDict[nameof(d.IgnoreDdlTriggerState)] = "Ignore Ddl Trigger State";
-            _displayNameMapDict[nameof(d.IgnoreDefaultSchema)] = "Ignore Default Schema";
-            _displayNameMapDict[nameof(d.IgnoreDmlTriggerOrder)] = "Ignore Dml Trigger Order";
-            _displayNameMapDict[nameof(d.IgnoreDmlTriggerState)] = "Ignore Dml Trigger State";
-            _displayNameMapDict[nameof(d.IgnoreExtendedProperties)] = "Ignore Extended Properties";
-            _displayNameMapDict[nameof(d.IgnoreFileAndLogFilePath)] = "Ignore File And Log File Path";
-            _displayNameMapDict[nameof(d.IgnoreFileSize)] = "Ignore File Size";
-            _displayNameMapDict[nameof(d.IgnoreFilegroupPlacement)] = "Ignore File Group Placement";
-            _displayNameMapDict[nameof(d.IgnoreFillFactor)] = "Ignore Fill Factor";
-            _displayNameMapDict[nameof(d.IgnoreFullTextCatalogFilePath)] = "Ignore Full Text Catalog File Path";
-            _displayNameMapDict[nameof(d.IgnoreIdentitySeed)] = "Ignore Identity Seed";
-            _displayNameMapDict[nameof(d.IgnoreIncrement)] = "Ignore Increment";
-            _displayNameMapDict[nameof(d.IgnoreIndexOptions)] = "Ignore Index Options";
-            _displayNameMapDict[nameof(d.IgnoreIndexPadding)] = "Ignore Index Padding";
-            _displayNameMapDict[nameof(d.IgnoreKeywordCasing)] = "Ignore Keyword Casing";
-            _displayNameMapDict[nameof(d.IgnoreLockHintsOnIndexes)] = "IgnoreLock Hints On Indexes";
-            _displayNameMapDict[nameof(d.IgnoreLoginSids)] = "IgnoreLogin Sids";
-            _displayNameMapDict[nameof(d.IgnoreNotForReplication)] = "IgnoreNotForReplication";
-            _displayNameMapDict[nameof(d.IgnoreObjectPlacementOnPartitionScheme)] = "Ignore Object Placement On Partition Scheme";
-            _displayNameMapDict[nameof(d.IgnorePartitionSchemes)] = "Ignore Partition Schemes";
-            _displayNameMapDict[nameof(d.IgnorePermissions)] = "Ignore Permissions";
-            _displayNameMapDict[nameof(d.IgnoreQuotedIdentifiers)] = "Ignore Quoted Identifiers";
-            _displayNameMapDict[nameof(d.IgnoreRoleMembership)] = "Ignore Role Membership";
-            _displayNameMapDict[nameof(d.IgnoreRouteLifetime)] = "Ignore Route Lifetime";
-            _displayNameMapDict[nameof(d.IgnoreSemicolonBetweenStatements)] = "Ignore Semicolon Between Statements";
-            _displayNameMapDict[nameof(d.IgnoreTableOptions)] = "Ignore Table Options";
-            _displayNameMapDict[nameof(d.IgnoreTablePartitionOptions)] = "Ignore Table Partition Options";
-            _displayNameMapDict[nameof(d.IgnoreUserSettingsObjects)] = "Ignore User Settings Objects";
-            _displayNameMapDict[nameof(d.IgnoreWhitespace)] = "Ignore Whitespace";
-            _displayNameMapDict[nameof(d.IgnoreWithNocheckOnCheckConstraints)] = "Ignore With Nocheck On Check Constraints";
-            _displayNameMapDict[nameof(d.IgnoreWithNocheckOnForeignKeys)] = "Ignore With Nocheck On Foreign Keys";
-            _displayNameMapDict[nameof(d.IgnoreWorkloadClassifiers)] = "Ignore Workload Classifiers";
-            _displayNameMapDict[nameof(d.IncludeCompositeObjects)] = "Include Composite Objects";
-            _displayNameMapDict[nameof(d.IncludeTransactionalScripts)] = "Include Transactional Scripts";
-            _displayNameMapDict[nameof(d.IsAlwaysEncryptedParameterizationEnabled)] = "Is Always Encrypted Parameterization Enabled";
-            _displayNameMapDict[nameof(d.LongRunningCommandTimeout)] = "Long Running Command Timeout";
-            _displayNameMapDict[nameof(d.NoAlterStatementsToChangeClrTypes)] = "No Alter Statements To Change Clr Types";
-            _displayNameMapDict[nameof(d.PopulateFilesOnFileGroups)] = "Populate Files On File Groups";
-            _displayNameMapDict[nameof(d.PreserveIdentityLastValues)] = "Preserve Identity Last Values";
-            _displayNameMapDict[nameof(d.RebuildIndexesOfflineForDataPhase)] = "Rebuild Indexes Offline For Data Phase";
-            _displayNameMapDict[nameof(d.RegisterDataTierApplication)] = "Register Data Tier Application";
-            _displayNameMapDict[nameof(d.RestoreSequenceCurrentValue)] = "Restore Sequence Current Value";
-            _displayNameMapDict[nameof(d.RunDeploymentPlanExecutors)] = "Run Deployment Plan Executors";
-            _displayNameMapDict[nameof(d.ScriptDatabaseCollation)] = "Script Database Collation";
-            _displayNameMapDict[nameof(d.ScriptDatabaseCompatibility)] = "Script Database Compatibility";
-            _displayNameMapDict[nameof(d.ScriptDatabaseOptions)] = "Script Database Options";
-            _displayNameMapDict[nameof(d.ScriptDeployStateChecks)] = "Script Deploy State Checks";
-            _displayNameMapDict[nameof(d.ScriptFileSize)] = "Script File Size";
-            _displayNameMapDict[nameof(d.ScriptNewConstraintValidation)] = "Script New Constraint Validation";
-            _displayNameMapDict[nameof(d.ScriptRefreshModule)] = "Script Refresh Module";
-            _displayNameMapDict[nameof(d.SqlCommandVariableValues)] = "Sql Command Variable Values";
-            _displayNameMapDict[nameof(d.TreatVerificationErrorsAsWarnings)] = "Treat Verification Errors As Warnings";
-            _displayNameMapDict[nameof(d.UnmodifiableObjectWarnings)] = "Unmodifiable Object Warnings";
-            _displayNameMapDict[nameof(d.VerifyCollationCompatibility)] = "Verify Collation Compatibility";
-            _displayNameMapDict[nameof(d.VerifyDeployment)] = "Verify Deployment";
-            #endregion
-        }
 
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
-
-            // Setting Display names for all dacDeploy options
-            SetDisplayNameForOption();
+            OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
@@ -433,8 +310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptions(DacDeployOptions options)
         {
-            // Setting Display names for all dacDeploy options
-            SetDisplayNameForOption();
+            OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
             SetOptions(options);
         }
@@ -504,11 +380,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public void SetGenericDeployOptionProps(PropertyInfo prop, DacDeployOptions options, PropertyInfo deployOptionsProp)
         {
             var val = prop.GetValue(options);
-            var attribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
+            var descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
+            var displayNameAttribute = prop.GetCustomAttributes<DisplayNameAttribute>(true).FirstOrDefault();
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType()) 
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
-            object setProp = Activator.CreateInstance(type, val, attribute.Description,_displayNameMapDict[deployOptionsProp.Name]);
+            object setProp = Activator.CreateInstance(type, val, descriptionAttribute.Description, deployOptionsProp.Name);
             deployOptionsProp.SetValue(this, setProp);
+
+            // All boolean options must go into optionsMapTable
+            if (setProp.GetType() == typeof(DeploymentOptionProperty<bool>))
+            {
+                this.OptionsMapTable[displayNameAttribute.DisplayName] = (DeploymentOptionProperty<bool>)setProp;
+            }
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()

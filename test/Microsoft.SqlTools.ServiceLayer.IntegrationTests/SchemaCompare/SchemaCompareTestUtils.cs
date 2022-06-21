@@ -14,6 +14,7 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -131,23 +132,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
             foreach (var deployOptionsProp in deploymentOptionsProperties)
             {
-                var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
-
-                var deployOptionsValue = deployOptionsProp.GetValue(deploymentOptions);
-                var changedDacValue = deployOptionsValue != null ? deployOptionsValue.GetType().GetProperty("Value").GetValue(deployOptionsValue) : deployOptionsValue;
-                var dafaultDacValue = dacProp.GetValue(dacDeployOptions);
-
-                if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                if (deployOptionsProp.Name != "OptionsMapTable")
                 {
-                    Assert.True((deployOptionsValue == null && dafaultDacValue == null) 
-                        || deployOptionsValue.Equals(dafaultDacValue)
-                        || changedDacValue == null && (dafaultDacValue as string) == string.Empty
-                        || changedDacValue == null && dafaultDacValue == null 
-                        || (changedDacValue).Equals(dafaultDacValue)
-                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {changedDacValue} and DacDeployOptions value: {dafaultDacValue} ");
+                    var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
+                    Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
+
+                    var defaultP = deployOptionsProp.GetValue(deploymentOptions);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualPValue = dacProp.GetValue(dacDeployOptions);
+
+                    if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                    {
+                        // Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                            || (defaultPValue).Equals(actualPValue)
+                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for {deployOptionsProp.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
             }
+
+            // Verify the optionsMapTable with the DacDeployOptions property values
+            VerifyOptionsMapTable(deploymentOptions.OptionsMapTable, dacDeployOptions);
         }
 
         internal static bool ValidateOptionsEqualsDefault(SchemaCompareOptionsResult options)
@@ -158,24 +163,65 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
             foreach (var v in deploymentOptionsProperties)
             {
-                var defaultP = v.GetValue(defaultOpt);
-                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
-                var actualP = v.GetValue(actualOpt);
-                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
+                if (v.Name != "OptionsMapTable")
+                {
+                    var defaultP = v.GetValue(defaultOpt);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualP = v.GetValue(actualOpt);
+                    var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
 
-                if (v.Name == "ExcludeObjectTypes")
-                {
-                    Assert.True((defaultPValue as ObjectType[]).Length == (actualPValue as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
-                }
-                else
-                {
-                    // Verifying expected and actual deployment options properties are equal
-                    Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
-                     || (defaultPValue).Equals(actualPValue)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    if (v.Name == "ExcludeObjectTypes")
+                    {
+                        Assert.True((defaultPValue as ObjectType[]).Length == (actualPValue as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
+                    }
+                    else
+                    {
+                        // Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                         || (defaultPValue).Equals(actualPValue)
+                        , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
             }
+
+            // Verify the default optionsMapTable with the SchemaCompareOptionsResult options property values
+            VerifyExpectedAndActualOptionsMapTables(defaultOpt.OptionsMapTable, options.DefaultDeploymentOptions.OptionsMapTable);
+
             return true;
+        }
+
+        /// <summary>
+        /// Validates the DeploymentOptions optionsMapTable with the DacDeployOptions
+        /// </summary>
+        /// <param name="expectedOptionsMapTable"></param>
+        /// <param name="dacDeployOptions"></param>
+        private static void VerifyOptionsMapTable(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, DacDeployOptions dacDeployOptions)
+        {
+            foreach (var optionRow in expectedOptionsMapTable)
+            {
+                var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Value.PropertyName);
+                Assert.True(dacProp != null, $"DacDeploy property not present for {optionRow.Value.PropertyName}");
+                var actualValue = dacProp.GetValue(dacDeployOptions);
+                var expectedValue = optionRow.Value.Value;
+
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.PropertyName}, Actual value: {actualValue} and Default value: {expectedValue}");
+            }
+        }
+
+        /// <summary>
+        /// Verify expected and actual DeploymentOptions OptionsMapTables values
+        /// </summary>
+        /// <param name="expectedOptionsMapTable"></param>
+        /// <param name="actualOptionsMapTable"></param>
+        private static void VerifyExpectedAndActualOptionsMapTables(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, Dictionary<string, DeploymentOptionProperty<bool>> actualOptionsMapTable)
+        {
+            foreach (var optionRow in expectedOptionsMapTable)
+            {
+                var expectedValue = optionRow.Value.Value;
+                var actualValue = actualOptionsMapTable[optionRow.Key].Value;
+
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.PropertyName}, Actual value: {actualValue} and Expected value: {expectedValue}");
+            }
         }
     }
 }
