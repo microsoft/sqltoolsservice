@@ -121,6 +121,7 @@ Task("PopulateRuntimes")
                 "opensuse.13.2-x64",
                 "osx.10.11-x64",
                 "osx-x64",
+                "osx-arm64",
                 "linux-x64"
             };
 });
