@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(ResourceProviderTargetFramework)</TargetFramework>
     <PackageId>SqlToolsResourceProviderService</PackageId>
     <AssemblyName>SqlToolsResourceProviderService</AssemblyName>
     <OutputType>Exe</OutputType>
