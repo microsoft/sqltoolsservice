@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 {
                     Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
                     Validate.IsNotNull(nameof(context), context);
-                    return await Task.Factory.StartNew(() =>
+                    return await Task.Run(() =>
                     {
                         string uri = GenerateUri(connectionDetails);
 
@@ -384,13 +384,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal async Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
         {
-            return await Task.Factory.StartNew(() =>
-            {
-                return QueueExpandNodeRequest(session, nodePath, forceRefresh);
-            });
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh));
         }
+
         internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
         {
             NodeInfo[] nodes = null;
@@ -522,7 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 await SendSessionFailedNotification(uri, ex.Message);
                 return null;
             }
-        }        
+        }
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
@@ -541,7 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     await SendSessionFailedNotification(uri, result.ErrorMessage);
                     return null;
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -581,7 +579,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ExpandTask = task;
             Task.Run(async () =>
             {
-                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
+                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task,
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
                 if (result != null && !result.IsCompleted)
@@ -650,7 +648,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }      
+        }
 
         public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
         {
@@ -751,7 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 bindingQueue.OnUnhandledException -= OnUnhandledException;
                 bindingQueue.Dispose();
-            }            
+            }
         }
 
         private async void OnUnhandledException(string queueKey, Exception ex)
@@ -819,7 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                 return session;
             }
-            
+
         }
     }
 

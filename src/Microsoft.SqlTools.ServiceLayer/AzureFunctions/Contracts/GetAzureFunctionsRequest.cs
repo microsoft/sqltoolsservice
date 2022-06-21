@@ -22,17 +22,36 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts
         /// <summary>
         /// The name of the function
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
-        /// The route of the HttpTrigger binding if one exists on this function
+        /// The HttpTrigger binding if one is specified
         /// </summary>
-        public string? Route { get; set; }
+        public HttpTriggerBinding? HttpTriggerBinding { get; }
 
-        public AzureFunction(string name, string? route)
+        public AzureFunction(string name, HttpTriggerBinding? httpTriggerBinding)
         {
             this.Name = name;
+            this.HttpTriggerBinding = httpTriggerBinding;
+        }
+    }
+
+    public class HttpTriggerBinding
+    {
+        /// <summary>
+        /// The route specified
+        /// </summary>
+        public string? Route { get; }
+
+        /// <summary>
+        /// The operations (methods) specified
+        /// </summary>
+        public string[]? Operations { get; }
+
+        public HttpTriggerBinding(string? route, string[]? operations)
+        {
             this.Route = route;
+            this.Operations = operations;
         }
     }
 

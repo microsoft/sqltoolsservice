@@ -3721,4 +3721,73 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formel</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Dem Index „{0}“ sind keine Spalten zugeordnet.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Für den Fremdschlüssel „{0}“ wurden keine Spalten angegeben.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen „{0}“ wurde dem Index „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>Die Fremdspalte mit dem Namen „{0}“ wurde dem Fremdschlüssel „{1}“ bereits hinzugefügt. Zeilennummer: {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>Der Name „{0}“ wird bereits von einer anderen Einschränkung verwendet. Zeilennummer: {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>Der Name „{0}“ wird bereits von einer anderen Spalte verwendet. Zeilennummer: {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>Der Name „{0}“ wird bereits von einem anderen Index verwendet. Zeilennummer: {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>Für die Edge-Einschränkung „{0}“ wurden keine Klauseln angegeben.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>Das Paar „{0}“ ist bereits durch eine andere Klausel in der Edge-Einschränkung definiert. Zeilennummer: {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Die speicheroptimierte Tabelle muss über einen nicht gruppierten Primärschlüssel verfügen.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Die vom System versionierte Tabelle muss über einen Primärschlüssel verfügen.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>Für die vom System versionierte Tabelle müssen die Zeitraumspalten definiert sein.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Zeitraumspalten (immer als Zeilenanfang/-ende generiert) können nur einmal definiert werden.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Zeitraumspalten (immer als Zeilenanfang/-ende generiert) müssen als Paar definiert werden. Wenn eine definiert ist, muss auch die andere definiert werden.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Spalten im Primärschlüssel dürfen keine NULL-Werte zulassen.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Nur dauerhafte (DURABILITY = SCHEMA_AND_DATA) speicheroptimierte Tabellen können vom System versioniert sein.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>Für eine Tabelle muss mindestens eine nicht berechnete Spalte definiert sein.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>Die Verwendung eines anderen Start- und Inkrementwerts als 1 wird bei speicheroptimierten Tabellen nicht unterstützt.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>Die Tabelle weist mehr als eine Edge-Einschränkung auf. Dies ist nur als temporärer Zustand beim Ändern vorhandener Edge-Einschränkungen nützlich, und sollte in anderen Fällen nicht verwendet werden.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Doppelte Spaltennamen können im Primärschlüssel nicht verwendet werden. Spaltenname: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>Die speicheroptimierte Tabelle wird für diese Datenbank nicht unterstützt.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>Das Skript enthält mehrere Tabellendefinitionen, nur die erste Tabelle kann im Designer bearbeitet werden.</value>
+  </data>
 </root>

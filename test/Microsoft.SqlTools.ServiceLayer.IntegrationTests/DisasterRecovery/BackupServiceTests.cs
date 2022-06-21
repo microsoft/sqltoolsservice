@@ -41,8 +41,7 @@ CREATE CERTIFICATE {1} WITH SUBJECT = 'Backup Encryption Certificate'; ";
         /// <summary>
         /// Get backup configuration info
         /// </summary>
-        /// Test is failing in code coverage runs. Reenable when stable.
-        ///[Test]
+        [Test]
         public async Task GetBackupConfigInfoTest()
         {
             string databaseName = "testbackup_" + new Random().Next(10000000, 99999999);

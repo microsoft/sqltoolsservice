@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             requestContext = new Mock<RequestContext<T[]>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<T[]>()))
                 .Returns(Task.FromResult(0));
-            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
+            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
             requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));
             requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));
 

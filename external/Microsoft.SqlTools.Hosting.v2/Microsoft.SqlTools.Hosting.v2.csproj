@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Microsoft.SqlTools.Hosting.v2</AssemblyName>
     <PackageId>Microsoft.SqlTools.Hosting.v2</PackageId>

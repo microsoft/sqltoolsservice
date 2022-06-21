@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// List of callbacks to call when a text document is closed
         /// </summary>
         private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
- 
+
 
         #endregion
 
@@ -132,9 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
             serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
             serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
-            
+
             // Register an initialization handler that sets the workspace path
-            serviceHost.RegisterInitializeTask(async (parameters, contect) =>
+            serviceHost.RegisterInitializeTask((parameters, contect) =>
             {
                 Logger.Write(TraceEventType.Verbose, "Initializing workspace service");
 
@@ -142,11 +142,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 {
                     Workspace.WorkspacePath = parameters.RootPath;
                 }
-                await Task.FromResult(0);
+
+                return Task.CompletedTask;
             });
 
             // Register a shutdown request that disposes the workspace
-            serviceHost.RegisterShutdownTask(async (parameters, context) =>
+            serviceHost.RegisterShutdownTask((parameters, context) =>
             {
                 Logger.Write(TraceEventType.Verbose, "Shutting down workspace service");
 
@@ -155,7 +156,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     Workspace.Dispose();
                     Workspace = null;
                 }
-                await Task.FromResult(0);
+
+                return Task.CompletedTask;
             });
         }
 
@@ -216,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 // A text change notification can batch multiple change requests
                 foreach (var textChange in textChangeParams.ContentChanges)
                 {
-                    string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri; 
+                    string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri;
                     msg.AppendLine(string.Format("  File: {0}", fileUri));
 
                     ScriptFile changedFile = Workspace.GetFile(fileUri);
@@ -258,7 +260,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                     return;
                 }
 
-                // read the SQL file contents into the ScriptFile 
+                // read the SQL file contents into the ScriptFile
                 ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
                 if (openedFile == null)
                 {
@@ -287,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             {
                 Logger.Write(TraceEventType.Verbose, "HandleDidCloseTextDocumentNotification");
 
-                if (IsScmEvent(closeParams.TextDocument.Uri)) 
+                if (IsScmEvent(closeParams.TextDocument.Uri))
                 {
                     return;
                 }
@@ -338,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
                 return;
             }
-        }  
+        }
 
         #endregion
 
@@ -348,7 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         /// Switch from 0-based offsets to 1 based offsets
         /// </summary>
         /// <param name="changeRange"></param>
-        /// <param name="insertString"></param>       
+        /// <param name="insertString"></param>
         private static FileChange GetFileChangeDetails(Range changeRange, string insertString)
         {
             // The protocol's positions are zero-based so add 1 to all offsets
@@ -361,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
                 EndOffset = changeRange.End.Character + 1
             };
         }
-        
+
         internal static bool IsScmEvent(string filePath)
         {
             // if the URI is prefixed with git: then we want to skip processing that file

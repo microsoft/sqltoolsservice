@@ -3721,4 +3721,73 @@
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>公式</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>索引 '{0}' 沒有任何相關聯的資料行。</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>外部索引鍵 '{0}' 未指定任何資料行。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已新增至索引 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已新增至外部索引鍵 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的外部索引鍵資料行已新增至外部索引鍵 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>名稱 '{0}' 已由另一個限制式使用。列號: {1}。</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>名稱 '{0}' 已由另一個資料行使用。列號: {1}。</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>名稱 '{0}' 已由另一個索引使用。列號: {1}。</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>邊緣限制式 '{0}' 未指定任何子句。</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>配對 '{0}' 已由邊緣限制式中的另一個子句定義。列號: {1}。</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>經記憶體最佳化的資料表必須具有非叢集主索引鍵。</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>系統版本資料表必須有主索引鍵。</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>由系統設定版本的資料表必須定義週期資料行。</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>週期資料行 (一律產生為開始/結束) 只能定義一次。</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>週期資料行 (一律產生為開始/結束) 必須配對定義。如果定義了一個，也必須定義另一個。</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>主索引鍵中的資料行不可為 Null。</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>只有耐久性 (DURABILITY = SCHEMA_AND_DATA) 經記憶體最佳化的資料表可以由系統設定版本。</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>資料表必須至少定義一個非計算資料行。</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>經記憶體最佳化的資料表不支援使用種子和 1 以外的遞增值。</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>資料表上有一個以上的邊緣限制式。這只有在修改現有邊緣限制式時，才可作為暫存狀態，不應該用於其他案例中。</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>無法在主索引鍵使用重複的資料行名稱，資料行名稱: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>此資料庫不支援經記憶體最佳化的資料表。</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>指令碼中有多個資料表定義，只能編輯設計工具中第一個資料表。</value>
+  </data>
 </root>

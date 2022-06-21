@@ -45,7 +45,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
                 // get all the method declarations with the FunctionName attribute
                 IEnumerable<MethodDeclarationSyntax> methodsWithFunctionAttributes = AzureFunctionsUtils.GetMethodsWithFunctionAttributes(root);
 
-                var azureFunctions = methodsWithFunctionAttributes.Select(m => new AzureFunction(m.GetFunctionName(), m.GetHttpRoute())).ToArray();
+                var azureFunctions = methodsWithFunctionAttributes.Select(m => new AzureFunction(
+                    m.GetFunctionName(),
+                    m.GetHttpTriggerBinding()))
+                .ToArray();
 
                 return new GetAzureFunctionsResult(azureFunctions);
             }

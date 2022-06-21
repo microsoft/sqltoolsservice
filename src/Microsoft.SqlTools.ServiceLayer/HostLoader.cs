@@ -201,10 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer
                 IDisposable disposable = service as IDisposable;
                 if (serviceHost != null && disposable != null)
                 {
-                    serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+                    serviceHost.RegisterShutdownTask((_, _) =>
                     {
                         disposable.Dispose();
-                        await Task.FromResult(0);
+                        return Task.FromResult(0);
                     });
                 }
             }
