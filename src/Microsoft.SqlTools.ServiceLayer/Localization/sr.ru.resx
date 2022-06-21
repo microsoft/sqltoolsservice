@@ -3721,4 +3721,73 @@
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Формула</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>С индексом {0} не связано ни одного столбца.</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Для внешнего ключа {0} не указаны столбцы.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>Столбец с именем {0} уже добавлен в индекс {1}. Номер строки: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Столбец с именем {0} уже добавлен во внешний ключ {1}. Номер строки: {2}.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>Внешний столбец с именем {0} уже добавлен во внешний ключ {1}. Номер строки: {2}.</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>Имя {0} уже используется другим ограничением. Номер строки: {1}.</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>Имя {0} уже используется другим столбцом. Номер строки: {1}.</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>Имя {0} уже используется другим индексом. Номер строки: {1}.</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>Ограничение границ {0} не содержит указанных предложений.</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>Пара {0} уже определена другим предложением в ограничении границ. Номер строки: {1}.</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Таблица, оптимизированная для памяти, должна иметь некластеризованный первичный ключ.</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Системная версионная таблица должна иметь первичный ключ.</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>В таблице с версией системы должен быть определены столбцы периодов.</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>Столбцы периода (всегда создаются как начало или конец строки) могут быть определены только один раз.</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>Столбцы периода (всегда создаются как начало или конец строки) должны быть определены как пары. Если один из них определен, то должен быть определен и другой.</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>Столбцы в первичном ключе не могут иметь значение NULL.</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>Только устойчивые (DURABILITY = SCHEMA_AND_DATA) таблицы, оптимизированные для памяти, могут иметь версию системы.</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>В таблице должен быть определен хотя бы один невычисляемый столбец.</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>Использование начального или добавочного значения, отличного от 1, не поддерживается в таблицах, оптимизированных для операций в памяти.</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>Таблица имеет более одного ограничения границ. Это полезно только как временное состояние при изменении существующих ограничений границ и не должно использоваться в других случаях.</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Не удается использовать повторяющиеся имена столбцов в первичном ключе. Имя столбца: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>Таблица, оптимизированная для памяти, не поддерживается для этой базы данных.</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>В сценарии имеется несколько определений таблиц. В конструкторе можно редактировать только первую таблицу.</value>
+  </data>
 </root>

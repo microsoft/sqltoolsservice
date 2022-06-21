@@ -147,6 +147,14 @@ steps:
     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
+  displayName: 'Archive osx arm build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-arm64/net6.0'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-arm64-net6.0.tar.gz'
+
+- task: ArchiveFiles@1
   displayName: 'Archive rhel build'
   inputs:
     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net6.0'
