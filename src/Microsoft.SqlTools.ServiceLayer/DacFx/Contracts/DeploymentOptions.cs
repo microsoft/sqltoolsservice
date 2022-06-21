@@ -291,11 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             DacDeployOptions options = new DacDeployOptions();
             OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
-
-            // Set Exclude Object types Options table
-            var objectTypeEnum = typeof(ObjectType);
-            IncludeObjectsTable = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
-
+            CreateIncludeObjectsTable();
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
             options.AllowDropBlockingAssemblies = true;
@@ -324,7 +320,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public DeploymentOptions(DacDeployOptions options)
         {
             OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
+            CreateIncludeObjectsTable();
             SetOptions(options);
+        }
+
+        /// <summary>
+        /// Sets include objects enum values and number in to the dictionary
+        /// </summary>
+        public void CreateIncludeObjectsTable()
+        {
+            // Set include objects table data
+            var objectTypeEnum = typeof(ObjectType);
+            IncludeObjectsTable = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
         }
 
         /// <summary>
