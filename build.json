@@ -44,6 +44,7 @@
     "runtime.rhel.7.2-x64.native.Microsoft.SqlToolsService",
     "runtime.ubuntu.14.04-x64.native.Microsoft.SqlToolsService",
     "runtime.ubuntu.16.04-x64.native.Microsoft.SqlToolsService",
-    "runtime.win-x64.native.Microsoft.SqlToolsService"
+    "runtime.win-x64.native.Microsoft.SqlToolsService",
+    "runtime.osx-arm64.native.Microsoft.SqlToolsService"
   ]
 }
