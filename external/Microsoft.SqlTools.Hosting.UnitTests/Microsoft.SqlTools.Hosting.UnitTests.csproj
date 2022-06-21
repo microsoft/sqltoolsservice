@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
     <IsPackable>false</IsPackable>
 	<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
