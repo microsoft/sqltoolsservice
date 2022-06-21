@@ -276,12 +276,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public Dictionary<string, DeploymentOptionProperty<bool>> OptionsMapTable { get; set; }
 
+
+        public Dictionary<string, int> IncludeObjectsTable;
+
         #endregion
 
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
             OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
+
+            // Prepare include objects types table
+            CreateIncludeObjectsTable();
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
@@ -312,7 +318,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
+            // Prepare include objects types table
+            CreateIncludeObjectsTable();
+
             SetOptions(options);
+        }
+
+        /// <summary>
+        /// Sets include objects enum values and number in to the dictionary
+        /// </summary>
+        public void CreateIncludeObjectsTable()
+        {
+            // Set include objects table data
+            var objectTypeEnum = typeof(ObjectType);
+            IncludeObjectsTable = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
         }
 
         /// <summary>
