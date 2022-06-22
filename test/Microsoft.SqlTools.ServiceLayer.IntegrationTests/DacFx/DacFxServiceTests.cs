@@ -833,6 +833,32 @@ Streaming query statement contains a reference to missing output stream 'Missing
             dacfxRequestContext.VerifyAll();
         }
 
+        /// <summary>
+        /// Verify random Include Object Types
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task ValidateIncludeObjectTypeOptions()
+        {
+            DeploymentOptions options = new DeploymentOptions();
+
+            Assert.IsNotNull(options.IncludeObjects, "Include Object types dictionary is empty");
+
+            // Verify the include objects are not null
+            foreach (var includeObjType in options.IncludeObjects)
+            {
+                // Verify random include object types
+                if (includeObjType.Key == "Aggregates")
+                {
+                    Assert.AreEqual(0, includeObjType.Value);
+                }
+                if (includeObjType.Key == "Rules")
+                {
+                    Assert.AreEqual(30, includeObjType.Value);
+                }
+            }
+        }
+
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
         {
             return expected.Success == actual.Success

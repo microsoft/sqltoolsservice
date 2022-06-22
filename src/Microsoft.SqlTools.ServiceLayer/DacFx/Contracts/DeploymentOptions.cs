@@ -274,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         private Dictionary<string, string> _displayNameMapDict;
 
-        public Dictionary<string, int> IncludeObjectsTable;
+        public Dictionary<string, int> IncludeObjects;
 
         #endregion
 
@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             // Setting Display names for all dacDeploy options
             SetDisplayNameForOption();
             // Preparing Include Object types options table
-            CreateIncludeObjectsTable();
+            GetIncludeObjectTypesDictionary();
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
@@ -441,19 +441,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             SetDisplayNameForOption();
 
             // Preparing Include Object types options table
-            CreateIncludeObjectsTable();
+            GetIncludeObjectTypesDictionary();
 
             SetOptions(options);
         }
 
         /// <summary>
-        /// Sets include objects enum values and number in to the dictionary
+        /// Gets include objects enum names and values as a dictionary
+        /// Ex: {key: Aggregate, value: 0}
         /// </summary>
-        public void CreateIncludeObjectsTable()
+        public void GetIncludeObjectTypesDictionary()
         {
             // Set include objects table data
             var objectTypeEnum = typeof(ObjectType);
-            IncludeObjectsTable = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
+            IncludeObjects = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
         }
 
         /// <summary>
