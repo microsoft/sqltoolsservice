@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public Dictionary<string, DeploymentOptionProperty<bool>> OptionsMapTable { get; set; }
 
-        public Dictionary<string, int> IncludeObjectsTable;
+        public Dictionary<string, int> IncludeObjects;
 
         #endregion
 
@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             DacDeployOptions options = new DacDeployOptions();
             OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
-            CreateIncludeObjectsTable();
+            GetIncludeObjectTypesDictionary();
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
             options.AllowDropBlockingAssemblies = true;
@@ -320,18 +320,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public DeploymentOptions(DacDeployOptions options)
         {
             OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
-            CreateIncludeObjectsTable();
+            GetIncludeObjectTypesDictionary();
             SetOptions(options);
         }
 
         /// <summary>
-        /// Sets include objects enum values and number in to the dictionary
+        /// Gets include objects enum names and values as a dictionary
+        /// Ex: {key: Aggregate, value: 0}
         /// </summary>
-        public void CreateIncludeObjectsTable()
+        public void GetIncludeObjectTypesDictionary()
         {
             // Set include objects table data
             var objectTypeEnum = typeof(ObjectType);
-            IncludeObjectsTable = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
+            IncludeObjects = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
         }
 
         /// <summary>
@@ -408,7 +409,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             object setProp = Activator.CreateInstance(type, val, descriptionAttribute.Description, deployOptionsProp.Name, optionType);
             deployOptionsProp.SetValue(this, setProp);
 
-            // All boolean options must go into optionsMapTable
+            // Currently options dialogs in ADS displays only boolean type of options and non-boolean options like ExcludeObjects are being handled by their own properties
+            // Adding all boolean type of options to the optionsMapTable
             if (setProp.GetType() == typeof(DeploymentOptionProperty<bool>))
             {
                 this.OptionsMapTable[displayNameAttribute.DisplayName] = (DeploymentOptionProperty<bool>)setProp;
