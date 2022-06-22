@@ -6,6 +6,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -185,7 +186,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             }
 
             // Verify the default optionsMapTable with the SchemaCompareOptionsResult options property values
-            VerifyExpectedAndActualOptionsMapTables(defaultOpt.OptionsMapTable, options.DefaultDeploymentOptions.OptionsMapTable);
+            DacFxServiceTests dacFxServiceTests = new DacFxServiceTests();
+            dacFxServiceTests.VerifyExpectedAndActualOptionsMapTables(defaultOpt.OptionsMapTable, options.DefaultDeploymentOptions.OptionsMapTable);
 
             return true;
         }
@@ -205,22 +207,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 var expectedValue = optionRow.Value.Value;
 
                 Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.PropertyName}, Actual value: {actualValue} and Default value: {expectedValue}");
-            }
-        }
-
-        /// <summary>
-        /// Verify expected and actual DeploymentOptions OptionsMapTables values
-        /// </summary>
-        /// <param name="expectedOptionsMapTable"></param>
-        /// <param name="actualOptionsMapTable"></param>
-        private static void VerifyExpectedAndActualOptionsMapTables(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, Dictionary<string, DeploymentOptionProperty<bool>> actualOptionsMapTable)
-        {
-            foreach (var optionRow in expectedOptionsMapTable)
-            {
-                var expectedValue = optionRow.Value.Value;
-                var actualValue = actualOptionsMapTable[optionRow.Key].Value;
-
-                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.PropertyName}, Actual value: {actualValue} and Expected value: {expectedValue}");
             }
         }
     }

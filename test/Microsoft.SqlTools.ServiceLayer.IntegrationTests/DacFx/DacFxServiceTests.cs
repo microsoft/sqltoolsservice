@@ -874,10 +874,10 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 {
                     optionsMapTable = v.GetValue(expected) as Dictionary<string, DeploymentOptionProperty<bool>>;
                 }
-
-                // Verify expected and actual DeploymentOptions OptionsMapTables
-                VerifyExpectedAndActualOptionsMapTables(optionsMapTable, actual.OptionsMapTable);
             }
+
+            // Verify expected and actual DeploymentOptions OptionsMapTables
+            VerifyExpectedAndActualOptionsMapTables(optionsMapTable, actual.OptionsMapTable);
 
             return true;
         }
@@ -918,7 +918,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
         /// </summary>
         /// <param name="expectedOptionsMapTable"></param>
         /// <param name="actualOptionsMapTable"></param>
-        private void VerifyExpectedAndActualOptionsMapTables(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, Dictionary<string, DeploymentOptionProperty<bool>> actualOptionsMapTable)
+        public void VerifyExpectedAndActualOptionsMapTables(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, Dictionary<string, DeploymentOptionProperty<bool>> actualOptionsMapTable)
         {
             foreach (var optionRow in expectedOptionsMapTable)
             {

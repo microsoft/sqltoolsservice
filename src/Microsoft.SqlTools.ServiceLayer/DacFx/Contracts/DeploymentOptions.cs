@@ -380,14 +380,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public void SetGenericDeployOptionProps(PropertyInfo prop, DacDeployOptions options, PropertyInfo deployOptionsProp)
         {
             var val = prop.GetValue(options);
-            var descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault();
-            var displayNameAttribute = prop.GetCustomAttributes<DisplayNameAttribute>(true).FirstOrDefault();
+            var descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>().FirstOrDefault();
+            var displayNameAttribute = prop.GetCustomAttributes<DisplayNameAttribute>().FirstOrDefault();
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType()) 
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
             object setProp = Activator.CreateInstance(type, val, descriptionAttribute.Description, deployOptionsProp.Name);
             deployOptionsProp.SetValue(this, setProp);
 
-            // All boolean options must go into optionsMapTable
+            // Currently options dialogs in ADS displays only boolean type of options and non-boolean options like ExcludeObjects are being handled by their own properties
+            // Adding all boolean type of options to the optionsMapTable
             if (setProp.GetType() == typeof(DeploymentOptionProperty<bool>))
             {
                 this.OptionsMapTable[displayNameAttribute.DisplayName] = (DeploymentOptionProperty<bool>)setProp;
