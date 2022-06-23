@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <PackageDescription>
     The contract types used for communication over the VSCode Language Server Protocol and the Database Management Protocol.
     </PackageDescription>

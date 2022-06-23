@@ -6068,6 +6068,132 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Formula</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="IndexMustHaveColumnsRuleDescription">
+        <source>Index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">All'indice '{0}' non è associata alcuna colonna.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="ForeignKeyMustHaveColumnsRuleDescription">
+        <source>Foreign key '{0}' does not have any columns specified.</source>
+        <target state="translated">Per la chiave esterna '{0}' non è stata specificata alcuna colonna.</target>
+        <note>.
+ Parameters: 0 - foreignKeyName (string) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInIndexRuleDescription">
+        <source>Column with name '{0}' has already been added to the index '{1}'. Row number: {2}.</source>
+        <target state="translated">La colonna con nome '{0}' è già stata aggiunta all'indice '{1}'. Numero di riga: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription">
+        <source>Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.</source>
+        <target state="translated">La colonna con nome '{0}' è già stata aggiunta alla chiave esterna '{1}'. Numero di riga: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription">
+        <source>Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.</source>
+        <target state="translated">La colonna esterna con nome '{0}' è già stata aggiunta alla chiave esterna '{1}'. Numero di riga: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateConstraintNameRuleDescription">
+        <source>The name '{0}' is already used by another constraint. Row number: {1}.</source>
+        <target state="translated">Il nome '{0}' è già utilizzato da un altro vincolo. Numero di riga: {1}.</target>
+        <note>.
+ Parameters: 0 - constraintName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateColumnNameRuleDescription">
+        <source>The name '{0}' is already used by another column. Row number: {1}.</source>
+        <target state="translated">Il nome '{0}' è già utilizzato da un'altra colonna. Numero di riga: {1}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="NoDuplicateIndexNameRuleDescription">
+        <source>The name '{0}' is already used by another index. Row number: {1}.</source>
+        <target state="translated">Il nome '{0}' è già utilizzato da un altro indice. Numero di riga: {1}.</target>
+        <note>.
+ Parameters: 0 - indexName (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="EdgeConstraintMustHaveClausesRuleDescription">
+        <source>Edge constraint '{0}' does not have any clauses specified.</source>
+        <target state="translated">Per il vincolo perimetrale '{0}' non sono specificate clausole.</target>
+        <note>.
+ Parameters: 0 - name (string) </note>
+      </trans-unit>
+      <trans-unit id="EdgeConstraintNoRepeatingClausesRuleDescription">
+        <source>The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.</source>
+        <target state="translated">La coppia '{0}' è già definita da un'altra clausola nel vincolo perimetrale. Numero di riga: {1}.</target>
+        <note>.
+ Parameters: 0 - pair (string), 1 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription">
+        <source>Memory-optimized table must have non-clustered primary key.</source>
+        <target state="translated">La tabella ottimizzata per la memoria deve contenere una chiave primaria non cluster.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TemporalTableMustHavePrimaryKeyRuleDescription">
+        <source>System versioned table must have primary key.</source>
+        <target state="translated">La tabella con versione di sistema deve disporre di una chiave primaria.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TemporalTableMustHavePeriodColumnsRuleDescription">
+        <source>System versioned table must have the period columns defined.</source>
+        <target state="translated">Per la tabella con controllo delle versioni di sistema, devono essere definite le colonne periodo.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeriodColumnsRuleMoreThanOneIssueDescription">
+        <source>Period columns (Generated Always As Row Start/End) can only be defined once.</source>
+        <target state="translated">Le colonne periodo (generate sempre come Inizio/Fine riga) possono essere definite una sola volta.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PeriodColumnsRuleNotMatchIssueDescription">
+        <source>Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined.</source>
+        <target state="translated">Le colonne periodo (generate sempre come Inizio/Fine) devono essere definite come coppia. Qualora se ne definisse solo una, sarà necessario definire anche l'altra.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnsInPrimaryKeyCannotBeNullableRuleDescription">
+        <source>Columns in primary key cannot be nullable.</source>
+        <target state="translated">Le colonne nella chiave primaria non possono ammettere valori Null.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription">
+        <source>Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned.</source>
+        <target state="translated">Solo le tabelle ottimizzate per la memoria durevoli (DURABILITY = SCHEMA_AND_DATA) possono essere con controllo delle versioni di sistema.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableMustHaveAtLeastOneColumnRuleDescription">
+        <source>A table must have at least one non-computed column defined.</source>
+        <target state="translated">Una tabella deve includere almeno una colonna non calcolata definita.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedTableIdentityColumnRuleDescription">
+        <source>The use of seed and increment values other than 1 is not supported with memory optimized tables.</source>
+        <target state="translated">L'utilizzo di valori di inizializzazione e di incremento diversi da 1 non è supportato con le tabelle ottimizzate per la memoria.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription">
+        <source>The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.</source>
+        <target state="translated">La tabella contiene più di un vincolo perimetrale. È utile solo come stato temporaneo quando si modificano vincoli perimetrali esistenti e non deve essere usato in altri casi.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription">
+        <source>Cannot use duplicate column names in primary key, column name: {0}</source>
+        <target state="translated">Non è possibile usare nomi di colonna duplicati nella chiave primaria. Nome colonna: {0}</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription">
+        <source>Memory-optimized table is not supported for this database.</source>
+        <target state="translated">La tabella ottimizzata per la memoria non è supportata per questo database.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="MutipleCreateTableStatementsInScriptRuleDescription">
+        <source>There are multiple table definitions in the script, only the first table can be edited in the designer.</source>
+        <target state="translated">Nello script sono presenti più definizioni di tabella. Solo la prima tabella può essere modificata nella finestra di progettazione.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
