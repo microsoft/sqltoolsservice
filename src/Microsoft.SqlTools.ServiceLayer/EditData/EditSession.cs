@@ -380,6 +380,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
             }
+
+            if (typeof(RowCreate) == removedEdit.GetType())
+            {
+                NextRowId--;
+            }
         }
 
         /// <summary>
