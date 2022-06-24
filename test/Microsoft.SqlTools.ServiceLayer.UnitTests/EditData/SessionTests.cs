@@ -613,6 +613,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a session with a proper query and metadata
             EditSession s = await GetBasicSession();
 
+            EditRow[] rows = await s.GetRows(0, 10);
+
+            int defaultRowsLength = rows.Length;
+
             // ... Create a row 
             EditCreateRowResult result1 = s.CreateRow();
 
@@ -620,44 +624,52 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             long addRowNextRowId = s.NextRowId;
 
-            EditRow[] rows = await s.GetRows(0, 1);
+            rows = await s.GetRows(0, 10);
 
-            // Check that row was successfully added.
-            Assert.AreEqual(rows.Length, 1);
+            // Check that returned result of createRow matches NextRowId index.
+            Assert.AreEqual(result1Id, addRowNextRowId - 1);
 
-            // Check that returned result of createRow matches NextRowId.
-            Assert.AreEqual(result1Id, s.NextRowId);
+            // Check that row has been added.
+            Assert.AreEqual(rows.Length, defaultRowsLength + 1);
+
+            // Check that the nextRowId has a value that reflects the number of rows.
+            Assert.AreEqual(rows.Length, s.NextRowId);
  
             // If: I revert the row that has a pending CreateRow (Such as when there's a row failure)
-            s.RevertRow(0);
+            s.RevertRow(result1Id);
+
+            rows = await s.GetRows(0, 10);
 
             // Check that the rowId has decremented after a revert.
             Assert.AreEqual(s.NextRowId, addRowNextRowId - 1);
 
-            // Check that returned result of createRow matches NextRowId.
-            Assert.AreEqual(result1Id, s.NextRowId);
+            // Check that row has been removed.
+            Assert.AreEqual(rows.Length, defaultRowsLength);
 
-            // Check that row was successfully removed.
-            Assert.AreEqual(rows.Length, 0);
+            // Check that the nextRowId has a value that reflects the number of rows.
+            Assert.AreEqual(rows.Length, s.NextRowId);
 
             // ... Create another row 
             EditCreateRowResult result2 = s.CreateRow();
 
             long result2Id = result2.NewRowId;
 
-            rows = await s.GetRows(0, 1);
+            rows = await s.GetRows(0, 10);
 
             // Check that the rowId has the same id as the previous added row.
             Assert.AreEqual(s.NextRowId, addRowNextRowId);
 
-            // Check that returned result of createRow matches NextRowId.
-            Assert.AreEqual(result2Id, s.NextRowId);
+            // Check that returned result of createRow matches NextRowId index.
+            Assert.AreEqual(result2Id, s.NextRowId - 1);
 
              // Check that returned result of createRow matches the previous added row id.
             Assert.AreEqual(result2Id, result1Id);
 
-            // Check that row was successfully added.
-            Assert.AreEqual(rows.Length, 1);
+            // Check that the nextRowId has a value that reflects the number of rows.
+            Assert.AreEqual(rows.Length, s.NextRowId);
+
+            // Check that row has been added.
+            Assert.AreEqual(rows.Length, defaultRowsLength + 1);
         }
 
         #endregion
