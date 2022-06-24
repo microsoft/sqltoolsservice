@@ -606,6 +606,60 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.That(s.EditCache.Keys, Has.No.Zero, "The edit cache should not contain a pending edit for the row");
         }
 
+        [Test]
+        public async Task RevertRowAfterAdding()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            EditSession s = await GetBasicSession();
+
+            // ... Create a row 
+            EditCreateRowResult result1 = s.CreateRow();
+
+            long result1Id = result1.NewRowId;
+
+            long addRowNextRowId = s.NextRowId;
+
+            EditRow[] rows = await s.GetRows(0, 1);
+
+            // Check that row was successfully added.
+            Assert.AreEqual(rows.Length, 1);
+
+            // Check that returned result of createRow matches NextRowId.
+            Assert.AreEqual(result1Id, s.NextRowId);
+ 
+            // If: I revert the row that has a pending CreateRow (Such as when there's a row failure)
+            s.RevertRow(0);
+
+            // Check that the rowId has decremented after a revert.
+            Assert.AreEqual(s.NextRowId, addRowNextRowId - 1);
+
+            // Check that returned result of createRow matches NextRowId.
+            Assert.AreEqual(result1Id, s.NextRowId);
+
+            // Check that row was successfully removed.
+            Assert.AreEqual(rows.Length, 0);
+
+            // ... Create another row 
+            EditCreateRowResult result2 = s.CreateRow();
+
+            long result2Id = result2.NewRowId;
+
+            rows = await s.GetRows(0, 1);
+
+            // Check that the rowId has the same id as the previous added row.
+            Assert.AreEqual(s.NextRowId, addRowNextRowId);
+
+            // Check that returned result of createRow matches NextRowId.
+            Assert.AreEqual(result2Id, s.NextRowId);
+
+             // Check that returned result of createRow matches the previous added row id.
+            Assert.AreEqual(result2Id, result1Id);
+
+            // Check that row was successfully added.
+            Assert.AreEqual(rows.Length, 1);
+        }
+
         #endregion
 
         #region Revert Cell Tests
