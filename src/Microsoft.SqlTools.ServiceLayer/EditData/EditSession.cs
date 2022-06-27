@@ -380,6 +380,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
             }
+
+            // Remove the increment of the NextRow ID if we're reverting a CreateRow, as we are not actually adding a row.
+            if (typeof(RowCreate) == removedEdit.GetType())
+            {
+                NextRowId--;
+            }
         }
 
         /// <summary>
