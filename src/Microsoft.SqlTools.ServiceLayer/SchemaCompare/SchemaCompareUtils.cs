@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
             DacDeployOptions dacOptions = new DacDeployOptions();
-            var optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
+            Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
             // Get the optionsMapTable property which has the updated option values
             foreach (var deployOptionsProp in deploymentOptionsProperties)
