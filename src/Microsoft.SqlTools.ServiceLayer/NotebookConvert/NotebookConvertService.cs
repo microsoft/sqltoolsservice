@@ -201,7 +201,8 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                     }
 
                     doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
-                } else if (fragment.TokenType == NotebookTokenType.SinglelineComment)
+                }
+                else if (fragment.TokenType == NotebookTokenType.SinglelineComment)
                 {
                     string commentBlock = fragment.Text;
                     // Trim off the starting comment token (--)
@@ -249,19 +250,26 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
         /// </summary>
         private static string ConvertNotebookDocToSql(NotebookDocument doc)
         {
-            // Add an extra blank line between each block for readability
-            return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
+            if (doc?.Cells == null)
             {
-                return cell.CellType switch
+                return string.Empty;
+            }
+            else
+            {
+                // Add an extra blank line between each block for readability
+                return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
                 {
-                    // Markdown is text so wrapped in a comment block
-                    "markdown" => $@"/*
+                    return cell.CellType switch
+                    {
+                        // Markdown is text so wrapped in a comment block
+                        "markdown" => $@"/*
 {string.Join(Environment.NewLine, cell.Source)}
 */",
-                    // Everything else (just code blocks for now) is left as is
-                    _ => string.Join("", cell.Source),
-                };
-            }));
+                        // Everything else (just code blocks for now) is left as is
+                        _ => string.Join("", cell.Source),
+                    };
+                }));
+            }
         }
     }
 
