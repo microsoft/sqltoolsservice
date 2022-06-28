@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <param name="options"></param>
         public void PopulateOptionsMapTable(DacDeployOptions options)
         {
-            // To fill the options map table directly fomr the boolean type DacDeployoptions
+            // To fill the options map table directly from the boolean type DacDeployoptions
             PropertyInfo[] dacDeploymentOptionsProperties = options.GetType().GetProperties();
             foreach (var prop in dacDeploymentOptionsProperties)
             {
@@ -221,11 +221,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Prepares and returns the Value and Description to all properties
+        /// Prepares and returns the value and description of a property
         /// </summary>
         /// <param name="prop"></param>
-        /// <param name="val"></param>
-        /// <param name="deployOptionsProp"></param>
+        /// <param name="options"></param>
         public object GetDeploymentOptionProp(PropertyInfo prop, DacDeployOptions options)
         {
             var val = prop.GetValue(options);
