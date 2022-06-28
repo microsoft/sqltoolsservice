@@ -586,7 +586,6 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })                       ,
                     }
                 };
@@ -667,7 +666,6 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
@@ -688,7 +686,6 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(true),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
                     }
                 };
@@ -853,15 +850,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
             // Verify the include objects are not null
             foreach( var includeObjType in options.IncludeObjects)
             {
-                // Verify random include object types
-                if (includeObjType.Key == "Aggregates")
-                {
-                    Assert.AreEqual(0, includeObjType.Value);
-                }
-                if (includeObjType.Key == "Rules")
-                {
-                    Assert.AreEqual(30, includeObjType.Value);
-                }
+                // verifying all include object types exists in the objectType enum
+                Assert.That(Enum.IsDefined(typeof(ObjectType), includeObjType.Key), Is.EqualTo(true), $"value:{includeObjType.Key} doesn't exists in the ObjectType Enum");
             }
         }
 
