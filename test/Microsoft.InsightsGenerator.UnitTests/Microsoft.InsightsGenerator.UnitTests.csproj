@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup Label="Configuration">
 		<OutputType>Exe</OutputType>
-		<TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);TRACE</DefineConstants>
 		<IsPackable>false</IsPackable>
@@ -16,6 +15,8 @@
 		<PackageReference Include="xunit" />
 		<PackageReference Include="xunit.runner.visualstudio" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<!-- Adding explicit Newtonsoft.Json dependency so that older, vulnerable versions aren't used through indirect references by Microsoft.TestPlatform.TestHost -->
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.InsightsGenerator/Microsoft.InsightsGenerator.csproj" />
