@@ -586,7 +586,6 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
@@ -667,7 +666,6 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
@@ -688,7 +686,6 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(true),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
                     }
                 };

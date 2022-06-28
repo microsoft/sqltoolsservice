@@ -1823,22 +1823,13 @@ WITH VALUES
             {
                 SourceEndpointInfo = sourceInfo,
                 TargetEndpointInfo = targetInfo,
-                DeploymentOptions = new DeploymentOptions()
-                {
-                    // change some random ones explicitly
-                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>(true),
-                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>(true),
-                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>(true),
-                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>(false),
-                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>(false),
-                    VerifyDeployment = new DeploymentOptionProperty<bool>(false),
-                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false)
-                },
+                DeploymentOptions = new DeploymentOptions(),
                 ScmpFilePath = filePath,
                 ExcludedSourceObjects = schemaCompareObjectIds,
                 ExcludedTargetObjects = null,
             };
 
+            // change some random ones explicitly
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Allow drop blocking assemblies"].Value = true;
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Drop constraints not in source"].Value = true;
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Ignore ANSI nulls"].Value = true;
