@@ -1832,7 +1832,7 @@ WITH VALUES
             // change some random ones explicitly
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Allow drop blocking assemblies"].Value = true;
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Drop constraints not in source"].Value = true;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Ignore ANSI nulls"].Value = true;
+            schemaCompareParams.DeploymentOptions.OptionsMapTable["Ignore ANSI NULLS"].Value = true;
             schemaCompareParams.DeploymentOptions.OptionsMapTable["No alter statements to change Clr types"].Value = false;
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Populate files on File groups"].Value = false;
             schemaCompareParams.DeploymentOptions.OptionsMapTable["Verify deployment"].Value = false;
