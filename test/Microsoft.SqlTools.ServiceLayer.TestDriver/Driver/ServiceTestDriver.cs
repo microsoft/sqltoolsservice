@@ -28,16 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
     /// </summary>
     public class ServiceTestDriver : TestDriverBase
     {
-
-        public const string ServiceCodeCoverageEnvironmentVariable = "SERVICECODECOVERAGE";
-
-        public const string CodeCoverageToolEnvironmentVariable = "CODECOVERAGETOOL";
-
-        public const string CodeCoverageOutputEnvironmentVariable = "CODECOVERAGEOUTPUT";
-
         public const string ServiceHostEnvironmentVariable = "SQLTOOLSSERVICE_EXE";
-
-        public bool IsCoverageRun { get; set; }
 
         private Process[] serviceProcesses;
 
@@ -67,33 +58,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
                                                 "Please set SQLTOOLSSERVICE_EXE environment variable to location of exe");
             }
 
-            //setup the service host for code coverage if the envvar is enabled
-            if (Environment.GetEnvironmentVariable(ServiceCodeCoverageEnvironmentVariable) == "True")
-            {
-                string coverageToolPath = Environment.GetEnvironmentVariable(CodeCoverageToolEnvironmentVariable);
-                if (!string.IsNullOrWhiteSpace(coverageToolPath))
-                {
-                    string serviceHostDirectory = Path.GetDirectoryName(serviceHostExecutable);
-                    if (string.IsNullOrWhiteSpace(serviceHostDirectory))
-                    {
-                        serviceHostDirectory = ".";
-                    }
-
-                    string coverageOutput = Environment.GetEnvironmentVariable(CodeCoverageOutputEnvironmentVariable);
-                    if (string.IsNullOrWhiteSpace(coverageOutput))
-                    {
-                        coverageOutput = "coverage.xml";
-                    }
-
-                    serviceHostArguments = $"-mergeoutput -target:{serviceHostExecutable} -targetargs:{serviceHostArguments} " +
-                                           $"-register:user -oldstyle -filter:\"+[Microsoft.SqlTools.*]* -[xunit*]*\" -output:{coverageOutput} " +
-                                           $"-searchdirs:{serviceHostDirectory};";
-                    serviceHostExecutable = coverageToolPath;
-
-                    this.IsCoverageRun = true;
-                }
-            }
-
             this.clientChannel = new StdioClientChannel(serviceHostExecutable, serviceHostArguments);
             this.protocolClient = new ProtocolEndpoint(clientChannel, MessageProtocolType.LanguageServer);
         }
@@ -110,19 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
             this.protocolClient.Initialize();
             await this.protocolClient.Start();
             await Task.Delay(1000); // Wait for the service host to start
-
-            // If this is a code coverage run, we need access to the service layer separate from open cover
-            if (IsCoverageRun)
-            {
-                CancellationTokenSource cancelSource = new CancellationTokenSource();
-                Task getServiceProcess = GetServiceProcess(cancelSource.Token);
-                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(15), cancelSource.Token);
-                if (await Task.WhenAny(getServiceProcess, timeoutTask) == timeoutTask)
-                {
-                    cancelSource.Cancel();
-                    throw new Exception("Failed to capture service process");
-                }
-            }
 
             Console.WriteLine("Successfully launched service");
 
@@ -141,19 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Driver
         /// </summary>
         public async Task Stop()
         {
-            if (IsCoverageRun)
-            {
-                // Kill all the processes in the list
-                foreach (Process p in serviceProcesses.Where(p => !p.HasExited))
-                {
-                    p.Kill();
-                }
-                ServiceProcess?.WaitForExit();
-            }
-            else
-            {
-                await this.protocolClient.Stop();
-            }
+            await this.protocolClient.Stop();
         }
 
         private async Task GetServiceProcess(CancellationToken token)

@@ -1,4 +1,4 @@
-#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
+#addin "nuget:?package=Newtonsoft.Json&version=13.0.1"
 #addin "mssql.ResX"
 #addin "mssql.XliffParser"
 
@@ -121,6 +121,7 @@ Task("PopulateRuntimes")
                 "opensuse.13.2-x64",
                 "osx.10.11-x64",
                 "osx-x64",
+                "osx-arm64",
                 "linux-x64"
             };
 });

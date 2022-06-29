@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup Label="Configuration">
 		<OutputType>Exe</OutputType>
-		<TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<IsPackable>false</IsPackable>

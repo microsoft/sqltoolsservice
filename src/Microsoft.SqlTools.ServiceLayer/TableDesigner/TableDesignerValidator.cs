@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new EdgeConstraintNoRepeatingClausesRule(),
             new MemoryOptimizedCannotBeEnabledWhenNotSupportedRule(),
             new MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRule(),
-            new TemporalTableMustHavePeriodColumns(),
+            new TemporalTableMustHavePeriodColumnsRule(),
             new PeriodColumnsRule(),
             new ColumnsInPrimaryKeyCannotBeNullableRule(),
             new OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRule(),
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("Index '{0}' does not have any columns associated with it.", index.Name),
+                        Description = SR.IndexMustHaveColumnsRuleDescription(index.Name),
                         PropertyPath = new object[] { TablePropertyNames.Indexes, i }
                     });
                 }
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("Foreign key '{0}' does not have any columns specified.", foreignKey.Name),
+                        Description = SR.ForeignKeyMustHaveColumnsRuleDescription(foreignKey.Name),
                         PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i }
                     });
                 }
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         errors.Add(new TableDesignerIssue()
                         {
-                            Description = string.Format("Column with name '{0}' has already been added to the index '{1}'. Row number: {2}.", columnSpec.Column, index.Name, j + 1),
+                            Description = SR.ColumnCanOnlyAppearOnceInIndexRuleDescription(columnSpec.Column, index.Name, j + 1),
                             PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.Columns, j }
                         });
                     }
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         errors.Add(new TableDesignerIssue()
                         {
-                            Description = string.Format("Column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.", column, foreignKey.Name, j + 1),
+                            Description = SR.ColumnCanOnlyAppearOnceInForeignKeyRuleDescription(column, foreignKey.Name, j + 1),
                             PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.Column }
                         });
                     }
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         errors.Add(new TableDesignerIssue()
                         {
-                            Description = string.Format("Foreign column with name '{0}' has already been added to the foreign key '{1}'. Row number: {2}.", foreignColumn, foreignKey.Name, j + 1),
+                            Description = SR.ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription(foreignColumn, foreignKey.Name, j + 1),
                             PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.ForeignColumn }
                         });
                     }
@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", foreignKey.Name, i + 1),
+                        Description = SR.NoDuplicateConstraintNameRuleDescription(foreignKey.Name, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.Name }
                     });
                 }
@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", checkConstraint.Name, i + 1),
+                        Description = SR.NoDuplicateConstraintNameRuleDescription(checkConstraint.Name, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.CheckConstraints, i, CheckConstraintPropertyNames.Name }
                     });
                 }
@@ -228,7 +228,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("The name '{0}' is already used by another constraint. Row number: {1}.", edgeConstraint.Name, i + 1),
+                        Description = SR.NoDuplicateConstraintNameRuleDescription(edgeConstraint.Name, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
                     });
                 }
@@ -255,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("The name '{0}' is already used by another column. Row number: {1}.", column.Name, i + 1),
+                        Description = SR.NoDuplicateColumnNameRuleDescription(column.Name, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.Columns, i, TableColumnPropertyNames.Name }
                     });
                 }
@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("The name '{0}' is already used by another index. Row number: {1}.", index.Name, i + 1),
+                        Description = SR.NoDuplicateIndexNameRuleDescription(index.Name, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.Name }
                     });
                 }
@@ -308,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = string.Format("Edge constraint '{0}' does not have any clauses specified.", edgeConstraint.Name),
+                        Description = SR.EdgeConstraintMustHaveClausesRuleDescription(edgeConstraint.Name),
                         PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i }
                     });
                 }
@@ -335,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         errors.Add(new TableDesignerIssue()
                         {
-                            Description = string.Format("The pair '{0}' is already defined by another clause in the edge constraint. Row number: {1}.", pair, j + 1),
+                            Description = SR.EdgeConstraintNoRepeatingClausesRuleDescription(pair, j + 1),
                             PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Clauses, j, EdgeConstraintClausePropertyNames.FromTable }
                         });
                     }
@@ -359,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "Memory-optimized table must have non-clustered primary key.",
+                    Description = SR.MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription,
                     PropertyPath = new object[] { TablePropertyNames.PrimaryKeyIsClustered }
                 });
             }
@@ -377,14 +377,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "System versioned table must have primary key."
+                    Description = SR.TemporalTableMustHavePrimaryKeyRuleDescription
                 });
             }
             return errors;
         }
     }
 
-    public class TemporalTableMustHavePeriodColumns : ITableDesignerValidationRule
+    public class TemporalTableMustHavePeriodColumnsRule : ITableDesignerValidationRule
     {
         public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
@@ -394,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "System versioned table must have the period columns defined.",
+                    Description = SR.TemporalTableMustHavePeriodColumnsRuleDescription,
                     MoreInfoLink = "https://docs.microsoft.com/sql/relational-databases/tables/creating-a-system-versioned-temporal-table"
                 });
             }
@@ -414,14 +414,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "Period columns (Generated Always As Row Start/End) can only be defined once."
+                    Description = SR.PeriodColumnsRuleMoreThanOneIssueDescription
                 });
             }
             else if (rowEnd.Count() != rowStart.Count())
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "Period columns (Generated Always As Row Start/End) must be defined as pair. If one is defined, the other must also be defined"
+                    Description = SR.PeriodColumnsRuleNotMatchIssueDescription
                 });
             }
             return errors;
@@ -441,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = "Columns in primary key cannot be nullable.",
+                        Description = SR.ColumnsInPrimaryKeyCannotBeNullableRuleDescription,
                         PropertyPath = new object[] { TablePropertyNames.Columns, i }
                     });
                 }
@@ -460,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "Only durable (DURABILITY = SCHEMA_AND_DATA) memory-optimized tables can be system-versioned."
+                    Description = SR.OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription
                 });
             }
             return errors;
@@ -477,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "A table must have at least one non-computed column defined."
+                    Description = SR.TableMustHaveAtLeastOneColumnRuleDescription
                 });
             }
             return errors;
@@ -500,7 +500,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         var propertyName = column.IdentitySeed != 1 ? TableColumnPropertyNames.IdentitySeed : TableColumnPropertyNames.IdentityIncrement;
                         errors.Add(new TableDesignerIssue()
                         {
-                            Description = "The use of seed and increment values other than 1 is not supported with memory optimized tables.",
+                            Description = SR.MemoryOptimizedTableIdentityColumnRuleDescription,
                             PropertyPath = new object[] { TablePropertyNames.Columns, i, propertyName }
                         });
                     }
@@ -520,7 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = "The table has more than one edge constraint on it. This is only useful as a temporary state when modifying existing edge constraints, and should not be used in other cases.",
+                    Description = SR.TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription,
                     Severity = Contracts.IssueSeverity.Warning,
                     MoreInfoLink = "https://docs.microsoft.com/sql/relational-databases/tables/graph-edge-constraints"
                 });
@@ -545,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         errors.Add(new TableDesignerIssue()
                         {
-                            Description = string.Format("Cannot use duplicate column names in primary key, column name: {0}", columnSpec.Column),
+                            Description = SR.ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(columnSpec.Column),
                             PropertyPath = new object[] { TablePropertyNames.PrimaryKeyColumns, i, IndexColumnSpecificationPropertyNames.Column }
                         });
                     }
@@ -569,7 +569,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 errors.Add(new TableDesignerIssue()
                 {
-                    Description = string.Format("Memory-optimized table is not supported for this database."),
+                    Description = SR.MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription,
                     PropertyPath = new object[] { TablePropertyNames.IsMemoryOptimized },
                     MoreInfoLink = designer.IsAzure
                         ? "https://docs.microsoft.com/en-us/azure/azure-sql/in-memory-oltp-overview"
@@ -585,10 +585,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
         {
             var errors = new List<TableDesignerIssue>();
-            if(designer.ScriptContainsMultipleTableDefinition)
+            if (designer.ScriptContainsMultipleTableDefinition)
             {
-                errors.Add(new TableDesignerIssue(){
-                    Description = "There are multiple table definitions in the script, only the first table can be edited in the designer.",
+                errors.Add(new TableDesignerIssue()
+                {
+                    Description = SR.MutipleCreateTableStatementsInScriptRuleDescription,
                     Severity = Contracts.IssueSeverity.Information
                 });
             }

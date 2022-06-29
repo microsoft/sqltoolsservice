@@ -64,7 +64,6 @@ steps:
     displayName: Building Integration Tests
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-      arguments: '/p:CodeCoverageBuild=true'
 
   - task: DotNetCoreCLI@2
     displayName: Running Integration Tests

@@ -9133,6 +9133,102 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription);
+            }
+        }
+
+        public static string TemporalTableMustHavePrimaryKeyRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TemporalTableMustHavePrimaryKeyRuleDescription);
+            }
+        }
+
+        public static string TemporalTableMustHavePeriodColumnsRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TemporalTableMustHavePeriodColumnsRuleDescription);
+            }
+        }
+
+        public static string PeriodColumnsRuleMoreThanOneIssueDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeriodColumnsRuleMoreThanOneIssueDescription);
+            }
+        }
+
+        public static string PeriodColumnsRuleNotMatchIssueDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeriodColumnsRuleNotMatchIssueDescription);
+            }
+        }
+
+        public static string ColumnsInPrimaryKeyCannotBeNullableRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnsInPrimaryKeyCannotBeNullableRuleDescription);
+            }
+        }
+
+        public static string OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription);
+            }
+        }
+
+        public static string TableMustHaveAtLeastOneColumnRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableMustHaveAtLeastOneColumnRuleDescription);
+            }
+        }
+
+        public static string MemoryOptimizedTableIdentityColumnRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryOptimizedTableIdentityColumnRuleDescription);
+            }
+        }
+
+        public static string TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription);
+            }
+        }
+
+        public static string MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription);
+            }
+        }
+
+        public static string MutipleCreateTableStatementsInScriptRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.MutipleCreateTableStatementsInScriptRuleDescription);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9441,6 +9537,61 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string UnknownEnumString(string name)
         {
             return Keys.GetString(Keys.UnknownEnumString, name);
+        }
+
+        public static string IndexMustHaveColumnsRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.IndexMustHaveColumnsRuleDescription, indexName);
+        }
+
+        public static string ForeignKeyMustHaveColumnsRuleDescription(string foreignKeyName)
+        {
+            return Keys.GetString(Keys.ForeignKeyMustHaveColumnsRuleDescription, foreignKeyName);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInIndexRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInIndexRuleDescription, columnName, indexName, rowNumber);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInForeignKeyRuleDescription(string columnName, string foreignKeyName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInForeignKeyRuleDescription, columnName, foreignKeyName, rowNumber);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription(string columnName, string foreignKeyName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription, columnName, foreignKeyName, rowNumber);
+        }
+
+        public static string NoDuplicateConstraintNameRuleDescription(string constraintName, int rowNumber)
+        {
+            return Keys.GetString(Keys.NoDuplicateConstraintNameRuleDescription, constraintName, rowNumber);
+        }
+
+        public static string NoDuplicateColumnNameRuleDescription(string columnName, int rowNumber)
+        {
+            return Keys.GetString(Keys.NoDuplicateColumnNameRuleDescription, columnName, rowNumber);
+        }
+
+        public static string NoDuplicateIndexNameRuleDescription(string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.NoDuplicateIndexNameRuleDescription, indexName, rowNumber);
+        }
+
+        public static string EdgeConstraintMustHaveClausesRuleDescription(string name)
+        {
+            return Keys.GetString(Keys.EdgeConstraintMustHaveClausesRuleDescription, name);
+        }
+
+        public static string EdgeConstraintNoRepeatingClausesRuleDescription(string pair, int rowNumber)
+        {
+            return Keys.GetString(Keys.EdgeConstraintNoRepeatingClausesRuleDescription, pair, rowNumber);
+        }
+
+        public static string ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(string columnName)
+        {
+            return Keys.GetString(Keys.ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription, columnName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13049,6 +13200,75 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableColumnIsComputedPersistedNullableDescription = "TableColumnIsComputedPersistedNullableDescription";
+
+
+            public const string IndexMustHaveColumnsRuleDescription = "IndexMustHaveColumnsRuleDescription";
+
+
+            public const string ForeignKeyMustHaveColumnsRuleDescription = "ForeignKeyMustHaveColumnsRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInIndexRuleDescription = "ColumnCanOnlyAppearOnceInIndexRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInForeignKeyRuleDescription = "ColumnCanOnlyAppearOnceInForeignKeyRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription = "ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription";
+
+
+            public const string NoDuplicateConstraintNameRuleDescription = "NoDuplicateConstraintNameRuleDescription";
+
+
+            public const string NoDuplicateColumnNameRuleDescription = "NoDuplicateColumnNameRuleDescription";
+
+
+            public const string NoDuplicateIndexNameRuleDescription = "NoDuplicateIndexNameRuleDescription";
+
+
+            public const string EdgeConstraintMustHaveClausesRuleDescription = "EdgeConstraintMustHaveClausesRuleDescription";
+
+
+            public const string EdgeConstraintNoRepeatingClausesRuleDescription = "EdgeConstraintNoRepeatingClausesRuleDescription";
+
+
+            public const string MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription = "MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription";
+
+
+            public const string TemporalTableMustHavePrimaryKeyRuleDescription = "TemporalTableMustHavePrimaryKeyRuleDescription";
+
+
+            public const string TemporalTableMustHavePeriodColumnsRuleDescription = "TemporalTableMustHavePeriodColumnsRuleDescription";
+
+
+            public const string PeriodColumnsRuleMoreThanOneIssueDescription = "PeriodColumnsRuleMoreThanOneIssueDescription";
+
+
+            public const string PeriodColumnsRuleNotMatchIssueDescription = "PeriodColumnsRuleNotMatchIssueDescription";
+
+
+            public const string ColumnsInPrimaryKeyCannotBeNullableRuleDescription = "ColumnsInPrimaryKeyCannotBeNullableRuleDescription";
+
+
+            public const string OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription = "OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription";
+
+
+            public const string TableMustHaveAtLeastOneColumnRuleDescription = "TableMustHaveAtLeastOneColumnRuleDescription";
+
+
+            public const string MemoryOptimizedTableIdentityColumnRuleDescription = "MemoryOptimizedTableIdentityColumnRuleDescription";
+
+
+            public const string TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription = "TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription";
+
+
+            public const string ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription = "ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription";
+
+
+            public const string MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription = "MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription";
+
+
+            public const string MutipleCreateTableStatementsInScriptRuleDescription = "MutipleCreateTableStatementsInScriptRuleDescription";
 
 
             private Keys()

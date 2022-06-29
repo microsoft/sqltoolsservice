@@ -3721,4 +3721,73 @@
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>公式</value>
   </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>索引“{0}”不具有任何与之关联的列。</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>外键“{0}”没有指定任何列。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>已将名为“{0}”的列添加到索引“{1}”。行号: {2}。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>已将名为“{0}”的列添加到外键“{1}”。行号: {2}。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>已将名为“{0}”的外列已添加到外键“{1}”。行号: {2}。</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>名称“{0}”已由另一个约束使用。行号: {1}。</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>名称“{0}”已由另一列使用。行号: {1}。</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>另一个索引已使用名称“{0}”。行号: {1}。</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>边缘约束“{0}”未指定任何子句。</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>对“{0}”已由边缘约束中的另一个子句定义。行号: {1}。</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>内存优化表必须具有非群集主键。</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>系统版本控制表必须具有主键。</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>系统版本控制表必须定义句点列。</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>句点列(生成的 Always As 行开始/结束)只能定义一次。</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>句点列(生成的 Always As 行开始/结束)必须定义为对。如果定义了一个，则还必须定义另一个。</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>主键中的列不能为 null。</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>只有持久(DURABILITY = SCHEMA_AND_DATA)内存优化表才能进行系统版本控制。</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>表必须至少定义一个非计算列。</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>内存优化表不支持使用种子和 1 以外的增量值。</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>表上有多个边缘约束。这仅在修改现有边缘约束时用作为临时状态有用，而不应用于其他情况。</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>主键中不能使用重复的列名，列名: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>此数据库不支持内存优化表。</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>脚本中存在多个表定义，只能在设计器中编辑第一个表。</value>
+  </data>
 </root>
