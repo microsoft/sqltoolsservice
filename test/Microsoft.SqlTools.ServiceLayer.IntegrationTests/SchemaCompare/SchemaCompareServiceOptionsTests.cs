@@ -72,7 +72,7 @@ END
         private DeploymentOptions GetIgnoreColumnOptions()
         {
             var options = new DeploymentOptions();
-            options.OptionsMapTable["Ignore column order"].Value = true;
+            options.BooleanOptionsDict["IgnoreColumnOrder"].Value = true;
             return options;
         }
 
