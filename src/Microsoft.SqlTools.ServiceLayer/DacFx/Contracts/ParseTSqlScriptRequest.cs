@@ -13,9 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class ParseTSqlScriptRequestParams
     {
         /// <summary>
-        /// Gets or sets the script content
+        /// Gets or sets the script file path.
         /// </summary>
-        public string Script { get; set; }
+        public string FilePath { get; set; }
 
         /// <summary>
         /// Gets or sets the DSP.
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Result for the ParseTSqlScript Request.
     /// </summary>
-    public class ParseTSqlScriptResult : ResultStatus
+    public class ParseTSqlScriptResult
     {
         public bool ContainsCreateTableStatement { get; set; }
     }

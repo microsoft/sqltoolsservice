@@ -311,9 +311,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             try
             {
+                var script = System.IO.File.ReadAllText(requestParams.FilePath);
                 await requestContext.SendResult(new ParseTSqlScriptResult()
                 {
-                    ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(requestParams.Script, requestParams.DatabaseSchemaProvider)
+                    ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(script, requestParams.DatabaseSchemaProvider)
                 });
             }
             catch (Exception e)
