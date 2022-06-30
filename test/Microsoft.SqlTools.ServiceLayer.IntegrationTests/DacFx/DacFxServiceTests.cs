@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using Moq;
+using System.Reflection;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -846,7 +847,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
             var optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
-            foreach (var v in deploymentOptionsProperties)
+            foreach (PropertyInfo v in deploymentOptionsProperties)
             {
                 if (v.Name != "OptionsMapTable")
                 {
@@ -917,12 +918,12 @@ Streaming query statement contains a reference to missing output stream 'Missing
         /// <param name="actualOptionsMapTable"></param>
         public void VerifyExpectedAndActualOptionsMapTables(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, Dictionary<string, DeploymentOptionProperty<bool>> actualOptionsMapTable)
         {
-            foreach (var optionRow in expectedOptionsMapTable)
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedOptionsMapTable)
             {
                 var expectedValue = optionRow.Value.Value;
                 var actualValue = actualOptionsMapTable[optionRow.Key].Value;
 
-                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.PropertyName}, Actual value: {actualValue} and Expected value: {expectedValue}");
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Expected value: {expectedValue}");
             }
         }
     }

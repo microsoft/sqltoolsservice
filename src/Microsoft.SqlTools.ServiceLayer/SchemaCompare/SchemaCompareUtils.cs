@@ -23,6 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     internal static class SchemaCompareUtils
     {
+        /// <summary>
+        /// OptionsMapTable has all the deployment options and is being processed separately in the second iteration by collecting it in first iteration.
+        /// Where as all other properties are being processed in the first iteration itself.
+        /// </summary>
+        /// <param name="deploymentOptions"></param>
+        /// <returns>DacDeployOptions</returns
         internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
             PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
@@ -31,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
             // Get the optionsMapTable property which has the updated option values
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
                 if (prop != null)
@@ -54,9 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
 
             // Iterating through the updated boolean options coming from the optionsMapTable and assigning them to DacDeployOptions
-            foreach (var deployOptionsProp in optionsMapTable)
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in optionsMapTable)
             {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Value.PropertyName);
+                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Key);
                 if (prop != null)
                 {
                     var selectedVal = deployOptionsProp.Value.Value;

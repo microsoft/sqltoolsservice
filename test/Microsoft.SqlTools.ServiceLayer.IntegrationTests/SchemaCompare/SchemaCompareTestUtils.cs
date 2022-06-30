@@ -16,6 +16,7 @@ using System;
 using System.IO;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -131,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             // TODO: update with new options. Tracking issue: https://github.com/microsoft/azuredatastudio/issues/15336
             //Assert.True(deploymentOptionsProperties.Length == dacDeployProperties.Length - 2, $"Number of properties is not same Deployment options : {deploymentOptionsProperties.Length} DacFx options : {dacDeployProperties.Length}");
 
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
                 if (deployOptionsProp.Name != "OptionsMapTable")
                 {
@@ -162,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             DeploymentOptions actualOpt = options.DefaultDeploymentOptions;
 
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
-            foreach (var v in deploymentOptionsProperties)
+            foreach (PropertyInfo v in deploymentOptionsProperties)
             {
                 if (v.Name != "OptionsMapTable")
                 {
@@ -199,14 +200,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         /// <param name="dacDeployOptions"></param>
         private static void VerifyOptionsMapTable(Dictionary<string, DeploymentOptionProperty<bool>> expectedOptionsMapTable, DacDeployOptions dacDeployOptions)
         {
-            foreach (var optionRow in expectedOptionsMapTable)
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedOptionsMapTable)
             {
-                var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Value.PropertyName);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {optionRow.Value.PropertyName}");
+                var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
+                Assert.True(dacProp != null, $"DacDeploy property not present for {optionRow.Key}");
                 var actualValue = dacProp.GetValue(dacDeployOptions);
                 var expectedValue = optionRow.Value.Value;
 
-                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.PropertyName}, Actual value: {actualValue} and Default value: {expectedValue}");
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Default value: {expectedValue}");
             }
         }
     }
