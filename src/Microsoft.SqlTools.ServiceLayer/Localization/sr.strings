@@ -2234,6 +2234,22 @@ WarningOverlayTooltip = Warnings
 ;tooltip text for node parallelism overlay
 ParallelismOverlayTooltip = Parallel Execution
 
+#
+# Top operation column Names
+#
+Operation = Operation
+Object = Object
+EstimatedCost = Estimated Cost %
+EstimatedSubtree = Estimated Subtree Cost %
+ActualRows = Actual Rows
+EstimatedRows = Estimated Rows
+ActualExecutions = Actual Executions
+EstimatedExecutions = Estimated Executions
+EstimatedCpu = Estimated CPU Cost
+EstimatedIO = Estimated IO Cost 
+ActualDataSize = Actual Data Size
+EstiamtedDataSize = Est Data Size
+
 ############################################################################
 # Table Designer
 

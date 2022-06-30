@@ -6194,6 +6194,66 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">There are multiple table definitions in the script, only the first table can be edited in the designer.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Operation">
+        <source>Operation</source>
+        <target state="new">Operation</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Object">
+        <source>Object</source>
+        <target state="new">Object</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCost">
+        <source>Estimated Cost %</source>
+        <target state="new">Estimated Cost %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtree">
+        <source>Estimated Subtree Cost %</source>
+        <target state="new">Estimated Subtree Cost %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualRows">
+        <source>Actual Rows</source>
+        <target state="new">Actual Rows</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedRows">
+        <source>Estimated Rows</source>
+        <target state="new">Estimated Rows</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualExecutions">
+        <source>Actual Executions</source>
+        <target state="new">Actual Executions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecutions">
+        <source>Estimated Executions</source>
+        <target state="new">Estimated Executions</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpu">
+        <source>Estimated CPU Cost</source>
+        <target state="new">Estimated CPU Cost</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedIO">
+        <source>Estimated IO Cost </source>
+        <target state="new">Estimated IO Cost </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualDataSize">
+        <source>Actual Data Size</source>
+        <target state="new">Actual Data Size</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstiamtedDataSize">
+        <source>Est Data Size</source>
+        <target state="new">Est Data Size</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

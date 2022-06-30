@@ -198,11 +198,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             get
             {
                 double cost = this.RelativeCost * 100;
-                if (this.HasPDWCost && cost <= 0)
+
+                if (!this.HasPDWCost || cost > 0)
                 {
-                    return string.Empty;
+                    if (this.graph != null && this.graph.NodeStmtMap.Count < 20)
+                    {
+                        cost = Math.Round(cost);
+                    }
+                    else
+                    {
+                        cost = Math.Round(cost, 2);
+                    }
                 }
-                return SR.OperatorDisplayCost(this.Cost, (int)Math.Round(cost));
+                return SR.CostFormat(cost.ToString("0.##"));
             }
         }
 
@@ -580,7 +588,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// Gets lines of text displayed under the icon.
         /// </summary>
         /// <returns>Array of strings.</returns>
-        
+
         /// <summary>
         /// Gets lines of text displayed under the icon.
         /// </summary>
@@ -595,7 +603,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             if (!this.HasPDWCost || cost > 0)
             {
-                if(roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < 20){
+                if (roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < 20)
+                {
                     cost = Math.Round(cost);
                 }
                 string costText = SR.CostFormat(cost.ToString("0.##"));
