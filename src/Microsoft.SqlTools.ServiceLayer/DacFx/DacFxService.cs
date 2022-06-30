@@ -309,10 +309,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public async Task HandleParseTSqlScriptRequest(ParseTSqlScriptRequestParams requestParams, RequestContext<ParseTSqlScriptResult> requestContext)
         {
-            await requestContext.SendResult(new ParseTSqlScriptResult()
+            try
             {
-                ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(requestParams.Script, requestParams.DatabaseSchemaProvider)
-            });
+                await requestContext.SendResult(new ParseTSqlScriptResult()
+                {
+                    ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(requestParams.Script, requestParams.DatabaseSchemaProvider)
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
         }
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
