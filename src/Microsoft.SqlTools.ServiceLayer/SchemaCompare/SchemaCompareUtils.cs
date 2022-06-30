@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     internal static class SchemaCompareUtils
     {
         /// <summary>
-        /// OptionsMapTable has all the deployment options and is being processed separately in the second iteration by collecting it in first iteration.
+        /// BooleanOptionsDict has all the deployment options and is being processed separately in the second iteration by collecting it in first iteration.
         /// Where as all other properties are being processed in the first iteration itself.
         /// </summary>
         /// <param name="deploymentOptions"></param>
@@ -34,9 +34,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
             DacDeployOptions dacOptions = new DacDeployOptions();
-            Dictionary<string, DeploymentOptionProperty<bool>> optionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
+            Dictionary<string, DeploymentOptionProperty<bool>> booleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
-            // Get the optionsMapTable property which has the updated option values
+            // Get the BooleanOptionsDict property which has the updated option values
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
@@ -52,15 +52,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     }
                 }
 
-                // Exclude the direct properties values and considering the optionsMapTable values
-                if (deployOptionsProp.Name == "OptionsMapTable")
+                // Exclude the direct properties values and considering the booleanOptionsDict values
+                if (deployOptionsProp.Name == "BooleanOptionsDict")
                 {
-                    optionsMapTable = deploymentOptions.OptionsMapTable as Dictionary<string, DeploymentOptionProperty<bool>>;
+                    booleanOptionsDict = deploymentOptions.BooleanOptionsDict as Dictionary<string, DeploymentOptionProperty<bool>>;
                 }
             }
 
-            // Iterating through the updated boolean options coming from the optionsMapTable and assigning them to DacDeployOptions
-            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in optionsMapTable)
+            // Iterating through the updated boolean options coming from the booleanOptionsDict and assigning them to DacDeployOptions
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in booleanOptionsDict)
             {
                 var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Key);
                 if (prop != null)

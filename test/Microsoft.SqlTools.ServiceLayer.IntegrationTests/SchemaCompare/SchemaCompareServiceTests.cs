@@ -1830,13 +1830,13 @@ WITH VALUES
             };
 
             // change some random ones explicitly
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Allow drop blocking assemblies"].Value = true;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Drop constraints not in source"].Value = true;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Ignore ANSI NULLS"].Value = true;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["No alter statements to change Clr types"].Value = false;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Populate files on File groups"].Value = false;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Verify deployment"].Value = false;
-            schemaCompareParams.DeploymentOptions.OptionsMapTable["Disable indexes for data phase"].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["AllowDropBlockingAssemblies"].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["DropConstraintsNotInSource"].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["IgnoreAnsiNulls"].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["NoAlterStatementsToChangeClrTypes"].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["PopulateFilesOnFileGroups"].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["VerifyDeployment"].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDict["DisableIndexesForDataPhase"].Value = false;
 
             SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);

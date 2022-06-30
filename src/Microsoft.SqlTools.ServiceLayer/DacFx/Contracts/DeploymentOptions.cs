@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Class to define deployment options.
     /// The default property names here should also match the ADS UX
-    /// OptionsMapTable will automatically gets the newly added boolean properties from DacFx, All other types should be added here and ADS
+    /// BooleanOptionsDict will automatically gets the newly added boolean properties from DacFx, All other types should be added here and ADS
     /// </summary>
     public class DeploymentOptions
     {
@@ -88,18 +88,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 ObjectType.AssemblyFiles
             }
         );
-        
+
         /// <summary>
-        /// OptionsMapTable contains all boolean type deployment options
+        /// BooleanOptionsDict contains all boolean type deployment options
         /// </summary>
-        public Dictionary<string, DeploymentOptionProperty<bool>> OptionsMapTable { get; set; }
+        public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDict { get; set; }
 
         #endregion
 
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
-            OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
+            BooleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
@@ -112,14 +112,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             options.IgnoreSemicolonBetweenStatements = false;
 
             // Set the default options properties
-            PopulateOptionsMapTable(options);
+            PopulateBooleanOptionsDict(options);
 
             // Excluding ExcludeObjectTypes to get the STS default values
             // preparing all non boolean properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != "ExcludeObjectTypes" && deployOptionsProp.Name != "OptionsMapTable")
+                if (deployOptionsProp.Name != "ExcludeObjectTypes" && deployOptionsProp.Name != "BooleanOptionsDict")
                 {
                     var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptions(DacDeployOptions options)
         {
-            OptionsMapTable = new Dictionary<string, DeploymentOptionProperty<bool>>();
+            BooleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
             SetOptions(options);
         }
@@ -177,10 +177,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Populates OptionsMapTable with the boolean type properties
+        /// Populates BooleanOptionsDict with the boolean type properties
         /// </summary>
         /// <param name="options"></param>
-        public void PopulateOptionsMapTable(DacDeployOptions options)
+        public void PopulateBooleanOptionsDict(DacDeployOptions options)
         {
             // To fill the options map table directly from the boolean type DacDeployoptions
             PropertyInfo[] dacDeploymentOptionsProperties = options.GetType().GetProperties();
@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 if (prop.PropertyType == typeof(System.Boolean))
                 {
                     object setProp = GetDeploymentOptionProp(prop, options);
-                    this.OptionsMapTable[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
+                    this.BooleanOptionsDict[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
                 }
             }
         }
@@ -198,12 +198,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             // Set the default options properties
-            PopulateOptionsMapTable(options);
+            PopulateBooleanOptionsDict(options);
             SetGenericDacDeploymentProperties(options);
         }
 
         /// <summary>
-        /// Preparing all non boolean properties (except optionsMapTable)
+        /// Preparing all non boolean properties (except BooleanOptionsDict)
         /// </summary>
         /// <param name="options"></param>
         public void SetGenericDacDeploymentProperties(DacDeployOptions options)
@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != "OptionsMapTable")
+                if (deployOptionsProp.Name != "BooleanOptionsDict")
                 {
                     var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
