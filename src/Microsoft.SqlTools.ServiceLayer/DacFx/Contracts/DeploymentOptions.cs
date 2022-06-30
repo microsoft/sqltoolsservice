@@ -18,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class DeploymentOptionProperty<T>
     {
-        public DeploymentOptionProperty(T value, string description = "", string propertyName = "")
+        public DeploymentOptionProperty(T value, string description = "", string displayName = "")
         {
             this.Value = value;
             this.Description = description;
-            this.propertyName = propertyName;
+            this.DisplayName = displayName;
         }
 
         // Default and selected value of the deployment options
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string Description { get; set; }
 
         // To original name of the current property
-        public string propertyName { get; set; }
+        public string DisplayName { get; set; }
     }
 
     /// <summary>
@@ -90,6 +90,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             }
         );
 
+        /// <summary>
+        /// OptionsMapTable contains all boolean type deployment options
+        /// </summary>
         public Dictionary<string, DeploymentOptionProperty<bool>> OptionsMapTable { get; set; }
 
         public Dictionary<string, int> IncludeObjects;
@@ -117,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             // Exclude exclude object types for default values
             // preparing remaining properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
                 if (deployOptionsProp.Name != "ExcludeObjectTypes" && deployOptionsProp.Name != "OptionsMapTable")
                 {
@@ -180,13 +183,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             // To fill the options map table directly from the boolean type DacDeployoptions
             PropertyInfo[] dacDeploymentOptionsProperties = options.GetType().GetProperties();
-            foreach (var prop in dacDeploymentOptionsProperties)
+            foreach (PropertyInfo prop in dacDeploymentOptionsProperties)
             {
                 if (prop.PropertyType == typeof(System.Boolean))
                 {
                     object setProp = GetDeploymentOptionProp(prop, options);
-                    var displayNameAttribute = prop.GetCustomAttributes<DisplayNameAttribute>().FirstOrDefault();
-                    this.OptionsMapTable[displayNameAttribute.DisplayName] = (DeploymentOptionProperty<bool>)setProp;
+                    this.OptionsMapTable[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
                 }
             }
 
@@ -201,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public void PopulateIncludeObjectTypesDictionary()
         {
             // Set include objects table data
-            var objectTypeEnum = typeof(ObjectType);
+            Type objectTypeEnum = typeof(ObjectType);
             IncludeObjects = Enum.GetNames(objectTypeEnum).ToDictionary(t => t, t => (int)System.Enum.Parse(objectTypeEnum, t));
         }
 
@@ -220,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             // preparing remaining properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
                 if (deployOptionsProp.Name != "OptionsMapTable")
                 {
@@ -244,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType()) 
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
            
-            object setProp = Activator.CreateInstance(type, val, descriptionAttribute.Description, prop.Name);
+            object setProp = Activator.CreateInstance(type, val, descriptionAttribute.Description, displayNameAttribute.DisplayName);
             return setProp;
         }
 

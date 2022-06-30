@@ -941,7 +941,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 var expectedValue = optionRow.Value.Value;
                 var actualValue = actualOptionsMapTable[optionRow.Key].Value;
 
-                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.propertyName}, Actual value: {actualValue} and Expected value: {expectedValue}");
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Expected value: {expectedValue}");
             }
         }
     }

@@ -201,12 +201,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         {
             foreach (var optionRow in expectedOptionsMapTable)
             {
-                var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Value.propertyName);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {optionRow.Value.propertyName}");
+                var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
+                Assert.True(dacProp != null, $"DacDeploy property not present for {optionRow.Key}");
                 var actualValue = dacProp.GetValue(dacDeployOptions);
                 var expectedValue = optionRow.Value.Value;
 
-                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Value.propertyName}, Actual value: {actualValue} and Default value: {expectedValue}");
+                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Default value: {expectedValue}");
             }
         }
     }
