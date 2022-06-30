@@ -151,7 +151,6 @@ ending single line comment
 
 /*
 * Ending multiline  
-
  * comment
 */";
             var notebook = JsonConvert.DeserializeObject<NotebookDocument>(sampleNotebook);

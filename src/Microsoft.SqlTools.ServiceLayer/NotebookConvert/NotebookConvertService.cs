@@ -275,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                     {
                         // Markdown is text so wrapped in a comment block
                         "markdown" => $@"/*
-{string.Join(Environment.NewLine, cellSource)}
+{string.Join("", cellSource)}
 */",
                         // Everything else (just code blocks for now) is left as is
                         _ => string.Join("", cellSource),
