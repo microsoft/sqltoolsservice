@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Newtonsoft.Json;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 {
@@ -115,10 +116,10 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         #endregion // Convert Handlers
 
-        internal static NotebookDocument ConvertSqlToNotebook(string sql)
+        internal static NotebookDocument ConvertSqlToNotebook(string? sql)
         {
             // Notebooks use \n so convert any other newlines now
-            sql = sql.Replace("\r\n", "\n");
+            sql = sql?.Replace("\r\n", "\n") ?? string.Empty;
 
             var doc = new NotebookDocument
             {
@@ -248,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
         /// Converts a Notebook document into a single string that can be inserted into a SQL
         /// query.
         /// </summary>
-        private static string ConvertNotebookDocToSql(NotebookDocument doc)
+        internal static string ConvertNotebookDocToSql(NotebookDocument? doc)
         {
             if (doc?.Cells == null)
             {
@@ -259,14 +260,25 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                 // Add an extra blank line between each block for readability
                 return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
                 {
+                    // Notebooks use \n newlines, so convert the cell source to \r\n if running on Windows
+                    IEnumerable<string> cellSource;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        cellSource = cell.Source.Select(text => text.Replace("\n", Environment.NewLine));
+                    }
+                    else
+                    {
+                        cellSource = cell.Source;
+                    }
+
                     return cell.CellType switch
                     {
                         // Markdown is text so wrapped in a comment block
                         "markdown" => $@"/*
-{string.Join(Environment.NewLine, cell.Source)}
+{string.Join(Environment.NewLine, cellSource)}
 */",
                         // Everything else (just code blocks for now) is left as is
-                        _ => string.Join("", cell.Source),
+                        _ => string.Join("", cellSource),
                     };
                 }));
             }

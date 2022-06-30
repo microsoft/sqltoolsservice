@@ -13,10 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.NotebookConvert
     [TestFixture]
     public class NotebookConvertServiceTests
     {
-        [Test]
-        public void ConvertSqlToNotebook()
-        {
-            var sql = @"
+        private const string sampleSqlQuery = @"
 /* 
  * Initial multiline comment
  */ 
@@ -39,7 +36,7 @@ FROM sys.databases
  */
 ";
 
-            var expectedNotebook = @"{
+        private const string sampleNotebook = @"{
   ""metadata"": {
     ""kernelspec"": {
       ""name"": ""SQL"",
@@ -95,11 +92,78 @@ FROM sys.databases
     }
   ]
 }";
-
-            var notebook = NotebookConvertService.ConvertSqlToNotebook(sql);
+        [Test]
+        public void ConvertSqlToNotebook()
+        {
+            var notebook = NotebookConvertService.ConvertSqlToNotebook(sampleSqlQuery);
             var notebookString = JsonConvert.SerializeObject(notebook, Formatting.Indented);
-            Assert.AreEqual(expectedNotebook, notebookString);
+            Assert.AreEqual(sampleNotebook, notebookString);
         }
 
+        [Test]
+        public void ConvertNullSqlToNotebook()
+        {
+            var emptyNotebook = @"{
+  ""metadata"": {
+    ""kernelspec"": {
+      ""name"": ""SQL"",
+      ""display_name"": ""SQL"",
+      ""language"": ""sql""
+    },
+    ""language_info"": {
+      ""name"": ""sql"",
+      ""version"": """"
+    }
+  },
+  ""nbformat_minor"": 2,
+  ""nbformat"": 4,
+  ""cells"": []
+}";
+            var notebook = NotebookConvertService.ConvertSqlToNotebook(null);
+            var notebookString = JsonConvert.SerializeObject(notebook, Formatting.Indented);
+            Assert.AreEqual(emptyNotebook, notebookString);
+        }
+
+        [Test]
+        public void ConvertNotebookToSql()
+        {
+            var expectedSqlQuery = @"/*
+* Initial multiline comment
+*/
+
+/*
+Comment before batch
+*/
+
+SELECT * FROM sys.databases
+
+-- Compare Row Counts in Tables From Two Different Databases With the Same Schema
+
+SELECT * -- inline single line comment
+/* inline multiline
+ * comment
+ */
+FROM sys.databases
+
+/*
+ending single line comment
+*/
+
+/*
+* Ending multiline  
+
+ * comment
+*/";
+            var notebook = JsonConvert.DeserializeObject<NotebookDocument>(sampleNotebook);
+            var query = NotebookConvertService.ConvertNotebookDocToSql(notebook);
+            Assert.AreEqual(expectedSqlQuery, query);
+        }
+
+        [Test]
+        public void ConvertNullNotebookToSql()
+        {
+            var query = NotebookConvertService.ConvertNotebookDocToSql(null);
+            Assert.AreEqual(string.Empty, query);
+        }
     }
 }
