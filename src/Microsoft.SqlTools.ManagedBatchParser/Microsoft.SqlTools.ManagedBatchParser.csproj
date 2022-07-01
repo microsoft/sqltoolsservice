@@ -15,6 +15,7 @@
 		<PackageReference Include="Microsoft.SqlServer.DACFx" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
