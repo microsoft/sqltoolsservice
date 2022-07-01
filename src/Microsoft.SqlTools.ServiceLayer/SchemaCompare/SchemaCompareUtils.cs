@@ -4,6 +4,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -14,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -31,45 +33,54 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         /// <returns>DacDeployOptions</returns>
         internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
-            PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
-
-            DacDeployOptions dacOptions = new DacDeployOptions();
-            Dictionary<string, DeploymentOptionProperty<bool>> booleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>();
-
-            // Get the BooleanOptionsDict property which has the updated option values
-            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
+            try
             {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
-                if (prop != null)
-                {
-                    var val = deployOptionsProp.GetValue(deploymentOptions);
-                    var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+                PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
-                    // Set the excludeObjectTypes values to the DacDeployOptions
-                    if (selectedVal != null && deployOptionsProp.Name == "ExcludeObjectTypes")
+                DacDeployOptions dacOptions = new DacDeployOptions();
+                Type propType = dacOptions.GetType();
+                Dictionary<string, DeploymentOptionProperty<bool>> booleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>();
+
+                // Get the BooleanOptionsDict property which has the updated option values
+                foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
+                {
+                    var prop = propType.GetProperty(deployOptionsProp.Name);
+                    if (prop != null)
                     {
-                        prop.SetValue(dacOptions, selectedVal);
+                        var val = deployOptionsProp.GetValue(deploymentOptions);
+                        var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+
+                        // Set the excludeObjectTypes values to the DacDeployOptions
+                        if (selectedVal != null && deployOptionsProp.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
+                        {
+                            prop.SetValue(dacOptions, selectedVal);
+                        }
+                    }
+
+                    // Exclude the direct properties values and considering the booleanOptionsDict values
+                    if (deployOptionsProp.Name == nameof(DeploymentOptions.BooleanOptionsDict))
+                    {
+                        booleanOptionsDict = deploymentOptions.BooleanOptionsDict as Dictionary<string, DeploymentOptionProperty<bool>>;
                     }
                 }
 
-                // Exclude the direct properties values and considering the booleanOptionsDict values
-                if (deployOptionsProp.Name == "BooleanOptionsDict")
+                // Iterating through the updated boolean options coming from the booleanOptionsDict and assigning them to DacDeployOptions
+                foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in booleanOptionsDict)
                 {
-                    booleanOptionsDict = deploymentOptions.BooleanOptionsDict as Dictionary<string, DeploymentOptionProperty<bool>>;
+                    var prop = propType.GetProperty(deployOptionsProp.Key);
+                    if (prop != null)
+                    {
+                        var selectedVal = deployOptionsProp.Value.Value;
+                        prop.SetValue(dacOptions, selectedVal);
+                    }
                 }
-            }
-
-            // Iterating through the updated boolean options coming from the booleanOptionsDict and assigning them to DacDeployOptions
-            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in booleanOptionsDict)
+                return dacOptions;
+            } 
+            catch (Exception e)
             {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Key);
-                if (prop != null)
-                {
-                    var selectedVal = deployOptionsProp.Value.Value;
-                    prop.SetValue(dacOptions, selectedVal);
-                }
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare create options model failed: {0}", e.Message));
+                throw;
             }
-            return dacOptions;
         }
 
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)

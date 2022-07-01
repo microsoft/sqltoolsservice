@@ -868,14 +868,14 @@ Streaming query statement contains a reference to missing output stream 'Missing
             var booleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>();
             foreach (PropertyInfo v in deploymentOptionsProperties)
             {
-                if (v.Name != "BooleanOptionsDict")
+                if (v.Name != nameof(DeploymentOptions.BooleanOptionsDict))
                 {
                     var defaultP = v.GetValue(expected);
                     var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
                     var actualP = v.GetValue(actual);
                     var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
 
-                    if (v.Name == "ExcludeObjectTypes")
+                    if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
                     {
                         Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
                     }
