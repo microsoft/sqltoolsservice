@@ -14,8 +14,9 @@ using System.Collections.Generic;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Class to define deployment option default value and the description
+    /// DeploymentOptionProperty class to define deployment options default value, description, and displayNames
     /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class DeploymentOptionProperty<T>
     {
         public DeploymentOptionProperty(T value, string description = "", string displayName = "")
@@ -25,13 +26,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             this.DisplayName = displayName;
         }
 
-        // Default and selected value of the deployment options
+        /// <summary>
+        /// Default and selected value of the deployment options
+        /// </summary>
         public T Value { get; set; }
 
-        // Description of the deployment options
+        /// <summary>
+        /// Description of the deployment options
+        /// </summary>
         public string Description { get; set; }
 
-        // Display name of the deployment options
+        /// <summary>
+        /// Display name of the property
+        /// </summary>
         public string DisplayName { get; set; }
     }
 
@@ -119,8 +126,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != "ExcludeObjectTypes" && deployOptionsProp.Name != "BooleanOptionsDict")
-                {
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.ExcludeObjectTypes) && deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDict))
+                { 
                     var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
                     deployOptionsProp.SetValue(this, setProp);
@@ -212,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != "BooleanOptionsDict")
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDict))
                 {
                     var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);

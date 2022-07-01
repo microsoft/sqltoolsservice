@@ -134,16 +134,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != "BooleanOptionsDict")
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDict))
                 {
                     var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
-                    Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
+                    Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {deployOptionsProp.Name}");
 
                     var defaultP = deployOptionsProp.GetValue(deploymentOptions);
                     var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
                     var actualPValue = dacProp.GetValue(dacDeployOptions);
 
-                    if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                    if (deployOptionsProp.Name != nameof(DeploymentOptions.ExcludeObjectTypes)) // do not compare for ExcludeObjectTypes because it will be different
                     {
                         // Verifying expected and actual deployment options properties are equal
                         Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
@@ -165,16 +165,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
             foreach (PropertyInfo v in deploymentOptionsProperties)
             {
-                if (v.Name != "BooleanOptionsDict")
+                if (v.Name != nameof(DeploymentOptions.BooleanOptionsDict))
                 {
                     var defaultP = v.GetValue(defaultOpt);
                     var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
                     var actualP = v.GetValue(actualOpt);
                     var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
 
-                    if (v.Name == "ExcludeObjectTypes")
+                    if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
                     {
-                        Assert.True((defaultPValue as ObjectType[]).Length == (actualPValue as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
+                        Assert.That((defaultPValue as ObjectType[]).Length, Is.EqualTo((actualPValue as ObjectType[]).Length), $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
                     }
                     else
                     {
@@ -203,11 +203,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDict)
             {
                 var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {optionRow.Key}");
+                Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {optionRow.Key}");
                 var actualValue = dacProp.GetValue(dacDeployOptions);
                 var expectedValue = optionRow.Value.Value;
 
-                Assert.AreEqual(actualValue, expectedValue, $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Default value: {expectedValue}");
+                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Default value: {expectedValue}");
             }
         }
     }
