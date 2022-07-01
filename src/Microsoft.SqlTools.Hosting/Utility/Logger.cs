@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.Utility
             }
         }
 
-        private static SqlToolsTraceListener Listener { get; set; }
+        public static SqlToolsTraceListener Listener { get; set; }
 
         private static void ConfigureLogFile(string logFilePrefix) => LogFileFullPath = GenerateLogFilePath(logFilePrefix);
 
@@ -365,7 +365,7 @@ namespace Microsoft.SqlTools.Utility
     /// Implementation of this is a lazily initialize trace listener that is partly inspired 
     /// by: https://stackoverflow.com/questions/30664527/how-to-stop-streamwriter-to-not-to-create-file-if-nothing-to-write
     /// </remarks>
-    internal sealed class SqlToolsTraceListener : TraceListener
+    public sealed class SqlToolsTraceListener : TraceListener
     {
         Lazy<TextWriterTraceListener> _lazyListener;
         private TextWriterTraceListener Listener => _lazyListener.Value;

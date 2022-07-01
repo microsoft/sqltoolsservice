@@ -5,7 +5,7 @@
 
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {

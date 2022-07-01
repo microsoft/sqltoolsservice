@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using System.Linq;

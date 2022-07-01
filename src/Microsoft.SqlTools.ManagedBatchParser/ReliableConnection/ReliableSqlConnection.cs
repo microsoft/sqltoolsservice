@@ -34,7 +34,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -250,6 +250,8 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <returns><see cref="SqlConnection"/></returns>
         public SqlConnection GetUnderlyingConnection()
         {
+            Logger.Verbose("GETUNDERLYINGCONNECTION VERBOSE");
+            Logger.Critical("GETUNDERLYINGCONNECTION CRITICAL");
             return _underlyingConnection;
         }
 

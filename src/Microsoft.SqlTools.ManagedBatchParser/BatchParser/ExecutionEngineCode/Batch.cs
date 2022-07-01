@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlTools.ManagedBatchParser;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode

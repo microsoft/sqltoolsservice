@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
 
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+                Microsoft.SqlTools.BatchParser.Utility.Logger.TraceSource.Listeners.Add(Logger.Listener);
                 // Only enable SQL Client logging when verbose or higher to avoid extra overhead when the
                 // detailed logging it provides isn't needed
                 if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
