@@ -201,7 +201,8 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                         commentBlock = commentBlock.Remove(commentBlock.Length - 2);
                     }
 
-                    // Trim off extra spaces for each line
+                    // Trim off extra spaces for each line. This helps keep comment asterisks aligned on the 
+                    // same column for multiline comments.
                     var commentLines = commentBlock.Trim().Split("\n").Select(comment => comment.Trim());
                     commentBlock = string.Join("\n", commentLines);
                     doc.Cells.Add(GenerateMarkdownCell(commentBlock));
@@ -263,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                 // Add an extra blank line between each block for readability
                 return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
                 {
-                    // Notebooks use \n newlines, so convert the cell source to \r\n if running on Windows
+                    // Notebooks use \n newlines, so convert the cell source to \r\n if running on Windows.
                     IEnumerable<string> cellSource;
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
