@@ -97,7 +97,7 @@ FROM sys.databases
         {
             var notebook = NotebookConvertService.ConvertSqlToNotebook(sampleSqlQuery);
             var notebookString = JsonConvert.SerializeObject(notebook, Formatting.Indented);
-            Assert.AreEqual(sampleNotebook, notebookString);
+            Assert.That(notebookString, Is.EqualTo(sampleNotebook));
         }
 
         [Test]
@@ -121,7 +121,7 @@ FROM sys.databases
 }";
             var notebook = NotebookConvertService.ConvertSqlToNotebook(null);
             var notebookString = JsonConvert.SerializeObject(notebook, Formatting.Indented);
-            Assert.AreEqual(emptyNotebook, notebookString);
+            Assert.That(notebookString, Is.EqualTo(emptyNotebook));
         }
 
         [Test]
@@ -155,14 +155,14 @@ ending single line comment
 */";
             var notebook = JsonConvert.DeserializeObject<NotebookDocument>(sampleNotebook);
             var query = NotebookConvertService.ConvertNotebookDocToSql(notebook);
-            Assert.AreEqual(expectedSqlQuery, query);
+            Assert.That(query, Is.EqualTo(expectedSqlQuery));
         }
 
         [Test]
         public void ConvertNullNotebookToSql()
         {
             var query = NotebookConvertService.ConvertNotebookDocToSql(null);
-            Assert.AreEqual(string.Empty, query);
+            Assert.That(query, Is.EqualTo(string.Empty));
         }
     }
 }
