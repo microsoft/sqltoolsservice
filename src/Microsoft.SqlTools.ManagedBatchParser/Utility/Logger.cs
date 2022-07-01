@@ -54,6 +54,9 @@ namespace Microsoft.SqlTools.BatchParser.Utility
             TraceEventType eventType,
             string logMessage)
         {
+            // Note that despite the more fine grained TraceEventType we expose in this class we currently are using just the default
+            // Trace methods available which only allow Error/Warning/Information. An improvement would be to fully implement a TraceSource/EventSource
+            // and use that instead, then ensure that users of this library are set up to consume events from that source.
             switch (eventType)
             {
                 case TraceEventType.Critical:
