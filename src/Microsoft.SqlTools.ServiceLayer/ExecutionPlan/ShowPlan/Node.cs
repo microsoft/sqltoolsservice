@@ -199,18 +199,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             {
                 double cost = this.RelativeCost * 100;
 
-                if (!this.HasPDWCost || cost > 0)
+                if (this.HasPDWCost && cost <= 0)
                 {
-                    if (this.graph != null && this.graph.NodeStmtMap.Count < 20)
-                    {
-                        cost = Math.Round(cost);
-                    }
-                    else
-                    {
-                        cost = Math.Round(cost, 2);
-                    }
+                    return string.Empty;
                 }
-                return SR.CostFormat(cost.ToString("0.##"));
+                return SR.OperatorDisplayCost(this.Cost, (int)Math.Round(cost));
             }
         }
 
