@@ -202,7 +202,8 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                     }
 
                     // Trim off extra spaces for each line
-                    commentBlock = string.Join("\n", commentBlock.Trim().Split("\n").Select(comment => comment.Trim()));
+                    var commentLines = commentBlock.Trim().Split("\n").Select(comment => comment.Trim());
+                    commentBlock = string.Join("\n", commentLines);
                     doc.Cells.Add(GenerateMarkdownCell(commentBlock));
                 }
                 else if (fragment.TokenType == NotebookTokenType.SinglelineComment)
