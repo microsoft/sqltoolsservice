@@ -250,8 +250,6 @@ SET NUMERIC_ROUNDABORT OFF;";
         /// <returns><see cref="SqlConnection"/></returns>
         public SqlConnection GetUnderlyingConnection()
         {
-            Logger.Verbose("GETUNDERLYINGCONNECTION VERBOSE");
-            Logger.Critical("GETUNDERLYINGCONNECTION CRITICAL");
             return _underlyingConnection;
         }
 
