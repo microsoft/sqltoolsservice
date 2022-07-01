@@ -2246,7 +2246,7 @@ EstimatedRows = Estimated Rows
 ActualExecutions = Actual Executions
 EstimatedExecutions = Estimated Executions
 EstimatedCpu = Estimated CPU Cost
-EstimatedIO = Estimated IO Cost 
+EstimatedIO = Estimated IO Cost
 ActualDataSize = Actual Data Size
 EstiamtedDataSize = Est Data Size
 

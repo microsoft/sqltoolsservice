@@ -6240,8 +6240,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedIO">
-        <source>Estimated IO Cost </source>
-        <target state="new">Estimated IO Cost </target>
+        <source>Estimated IO Cost</source>
+        <target state="new">Estimated IO Cost</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualDataSize">

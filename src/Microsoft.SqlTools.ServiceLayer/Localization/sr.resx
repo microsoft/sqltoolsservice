@@ -4681,7 +4681,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="EstimatedIO" xml:space="preserve">
-    <value>Estimated IO Cost </value>
+    <value>Estimated IO Cost</value>
     <comment></comment>
   </data>
   <data name="ActualDataSize" xml:space="preserve">
