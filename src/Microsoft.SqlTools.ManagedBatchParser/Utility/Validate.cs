@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlTools.ManagedBatchParser;
 
 namespace Microsoft.SqlTools.BatchParser.Utility
 {
@@ -36,7 +37,7 @@ namespace Microsoft.SqlTools.BatchParser.Utility
             if (string.IsNullOrEmpty(valueToCheck))
             {
                 throw new ArgumentException(
-                    "Parameter contains a null, empty, or whitespace string.",
+                    SR.NullEmptyOrWhitespaceString,
                     parameterName);
             }
         }
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.BatchParser.Utility
             if (string.IsNullOrWhiteSpace(valueToCheck))
             {
                 throw new ArgumentException(
-                    "Parameter contains a null, empty, or whitespace string.",
+                    SR.NullEmptyOrWhitespaceString,
                     parameterName);
             }
         }
