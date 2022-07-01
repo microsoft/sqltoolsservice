@@ -87,7 +87,7 @@ FROM sys.databases
       ""cell_type"": ""markdown"",
       ""source"": [
         ""* Ending multiline  \n"",
-        "" * comment""
+        ""* comment""
       ]
     }
   ]
@@ -151,7 +151,7 @@ ending single line comment
 
 /*
 * Ending multiline  
- * comment
+* comment
 */";
             var notebook = JsonConvert.DeserializeObject<NotebookDocument>(sampleNotebook);
             var query = NotebookConvertService.ConvertNotebookDocToSql(notebook);
