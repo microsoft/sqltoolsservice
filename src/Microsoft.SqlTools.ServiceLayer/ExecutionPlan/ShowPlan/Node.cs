@@ -198,7 +198,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             get
             {
                 double cost = this.RelativeCost * 100;
-
                 if (this.HasPDWCost && cost <= 0)
                 {
                     return string.Empty;
@@ -576,11 +575,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             return true;
         }
-
-        /// <summary>
-        /// Gets lines of text displayed under the icon.
-        /// </summary>
-        /// <returns>Array of strings.</returns>
 
         /// <summary>
         /// Gets lines of text displayed under the icon.
