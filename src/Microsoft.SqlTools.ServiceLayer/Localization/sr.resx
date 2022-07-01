@@ -4684,12 +4684,12 @@ The Query Processor estimates that implementing the following index could improv
     <value>Estimated IO Cost</value>
     <comment></comment>
   </data>
-  <data name="ActualDataSize" xml:space="preserve">
-    <value>Actual Data Size</value>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Estimated Average Row Size</value>
     <comment></comment>
   </data>
-  <data name="EstiamtedDataSize" xml:space="preserve">
-    <value>Est Data Size</value>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Actual Data Size</value>
     <comment></comment>
   </data>
   <data name="TableNotInitializedException" xml:space="preserve">

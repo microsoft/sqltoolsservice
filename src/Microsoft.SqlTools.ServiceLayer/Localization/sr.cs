@@ -8565,19 +8565,19 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string EstimatedAverageRowSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedAverageRowSize);
+            }
+        }
+
         public static string ActualDataSize
         {
             get
             {
                 return Keys.GetString(Keys.ActualDataSize);
-            }
-        }
-
-        public static string EstiamtedDataSize
-        {
-            get
-            {
-                return Keys.GetString(Keys.EstiamtedDataSize);
             }
         }
 
@@ -13076,10 +13076,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EstimatedIO = "EstimatedIO";
 
 
+            public const string EstimatedAverageRowSize = "EstimatedAverageRowSize";
+
+
             public const string ActualDataSize = "ActualDataSize";
-
-
-            public const string EstiamtedDataSize = "EstiamtedDataSize";
 
 
             public const string TableNotInitializedException = "TableNotInitializedException";

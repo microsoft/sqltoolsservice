@@ -2247,8 +2247,8 @@ ActualExecutions = Actual Executions
 EstimatedExecutions = Estimated Executions
 EstimatedCpu = Estimated CPU Cost
 EstimatedIO = Estimated IO Cost
+EstimatedAverageRowSize = Estimated Average Row Size
 ActualDataSize = Actual Data Size
-EstiamtedDataSize = Est Data Size
 
 ############################################################################
 # Table Designer

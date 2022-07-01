@@ -6249,9 +6249,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Actual Data Size</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstiamtedDataSize">
-        <source>Est Data Size</source>
-        <target state="new">Est Data Size</target>
+      <trans-unit id="EstimatedAverageRowSize">
+        <source>Estimated Average Row Size</source>
+        <target state="new">Estimated Average Row Size</target>
         <note></note>
       </trans-unit>
     </body>

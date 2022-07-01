@@ -208,13 +208,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 });
             }
 
-            if (currentNode["EstimatedDataSize"] != null)
+            if (currentNode["AvgRowSize"] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
-                    ColumnName = SR.EstimatedRows,
+                    ColumnName = SR.EstimatedAverageRowSize,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["EstimatedDataSize"]
+                    DisplayValue = currentNode["AvgRowSize"]
                 });
             }
 
