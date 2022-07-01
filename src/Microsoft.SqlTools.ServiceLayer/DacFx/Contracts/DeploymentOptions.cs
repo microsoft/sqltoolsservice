@@ -118,11 +118,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             options.IgnoreKeywordCasing = false;
             options.IgnoreSemicolonBetweenStatements = false;
 
-            // Set the default options properties
-            PopulateBooleanOptionsDict(options);
+            // Initializing the default boolean type options to the BooleanOptionsDict
+            InitializeBooleanTypeOptions(options);
 
             // Excluding ExcludeObjectTypes to get the STS default values
-            // preparing all non boolean properties
+            // Initialize all non boolean properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Populates BooleanOptionsDict with the boolean type properties
         /// </summary>
         /// <param name="options"></param>
-        public void PopulateBooleanOptionsDict(DacDeployOptions options)
+        public void InitializeBooleanTypeOptions(DacDeployOptions options)
         {
             // To fill the options map table directly from the boolean type DacDeployoptions
             PropertyInfo[] dacDeploymentOptionsProperties = options.GetType().GetProperties();
@@ -205,15 +205,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             // Set the default options properties
-            PopulateBooleanOptionsDict(options);
-            SetGenericDacDeploymentProperties(options);
+            InitializeBooleanTypeOptions(options);
+            InitializeNonBooleanTypeOptions(options);
         }
 
         /// <summary>
         /// Preparing all non boolean properties (except BooleanOptionsDict)
         /// </summary>
         /// <param name="options"></param>
-        public void SetGenericDacDeploymentProperties(DacDeployOptions options)
+        public void InitializeNonBooleanTypeOptions(DacDeployOptions options)
         {
             // preparing remaining properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
