@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.Utility
             int uniqueId;
             try
             {
-                uniqueId = Process.GetCurrentProcess().Id;
+                uniqueId = Environment.ProcessId;
             }
             catch (Exception ex)
             {
