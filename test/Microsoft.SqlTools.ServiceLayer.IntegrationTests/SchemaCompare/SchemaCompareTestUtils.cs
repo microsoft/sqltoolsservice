@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDict))
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 {
                     var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
                     Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {deployOptionsProp.Name}");
@@ -153,8 +153,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 }
             }
 
-            // Verify the booleanOptionsDict with the DacDeployOptions property values
-            VerifyBooleanOptionsDict(deploymentOptions.BooleanOptionsDict, dacDeployOptions);
+            // Verify the booleanOptionsDictionary with the DacDeployOptions property values
+            VerifyBooleanOptionsDictionary(deploymentOptions.BooleanOptionsDictionary, dacDeployOptions);
         }
 
         internal static bool ValidateOptionsEqualsDefault(SchemaCompareOptionsResult options)
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
             foreach (PropertyInfo v in deploymentOptionsProperties)
             {
-                if (v.Name != nameof(DeploymentOptions.BooleanOptionsDict))
+                if (v.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 {
                     var defaultP = v.GetValue(defaultOpt);
                     var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
@@ -186,21 +186,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 }
             }
 
-            // Verify the default booleanOptionsDict with the SchemaCompareOptionsResult options property values
+            // Verify the default booleanOptionsDictionary with the SchemaCompareOptionsResult options property values
             DacFxServiceTests dacFxServiceTests = new DacFxServiceTests();
-            dacFxServiceTests.VerifyExpectedAndActualBooleanOptionsDict(defaultOpt.BooleanOptionsDict, options.DefaultDeploymentOptions.BooleanOptionsDict);
+            dacFxServiceTests.VerifyExpectedAndActualBooleanOptionsDictionary(defaultOpt.BooleanOptionsDictionary, options.DefaultDeploymentOptions.BooleanOptionsDictionary);
 
             return true;
         }
 
         /// <summary>
-        /// Validates the DeploymentOptions booleanOptionsDict with the DacDeployOptions
+        /// Validates the DeploymentOptions booleanOptionsDictionary with the DacDeployOptions
         /// </summary>
-        /// <param name="expectedBooleanOptionsDict"></param>
+        /// <param name="expectedBooleanOptionsDictionary"></param>
         /// <param name="dacDeployOptions"></param>
-        private static void VerifyBooleanOptionsDict(Dictionary<string, DeploymentOptionProperty<bool>> expectedBooleanOptionsDict, DacDeployOptions dacDeployOptions)
+        private static void VerifyBooleanOptionsDictionary(Dictionary<string, DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, DacDeployOptions dacDeployOptions)
         {
-            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDict)
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
             {
                 var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
                 Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {optionRow.Key}");

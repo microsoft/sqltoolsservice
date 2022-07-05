@@ -27,17 +27,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Default and selected value of the deployment options
+        /// Default and selected value of the deployment option
         /// </summary>
         public T Value { get; set; }
 
         /// <summary>
-        /// Description of the deployment options
+        /// Description of the deployment option
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// Display name of the property
+        /// Display name of the deployment option
         /// </summary>
         public string DisplayName { get; set; }
     }
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// <summary>
     /// Class to define deployment options.
     /// The default property names here should also match the ADS UX
-    /// BooleanOptionsDict will automatically gets the newly added boolean properties from DacFx, All other types should be added here and ADS
+    /// BooleanOptionsDictionary will automatically gets the newly added boolean properties from DacFx, All other types should be added here and ADS
     /// </summary>
     public class DeploymentOptions
     {
@@ -97,16 +97,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         );
 
         /// <summary>
-        /// BooleanOptionsDict contains all boolean type deployment options
+        /// BooleanOptionsDictionary contains all boolean type deployment options
         /// </summary>
-        public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDict { get; set; }
+        public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; }
 
         #endregion
 
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
-            BooleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
+            BooleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
@@ -118,15 +118,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             options.IgnoreKeywordCasing = false;
             options.IgnoreSemicolonBetweenStatements = false;
 
-            // Initializing the default boolean type options to the BooleanOptionsDict
+            // Initializing the default boolean type options to the BooleanOptionsDictionary
             InitializeBooleanTypeOptions(options);
 
-            // Excluding ExcludeObjectTypes to get the STS default values
             // Initialize all non boolean properties
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != nameof(DeploymentOptions.ExcludeObjectTypes) && deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDict))
+                // Except ExcludeObjectTypes, as it has some STS defaults which needs to be considered here
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.ExcludeObjectTypes) && deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 { 
                     var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public DeploymentOptions(DacDeployOptions options)
         {
-            BooleanOptionsDict = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
+            BooleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
             SetOptions(options);
         }
@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Populates BooleanOptionsDict with the boolean type properties
+        /// Populates BooleanOptionsDictionary with the boolean type properties
         /// </summary>
         /// <param name="options"></param>
         public void InitializeBooleanTypeOptions(DacDeployOptions options)
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 if (prop.PropertyType == typeof(System.Boolean))
                 {
                     object setProp = GetDeploymentOptionProp(prop, options);
-                    this.BooleanOptionsDict[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
+                    this.BooleanOptionsDictionary[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Preparing all non boolean properties (except BooleanOptionsDict)
+        /// Preparing all non boolean properties (except BooleanOptionsDictionary)
         /// </summary>
         /// <param name="options"></param>
         public void InitializeNonBooleanTypeOptions(DacDeployOptions options)
@@ -219,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDict))
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 {
                     var prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
