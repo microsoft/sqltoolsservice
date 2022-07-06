@@ -26,8 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     internal static class SchemaCompareUtils
     {
         /// <summary>
-        /// BooleanOptionsDictionary has all the deployment options and is being processed separately in the second iteration by collecting it in first iteration.
-        /// Where as all other properties are being processed in the first iteration itself.
+        /// Converts DeploymentOptions used in STS and ADS to DacDeployOptions which can be passed to the DacFx apis
         /// </summary>
         /// <param name="deploymentOptions"></param>
         /// <returns>DacDeployOptions</returns
@@ -41,7 +40,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 Type propType = dacOptions.GetType();
                 Dictionary<string, DeploymentOptionProperty<bool>> booleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>();
 
-                // Get the BooleanOptionsDictionary property which has the updated option values
                 foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
                 {
                     var prop = propType.GetProperty(deployOptionsProp.Name);
@@ -57,14 +55,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         }
                     }
 
-                    // Exclude the direct properties values and considering the booleanOptionsDictionary values
+                    // BooleanOptionsDictionary has all the deployment options and is being processed separately in the second iteration by collecting here
                     if (deployOptionsProp.Name == nameof(deploymentOptions.BooleanOptionsDictionary))
                     {
                         booleanOptionsDictionary = deploymentOptions.BooleanOptionsDictionary as Dictionary<string, DeploymentOptionProperty<bool>>;
                     }
                 }
 
-                // Iterating through the updated boolean options coming from the booleanOptionsDict and assigning them to DacDeployOptions
+                // Iterating through the updated boolean options coming from the booleanOptionsDictionary and assigning them to DacDeployOptions
                 foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in booleanOptionsDictionary)
                 {
                     var prop = propType.GetProperty(deployOptionsProp.Key);

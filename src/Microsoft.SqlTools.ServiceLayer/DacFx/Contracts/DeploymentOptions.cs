@@ -44,30 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
     /// <summary>
     /// Class to define deployment options.
-    /// The default property names here should also match the ADS UX
+    /// These property names will be given to the DeploymentOptions interface defined in ADS 'azuredatastudio\extensions\mssql\src\mssql.d.ts' and 'azuredatastudio\extensions\types\vscode-mssql.d.ts'
     /// BooleanOptionsDictionary will automatically gets the newly added boolean properties from DacFx, All other types should be added here and ADS
     /// </summary>
     public class DeploymentOptions
     {
         #region Properties
-
-        // Command timeout to 120 seconds when executing queries against SQL Server.
-        public DeploymentOptionProperty<int> CommandTimeout { get; set; } = new DeploymentOptionProperty<int>(120);
-
-        // LongRunningCommandTimeout 0 seconds to wait indefinitely.
-        public DeploymentOptionProperty<int> LongRunningCommandTimeout { get; set; } = new DeploymentOptionProperty<int>(0);
-
-        // Wait 60 seconds to lock database when executing queries against SQL Server.
-        public DeploymentOptionProperty<int> DatabaseLockTimeout { get; set; } = new DeploymentOptionProperty<int>(60);
-
-        public DeploymentOptionProperty<string> AdditionalDeploymentContributorArguments { get; set; }
-
-        public DeploymentOptionProperty<string> AdditionalDeploymentContributors { get; set; }
-
-        public DeploymentOptionProperty<string> AdditionalDeploymentContributorPaths { get; set; }
-
-        public DeploymentOptionProperty<ObjectType[]> DoNotDropObjectTypes { get; set; }
-
         public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
         (
             new ObjectType[] {
@@ -99,14 +81,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// BooleanOptionsDictionary contains all boolean type deployment options
         /// </summary>
-        public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; }
+        public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; } = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
         #endregion
 
         public DeploymentOptions()
         {
             DacDeployOptions options = new DacDeployOptions();
-            BooleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
             // Adding these defaults to ensure behavior similarity with other tools. Dacfx and SSMS import/export wizards use these defaults.
             // Tracking the full fix : https://github.com/microsoft/azuredatastudio/issues/5599
@@ -119,26 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             options.IgnoreSemicolonBetweenStatements = false;
 
             // Initializing the default boolean type options to the BooleanOptionsDictionary
+            // Not considering DacFx default ExcludeObjectTypes, as it has some STS defaults which needs to be considered here, DacFx defaults are only considered for InitializeFromProfile(), where options are loading from profile
             InitializeBooleanTypeOptions(options);
-
-            // Initialize all non boolean properties
-            PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
-            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
-            {
-                // Except ExcludeObjectTypes, as it has some STS defaults which needs to be considered here
-                if (deployOptionsProp.Name != nameof(DeploymentOptions.ExcludeObjectTypes) && deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
-                { 
-                    var prop = options.GetType().GetProperty(deployOptionsProp.Name);
-                    object setProp = GetDeploymentOptionProp(prop, options);
-                    deployOptionsProp.SetValue(this, setProp);
-                }
-            }
         }
 
         public DeploymentOptions(DacDeployOptions options)
         {
-            BooleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
-
             SetOptions(options);
         }
 
@@ -189,11 +156,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <param name="options"></param>
         public void InitializeBooleanTypeOptions(DacDeployOptions options)
         {
-            // To fill the options map table directly from the boolean type DacDeployoptions
             PropertyInfo[] dacDeploymentOptionsProperties = options.GetType().GetProperties();
             foreach (PropertyInfo  prop in dacDeploymentOptionsProperties)
             {
-                if (prop.PropertyType == typeof(System.Boolean))
+                if (prop != null && prop.PropertyType == typeof(System.Boolean))
                 {
                     object setProp = GetDeploymentOptionProp(prop, options);
                     this.BooleanOptionsDictionary[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
@@ -203,7 +169,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 
         public void SetOptions(DacDeployOptions options)
         {
-            System.Reflection.PropertyInfo[] deploymentOptionsProperties = this.GetType().GetProperties();
             // Set the default options properties
             InitializeBooleanTypeOptions(options);
             InitializeNonBooleanTypeOptions(options);
@@ -221,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             {
                 if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 {
-                    var prop = options.GetType().GetProperty(deployOptionsProp.Name);
+                    PropertyInfo prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
                     deployOptionsProp.SetValue(this, setProp);
                 }
@@ -233,15 +198,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// </summary>
         /// <param name="prop"></param>
         /// <param name="options"></param>
-        public object GetDeploymentOptionProp(PropertyInfo? prop, DacDeployOptions options)
+        public object GetDeploymentOptionProp(PropertyInfo prop, DacDeployOptions options)
         {
             var val = prop.GetValue(options);
-            DescriptionAttribute descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>(true).FirstOrDefault(); 
+            DescriptionAttribute descriptionAttribute = prop.GetCustomAttributes<DescriptionAttribute>().FirstOrDefault(); 
             DisplayNameAttribute displayNameAttribute = prop.GetCustomAttributes<DisplayNameAttribute>().FirstOrDefault();
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType())
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
 
-            object setProp = Activator.CreateInstance(type, val, descriptionAttribute.Description, displayNameAttribute.DisplayName);
+            object setProp = Activator.CreateInstance(type, val, 
+                (descriptionAttribute != null ? descriptionAttribute.Description : ""), 
+                (displayNameAttribute != null ? displayNameAttribute.DisplayName : ""));
             return setProp;
         }
 

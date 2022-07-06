@@ -592,7 +592,7 @@ FROM MissingEdgeHubInputStream'";
                 };
 
                 // Updating the BooleanOptionsDictionary since it has all the boolean type options
-                deployParams.DeploymentOptions.BooleanOptionsDictionary["DropObjectsNotInSource"].Value = false;
+                deployParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
 
                 // expect table3 to not have been dropped and view1 to not have been created
                 await VerifyDeployWithOptions(deployParams, targetDb, service, result.ConnectionInfo, expectedTableResult: "table3", expectedViewResult: null);
@@ -672,7 +672,7 @@ FROM MissingEdgeHubInputStream'";
                 };
 
                 // Updating the BooleanOptionsDictionary since it has all the boolean type properties
-                generateScriptFalseOptionParams.DeploymentOptions.BooleanOptionsDictionary["DropObjectsNotInSource"].Value = false;
+                generateScriptFalseOptionParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
 
                 var generateScriptFalseOptionOperation = new GenerateDeployScriptOperation(generateScriptFalseOptionParams, result.ConnectionInfo);
                 service.PerformOperation(generateScriptFalseOptionOperation, TaskExecutionMode.Execute);
@@ -731,10 +731,10 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.BooleanOptionsDictionary["IncludeCompositeObjects"].Value = true;
-            expectedResults.BooleanOptionsDictionary["BlockOnPossibleDataLoss"].Value = true;
-            expectedResults.BooleanOptionsDictionary["AllowIncompatiblePlatform"].Value = true;
-            expectedResults.BooleanOptionsDictionary["DisableIndexesForDataPhase"].Value = false;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeCompositeObjects)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -923,7 +923,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 var expectedValue = optionRow.Value.Value;
                 var actualValue = actualBooleanOptionsDictionary[optionRow.Key].Value;
 
-                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Expected value: {expectedValue}");
+                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}");
             }
         }
     }

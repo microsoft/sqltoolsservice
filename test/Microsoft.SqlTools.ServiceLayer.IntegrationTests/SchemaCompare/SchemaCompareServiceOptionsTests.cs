@@ -72,7 +72,7 @@ END
         private DeploymentOptions GetIgnoreColumnOptions()
         {
             var options = new DeploymentOptions();
-            options.BooleanOptionsDictionary["IgnoreColumnOrder"].Value = true;
+            options.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreColumnOrder)].Value = true;
             return options;
         }
 

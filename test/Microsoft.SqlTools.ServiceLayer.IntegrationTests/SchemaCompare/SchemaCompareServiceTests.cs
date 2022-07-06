@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using System.Collections.Generic;
+using Microsoft.SqlServer.Dac;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -1830,13 +1831,13 @@ WITH VALUES
             };
 
             // change some random ones explicitly
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["AllowDropBlockingAssemblies"].Value = true;
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["DropConstraintsNotInSource"].Value = true;
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["IgnoreAnsiNulls"].Value = true;
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["NoAlterStatementsToChangeClrTypes"].Value = false;
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["PopulateFilesOnFileGroups"].Value = false;
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["VerifyDeployment"].Value = false;
-            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary["DisableIndexesForDataPhase"].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropConstraintsNotInSource)].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreAnsiNulls)].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.NoAlterStatementsToChangeClrTypes)].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.PopulateFilesOnFileGroups)].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.VerifyDeployment)].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
 
             SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);

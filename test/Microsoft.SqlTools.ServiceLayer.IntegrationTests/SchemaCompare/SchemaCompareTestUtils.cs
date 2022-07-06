@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
                 var actualValue = dacProp.GetValue(dacDeployOptions);
                 var expectedValue = optionRow.Value.Value;
 
-                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}, Actual value: {actualValue} and Default value: {expectedValue}");
+                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}");
             }
         }
     }
