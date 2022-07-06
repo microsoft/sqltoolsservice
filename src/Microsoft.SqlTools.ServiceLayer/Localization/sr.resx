@@ -4644,6 +4644,54 @@ The Query Processor estimates that implementing the following index could improv
     <value>Parallel Execution</value>
     <comment>tooltip text for node parallelism overlay</comment>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operation</value>
+    <comment></comment>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Object</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Estimated Cost %</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Estimated Subtree Cost %</value>
+    <comment></comment>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Actual Rows</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Estimated Rows</value>
+    <comment></comment>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Actual Executions</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Estimated Executions</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Estimated CPU Cost</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Estimated IO Cost</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Estimated Average Row Size</value>
+    <comment></comment>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Actual Data Size</value>
+    <comment></comment>
+  </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
     <comment>.
