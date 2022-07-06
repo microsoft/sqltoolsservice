@@ -245,4 +245,8 @@
     <value>Could not find included file {0}.</value>
     <comment></comment>
   </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>Parameter contains a null, empty, or whitespace string.</value>
+    <comment></comment>
+  </data>
 </root>
