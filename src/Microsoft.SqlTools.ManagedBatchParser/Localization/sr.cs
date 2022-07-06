@@ -285,6 +285,14 @@ namespace Microsoft.SqlTools.ManagedBatchParser
             }
         }
 
+        public static string NullEmptyOrWhitespaceString
+        {
+            get
+            {
+                return Keys.GetString(Keys.NullEmptyOrWhitespaceString);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -387,6 +395,9 @@ namespace Microsoft.SqlTools.ManagedBatchParser
 
 
             public const string SqlCmd_FailedInclude = "SqlCmd_FailedInclude";
+
+
+            public const string NullEmptyOrWhitespaceString = "NullEmptyOrWhitespaceString";
 
 
             private Keys()
