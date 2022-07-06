@@ -79,6 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Add badge icon to nodes like warnings and parallelism
         /// </summary>
         public List<Badge> Badges { get; set; }
+        /// <summary>
+        /// Top operations table data for the node
+        /// </summary>
+        public List<TopOperationsDataItem> TopOperationsData { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase
@@ -205,5 +209,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         String = 1,
         Boolean = 2,
         Nested = 3
+    }
+
+    public class TopOperationsDataItem
+    {
+        public string ColumnName { get; set; }
+        public PropertyValueDataType DataType { get; set; }
+        public object DisplayValue { get; set; }
     }
 }
