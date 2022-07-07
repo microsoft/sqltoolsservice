@@ -4,6 +4,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -14,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -23,31 +25,60 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     internal static class SchemaCompareUtils
     {
+        /// <summary>
+        /// Converts DeploymentOptions used in STS and ADS to DacDeployOptions which can be passed to the DacFx apis
+        /// </summary>
+        /// <param name="deploymentOptions"></param>
+        /// <returns>DacDeployOptions</returns
         internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
         {
-            PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
-
-            DacDeployOptions dacOptions = new DacDeployOptions();
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            try
             {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
-                if (prop != null)
-                {
-                    var val = deployOptionsProp.GetValue(deploymentOptions);
-                    var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+                PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
-                    // JSON.NET by default reads Number type as Int64, deserializing an object type to dacOptions of Int32 type required to convert into Int32 from Int64.
-                    // If not converted setting value(Int64) to dacOption(Int32) will throw {"Object of type 'System.Int64' cannot be converted to type 'System.Int32'."}.
-                    // As these integer type options are non-editable and are not availbale in ADS to update, integer overflow exception will not be happening here.
-                    if (selectedVal != null && selectedVal.GetType() == typeof(System.Int64))
+                DacDeployOptions dacOptions = new DacDeployOptions();
+                Type propType = dacOptions.GetType();
+                Dictionary<string, DeploymentOptionProperty<bool>> booleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>();
+
+                foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
+                {
+                    var prop = propType.GetProperty(deployOptionsProp.Name);
+                    if (prop != null)
                     {
-                        selectedVal = Convert.ToInt32(selectedVal);
+                        var val = deployOptionsProp.GetValue(deploymentOptions);
+                        var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+
+                        // Set the excludeObjectTypes values to the DacDeployOptions
+                        if (selectedVal != null && deployOptionsProp.Name == nameof(deploymentOptions.ExcludeObjectTypes))
+                        {
+                            prop.SetValue(dacOptions, selectedVal);
+                        }
                     }
 
-                    prop.SetValue(dacOptions, selectedVal);
+                    // BooleanOptionsDictionary has all the deployment options and is being processed separately in the second iteration by collecting here
+                    if (deployOptionsProp.Name == nameof(deploymentOptions.BooleanOptionsDictionary))
+                    {
+                        booleanOptionsDictionary = deploymentOptions.BooleanOptionsDictionary as Dictionary<string, DeploymentOptionProperty<bool>>;
+                    }
                 }
+
+                // Iterating through the updated boolean options coming from the booleanOptionsDictionary and assigning them to DacDeployOptions
+                foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> deployOptionsProp in booleanOptionsDictionary)
+                {
+                    var prop = propType.GetProperty(deployOptionsProp.Key);
+                    if (prop != null)
+                    {
+                        var selectedVal = deployOptionsProp.Value.Value;
+                        prop.SetValue(dacOptions, selectedVal);
+                    }
+                }
+                return dacOptions;
             }
-            return dacOptions;
+            catch (Exception e)
+            {
+                Logger.Write(TraceEventType.Error, string.Format("Schema compare create options model failed: {0}", e.Message));
+                throw;
+            }
         }
 
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
