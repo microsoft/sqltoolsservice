@@ -3790,4 +3790,40 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>Nello script sono presenti più definizioni di tabella. Solo la prima tabella può essere modificata nella finestra di progettazione.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operazione</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Oggetto</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Estimated Cost %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Estimated Subtree Cost %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Righe effettive</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Righe stimate</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Esecuzioni effettive</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Estimated Executions</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Costo CPU stimato</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Estimated IO Cost</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Actual Data Size</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Estimated Average Row Size</value>
+  </data>
 </root>

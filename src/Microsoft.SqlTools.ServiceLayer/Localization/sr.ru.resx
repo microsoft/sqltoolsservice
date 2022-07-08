@@ -3790,4 +3790,40 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>В сценарии имеется несколько определений таблиц. В конструкторе можно редактировать только первую таблицу.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Операция</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Объект</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Предполагаемая стоимость %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Предполагаемая стоимость поддерева %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Фактическое число строк</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Предполагаемое число строк</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Фактическое количество выполнений</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Предполагаемое количество выполнений</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Предполагаемая стоимость ЦП</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Предполагаемая стоимость операций ввода-вывода</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Фактический размер данных</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Предполагаемый средний размер строки</value>
+  </data>
 </root>

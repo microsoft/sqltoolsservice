@@ -3790,4 +3790,40 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>Das Skript enthält mehrere Tabellendefinitionen, nur die erste Tabelle kann im Designer bearbeitet werden.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Vorgang</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Objekt</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Geschätzte Kosten in %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Geschätzte Teilstrukturkosten in %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Tatsächliche Zeilen</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Geschätzte Zeilen</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Tatsächliche Ausführungen</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Geschätzte Ausführungen</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Geschätzte CPU-Kosten</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Geschätzte E/A-Kosten</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Tatsächliche Datengröße</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Geschätzte durchschnittliche Zeilengröße</value>
+  </data>
 </root>

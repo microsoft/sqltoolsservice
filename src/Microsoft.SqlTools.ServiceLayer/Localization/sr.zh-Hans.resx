@@ -3790,4 +3790,40 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>脚本中存在多个表定义，只能在设计器中编辑第一个表。</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>对象</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Estimated Cost %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Estimated Subtree Cost %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>实际行数</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>估计行数</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>实际执行次数</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Estimated Executions</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>估计的 CPU 成本</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Estimated IO Cost</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Actual Data Size</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Estimated Average Row Size</value>
+  </data>
 </root>
