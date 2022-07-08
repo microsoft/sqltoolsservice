@@ -6194,6 +6194,66 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">スクリプトに複数のテーブル定義があり、デザイナーで編集できるのは最初のテーブルのみです。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Operation">
+        <source>Operation</source>
+        <target state="translated">操作</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Object">
+        <source>Object</source>
+        <target state="translated">オブジェクト</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCost">
+        <source>Estimated Cost %</source>
+        <target state="translated">推定コスト %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtree">
+        <source>Estimated Subtree Cost %</source>
+        <target state="translated">サブツリーの推定コスト %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualRows">
+        <source>Actual Rows</source>
+        <target state="translated">実際の行数</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedRows">
+        <source>Estimated Rows</source>
+        <target state="translated">推定行数</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualExecutions">
+        <source>Actual Executions</source>
+        <target state="translated">実際の実行回数</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecutions">
+        <source>Estimated Executions</source>
+        <target state="translated">推定実行回数</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpu">
+        <source>Estimated CPU Cost</source>
+        <target state="translated">CPU の推定コスト</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedIO">
+        <source>Estimated IO Cost</source>
+        <target state="translated">IO の推定コスト</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualDataSize">
+        <source>Actual Data Size</source>
+        <target state="translated">実際のデータ サイズ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedAverageRowSize">
+        <source>Estimated Average Row Size</source>
+        <target state="translated">推定の行の平均サイズ</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

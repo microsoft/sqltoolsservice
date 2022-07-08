@@ -55,6 +55,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ActualDataSize" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Actual Data Size]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dimensioni totali dei dati:]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ActualElapsedms" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Actual Elapsed Time (ms)]]></Val>
@@ -87,6 +96,15 @@
           <Val><![CDATA[Actual Execution Mode]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Modalità di esecuzione effettiva]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ActualExecutions" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Actual Executions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Esecuzioni effettive]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -375,6 +393,15 @@
           <Val><![CDATA[Actual Rewinds.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Ripristini effettivi.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ActualRows" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Actual Rows]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Righe effettive]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2422,6 +2449,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";EstimatedAverageRowSize" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated Average Row Size]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dimensioni medie stimate riga]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EstimatedCost" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated Cost %]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Costo stimato %]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EstimatedCpu" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated CPU Cost]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Costo CPU stimato]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";EstimatedCpuCost" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Estimated CPU Cost]]></Val>
@@ -2472,6 +2526,24 @@
           <Val><![CDATA[Estimated Execution Mode]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Modalità di esecuzione stimata]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EstimatedExecutions" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated Executions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Esecuzioni stimate]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EstimatedIO" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated IO Cost]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Costo I/O stimato]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2638,6 +2710,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";EstimatedRows" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated Rows]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Righe stimate]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";EstimatedRowsRead" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Estimated Number of Rows to be Read]]></Val>
@@ -2652,6 +2733,15 @@
           <Val><![CDATA[Number of rows estimated to be read by this operator. This value may differ from "Estimated Number of Rows for All Executions" if the operator has a predicate.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Numero stimato di righe che verrà letto da questo operatore. Tale valore può essere diverso da "Numero stimato di righe per tutte le esecuzioni" se l'operatore ha un predicato.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";EstimatedSubtree" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Estimated Subtree Cost %]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Costo stimato sottoalbero %]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5182,6 +5272,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";Object" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Object]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Oggetto]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ObjectAlias" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Alias]]></Val>
@@ -5358,6 +5457,15 @@
           <Val><![CDATA[Error encountered while trying to parse connection information for endpoint '{0}' with error message '{1}']]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[È stato rilevato un errore durante il tentativo di analizzare le informazioni sulla connessione per l'endpoint '{0}'. Messaggio di errore: '{1}']]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";Operation" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Operation]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Operazione]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

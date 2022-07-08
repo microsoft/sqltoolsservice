@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
-        {   
+        {
             return new ExecutionPlanNode
             {
                 ID = currentNode.ID,
@@ -49,7 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Edges = currentNode.Edges.Select(x => ConvertShowPlanEdgeToExecutionPlanEdge(x)).ToList(),
                 Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
-                ElapsedTimeInMs = currentNode.ElapsedTimeInMs
+                ElapsedTimeInMs = currentNode.ElapsedTimeInMs,
+                TopOperationsData = ParseTopOperationsData(currentNode)
             };
         }
 
@@ -161,6 +162,173 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
             }
             return propsList;
+        }
+
+        public static List<TopOperationsDataItem> ParseTopOperationsData(Node currentNode)
+        {
+            List<TopOperationsDataItem> result = new List<TopOperationsDataItem>();
+            result.Add(new TopOperationsDataItem
+            {
+                ColumnName = SR.Operation,
+                DataType = PropertyValueDataType.String,
+                DisplayValue = currentNode.Operation.DisplayName
+            });
+
+            if (currentNode["Object"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Object,
+                    DataType = PropertyValueDataType.String,
+                    DisplayValue =  ((ExpandableObjectWrapper)currentNode["Object"]).DisplayName
+                });
+            }
+
+            result.Add(new TopOperationsDataItem
+            {
+                ColumnName = SR.EstimatedCost,
+                DataType = PropertyValueDataType.Number,
+                DisplayValue = Math.Round(currentNode.Cost, 1)
+            });
+
+            result.Add(new TopOperationsDataItem
+            {
+                ColumnName = SR.EstimatedSubtree,
+                DataType = PropertyValueDataType.Number,
+                DisplayValue = Math.Round(currentNode.SubtreeCost, 1)
+            });
+
+            if (currentNode["ActualRows"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualRows,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["ActualRows"]
+                });
+            }
+
+            if (currentNode["AvgRowSize"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedAverageRowSize,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["AvgRowSize"]
+                });
+            }
+
+            if (currentNode["ActualExecutions"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualExecutions,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["ActualExecutions"]
+                });
+            }
+
+            if (currentNode["EstimateExecutions"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedExecutions,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["EstimateExecutions"]
+                });
+            }
+
+            if (currentNode["EstimateCPU"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedCpu,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["EstimateCPU"]
+                });
+            }
+
+            if (currentNode["EstimateIO"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedIO,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["EstimateIO"]
+                });
+            }
+
+            if (currentNode["Parallel"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Parallel,
+                    DataType = PropertyValueDataType.Boolean,
+                    DisplayValue = currentNode["Parallel"]
+                });
+            }
+
+            if (currentNode["Ordered"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Ordered,
+                    DataType = PropertyValueDataType.Boolean,
+                    DisplayValue = currentNode["Ordered"]
+                });
+            }
+
+            if (currentNode["ActualRewinds"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualRewinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["ActualRewinds"]
+                });
+            }
+
+            if (currentNode["EstimateRewinds"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedRewinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["EstimateRewinds"]
+                });
+            }
+
+            if (currentNode["ActualRebinds"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualRebinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["ActualRebinds"]
+                });
+            }
+
+
+            if (currentNode["EstimateRebinds"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedRebinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode["EstimateRebinds"]
+                });
+            }
+
+            if (currentNode["Partitioned"] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Partitioned,
+                    DataType = PropertyValueDataType.Boolean,
+                    DisplayValue = currentNode["Partitioned"]
+                });
+            }
+            return result;
         }
 
         private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph g, string fileName)

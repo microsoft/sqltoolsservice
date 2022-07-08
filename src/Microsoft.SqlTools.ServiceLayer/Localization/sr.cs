@@ -8485,6 +8485,102 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Operation
+        {
+            get
+            {
+                return Keys.GetString(Keys.Operation);
+            }
+        }
+
+        public static string Object
+        {
+            get
+            {
+                return Keys.GetString(Keys.Object);
+            }
+        }
+
+        public static string EstimatedCost
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedCost);
+            }
+        }
+
+        public static string EstimatedSubtree
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedSubtree);
+            }
+        }
+
+        public static string ActualRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRows);
+            }
+        }
+
+        public static string EstimatedRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRows);
+            }
+        }
+
+        public static string ActualExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualExecutions);
+            }
+        }
+
+        public static string EstimatedExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedExecutions);
+            }
+        }
+
+        public static string EstimatedCpu
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedCpu);
+            }
+        }
+
+        public static string EstimatedIO
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedIO);
+            }
+        }
+
+        public static string EstimatedAverageRowSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedAverageRowSize);
+            }
+        }
+
+        public static string ActualDataSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualDataSize);
+            }
+        }
+
         public static string TableEditPathNotProvidedException
         {
             get
@@ -12948,6 +13044,42 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ParallelismOverlayTooltip = "ParallelismOverlayTooltip";
+
+
+            public const string Operation = "Operation";
+
+
+            public const string Object = "Object";
+
+
+            public const string EstimatedCost = "EstimatedCost";
+
+
+            public const string EstimatedSubtree = "EstimatedSubtree";
+
+
+            public const string ActualRows = "ActualRows";
+
+
+            public const string EstimatedRows = "EstimatedRows";
+
+
+            public const string ActualExecutions = "ActualExecutions";
+
+
+            public const string EstimatedExecutions = "EstimatedExecutions";
+
+
+            public const string EstimatedCpu = "EstimatedCpu";
+
+
+            public const string EstimatedIO = "EstimatedIO";
+
+
+            public const string EstimatedAverageRowSize = "EstimatedAverageRowSize";
+
+
+            public const string ActualDataSize = "ActualDataSize";
 
 
             public const string TableNotInitializedException = "TableNotInitializedException";
