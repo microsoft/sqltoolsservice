@@ -3790,4 +3790,40 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>스크립트에는 여러 테이블 정의가 있으며 디자이너에서 첫 번째 테이블만 편집할 수 있습니다.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>작업</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>개체</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Estimated Cost %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Estimated Subtree Cost %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>실제 행 수</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>예상 행 수</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>실제 실행 수</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Estimated Executions</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>예상 CPU 비용</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Estimated IO Cost</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Actual Data Size</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Estimated Average Row Size</value>
+  </data>
 </root>

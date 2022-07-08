@@ -6194,6 +6194,66 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Das Skript enthält mehrere Tabellendefinitionen, nur die erste Tabelle kann im Designer bearbeitet werden.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Operation">
+        <source>Operation</source>
+        <target state="translated">Vorgang</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Object">
+        <source>Object</source>
+        <target state="translated">Objekt</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCost">
+        <source>Estimated Cost %</source>
+        <target state="translated">Geschätzte Kosten in %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtree">
+        <source>Estimated Subtree Cost %</source>
+        <target state="translated">Geschätzte Teilstrukturkosten in %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualRows">
+        <source>Actual Rows</source>
+        <target state="translated">Tatsächliche Zeilen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedRows">
+        <source>Estimated Rows</source>
+        <target state="translated">Geschätzte Zeilen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualExecutions">
+        <source>Actual Executions</source>
+        <target state="translated">Tatsächliche Ausführungen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecutions">
+        <source>Estimated Executions</source>
+        <target state="translated">Geschätzte Ausführungen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpu">
+        <source>Estimated CPU Cost</source>
+        <target state="translated">Geschätzte CPU-Kosten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedIO">
+        <source>Estimated IO Cost</source>
+        <target state="translated">Geschätzte E/A-Kosten</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualDataSize">
+        <source>Actual Data Size</source>
+        <target state="translated">Tatsächliche Datengröße</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedAverageRowSize">
+        <source>Estimated Average Row Size</source>
+        <target state="translated">Geschätzte durchschnittliche Zeilengröße</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

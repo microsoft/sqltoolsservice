@@ -3790,4 +3790,40 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>スクリプトに複数のテーブル定義があり、デザイナーで編集できるのは最初のテーブルのみです。</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>オブジェクト</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>推定コスト %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>サブツリーの推定コスト %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>実際の行数</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>推定行数</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>実際の実行回数</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>推定実行回数</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>CPU の推定コスト</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>IO の推定コスト</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>実際のデータ サイズ</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>推定の行の平均サイズ</value>
+  </data>
 </root>
