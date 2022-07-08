@@ -3790,4 +3790,40 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>Há múltiplas definições de tabela no script, somente a primeira tabela pode ser editada no designer.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operação</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Objeto</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>% do Custo Estimado</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>% do Custo Estimado da Subárvore</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Linhas Atuais</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Linhas Estimadas</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Execuções Reais</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Execuções Estimadas</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Custo estimado da CPU</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Custo Estimado de E/S</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Tamanho Real dos Dados</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Tamanho Médio Estimado da Linha</value>
+  </data>
 </root>
