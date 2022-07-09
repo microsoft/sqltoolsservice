@@ -6206,12 +6206,12 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
       </trans-unit>
       <trans-unit id="EstimatedCost">
         <source>Estimated Cost %</source>
-        <target state="new">Estimated Cost %</target>
+        <target state="translated">Costo stimato %</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
         <source>Estimated Subtree Cost %</source>
-        <target state="new">Estimated Subtree Cost %</target>
+        <target state="translated">Costo stimato sottoalbero %</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6231,7 +6231,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
       </trans-unit>
       <trans-unit id="EstimatedExecutions">
         <source>Estimated Executions</source>
-        <target state="new">Estimated Executions</target>
+        <target state="translated">Esecuzioni stimate</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedCpu">
@@ -6241,17 +6241,17 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
       </trans-unit>
       <trans-unit id="EstimatedIO">
         <source>Estimated IO Cost</source>
-        <target state="new">Estimated IO Cost</target>
+        <target state="translated">Costo I/O stimato</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualDataSize">
         <source>Actual Data Size</source>
-        <target state="new">Actual Data Size</target>
+        <target state="translated">Dimensioni totali dei dati:</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedAverageRowSize">
         <source>Estimated Average Row Size</source>
-        <target state="new">Estimated Average Row Size</target>
+        <target state="translated">Dimensioni medie stimate riga</target>
         <note></note>
       </trans-unit>
     </body>
