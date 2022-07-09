@@ -3797,33 +3797,33 @@
     <value>物件</value>
   </data>
   <data name="EstimatedCost" xml:space="preserve">
-    <value>Estimated Cost %</value>
+    <value>預估成本 %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Estimated Subtree Cost %</value>
+    <value>預估的樹狀子目錄成本 %</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>實際資料列數</value>
   </data>
   <data name="EstimatedRows" xml:space="preserve">
-    <value>估計的資料列</value>
+    <value>預估的資料列數</value>
   </data>
   <data name="ActualExecutions" xml:space="preserve">
     <value>實際執行次數</value>
   </data>
   <data name="EstimatedExecutions" xml:space="preserve">
-    <value>Estimated Executions</value>
+    <value>預估的執行數</value>
   </data>
   <data name="EstimatedCpu" xml:space="preserve">
-    <value>估計的 CPU 成本</value>
+    <value>預估的 CPU 成本</value>
   </data>
   <data name="EstimatedIO" xml:space="preserve">
-    <value>Estimated IO Cost</value>
+    <value>預估的 I/O 成本</value>
   </data>
   <data name="ActualDataSize" xml:space="preserve">
-    <value>Actual Data Size</value>
+    <value>實際資料大小</value>
   </data>
   <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Estimated Average Row Size</value>
+    <value>預估的平均資料列大小</value>
   </data>
 </root>

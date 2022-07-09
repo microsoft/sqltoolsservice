@@ -3797,10 +3797,10 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>Objeto</value>
   </data>
   <data name="EstimatedCost" xml:space="preserve">
-    <value>Estimated Cost %</value>
+    <value>Porcentaje de costo estimado</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Estimated Subtree Cost %</value>
+    <value>Porcentaje estimado de costo de subárbol</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>Filas reales</value>
@@ -3812,18 +3812,18 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>Ejecuciones reales</value>
   </data>
   <data name="EstimatedExecutions" xml:space="preserve">
-    <value>Estimated Executions</value>
+    <value>Ejecuciones estimadas</value>
   </data>
   <data name="EstimatedCpu" xml:space="preserve">
     <value>Coste de CPU estimado</value>
   </data>
   <data name="EstimatedIO" xml:space="preserve">
-    <value>Estimated IO Cost</value>
+    <value>Coste estimado de E/S</value>
   </data>
   <data name="ActualDataSize" xml:space="preserve">
-    <value>Actual Data Size</value>
+    <value>Tamaño real de los datos</value>
   </data>
   <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Estimated Average Row Size</value>
+    <value>Tamaño medio estimado de fila</value>
   </data>
 </root>

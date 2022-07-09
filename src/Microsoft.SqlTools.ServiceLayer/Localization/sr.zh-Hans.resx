@@ -3797,10 +3797,10 @@
     <value>对象</value>
   </data>
   <data name="EstimatedCost" xml:space="preserve">
-    <value>Estimated Cost %</value>
+    <value>估计成本百分比</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Estimated Subtree Cost %</value>
+    <value>估计子树成本百分比</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>实际行数</value>
@@ -3812,18 +3812,18 @@
     <value>实际执行次数</value>
   </data>
   <data name="EstimatedExecutions" xml:space="preserve">
-    <value>Estimated Executions</value>
+    <value>估计执行次数</value>
   </data>
   <data name="EstimatedCpu" xml:space="preserve">
     <value>估计的 CPU 成本</value>
   </data>
   <data name="EstimatedIO" xml:space="preserve">
-    <value>Estimated IO Cost</value>
+    <value>估计的 IO 成本</value>
   </data>
   <data name="ActualDataSize" xml:space="preserve">
-    <value>Actual Data Size</value>
+    <value>实际数据大小</value>
   </data>
   <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Estimated Average Row Size</value>
+    <value>估计的平均行大小</value>
   </data>
 </root>
