@@ -3797,10 +3797,10 @@
     <value>개체</value>
   </data>
   <data name="EstimatedCost" xml:space="preserve">
-    <value>Estimated Cost %</value>
+    <value>예상 비용(%)</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Estimated Subtree Cost %</value>
+    <value>예상 하위 트리 비용(%)</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>실제 행 수</value>
@@ -3809,21 +3809,21 @@
     <value>예상 행 수</value>
   </data>
   <data name="ActualExecutions" xml:space="preserve">
-    <value>실제 실행 수</value>
+    <value>실제 실행 횟수</value>
   </data>
   <data name="EstimatedExecutions" xml:space="preserve">
-    <value>Estimated Executions</value>
+    <value>예상 실행 횟수</value>
   </data>
   <data name="EstimatedCpu" xml:space="preserve">
     <value>예상 CPU 비용</value>
   </data>
   <data name="EstimatedIO" xml:space="preserve">
-    <value>Estimated IO Cost</value>
+    <value>예상 IO 비용</value>
   </data>
   <data name="ActualDataSize" xml:space="preserve">
-    <value>Actual Data Size</value>
+    <value>실제 데이터 크기</value>
   </data>
   <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Estimated Average Row Size</value>
+    <value>예상 평균 행 크기</value>
   </data>
 </root>
