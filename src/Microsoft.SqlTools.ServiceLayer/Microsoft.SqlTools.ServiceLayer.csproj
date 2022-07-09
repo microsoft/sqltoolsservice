@@ -13,17 +13,29 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(BUILD_STS_DOTNET_TOOL)' == 'true'">
+	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
 		<PackAsTool>true</PackAsTool>
 		<ToolCommandName>$(AssemblyName)</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 	</PropertyGroup>
+	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
+	</ItemGroup>
 
-	<PropertyGroup>
-		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
+		<DefineConstants>$(DefineConstants);INCLUDE_MIGRATION</DefineConstants>
 	</PropertyGroup>
+	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
+		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+		<Content Include=".\Migration\Metadata\**">
+			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
@@ -34,15 +46,11 @@
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
-		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
 			<Aliases>ASAScriptDom</Aliases>
 		</PackageReference>
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
@@ -56,10 +64,6 @@
 		</Content>
 		<Content Include="..\..\Notice.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include=".\Migration\Metadata\**">
-			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
 		<EmbeddedResource Include="Localization\*.resx" />

@@ -23,7 +23,9 @@ using Microsoft.SqlTools.ServiceLayer.InsightsGenerator;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
+#if INCLUDE_MIGRATION
 using Microsoft.SqlTools.ServiceLayer.Migration;
+#endif
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
@@ -159,8 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             InsightsGeneratorService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
 
+#if INCLUDE_MIGRATION
             MigrationService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(MigrationService.Instance);
+#endif
 
             TableDesignerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(TableDesignerService.Instance);
