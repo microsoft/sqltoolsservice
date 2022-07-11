@@ -6206,12 +6206,12 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="EstimatedCost">
         <source>Estimated Cost %</source>
-        <target state="new">Estimated Cost %</target>
+        <target state="translated">Coût estimé en %</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
         <source>Estimated Subtree Cost %</source>
-        <target state="new">Estimated Subtree Cost %</target>
+        <target state="translated">Coût estimé du sous-arbre en %</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6231,7 +6231,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="EstimatedExecutions">
         <source>Estimated Executions</source>
-        <target state="new">Estimated Executions</target>
+        <target state="translated">Exécutions estimées</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedCpu">
@@ -6241,17 +6241,17 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="EstimatedIO">
         <source>Estimated IO Cost</source>
-        <target state="new">Estimated IO Cost</target>
+        <target state="translated">Coût d’E/S estimé</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualDataSize">
         <source>Actual Data Size</source>
-        <target state="new">Actual Data Size</target>
+        <target state="translated">Taille réelle des données</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedAverageRowSize">
         <source>Estimated Average Row Size</source>
-        <target state="new">Estimated Average Row Size</target>
+        <target state="translated">Taille moyenne estimée des lignes</target>
         <note></note>
       </trans-unit>
     </body>

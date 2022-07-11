@@ -6206,12 +6206,12 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="EstimatedCost">
         <source>Estimated Cost %</source>
-        <target state="new">Estimated Cost %</target>
+        <target state="translated">估计成本百分比</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
         <source>Estimated Subtree Cost %</source>
-        <target state="new">Estimated Subtree Cost %</target>
+        <target state="translated">估计子树成本百分比</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6231,7 +6231,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="EstimatedExecutions">
         <source>Estimated Executions</source>
-        <target state="new">Estimated Executions</target>
+        <target state="translated">估计执行次数</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedCpu">
@@ -6241,17 +6241,17 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="EstimatedIO">
         <source>Estimated IO Cost</source>
-        <target state="new">Estimated IO Cost</target>
+        <target state="translated">估计的 IO 成本</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualDataSize">
         <source>Actual Data Size</source>
-        <target state="new">Actual Data Size</target>
+        <target state="translated">实际数据大小</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedAverageRowSize">
         <source>Estimated Average Row Size</source>
-        <target state="new">Estimated Average Row Size</target>
+        <target state="translated">估计的平均行大小</target>
         <note></note>
       </trans-unit>
     </body>

@@ -6206,12 +6206,12 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="EstimatedCost">
         <source>Estimated Cost %</source>
-        <target state="new">Estimated Cost %</target>
+        <target state="translated">Porcentaje de costo estimado</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
         <source>Estimated Subtree Cost %</source>
-        <target state="new">Estimated Subtree Cost %</target>
+        <target state="translated">Porcentaje estimado de costo de subárbol</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6231,7 +6231,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="EstimatedExecutions">
         <source>Estimated Executions</source>
-        <target state="new">Estimated Executions</target>
+        <target state="translated">Ejecuciones estimadas</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedCpu">
@@ -6241,17 +6241,17 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="EstimatedIO">
         <source>Estimated IO Cost</source>
-        <target state="new">Estimated IO Cost</target>
+        <target state="translated">Coste estimado de E/S</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualDataSize">
         <source>Actual Data Size</source>
-        <target state="new">Actual Data Size</target>
+        <target state="translated">Tamaño real de los datos</target>
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedAverageRowSize">
         <source>Estimated Average Row Size</source>
-        <target state="new">Estimated Average Row Size</target>
+        <target state="translated">Tamaño medio estimado de fila</target>
         <note></note>
       </trans-unit>
     </body>
