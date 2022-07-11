@@ -3790,4 +3790,40 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>Il existe plusieurs définitions de table dans le script, seule la première table peut être modifiée dans le concepteur.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Opération</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Objet</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Coût estimé en %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Coût estimé du sous-arbre en %</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Lignes réelles</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Lignes estimées</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Exécutions réelles</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Exécutions estimées</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Coût CPU estimé</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Coût d’E/S estimé</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Taille réelle des données</value>
+  </data>
+  <data name="EstimatedAverageRowSize" xml:space="preserve">
+    <value>Taille moyenne estimée des lignes</value>
+  </data>
 </root>

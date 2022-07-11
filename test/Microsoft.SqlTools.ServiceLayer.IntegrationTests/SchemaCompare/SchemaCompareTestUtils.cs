@@ -6,6 +6,7 @@
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -14,6 +15,8 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -129,25 +132,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             // TODO: update with new options. Tracking issue: https://github.com/microsoft/azuredatastudio/issues/15336
             //Assert.True(deploymentOptionsProperties.Length == dacDeployProperties.Length - 2, $"Number of properties is not same Deployment options : {deploymentOptionsProperties.Length} DacFx options : {dacDeployProperties.Length}");
 
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
+            foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
             {
-                var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
-                Assert.True(dacProp != null, $"DacDeploy property not present for {deployOptionsProp.Name}");
-
-                var deployOptionsValue = deployOptionsProp.GetValue(deploymentOptions);
-                var changedDacValue = deployOptionsValue != null ? deployOptionsValue.GetType().GetProperty("Value").GetValue(deployOptionsValue) : deployOptionsValue;
-                var dafaultDacValue = dacProp.GetValue(dacDeployOptions);
-
-                if (deployOptionsProp.Name != "ExcludeObjectTypes") // do not compare for ExcludeObjectTypes because it will be different
+                if (deployOptionsProp.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 {
-                    Assert.True((deployOptionsValue == null && dafaultDacValue == null) 
-                        || deployOptionsValue.Equals(dafaultDacValue)
-                        || changedDacValue == null && (dafaultDacValue as string) == string.Empty
-                        || changedDacValue == null && dafaultDacValue == null 
-                        || (changedDacValue).Equals(dafaultDacValue)
-                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for { deployOptionsProp.Name}, SchemaCompareOptions value: {changedDacValue} and DacDeployOptions value: {dafaultDacValue} ");
+                    var dacProp = dacDeployOptions.GetType().GetProperty(deployOptionsProp.Name);
+                    Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {deployOptionsProp.Name}");
+
+                    var defaultP = deployOptionsProp.GetValue(deploymentOptions);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualPValue = dacProp.GetValue(dacDeployOptions);
+
+                    if (deployOptionsProp.Name != nameof(DeploymentOptions.ExcludeObjectTypes)) // do not compare for ExcludeObjectTypes because it will be different
+                    {
+                        // Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                            || (defaultPValue).Equals(actualPValue)
+                        , $"DacFx DacDeploy property not equal to Tools Service DeploymentOptions for {deployOptionsProp.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
             }
+
+            // Verify the booleanOptionsDictionary with the DacDeployOptions property values
+            VerifyBooleanOptionsDictionary(deploymentOptions.BooleanOptionsDictionary, dacDeployOptions);
         }
 
         internal static bool ValidateOptionsEqualsDefault(SchemaCompareOptionsResult options)
@@ -156,26 +163,52 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             DeploymentOptions actualOpt = options.DefaultDeploymentOptions;
 
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = defaultOpt.GetType().GetProperties();
-            foreach (var v in deploymentOptionsProperties)
+            foreach (PropertyInfo v in deploymentOptionsProperties)
             {
-                var defaultP = v.GetValue(defaultOpt);
-                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
-                var actualP = v.GetValue(actualOpt);
-                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
+                if (v.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
+                {
+                    var defaultP = v.GetValue(defaultOpt);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualP = v.GetValue(actualOpt);
+                    var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
 
-                if (v.Name == "ExcludeObjectTypes")
-                {
-                    Assert.True((defaultPValue as ObjectType[]).Length == (actualPValue as ObjectType[]).Length, $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
-                }
-                else
-                {
-                    // Verifying expected and actual deployment options properties are equal
-                    Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
-                     || (defaultPValue).Equals(actualPValue)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
+                    {
+                        Assert.That((defaultPValue as ObjectType[]).Length, Is.EqualTo((actualPValue as ObjectType[]).Length), $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
+                    }
+                    else
+                    {
+                        // Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                         || (defaultPValue).Equals(actualPValue)
+                        , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
             }
+
+            // Verify the default booleanOptionsDictionary with the SchemaCompareOptionsResult options property values
+            DacFxServiceTests dacFxServiceTests = new DacFxServiceTests();
+            dacFxServiceTests.VerifyExpectedAndActualBooleanOptionsDictionary(defaultOpt.BooleanOptionsDictionary, options.DefaultDeploymentOptions.BooleanOptionsDictionary);
+
             return true;
+        }
+
+        /// <summary>
+        /// Validates the DeploymentOptions booleanOptionsDictionary with the DacDeployOptions
+        /// </summary>
+        /// <param name="expectedBooleanOptionsDictionary"></param>
+        /// <param name="dacDeployOptions"></param>
+        private static void VerifyBooleanOptionsDictionary(Dictionary<string, DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, DacDeployOptions dacDeployOptions)
+        {
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
+            {
+                var dacProp = dacDeployOptions.GetType().GetProperty(optionRow.Key);
+                Assert.That(dacProp, Is.Not.Null, $"DacDeploy property not present for {optionRow.Key}");
+                var actualValue = dacProp.GetValue(dacDeployOptions);
+                var expectedValue = optionRow.Value.Value;
+
+                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}");
+            }
         }
     }
 }

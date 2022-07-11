@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using Moq;
+using System.Reflection;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -586,10 +587,12 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
+
+                // Updating the BooleanOptionsDictionary since it has all the boolean type options
+                deployParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
 
                 // expect table3 to not have been dropped and view1 to not have been created
                 await VerifyDeployWithOptions(deployParams, targetDb, service, result.ConnectionInfo, expectedTableResult: "table3", expectedViewResult: null);
@@ -664,10 +667,12 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(false),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
                     }
                 };
+
+                // Updating the BooleanOptionsDictionary since it has all the boolean type properties
+                generateScriptFalseOptionParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = false;
 
                 var generateScriptFalseOptionOperation = new GenerateDeployScriptOperation(generateScriptFalseOptionParams, result.ConnectionInfo);
                 service.PerformOperation(generateScriptFalseOptionOperation, TaskExecutionMode.Execute);
@@ -682,7 +687,6 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        DropObjectsNotInSource = new DeploymentOptionProperty<bool>(true),
                         ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
                     }
                 };
@@ -727,10 +731,10 @@ FROM MissingEdgeHubInputStream'";
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
 
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.IncludeCompositeObjects = new DeploymentOptionProperty<bool>(true);
-            expectedResults.BlockOnPossibleDataLoss = new DeploymentOptionProperty<bool>(true);
-            expectedResults.AllowIncompatiblePlatform = new DeploymentOptionProperty<bool>(true);
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.IncludeCompositeObjects)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.BlockOnPossibleDataLoss)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
+            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -755,7 +759,7 @@ FROM MissingEdgeHubInputStream'";
         {
             DeploymentOptions expectedResults = DeploymentOptions.GetDefaultPublishOptions();
             expectedResults.ExcludeObjectTypes = null;
-            expectedResults.DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false);
+            expectedResults.BooleanOptionsDictionary["DisableIndexesForDataPhase"].Value = false;
 
             var dacfxRequestContext = new Mock<RequestContext<DacFxOptionsResult>>();
             dacfxRequestContext.Setup((RequestContext<DacFxOptionsResult> x) => x.SendResult(It.Is<DacFxOptionsResult>((result) => ValidateOptions(expectedResults, result.DeploymentOptions) == true))).Returns(Task.FromResult(new object()));
@@ -842,25 +846,36 @@ Streaming query statement contains a reference to missing output stream 'Missing
         private bool ValidateOptions(DeploymentOptions expected, DeploymentOptions actual)
         {
             System.Reflection.PropertyInfo[] deploymentOptionsProperties = expected.GetType().GetProperties();
-            foreach (var v in deploymentOptionsProperties)
+            var booleanOptionsDictionary = new Dictionary<string, DeploymentOptionProperty<bool>>();
+            foreach (PropertyInfo v in deploymentOptionsProperties)
             {
-                var defaultP = v.GetValue(expected);
-                var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP): defaultP;
-                var actualP = v.GetValue(actual);
-                var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
-
-                if (v.Name == "ExcludeObjectTypes")
+                if (v.Name != nameof(DeploymentOptions.BooleanOptionsDictionary))
                 {
-                    Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                    var defaultP = v.GetValue(expected);
+                    var defaultPValue = defaultP != null ? defaultP.GetType().GetProperty("Value").GetValue(defaultP) : defaultP;
+                    var actualP = v.GetValue(actual);
+                    var actualPValue = actualP.GetType().GetProperty("Value").GetValue(actualP);
+
+                    if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
+                    {
+                        Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                    }
+                    else
+                    {
+                        //Verifying expected and actual deployment options properties are equal
+                        Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
+                         || (defaultPValue).Equals(actualPValue)
+                        , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    }
                 }
                 else
                 {
-                    //Verifying expected and actual deployment options properties are equal
-                    Assert.True((defaultPValue == null && String.IsNullOrEmpty(actualPValue as string))
-                     || (defaultPValue).Equals(actualPValue)
-                    , $"Actual Property from Service is not equal to default property for {v.Name}, Actual value: {actualPValue} and Default value: {defaultPValue}");
+                    booleanOptionsDictionary = v.GetValue(expected) as Dictionary<string, DeploymentOptionProperty<bool>>;
                 }
             }
+
+            // Verify expected and actual DeploymentOptions BooleanOptionsDictionary
+            VerifyExpectedAndActualBooleanOptionsDictionary(booleanOptionsDictionary, actual.BooleanOptionsDictionary);
 
             return true;
         }
@@ -893,6 +908,22 @@ Streaming query statement contains a reference to missing output stream 'Missing
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
+            }
+        }
+
+        /// <summary>
+        /// Verify expected and actual DeploymentOptions BooleanOptionsDictionary values
+        /// </summary>
+        /// <param name="expectedBooleanOptionsDictionary"></param>
+        /// <param name="actualBooleanOptionsDictionary"></param>
+        public void VerifyExpectedAndActualBooleanOptionsDictionary(Dictionary<string, DeploymentOptionProperty<bool>> expectedBooleanOptionsDictionary, Dictionary<string, DeploymentOptionProperty<bool>> actualBooleanOptionsDictionary)
+        {
+            foreach (KeyValuePair<string, DeploymentOptionProperty<bool>> optionRow in expectedBooleanOptionsDictionary)
+            {
+                var expectedValue = optionRow.Value.Value;
+                var actualValue = actualBooleanOptionsDictionary[optionRow.Key].Value;
+
+                Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}");
             }
         }
     }

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {

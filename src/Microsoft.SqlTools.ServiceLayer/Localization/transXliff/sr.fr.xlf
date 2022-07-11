@@ -6194,6 +6194,66 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Il existe plusieurs définitions de table dans le script, seule la première table peut être modifiée dans le concepteur.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Operation">
+        <source>Operation</source>
+        <target state="translated">Opération</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Object">
+        <source>Object</source>
+        <target state="translated">Objet</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCost">
+        <source>Estimated Cost %</source>
+        <target state="translated">Coût estimé en %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtree">
+        <source>Estimated Subtree Cost %</source>
+        <target state="translated">Coût estimé du sous-arbre en %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualRows">
+        <source>Actual Rows</source>
+        <target state="translated">Lignes réelles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedRows">
+        <source>Estimated Rows</source>
+        <target state="translated">Lignes estimées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualExecutions">
+        <source>Actual Executions</source>
+        <target state="translated">Exécutions réelles</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecutions">
+        <source>Estimated Executions</source>
+        <target state="translated">Exécutions estimées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpu">
+        <source>Estimated CPU Cost</source>
+        <target state="translated">Coût CPU estimé</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedIO">
+        <source>Estimated IO Cost</source>
+        <target state="translated">Coût d’E/S estimé</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualDataSize">
+        <source>Actual Data Size</source>
+        <target state="translated">Taille réelle des données</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedAverageRowSize">
+        <source>Estimated Average Row Size</source>
+        <target state="translated">Taille moyenne estimée des lignes</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

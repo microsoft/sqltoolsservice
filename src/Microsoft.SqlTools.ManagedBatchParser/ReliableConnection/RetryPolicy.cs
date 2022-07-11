@@ -29,7 +29,7 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Threading;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {

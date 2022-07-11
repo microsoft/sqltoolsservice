@@ -216,6 +216,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public string ColumnName { get; set; }
         public PropertyValueDataType DataType { get; set; }
         public object DisplayValue { get; set; }
-        public bool SortTableByColumn { get; set; }
     }
 }

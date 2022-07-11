@@ -606,6 +606,72 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.That(s.EditCache.Keys, Has.No.Zero, "The edit cache should not contain a pending edit for the row");
         }
 
+        [Test]
+        public async Task RevertRowAfterAdding()
+        {
+            // Setup:
+            // ... Create a session with a proper query and metadata
+            EditSession s = await GetBasicSession();
+
+            EditRow[] rows = await s.GetRows(0, 10);
+
+            int defaultRowsLength = rows.Length;
+
+            // ... Create a row 
+            EditCreateRowResult result1 = s.CreateRow();
+
+            long result1Id = result1.NewRowId;
+
+            long addRowNextRowId = s.NextRowId;
+
+            rows = await s.GetRows(0, 10);
+
+            // Check that returned result of createRow matches NextRowId index.
+            Assert.That(result1Id, Is.EqualTo(addRowNextRowId - 1), "The returned row ID should be one less than the current next row ID.");
+
+            // Check that row has been added.
+            Assert.That(rows.Length, Is.EqualTo(defaultRowsLength + 1), "The number of rows should include the newly created row when CreateRow is called.");
+
+            // Check that the nextRowId has a value that reflects the number of rows.
+            Assert.That(s.NextRowId, Is.EqualTo(rows.Length), "The NextRowId should match the same number of rows as the array (following array indexing rules).");
+ 
+            // If: I revert the row that has a pending CreateRow (Such as when there's a row edit failure)
+            s.RevertRow(result1Id);
+
+            rows = await s.GetRows(0, 10);
+
+            // Check that the rowId has decremented after a revert.
+            Assert.That(s.NextRowId, Is.EqualTo(addRowNextRowId - 1), "NextRowId should not be incremented after reverting a CreateRow edit.");
+
+            // Check that row has been removed.
+            Assert.That(rows.Length, Is.EqualTo(defaultRowsLength), "The number of rows should not include the reverted row when RevertRow is called.");
+
+            // Check that the nextRowId has a value that reflects the number of rows.
+            Assert.That(s.NextRowId, Is.EqualTo(rows.Length), "The NextRowId should match the same number of rows as the array (following array indexing rules).");
+
+            // ... Create another row 
+            EditCreateRowResult result2 = s.CreateRow();
+
+            long result2Id = result2.NewRowId;
+
+            rows = await s.GetRows(0, 10);
+
+            // Check that the rowId has the same id as the previous added row.
+            Assert.That(s.NextRowId, Is.EqualTo(addRowNextRowId), "NextRowId should be incremented to the same value when the previously created row was added.");
+
+            // Check that returned result of createRow matches NextRowId index.
+            Assert.That(result2Id, Is.EqualTo(s.NextRowId - 1), "The returned row ID should be one less than the current next row ID.");
+
+             // Check that returned result of createRow matches the previous added row id.
+            Assert.That(result2Id, Is.EqualTo(result1Id), "The row id of the newly created row should match that of the previously created row in the same position.");
+
+            // Check that the nextRowId has a value that reflects the number of rows.
+            Assert.That(s.NextRowId, Is.EqualTo(rows.Length), "The NextRowId should match the same number of rows as the array (following array indexing rules).");
+
+            // Check that row has been added.
+            Assert.That(rows.Length, Is.EqualTo(defaultRowsLength + 1), "The number of rows should include the newly created row when CreateRow is called.");
+        }
+
         #endregion
 
         #region Revert Cell Tests

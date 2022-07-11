@@ -88,3 +88,5 @@ SqlCmd_PathLong = Path too long.
 
 SqlCmd_FailedInclude = Could not find included file {0}.
 
+NullEmptyOrWhitespaceString = Parameter contains a null, empty, or whitespace string.
+
