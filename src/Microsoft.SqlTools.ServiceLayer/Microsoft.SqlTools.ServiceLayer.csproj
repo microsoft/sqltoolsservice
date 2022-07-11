@@ -13,6 +13,9 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<PropertyGroup>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 
@@ -22,7 +25,7 @@
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
+		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
@@ -30,11 +33,11 @@
 	</PropertyGroup>
 	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
 		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-		<Content Include=".\Migration\Metadata\**">
+		<Content Include="./Migration/Metadata/**">
 			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
+		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
