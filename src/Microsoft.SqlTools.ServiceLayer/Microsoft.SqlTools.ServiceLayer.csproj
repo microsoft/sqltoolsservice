@@ -19,26 +19,31 @@
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>$(AssemblyName)</ToolCommandName>
-		<PackageOutputPath>./nupkg</PackageOutputPath>
-	</PropertyGroup>
-	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
-	</ItemGroup>
-
-	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
-		<DefineConstants>$(DefineConstants);INCLUDE_MIGRATION</DefineConstants>
-	</PropertyGroup>
-	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
-		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-		<Content Include="./Migration/Metadata/**">
-			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
-	</ItemGroup>
+	<Choose>
+		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+			<PropertyGroup>
+				<PackAsTool>true</PackAsTool>
+				<ToolCommandName>$(AssemblyName)</ToolCommandName>
+				<PackageOutputPath>./nupkg</PackageOutputPath>
+			</PropertyGroup>
+			<ItemGroup>
+				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<DefineConstants>$(DefineConstants);INCLUDE_MIGRATION</DefineConstants>
+			</PropertyGroup>
+			<ItemGroup>
+				<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+				<Content Include="./Migration/Metadata/**">
+					<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
