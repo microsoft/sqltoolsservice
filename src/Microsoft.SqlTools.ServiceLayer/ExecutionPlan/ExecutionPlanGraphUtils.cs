@@ -205,8 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             {
                 ColumnName = SR.EstimatedCost,
                 DataType = PropertyValueDataType.Number,
-                DisplayValue = Math.Round(currentNode.RelativeCost * 100, 2),
-                SortTableByColumn = true
+                DisplayValue = Math.Round(currentNode.RelativeCost * 100, 2)
             });
 
             result.Add(new TopOperationsDataItem
