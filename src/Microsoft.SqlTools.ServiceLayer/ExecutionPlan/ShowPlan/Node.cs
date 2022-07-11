@@ -590,7 +590,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             if (!this.HasPDWCost || cost > 0)
             {
-                if (roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < 20)
+                if (roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < Node.LargePlanNodeCount)
                 {
                     cost = Math.Round(cost);
                 }
@@ -729,6 +729,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// List of Seek or Scan type operators that can be considered match
         /// </summary>
         private List<string> SeekOrScanPhysicalOpList = new List<string> { "IndexSeek", "TableScan", "IndexScan", "ColumnstoreIndexScan" };
+
+        #endregion
+
+        #region Constants
+
+        public static readonly int LargePlanNodeCount = 20;
 
         #endregion
 

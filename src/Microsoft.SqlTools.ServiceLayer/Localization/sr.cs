@@ -8565,11 +8565,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string EstimatedAverageRowSize
+        public static string AverageRowSize
         {
             get
             {
-                return Keys.GetString(Keys.EstimatedAverageRowSize);
+                return Keys.GetString(Keys.AverageRowSize);
             }
         }
 
@@ -13076,7 +13076,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EstimatedIO = "EstimatedIO";
 
 
-            public const string EstimatedAverageRowSize = "EstimatedAverageRowSize";
+            public const string AverageRowSize = "AverageRowSize";
 
 
             public const string ActualDataSize = "ActualDataSize";
