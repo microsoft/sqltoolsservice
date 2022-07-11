@@ -2240,14 +2240,14 @@ ParallelismOverlayTooltip = Parallel Execution
 Operation = Operation
 Object = Object
 EstimatedCost = Estimated Cost %
-EstimatedSubtree = Estimated Subtree Cost %
+EstimatedSubtree = Estimated Subtree Cost
 ActualRows = Actual Rows
 EstimatedRows = Estimated Rows
 ActualExecutions = Actual Executions
 EstimatedExecutions = Estimated Executions
 EstimatedCpu = Estimated CPU Cost
 EstimatedIO = Estimated IO Cost
-EstimatedAverageRowSize = Estimated Average Row Size
+AverageRowSize = Average Row Size
 ActualDataSize = Actual Data Size
 
 ############################################################################

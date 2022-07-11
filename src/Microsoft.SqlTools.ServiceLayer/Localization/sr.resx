@@ -4657,7 +4657,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Estimated Subtree Cost %</value>
+    <value>Estimated Subtree Cost</value>
     <comment></comment>
   </data>
   <data name="ActualRows" xml:space="preserve">
@@ -4684,8 +4684,8 @@ The Query Processor estimates that implementing the following index could improv
     <value>Estimated IO Cost</value>
     <comment></comment>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Estimated Average Row Size</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Average Row Size</value>
     <comment></comment>
   </data>
   <data name="ActualDataSize" xml:space="preserve">

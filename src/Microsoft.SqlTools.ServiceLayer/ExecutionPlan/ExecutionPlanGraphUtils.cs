@@ -165,7 +165,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         public static List<TopOperationsDataItem> ParseTopOperationsData(Node currentNode)
-        {
+        {   
+            const string OBJECT_COLUMN_KEY = "Object";
+            const string ESTIMATED_ROWS_COLUMN_KEY = "EstimateRows";
+            const string ACTUAL_ROWS_COLUMN_KEY = "ActualRows";
+            const string AVERAGE_ROW_SIZE_COLUMN_KEY = "AvgRowSize";
+            const string ACTUAL_EXECUTIONS_COLUMN_KEY = "ActualExecutions";
+            const string ESTIMATED_EXECUTIONS_COLUMN_KEY = "EstimateExecutions";
+            const string ESTIMATED_CPU_COLUMN_KEY = "EstimateCPU";
+            const string ESTIMATED_IO_COLUMN_KEY = "EstimateIO";
+            const string PARALLEL_COLUMN_KEY = "Parallel";
+            const string ORDERED_COLUMN_KEY = "Ordered";
+            const string ACTUAL_REWINDS_COLUMN_KEY = "ActualRewinds";
+            const string ESTIMATED_REWINDS_COLUMN_KEY = "EstimateRewinds";
+            const string ACTUAL_REBINDS_COLUMN_KEY = "ActualRebinds";
+            const string ESTIMATED_REBINDS_COLUMN_KEY = "EstimateRebinds";
+            const string PARTITIONED_COLUMN_KEY = "Partitioned";
+
+
             List<TopOperationsDataItem> result = new List<TopOperationsDataItem>();
             result.Add(new TopOperationsDataItem
             {
@@ -174,13 +191,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 DisplayValue = currentNode.Operation.DisplayName
             });
 
-            if (currentNode["Object"] != null)
+            if (currentNode[OBJECT_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.Object,
                     DataType = PropertyValueDataType.String,
-                    DisplayValue =  ((ExpandableObjectWrapper)currentNode["Object"]).DisplayName
+                    DisplayValue =  ((ExpandableObjectWrapper)currentNode[OBJECT_COLUMN_KEY]).DisplayName
                 });
             }
 
@@ -188,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             {
                 ColumnName = SR.EstimatedCost,
                 DataType = PropertyValueDataType.Number,
-                DisplayValue = Math.Round(currentNode.Cost, 1)
+                DisplayValue = Math.Round(currentNode.RelativeCost * 100, 2)
             });
 
             result.Add(new TopOperationsDataItem
@@ -198,134 +215,165 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 DisplayValue = Math.Round(currentNode.SubtreeCost, 1)
             });
 
-            if (currentNode["ActualRows"] != null)
+            if (currentNode[ESTIMATED_ROWS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedRows,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = Math.Round((double)currentNode[ESTIMATED_ROWS_COLUMN_KEY])
+                });
+            }
+
+
+            if (currentNode[ACTUAL_ROWS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.ActualRows,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["ActualRows"]
+                    DisplayValue = currentNode[ACTUAL_ROWS_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["AvgRowSize"] != null)
+            if (currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
-                    ColumnName = SR.EstimatedAverageRowSize,
+                    ColumnName = SR.AverageRowSize,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["AvgRowSize"]
+                    DisplayValue = currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["ActualExecutions"] != null)
+            if (currentNode[ACTUAL_EXECUTIONS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.ActualExecutions,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["ActualExecutions"]
+                    DisplayValue = currentNode[ACTUAL_EXECUTIONS_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["EstimateExecutions"] != null)
+            if (currentNode[ESTIMATED_EXECUTIONS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.EstimatedExecutions,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["EstimateExecutions"]
+                    DisplayValue = currentNode[ESTIMATED_EXECUTIONS_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["EstimateCPU"] != null)
+            if (currentNode[ESTIMATED_CPU_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.EstimatedCpu,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["EstimateCPU"]
+                    DisplayValue = currentNode[ESTIMATED_CPU_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["EstimateIO"] != null)
+            if (currentNode[ESTIMATED_IO_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.EstimatedIO,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["EstimateIO"]
+                    DisplayValue = currentNode[ESTIMATED_IO_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["Parallel"] != null)
+            if (currentNode[ESTIMATED_ROWS_COLUMN_KEY] != null && currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedDataSize,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = (double)currentNode[ESTIMATED_ROWS_COLUMN_KEY] * (double)currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY]
+                });
+            }
+
+
+            if (currentNode[ACTUAL_ROWS_COLUMN_KEY] != null && currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualDataSize,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = (double)(currentNode[ACTUAL_ROWS_COLUMN_KEY] as RunTimeCounters).MaxCounter * (double)currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[PARALLEL_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.Parallel,
                     DataType = PropertyValueDataType.Boolean,
-                    DisplayValue = currentNode["Parallel"]
+                    DisplayValue = currentNode[PARALLEL_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["Ordered"] != null)
+            if (currentNode[ORDERED_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.Ordered,
                     DataType = PropertyValueDataType.Boolean,
-                    DisplayValue = currentNode["Ordered"]
+                    DisplayValue = currentNode[ORDERED_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["ActualRewinds"] != null)
+            if (currentNode[ACTUAL_REWINDS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.ActualRewinds,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["ActualRewinds"]
+                    DisplayValue = currentNode[ACTUAL_REWINDS_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["EstimateRewinds"] != null)
+            if (currentNode[ESTIMATED_REWINDS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.EstimatedRewinds,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["EstimateRewinds"]
+                    DisplayValue = currentNode[ESTIMATED_REWINDS_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["ActualRebinds"] != null)
+            if (currentNode[ACTUAL_REBINDS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.ActualRebinds,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["ActualRebinds"]
+                    DisplayValue = currentNode[ACTUAL_REBINDS_COLUMN_KEY]
                 });
             }
 
-
-            if (currentNode["EstimateRebinds"] != null)
+            if (currentNode[ESTIMATED_REBINDS_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.EstimatedRebinds,
                     DataType = PropertyValueDataType.Number,
-                    DisplayValue = currentNode["EstimateRebinds"]
+                    DisplayValue = currentNode[ESTIMATED_REBINDS_COLUMN_KEY]
                 });
             }
 
-            if (currentNode["Partitioned"] != null)
+            if (currentNode[PARTITIONED_COLUMN_KEY] != null)
             {
                 result.Add(new TopOperationsDataItem
                 {
                     ColumnName = SR.Partitioned,
                     DataType = PropertyValueDataType.Boolean,
-                    DisplayValue = currentNode["Partitioned"]
+                    DisplayValue = currentNode[PARTITIONED_COLUMN_KEY]
                 });
             }
             return result;
