@@ -16,15 +16,15 @@
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />
   </ItemGroup>
 
-	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-		<Compile Remove="Migration\*" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
+  <ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+    <Compile Remove="Migration\*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(BUILD_DOTNET_TOOL)' != 'true'">
     <Content Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\**">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-	</ItemGroup>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Moq" />
