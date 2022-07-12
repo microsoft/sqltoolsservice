@@ -162,6 +162,11 @@
         <target state="translated">Не удалось найти включенные файлы {0}.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="NullEmptyOrWhitespaceString">
+        <source>Parameter contains a null, empty, or whitespace string.</source>
+        <target state="translated">Параметр содержит строку, имеющую значение NULL, пустую строку или строку с пробелом.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

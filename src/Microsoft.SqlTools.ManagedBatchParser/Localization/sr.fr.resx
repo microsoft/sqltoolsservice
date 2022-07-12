@@ -213,4 +213,7 @@
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
     <value>Impossible de trouver le {0} de fichier inclus.</value>
   </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>Le paramètre contient une chaîne null, vide ou un espace blanc.</value>
+  </data>
 </root>
