@@ -213,4 +213,7 @@
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
     <value>找不到包含的檔案 {0}。</value>
   </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>參數包含 Null、空白或空格字串。</value>
+  </data>
 </root>
