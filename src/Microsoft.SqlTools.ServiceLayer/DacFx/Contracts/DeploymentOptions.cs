@@ -50,31 +50,31 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DeploymentOptions
     {
         #region Properties
-        public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
+        public DeploymentOptionProperty<string[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<string[]>
         (
-            new ObjectType[] {
-                ObjectType.ServerTriggers,
-                ObjectType.Routes,
-                ObjectType.LinkedServerLogins,
-                ObjectType.Endpoints,
-                ObjectType.ErrorMessages,
-                ObjectType.Files,
-                ObjectType.Logins,
-                ObjectType.LinkedServers,
-                ObjectType.Credentials,
-                ObjectType.DatabaseScopedCredentials,
-                ObjectType.DatabaseEncryptionKeys,
-                ObjectType.MasterKeys,
-                ObjectType.DatabaseAuditSpecifications,
-                ObjectType.Audits,
-                ObjectType.ServerAuditSpecifications,
-                ObjectType.CryptographicProviders,
-                ObjectType.ServerRoles,
-                ObjectType.EventSessions,
-                ObjectType.DatabaseOptions,
-                ObjectType.EventNotifications,
-                ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles
+            new string[] {
+                Enum.GetName(ObjectType.ServerTriggers),
+                Enum.GetName(ObjectType.Routes),
+                Enum.GetName(ObjectType.LinkedServerLogins),
+                Enum.GetName(ObjectType.Endpoints),
+                Enum.GetName(ObjectType.ErrorMessages),
+                Enum.GetName(ObjectType.Files),
+                Enum.GetName(ObjectType.Logins),
+                Enum.GetName(ObjectType.LinkedServers),
+                Enum.GetName(ObjectType.Credentials),
+                Enum.GetName(ObjectType.DatabaseScopedCredentials),
+                Enum.GetName(ObjectType.DatabaseEncryptionKeys),
+                Enum.GetName(ObjectType.MasterKeys),
+                Enum.GetName(ObjectType.DatabaseAuditSpecifications),
+                Enum.GetName(ObjectType.Audits),
+                Enum.GetName(ObjectType.ServerAuditSpecifications),
+                Enum.GetName(ObjectType.CryptographicProviders),
+                Enum.GetName(ObjectType.ServerRoles),
+                Enum.GetName(ObjectType.EventSessions),
+                Enum.GetName(ObjectType.DatabaseOptions),
+                Enum.GetName(ObjectType.EventNotifications),
+                Enum.GetName(ObjectType.ServerRoleMembership),
+                Enum.GetName(ObjectType.AssemblyFiles)
             }
         );
 
@@ -83,6 +83,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// </summary>
         public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; } = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
+        /// <summary>
+        /// Contains Include object types from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
+        /// key: optionName, value:DisplayName
+        /// </summary>
+        public Dictionary<string, string> IncludeObjectsDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         #endregion
 
         public DeploymentOptions()
@@ -165,6 +170,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                     this.BooleanOptionsDictionary[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
                 }
             }
+
+            // Initilaizing include objects dictionary
+            InitializeIncludeObjectTypes();
         }
 
         public void SetOptions(DacDeployOptions options)
@@ -189,6 +197,46 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                     PropertyInfo prop = options.GetType().GetProperty(deployOptionsProp.Name);
                     object setProp = GetDeploymentOptionProp(prop, options);
                     deployOptionsProp.SetValue(this, setProp);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Preparing all include object types which are considered as boolean options
+        /// </summary>
+        public void InitializeIncludeObjectTypes()
+        {
+            Type objectTypeEnum = typeof(ObjectType);
+            string excludePrefixWord = "Exclude ";
+            foreach (string name in Enum.GetNames(objectTypeEnum))
+            {
+                MemberInfo[] member = objectTypeEnum.GetMember(name);
+                MemberInfo info = (member != null) ? member.FirstOrDefault() : null;
+                string displayName = "";
+                if (info != null)
+                {
+                    string dacfxDisplayName = info.GetCustomAttribute<EnumDisplayNameAttribute>().DisplayName;
+
+                    // Excluding the "Exclude " word from the option display name using Substring() as all display names are prefixed with Exclude word in DacFx
+                    displayName = dacfxDisplayName != "" && dacfxDisplayName.IndexOf(excludePrefixWord) == 0
+                        ? dacfxDisplayName.Substring(excludePrefixWord.Length)
+                        : dacfxDisplayName;
+
+                    // Convert the options name into PascalCase
+                    if (displayName != "")
+                    {
+                        displayName = char.ToUpper(displayName.ToCharArray()[0]) + displayName.Substring(1);
+                    }
+                }
+                if (displayName == "")
+                {
+                    // not expecting display name for any options as empty string
+                    throw new Exception("Display Name is empty for the object type: " + name);
+                }
+                else
+                {
+                    // Add the property to the Dictionary
+                    IncludeObjectsDictionary[name] = displayName;
                 }
             }
         }
@@ -221,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             DeploymentOptions result = new DeploymentOptions();
 
-            result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != ObjectType.DatabaseScopedCredentials).ToArray(); // re-include database-scoped credentials
+            result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != Enum.GetName(ObjectType.DatabaseScopedCredentials)).ToArray(); // re-include database-scoped credentials
 
             return result;
         }

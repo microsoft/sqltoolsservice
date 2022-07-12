@@ -43,16 +43,34 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
                 {
                     var prop = propType.GetProperty(deployOptionsProp.Name);
-                    if (prop != null)
+                    // Set the excludeObjectTypes values to the DacDeployOptions
+                    if (prop != null && deployOptionsProp.Name == nameof(deploymentOptions.ExcludeObjectTypes))
                     {
+                        List<ObjectType> finalExcludeObjects = new List<ObjectType> { };
                         var val = deployOptionsProp.GetValue(deploymentOptions);
-                        var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+                        string[] selectedVal = (string[])val.GetType().GetProperty("Value").GetValue(val);
 
-                        // Set the excludeObjectTypes values to the DacDeployOptions
-                        if (selectedVal != null && deployOptionsProp.Name == nameof(deploymentOptions.ExcludeObjectTypes))
+                        if (selectedVal != null)
                         {
-                            prop.SetValue(dacOptions, selectedVal);
+                            foreach(string objectTypeValue in selectedVal)
+                            {
+                                // Convert the first char of the enum to upper case, as the excludeObjectTypes values are coming in lower case which needs to be converted
+                                var name = char.ToUpper(objectTypeValue.ToCharArray()[0]) + objectTypeValue.Substring(1);
+                                ObjectType enumName = new ObjectType(); 
+                                   
+                                if (name != null && Enum.TryParse(name, out enumName))
+                                {
+                                    finalExcludeObjects.Add(enumName);
+                                }
+                                else
+                                {
+                                    Logger.Write(TraceEventType.Error, string.Format(name + " is not an enum member"));
+                                }
+                            }
+                            // set final values to excludeObjectType property
+                            prop.SetValue(dacOptions, finalExcludeObjects.ToArray());
                         }
+                        
                     }
 
                     // BooleanOptionsDictionary has all the deployment options and is being processed separately in the second iteration by collecting here

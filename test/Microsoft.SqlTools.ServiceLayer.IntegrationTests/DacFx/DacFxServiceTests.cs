@@ -587,7 +587,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -667,7 +667,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -687,7 +687,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>( new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
