@@ -14,6 +14,9 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
