@@ -17,6 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Table table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
+                {
+                    if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.AppendOnlyLedger_LabelPart})";
+                    }
+                    else if (table.LedgerType == LedgerTableType.UpdatableLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.UpdatableLedger_LabelPart})";
+                    }
+                }
                 if (table != null && IsPropertySupported("IsSystemVersioned", smoContext, table, CachedSmoProperties) && table.IsSystemVersioned)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
