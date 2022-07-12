@@ -15,6 +15,23 @@
     <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.UnitTests/Microsoft.SqlTools.ServiceLayer.UnitTests.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+      <ItemGroup>
+        <Compile Remove="Migration\*" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Content Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\**">
+          <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
   <ItemGroup>
     <PackageReference Include="Moq" />
     <PackageReference Include="System.Net.Http" />
@@ -32,10 +49,6 @@
   <ItemGroup>
     <Content Remove=".\Agent\NotebookResources\TestNotebook.ipynb" />
     <EmbeddedResource Include=".\Agent\NotebookResources\TestNotebook.ipynb" />
-    <Content Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\**">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="AzureFunctions\AzureFunctionTestFiles\*" />
