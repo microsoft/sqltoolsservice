@@ -162,6 +162,11 @@
         <target state="translated">找不到包含的文件 {0}。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="NullEmptyOrWhitespaceString">
+        <source>Parameter contains a null, empty, or whitespace string.</source>
+        <target state="translated">参数包含 null、空或空格字符串。</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
