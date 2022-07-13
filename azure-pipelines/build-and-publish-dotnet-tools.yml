@@ -154,10 +154,10 @@ steps:
 
 - task: NuGetCommand@2
   displayName: 'NuGet push dotnet tools'
-  condition: eq(variables['PUSH_SYMBOLS'], 'true')
+  condition: eq(variables['RELEASE'], 'true')
   inputs:
     command: push
-    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft*ServiceLayer.nupkg;!$(Build.ArtifactStagingDirectory)/**/Microsoft*ServiceLayer.symbols.nupkg'
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft*ServiceLayer.nupkg'
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
     allowPackageConflicts: true
 
