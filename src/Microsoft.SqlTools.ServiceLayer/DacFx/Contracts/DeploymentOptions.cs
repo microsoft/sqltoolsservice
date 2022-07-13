@@ -50,6 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DeploymentOptions
     {
         #region Properties
+
+        /// <summary>
+        /// These default exclude options are for schema compare options
+        /// And there will be no default options for Publish dialog, which is handled in <azuredatastudio>\extensions\sql-database-projects\src\dialogs\publishDatabaseDialog.ts
+        /// </summary>
         public DeploymentOptionProperty<string[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<string[]>
         (
             new string[] {
@@ -254,10 +259,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType())
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
 
-            object setProp = Activator.CreateInstance(type, val, 
+            // DeploymentOptions ExcludeObjectTypes are String[] type and need special casting here
+            if (prop.Name == nameof(this.ExcludeObjectTypes))
+            {
+                type = typeof(DeploymentOptionProperty<string[]>);
+                val = new string[] { };
+            }
+
+            return Activator.CreateInstance(type, val, 
                 (descriptionAttribute != null ? descriptionAttribute.Description : ""), 
                 (displayNameAttribute != null ? displayNameAttribute.DisplayName : ""));
-            return setProp;
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()

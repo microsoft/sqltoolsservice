@@ -858,7 +858,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
 
                     if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
                     {
-                        Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                        Assert.True((defaultP as string[])?.Length == (actualP as string[])?.Length, "Number of excluded objects is different not equal");
                     }
                     else
                     {
