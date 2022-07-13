@@ -213,4 +213,7 @@
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
     <value>インクルード ファイル {0}が見つかりませんでした。</value>
   </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>パラメーターに null 値、空、または空白の文字列が含まれています。</value>
+  </data>
 </root>

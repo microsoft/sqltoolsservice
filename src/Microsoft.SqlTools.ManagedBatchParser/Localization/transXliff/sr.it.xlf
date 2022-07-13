@@ -162,6 +162,11 @@
         <target state="translated">Non è stato possibile trovare il file incluso {0}.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="NullEmptyOrWhitespaceString">
+        <source>Parameter contains a null, empty, or whitespace string.</source>
+        <target state="translated">Il parametro contiene una stringa null, vuota o con spazi vuoti.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

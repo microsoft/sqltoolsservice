@@ -622,6 +622,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";AverageRowSize" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Average Row Size]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Средний размер строки]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";AzureSqlAnalyticsOnDemandEdition" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure SQL Analytics on-demand]]></Val>
@@ -2449,15 +2458,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";EstimatedAverageRowSize" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Estimated Average Row Size]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Предполагаемый средний размер строки]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";EstimatedCost" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Estimated Cost %]]></Val>
@@ -2739,10 +2739,13 @@
       </Item>
       <Item ItemId=";EstimatedSubtree" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Estimated Subtree Cost %]]></Val>
+          <Val><![CDATA[Estimated Subtree Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Предполагаемая стоимость поддерева %]]></Val>
+            <Val><![CDATA[Оценочная стоимость поддерева]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Estimated Subtree Cost %]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

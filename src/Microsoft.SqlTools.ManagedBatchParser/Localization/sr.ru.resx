@@ -213,4 +213,7 @@
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
     <value>Не удалось найти включенные файлы {0}.</value>
   </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>Параметр содержит строку, имеющую значение NULL, пустую строку или строку с пробелом.</value>
+  </data>
 </root>
