@@ -6210,8 +6210,8 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
-        <source>Estimated Subtree Cost %</source>
-        <target state="translated">% do Custo Estimado da Subárvore</target>
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">Custo da subárvore estimado</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6249,9 +6249,9 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Tamanho Real dos Dados</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstimatedAverageRowSize">
-        <source>Estimated Average Row Size</source>
-        <target state="translated">Tamanho Médio Estimado da Linha</target>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">Tamanho Médio da Linha</target>
         <note></note>
       </trans-unit>
     </body>

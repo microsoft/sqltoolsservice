@@ -3800,7 +3800,7 @@
     <value>Предполагаемая стоимость %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Предполагаемая стоимость поддерева %</value>
+    <value>Оценочная стоимость поддерева</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>Фактическое число строк</value>
@@ -3823,7 +3823,7 @@
   <data name="ActualDataSize" xml:space="preserve">
     <value>Фактический размер данных</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Предполагаемый средний размер строки</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Средний размер строки</value>
   </data>
 </root>

@@ -3800,7 +3800,7 @@
     <value>估计成本百分比</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>估计子树成本百分比</value>
+    <value>估计的子树成本</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>实际行数</value>
@@ -3823,7 +3823,7 @@
   <data name="ActualDataSize" xml:space="preserve">
     <value>实际数据大小</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>估计的平均行大小</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>平均行大小</value>
   </data>
 </root>

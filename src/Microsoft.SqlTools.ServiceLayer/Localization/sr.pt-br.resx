@@ -3800,7 +3800,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>% do Custo Estimado</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>% do Custo Estimado da Subárvore</value>
+    <value>Custo da subárvore estimado</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>Linhas Atuais</value>
@@ -3823,7 +3823,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="ActualDataSize" xml:space="preserve">
     <value>Tamanho Real dos Dados</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Tamanho Médio Estimado da Linha</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Tamanho Médio da Linha</value>
   </data>
 </root>
