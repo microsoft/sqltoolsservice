@@ -22,6 +22,7 @@
 	<Choose>
 		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
 			<PropertyGroup>
+				<PackageDescription>.NET client SQL Tools Service application, usable as a dotet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
 				<PackAsTool>true</PackAsTool>
 				<ToolCommandName>$(AssemblyName)</ToolCommandName>
 				<PackageOutputPath>./nupkg</PackageOutputPath>

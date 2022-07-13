@@ -52,6 +52,7 @@ public class BuildPlan
     public string[] PackageProjects { get; set; }
     // The set of projects that we want to call dotnet pack on which require publishing being done first
     public string[] PackagePublishedProjects { get; set; }
+    public string[] DotnetToolProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -273,7 +274,25 @@ Task("DotnetPackPublished")
     }
 });
 
-
+/// <summary>
+///  Packages projects specified in PackagePublishedProjects, these projects require that publishing be done first. Note that we
+///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
+///  currently.
+/// </summary>
+Task("DotnetPackServiceTools")
+    .IsDependentOn("Cleanup")
+    .IsDependentOn("Setup")
+    .IsDependentOn("Restore")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.DotnetToolProjects)
+    {
+        // For now, putting all nugets in the 1 directory
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        DotnetPack(outputFolder, projectFolder, project);
+    }
+});
 
 /// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
