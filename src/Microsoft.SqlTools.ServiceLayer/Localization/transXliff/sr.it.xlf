@@ -6210,8 +6210,8 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
-        <source>Estimated Subtree Cost %</source>
-        <target state="translated">Costo stimato sottoalbero %</target>
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">Costo stimato sottoalbero</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6249,9 +6249,9 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Dimensioni totali dei dati:</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstimatedAverageRowSize">
-        <source>Estimated Average Row Size</source>
-        <target state="translated">Dimensioni medie stimate riga</target>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">Dimensioni medie righe</target>
         <note></note>
       </trans-unit>
     </body>
