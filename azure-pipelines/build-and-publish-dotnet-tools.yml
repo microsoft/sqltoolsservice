@@ -1,167 +1,175 @@
+trigger: none
+pr: none
+
+pool:
+  name: "ads-build-1es-hosted-pool"
+  demands:
+    - ImageOverride -equals ADS-Windows_Image
+
 steps:
-- task: UseDotNet@2
-  displayName: 'Use defined .NET Core sdk'
-  inputs:
-    useGlobalJson: true
+  - task: UseDotNet@2
+    displayName: "Use defined .NET Core sdk"
+    inputs:
+      useGlobalJson: true
 
-- task: UseDotNet@2
-  displayName: 'Installing dotnet 3.1 to run srgen (To be removed after srgen is updated)'
-  inputs:
-    version: 3.1.406
+  - task: UseDotNet@2
+    displayName: "Installing dotnet 3.1 to run srgen (To be removed after srgen is updated)"
+    inputs:
+      version: 3.1.406
 
-- task: BatchScript@1
-  displayName: 'Run script build.cmd'
-  inputs:
-    filename: build.cmd
-    arguments: '-target=all -mono'
+  - task: BatchScript@1
+    displayName: "Run script build.cmd"
+    inputs:
+      filename: build.cmd
+      arguments: "-target=all -mono"
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
-  inputs:
-    command: restore
-    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests"
+    inputs:
+      command: restore
+      projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
-  inputs:
-    command: restore
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests"
+    inputs:
+      command: restore
+      projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
-  inputs:
-    command: test
-    projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
-    testRunTitle: SqlTools.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests"
+    inputs:
+      command: test
+      projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
+      testRunTitle: SqlTools.ServiceLayer.UnitTests
+      arguments: "--configuration $(buildConfiguration)"
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
-  inputs:
-    command: test
-    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
-    testRunTitle: Kusto.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests"
+    inputs:
+      command: test
+      projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+      testRunTitle: Kusto.ServiceLayer.UnitTests
+      arguments: "--configuration $(buildConfiguration)"
 
-- task: Npm@1
-  displayName: 'npm install -g gulp-cli'
-  inputs:
-    command: custom
-    verbose: false
-    customCommand: 'install -g gulp-cli'
+  - task: Npm@1
+    displayName: "npm install -g gulp-cli"
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: "install -g gulp-cli"
 
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP CodeSigning - sha256 only'
-  inputs:
-    ConnectedServiceName: 'Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll'
-    signConfigType: inlineSignParams
-    inlineOperation: |
-     [
-       {
-         "keyCode": "CP-230012",
-         "operationSetCode": "SigntoolSign",
-         "parameters": [
-         {
-           "parameterName": "OpusName",
-           "parameterValue": "SQL Tools Service"
-         },
-         {
-           "parameterName": "OpusInfo",
-           "parameterValue": "https://github.com/microsoft/sqltoolsservice"
-         },
-         {
-           "parameterName": "PageHash",
-           "parameterValue": "/NPH"
-         },
-         {
-           "parameterName": "FileDigest",
-           "parameterValue": "/fd sha256"
-         },
-         {
-           "parameterName": "TimeStamp",
-           "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-         }
-         ],
-         "toolName": "signtool.exe",
-         "toolVersion": "6.2.9304.0"
-       },
-       {
-         "keyCode": "CP-230012",
-         "operationSetCode": "SigntoolVerify",
-         "parameters": [
-         {
-           "parameterName": "VerifyAll",
-           "parameterValue": "/all"
-         }
-             ],
-         "toolName": "signtool.exe",
-         "toolVersion": "6.2.9304.0"
-       }
-     ]
-    SessionTimeout: 600
-    MaxConcurrency: 5
-
-- task: BatchScript@1
-  displayName: 'Package published projects'
-  inputs:
-    filename: build.cmd
-    arguments: '-target=dotnetpackpublished -mono'
-  continueOnError: true
-
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP Code Signing - Nuget Package'
-  inputs:
-    ConnectedServiceName: 'Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
-    Pattern: 'Microsoft*ServiceLayer.nupkg'
-    signConfigType: 'inlineSignParams'
-    inlineOperation: |
-      [
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+    displayName: "ESRP CodeSigning - sha256 only"
+    inputs:
+      ConnectedServiceName: "Code Signing"
+      FolderPath: "$(Build.SourcesDirectory)/artifacts/publish"
+      Pattern: "Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll"
+      signConfigType: inlineSignParams
+      inlineOperation: |
+        [
           {
-              "keyCode": "CP-401405",
-              "operationSetCode": "NuGetSign",
-              "parameters": [ ],
-              "toolName": "sign",
-              "toolVersion": "1.0"
+            "keyCode": "CP-230012",
+            "operationSetCode": "SigntoolSign",
+            "parameters": [
+            {
+              "parameterName": "OpusName",
+              "parameterValue": "SQL Tools Service"
+            },
+            {
+              "parameterName": "OpusInfo",
+              "parameterValue": "https://github.com/microsoft/sqltoolsservice"
+            },
+            {
+              "parameterName": "PageHash",
+              "parameterValue": "/NPH"
+            },
+            {
+              "parameterName": "FileDigest",
+              "parameterValue": "/fd sha256"
+            },
+            {
+              "parameterName": "TimeStamp",
+              "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+            }
+            ],
+            "toolName": "signtool.exe",
+            "toolVersion": "6.2.9304.0"
           },
           {
-              "keyCode": "CP-401405",
-              "operationSetCode": "NuGetVerify",
-              "parameters": [ ],
-              "toolName": "sign",
-              "toolVersion": "1.0"
+            "keyCode": "CP-230012",
+            "operationSetCode": "SigntoolVerify",
+            "parameters": [
+            {
+              "parameterName": "VerifyAll",
+              "parameterValue": "/all"
+            }
+                ],
+            "toolName": "signtool.exe",
+            "toolVersion": "6.2.9304.0"
           }
-      ]
-    SessionTimeout: '60'
-    MaxConcurrency: '50'
-    MaxRetryAttempts: '5'
+        ]
+      SessionTimeout: 600
+      MaxConcurrency: 5
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: nuget packages'
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
-    Pattern: 'Microsoft*ServiceLayer.nupkg'
-    ArtifactName: 'packages'
+  - task: BatchScript@1
+    displayName: "Package published projects"
+    inputs:
+      filename: build.cmd
+      arguments: "-target=dotnetpackpublished -mono"
+    continueOnError: true
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: logs'
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
-    ArtifactName: 'logs'
-  condition: true
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+    displayName: "ESRP Code Signing - Nuget Package"
+    inputs:
+      ConnectedServiceName: "Code Signing"
+      FolderPath: "$(Build.SourcesDirectory)/artifacts/nugetPackages"
+      Pattern: "Microsoft*ServiceLayer.nupkg"
+      signConfigType: "inlineSignParams"
+      inlineOperation: |
+        [
+            {
+                "keyCode": "CP-401405",
+                "operationSetCode": "NuGetSign",
+                "parameters": [ ],
+                "toolName": "sign",
+                "toolVersion": "1.0"
+            },
+            {
+                "keyCode": "CP-401405",
+                "operationSetCode": "NuGetVerify",
+                "parameters": [ ],
+                "toolName": "sign",
+                "toolVersion": "1.0"
+            }
+        ]
+      SessionTimeout: "60"
+      MaxConcurrency: "50"
+      MaxRetryAttempts: "5"
 
-- task: NuGetCommand@2
-  displayName: 'NuGet push dotnet tools'
-  condition: eq(variables['RELEASE'], 'true')
-  inputs:
-    command: push
-    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft*ServiceLayer.nupkg'
-    publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
-    allowPackageConflicts: true
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: nuget packages"
+    inputs:
+      PathtoPublish: "$(Build.SourcesDirectory)/artifacts/nugetPackages"
+      Pattern: "Microsoft*ServiceLayer.nupkg"
+      ArtifactName: "packages"
 
-- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-  displayName: 'Component Detection'
-  inputs:
-    failOnAlert: true
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: logs"
+    inputs:
+      PathtoPublish: "$(Build.SourcesDirectory)/artifacts/logs"
+      ArtifactName: "logs"
+    condition: true
+
+  - task: NuGetCommand@2
+    displayName: "NuGet push dotnet tools"
+    condition: eq(variables['RELEASE'], 'true')
+    inputs:
+      command: push
+      packagesToPush: "$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft*ServiceLayer.nupkg"
+      publishVstsFeed: "2191dd5f-4aec-491b-ac50-568bbc331c8a"
+      allowPackageConflicts: true
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: "Component Detection"
+    inputs:
+      failOnAlert: true
