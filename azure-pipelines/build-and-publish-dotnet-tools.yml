@@ -112,10 +112,10 @@ steps:
       MaxConcurrency: 5
 
   - task: BatchScript@1
-    displayName: "Package published projects"
+    displayName: "Package service tool projects"
     inputs:
       filename: build.cmd
-      arguments: "-target=dotnetpackpublished -mono"
+      arguments: "-target=dotnetpackservicetools -mono"
     continueOnError: true
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
@@ -165,7 +165,7 @@ steps:
     condition: eq(variables['RELEASE'], 'true')
     inputs:
       command: push
-      packagesToPush: "$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft*ServiceLayer.nupkg"
+      packagesToPush: "$(Build.SourcesDirectory)/artifacts/nugetPackages/Microsoft*ServiceLayer.nupkg"
       publishVstsFeed: "2191dd5f-4aec-491b-ac50-568bbc331c8a"
       allowPackageConflicts: true
 
