@@ -263,12 +263,27 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             if (prop.Name == nameof(this.ExcludeObjectTypes))
             {
                 type = typeof(DeploymentOptionProperty<string[]>);
-                val = new string[] { };
+                val = val != null ? ConvertObjectTypeToStringArray((ObjectType[])val): new string[] { };
             }
 
             return Activator.CreateInstance(type, val, 
                 (descriptionAttribute != null ? descriptionAttribute.Description : ""), 
                 (displayNameAttribute != null ? displayNameAttribute.DisplayName : ""));
+        }
+
+        /// <summary>
+        /// Converting ObjectType to String[] as the deployemnt options excludeObjectTypes is string[] and need conversion
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public string[] ConvertObjectTypeToStringArray(ObjectType[] val)
+        {
+            List<string> returnVal = new List<string>();
+            foreach (ObjectType item in val)
+            {
+                returnVal.Add(item.ToString());
+            }
+            return returnVal.ToArray();
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()
