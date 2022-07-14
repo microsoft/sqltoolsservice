@@ -73,7 +73,7 @@
 		<Content Include="..\..\Notice.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
+		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
