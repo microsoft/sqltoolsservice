@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
 using System.Reflection;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -52,8 +53,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         #region Properties
 
         /// <summary>
-        /// These default exclude options are for schema compare options
-        /// And there will be no default options for Publish dialog, which is handled in <azuredatastudio>\extensions\sql-database-projects\src\dialogs\publishDatabaseDialog.ts
+        /// These default exclude options are for schema compare extension, It require some default options to be excluded for SC operations
+        /// Where as the publish operation does not require any defaults, removing all default options for publish is handled in <azuredatastudio>\extensions\sql-database-projects\src\dialogs\publishDatabaseDialog.ts
         /// </summary>
         public DeploymentOptionProperty<string[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<string[]>
         (
@@ -89,10 +90,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; } = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
-        /// Contains Include object types from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
+        /// Contains object types enum name and its desplay name from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
         /// key: optionName, value:DisplayName
         /// </summary>
-        public Dictionary<string, string> IncludeObjectsDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        public Dictionary<string, string> ObjectTypesDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         #endregion
 
         public DeploymentOptions()
@@ -176,8 +177,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 }
             }
 
-            // Initilaizing include objects dictionary
-            InitializeIncludeObjectTypes();
+            // Preparing object types dictionary
+            InitializeObjectTypesDictionary();
         }
 
         public void SetOptions(DacDeployOptions options)
@@ -207,9 +208,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Preparing all include object types which are considered as boolean options
+        /// Preparing all object types which are considered as boolean options
         /// </summary>
-        public void InitializeIncludeObjectTypes()
+        public void InitializeObjectTypesDictionary()
         {
             Type objectTypeEnum = typeof(ObjectType);
             string excludePrefixWord = "Exclude ";
@@ -220,12 +221,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 string displayName = "";
                 if (info != null)
                 {
-                    string dacfxDisplayName = info.GetCustomAttribute<EnumDisplayNameAttribute>().DisplayName;
+                    string dacfxDisplayName = info.GetCustomAttribute<DisplayAttribute>().GetName();
 
-                    // Excluding the "Exclude " word from the option display name using Substring() as all display names are prefixed with Exclude word in DacFx
-                    displayName = dacfxDisplayName != "" && dacfxDisplayName.IndexOf(excludePrefixWord) == 0
-                        ? dacfxDisplayName.Substring(excludePrefixWord.Length)
-                        : dacfxDisplayName;
+                    //Excluding the "Exclude " word from the option display name using Substring() as all display names are prefixed with Exclude word in DacFx
+                   displayName = dacfxDisplayName != "" && dacfxDisplayName.IndexOf(excludePrefixWord) == 0
+                       ? dacfxDisplayName.Substring(excludePrefixWord.Length)
+                       : dacfxDisplayName;
 
                     // Convert the options name into PascalCase
                     if (displayName != "")
@@ -241,7 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 else
                 {
                     // Add the property to the Dictionary
-                    IncludeObjectsDictionary[name] = displayName;
+                    ObjectTypesDictionary[name] = displayName;
                 }
             }
         }

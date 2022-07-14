@@ -838,7 +838,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
         }
 
         /// <summary>
-        /// Verify Include Object Types Dictionaty items with ObjectType Enum members
+        /// Verify Object Types Dictionaty items with ObjectType Enum members
         /// </summary>
         /// <returns></returns>
         [Test]
@@ -846,20 +846,20 @@ Streaming query statement contains a reference to missing output stream 'Missing
         {
             DeploymentOptions options = new DeploymentOptions();
 
-            // Verify the Include object types dictionaty should exists
-            Assert.That(options.IncludeObjectsDictionary, Is.Not.Null, "Include Object types dictionary is empty");
+            // Verify the object types dictionaty should exists
+            Assert.That(options.ObjectTypesDictionary, Is.Not.Null, "Object types dictionary is empty");
 
-            // Verify that the Include objects dictionary has all the item from Enum
-            Assert.That(options.IncludeObjectsDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), "Include Object types dictionary do not have all the items from ObjectType enum");
+            // Verify that the objects dictionary has all the item from Enum
+            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), "Object types dictionary do not have all the items from ObjectType enum");
 
-            // Verify the options in the include objects dictionary exists in the ObjectType Enum
-            foreach (var includeObjRow in options.IncludeObjectsDictionary)
+            // Verify the options in the objects dictionary exists in the ObjectType Enum
+            foreach (var objTypeRow in options.ObjectTypesDictionary)
             {
                 // Verify the option exists in ObjectType Enum
-                Assert.That(Enum.IsDefined(typeof(ObjectType), includeObjRow.Key), Is.True, @"{0} is not an enum member", includeObjRow.Key);
+                Assert.That(Enum.IsDefined(typeof(ObjectType), objTypeRow.Key), Is.True, @"{0} is not an enum member", objTypeRow.Key);
 
                 // Verify the options display name exists
-                Assert.That(includeObjRow.Value, Is.Not.Empty, @"Display name for the option {0} is empty", includeObjRow.Key);
+                Assert.That(objTypeRow.Value, Is.Not.Empty, @"Display name for the option {0} is empty", objTypeRow.Key);
 
             }
         }
