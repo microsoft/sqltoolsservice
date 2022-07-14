@@ -625,6 +625,9 @@
       <Item ItemId=";AverageRowSize" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Average Row Size]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[平均資料列大小]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2738,7 +2741,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Estimated Subtree Cost]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[估計的子樹成本]]></Val>
+            <Val><![CDATA[預估的樹狀子目錄成本]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Estimated Subtree Cost %]]></Val>

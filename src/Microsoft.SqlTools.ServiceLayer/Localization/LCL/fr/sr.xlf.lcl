@@ -625,6 +625,9 @@
       <Item ItemId=";AverageRowSize" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Average Row Size]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Taille moyenne de ligne]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
