@@ -161,7 +161,7 @@ steps:
     condition: true
 
   - task: NuGetCommand@2
-    displayName: "NuGet push dotnet tools"
+    displayName: "Push nuget package to internal mssqltools feed"
     condition: eq(variables['RELEASE'], 'true')
     inputs:
       command: push
