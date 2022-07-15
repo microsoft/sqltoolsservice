@@ -166,6 +166,7 @@ steps:
     inputs:
       command: push
       packagesToPush: "$(Build.SourcesDirectory)/artifacts/nugetPackages/Microsoft*ServiceLayer.nupkg"
+      nuGetFeedType: "internal"
       publishVstsFeed: "2191dd5f-4aec-491b-ac50-568bbc331c8a"
       allowPackageConflicts: true
 
