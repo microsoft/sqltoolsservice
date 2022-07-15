@@ -6251,7 +6251,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
       </trans-unit>
       <trans-unit id="AverageRowSize">
         <source>Average Row Size</source>
-        <target state="new">Average Row Size</target>
+        <target state="translated">Durchschnittliche Zeilengröße</target>
         <note></note>
       </trans-unit>
     </body>
