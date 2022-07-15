@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-    <PackageDescription>.NET client Kusto Service application, usable as a dotet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
+    <PackageDescription>.NET client Kusto Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>$(AssemblyName)</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
