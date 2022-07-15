@@ -278,9 +278,6 @@ Task("DotnetPackPublished")
 ///  Packages dotnet tool projects specified in DotnetToolProjects.
 /// </summary>
 Task("DotnetPackServiceTools")
-    .IsDependentOn("Cleanup")
-    .IsDependentOn("Setup")
-    .IsDependentOn("Restore")
     .Does(() =>
 {
     foreach (var project in buildPlan.DotnetToolProjects)
