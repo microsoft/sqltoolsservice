@@ -275,9 +275,7 @@ Task("DotnetPackPublished")
 });
 
 /// <summary>
-///  Packages projects specified in PackagePublishedProjects, these projects require that publishing be done first. Note that we
-///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
-///  currently.
+///  Packages dotnet tool projects specified in DotnetToolProjects.
 /// </summary>
 Task("DotnetPackServiceTools")
     .IsDependentOn("Cleanup")
