@@ -33,7 +33,7 @@ steps:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --coverage "XPlat Code Coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
@@ -41,7 +41,7 @@ steps:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --coverage "XPlat Code Coverage"'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -207,6 +207,13 @@ steps:
     PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
     ArtifactName: 'logs'
   condition: true
+
+- task: PublishTestResults@2
+  displayName: Publish Test Results
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/test/**/coverage.cobertura.xml
+    reportDirectory: CoverageReport
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'
