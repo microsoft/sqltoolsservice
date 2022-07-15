@@ -3800,7 +3800,7 @@
     <value>推定コスト %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>サブツリーの推定コスト %</value>
+    <value>サブツリーの推定コスト</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>実際の行数</value>
@@ -3823,7 +3823,7 @@
   <data name="ActualDataSize" xml:space="preserve">
     <value>実際のデータ サイズ</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>推定の行の平均サイズ</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>平均行サイズ</value>
   </data>
 </root>

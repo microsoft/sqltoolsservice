@@ -3800,7 +3800,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
     <value>Costo stimato %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Costo stimato sottoalbero %</value>
+    <value>Costo stimato sottoalbero</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>Righe effettive</value>
@@ -3823,7 +3823,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ActualDataSize" xml:space="preserve">
     <value>Dimensioni totali dei dati:</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Dimensioni medie stimate riga</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Dimensioni medie righe</value>
   </data>
 </root>
