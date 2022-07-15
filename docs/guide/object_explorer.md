@@ -54,7 +54,7 @@
 2. Update [CalculateServerType](https://github.com/Microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/SqlServerType.cs) method to support calculating the new server type
 3. Update [ValidForFlag](https://github.com/Microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/ValidForFlag.cs) with the new type, adding it to the flag unions as necessary.
 4. Update [TreeNodeDefinition.xml](https://github.com/Microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/SmoModel/TreeNodeDefinition.xml) - adding the new type to any ValidFor fields that are supported on the new type.
-5. Run `build.[cmd|sh] -target=CodeGen` to regenerate the class definition file
+5. Run `build.[cmd|sh] -target=CodeGen` to regenerate the class definition file (note that you may not see any changes, this is expected unless folder nodes are being updated)
 6. Build and verify that your changes result in the expected nodes being shown when connected to a server of the new type
 
 
