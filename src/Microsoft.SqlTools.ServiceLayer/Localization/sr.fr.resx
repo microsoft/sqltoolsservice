@@ -3824,6 +3824,6 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Taille réelle des données</value>
   </data>
   <data name="AverageRowSize" xml:space="preserve">
-    <value>Average Row Size</value>
+    <value>Taille moyenne de ligne</value>
   </data>
 </root>

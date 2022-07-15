@@ -6251,7 +6251,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="AverageRowSize">
         <source>Average Row Size</source>
-        <target state="new">Average Row Size</target>
+        <target state="translated">Taille moyenne de ligne</target>
         <note></note>
       </trans-unit>
     </body>
