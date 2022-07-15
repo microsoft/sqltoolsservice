@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         Sql2014,
         Sql2016,
         Sql2017,
+        Sql2019,
+        Sql2022,
         AzureV12,
         SqlOnDemand,
         AzureSqlDWGen3
@@ -83,23 +85,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// </summary>
         public static SqlServerType CalculateServerType(ServerInfo serverInfo)
         {
-            SqlServerType serverType = SqlServerType.Unknown;
             string serverVersion = serverInfo.ServerVersion;
 
             if (serverInfo.EngineEditionId == 11)
             {
-                serverType = SqlServerType.SqlOnDemand;
+                return SqlServerType.SqlOnDemand;
             }
             else if (serverInfo.IsCloud)
             {
                 if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse 
                     && serverVersion.StartsWith("12", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.AzureSqlDWGen3;
+                    return SqlServerType.AzureSqlDWGen3;
                 }
                 else
                 {
-                    serverType = SqlServerType.AzureV12;
+                    return SqlServerType.AzureV12;
                 }
             }
             else if (!string.IsNullOrWhiteSpace(serverVersion))
@@ -107,36 +108,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 if (serverVersion.StartsWith("9", StringComparison.Ordinal) ||
                     serverVersion.StartsWith("09", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2005;
+                    return SqlServerType.Sql2005;
                 }
                 else if (serverVersion.StartsWith("10", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2008; // and 2008R2
+                    return SqlServerType.Sql2008; // and 2008R2
                 }
                 else if (serverVersion.StartsWith("11", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2012;
+                    return SqlServerType.Sql2012;
                 }
                 else if (serverVersion.StartsWith("12", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2014;
+                    return SqlServerType.Sql2014;
                 }
                 else if (serverVersion.StartsWith("13", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2016;
+                    return SqlServerType.Sql2016;
                 }
                 else if (serverVersion.StartsWith("14", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2017;
+                    return SqlServerType.Sql2017;
+                }
+                else if (serverVersion.StartsWith("15", StringComparison.Ordinal))
+                {
+                    return SqlServerType.Sql2019;
+                }
+                else if (serverVersion.StartsWith("16", StringComparison.Ordinal))
+                {
+                    return SqlServerType.Sql2022;
                 }
                 else
                 {
                     // vNext case - default to latest version
-                    serverType = SqlServerType.Sql2017;
+                    return SqlServerType.Sql2022;
                 }
             }
-
-            return serverType;
+            return SqlServerType.Unknown;
         }
     }
 }

@@ -24,11 +24,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         SqlDw = 0x80,
         SqlOnDemand = 0x100,
         AzureSqlDWGen3 = 0x200,
-        AllOnPrem = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017,
+        Sql2019 = 0x400,
+        Sql2022 = 0x800,
+        AllOnPrem = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | Sql2019 | Sql2022,
         AllAzure = AzureV12,
-        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw | SqlOnDemand,
-        NotSqlDw = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlOnDemand,
-        NotSqlDemand = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw,
-        NotSqlDwNotDemand = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12,
+        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | Sql2019 | Sql2022 | AzureV12 | SqlDw | SqlOnDemand,
+        NotSqlDw = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | Sql2019 | Sql2022 | AzureV12 | SqlOnDemand,
+        NotSqlDemand = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | Sql2019 | Sql2022 | AzureV12 | SqlDw,
+        NotSqlDwNotDemand = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | Sql2019 | Sql2022 | AzureV12,
     }
 }
