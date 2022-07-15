@@ -3800,7 +3800,7 @@
     <value>預估成本 %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>估計的子樹成本</value>
+    <value>預估的樹狀子目錄成本</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>實際資料列數</value>
@@ -3824,6 +3824,6 @@
     <value>實際資料大小</value>
   </data>
   <data name="AverageRowSize" xml:space="preserve">
-    <value>Average Row Size</value>
+    <value>平均資料列大小</value>
   </data>
 </root>
