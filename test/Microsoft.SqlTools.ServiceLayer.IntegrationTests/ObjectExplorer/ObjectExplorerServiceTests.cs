@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
