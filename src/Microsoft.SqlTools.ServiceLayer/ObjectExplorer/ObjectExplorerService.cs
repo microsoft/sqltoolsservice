@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -24,7 +23,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
@@ -110,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 connectionService.RegisterConnectedQueue(connectionName, bindingQueue);
 
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Write(TraceEventType.Error, ex.Message);
             }
@@ -306,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (sessionMap.TryGetValue(uri, out session))
             {
                 // Remove the session from active sessions and disconnect
-                if (sessionMap.TryRemove(session.Uri, out session))
+                if(sessionMap.TryRemove(session.Uri, out session))
                 {
                     if (session != null && session.ConnectionInfo != null)
                     {
@@ -395,27 +393,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             NodeInfo[] nodes = null;
             TreeNode node = session.Root.FindNodeByPath(nodePath);
-
-            // Performance Optimization for table designer to load the database model earlier.
-            if (node.NodeTypeId == NodeTypes.Database)
-            {
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
-                        builder.InitialCatalog = node.NodeValue;
-                        builder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
-                        var azureToken = session.ConnectionInfo.ConnectionDetails.AzureAccountToken;
-                        TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Write(TraceEventType.Warning, $"Failed to start database initialization for table designer: {ex.Message}");
-                    }
-                });
-            }
-
             ExpandResponse response = null;
 
             // This node was likely returned from a different node provider. Ignore expansion and return an empty array
@@ -465,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                        bindingContext.ServerConnection.SqlConnectionObject.ChangeDatabase(bindingContext.ServerConnection.DatabaseName);
                                    }
                                }
-                               catch (Exception ex)
+                               catch(Exception ex)
                                {
                                    Logger.Write(TraceEventType.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
                                    // We should just try to change the connection. If it fails, there's not much we can do
@@ -538,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 return session;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 await SendSessionFailedNotification(uri, ex.Message);
                 return null;
@@ -552,7 +529,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
-                connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}" : string.Empty;
+                connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}"  : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {
                     return result;
@@ -598,18 +575,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task task = ExpandNodeAsync(session, expandParams, cancellationTokenSource.Token, forceRefresh);
+            Task task = ExpandNodeAsync(session, expandParams,  cancellationTokenSource.Token, forceRefresh);
             ExpandTask = task;
             Task.Run(async () =>
             {
-                ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
+                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task,
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
                 if (result != null && !result.IsCompleted)
                 {
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
-                    response.ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
+                    response.ErrorMessage = result.Exception != null ? result.Exception.Message: $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;
@@ -622,7 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             TimeSpan timeout = TimeSpan.FromSeconds(timeoutInSec);
             await Task.WhenAny(task, Task.Delay(timeout));
             result.IsCompleted = task.IsCompleted;
-            if (task.Exception != null)
+            if(task.Exception != null)
             {
                 result.Exception = task.Exception;
             }
