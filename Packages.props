@@ -22,7 +22,7 @@
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="3.1.0" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="161.47021.0" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="161.47008.0" />
-		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6208.0-preview" GeneratePathProperty="true" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6227.0-preview" GeneratePathProperty="true" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.0.305]" />
