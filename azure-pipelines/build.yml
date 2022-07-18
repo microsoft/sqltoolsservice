@@ -43,12 +43,11 @@ steps:
     testRunTitle: Kusto.ServiceLayer.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
-- task: PublishTestResults@2
-  displayName: Publish Test Results
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage report'
   inputs:
-    codeCoverageTool: Cobertura
-    summaryFileLocation: $(System.DefaultWorkingDirectory)/test/**/coverage.cobertura.xml
-    reportDirectory: CoverageReport
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/test/**/coverage.cobertura.xml'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
