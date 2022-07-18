@@ -58,6 +58,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return "Temporal";
                 }
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties) && table.LedgerType != LedgerTableType.None)
+                {
+                    return "Ledger";
+                }
                 // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
                 // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
                 // {

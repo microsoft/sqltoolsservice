@@ -780,6 +780,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                       { TableTemporalType.SystemVersioned }
                    }
                 });
+                filters.Add(new NodeFilter
+                {
+                   Property = "LedgerType",
+                   Type = typeof(Enum),
+                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.AzureV12,
+                   Values = new List<object>
+                   {
+                      { LedgerTableType.None },
+                      { LedgerTableType.AppendOnlyLedgerTable },
+                      { LedgerTableType.UpdatableLedgerTable },
+                      { LedgerTableType.HistoryTable }
+                   }
+                });
                 return filters;
            }
         }
@@ -803,6 +816,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Name = "TemporalType",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "LedgerType",
+                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.AzureV12
                 });
                 properties.Add(new NodeSmoProperty
                 {
@@ -1316,6 +1334,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Values = new List<object>
                    {
                       { TableTemporalType.HistoryTable }
+                   }
+                });
+                filters.Add(new NodeFilter
+                {
+                   Property = "LedgerType",
+                   Type = typeof(Enum),
+                   TypeToReverse = typeof(SqlHistoryTableQuerier),
+                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.AzureV12,
+                   Values = new List<object>
+                   {
+                      { LedgerTableType.HistoryTable }
                    }
                 });
                 return filters;

@@ -77,11 +77,18 @@
         <Value>TableTemporalType.None</Value>
         <Value>TableTemporalType.SystemVersioned</Value>
       </Filter>
+      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2017|AzureV12"> <!-- TODO: update to Sql2022 -->
+        <Value>LedgerTableType.None</Value>
+        <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
+        <Value>LedgerTableType.UpdatableLedgerTable</Value>
+        <Value>LedgerTableType.HistoryTable</Value>
+      </Filter>
     </Filters>
     <Properties>
       <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017"/>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
 	    <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
+	    <Property Name="LedgerType" ValidFor="Sql2017|AzureV12"/> <!-- TODO: update to Sql2022 -->
       <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|AzureV12|SqlOnDemand"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
@@ -171,6 +178,9 @@
     <Filters>
       <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|AzureV12">
         <Value>TableTemporalType.HistoryTable</Value>
+      </Filter>
+      <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2017|AzureV12"> <!-- TODO: update to Sql2022 -->
+        <Value>LedgerTableType.HistoryTable</Value>
       </Filter>
     </Filters>
     <Child Name="Columns"/>
