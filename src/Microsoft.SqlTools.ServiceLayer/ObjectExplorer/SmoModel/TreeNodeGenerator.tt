@@ -378,6 +378,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			flags.Add("ValidForFlag.Sql2017");
 		}
 
+		if (validForStr.Contains("Sql2019"))
+		{
+			flags.Add("ValidForFlag.Sql2019");
+		}
+
+		if (validForStr.Contains("Sql2022"))
+		{
+			flags.Add("ValidForFlag.Sql2022");
+		}
+
 		if (validForStr.Contains("AzureV12"))
 		{
 			flags.Add("ValidForFlag.AzureV12");
