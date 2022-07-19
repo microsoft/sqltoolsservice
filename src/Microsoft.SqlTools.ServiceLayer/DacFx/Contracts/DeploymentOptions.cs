@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; } = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
-        /// Contains object types enum name and its desplay name from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
+        /// Contains object types enum name and its display name from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
         /// key: optionName, value:DisplayName
         /// </summary>
         public Dictionary<string, string> ObjectTypesDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             foreach (string name in Enum.GetNames(objectTypeEnum))
             {
                 MemberInfo[] member = objectTypeEnum.GetMember(name);
-                MemberInfo info = (member != null) ? member.FirstOrDefault() : null;
+                MemberInfo info = member?.FirstOrDefault();
                 string displayName = "";
                 if (info != null)
                 {
@@ -273,16 +273,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
-        /// Converting ObjectType to String[] as the deployemnt options excludeObjectTypes is string[] and need conversion
+        /// Converting ObjectType to String[] as the deployemnt options excludeObjectTypes is string[] but the DacFx DacDeployOptions excludeObjectTypes is of ObjectType[]
+        /// Loading options from profile and schema compare .scmp file should need this conversion
         /// </summary>
-        /// <param name="val"></param>
-        /// <returns></returns>
-        public string[] ConvertObjectTypeToStringArray(ObjectType[] val)
+        /// <param name="excludeObjectTypes"></param>
+        /// <returns>string[]</returns>
+        public string[] ConvertObjectTypeToStringArray(ObjectType[] excludeObjectTypes)
         {
             List<string> returnVal = new List<string>();
-            foreach (ObjectType item in val)
+            foreach (ObjectType excludeObject in excludeObjectTypes)
             {
-                returnVal.Add(item.ToString());
+                returnVal.Add(excludeObject.ToString());
             }
             return returnVal.ToArray();
         }

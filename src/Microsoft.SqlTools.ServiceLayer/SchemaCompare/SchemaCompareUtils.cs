@@ -48,14 +48,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     {
                         List<ObjectType> finalExcludeObjects = new List<ObjectType> { };
                         var val = deployOptionsProp.GetValue(deploymentOptions);
-                        string[] selectedVal = (string[])val.GetType().GetProperty("Value").GetValue(val);
+                        string[] excludeObjectTypeOptionsArray = (string[])val.GetType().GetProperty("Value").GetValue(val);
 
-                        if (selectedVal != null)
+                        if (excludeObjectTypeOptionsArray != null)
                         {
-                            foreach(string objectTypeValue in selectedVal)
+                            foreach(string objectTypeValue in excludeObjectTypeOptionsArray)
                             {
                                 // Convert the first char of the enum to upper case, as the excludeObjectTypes values are coming in lower case which needs to be converted
-                                var name = char.ToUpper(objectTypeValue.ToCharArray()[0]) + objectTypeValue.Substring(1);
+                                string name = char.ToUpper(objectTypeValue.ToCharArray()[0]) + objectTypeValue.Substring(1);
                                 ObjectType enumName = new ObjectType(); 
                                    
                                 if (name != null && Enum.TryParse(name, out enumName))
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                                 }
                                 else
                                 {
-                                    Logger.Write(TraceEventType.Error, string.Format(name + " is not an enum member"));
+                                    Logger.Write(TraceEventType.Error, string.Format($"{0} is not part of ObjectTypes enum", name));
                                 }
                             }
                             // set final values to excludeObjectType property

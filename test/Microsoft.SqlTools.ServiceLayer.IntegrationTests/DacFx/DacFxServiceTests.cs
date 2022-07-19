@@ -838,7 +838,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
         }
 
         /// <summary>
-        /// Verify Object Types Dictionaty items with ObjectType Enum members
+        /// Verify Object Types Dictionary items with ObjectType Enum members
         /// </summary>
         /// <returns></returns>
         [Test]
