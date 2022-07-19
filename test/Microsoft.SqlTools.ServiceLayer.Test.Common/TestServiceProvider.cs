@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 uri = queryTempFile.FilePath;
 
-                ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, uri);
+                ConnectionInfo connInfo = await InitLiveConnectionInfo(serverType, databaseName, uri);
                 Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
                 query.Execute();
                 await query.ExecutionTask;
@@ -132,23 +132,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return result;
         }
 
-        private ConnectionInfo InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
+        private async Task<ConnectionInfo> InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
         {
             ConnectParams connectParams = ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
 
             string ownerUri = scriptFilePath;
             var connectionService = ConnectionService.Instance;
-            var connectionResult = connectionService.Connect(new ConnectParams()
+            var connectionResult = await connectionService.Connect(new ConnectParams()
                 {
                     OwnerUri = ownerUri,
                     Connection = connectParams.Connection
                 });
 
-            connectionResult.Wait();
-
-            ConnectionInfo connInfo = null;
+            if(!string.IsNullOrEmpty(connectionResult.ErrorMessage))
+            {
+                throw new Exception($"Error creating live connection to {connectParams.Connection.ServerName} (Type={serverType}). Error: {connectionResult.ErrorMessage}");
+            }
+            ConnectionInfo? connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
-            Assert.NotNull(connInfo);
+            Assert.That(connInfo, Is.Not.Null, $"Could not find connection {ownerUri} when creating live connection");
             return connInfo;
         }
 
