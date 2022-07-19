@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts
         /// <summary>
         /// Gets or sets a <see cref="string"/> indicating
         /// severity level assigned to this items.
-        /// Values are: "Information", "Warning", "Critical".
+        /// Values are: "Information", "Low", "Medium", "High".
         /// </summary>
         public string Level { get; set; }
     }
