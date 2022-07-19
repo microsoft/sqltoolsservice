@@ -320,11 +320,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 // Verify the test databases is in the list
                 Assert.False(databases.Any(x => x.Label == "master"));
                 Assert.That(databases, Has.None.Matches<NodeInfo>(n => n.Label == "master"), "master database not expected in user databases folder");
-                var systemDatabasesNodes = databasesChildren.Where(x => x.Label == SR.SchemaHierarchy_SystemDatabases);
+                var systemDatabasesNodes = databasesChildren.Where(x => x.Label == SR.SchemaHierarchy_SystemDatabases).ToList();
                 Assert.That(systemDatabasesNodes, Has.Count.EqualTo(1), $"Exactly one {SR.SchemaHierarchy_SystemDatabases} node expected");
 
-                var systemDatabases = await _service.ExpandNode(session, systemDatabasesNodes.First().NodePath);
-                Assert.That(systemDatabases, Has.One.Matches<NodeInfo>(n => n.Label == "master"), "master database expected in system databases folder");
+                var expandResponse = await _service.ExpandNode(session, systemDatabasesNodes.First().NodePath);
+                Assert.That(expandResponse.Nodes, Has.One.Matches<NodeInfo>(n => n.Label == "master"), "master database expected in system databases folder");
 
                 databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
