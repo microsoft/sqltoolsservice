@@ -357,6 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 		return string.Join("|", flags);
 	}
+
 	public static string[] GetNodes(string xmlFile)
 	{
 		List<string> typesList = new List<string>();
