@@ -1,12 +1,14 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".cs" #>
 <#@ assembly name="System.Xml.dll" #>
+<#@ assembly name="System.Core.dll" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Xml" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq"#>
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -351,66 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 <#+
 	public static string GetValidForFlags(string validForStr)
 	{
-		List<string> flags = new List<string>();
-		if (validForStr.Contains("Sql2005"))
-		{
-			flags.Add("ValidForFlag.Sql2005");
-		}
-
-		if (validForStr.Contains("Sql2008"))
-		{
-			flags.Add("ValidForFlag.Sql2008");
-		}
-
-		if (validForStr.Contains("Sql2012"))
-		{
-			flags.Add("ValidForFlag.Sql2012");
-		}
-
-		if (validForStr.Contains("Sql2014"))
-		{
-			flags.Add("ValidForFlag.Sql2014");
-		}
-
-		if (validForStr.Contains("Sql2016"))
-		{
-			flags.Add("ValidForFlag.Sql2016");
-		}
-
-		if (validForStr.Contains("Sql2017"))
-		{
-			flags.Add("ValidForFlag.Sql2017");
-		}
-
-		if (validForStr.Contains("AzureV12"))
-		{
-			flags.Add("ValidForFlag.AzureV12");
-		}
-
-		if (validForStr.Contains("AllOnPrem"))
-		{
-			flags.Add("ValidForFlag.AllOnPrem");
-		}
-		if (validForStr.Contains("AllAzure"))
-		{
-			flags.Add("ValidForFlag.AllAzure");
-		}
-		if (validForStr.Contains("NotSqlDw"))
-		{
-			flags.Add("ValidForFlag.NotSqlDw");
-		}
-		if (validForStr.Contains("SqlOnDemand"))
-		{
-			flags.Add("ValidForFlag.SqlOnDemand");
-		}
-		if (validForStr == "NotSqlDemand")
-		{
-			flags.Add("ValidForFlag.NotSqlDemand");
-		}
-		if (validForStr == "All")
-		{
-			flags.Add("ValidForFlag.All");
-		}
+		var flags = validForStr.Split('|').Select(validForFlag => "ValidForFlag." + validForFlag);
 
 		return string.Join("|", flags);
 	}

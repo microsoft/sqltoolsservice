@@ -1,6 +1,6 @@
 name: Packages.props validation message
 on:
-  pull_request:
+  pull_request_target:
     paths:
       - 'Packages.props'
     branches:
