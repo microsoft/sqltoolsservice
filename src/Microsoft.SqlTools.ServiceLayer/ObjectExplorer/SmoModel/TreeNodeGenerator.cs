@@ -789,8 +789,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    {
                       { LedgerTableType.None },
                       { LedgerTableType.AppendOnlyLedgerTable },
-                      { LedgerTableType.UpdatableLedgerTable },
-                      { LedgerTableType.HistoryTable }
+                      { LedgerTableType.UpdatableLedgerTable }
                    }
                 });
                 return filters;

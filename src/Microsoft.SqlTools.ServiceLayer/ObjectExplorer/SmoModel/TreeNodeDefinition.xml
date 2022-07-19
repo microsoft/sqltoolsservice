@@ -81,7 +81,6 @@
         <Value>LedgerTableType.None</Value>
         <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
         <Value>LedgerTableType.UpdatableLedgerTable</Value>
-        <Value>LedgerTableType.HistoryTable</Value>
       </Filter>
     </Filters>
     <Properties>
@@ -94,7 +93,12 @@
 =======
       <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+<<<<<<< HEAD
 	    <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+=======
+      <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
+>>>>>>> 425f6474 (remove history table from regular table listing)
       <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand"/>
 >>>>>>> 08dbdf69 (Add 2019 and 2022 to SqlServerType enum)
     </Properties>
@@ -199,7 +203,7 @@
   </Node>
 
   <!-- TODO This should use display item not ChildQuerierTypes -->
-  
+
   <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
     <Child Name="Columns"/>
     <Child Name="Constraints"/>
