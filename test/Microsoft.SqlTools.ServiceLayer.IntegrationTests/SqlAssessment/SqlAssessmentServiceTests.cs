@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
     {
         private delegate Task<List<TResult>> AssessmentMethod<TResult>(SqlObjectLocator locator);
 
-        private static readonly string[] AllowedSeverityLevels = { string.Empty, "Information", "Warning", "Critical" };
+        private static readonly string[] AllowedSeverityLevels = { string.Empty, "Information", "Low", "Medium", "High" };
 
         [Test]
         public async Task InvokeSqlAssessmentServerTest()

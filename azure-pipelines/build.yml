@@ -33,7 +33,7 @@ steps:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
     testRunTitle: SqlTools.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
@@ -41,7 +41,18 @@ steps:
     command: test
     projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
     testRunTitle: Kusto.ServiceLayer.UnitTests
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
+
+- script: |
+    dotnet tool install -g dotnet-reportgenerator-globaltool
+    reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura"
+  displayName: Create Code coverage report
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage report'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -108,7 +119,14 @@ steps:
   inputs:
     filename: build.cmd
     arguments: '-target=dotnetpackpublished -mono'
-  continueOnError: true
+
+- task: BatchScript@1
+  displayName: "Build and Package service tool projects"
+  env:
+    BUILD_DOTNET_TOOL: "true"
+  inputs:
+    filename: build.cmd
+    arguments: "-target=dotnetpackservicetools -mono"
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP Code Signing - Nuget Package'

@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             var assembly = typeof(ObjectExplorerService).Assembly;
-            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.TreeNodeDefinition.xml");
+            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.SmoTreeNodesDefinition.xml");
             var serializer = new XmlSerializer(typeof(ServerExplorerTree));
             NodeTypeDictionary = new Dictionary<string, HashSet<Node>>();
             using (var reader = new StreamReader(resource))
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         returnSet.Add(newPath);
                     }
                 }
-                
+
                 return returnSet;
             }
         }
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return null;
                 }
-                
+
                 var containedNode = TreeRoot.GetNode(containedType);
                 if (containedNode == this)
                 {
@@ -241,7 +241,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return SR.Keys.GetString(this.LocLabel.Remove(0, 3));
                 }
-                
+
                 return string.Empty;
             }
 

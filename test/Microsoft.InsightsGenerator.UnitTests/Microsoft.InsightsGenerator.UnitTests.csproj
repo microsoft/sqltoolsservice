@@ -17,6 +17,14 @@
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<!-- Adding explicit Newtonsoft.Json dependency so that older, vulnerable versions aren't used through indirect references by Microsoft.TestPlatform.TestHost -->
 		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="coverlet.collector">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.msbuild">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.InsightsGenerator/Microsoft.InsightsGenerator.csproj" />

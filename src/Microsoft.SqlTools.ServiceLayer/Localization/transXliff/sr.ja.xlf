@@ -6210,8 +6210,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
-        <source>Estimated Subtree Cost %</source>
-        <target state="translated">サブツリーの推定コスト %</target>
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">サブツリーの推定コスト</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6249,9 +6249,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">実際のデータ サイズ</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstimatedAverageRowSize">
-        <source>Estimated Average Row Size</source>
-        <target state="translated">推定の行の平均サイズ</target>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">平均行サイズ</target>
         <note></note>
       </trans-unit>
     </body>

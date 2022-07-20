@@ -6210,8 +6210,8 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
-        <source>Estimated Subtree Cost %</source>
-        <target state="translated">Coût estimé du sous-arbre en %</target>
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">Coût estimé du sous-arbre</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6249,9 +6249,9 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Taille réelle des données</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstimatedAverageRowSize">
-        <source>Estimated Average Row Size</source>
-        <target state="translated">Taille moyenne estimée des lignes</target>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">Taille moyenne de ligne</target>
         <note></note>
       </trans-unit>
     </body>

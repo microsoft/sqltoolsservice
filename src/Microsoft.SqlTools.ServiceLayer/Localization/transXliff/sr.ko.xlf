@@ -6210,8 +6210,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
-        <source>Estimated Subtree Cost %</source>
-        <target state="translated">예상 하위 트리 비용(%)</target>
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">예상 하위 트리 비용</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6249,9 +6249,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">실제 데이터 크기</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstimatedAverageRowSize">
-        <source>Estimated Average Row Size</source>
-        <target state="translated">예상 평균 행 크기</target>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">평균 행 크기</target>
         <note></note>
       </trans-unit>
     </body>
