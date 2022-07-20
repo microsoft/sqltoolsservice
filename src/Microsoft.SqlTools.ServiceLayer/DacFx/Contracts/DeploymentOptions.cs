@@ -11,6 +11,8 @@ using Microsoft.SqlServer.Dac;
 using System.Reflection;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -213,31 +215,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public void InitializeObjectTypesDictionary()
         {
             Type objectTypeEnum = typeof(ObjectType);
-            string excludePrefixWord = "Exclude ";
             foreach (string name in Enum.GetNames(objectTypeEnum))
             {
                 MemberInfo[] member = objectTypeEnum.GetMember(name);
                 MemberInfo info = member?.FirstOrDefault();
-                string displayName = "";
-                if (info != null)
-                {
-                    string dacfxDisplayName = info.GetCustomAttribute<DisplayAttribute>().GetName();
-
-                    //Excluding the "Exclude " word from the option display name using Substring() as all display names are prefixed with Exclude word in DacFx
-                   displayName = dacfxDisplayName != "" && dacfxDisplayName.IndexOf(excludePrefixWord) == 0
-                       ? dacfxDisplayName.Substring(excludePrefixWord.Length)
-                       : dacfxDisplayName;
-
-                    // Convert the options name into PascalCase
-                    if (displayName != "")
-                    {
-                        displayName = char.ToUpper(displayName.ToCharArray()[0]) + displayName.Substring(1);
-                    }
-                }
-                if (displayName == "")
+                string displayName = info?.GetCustomAttribute<DisplayAttribute>().GetName();
+                if (displayName == null)
                 {
                     // not expecting display name for any options as empty string
-                    throw new Exception("Display Name is empty for the object type: " + name);
+                    Logger.Write(TraceEventType.Error, string.Format($"Display name is empty for the Object type enum {0}", name));
                 }
                 else
                 {
