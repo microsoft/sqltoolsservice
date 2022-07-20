@@ -2245,6 +2245,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string UpdatableLedger_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.UpdatableLedger_LabelPart);
+            }
+        }
+
+        public static string AppendOnlyLedger_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.AppendOnlyLedger_LabelPart);
+            }
+        }
+
+        public static string Ledger_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.Ledger_LabelPart);
+            }
+        }
+
         public static string External_LabelPart
         {
             get
@@ -10620,6 +10644,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SystemVersioned_LabelPart = "SystemVersioned_LabelPart";
+
+
+            public const string UpdatableLedger_LabelPart = "UpdatableLedger_LabelPart";
+
+
+            public const string AppendOnlyLedger_LabelPart = "AppendOnlyLedger_LabelPart";
+
+
+            public const string Ledger_LabelPart = "Ledger_LabelPart";
 
 
             public const string External_LabelPart = "External_LabelPart";

@@ -1380,6 +1380,18 @@
     <value>System-Versioned</value>
     <comment></comment>
   </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Updatable Ledger</value>
+    <comment></comment>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Append-Only Ledger</value>
+    <comment></comment>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Ledger</value>
+    <comment></comment>
+  </data>
   <data name="External_LabelPart" xml:space="preserve">
     <value>External</value>
     <comment></comment>

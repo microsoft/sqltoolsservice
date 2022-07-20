@@ -17,6 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Table table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
+                {
+                    if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.AppendOnlyLedger_LabelPart})";
+                    }
+                    else if (table.LedgerType == LedgerTableType.UpdatableLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.UpdatableLedger_LabelPart})";
+                    }
+                }
                 if (table != null && IsPropertySupported("IsSystemVersioned", smoContext, table, CachedSmoProperties) && table.IsSystemVersioned)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
@@ -47,6 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return "Temporal";
                 }
+                // TODO: Set Ledger SubType here
                 // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
                 // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
                 // {

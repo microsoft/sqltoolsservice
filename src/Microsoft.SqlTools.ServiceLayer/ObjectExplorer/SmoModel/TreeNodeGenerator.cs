@@ -780,6 +780,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                       { TableTemporalType.SystemVersioned }
                    }
                 });
+                filters.Add(new NodeFilter
+                {
+                   Property = "LedgerType",
+                   Type = typeof(Enum),
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                   Values = new List<object>
+                   {
+                      { LedgerTableType.None },
+                      { LedgerTableType.AppendOnlyLedgerTable },
+                      { LedgerTableType.UpdatableLedgerTable }
+                   }
+                });
                 return filters;
            }
         }
@@ -1301,26 +1313,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     internal partial class TableChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Table" }; }
-
-        public override IEnumerable<NodeFilter> Filters
-        {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
-                {
-                   Property = "TemporalType",
-                   Type = typeof(Enum),
-                   TypeToReverse = typeof(SqlHistoryTableQuerier),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { TableTemporalType.HistoryTable }
-                   }
-                });
-                return filters;
-           }
-        }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {

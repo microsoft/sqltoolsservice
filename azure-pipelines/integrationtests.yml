@@ -11,7 +11,7 @@ steps:
       dockerVersion: 17.09.0-ce
       releaseType: stable
 
-  - script: docker pull mcr.microsoft.com/mssql/server:2019-latest
+  - script: docker pull mcr.microsoft.com/mssql/server:2022-latest
     displayName: Pull MSSQL Docker Image
 
   - bash: echo "##vso[task.setvariable variable=defaultSql2019_password;issecret=true]Test-$(Build.BuildNumber)-$(Get-Date -format yyyyMMdd-Hmmss)"

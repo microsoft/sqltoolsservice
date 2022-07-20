@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     continue;
                 }
-                string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
+                string propertyFilter = GetPropertyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return filterTheNode;
         }
 
-        private string GetProperyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
+        private string GetPropertyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
         {
             string filter = string.Empty;
             if (filters != null)
