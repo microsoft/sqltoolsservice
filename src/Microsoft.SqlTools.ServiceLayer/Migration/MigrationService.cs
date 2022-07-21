@@ -29,6 +29,7 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
+using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning;
 using Newtonsoft.Json;
 using System.Reflection;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Environment;

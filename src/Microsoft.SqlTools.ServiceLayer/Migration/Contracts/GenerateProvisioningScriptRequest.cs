@@ -4,7 +4,6 @@
 //
 
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
-using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Collections.Generic;
 
