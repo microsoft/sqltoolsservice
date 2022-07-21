@@ -389,7 +389,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
                 ArmTemplateServiceProvider templateProvider = new ArmTemplateServiceProvider();
-                templateProvider.GenerateAndSaveProvisioningScript(parameters.recs, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
+
+                // TODO: THIS ONLY WORKS IF TEMPLATE PROVIDER RETURNS ARM TEMPLATE FILE PATH
+                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.recs, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
+
+                GenerateProvisioningScriptResult result = new GenerateProvisioningScriptResult{
+                    provisioningScript = File.ReadAllText(armTemplateFilePath)
+                };
+
+                await requestContext.SendResult(result);
             }
             catch (Exception e)
             {
