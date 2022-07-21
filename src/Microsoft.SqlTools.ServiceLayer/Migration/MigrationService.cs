@@ -391,7 +391,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 ArmTemplateServiceProvider templateProvider = new ArmTemplateServiceProvider();
 
-                // TODO: THIS ONLY WORKS IF TEMPLATE PROVIDER RETURNS ARM TEMPLATE FILE PATH
                 string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.recs, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
 
                 GenerateProvisioningScriptResult result = new GenerateProvisioningScriptResult{
