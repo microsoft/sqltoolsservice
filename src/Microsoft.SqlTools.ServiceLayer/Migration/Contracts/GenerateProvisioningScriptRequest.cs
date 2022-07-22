@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// <summary>
         /// List of SKU recommendations used to generate provisioning script
         /// </summary>
-        public List<SkuRecommendationResult> recs { get; set; }
+        public List<SkuRecommendationResult> SkuRecommendations { get; set; }
     }
 
     public class GenerateProvisioningScriptResult
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// <summary>
         /// String containing the provisioning script
         /// </summary>
-        public string provisioningScript { get; set; }
+        public string ProvisioningScript { get; set; }
     }
 
     public class GenerateProvisioningScriptRequest

@@ -391,10 +391,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 ArmTemplateServiceProvider templateProvider = new ArmTemplateServiceProvider();
 
-                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.recs, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
+                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.SkuRecommendations, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
 
                 GenerateProvisioningScriptResult result = new GenerateProvisioningScriptResult{
-                    provisioningScript = File.ReadAllText(armTemplateFilePath)
+                    ProvisioningScript = File.ReadAllText(armTemplateFilePath)
                 };
 
                 await requestContext.SendResult(result);
