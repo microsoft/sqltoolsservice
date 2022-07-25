@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             try
             {
-                Table table = smoObject as Table;
+                Table? table = smoObject as Table;
                 if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
                 {
                     if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
@@ -63,14 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return "Temporal";
                 }
-
                 // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
                 // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
                 // {
                 //     return "External";
                 // }
                // return string.Empty;
-
             }
             catch
             {
@@ -93,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            Table table = smoObject as Table;
+            Table? table = smoObject as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
@@ -129,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         internal static string GetPathName(object smoObject)
         {
-            Table table = smoObject as Table;
+            Table? table = smoObject as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name}";
