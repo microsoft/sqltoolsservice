@@ -114,17 +114,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
 
-			// To avoid duplication, generate code for both types of filters, "regular" Filters and OrFilters
-			// in a loop.
+			// Generate code for both types of filters, "regular" Filters and OrFilters
 			List<bool> filterList = new List<bool>{false, true}; // false == Filters, true == OrFilters
 			foreach (bool filterType in filterList)
 			{
 				List<XmlElement> filters = GetNodeFilters(xmlFile, type, filterType /* orFilters */);
 				if (filters.Count > 0)
 				{
+					string filterName = filterType ? "OrFilters" : "Filters";
 					WriteLine("");
-					WriteLine(string.Format("        public override IEnumerable<NodeFilter> {0}",
-											filterType ? "OrFilters" : "Filters"));
+					WriteLine(string.Format("        public override IEnumerable<NodeFilter> {0}", filterName));
 					WriteLine("        {");
 					WriteLine("           get");
 					WriteLine("           {");
