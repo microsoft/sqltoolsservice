@@ -191,21 +191,6 @@
     <Child Name="Statistics"/>
   </Node>
 
-<!-- TODO resolve this: attempt to duplicate history table definition for ledger history table
-  <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlLedgerHistoryTable" TreeNode="LedgerHistoryTableTreeNode">
-    <Filters>
-      <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
-        <Value>LedgerTableType.HistoryTable</Value>
-      </Filter>
-    </Filters>
-    <Child Name="Columns"/>
-    <Child Name="Keys"/>
-    <Child Name="Constraints"/>
-    <Child Name="Triggers"/>
-    <Child Name="Indexes"/>
-    <Child Name="Statistics"/>
-  </Node>
--->
   <!-- TODO This should use display item not ChildQuerierTypes -->
   
   <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
@@ -483,8 +468,6 @@
     <UniqueTreeNode Name="ExternalTableTreeNode"/>
     <UniqueTreeNode Name="ExternalResourceTreeNode"/>
     <UniqueTreeNode Name="HistoryTableTreeNode" />
-<!-- TODO resolve this: attempt to duplicate history table definition for ledger history table
-    <UniqueTreeNode Name="LedgerHistoryTableTreeNode" /> -->
   </CodeGenOptions>
 
   <!-- WARNING: Specifying reverse dependencies that could load large numbers of objects will be detrimental to performance. -->
