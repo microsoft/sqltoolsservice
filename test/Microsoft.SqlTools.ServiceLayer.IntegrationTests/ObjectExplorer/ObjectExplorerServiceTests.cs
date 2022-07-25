@@ -483,7 +483,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     {
                         Directory.CreateDirectory(outputRegeneratedFolder);
                         File.WriteAllText(outputRegeneratedFilePath, actual);
-                        msg = $"Generated output written to {outputRegeneratedFilePath}";
+                        msg = $"Generated output written to :\t{outputRegeneratedFilePath}\n\t" +
+                              $"Baseline output located at  :\t{GetBaseLineFile(baselineFileName)}";
                     }
                     catch (Exception e)
                     {

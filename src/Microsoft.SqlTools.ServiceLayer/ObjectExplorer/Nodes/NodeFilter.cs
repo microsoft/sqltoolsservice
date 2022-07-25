@@ -76,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     if (Type == typeof(Enum))
                     {
                         propertyValue = (int)Convert.ChangeType(value, Type);
-                       
                     }
                     string orPrefix = i == 0 ? string.Empty : "or";
                     filter = $"{filter} {orPrefix} @{Property} = {propertyValue}";
