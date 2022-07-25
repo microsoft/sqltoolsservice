@@ -67,6 +67,8 @@ The build script itself is `build.cake`, written in Cake's C#-like DSL using the
 **SetPackageVersions**: Updates the dependency versions found within `project.json` files using information from `depversion.json`.
   Used for maintainence within the project, not needed for end-users. More information below.
 
+**CodeGen**: Generates new versions of the .xml/.tt generated SmoModel classes for the ObjectExplorer. Run this after making edits to *.tt or *Definition.xml files.
+
 **SRGen**: Generates a new version of the `sr.resx`, `sr.cs`, and `sr.designer.cs` files that contain
   the string resources defined in `sr.strings`. Run this after adding a new string to `sr.strings`
 
