@@ -904,7 +904,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var indexVM = new IndexViewModel();
                 indexVM.Name.Value = index.Name;
-                indexVM.Name.Enabled = tableInfo.IsNewTable; // renaming an index is not supported, it will cause a new index to be created.
                 indexVM.Description.Value = index.Description;
                 indexVM.Description.Enabled = index.CanEditDescription;
                 indexVM.IsClustered.Checked = index.IsClustered;

@@ -22,6 +22,7 @@
 	<Choose>
 		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
 			<PropertyGroup>
+				<PackageId>Microsoft.SqlTools.ServiceLayer.Tool</PackageId>
 				<PackageVersion>1.0.0</PackageVersion>
 				<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
 				<PackAsTool>true</PackAsTool>
@@ -75,7 +76,7 @@
 		<Content Include="..\..\Notice.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
+		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
