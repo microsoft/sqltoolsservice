@@ -53,12 +53,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             try
             {
-                Table table = smoObject as Table;
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties) &&
+                    (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable || table.LedgerType == LedgerTableType.UpdatableLedgerTable))
+                {
+                    return "Ledger";
+                }
                 if (table != null && IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
                 {
                     return "Temporal";
                 }
-                // TODO: Set Ledger SubType here
+
                 // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
                 // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
                 // {
@@ -82,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     }
 
     /// <summary>
-    /// Custom name for history table
+    /// Custom name and icon for history table
     /// </summary>
     internal partial class TableChildFactory : SmoChildFactoryBase
     {
@@ -92,6 +97,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
+            }
+
+            return string.Empty;
+        }
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties) && table.LedgerType == LedgerTableType.HistoryTable)
+                {
+                    return "LedgerHistory";
+                }
+            }
+            catch
+            {
             }
 
             return string.Empty;

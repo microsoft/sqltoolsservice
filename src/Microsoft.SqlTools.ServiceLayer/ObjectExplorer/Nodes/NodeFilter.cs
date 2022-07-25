@@ -87,18 +87,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return filter;
         }
 
-        public static string ConcatProperties(IEnumerable<NodeFilter> filters)
+        public static string ConcatProperties(IEnumerable<NodeFilter> filters, string concatType = "and")
         {
             string filter = "";
             var list = filters.ToList();
             for (int i = 0; i < list.Count; i++)
             {
                 var value = list[i];
-                
-                string andPrefix = i == 0 ? string.Empty : "and";
-                filter = $"{filter} {andPrefix} {value.ToPropertyFilterString()}";
+
+                string concatPrefix = i == 0 ? string.Empty : concatType;
+                filter = $"{filter} {concatPrefix} {value.ToPropertyFilterString()}";
             }
-            filter = $"[{filter}]";
+            filter = $"{filter}";
 
             return filter;
         }

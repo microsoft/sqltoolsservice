@@ -101,6 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters.ToList();
+            var orFilters = this.OrFilters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
             {
@@ -118,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     continue;
                 }
-                string propertyFilter = GetPropertyFilter(filters, querier.GetType(), serverValidFor);
+                string propertyFilter = GetPropertyFilter(filters, orFilters, querier.GetType(), serverValidFor);
                 try
                 {
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
@@ -135,7 +136,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                             allChildren.Add(childNode);
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -162,20 +162,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return filterTheNode;
         }
 
-        private string GetPropertyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
+        private string GetPropertyFilter(IEnumerable<NodeFilter> filters, IEnumerable<NodeFilter> orFilters, Type querierType, ValidForFlag validForFlag)
         {
-            string filter = string.Empty;
+            string andFilter = string.Empty;
             if (filters != null)
             {
                 var filtersToApply = filters.Where(f => f.CanApplyFilter(querierType, validForFlag)).ToList();
-                filter = string.Empty;
                 if (filtersToApply.Any())
                 {
-                    filter = NodeFilter.ConcatProperties(filtersToApply);
+                    andFilter = NodeFilter.ConcatProperties(filtersToApply);
                 }
             }
 
-            return filter;
+            string orFilter = string.Empty;
+            if (orFilters != null)
+            {
+                var filtersToApply = orFilters.Where(f => f.CanApplyFilter(querierType, validForFlag)).ToList();
+                if (filtersToApply.Any())
+                {
+                    orFilter = NodeFilter.ConcatProperties(filtersToApply, "or");
+                }
+            }
+
+            if (andFilter != string.Empty && orFilter != string.Empty)
+            {
+                return $"[{andFilter} and ({orFilter})]";
+            }
+            else if (andFilter != string.Empty || orFilter != string.Empty)
+            {
+                return $"[{andFilter}{orFilter}]";
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         private bool IsCompatibleQuerier(SmoQuerier querier)
@@ -258,6 +278,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         public override IEnumerable<NodeFilter> Filters
+        {
+            get
+            {
+                return Enumerable.Empty<NodeFilter>();
+            }
+        }
+
+        public override IEnumerable<NodeFilter> OrFilters
         {
             get
             {

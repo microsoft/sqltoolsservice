@@ -29,6 +29,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 child.IsAlwaysLeaf = true;
             }
         }
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                Database db = smoObject as Database;
+                if (db != null && IsPropertySupported("IsLedger", smoContext, db, CachedSmoProperties) && db.IsLedger)
+                {
+                    return "Ledger";
+                }
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
+            }
+
+            return string.Empty;
+        }
+
     }
 
     internal static class DatabasesCustomNodeHelper
@@ -118,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 else if ((status & DatabaseStatus.AutoClosed) == DatabaseStatus.AutoClosed)
                 {
                     return "Auto Closed";
-                }	
+                }
             }
 
             return string.Empty;

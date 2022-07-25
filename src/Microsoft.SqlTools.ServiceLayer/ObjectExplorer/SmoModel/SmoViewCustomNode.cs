@@ -32,6 +32,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
 
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                View view = smoObject as View;
+                if (view != null && IsPropertySupported("LedgerViewType", smoContext, view, CachedSmoProperties) && view.LedgerViewType == LedgerViewType.LedgerView)
+                {
+                    return "Ledger";
+                }
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
+            }
+
+            return string.Empty;
+        }
+
         public override string GetNodePathName(object smoObject)
         {
             return ViewCustomNodeHelper.GetPathName(smoObject);

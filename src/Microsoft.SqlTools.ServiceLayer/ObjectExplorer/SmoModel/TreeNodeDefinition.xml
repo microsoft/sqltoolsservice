@@ -173,15 +173,16 @@
   </Node>
   -->
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
-<!-- TODO resolve this: removing filters here and relying on PassesFinalFilters gives desired behavior
     <Filters>
-      <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
-        <Value>TableTemporalType.HistoryTable</Value>
-      </Filter>
-      <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
-        <Value>LedgerTableType.HistoryTable</Value>
-      </Filter>
-    </Filters>--> 
+      <Or>
+        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+          <Value>TableTemporalType.HistoryTable</Value>
+        </Filter>
+        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+          <Value>LedgerTableType.HistoryTable</Value>
+        </Filter>
+      </Or>
+    </Filters>
     <Child Name="Columns"/>
     <Child Name="Keys"/>
     <Child Name="Constraints"/>
