@@ -20,9 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
     public class GenerateProvisioningScriptResult
     {
         /// <summary>
-        /// String containing the provisioning script
+        /// String containing the filepath of the provisioning script
         /// </summary>
-        public string ProvisioningScript { get; set; }
+        public string ProvisioningScriptFilePath { get; set; }
     }
 
     public class GenerateProvisioningScriptRequest
