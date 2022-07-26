@@ -525,6 +525,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
                 {
                     // elastic model currently doesn't support VM recommendation, return null SKU for now
+                    // Stopwatch sqlVmStopwatch = new Stopwatch();
+                    // sqlVmStopwatch.Start();
+                    // prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
+                    // sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+
+                    // // if no result was generated, create a result with a null SKU
+                    // if (!sqlVmResults.Any())
+                    // {
+                    //     sqlVmResults.Add(new SkuRecommendationResult()
+                    //     {
+                    //         SqlInstanceName = parameters.TargetSqlInstance,
+                    //         DatabaseName = null,
+                    //         TargetSku = null,
+                    //         MonthlyCost = null,
+                    //         Ranking = -1,
+                    //         PositiveJustifications = null,
+                    //         NegativeJustifications = null,
+                    //     });
+                    // }
+
+                    // sqlVmStopwatch.Stop();
+                    // sqlVmDuration = sqlVmStopwatch.ElapsedMilliseconds;
+                    
                     sqlVmResults.Add(new SkuRecommendationResult()
                         {
                             SqlInstanceName = parameters.TargetSqlInstance,
