@@ -20,15 +20,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public GenerateTSqlModelOperation(GenerateTSqlModelParams parameters)
         {
-            Validate.IsNotNull("parameters.ModelTargetVersion", parameters.ModelTargetVersion);
-            Validate.IsNotNull("parameters.ProjectUri", parameters.ProjectUri);
+            Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
         }
 
         /// <summary>
         /// Generate model from sql files, if no sql files are passed in then it generates an empty model.
         /// </summary>
-        public GenerateTSqlModelResult GenerateTSqlModel()
+        public TSqlModel GenerateTSqlModel()
         {
             try
             {
@@ -37,16 +36,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                 var model = new TSqlModel(version, options);
                 // read all sql files
-                if (Parameters.FilePaths?.Length > 0)
+                if (Parameters.FilePaths.Length > 0)
                 {
-                    string[] scripts = new string[Parameters.FilePaths.Length];
-                    for (var i = 0; i < Parameters.FilePaths.Length; i++)
+                    foreach (string filePath in Parameters.FilePaths)
                     {
-                        scripts[i] = System.IO.File.ReadAllText(Parameters.FilePaths[i]);
-                        model.AddOrUpdateObjects(scripts[i], Parameters.FilePaths[i], null);
+                        string fileContent = System.IO.File.ReadAllText(filePath);
+                        model.AddOrUpdateObjects(fileContent, filePath, null);
                     }
                 }
-                return new GenerateTSqlModelResult(model);
+                return model;
             }
             catch (Exception ex)
             {

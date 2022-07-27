@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlServer.Dac.Model;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -26,7 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
-        private Lazy<ConcurrentDictionary<string, TSqlModel>> modelResults =
+        // Key for a projectModel is the project uri
+        private Lazy<ConcurrentDictionary<string, TSqlModel>> projectModels =
             new Lazy<ConcurrentDictionary<string, TSqlModel>>(() => new ConcurrentDictionary<string, TSqlModel>());
 
         /// <summary>
@@ -327,15 +329,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<GenerateTSqlModelResult> requestContext)
+        public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             try
             {
                 GenerateTSqlModelOperation operation = new GenerateTSqlModelOperation(requestParams);
-                GenerateTSqlModelResult result = operation.GenerateTSqlModel();
+                TSqlModel model = operation.GenerateTSqlModel();
 
-                modelResults.Value[operation.Parameters.ProjectUri] = result.Model;
-                await requestContext.SendResult(result);
+                projectModels.Value[operation.Parameters.ProjectUri] = model;
+                await requestContext.SendResult(new ResultStatus
+                {
+                    Success = true,
+                    ErrorMessage = null
+                });
             }
             catch (Exception e)
             {

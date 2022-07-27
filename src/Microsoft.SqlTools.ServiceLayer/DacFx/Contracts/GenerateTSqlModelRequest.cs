@@ -4,7 +4,6 @@
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlServer.Dac.Model;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -14,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class GenerateTSqlModelParams
     {
         /// <summary>
-        /// Project uri
+        /// URI of the project file this model is for
         /// </summary>
         public string ProjectUri { get; set; }
 
@@ -26,20 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// Gets or sets the Sql script file paths.
         /// </summary>
-        public string[]? FilePaths { get; set; }
-    }
-
-    /// <summary>
-    /// Result for the GenerateTSqlModel Request.
-    /// </summary>
-    public class GenerateTSqlModelResult : ResultStatus
-    {
-        public TSqlModel Model { get; set; }
-
-        public GenerateTSqlModelResult(TSqlModel model)
-        {
-            this.Model = model;
-        }
+        public string[] FilePaths { get; set; }
     }
 
     /// <summary>
@@ -47,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     class GenerateTSqlModelRequest
     {
-        public static readonly RequestType<GenerateTSqlModelParams, GenerateTSqlModelResult> Type =
-            RequestType<GenerateTSqlModelParams, GenerateTSqlModelResult>.Create("dacFx/generateTSqlModel");
+        public static readonly RequestType<GenerateTSqlModelParams, ResultStatus> Type =
+            RequestType<GenerateTSqlModelParams, ResultStatus>.Create("dacFx/generateTSqlModel");
     }
 }
