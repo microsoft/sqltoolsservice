@@ -14,7 +14,7 @@ using Microsoft.SqlTools.ManagedBatchParser;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
- 
+
     /// <summary>
     /// Wraps the SMO Batch parser to make it a easily useable component.
     /// </summary>
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         private List<BatchInfo> batchInfos;
         private ExecutionEngine executionEngine;
         private BatchEventNotificationHandler notificationHandler;
-        
+
         /// <summary>
         /// Helper method used to Convert line/column information in a file to offset
         /// </summary>
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         {
 
             List<BatchDefinition> batchDefinitionList = new List<BatchDefinition>();
-            if (batchInfos.Count == 0) 
+            if (batchInfos.Count == 0)
             {
                 return batchDefinitionList;
             }
@@ -77,13 +77,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
                     batchDefinitionList.Add(batchDef);
 
-                    if (count > 1) 
+                    if (count > 1)
                     {
                         offset = offsets[1] + batchInfos[0].startColumn;
                     }
 
                     // Generate the rest batch definitions
-                    for (int index = 1; index < count - 1 ; index++)
+                    for (int index = 1; index < count - 1; index++)
                     {
                         lineDifference = batchInfos[index + 1].startLine - batchInfos[index].startLine;
                         position = ReadLines(reader, lineDifference, endLine);
@@ -121,12 +121,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             return batchDefinitionList;
         }
 
-        private static int GetMaxStartLine(IList<BatchInfo> batchInfos) 
+        private static int GetMaxStartLine(IList<BatchInfo> batchInfos)
         {
             int highest = 0;
-            foreach (var batchInfo in batchInfos) 
+            foreach (var batchInfo in batchInfos)
             {
-                if (batchInfo.startLine > highest) 
+                if (batchInfo.startLine > highest)
                 {
                     highest = batchInfo.startLine;
                 }
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Gets offsets for all batches
         /// </summary>
-        private static List<int> GetOffsets(string content, IList<BatchInfo> batchInfos) 
+        private static List<int> GetOffsets(string content, IList<BatchInfo> batchInfos)
         {
 
             List<int> offsets = new List<int>();
@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 while (!foundAllOffsets)
                 {
                     // go until the last start line of the batches
-                    for (int i = 0; i <= maxStartLine ; i++)
+                    for (int i = 0; i <= maxStartLine; i++)
                     {
                         // get offset for the current batch
                         ReadLines(reader, ref count, ref offset, ref foundAllOffsets, batchInfos, offsets, i);
@@ -164,14 +164,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
                     }
                 }
-            }             
+            }
             return offsets;
         }
 
         /// <summary>
         /// Helper function to read lines of batches to get offsets
         /// </summary>
-        private static void ReadLines(StringReader reader, ref int count, ref int offset, ref bool foundAllOffsets, 
+        private static void ReadLines(StringReader reader, ref int count, ref int offset, ref bool foundAllOffsets,
                         IList<BatchInfo> batchInfos, List<int> offsets, int iteration)
         {
             int ch;
@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
 
             // get number of characters in the last line
-            int endColumn = prevLine.ToCharArray().Length;
+            int endColumn = prevLine == null ? 0 : prevLine.ToCharArray().Length;
 
             return new BatchDefinition(
                 batchText,
@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
 
             // get number of characters in the last line
-            int endColumn = prevLine.ToCharArray().Length;
+            int endColumn = prevLine == null ? 0 : prevLine.ToCharArray().Length;
 
             //lineOffset doesn't matter because its the last batch
             return Tuple.Create(endLine, endColumn);
@@ -377,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     string batchText = args.Batch.Text;
                     int batchTextLength = batchText.Length;
 
-                    if (!batchText.EndsWith(Environment.NewLine, StringComparison.Ordinal) 
+                    if (!batchText.EndsWith(Environment.NewLine, StringComparison.Ordinal)
                         && batchText.EndsWith("\n", StringComparison.Ordinal))
                     {
                         batchTextLength -= 1;
