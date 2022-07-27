@@ -65,7 +65,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Migration
             MigrationService service = new MigrationService();
             await service.HandleGetSkuRecommendationsRequest(requestParams, requestContext.Object);
             Assert.IsNotNull(result, "Get SKU Recommendation result is null");
-            Assert.IsNotNull(result.BaselineModelResults.SqlMiRecommendationResults, "Get MI SKU Recommendation result is null");
+            Assert.IsNotNull(result.BaselineModelResults.SqlMiRecommendationResults, "Get MI SKU Recommendation baseline result is null");
+            Assert.IsNotNull(result.ElasticModelResults.SqlMiRecommendationResults, "Get MI SKU Recommendation elastic result is null");
+
             // TODO: Include Negative Justification in future when we start recommending more than one SKU.
             Assert.Greater(result.BaselineModelResults.SqlMiRecommendationResults.First().PositiveJustifications.Count, 0, "No positive justification for MI SKU Recommendation result");
 
