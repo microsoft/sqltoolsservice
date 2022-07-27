@@ -36,13 +36,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                 var model = new TSqlModel(version, options);
                 // read all sql files
-                if (Parameters.FilePaths.Length > 0)
+                foreach (string filePath in Parameters.FilePaths)
                 {
-                    foreach (string filePath in Parameters.FilePaths)
-                    {
-                        string fileContent = System.IO.File.ReadAllText(filePath);
-                        model.AddOrUpdateObjects(fileContent, filePath, null);
-                    }
+                    string fileContent = System.IO.File.ReadAllText(filePath);
+                    model.AddOrUpdateObjects(fileContent, filePath, null);
                 }
                 return model;
             }
