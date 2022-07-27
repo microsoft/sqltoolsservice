@@ -124,25 +124,28 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 (requestMessage, messageWriter) =>
                 {
-                    var requestContext =
-                        new RequestContext<TResult>(
-                            requestMessage,
-                            messageWriter);
-
-                    TParams typedParams = default(TParams);
-                    if (requestMessage.Contents != null)
+                    return Task.Run(async () =>
                     {
-                        try
-                        {
-                            typedParams = requestMessage.Contents.ToObject<TParams>();
-                        }
-                        catch (Exception ex)
-                        {
-                            return requestContext.SendError(ex.Message);
-                        }
-                    }
+                        var requestContext =
+                            new RequestContext<TResult>(
+                                requestMessage,
+                                messageWriter);
 
-                    return requestHandler(typedParams, requestContext);
+                        TParams typedParams = default(TParams);
+                        if (requestMessage.Contents != null)
+                        {
+                            try
+                            {
+                                typedParams = requestMessage.Contents.ToObject<TParams>();
+                            }
+                            catch (Exception ex)
+                            {
+                                await requestContext.SendError(ex.Message);
+                            }
+                        }
+
+                        await requestHandler(typedParams, requestContext);
+                    });
                 });
         }
 
@@ -171,22 +174,25 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventType.MethodName,
                 (eventMessage, messageWriter) =>
                 {
-                    var eventContext = new EventContext(messageWriter);
-
-                    TParams typedParams = default(TParams);
-                    if (eventMessage.Contents != null)
+                    return Task.Run(async () =>
                     {
-                        try
-                        {
-                            typedParams = eventMessage.Contents.ToObject<TParams>();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Write(TraceEventType.Verbose, ex.ToString());
-                        }
-                    }
+                        var eventContext = new EventContext(messageWriter);
 
-                    return eventHandler(typedParams, eventContext);
+                        TParams typedParams = default(TParams);
+                        if (eventMessage.Contents != null)
+                        {
+                            try
+                            {
+                                typedParams = eventMessage.Contents.ToObject<TParams>();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Write(TraceEventType.Verbose, ex.ToString());
+                            }
+                        }
+
+                        await eventHandler(typedParams, eventContext);
+                    });
                 });
         }
 
@@ -317,21 +323,23 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // thread is not blocked.
                     _ = Task.Run(() =>
                     {
-                        _ = RunTask(handlerToAwait);
+                        _ = RunTask(messageToDispatch, handlerToAwait);
                     });
                 }
                 else
                 {
-                    await RunTask(handlerToAwait);
+                    await RunTask(messageToDispatch, handlerToAwait);
                 }
             }
         }
 
-        private async Task RunTask(Task task)
+        private async Task RunTask(Message message, Task task)
         {
             try
             {
+                Logger.Write(TraceEventType.Verbose, $"Processing message with id[{message.Id}], of type[{message.MessageType}] and method[{message.Method}]");
                 await task;
+                Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{message.Id}], of type[{message.MessageType}] and method[{message.Method}]");
             }
             catch (TaskCanceledException)
             {

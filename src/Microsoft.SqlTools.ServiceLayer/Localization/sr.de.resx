@@ -3800,7 +3800,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Geschätzte Kosten in %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Geschätzte Teilstrukturkosten in %</value>
+    <value>Geschätzte Unterstrukturkosten</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>Tatsächliche Zeilen</value>
@@ -3823,7 +3823,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="ActualDataSize" xml:space="preserve">
     <value>Tatsächliche Datengröße</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Geschätzte durchschnittliche Zeilengröße</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Durchschnittliche Zeilengröße</value>
   </data>
 </root>

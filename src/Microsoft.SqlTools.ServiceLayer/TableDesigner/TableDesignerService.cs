@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
+        public const string TableDesignerApplicationName = "azdata-table-designer";
+
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
@@ -902,7 +904,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var indexVM = new IndexViewModel();
                 indexVM.Name.Value = index.Name;
-                indexVM.Name.Enabled = tableInfo.IsNewTable; // renaming an index is not supported, it will cause a new index to be created.
                 indexVM.Description.Value = index.Description;
                 indexVM.Description.Enabled = index.CanEditDescription;
                 indexVM.IsClustered.Checked = index.IsClustered;
@@ -1468,9 +1469,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             Dac.TableDesigner tableDesigner;
             if (tableInfo.TableScriptPath == null)
             {
-                var connectionStringbuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
-                connectionStringbuilder.InitialCatalog = tableInfo.Database;
-                var connectionString = connectionStringbuilder.ToString();
+                var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
+                connectionStringBuilder.InitialCatalog = tableInfo.Database;
+                connectionStringBuilder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
+                var connectionString = connectionStringBuilder.ToString();
                 tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             }
             else

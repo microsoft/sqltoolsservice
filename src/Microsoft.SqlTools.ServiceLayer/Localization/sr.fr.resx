@@ -3800,7 +3800,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Coût estimé en %</value>
   </data>
   <data name="EstimatedSubtree" xml:space="preserve">
-    <value>Coût estimé du sous-arbre en %</value>
+    <value>Coût estimé du sous-arbre</value>
   </data>
   <data name="ActualRows" xml:space="preserve">
     <value>Lignes réelles</value>
@@ -3823,7 +3823,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="ActualDataSize" xml:space="preserve">
     <value>Taille réelle des données</value>
   </data>
-  <data name="EstimatedAverageRowSize" xml:space="preserve">
-    <value>Taille moyenne estimée des lignes</value>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Taille moyenne de ligne</value>
   </data>
 </root>

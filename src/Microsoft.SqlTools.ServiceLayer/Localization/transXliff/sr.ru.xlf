@@ -6210,8 +6210,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="EstimatedSubtree">
-        <source>Estimated Subtree Cost %</source>
-        <target state="translated">Предполагаемая стоимость поддерева %</target>
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">Оценочная стоимость поддерева</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ActualRows">
@@ -6249,9 +6249,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Фактический размер данных</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="EstimatedAverageRowSize">
-        <source>Estimated Average Row Size</source>
-        <target state="translated">Предполагаемый средний размер строки</target>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">Средний размер строки</target>
         <note></note>
       </trans-unit>
     </body>

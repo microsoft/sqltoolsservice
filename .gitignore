@@ -1,5 +1,7 @@
 syntax: glob
 
+CoverageReport
+
 ### VisualStudio ###
 *.dgml
 *.bin
