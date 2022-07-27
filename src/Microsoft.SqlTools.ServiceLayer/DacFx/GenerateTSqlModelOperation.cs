@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public GenerateTSqlModelOperation(GenerateTSqlModelParams parameters)
         {
             Validate.IsNotNull("parameters.ModelTargetVersion", parameters.ModelTargetVersion);
+            Validate.IsNotNull("parameters.ProjectUri", parameters.ProjectUri);
             this.Parameters = parameters;
         }
 
@@ -45,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                         model.AddOrUpdateObjects(scripts[i], Parameters.FilePaths[i], null);
                     }
                 }
-                 return new GenerateTSqlModelResult(model);
+                return new GenerateTSqlModelResult(model);
             }
             catch (Exception ex)
             {
