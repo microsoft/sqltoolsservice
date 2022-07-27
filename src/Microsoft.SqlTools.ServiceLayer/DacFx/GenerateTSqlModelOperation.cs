@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Dac.Model;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent getting the Azure Functions in a file
+    /// Class to represent creating a dacfx model
     /// </summary>
     class GenerateTSqlModelOperation
     {

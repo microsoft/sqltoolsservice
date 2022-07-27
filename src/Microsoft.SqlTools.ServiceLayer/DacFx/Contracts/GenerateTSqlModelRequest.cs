@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Result for the GenerTSqlModel Request.
+    /// Result for the GenerateTSqlModel Request.
     /// </summary>
     public class GenerateTSqlModelResult : ResultStatus
     {
