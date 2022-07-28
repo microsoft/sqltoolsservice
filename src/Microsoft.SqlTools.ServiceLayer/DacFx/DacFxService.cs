@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
         /// <summary>
-        /// <see cref="Dictionary{String, TSqlModel}"/> that maps project uri to model
+        /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps project uri to model
         /// </summary>
         private Lazy<ConcurrentDictionary<string, TSqlModel>> projectModels =
             new Lazy<ConcurrentDictionary<string, TSqlModel>>(() => new ConcurrentDictionary<string, TSqlModel>());
