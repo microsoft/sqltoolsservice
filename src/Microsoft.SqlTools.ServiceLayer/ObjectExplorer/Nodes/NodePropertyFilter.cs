@@ -82,8 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     {
                         propertyValue = (int)Convert.ChangeType(value, Type);
                     }
-                    string orPrefix = i == 0 ? string.Empty : "or";
-                    filter = $"{filter} {orPrefix} @{Property} = {propertyValue}";
+                    string orPrefix = i == 0 ? string.Empty : " or ";
+                    filter = $"{filter}{orPrefix}@{Property} = {propertyValue}";
                 }
             }
 

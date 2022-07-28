@@ -51,5 +51,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             return filter;
         }
+
+        public static string ConcatProperties(IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
+        {
+            string filter = "";
+            var list = filters.ToList();
+            for (int i = 0; i < list.Count; i++)
+            {
+                var value = list[i];
+
+                string andPrefix = filter == string.Empty ? string.Empty : " and ";
+                var filterString = value.ToPropertyFilterString(type, validForFlag);
+                if (filterString != string.Empty) {
+                    filter = $"{filter}{andPrefix}{filterString}";
+                }
+            }
+            return filter == string.Empty ? string.Empty : $"[{filter}]";
+        }
     }
 }

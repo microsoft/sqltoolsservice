@@ -18,134 +18,134 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     internal sealed partial class DatabaseTreeNode : SmoTreeNode
     {
-    	public DatabaseTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "Database";
-    		this.NodeTypeId = NodeTypes.Database;
-	    	OnInitialize();
-    	}
+        public DatabaseTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "Database";
+            this.NodeTypeId = NodeTypes.Database;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class TableTreeNode : SmoTreeNode
     {
-    	public TableTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "Table";
-    		this.NodeTypeId = NodeTypes.Table;
-	    	OnInitialize();
-    	}
+        public TableTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "Table";
+            this.NodeTypeId = NodeTypes.Table;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class ViewTreeNode : SmoTreeNode
     {
-    	public ViewTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "View";
-    		this.NodeTypeId = NodeTypes.View;
-	    	OnInitialize();
-    	}
+        public ViewTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "View";
+            this.NodeTypeId = NodeTypes.View;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class UserDefinedTableTypeTreeNode : SmoTreeNode
     {
-    	public UserDefinedTableTypeTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "UserDefinedTableType";
-    		this.NodeTypeId = NodeTypes.UserDefinedTableType;
-	    	OnInitialize();
-    	}
+        public UserDefinedTableTypeTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "UserDefinedTableType";
+            this.NodeTypeId = NodeTypes.UserDefinedTableType;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class StoredProcedureTreeNode : SmoTreeNode
     {
-    	public StoredProcedureTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "StoredProcedure";
-    		this.NodeTypeId = NodeTypes.StoredProcedure;
-	    	OnInitialize();
-    	}
+        public StoredProcedureTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "StoredProcedure";
+            this.NodeTypeId = NodeTypes.StoredProcedure;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class TableValuedFunctionTreeNode : SmoTreeNode
     {
-    	public TableValuedFunctionTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "TableValuedFunction";
-    		this.NodeTypeId = NodeTypes.TableValuedFunction;
-	    	OnInitialize();
-    	}
+        public TableValuedFunctionTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "TableValuedFunction";
+            this.NodeTypeId = NodeTypes.TableValuedFunction;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class ScalarValuedFunctionTreeNode : SmoTreeNode
     {
-    	public ScalarValuedFunctionTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "ScalarValuedFunction";
-    		this.NodeTypeId = NodeTypes.ScalarValuedFunction;
-	    	OnInitialize();
-    	}
+        public ScalarValuedFunctionTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "ScalarValuedFunction";
+            this.NodeTypeId = NodeTypes.ScalarValuedFunction;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class AggregateFunctionTreeNode : SmoTreeNode
     {
-    	public AggregateFunctionTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "AggregateFunction";
-    		this.NodeTypeId = NodeTypes.AggregateFunction;
-	    	OnInitialize();
-    	}
+        public AggregateFunctionTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "AggregateFunction";
+            this.NodeTypeId = NodeTypes.AggregateFunction;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class FileGroupTreeNode : SmoTreeNode
     {
-    	public FileGroupTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "FileGroup";
-    		this.NodeTypeId = NodeTypes.FileGroup;
-	    	OnInitialize();
-    	}
+        public FileGroupTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "FileGroup";
+            this.NodeTypeId = NodeTypes.FileGroup;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class ExternalTableTreeNode : SmoTreeNode
     {
-    	public ExternalTableTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "ExternalTable";
-    		this.NodeTypeId = NodeTypes.ExternalTable;
-	    	OnInitialize();
-    	}
+        public ExternalTableTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "ExternalTable";
+            this.NodeTypeId = NodeTypes.ExternalTable;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class ExternalResourceTreeNode : SmoTreeNode
     {
-    	public ExternalResourceTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "ExternalResource";
-    		this.NodeTypeId = NodeTypes.ExternalResource;
-	    	OnInitialize();
-    	}
+        public ExternalResourceTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "ExternalResource";
+            this.NodeTypeId = NodeTypes.ExternalResource;
+            OnInitialize();
+        }
     }
 
     internal sealed partial class HistoryTableTreeNode : SmoTreeNode
     {
-    	public HistoryTableTreeNode() : base()
-    	{
-    		NodeValue = string.Empty;
-    		this.NodeType = "HistoryTable";
-    		this.NodeTypeId = NodeTypes.HistoryTable;
-	    	OnInitialize();
-    	}
+        public HistoryTableTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "HistoryTable";
+            this.NodeTypeId = NodeTypes.HistoryTable;
+            OnInitialize();
+        }
     }
 
     [Export(typeof(ChildFactory))]
@@ -188,25 +188,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Databases" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
                 });
                 return filters;
-           }
+            }
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties
         {
-           get
-           {
+            get
+            {
                 var properties = new List<NodeSmoProperty>();
                 properties.Add(new NodeSmoProperty
                 {
@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    ValidFor = ValidForFlag.All
                 });
                 return properties;
-           }
+            }
         }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
@@ -231,10 +231,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDatabaseQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDatabaseQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -373,27 +373,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemDatabases" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDatabaseQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDatabaseQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -412,10 +412,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlLinkedServerLoginQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlLinkedServerLoginQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -436,10 +436,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlLoginQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlLoginQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -460,10 +460,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlServerRoleQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlServerRoleQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -484,10 +484,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlCredentialQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlCredentialQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -508,10 +508,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlCryptographicProviderQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlCryptographicProviderQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -532,10 +532,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlServerAuditQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlServerAuditQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -556,10 +556,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlServerAuditSpecificationQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlServerAuditSpecificationQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -580,10 +580,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlEndpointQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlEndpointQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -604,10 +604,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlLinkedServerQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlLinkedServerQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -628,10 +628,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlServerDdlTriggerQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlServerDdlTriggerQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -652,10 +652,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlErrorMessageQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlErrorMessageQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -741,9 +741,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -762,36 +763,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Tables" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
                 });
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "TemporalType",
-                   Type = typeof(Enum),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { TableTemporalType.None },
-                      { TableTemporalType.SystemVersioned }
-                   }
+                    Property = "TemporalType",
+                    Type = typeof(Enum),
+                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { TableTemporalType.None },
+                        { TableTemporalType.SystemVersioned }
+                    }
                 });
                 return filters;
-           }
+            }
         }
 
         public override IEnumerable<NodeSmoProperty> SmoProperties
         {
-           get
-           {
+            get
+            {
                 var properties = new List<NodeSmoProperty>();
                 properties.Add(new NodeSmoProperty
                 {
@@ -814,7 +815,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand
                 });
                 return properties;
-           }
+            }
         }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
@@ -831,10 +832,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -851,19 +852,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Views" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
                 });
                 return filters;
-           }
+            }
         }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
@@ -880,10 +881,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlViewQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlViewQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -902,10 +903,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSynonymQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSynonymQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1269,27 +1270,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemTables" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1306,24 +1307,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Table" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "TemporalType",
-                   Type = typeof(Enum),
-                   TypeToReverse = typeof(SqlHistoryTableQuerier),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { TableTemporalType.HistoryTable }
-                   }
+                    Property = "TemporalType",
+                    Type = typeof(Enum),
+                    TypeToReverse = typeof(SqlHistoryTableQuerier),
+                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { TableTemporalType.HistoryTable }
+                    }
                 });
                 return filters;
-           }
+            }
         }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
@@ -1378,10 +1379,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), typeof(SqlHistoryTableQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), typeof(SqlHistoryTableQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1434,9 +1435,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1476,10 +1478,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlTableQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1500,10 +1502,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlColumnQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlColumnQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1523,33 +1525,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Keys" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IndexKeyType",
-                   Type = typeof(Enum),
-                   TypeToReverse = typeof(SqlIndexQuerier),
-                   ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { IndexKeyType.DriPrimaryKey },
-                      { IndexKeyType.DriUniqueKey }
-                   }
+                    Property = "IndexKeyType",
+                    Type = typeof(Enum),
+                    TypeToReverse = typeof(SqlIndexQuerier),
+                    ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { IndexKeyType.DriPrimaryKey },
+                        { IndexKeyType.DriUniqueKey }
+                    }
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlIndexQuerier), typeof(SqlForeignKeyConstraintQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlIndexQuerier), typeof(SqlForeignKeyConstraintQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1570,10 +1572,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDefaultConstraintQuerier), typeof(SqlCheckQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDefaultConstraintQuerier), typeof(SqlCheckQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1594,10 +1596,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDmlTriggerQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDmlTriggerQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1616,34 +1618,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Indexes" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IndexKeyType",
-                   Type = typeof(Enum),
-                   TypeToReverse = typeof(SqlIndexQuerier),
-                   ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { IndexKeyType.None },
-                      { IndexKeyType.DriPrimaryKey },
-                      { IndexKeyType.DriUniqueKey }
-                   }
+                    Property = "IndexKeyType",
+                    Type = typeof(Enum),
+                    TypeToReverse = typeof(SqlIndexQuerier),
+                    ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { IndexKeyType.None },
+                        { IndexKeyType.DriPrimaryKey },
+                        { IndexKeyType.DriUniqueKey }
+                    }
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlIndexQuerier), typeof(SqlFullTextIndexQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlIndexQuerier), typeof(SqlFullTextIndexQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1664,10 +1666,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlStatisticQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlStatisticQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1686,27 +1688,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemViews" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlViewQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlViewQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1760,9 +1762,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1852,9 +1855,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1873,10 +1877,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDatabaseDdlTriggerQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDatabaseDdlTriggerQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1897,10 +1901,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlAssemblyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlAssemblyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -1979,10 +1983,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSequenceQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSequenceQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2087,10 +2091,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedDataTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedDataTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2111,10 +2115,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedTableTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedTableTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2133,10 +2137,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2157,10 +2161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlXmlSchemaCollectionQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlXmlSchemaCollectionQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2206,9 +2210,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2229,10 +2234,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlColumnQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlColumnQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2252,33 +2257,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "UserDefinedTableTypeKeys" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IndexKeyType",
-                   Type = typeof(Enum),
-                   TypeToReverse = typeof(SqlIndexQuerier),
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                   Values = new List<object>
-                   {
-                      { IndexKeyType.DriPrimaryKey },
-                      { IndexKeyType.DriUniqueKey }
-                   }
+                    Property = "IndexKeyType",
+                    Type = typeof(Enum),
+                    TypeToReverse = typeof(SqlIndexQuerier),
+                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { IndexKeyType.DriPrimaryKey },
+                        { IndexKeyType.DriUniqueKey }
+                    }
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlIndexQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlIndexQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2299,10 +2304,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDefaultConstraintQuerier), typeof(SqlCheckQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDefaultConstraintQuerier), typeof(SqlCheckQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2323,10 +2328,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2347,10 +2352,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2371,10 +2376,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2395,10 +2400,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2419,10 +2424,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2443,10 +2448,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2467,10 +2472,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2491,10 +2496,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2515,10 +2520,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBuiltInTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBuiltInTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2539,10 +2544,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlExternalDataSourceQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlExternalDataSourceQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2563,10 +2568,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlExternalFileFormatQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlExternalFileFormatQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2585,19 +2590,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "StoredProcedures" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
                 });
                 return filters;
-           }
+            }
         }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
@@ -2614,10 +2619,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlProcedureQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlProcedureQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2634,27 +2639,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemStoredProcedures" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlProcedureQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlProcedureQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2684,9 +2689,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2707,10 +2713,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSubroutineParameterQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSubroutineParameterQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2730,37 +2736,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "TableValuedFunctions" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "FunctionType",
-                   Type = typeof(Enum),
-                   Values = new List<object>
-                   {
-                      { UserDefinedFunctionType.Table },
-                      { UserDefinedFunctionType.Inline }
-                   }
+                    Property = "FunctionType",
+                    Type = typeof(Enum),
+                    Values = new List<object>
+                    {
+                        { UserDefinedFunctionType.Table },
+                        { UserDefinedFunctionType.Inline }
+                    }
                 });
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedFunctionQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedFunctionQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2777,37 +2783,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemTableValuedFunctions" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "FunctionType",
-                   Type = typeof(Enum),
-                   Values = new List<object>
-                   {
-                      { UserDefinedFunctionType.Table },
-                      { UserDefinedFunctionType.Inline }
-                   }
+                    Property = "FunctionType",
+                    Type = typeof(Enum),
+                    Values = new List<object>
+                    {
+                        { UserDefinedFunctionType.Table },
+                        { UserDefinedFunctionType.Inline }
+                    }
                 });
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedFunctionQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedFunctionQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2837,9 +2843,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2860,10 +2867,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSubroutineParameterQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSubroutineParameterQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2883,37 +2890,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "ScalarValuedFunctions" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "FunctionType",
-                   Type = typeof(Enum),
-                   ValidFor = ValidForFlag.NotSqlDw,
-                   Values = new List<object>
-                   {
-                      { UserDefinedFunctionType.Scalar }
-                   }
+                    Property = "FunctionType",
+                    Type = typeof(Enum),
+                    ValidFor = ValidForFlag.NotSqlDw,
+                    Values = new List<object>
+                    {
+                        { UserDefinedFunctionType.Scalar }
+                    }
                 });
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 0 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 0 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedFunctionQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedFunctionQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2930,37 +2937,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "SystemScalarValuedFunctions" }; }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
-           get
-           {
-                var filters = new List<NodeFilter>();
-                filters.Add(new NodeFilter
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "FunctionType",
-                   Type = typeof(Enum),
-                   ValidFor = ValidForFlag.NotSqlDw,
-                   Values = new List<object>
-                   {
-                      { UserDefinedFunctionType.Scalar }
-                   }
+                    Property = "FunctionType",
+                    Type = typeof(Enum),
+                    ValidFor = ValidForFlag.NotSqlDw,
+                    Values = new List<object>
+                    {
+                        { UserDefinedFunctionType.Scalar }
+                    }
                 });
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
-                   Property = "IsSystemObject",
-                   Type = typeof(bool),
-                   Values = new List<object> { 1 },
+                    Property = "IsSystemObject",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
                 });
                 return filters;
-           }
+            }
         }
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedFunctionQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedFunctionQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -2990,9 +2997,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3013,10 +3021,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSubroutineParameterQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSubroutineParameterQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3038,10 +3046,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserDefinedAggregateQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserDefinedAggregateQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3071,9 +3079,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new Type[0];           }
+            get
+            {
+                return new Type[0];
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3094,10 +3103,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSubroutineParameterQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSubroutineParameterQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3119,10 +3128,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlRemoteServiceBindingQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlRemoteServiceBindingQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3143,10 +3152,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlBrokerPriorityQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlBrokerPriorityQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3167,10 +3176,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlFileGroupQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlFileGroupQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3189,10 +3198,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlFullTextCatalogQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlFullTextCatalogQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3213,10 +3222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlFullTextStopListQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlFullTextStopListQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3237,10 +3246,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlFileQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlFileQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3261,10 +3270,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlPartitionFunctionQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlPartitionFunctionQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3285,10 +3294,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlPartitionSchemeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlPartitionSchemeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3309,10 +3318,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSearchPropertyListQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSearchPropertyListQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3359,10 +3368,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlFileQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlFileQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3383,10 +3392,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlUserQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlUserQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3441,10 +3450,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSchemaQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSchemaQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3465,10 +3474,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlAsymmetricKeyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlAsymmetricKeyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3489,10 +3498,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlCertificateQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlCertificateQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3513,10 +3522,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSymmetricKeyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSymmetricKeyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3537,10 +3546,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDatabaseEncryptionKeyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDatabaseEncryptionKeyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3561,10 +3570,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlMasterKeyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlMasterKeyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3585,10 +3594,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDatabaseAuditSpecificationQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDatabaseAuditSpecificationQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3609,10 +3618,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlSecurityPolicyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlSecurityPolicyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3633,10 +3642,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlDatabaseCredentialQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlDatabaseCredentialQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3692,10 +3701,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlRoleQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlRoleQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3716,10 +3725,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlApplicationRoleQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlApplicationRoleQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3740,10 +3749,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlColumnMasterKeyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlColumnMasterKeyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3764,10 +3773,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlColumnEncryptionKeyQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlColumnEncryptionKeyQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3800,10 +3809,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlMessageTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlMessageTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3824,10 +3833,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlMessageTypeQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlMessageTypeQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3860,10 +3869,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlContractQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlContractQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3884,10 +3893,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlContractQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlContractQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3920,10 +3929,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlQueueQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlQueueQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3944,10 +3953,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlQueueQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlQueueQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -3980,10 +3989,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlServiceQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlServiceQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
@@ -4004,10 +4013,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal override Type[] ChildQuerierTypes
         {
-           get
-           {
-              return new [] { typeof(SqlServiceQuerier), };
-           }
+            get
+            {
+                return new [] { typeof(SqlServiceQuerier), };
+            }
         }
 
         public override TreeNode CreateChild(TreeNode parent, object context)
