@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                     Logger.Write(TraceEventType.Information, $"Terminating {processName} process because parent process has exited. Parent PID: {parent.Id}");
                     Environment.Exit(0);
                 }
-                Thread.Sleep(5000);
+                Thread.Sleep(10000);
             }
         }
     }

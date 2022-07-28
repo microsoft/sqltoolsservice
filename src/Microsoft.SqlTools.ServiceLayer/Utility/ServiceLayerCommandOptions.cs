@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     {
         internal const string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
 
-        private static readonly string[] serviceLayerCommandArgs = { "-d", "--developers", "--parent-pid" };
+        private static readonly string[] serviceLayerCommandArgs = { "-d", "--developers" };
 
         /**
          * List of contributors to this project, used as part of the onboarding process.
@@ -23,8 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             // Put your Github username here!
             "Charles-Gagnon"
             };
-
-        public int? ParentProcessId { get; private set; }
 
         public ServiceLayerCommandOptions(string[] args) : base(args.Where(arg => !serviceLayerCommandArgs.Contains(arg)).ToArray(), ServiceLayerServiceName)
         {
@@ -43,13 +41,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                         Console.WriteLine();
                         Console.WriteLine(string.Join(Environment.NewLine, contributors.Select(contributor => $"\t{contributor}")));
                         this.ShouldExit = true;
-                        break;
-                    case "--parent-pid":
-                        string nextArg = args[++i];
-                        if (Int32.TryParse(nextArg, out int parsedInt))
-                        {
-                            ParentProcessId = parsedInt;
-                        }
                         break;
                 }
             }

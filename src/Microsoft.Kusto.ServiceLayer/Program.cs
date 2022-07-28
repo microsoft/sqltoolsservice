@@ -8,6 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Microsoft.Kusto.ServiceLayer
 {
@@ -48,6 +49,14 @@ namespace Microsoft.Kusto.ServiceLayer
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
+                // If this service was started by another process, then it should shutdown when that parent process does.
+                if (commandOptions.ParentProcessId != null)
+                {
+                    var parentProcess = Process.GetProcessById(commandOptions.ParentProcessId.Value);
+                    var statusThread = new Thread(() => CheckParentStatusLoop(parentProcess));
+                    statusThread.Start();
+                }
+
                 serviceHost.WaitForExit();
             }
             catch (Exception e)
@@ -58,6 +67,21 @@ namespace Microsoft.Kusto.ServiceLayer
             finally
             {
                 Logger.Close();
+            }
+        }
+
+        private static void CheckParentStatusLoop(Process parent)
+        {
+            Logger.Write(TraceEventType.Information, $"Starting thread to check status of parent process. Parent PID: {parent.Id}");
+            while (true)
+            {
+                if (parent.HasExited)
+                {
+                    var processName = Process.GetCurrentProcess().ProcessName;
+                    Logger.Write(TraceEventType.Information, $"Terminating {processName} process because parent process has exited. Parent PID: {parent.Id}");
+                    Environment.Exit(0);
+                }
+                Thread.Sleep(10000);
             }
         }
     }
