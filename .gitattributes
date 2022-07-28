@@ -3,3 +3,5 @@
 *.csproj diff
 *.sln diff
 *.resx diff
+
+* text=auto
