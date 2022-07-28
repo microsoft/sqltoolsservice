@@ -435,7 +435,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
-            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false);
+            var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+            var assessmentReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentReportFileName);
+            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false, assessmentReportFullPath);
+
             var server = (contextualizedAssessmentResult.Servers.Count > 0) ? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine) : null;
             return new MigrationAssessmentResult()
             {
@@ -443,7 +446,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
-                RawAssessmentResult = contextualizedAssessmentResult
+                RawAssessmentResult = contextualizedAssessmentResult,
+                AssessmentReportPath = assessmentReportFullPath
             };
         }
 
