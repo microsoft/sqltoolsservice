@@ -229,6 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
 
             // get number of characters in the last line
+            // for some SQLCMD scenarios, the reader is already at the end of file and causing the prevLine to be null.
             int endColumn = prevLine == null ? 0 : prevLine.ToCharArray().Length;
 
             return new BatchDefinition(
@@ -263,6 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             }
 
             // get number of characters in the last line
+            // for some SQLCMD scenarios, the reader is already at the end of file and causing the prevLine to be null.
             int endColumn = prevLine == null ? 0 : prevLine.ToCharArray().Length;
 
             //lineOffset doesn't matter because its the last batch
