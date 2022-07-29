@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <summary>
         /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps project uri to model
         /// </summary>
-        private Lazy<ConcurrentDictionary<string, TSqlModel>> projectModels =
+        public Lazy<ConcurrentDictionary<string, TSqlModel>> projectModels =
             new Lazy<ConcurrentDictionary<string, TSqlModel>>(() => new ConcurrentDictionary<string, TSqlModel>());
 
         /// <summary>
