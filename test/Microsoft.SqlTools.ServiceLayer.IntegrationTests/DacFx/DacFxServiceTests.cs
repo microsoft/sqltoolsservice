@@ -934,13 +934,14 @@ Streaming query statement contains a reference to missing output stream 'Missing
 [TestFixture]
 public class TSqlModelRequestTests
 {
-    private string TSqlModelTestFolder = Path.Combine("..", "..", "..", "DacFx", "TSqlModels");
+    private string TSqlModelTestFolder = string.Empty;
 
     private DacFxService service = new DacFxService();
 
     [SetUp]
     public void Create()
     {
+        TSqlModelTestFolder = Path.Combine("..", "..", "..", "DacFx", "TSqlModels", Guid.NewGuid().ToString());
         Directory.CreateDirectory(TSqlModelTestFolder);
     }
 
@@ -1030,7 +1031,6 @@ public class TSqlModelRequestTests
         requestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
 
         await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
-
         Assert.True(service.projectModels.Value.Keys.Contains(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
     }
 }
