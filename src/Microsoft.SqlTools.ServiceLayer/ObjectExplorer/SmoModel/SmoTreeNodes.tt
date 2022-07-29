@@ -118,14 +118,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
 
-			// load all the filters elements
+			// Load all the filters elements
 			XmlNode filtersNode = GetFiltersNode(xmlFile, type);
 			if (filtersNode != null)
 			{
-				// get the children nodes for the Filters
+				// Get the children nodes for the Filters
 				XmlNodeList childNodes = filtersNode.ChildNodes;
 				if (childNodes.Count > 0)
 				{
+					// Write initial declarator for the filters object
 					WriteLine("");
 					WriteLine("        public override IEnumerable<INodeFilter> Filters");
 					WriteLine("        {");
@@ -133,6 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("            {");
 					WriteLine("                var filters = new List<INodeFilter>();");
 
+					// Parse each of the <Or> nodes in <Filters>
 					foreach (var orNode in filtersNode.SelectNodes("Or"))
 					{
 						XmlElement or = orNode as XmlElement;
@@ -141,11 +143,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 							continue;
 						}
 
+						// Write initial declarator for the <Or> object, which is just a list of NodePropertyFilters
 						WriteLine("                filters.Add(new NodeOrFilter");
 						WriteLine("                {");
 						WriteLine("                    FilterList = new List<NodePropertyFilter> {");
 
-						var orFilterNodes = or.GetElementsByTagName("Filter");
 						foreach(var orFilterNode in or.GetElementsByTagName("Filter"))
 						{
 							XmlElement orFilter = orFilterNode as XmlElement;
@@ -154,50 +156,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 								continue;
 							}
 
-							var propertyName = orFilter.GetAttribute("Property");
-							var propertyType = orFilter.GetAttribute("Type");
-							var propertyValue = orFilter.GetAttribute("Value");
-							var validFor = orFilter.GetAttribute("ValidFor");
-							var typeToReverse = orFilter.GetAttribute("TypeToReverse");
-
-							List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, type, propertyName, true);
-
+							// Declaration of Filter node
 							WriteLine("                        new NodePropertyFilter");
-							WriteLine("                        {");
-							WriteLine(string.Format("                            Property = \"{0}\",", propertyName));
-							WriteLine(string.Format("                            Type = typeof({0}),", propertyType));
 
-							if (!string.IsNullOrWhiteSpace(typeToReverse))
-							{
-								WriteLine(string.Format("                            TypeToReverse = typeof({0}Querier),", typeToReverse));
-							}
-							if (!string.IsNullOrWhiteSpace(validFor))
-							{
-								WriteLine(string.Format("                            ValidFor = {0},", GetValidForFlags(validFor)));
-							}
-							if (propertyValue != null && (filterValues == null || filterValues.Count == 0))
-							{
-								WriteLine(string.Format("                            Values = new List<object> {{ {0} }},", propertyValue));
-							}
-							if (filterValues != null && filterValues.Count > 0)
-							{
-								WriteLine(string.Format("                            Values = new List<object>"));
-								WriteLine(string.Format("                            {{"));
+							// Parse the elements in the <Filter> node into a string, and write
+							string filterNodeString = ParseFilterNode(xmlFile, type, orFilter, true /*orFilter*/);
+							Write(filterNodeString);
 
-								for(int i = 0; i < filterValues.Count; i++)
-								{
-									string separator =  (i != filterValues.Count - 1) ? "," : "";
-									var filterValue = filterValues[i];
-									WriteLine(string.Format("                               {{ {0} }}{1}", filterValue.InnerText, separator));
-								}
-								WriteLine(string.Format("                            }},"));
-							}
+							// Close out filter object definition
 							WriteLine("                        },");
 						}
+
+						// Close out declaration of the NodeOrFilter
 						WriteLine("                    }");
 						WriteLine("                });");
 					}
 
+					// Parse each of the top-level <Filter> nodes in <Filters>
 					foreach (var filterNode in filtersNode.SelectNodes("Filter"))
 					{
 						XmlElement filter = filterNode as XmlElement;
@@ -206,48 +181,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 							continue;
 						}
 
-						var propertyName = filter.GetAttribute("Property");
-						var propertyType = filter.GetAttribute("Type");
-						var propertyValue = filter.GetAttribute("Value");
-						var validFor = filter.GetAttribute("ValidFor");
-						var typeToReverse = filter.GetAttribute("TypeToReverse");
-
-						List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, type, propertyName);
-
+						// Start declaration of Filter node
 						WriteLine("                filters.Add(new NodePropertyFilter");
-						WriteLine("                {");
-						WriteLine(string.Format("                    Property = \"{0}\",", propertyName));
-						WriteLine(string.Format("                    Type = typeof({0}),", propertyType));
-						if (!string.IsNullOrWhiteSpace(typeToReverse))
-						{
-							WriteLine(string.Format("                    TypeToReverse = typeof({0}Querier),", typeToReverse));
-						}
-						if (!string.IsNullOrWhiteSpace(validFor))
-						{
-							WriteLine(string.Format("                    ValidFor = {0},", GetValidForFlags(validFor)));
-						}
-						if (propertyValue != null && (filterValues == null || filterValues.Count == 0))
-						{
-							WriteLine(string.Format("                    Values = new List<object> {{ {0} }},", propertyValue));
-						}
-						if (filterValues != null && filterValues.Count > 0)
-						{
-							WriteLine(string.Format("                    Values = new List<object>"));
-							WriteLine(string.Format("                    {{"));
 
-							for(int i = 0; i < filterValues.Count; i++)
-							{
-								string separator =  (i != filterValues.Count - 1) ? "," : "";
-								var filterValue = filterValues[i];
-								WriteLine(string.Format("                        {{ {0} }}{1}", filterValue.InnerText, separator ));
-							}
+						// Parse the elements in the <Filter> node into a string, and write
+						string filterNodeString = ParseFilterNode(xmlFile, type, filter);
+						Write(filterNodeString);
 
-							WriteLine(string.Format("                    }}"));
-						}
-
+						// Close out filter object definition
 						WriteLine("                });");
 					}
 
+					// Close out declaration of the Filters object
 					WriteLine("                return filters;");
 					WriteLine("            }");
 					WriteLine("        }");
@@ -592,5 +537,63 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			}
 		}
 		return retElements;
+	}
+
+	/// <summary>
+	/// Helper function to parse out the contents of a <Filter> node, to be returned as a string that the
+	/// calling function can call WriteLine on.
+	/// </summary>
+	/// <param name="xmlFile">Base xml doc</param>
+	/// <param name="parentName">name of the parent object in the xml</param>
+	/// <param name="filter">The filter to be parsed</param>
+	/// <param name="orFilter">Whether this filter is a sub-node of an <Or> node</param>
+	/// <returns>String representation of a given <Filter> node.</returns>
+	public static string ParseFilterNode(string xmlFile, string parentName, XmlElement filter, bool orFilter = false)
+	{
+		StringBuilder nodeSB = new StringBuilder();
+
+		// <Or> Filters start at a larger base indentation than <Filter> nodes directly under <Filters>
+		var indent = orFilter ? "                        " : "                ";
+
+		var propertyName = filter.GetAttribute("Property");
+		var propertyType = filter.GetAttribute("Type");
+		var propertyValue = filter.GetAttribute("Value");
+		var validFor = filter.GetAttribute("ValidFor");
+		var typeToReverse = filter.GetAttribute("TypeToReverse");
+
+		List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, parentName, propertyName, orFilter);
+
+		// Write out the "meat" of the object definition;
+		nodeSB.AppendLine(indent + "{");
+		nodeSB.AppendFormat(indent + "    Property = \"{0}\",\n", propertyName);
+		nodeSB.AppendFormat(indent + "    Type = typeof({0}),\n", propertyType);
+		if (!string.IsNullOrWhiteSpace(typeToReverse))
+		{
+			nodeSB.AppendFormat(indent + "    TypeToReverse = typeof({0}Querier),\n", typeToReverse);
+		}
+		if (!string.IsNullOrWhiteSpace(validFor))
+		{
+			nodeSB.AppendFormat(indent + "    ValidFor = {0},\n", GetValidForFlags(validFor));
+		}
+		if (propertyValue != null && (filterValues == null || filterValues.Count == 0))
+		{
+			nodeSB.AppendFormat(indent + "    Values = new List<object> {{ {0} }},\n", propertyValue);
+		}
+		if (filterValues != null && filterValues.Count > 0)
+		{
+			nodeSB.AppendLine(indent + "    Values = new List<object>");
+			nodeSB.AppendLine(indent + "    {");
+
+			for(int i = 0; i < filterValues.Count; i++)
+			{
+				string separator =  (i != filterValues.Count - 1) ? "," : "";
+				var filterValue = filterValues[i];
+				nodeSB.AppendFormat(indent + "        {{ {0} }}{1}\n", filterValue.InnerText, separator);
+			}
+
+			nodeSB.AppendLine(indent + "    }");
+		}
+
+		return nodeSB.ToString();
 	}
 #>

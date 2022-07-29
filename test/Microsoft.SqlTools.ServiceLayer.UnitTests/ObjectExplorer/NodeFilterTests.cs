@@ -185,7 +185,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             string sql2016ServerVersion = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
             string expectedSql2016Filters = "[((@TemporalType = 1)) and (@IsSystemObject = 1) and ((@IsSystemObject = 1) or (@TemporalType = 1))]";
-            Assert.AreEqual(expectedSql2016Filters, sql2016ServerVersion);
             Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "ConcatProperties did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
             string invalidQuerierType = INodeFilter.ConcatProperties(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
