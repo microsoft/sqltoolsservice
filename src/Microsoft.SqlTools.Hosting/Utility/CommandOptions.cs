@@ -66,6 +66,13 @@ namespace Microsoft.SqlTools.Hosting.Utility
                             case "-parallel-message-processing":
                                 ParallelMessageProcessing = true;
                                 break;
+                            case "-parent-pid":
+                                string nextArg = args[++i];
+                                if (Int32.TryParse(nextArg, out int parsedInt))
+                                {
+                                    ParentProcessId = parsedInt;
+                                }
+                                break;
                             default:
                                 ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
@@ -139,6 +146,12 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// Eventually we will fix the issues and make this the default behavior.
         /// </summary>
         public bool ParallelMessageProcessing { get; private set; } = false;
+
+        /// <summary>
+        /// The ID of the process that started this service. This is used to check when the parent
+        /// process exits so that the service process can exit at the same time.
+        /// </summary>
+        public int? ParentProcessId { get; private set; }
 
         public virtual void SetLocale(string locale)
         {
