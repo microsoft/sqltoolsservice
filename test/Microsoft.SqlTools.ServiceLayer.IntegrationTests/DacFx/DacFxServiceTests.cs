@@ -940,7 +940,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             DacFxService service = new DacFxService();
             Directory.CreateDirectory(TSqlModelTestFolder);
             string sqlTable1DefinitionPath = Path.Join(TSqlModelTestFolder, "table1.sql");
-             string sqlTable2DefinitionPath = Path.Join(TSqlModelTestFolder, "table2.sql");
+            string sqlTable2DefinitionPath = Path.Join(TSqlModelTestFolder, "table2.sql");
             const string table1 = @"CREATE TABLE [dbo].[table1]
             (
                 [ID] INT NOT NULL PRIMARY KEY,
@@ -957,7 +957,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             {
                 ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
                 ModelTargetVersion = "Sql160",
-                FilePaths = new[] { sqlTable1DefinitionPath, sqlTable2DefinitionPath}
+                FilePaths = new[] { sqlTable1DefinitionPath, sqlTable2DefinitionPath }
             };
 
             GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
@@ -969,12 +969,12 @@ Streaming query statement contains a reference to missing output stream 'Missing
             Directory.Delete(TSqlModelTestFolder);
 
             Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
-            Assert.That(objects, Is.Not.Empty); 
+            Assert.That(objects, Is.Not.Empty);
 
             var tableNames = objects.Select(o => o.Name.ToString()).ToList();
 
             Assert.That(tableNames.Count, Is.EqualTo(2), "Model was not populated correctly");
-            CollectionAssert.AreEquivalent(tableNames, new[] {"[dbo].[table1]", "[dbo].[table2]"}, "Table names do not match");
+            CollectionAssert.AreEquivalent(tableNames, new[] { "[dbo].[table1]", "[dbo].[table2]" }, "Table names do not match");
         }
 
         /// <summary>
@@ -990,7 +990,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             {
                 ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
                 ModelTargetVersion = "Sql160",
-                FilePaths = new string[] {}
+                FilePaths = new string[] { }
             };
 
             GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
@@ -1000,7 +1000,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             Directory.Delete(TSqlModelTestFolder);
 
             Assert.That(model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList().Count, Is.EqualTo(0), "Model is not empty");
-            Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}"));
+            Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
         }
 
         /// <summary>
@@ -1016,13 +1016,13 @@ Streaming query statement contains a reference to missing output stream 'Missing
             {
                 ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
                 ModelTargetVersion = "Sql160",
-                FilePaths = new string[] {}
+                FilePaths = new string[] { }
             };
 
             var requestContext = new Mock<RequestContext<ResultStatus>>();
             requestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
             await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
-            
+
             Directory.Delete(TSqlModelTestFolder);
 
             Assert.True(service.projectModels.Value.Keys.Contains(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
