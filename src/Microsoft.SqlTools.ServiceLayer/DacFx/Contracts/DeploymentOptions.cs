@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                 MemberInfo[] member = objectTypeEnum.GetMember(name);
                 MemberInfo info = member?.FirstOrDefault();
                 string displayName = info?.GetCustomAttribute<DisplayAttribute>().GetName();
-                if (displayName == null)
+                if (string.IsNullOrEmpty(displayName))
                 {
                     // not expecting display name for any options as empty string
                     Logger.Write(TraceEventType.Error, string.Format($"Display name is empty for the Object type enum {0}", name));
