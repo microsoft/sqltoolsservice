@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlServer.Dac.Model;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -331,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
+        public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<bool> requestContext)
         {
             try
             {
@@ -339,11 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 TSqlModel model = operation.GenerateTSqlModel();
 
                 projectModels.Value[operation.Parameters.ProjectUri] = model;
-                await requestContext.SendResult(new ResultStatus
-                {
-                    Success = true,
-                    ErrorMessage = null
-                });
+                await requestContext.SendResult(true);
             }
             catch (Exception e)
             {
