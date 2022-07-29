@@ -118,7 +118,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
 
-			// Load all the filters elements
+			// Load and parse Filters node
+			// A <Filters> node is comprised of <Or> and <Filter> nodes
+			//   - A <Filter> node defines the properties to construct a NodePropertyFilter object
+			//   - An <Or> node defines a list of <Filter> nodes that are or'ed in the resulting URN Query
+			// <Filters> can have an arbitrary number of top-level <Or> and <Filter> nodes.
+			// All filters defined at the top-level are and'ed in the resulting URN Query.
+			// This is generated into the IEnumerable<INodeFilter> Filters object for a particular SMO object.
+			// Currently there is not support for nested <Or> nodes
 			XmlNode filtersNode = GetFiltersNode(xmlFile, type);
 			if (filtersNode != null)
 			{
