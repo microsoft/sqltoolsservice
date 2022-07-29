@@ -555,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	/// <param name="filter">The filter to be parsed</param>
 	/// <param name="orFilter">Whether this filter is a sub-node of an <Or> node</param>
 	/// <returns>String representation of a given <Filter> node.</returns>
-	public static string ParseFilterNode(string xmlFile, string parentName, XmlElement filter, bool orFilter = false)
+	public string ParseFilterNode(string xmlFile, string parentName, XmlElement filter, bool orFilter = false)
 	{
 		StringBuilder nodeSB = new StringBuilder();
 
@@ -570,37 +570,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 		List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, parentName, propertyName, orFilter);
 
-		// Write out the "meat" of the object definition;
-		nodeSB.AppendLine(indent + "{");
-		nodeSB.AppendFormat(indent + "    Property = \"{0}\",\n", propertyName);
-		nodeSB.AppendFormat(indent + "    Type = typeof({0}),\n", propertyType);
+		// Write out the "meat" of the object definition
+		WriteLine(indent + "{");
+		WriteLine(indent + "    Property = \"{0}\",", propertyName);
+		WriteLine(indent + "    Type = typeof({0}),", propertyType);
 		if (!string.IsNullOrWhiteSpace(typeToReverse))
 		{
-			nodeSB.AppendFormat(indent + "    TypeToReverse = typeof({0}Querier),\n", typeToReverse);
+			WriteLine(indent + "    TypeToReverse = typeof({0}Querier),", typeToReverse);
 		}
 		if (!string.IsNullOrWhiteSpace(validFor))
 		{
-			nodeSB.AppendFormat(indent + "    ValidFor = {0},\n", GetValidForFlags(validFor));
+			WriteLine(indent + "    ValidFor = {0},", GetValidForFlags(validFor));
 		}
 		if (propertyValue != null && (filterValues == null || filterValues.Count == 0))
 		{
-			nodeSB.AppendFormat(indent + "    Values = new List<object> {{ {0} }},\n", propertyValue);
+			WriteLine(indent + "    Values = new List<object> {{ {0} }},", propertyValue);
 		}
 		if (filterValues != null && filterValues.Count > 0)
 		{
-			nodeSB.AppendLine(indent + "    Values = new List<object>");
-			nodeSB.AppendLine(indent + "    {");
+			WriteLine(indent + "    Values = new List<object>");
+			WriteLine(indent + "    {");
 
 			for(int i = 0; i < filterValues.Count; i++)
 			{
 				string separator =  (i != filterValues.Count - 1) ? "," : "";
 				var filterValue = filterValues[i];
-				nodeSB.AppendFormat(indent + "        {{ {0} }}{1}\n", filterValue.InnerText, separator);
+				WriteLine(indent + "        {{ {0} }}{1}", filterValue.InnerText, separator);
 			}
 
-			nodeSB.AppendLine(indent + "    }");
+			WriteLine(indent + "    }");
 		}
-
-		return nodeSB.ToString();
 	}
 #>

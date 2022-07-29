@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -66,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 return string.Empty;
             }
 
-            string filter = "";
+            StringBuilder filter = new StringBuilder();
             List<object> values = Values;
             if (values != null)
             {
@@ -83,15 +84,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         propertyValue = (int)Convert.ChangeType(value, Type);
                     }
                     string orPrefix = i == 0 ? string.Empty : " or ";
-                    filter = $"{filter}{orPrefix}@{Property} = {propertyValue}";
+                    filter.Append($"{orPrefix}@{Property} = {propertyValue}");
                 }
             }
 
-            if (filter != string.Empty)
+            if (filter.Length != 0)
             {
-                filter = $"({filter})";
+                return "(" + filter.ToString() + ")";
             }
-            return filter;
+            return string.Empty;
         }
     }
 }

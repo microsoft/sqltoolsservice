@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     continue;
                 }
-                string propertyFilter = INodeFilter.ConcatProperties(filters, querier.GetType(), serverValidFor);
+                string propertyFilter = INodeFilter.GetPropertyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();

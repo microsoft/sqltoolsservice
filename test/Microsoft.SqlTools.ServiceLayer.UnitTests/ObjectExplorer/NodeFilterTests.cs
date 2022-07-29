@@ -77,10 +77,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
         /// <summary>
-        /// Validates the output of ConcatProperties with an NodeOrFilter
+        /// Validates the output of GetPropertyFilter with an NodeOrFilter
         /// </summary>
         [Test]
-        public void ConcatPropertiesWithNodeOrFilter()
+        public void GetPropertyFilterWithNodeOrFilter()
         {
             var nodeList = new List<INodeFilter> {
                 new NodeOrFilter {
@@ -91,39 +91,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
 
-            string allFiltersValid = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
             string expectedAllFilters = "[((@TemporalType = 1) or (@LedgerType = 1))]";
-            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "ConcatProperties did not construct the URN filter string as expected");
+            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
         }
 
         /// <summary>
-        /// Validates the output of ConcatProperties with a list of NodePropertyFilters
+        /// Validates the output of GetPropertyFilter with a list of NodePropertyFilters
         /// </summary>
         [Test]
-        public void ConcatPropertiesWithNodePropertyFilters()
+        public void GetPropertyFilterWithNodePropertyFilters()
         {
             var nodeList = new List<INodeFilter> {
                 TemporalFilter,
                 LedgerHistoryFilter
             };
 
-            string allFiltersValid = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
             string expectedAllFilters = "[(@TemporalType = 1) and (@LedgerType = 1)]";
-            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "ConcatProperties did not construct the URN filter string as expected");
+            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
-            string sql2016ServerVersion = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
+            string sql2016ServerVersion = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
             string expectedSql2016Filters = "[(@TemporalType = 1)]";
-            Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "ConcatProperties did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
+            Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = INodeFilter.ConcatProperties(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
-            Assert.That(invalidQuerierType, Is.Empty, "ConcatProperties should return empty string, because no given filters match the querier type provided.");
+            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            Assert.That(invalidQuerierType, Is.Empty, "GetPropertyFilter should return empty string, because no given filters match the querier type provided.");
         }
 
         /// <summary>
-        /// Validates the output of ConcatProperties with a list of both NodePropertyFilters and NodeOrFilters
+        /// Validates the output of GetPropertyFilter with a list of both NodePropertyFilters and NodeOrFilters
         /// </summary>
         [Test]
-        public void ConcatPropertiesWithNodePropertyAndNodeOrFilters()
+        public void GetPropertyFilterWithNodePropertyAndNodeOrFilters()
         {
             var orNode = new NodeOrFilter {
                 FilterList = new List<NodePropertyFilter> {
@@ -137,25 +137,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 SystemObjectFilter
             };
 
-            string allFiltersValid = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
             string expectedAllFilters = "[((@TemporalType = 1) or (@LedgerType = 1)) and (@IsSystemObject = 1)]";
-            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "ConcatProperties did not construct the URN filter string as expected");
+            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
-            string sql2016ServerVersion = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
+            string sql2016ServerVersion = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
             string expectedSql2016Filters = "[((@TemporalType = 1)) and (@IsSystemObject = 1)]";
-            Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters),  "ConcatProperties did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
+            Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters),  "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = INodeFilter.ConcatProperties(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
             string expectedTableQuerierFilters = "[(@IsSystemObject = 1)]";
-            Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "ConcatProperties did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
+            Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
         }
 
         /// <summary>
-        /// Validates the output of ConcatProperties with a list of multiple NodeOrFilters with more than 2 filters, and
+        /// Validates the output of GetPropertyFilter with a list of multiple NodeOrFilters with more than 2 filters, and
         /// a lone NodePropertyFilter
         /// </summary>
         [Test]
-        public void ConcatPropertiesWithMixedFilters()
+        public void GetPropertyFilterWithMixedFilters()
         {
             // All these filters together are nonsense, but it's just testing the logic for constructing the filter string
             var orNode = new NodeOrFilter {
@@ -179,17 +179,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 orNode2
             };
 
-            string allFiltersValid = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
             string expectedAllFilters = "[((@TemporalType = 1) or (@LedgerType = 1)) and (@IsSystemObject = 1) and ((@IsSystemObject = 1) or (@LedgerType = 1) or (@TemporalType = 1))]";
-            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "ConcatProperties did not construct the URN filter string as expected");
+            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
-            string sql2016ServerVersion = INodeFilter.ConcatProperties(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
+            string sql2016ServerVersion = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2016);
             string expectedSql2016Filters = "[((@TemporalType = 1)) and (@IsSystemObject = 1) and ((@IsSystemObject = 1) or (@TemporalType = 1))]";
-            Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "ConcatProperties did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
+            Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = INodeFilter.ConcatProperties(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
             string expectedTableQuerierFilters = "[(@IsSystemObject = 1) and ((@IsSystemObject = 1))]";
-            Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "ConcatProperties did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
+            Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
         }
     }
 }

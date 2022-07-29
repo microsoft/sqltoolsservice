@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -29,44 +30,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <returns></returns>
         string ToPropertyFilterString(Type type, ValidForFlag validForFlag);
 
+        /// <summary>
+        /// Creates a fully paramaterized property filter string for the URN query for SQL objects.
+        /// Example of the output:[@ IsSystemObject = 0]
+        /// </summary>
+        /// <returns></returns>
         public static string GetPropertyFilter(IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
         {
-            string filter = "";
+            StringBuilder filter = new StringBuilder();
             var list = filters.ToList();
             for (int i = 0; i < list.Count; i++)
             {
                 var value = list[i];
 
-                var propertyFilterString = value.ToPropertyFilterString(type, validForFlag);
-                if (propertyFilterString != string.Empty)
-                {
-                    string andPrefix = filter == string.Empty ? string.Empty : "and";
-                    filter = $"{filter} {andPrefix} {propertyFilterString}";
-                }
-            }
-
-            if (filter != string.Empty)
-            {
-                filter = $"[{filter}]";
-            }
-            return filter;
-        }
-
-        public static string ConcatProperties(IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
-        {
-            string filter = "";
-            var list = filters.ToList();
-            for (int i = 0; i < list.Count; i++)
-            {
-                var value = list[i];
-
-                string andPrefix = filter == string.Empty ? string.Empty : " and ";
+                string andPrefix = filter.Length == 0 ? string.Empty : " and ";
                 var filterString = value.ToPropertyFilterString(type, validForFlag);
                 if (filterString != string.Empty) {
-                    filter = $"{filter}{andPrefix}{filterString}";
+                    filter.Append($"{andPrefix}{filterString}");
                 }
             }
-            return filter == string.Empty ? string.Empty : $"[{filter}]";
+
+            if (filter.Length != 0)
+            {
+                return "[" + filter.ToString() + "]";
+            }
+            return string.Empty;
         }
     }
 }
