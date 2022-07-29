@@ -545,14 +545,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	}
 
 	/// <summary>
-	/// Helper function to parse out the contents of a <Filter> node, to be returned as a string that the
-	/// calling function can call WriteLine on.
+	/// Helper function to parse out and write the contents of a <Filter> node.
 	/// </summary>
 	/// <param name="xmlFile">Base xml doc</param>
 	/// <param name="parentName">name of the parent object in the xml</param>
 	/// <param name="filter">The filter to be parsed</param>
 	/// <param name="orFilter">Whether this filter is a sub-node of an <Or> node</param>
-	/// <returns>String representation of a given <Filter> node.</returns>
 	public void ParseAndWriteFilterNode(string xmlFile, string parentName, XmlElement filter, bool orFilter = false)
 	{
 		// <Or> Filters start at a larger base indentation than <Filter> nodes directly under <Filters>
