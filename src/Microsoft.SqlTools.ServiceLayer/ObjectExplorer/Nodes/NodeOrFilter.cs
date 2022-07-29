@@ -36,16 +36,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
         {
             StringBuilder filter = new StringBuilder();
-            for (int i = 0; i < FilterList.Count; i++)
+            foreach (var nodeFilter in FilterList)
             {
-                var nodeFilter = FilterList[i];
                 string orPrefix = filter.Length == 0 ? string.Empty : " or ";
 
                 // For "or" filter, have to check each node as it's processed for whether it's valid.
                 var filterString = nodeFilter.ToPropertyFilterString(type, validForFlag);
                 if (filterString != string.Empty)
                 {
-                    filter.Append($"{orPrefix}{nodeFilter.ToPropertyFilterString(type, validForFlag)}");
+                    filter.Append($"{orPrefix}{filterString}");
                 }
             }
 

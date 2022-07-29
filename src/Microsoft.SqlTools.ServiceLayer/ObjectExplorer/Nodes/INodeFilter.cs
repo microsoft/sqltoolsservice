@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -38,11 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public static string GetPropertyFilter(IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
         {
             StringBuilder filter = new StringBuilder();
-            var list = filters.ToList();
-            for (int i = 0; i < list.Count; i++)
+            foreach (var value in filters)
             {
-                var value = list[i];
-
                 string andPrefix = filter.Length == 0 ? string.Empty : " and ";
                 var filterString = value.ToPropertyFilterString(type, validForFlag);
                 if (filterString != string.Empty) {

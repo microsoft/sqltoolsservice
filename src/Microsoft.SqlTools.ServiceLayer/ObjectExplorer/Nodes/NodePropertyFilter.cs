@@ -68,24 +68,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
 
             StringBuilder filter = new StringBuilder();
-            List<object> values = Values;
-            if (values != null)
+            foreach (var value in Values)
             {
-                for (int i = 0; i < values.Count; i++)
+                object propertyValue = value;
+                if (Type == typeof(string))
                 {
-                    var value = values[i];
-                    object propertyValue = value;
-                    if (Type == typeof(string))
-                    {
-                        propertyValue = $"'{propertyValue}'";
-                    }
-                    if (Type == typeof(Enum))
-                    {
-                        propertyValue = (int)Convert.ChangeType(value, Type);
-                    }
-                    string orPrefix = i == 0 ? string.Empty : " or ";
-                    filter.Append($"{orPrefix}@{Property} = {propertyValue}");
+                    propertyValue = $"'{propertyValue}'";
                 }
+                else if (Type == typeof(Enum))
+                {
+                    propertyValue = (int)Convert.ChangeType(value, Type);
+                }
+
+                string orPrefix = filter.Length == 0 ? string.Empty : " or ";
+                filter.Append($"{orPrefix}@{Property} = {propertyValue}");
             }
 
             if (filter.Length != 0)
