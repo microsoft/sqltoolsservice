@@ -20,14 +20,14 @@ namespace Microsoft.SqlTools.Utility
         /// <returns>The ID of the thread running the timer.</returns>
         public static int Start(int parentProcessId, int intervalMs = 10000)
         {
-            var parentProcess = Process.GetProcessById(parentProcessId);
-            var statusThread = new Thread(() => CheckParentStatusLoop(parentProcess, intervalMs));
+            var statusThread = new Thread(() => CheckParentStatusLoop(parentProcessId, intervalMs));
             statusThread.Start();
             return statusThread.ManagedThreadId;
         }
 
-        private static void CheckParentStatusLoop(Process parent, int intervalMs)
+        private static void CheckParentStatusLoop(int parentProcessId, int intervalMs)
         {
+            var parent = Process.GetProcessById(parentProcessId);
             Logger.Write(TraceEventType.Information, $"Starting thread to check status of parent process. Parent PID: {parent.Id}");
             while (true)
             {
