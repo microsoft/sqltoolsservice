@@ -11,6 +11,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlServer.Dac.Model;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -25,6 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
+        /// <summary>
+        /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps project uri to model
+        /// </summary>
+        public Lazy<ConcurrentDictionary<string, TSqlModel>> projectModels =
+            new Lazy<ConcurrentDictionary<string, TSqlModel>>(() => new ConcurrentDictionary<string, TSqlModel>());
 
         /// <summary>
         /// Gets the singleton instance object
@@ -50,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
             serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest);
+            serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest);
         }
 
         /// <summary>
@@ -315,6 +323,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 await requestContext.SendResult(new ParseTSqlScriptResult()
                 {
                     ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(script, requestParams.DatabaseSchemaProvider)
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
+        public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            try
+            {
+                GenerateTSqlModelOperation operation = new GenerateTSqlModelOperation(requestParams);
+                TSqlModel model = operation.GenerateTSqlModel();
+
+                projectModels.Value[operation.Parameters.ProjectUri] = model;
+                await requestContext.SendResult(new ResultStatus
+                {
+                    Success = true,
+                    ErrorMessage = null
                 });
             }
             catch (Exception e)
