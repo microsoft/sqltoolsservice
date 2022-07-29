@@ -46,8 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		string queryBaseClass = "SmoQuerier";
 		PushIndent(indent);
 		WriteLine("");
-		WriteLine(string.Format("[Export(typeof({0}))]", queryBaseClass));
-		WriteLine(string.Format("internal partial class {0}Querier: {1}", nodeName, queryBaseClass));
+		WriteLine("[Export(typeof({0}))]", queryBaseClass);
+		WriteLine("internal partial class {0}Querier: {1}", nodeName, queryBaseClass);
 		WriteLine("{");
 		PushIndent(indent);
 
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		if (!string.IsNullOrWhiteSpace(validFor))
 		{
 			WriteLine("");
-			WriteLine(string.Format("public override ValidForFlag ValidFor {{ get {{ return {0}; }} }}", GetValidForFlags(validFor)));
+			WriteLine("public override ValidForFlag ValidFor {{ get {{ return {0}; }} }}", GetValidForFlags(validFor));
 			WriteLine("");
 		}
 
@@ -68,13 +68,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		WriteLine("public override  IEnumerable<SqlSmoObject> Query(SmoQueryContext context, string filter, bool refresh, IEnumerable<string> extraProperties)");
 		WriteLine("{");
 		PushIndent(indent);
-		WriteLine(string.Format("Logger.Verbose(\"Begin query {0}\");", nodeType));
+		WriteLine("Logger.Verbose(\"Begin query {0}\");", nodeType);
 		// TODO Allow override of the navigation path
 		foreach(var parentType in parents)
 		{
 			string parentVar = string.Format("parent{0}", parentType);
-			WriteLine(string.Format("{0} {1} = context.Parent as {0};", parentType, parentVar));
-			WriteLine(string.Format("if ({0} != null)", parentVar));
+			WriteLine("{0} {1} = context.Parent as {0};", parentType, parentVar);
+			WriteLine("if ({0} != null)", parentVar);
 			WriteLine("{");
 			PushIndent(indent);
 
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			string fieldType = GetNavPathAttribute(navPathElement, "FieldType");
 
 
-			WriteLine(string.Format("var retValue = {0}.{1};", parentVar, navigationPath));
+			WriteLine("var retValue = {0}.{1};", parentVar, navigationPath);
 			WriteLine("if (retValue != null)");
 			WriteLine("{");
 			PushIndent(indent);
@@ -92,30 +92,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 			if (IsCollection(nodeElement))
 			{
-				WriteLine(string.Format("retValue.ClearAndInitialize(filter, extraProperties);"));
+				WriteLine("retValue.ClearAndInitialize(filter, extraProperties);");
 				if (string.IsNullOrEmpty(subField) )
 				{
-					WriteLine(string.Format("var ret = new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
-					WriteLine(string.Format("Logger.Verbose(\"End query {0}\");", nodeType));
+					WriteLine("var ret = new SmoCollectionWrapper<{0}>(retValue).Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar);
+					WriteLine("Logger.Verbose(\"End query {0}\");", nodeType);
 					WriteLine("return ret;");
 				}
 				else
 				{
-					WriteLine(string.Format("List<{0}> subFieldResult = new List<{0}>();", nodeType));
-					WriteLine(string.Format("foreach({0} field in retValue)", fieldType));
+					WriteLine("List<{0}> subFieldResult = new List<{0}>();", nodeType);
+					WriteLine("foreach({0} field in retValue)", fieldType);
 					WriteLine("{");
 					PushIndent(indent);
-					WriteLine(string.Format("{0} subField = field.{1};", nodeType, subField));
-					WriteLine(string.Format("if (subField != null)"));
+					WriteLine("{0} subField = field.{1};", nodeType, subField);
+					WriteLine("if (subField != null)");
 					WriteLine("{");
 					PushIndent(indent);
-					WriteLine(string.Format("subFieldResult.Add(subField);"));
+					WriteLine("subFieldResult.Add(subField);");
 					PopIndent();
 					WriteLine("}");
 					PopIndent();
 					WriteLine("}");
-					WriteLine(string.Format("var ret = subFieldResult.Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar));
-					WriteLine(string.Format("Logger.Verbose(\"End query {0}\");", nodeType));
+					WriteLine("var ret = subFieldResult.Where(c => PassesFinalFilters({1}, c));", nodeType, parentVar);
+					WriteLine("Logger.Verbose(\"End query {0}\");", nodeType);
 					WriteLine("return ret;");
 				}
 			}
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("if (refresh)");
 				WriteLine("{");
 				PushIndent(indent);
-				WriteLine(string.Format("{0}.{1}.Refresh();", parentVar, navigationPath));
+				WriteLine("{0}.{1}.Refresh();", parentVar, navigationPath);
 				PopIndent();
 				WriteLine("}");
 				WriteLine("return new SqlSmoObject[] { retValue };");
