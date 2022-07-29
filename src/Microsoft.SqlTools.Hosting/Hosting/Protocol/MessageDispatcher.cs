@@ -151,7 +151,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         catch (Exception ex)
                         {
                             Logger.Error(ex);
-                            await requestContext.SendError(ex.Message);
+                            await requestContext.SendError(ex);
                         }
                         
                     });
