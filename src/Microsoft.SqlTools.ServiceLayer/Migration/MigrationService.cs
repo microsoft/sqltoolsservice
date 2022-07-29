@@ -98,10 +98,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <summary>
         /// Controller for collecting performance data for SKU recommendation
         /// </summary>
-        internal SqlDataQueryController DataCollectionController 
-        { 
-            get; 
-            set; 
+        internal SqlDataQueryController DataCollectionController
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -157,10 +157,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     await requestContext.SendResult(results);
                 }
             }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
             finally
             {
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
@@ -196,21 +192,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
 
                 this.DataCollectionController = new SqlDataQueryController(
-                    connectionString, 
-                    parameters.DataFolder, 
+                    connectionString,
+                    parameters.DataFolder,
                     parameters.PerfQueryIntervalInSec,
-                    parameters.NumberOfIterations, 
-                    parameters.StaticQueryIntervalInSec, 
+                    parameters.NumberOfIterations,
+                    parameters.StaticQueryIntervalInSec,
                     null);
 
                 this.DataCollectionController.Start();
 
                 // TO-DO: what should be returned?
                 await requestContext.SendResult(new StartPerfDataCollectionResult() { DateTimeStarted = DateTime.UtcNow });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
             }
             finally
             {
@@ -225,17 +217,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             StopPerfDataCollectionParams parameters,
             RequestContext<StopPerfDataCollectionResult> requestContext)
         {
-            try
-            {
-                this.DataCollectionController.Dispose();
+            this.DataCollectionController.Dispose();
 
-                // TO-DO: what should be returned?
-                await requestContext.SendResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
+            // TO-DO: what should be returned?
+            await requestContext.SendResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
         }
 
         /// <summary>
@@ -245,26 +230,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             RefreshPerfDataCollectionParams parameters,
             RequestContext<RefreshPerfDataCollectionResult> requestContext)
         {
-            try
-            {
-                bool isCollecting = !(this.DataCollectionController is null) ? this.DataCollectionController.IsRunning() : false;
-                List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
-                List<string> errors = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime) : new List<string>();
+            bool isCollecting = !(this.DataCollectionController is null) ? this.DataCollectionController.IsRunning() : false;
+            List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
+            List<string> errors = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime) : new List<string>();
 
-                RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult() 
-                { 
-                    RefreshTime = DateTime.UtcNow,
-                    IsCollecting = isCollecting,
-                    Messages = messages,
-                    Errors = errors,
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult()
             {
-                await requestContext.SendError(e.ToString());
-            }
+                RefreshTime = DateTime.UtcNow,
+                IsCollecting = isCollecting,
+                Messages = messages,
+                Errors = errors,
+            };
+
+            await requestContext.SendResult(result);
         }
         /// <summary>
         /// Handle request to generate SKU recommendations
@@ -296,10 +274,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
                 if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
                 {
-                    var prefs = new AzurePreferences() 
-                    { 
-                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus), 
-                        ScalingFactor = parameters.ScalingFactor / 100.0 
+                    var prefs = new AzurePreferences()
+                    {
+                        EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus),
+                        ScalingFactor = parameters.ScalingFactor / 100.0
                     };
                     sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
@@ -395,10 +373,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             catch (FailedToQueryCountersException e)
             {
                 await requestContext.SendError($"Unable to read collected performance data from {parameters.DataFolder}. Please specify another folder or start data collection instead.");
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
             }
         }
 
@@ -634,7 +608,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                         vmCapabilities.AddRange(vmPreviewCapabilities);
                     }
-                    
+
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
                         .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))

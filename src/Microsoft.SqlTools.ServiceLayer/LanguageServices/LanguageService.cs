@@ -315,49 +315,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
         {
-            try
+            //register the new assembly
+            var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
+            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
+            var assemblies = new Assembly[] { assembly };
+            serviceProvider.AddAssembliesToConfiguration(assemblies);
+            foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
             {
-                //register the new assembly
-                var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
-                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
-                var assemblies = new Assembly[] { assembly };
-                serviceProvider.AddAssembliesToConfiguration(assemblies);
-                foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
+                var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);
+                var cancellationToken = cancellationTokenSource.Token;
+                string extName = ext.Name;
+                string extTypeName = ext.GetType().FullName;
+                if (extTypeName != param.TypeName)
                 {
-                    var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);
-                    var cancellationToken = cancellationTokenSource.Token;
-                    string extName = ext.Name;
-                    string extTypeName = ext.GetType().FullName;
-                    if (extTypeName != param.TypeName)
-                    {
-                        continue;
-                    }
-
-                    if (!CheckIfAssemblyShouldBeLoaded(param.AssemblyPath, extTypeName))
-                    {
-                        await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
-                        return;
-                    }
-
-                    await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
-                    cancellationTokenSource.Dispose();
-                    if (!string.IsNullOrEmpty(extName))
-                    {
-                        completionExtensions[extName] = ext;
-                        await requestContext.SendResult(true);
-                        return;
-                    }
-                    else
-                    {
-                        await requestContext.SendError(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
-                        return;
-                    }
+                    continue;
                 }
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.Message);
-                return;
+
+                if (!CheckIfAssemblyShouldBeLoaded(param.AssemblyPath, extTypeName))
+                {
+                    await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
+                    return;
+                }
+
+                await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
+                cancellationTokenSource.Dispose();
+                if (!string.IsNullOrEmpty(extName))
+                {
+                    completionExtensions[extName] = ext;
+                    await requestContext.SendResult(true);
+                    return;
+                }
+                else
+                {
+                    await requestContext.SendError(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
+                    return;
+                }
             }
 
             await requestContext.SendError(string.Format("Couldn't discover completion extension with type {0} in {1}", param.TypeName, param.AssemblyPath));
@@ -399,30 +391,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
         {
-            try
+            ParseResult result = Parser.Parse(param.Query);
+            SyntaxParseResult syntaxResult = new SyntaxParseResult();
+            if (result != null && !result.Errors.Any())
             {
-                ParseResult result = Parser.Parse(param.Query);
-                SyntaxParseResult syntaxResult = new SyntaxParseResult();
-                if (result != null && !result.Errors.Any())
-                {
-                    syntaxResult.Parseable = true;
-                }
-                else
-                {
-                    syntaxResult.Parseable = false;
-                    string[] errorMessages = new string[result.Errors.Count()];
-                    for (int i = 0; i < result.Errors.Count(); i++)
-                    {
-                        errorMessages[i] = result.Errors.ElementAt(i).Message;
-                    }
-                    syntaxResult.Errors = errorMessages;
-                }
-                await requestContext.SendResult(syntaxResult);
+                syntaxResult.Parseable = true;
             }
-            catch (Exception ex)
+            else
             {
-                await requestContext.SendError(ex.ToString());
+                syntaxResult.Parseable = false;
+                string[] errorMessages = new string[result.Errors.Count()];
+                for (int i = 0; i < result.Errors.Count(); i++)
+                {
+                    errorMessages[i] = result.Errors.ElementAt(i).Message;
+                }
+                syntaxResult.Errors = errorMessages;
             }
+            await requestContext.SendResult(syntaxResult);
         }
 
         /// <summary>
@@ -435,39 +420,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
-            try
+            var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+            if (scriptFile == null)
             {
-                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                if (scriptFile == null)
-                {
-                    await requestContext.SendResult(null);
-                    return;
-                }
-                // check if Intellisense suggestions are enabled
-                if (ShouldSkipIntellisense(scriptFile.ClientUri))
-                {
-                    await requestContext.SendResult(null);
-                }
-                else
-                {
-                    ConnectionInfo connInfo = null;
-                    // Check if we need to refresh the auth token, and if we do then don't pass in the 
-                    // connection so that we only show the default options until the refreshed token is returned
-                    if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
-                    {
-                        ConnectionServiceInstance.TryFindConnection(
-                            scriptFile.ClientUri,
-                            out connInfo);
-                    }
-                    var completionItems = await GetCompletionItems(
-                        textDocumentPosition, scriptFile, connInfo);
-
-                    await requestContext.SendResult(completionItems);
-                }
+                await requestContext.SendResult(null);
+                return;
             }
-            catch (Exception ex)
+            // check if Intellisense suggestions are enabled
+            if (ShouldSkipIntellisense(scriptFile.ClientUri))
             {
-                await requestContext.SendError(ex.ToString());
+                await requestContext.SendResult(null);
+            }
+            else
+            {
+                ConnectionInfo connInfo = null;
+                // Check if we need to refresh the auth token, and if we do then don't pass in the 
+                // connection so that we only show the default options until the refreshed token is returned
+                if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+                {
+                    ConnectionServiceInstance.TryFindConnection(
+                        scriptFile.ClientUri,
+                        out connInfo);
+                }
+                var completionItems = await GetCompletionItems(
+                    textDocumentPosition, scriptFile, connInfo);
+
+                await requestContext.SendResult(completionItems);
             }
         }
 
@@ -482,70 +460,56 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
-            try
+            // check if Intellisense suggestions are enabled
+            // Note: Do not know file, so no need to check for MSSQL flavor
+            if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
             {
-                // check if Intellisense suggestions are enabled
-                // Note: Do not know file, so no need to check for MSSQL flavor
-                if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
-                {
-                    await requestContext.SendResult(completionItem);
-                }
-                else
-                {
-                    completionItem = ResolveCompletionItem(completionItem);
-                    await requestContext.SendResult(completionItem);
-                }
+                await requestContext.SendResult(completionItem);
             }
-            catch (Exception ex)
+            else
             {
-                await requestContext.SendError(ex.ToString());
+                completionItem = ResolveCompletionItem(completionItem);
+                await requestContext.SendResult(completionItem);
             }
         }
 
         internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            try
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
+            if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
-                DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
-
-                if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
+                // Retrieve document and connection
+                ConnectionInfo connInfo;
+                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                bool isConnected = false;
+                bool succeeded = false;
+                DefinitionResult definitionResult = null;
+                if (scriptFile != null)
                 {
-                    // Retrieve document and connection
-                    ConnectionInfo connInfo;
-                    var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                    bool isConnected = false;
-                    bool succeeded = false;
-                    DefinitionResult definitionResult = null;
-                    if (scriptFile != null)
-                    {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
-                        definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                    }
+                    isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                }
 
-                    if (definitionResult != null && !definitionResult.IsErrorResult)
-                    {
-                        await requestContext.SendResult(definitionResult.Locations);
-                        succeeded = true;
-                    }
-                    else
-                    {
-                        await requestContext.SendResult(Array.Empty<Location>());
-                    }
-
-                    DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
+                if (definitionResult != null && !definitionResult.IsErrorResult)
+                {
+                    await requestContext.SendResult(definitionResult.Locations);
+                    succeeded = true;
                 }
                 else
                 {
-                    // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
                     await requestContext.SendResult(Array.Empty<Location>());
                 }
 
-                DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+                DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
             }
-            catch (Exception ex)
+            else
             {
-                await requestContext.SendError(ex.ToString());
+                // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
+                await requestContext.SendResult(Array.Empty<Location>());
             }
+
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
         private static TelemetryProperties CreatePeekTelemetryProps(bool succeeded, bool connected)
@@ -582,35 +546,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            try
+            // check if Intellisense suggestions are enabled
+            if (ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                // check if Intellisense suggestions are enabled
-                if (ShouldSkipNonMssqlFile(textDocumentPosition))
+                await requestContext.SendResult(null);
+            }
+            else
+            {
+                ScriptFile scriptFile = CurrentWorkspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
+                SignatureHelp help = null;
+                if (scriptFile != null)
                 {
-                    await requestContext.SendResult(null);
+                    help = GetSignatureHelp(textDocumentPosition, scriptFile);
+                }
+                if (help != null)
+                {
+                    await requestContext.SendResult(help);
                 }
                 else
                 {
-                    ScriptFile scriptFile = CurrentWorkspace.GetFile(
-                        textDocumentPosition.TextDocument.Uri);
-                    SignatureHelp help = null;
-                    if (scriptFile != null)
-                    {
-                        help = GetSignatureHelp(textDocumentPosition, scriptFile);
-                    }
-                    if (help != null)
-                    {
-                        await requestContext.SendResult(help);
-                    }
-                    else
-                    {
-                        await requestContext.SendResult(new SignatureHelp());
-                    }
+                    await requestContext.SendResult(new SignatureHelp());
                 }
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
             }
         }
 
@@ -618,31 +575,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            try
+            // check if Quick Info hover tooltips are enabled
+            if (CurrentWorkspaceSettings.IsQuickInfoEnabled
+                && !ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                // check if Quick Info hover tooltips are enabled
-                if (CurrentWorkspaceSettings.IsQuickInfoEnabled
-                    && !ShouldSkipNonMssqlFile(textDocumentPosition))
-                {
-                    var scriptFile = CurrentWorkspace.GetFile(
-                        textDocumentPosition.TextDocument.Uri);
+                var scriptFile = CurrentWorkspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
 
-                    Hover hover = null;
-                    if (scriptFile != null)
-                    {
-                        hover = GetHoverItem(textDocumentPosition, scriptFile);
-                    }
-                    if (hover != null)
-                    {
-                        await requestContext.SendResult(hover);
-                    }
+                Hover hover = null;
+                if (scriptFile != null)
+                {
+                    hover = GetHoverItem(textDocumentPosition, scriptFile);
                 }
-                await requestContext.SendResult(null);
+                if (hover != null)
+                {
+                    await requestContext.SendResult(hover);
+                }
             }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+            await requestContext.SendResult(null);
         }
 
         #endregion

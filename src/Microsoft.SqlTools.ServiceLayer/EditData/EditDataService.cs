@@ -91,18 +91,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleSessionRequest<TResult>(SessionOperationParams sessionParams,
             RequestContext<TResult> requestContext, Func<EditSession, TResult> sessionOperation)
         {
-            try
-            {
-                EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
+            EditSession editSession = GetActiveSessionOrThrow(sessionParams.OwnerUri);
 
-                // Get the result from execution of the editSession operation
-                TResult result = sessionOperation(editSession);
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
+            // Get the result from execution of the editSession operation
+            TResult result = sessionOperation(editSession);
+            await requestContext.SendResult(result);
         }
 
         internal Task HandleCreateRowRequest(EditCreateRowParams createParams,
@@ -125,26 +118,19 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleDisposeRequest(EditDisposeParams disposeParams,
             RequestContext<EditDisposeResult> requestContext)
         {
-            try
-            {
-                // Sanity check the owner URI
-                Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
+            // Sanity check the owner URI
+            Validate.IsNotNullOrWhitespaceString(nameof(disposeParams.OwnerUri), disposeParams.OwnerUri);
 
-                // Attempt to remove the editSession
-                EditSession editSession;
-                if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out editSession))
-                {
-                    await requestContext.SendError(SR.EditDataSessionNotFound);
-                    return;
-                }
-
-                // Everything was successful, return success
-                await requestContext.SendResult(new EditDisposeResult());
-            }
-            catch (Exception e)
+            // Attempt to remove the editSession
+            EditSession editSession;
+            if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out editSession))
             {
-                await requestContext.SendError(e.Message);
+                await requestContext.SendError(SR.EditDataSessionNotFound);
+                return;
             }
+
+            // Everything was successful, return success
+            await requestContext.SendResult(new EditDisposeResult());
         }
 
         internal async Task HandleInitializeRequest(EditInitializeParams initParams,
@@ -157,32 +143,25 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             EditSession.Connector connector = () => connectionService.GetOrOpenConnection(initParams.OwnerUri, ConnectionType.Edit, alwaysPersistSecurity: true);
             EditSession.QueryRunner queryRunner = q => SessionInitializeQueryRunner(initParams.OwnerUri, context, q);
 
-            try
+            // Make sure we have info to process this request
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
+            Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
+
+            // Create a session and add it to the session list
+            EditSession session = new EditSession(metadataFactory);
+            if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
             {
-                // Make sure we have info to process this request
-                Validate.IsNotNullOrWhitespaceString(nameof(initParams.OwnerUri), initParams.OwnerUri);
-                Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectName), initParams.ObjectName);
-                Validate.IsNotNullOrWhitespaceString(nameof(initParams.ObjectType), initParams.ObjectType);
-
-                // Create a session and add it to the session list
-                EditSession session = new EditSession(metadataFactory);
-                if (!ActiveSessions.TryAdd(initParams.OwnerUri, session))
-                {
-                    throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
-                }
-
-                context.ResultSetHandler = (ResultSetEventParams resultSetEventParams) => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
-
-                // Initialize the session
-                session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
-
-                // Send the result
-                await requestContext.SendResult(new EditInitializeResult());
+                throw new InvalidOperationException(SR.EditDataSessionAlreadyExists);
             }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
-            }
+
+            context.ResultSetHandler = (ResultSetEventParams resultSetEventParams) => { session.UpdateColumnInformationWithMetadata(resultSetEventParams.ResultSetSummary.ColumnInfo); };
+
+            // Initialize the session
+            session.Initialize(initParams, connector, queryRunner, executionSuccessHandler, executionFailureHandler);
+
+            // Send the result
+            await requestContext.SendResult(new EditInitializeResult());
         }
 
         internal Task HandleRevertCellRequest(EditRevertCellParams revertParams,
@@ -205,23 +184,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         internal async Task HandleSubsetRequest(EditSubsetParams subsetParams,
             RequestContext<EditSubsetResult> requestContext)
         {
-            try
-            {
-                EditSession session = GetActiveSessionOrThrow(subsetParams.OwnerUri);
+            EditSession session = GetActiveSessionOrThrow(subsetParams.OwnerUri);
 
-                EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
-                EditSubsetResult result = new EditSubsetResult
-                {
-                    RowCount = rows.Length,
-                    Subset = rows
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            EditRow[] rows = await session.GetRows(subsetParams.RowStartIndex, subsetParams.RowCount);
+            EditSubsetResult result = new EditSubsetResult
             {
-                await requestContext.SendError(e.Message);
-            }
+                RowCount = rows.Length,
+                Subset = rows
+            };
+
+            await requestContext.SendResult(result);
         }
 
         internal Task HandleUpdateCellRequest(EditUpdateCellParams updateParams,

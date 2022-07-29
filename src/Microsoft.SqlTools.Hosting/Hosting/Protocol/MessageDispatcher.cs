@@ -131,20 +131,29 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                                 requestMessage,
                                 messageWriter);
 
-                        TParams typedParams = default(TParams);
-                        if (requestMessage.Contents != null)
+                        try
                         {
-                            try
+                            TParams typedParams = default(TParams);
+                            if (requestMessage.Contents != null)
                             {
-                                typedParams = requestMessage.Contents.ToObject<TParams>();
+                                try
+                                {
+                                    typedParams = requestMessage.Contents.ToObject<TParams>();
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception($"{requestType.MethodName} : Error parsing message contents {requestMessage.Contents}", ex);
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                await requestContext.SendError(ex.Message);
-                            }
-                        }
 
-                        await requestHandler(typedParams, requestContext);
+                            await requestHandler(typedParams, requestContext);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                            await requestContext.SendError(ex.Message);
+                        }
+                        
                     });
                 });
         }
@@ -178,20 +187,27 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     {
                         var eventContext = new EventContext(messageWriter);
 
-                        TParams typedParams = default(TParams);
-                        if (eventMessage.Contents != null)
+                        try
                         {
-                            try
+                            TParams typedParams = default(TParams);
+                            if (eventMessage.Contents != null)
                             {
-                                typedParams = eventMessage.Contents.ToObject<TParams>();
+                                try
+                                {
+                                    typedParams = eventMessage.Contents.ToObject<TParams>();
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception($"{eventType.MethodName} : Error parsing message contents {eventMessage.Contents}", ex);
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                Logger.Write(TraceEventType.Verbose, ex.ToString());
-                            }
+                            await eventHandler(typedParams, eventContext);
                         }
-
-                        await eventHandler(typedParams, eventContext);
+                        catch (Exception ex)
+                        {
+                            // There's nothing on the client side to send an error back to so just log the error and move on
+                            Logger.Error(ex);
+                        }
                     });
                 });
         }

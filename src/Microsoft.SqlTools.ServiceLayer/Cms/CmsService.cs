@@ -54,240 +54,197 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
         public async Task HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleCreateCentralManagementServerRequest");
-            try
+            CmsTask = Task.Run(async () =>
             {
-                CmsTask = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        //Validate params and connect
-                        ServerConnection conn = await ValidateAndCreateConnection(createCmsParams.ConnectParams);
+                    //Validate params and connect
+                    ServerConnection conn = await ValidateAndCreateConnection(createCmsParams.ConnectParams);
 
-                        // Get Current Reg Servers on CMS
-                        RegisteredServersStore store = new RegisteredServersStore(conn);
-                        ServerGroup parentGroup = store.DatabaseEngineServerGroup;                   
-                        ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
-                        if (result != null)
-                        {
-                            await requestContext.SendResult(result);
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
+                    // Get Current Reg Servers on CMS
+                    RegisteredServersStore store = new RegisteredServersStore(conn);
+                    ServerGroup parentGroup = store.DatabaseEngineServerGroup;
+                    ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
+                    if (result != null)
                     {
-                        // Exception related to connection/creation will only be caught here. Note that the outer catch will not catch them
-                        await requestContext.SendError(ex);
+                        await requestContext.SendResult(result);
+                        return;
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
-            }
+                }
+                catch (Exception ex)
+                {
+                    // Exception related to connection/creation will only be caught here. Note that the outer catch will not catch them
+                    await requestContext.SendError(ex);
+                }
+            });
         }
 
         public async Task HandleAddRegisteredServerRequest(AddRegisteredServerParams cmsCreateParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleAddRegisteredServerRequest");
-            try
+            CmsTask = Task.Run(async () =>
             {
-                CmsTask = Task.Run(async () =>
+                try
                 {
-                    try
+                    ServerConnection serverConn = ValidateAndCreateConnection(cmsCreateParams.ParentOwnerUri);
+                    if (serverConn != null)
                     {
-                        ServerConnection serverConn =  ValidateAndCreateConnection(cmsCreateParams.ParentOwnerUri);
-                        if (serverConn != null)
-                        {
-                            // Get Current Reg Servers
-                            RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                            ServerGroup parentGroup = NavigateToServerGroup(store, cmsCreateParams.RelativePath);
-                            RegisteredServerCollection servers = parentGroup.RegisteredServers;
-                            // Add the new server (intentionally not cheching existence to reuse the exception message)
-                            RegisteredServer registeredServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
-                            registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
-                            registeredServer.ConnectionString = serverConn.ConnectionString;
-                            registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
-                            registeredServer.Create();
-                            await requestContext.SendResult(true);
-                        }
-                        else
-                        {
-                            await requestContext.SendResult(false);
-                        }
+                        // Get Current Reg Servers
+                        RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                        ServerGroup parentGroup = NavigateToServerGroup(store, cmsCreateParams.RelativePath);
+                        RegisteredServerCollection servers = parentGroup.RegisteredServers;
+                        // Add the new server (intentionally not cheching existence to reuse the exception message)
+                        RegisteredServer registeredServer = new RegisteredServer(parentGroup, cmsCreateParams.RegisteredServerName);
+                        registeredServer.Description = cmsCreateParams.RegisteredServerDescription;
+                        registeredServer.ConnectionString = serverConn.ConnectionString;
+                        registeredServer.ServerName = cmsCreateParams.RegisteredServerConnectionDetails.ServerName;
+                        registeredServer.Create();
+                        await requestContext.SendResult(true);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        await requestContext.SendError(e);
+                        await requestContext.SendResult(false);
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
         }
 
         public async Task HandleListRegisteredServersRequest(ListRegisteredServersParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleListRegisteredServersRequest");
-            try
+            CmsTask = Task.Run(async () =>
             {
-                CmsTask = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        //Validate and create connection
-                        ServerConnection serverConn = ValidateAndCreateConnection(listServerParams.ParentOwnerUri);
+                    //Validate and create connection
+                    ServerConnection serverConn = ValidateAndCreateConnection(listServerParams.ParentOwnerUri);
 
-                        if (serverConn != null)
-                        {
-                            // Get registered Servers
-                            RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                            ServerGroup parentGroup = NavigateToServerGroup(store, listServerParams.RelativePath);
-
-                            ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
-                            await requestContext.SendResult(result);
-                        }
-                        else
-                        {
-                            await requestContext.SendResult(null);
-                        }
-                    }
-                    catch (Exception e)
+                    if (serverConn != null)
                     {
-                        await requestContext.SendError(e);
+                        // Get registered Servers
+                        RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                        ServerGroup parentGroup = NavigateToServerGroup(store, listServerParams.RelativePath);
+
+                        ListRegisteredServersResult result = GetChildrenfromParentGroup(parentGroup);
+                        await requestContext.SendResult(result);
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                    else
+                    {
+                        await requestContext.SendResult(null);
+                    }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
         }
 
         public async Task HandleRemoveRegisteredServerRequest(RemoveRegisteredServerParams removeServerParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleRemoveServerRequest");
-            try
+            CmsTask = Task.Run(async () =>
             {
-                CmsTask = Task.Run(async () =>
+                try
                 {
-                    try
+                    // Validate and Connect
+                    ServerConnection serverConn = ValidateAndCreateConnection(removeServerParams.ParentOwnerUri);
+                    if (serverConn != null)
                     {
-                        // Validate and Connect
-                        ServerConnection serverConn = ValidateAndCreateConnection(removeServerParams.ParentOwnerUri);
-                        if (serverConn != null)
+                        // Get list of registered Servers
+                        RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                        ServerGroup parentGroup = NavigateToServerGroup(store, removeServerParams.RelativePath, false);
+                        if (parentGroup != null)
                         {
-                            // Get list of registered Servers
-                            RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                            ServerGroup parentGroup = NavigateToServerGroup(store, removeServerParams.RelativePath, false);
-                            if (parentGroup != null)
-                            {
-                                RegisteredServer regServ = parentGroup.RegisteredServers.OfType<RegisteredServer>().FirstOrDefault(r => r.Name == removeServerParams.RegisteredServerName); // since duplicates are not allowed
-                                regServ?.Drop();
-                                await requestContext.SendResult(true);
-                            }
-                        }
-                        else
-                        {
-                            await requestContext.SendResult(false);
+                            RegisteredServer regServ = parentGroup.RegisteredServers.OfType<RegisteredServer>().FirstOrDefault(r => r.Name == removeServerParams.RegisteredServerName); // since duplicates are not allowed
+                            regServ?.Drop();
+                            await requestContext.SendResult(true);
                         }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        await requestContext.SendError(e);
+                        await requestContext.SendResult(false);
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
         }
 
         public async Task HandleAddServerGroupRequest(AddServerGroupParams addServerGroupParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleAddServerGroupRequest");
-            try
+            CmsTask = Task.Run(async () =>
             {
-                CmsTask = Task.Run(async () =>
+                try
                 {
-                    try
+                    ServerConnection serverConn = ValidateAndCreateConnection(addServerGroupParams.ParentOwnerUri);
+                    if (serverConn != null)
                     {
-                        ServerConnection serverConn = ValidateAndCreateConnection(addServerGroupParams.ParentOwnerUri);
-                        if (serverConn != null) 
+                        ServerGroup parentGroup;
+                        RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                        // It's a CMS server
+                        if (string.IsNullOrEmpty(addServerGroupParams.RelativePath))
                         {
-                            ServerGroup parentGroup;
-                            RegisteredServersStore store = new RegisteredServersStore(serverConn);
-                            // It's a CMS server
-                            if (string.IsNullOrEmpty(addServerGroupParams.RelativePath))
-                            {
-                                parentGroup = store.DatabaseEngineServerGroup;    
-                            }
-                            else
-                            {
-                                parentGroup = NavigateToServerGroup(store, addServerGroupParams.RelativePath);
-                            }
-                            // Add the new group (intentionally not cheching existence to reuse the exception message)
-                            ServerGroup serverGroup = new ServerGroup(parentGroup, addServerGroupParams.GroupName)
-                            {
-                                Description = addServerGroupParams.GroupDescription
-                            };
-                            serverGroup.Create();
-                            await requestContext.SendResult(true);
+                            parentGroup = store.DatabaseEngineServerGroup;
                         }
                         else
                         {
-                            await requestContext.SendResult(false);
+                            parentGroup = NavigateToServerGroup(store, addServerGroupParams.RelativePath);
                         }
+                        // Add the new group (intentionally not cheching existence to reuse the exception message)
+                        ServerGroup serverGroup = new ServerGroup(parentGroup, addServerGroupParams.GroupName)
+                        {
+                            Description = addServerGroupParams.GroupDescription
+                        };
+                        serverGroup.Create();
+                        await requestContext.SendResult(true);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        await requestContext.SendError(e);
+                        await requestContext.SendResult(false);
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
         }
 
         public async Task HandleRemoveServerGroupRequest(RemoveServerGroupParams removeServerGroupParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleRemoveServerGroupRequest");
-            try
+            CmsTask = Task.Run(async () =>
             {
-                CmsTask = Task.Run(async () =>
+                try
                 {
-                    try
+                    ServerConnection serverConn = ValidateAndCreateConnection(removeServerGroupParams.ParentOwnerUri);
+                    if (serverConn != null)
                     {
-                        ServerConnection serverConn = ValidateAndCreateConnection(removeServerGroupParams.ParentOwnerUri);
-                        if (serverConn != null)
-                        {
-                            RegisteredServersStore store = new RegisteredServersStore(serverConn);
+                        RegisteredServersStore store = new RegisteredServersStore(serverConn);
 
-                            ServerGroup parentGroup = NavigateToServerGroup(store, removeServerGroupParams.RelativePath, false);
-                            ServerGroup serverGrouptoRemove = parentGroup.ServerGroups.OfType<ServerGroup>().FirstOrDefault(r => r.Name == removeServerGroupParams.GroupName); // since duplicates are not allowed
-                            serverGrouptoRemove?.Drop();
-                            await requestContext.SendResult(true);
-                        }
-                        else
-                        {
-                            await requestContext.SendResult(false);
-                        }
+                        ServerGroup parentGroup = NavigateToServerGroup(store, removeServerGroupParams.RelativePath, false);
+                        ServerGroup serverGrouptoRemove = parentGroup.ServerGroups.OfType<ServerGroup>().FirstOrDefault(r => r.Name == removeServerGroupParams.GroupName); // since duplicates are not allowed
+                        serverGrouptoRemove?.Drop();
+                        await requestContext.SendResult(true);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        await requestContext.SendError(e);
+                        await requestContext.SendResult(false);
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                }
+                catch (Exception e)
+                {
+                    await requestContext.SendError(e);
+                }
+            });
         }
 
         #endregion
