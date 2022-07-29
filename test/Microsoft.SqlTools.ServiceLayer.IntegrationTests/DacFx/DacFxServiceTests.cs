@@ -1031,6 +1031,6 @@ public class TSqlModelRequestTests
         requestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
 
         await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
-        Assert.True(service.projectModels.Value.Keys.Contains(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
+        Assert.That(service.projectModels.Value, Contains.Key(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
     }
 }
