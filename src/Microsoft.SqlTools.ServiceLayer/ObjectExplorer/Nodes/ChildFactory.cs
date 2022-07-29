@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The list of filters that should be applied on the smo object list
         /// </summary>
-        public abstract IEnumerable<NodeFilter> Filters { get; }
+        public abstract IEnumerable<INodeFilter> Filters { get; }
 
         /// <summary>
         /// The list of properties to be loaded with the object

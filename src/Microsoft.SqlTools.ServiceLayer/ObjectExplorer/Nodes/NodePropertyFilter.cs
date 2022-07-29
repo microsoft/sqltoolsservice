@@ -5,14 +5,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Has information for filtering a SMO object by properties 
     /// </summary>
-    public class NodeFilter
+    public class NodePropertyFilter : INodeFilter
     {
         /// <summary>
         /// Property name
@@ -55,52 +55,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         }
 
         /// <summary>
-        /// Creates a string from the filter property and values to be used in the Urn to query the SQL objects
-        /// Example of the output:[@ IsSystemObject = 0]
+        /// Creates a string representation of a given node filter, which is combined in the INodeFilter interface to construct the filter used in the URN to query the SQL objects.
+        /// Example of the output: (@ IsSystemObject = 0)
         /// </summary>
         /// <returns></returns>
-        public string ToPropertyFilterString()
+        public string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
         {
-            string filter = "";
-            List<object> values = Values;
-            if (values != null)
+            // check first if the filter can be applied; if not just return empty string
+            if (!CanApplyFilter(type, validForFlag))
             {
-                for (int i = 0; i < values.Count; i++)
+                return string.Empty;
+            }
+
+            StringBuilder filter = new StringBuilder();
+            foreach (var value in Values)
+            {
+                object propertyValue = value;
+                if (Type == typeof(string))
                 {
-                    var value = values[i];
-                    object propertyValue = value;
-                    if (Type == typeof(string))
-                    {
-                        propertyValue = $"'{propertyValue}'";
-                    }
-                    if (Type == typeof(Enum))
-                    {
-                        propertyValue = (int)Convert.ChangeType(value, Type);
-                       
-                    }
-                    string orPrefix = i == 0 ? string.Empty : "or";
-                    filter = $"{filter} {orPrefix} @{Property} = {propertyValue}";
+                    propertyValue = $"'{propertyValue}'";
                 }
+                else if (Type == typeof(Enum))
+                {
+                    propertyValue = (int)Convert.ChangeType(value, Type);
+                }
+
+                string orPrefix = filter.Length == 0 ? string.Empty : " or ";
+                filter.Append($"{orPrefix}@{Property} = {propertyValue}");
             }
-            filter = $"({filter})";
 
-            return filter;
-        }
-
-        public static string ConcatProperties(IEnumerable<NodeFilter> filters)
-        {
-            string filter = "";
-            var list = filters.ToList();
-            for (int i = 0; i < list.Count; i++)
+            if (filter.Length != 0)
             {
-                var value = list[i];
-                
-                string andPrefix = i == 0 ? string.Empty : "and";
-                filter = $"{filter} {andPrefix} {value.ToPropertyFilterString()}";
+                return "(" + filter.ToString() + ")";
             }
-            filter = $"[{filter}]";
-
-            return filter;
+            return string.Empty;
         }
     }
 }
