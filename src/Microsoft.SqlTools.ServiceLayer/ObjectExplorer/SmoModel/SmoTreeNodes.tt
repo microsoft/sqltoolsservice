@@ -167,8 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 							WriteLine("                        new NodePropertyFilter");
 
 							// Parse the elements in the <Filter> node into a string, and write
-							string filterNodeString = ParseFilterNode(xmlFile, type, orFilter, true /*orFilter*/);
-							Write(filterNodeString);
+							ParseAndWriteFilterNode(xmlFile, type, orFilter, true /*orFilter*/);
 
 							// Close out filter object definition
 							WriteLine("                        },");
@@ -192,8 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine("                filters.Add(new NodePropertyFilter");
 
 						// Parse the elements in the <Filter> node into a string, and write
-						string filterNodeString = ParseFilterNode(xmlFile, type, filter);
-						Write(filterNodeString);
+						ParseAndWriteFilterNode(xmlFile, type, filter);
 
 						// Close out filter object definition
 						WriteLine("                });");
@@ -555,10 +553,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	/// <param name="filter">The filter to be parsed</param>
 	/// <param name="orFilter">Whether this filter is a sub-node of an <Or> node</param>
 	/// <returns>String representation of a given <Filter> node.</returns>
-	public string ParseFilterNode(string xmlFile, string parentName, XmlElement filter, bool orFilter = false)
+	public void ParseAndWriteFilterNode(string xmlFile, string parentName, XmlElement filter, bool orFilter = false)
 	{
-		StringBuilder nodeSB = new StringBuilder();
-
 		// <Or> Filters start at a larger base indentation than <Filter> nodes directly under <Filters>
 		var indent = orFilter ? "                        " : "                ";
 
