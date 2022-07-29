@@ -125,8 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             EditSession editSession;
             if (!ActiveSessions.TryRemove(disposeParams.OwnerUri, out editSession))
             {
-                await requestContext.SendError(SR.EditDataSessionNotFound);
-                return;
+                throw new Exception(SR.EditDataSessionNotFound);
             }
 
             // Everything was successful, return success
