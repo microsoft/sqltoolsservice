@@ -57,6 +57,7 @@ For example, to get the table node, we also need to get three properties IsSyste
           <Value>LedgerTableType.UpdatableLedgerTable</Value>
           <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
         </Filter>
+      </Or>
     </Filters>
     <Properties>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
