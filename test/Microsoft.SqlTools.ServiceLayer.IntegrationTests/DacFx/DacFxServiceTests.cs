@@ -982,9 +982,6 @@ public class TSqlModelRequestTests
         var model = op.GenerateTSqlModel();
         var objects = model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList();
 
-        File.Delete(sqlTable1DefinitionPath);
-        File.Delete(sqlTable2DefinitionPath);
-
         Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
         Assert.That(objects, Is.Not.Empty, "Model is empty");
 
