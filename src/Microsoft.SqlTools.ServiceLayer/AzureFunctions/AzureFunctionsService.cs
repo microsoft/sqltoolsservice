@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
     class AzureFunctionsService
     {
         private static readonly Lazy<AzureFunctionsService> instance = new Lazy<AzureFunctionsService>(() => new AzureFunctionsService());
-       
+
         /// <summary>
         /// Gets the singleton instance object
         /// </summary>
@@ -41,17 +41,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// </summary>
         public async Task HandleAddSqlBindingRequest(AddSqlBindingParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            try
-            {
-                AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
-                ResultStatus result = operation.AddBinding();
+            AddSqlBindingOperation operation = new AddSqlBindingOperation(parameters);
+            ResultStatus result = operation.AddBinding();
 
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            await requestContext.SendResult(result);
         }
 
         /// <summary>
@@ -59,17 +52,10 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// </summary>
         public async Task HandleGetAzureFunctionsRequest(GetAzureFunctionsParams parameters, RequestContext<GetAzureFunctionsResult> requestContext)
         {
-            try
-            {
-                GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
-                GetAzureFunctionsResult result = operation.GetAzureFunctions();
+            GetAzureFunctionsOperation operation = new GetAzureFunctionsOperation(parameters);
+            GetAzureFunctionsResult result = operation.GetAzureFunctions();
 
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            await requestContext.SendResult(result);
         }
     }
 }

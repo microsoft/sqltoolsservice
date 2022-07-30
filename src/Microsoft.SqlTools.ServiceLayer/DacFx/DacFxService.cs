@@ -69,24 +69,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to export a bacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleExportRequest(ExportParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task HandleExportRequest(ExportParams parameters, RequestContext<DacFxResult> requestContext)
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+            if (connInfo != null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                if (connInfo != null)
-                {
-                    ExportOperation operation = new ExportOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
-                }
+                ExportOperation operation = new ExportOperation(parameters, connInfo);
+                ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
             }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -95,21 +89,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleImportRequest(ImportParams parameters, RequestContext<DacFxResult> requestContext)
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+            if (connInfo != null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                if (connInfo != null)
-                {
-                    ImportOperation operation = new ImportOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
-                }
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
+                ImportOperation operation = new ImportOperation(parameters, connInfo);
+                ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
             }
         }
 
@@ -117,51 +104,39 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to extract a dacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleExtractRequest(ExtractParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task HandleExtractRequest(ExtractParams parameters, RequestContext<DacFxResult> requestContext)
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+            if (connInfo != null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                if (connInfo != null)
-                {
-                    // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
-                    connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
-                    ExtractOperation operation = new ExtractOperation(parameters, connInfo);
-                    string taskName = parameters.ExtractTarget == DacExtractTarget.DacPac ? SR.ExtractDacpacTaskName : SR.ProjectExtractTaskName;
-                    ExecuteOperation(operation, parameters, taskName, requestContext);
-                }
+                // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
+                connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
+                ExtractOperation operation = new ExtractOperation(parameters, connInfo);
+                string taskName = parameters.ExtractTarget == DacExtractTarget.DacPac ? SR.ExtractDacpacTaskName : SR.ProjectExtractTaskName;
+                ExecuteOperation(operation, parameters, taskName, requestContext);
             }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Handles request to deploy a dacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleDeployRequest(DeployParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task HandleDeployRequest(DeployParams parameters, RequestContext<DacFxResult> requestContext)
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+            if (connInfo != null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                if (connInfo != null)
-                {
-                    DeployOperation operation = new DeployOperation(parameters, connInfo);
-                    ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
-                }
+                DeployOperation operation = new DeployOperation(parameters, connInfo);
+                ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
             }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -170,36 +145,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleGenerateDeployScriptRequest(GenerateDeployScriptParams parameters, RequestContext<DacFxResult> requestContext)
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+            if (connInfo != null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                if (connInfo != null)
+                GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
+                SqlTask sqlTask = null;
+                TaskMetadata metadata = new TaskMetadata();
+                metadata.TaskOperation = operation;
+                metadata.TaskExecutionMode = parameters.TaskExecutionMode;
+                metadata.ServerName = connInfo.ConnectionDetails.ServerName;
+                metadata.DatabaseName = parameters.DatabaseName;
+                metadata.Name = SR.GenerateScriptTaskName;
+
+                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+
+                await requestContext.SendResult(new DacFxResult()
                 {
-                    GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
-                    SqlTask sqlTask = null;
-                    TaskMetadata metadata = new TaskMetadata();
-                    metadata.TaskOperation = operation;
-                    metadata.TaskExecutionMode = parameters.TaskExecutionMode;
-                    metadata.ServerName = connInfo.ConnectionDetails.ServerName;
-                    metadata.DatabaseName = parameters.DatabaseName;
-                    metadata.Name = SR.GenerateScriptTaskName;
-
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-
-                    await requestContext.SendResult(new DacFxResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = true,
-                        ErrorMessage = string.Empty
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = string.Empty
+                });
             }
         }
 
@@ -209,29 +177,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleGenerateDeployPlanRequest(GenerateDeployPlanParams parameters, RequestContext<GenerateDeployPlanRequestResult> requestContext)
         {
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                    parameters.OwnerUri,
+                    out connInfo);
+            if (connInfo != null)
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                if (connInfo != null)
-                {
-                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
-                    operation.Execute(parameters.TaskExecutionMode);
+                GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
+                operation.Execute(parameters.TaskExecutionMode);
 
-                    await requestContext.SendResult(new GenerateDeployPlanRequestResult()
-                    {
-                        OperationId = operation.OperationId,
-                        Success = true,
-                        ErrorMessage = string.Empty,
-                        Report = operation.DeployReport
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
+                await requestContext.SendResult(new GenerateDeployPlanRequestResult()
+                {
+                    OperationId = operation.OperationId,
+                    Success = true,
+                    ErrorMessage = string.Empty,
+                    Report = operation.DeployReport
+                });
             }
         }
 
@@ -241,30 +202,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters, RequestContext<DacFxOptionsResult> requestContext)
         {
-            try
+            DeploymentOptions options = null;
+            if (parameters.ProfilePath != null)
             {
-                DeploymentOptions options = null;
-                if (parameters.ProfilePath != null)
+                DacProfile profile = DacProfile.Load(parameters.ProfilePath);
+                if (profile.DeployOptions != null)
                 {
-                    DacProfile profile = DacProfile.Load(parameters.ProfilePath);
-                    if (profile.DeployOptions != null)
-                    {
-                        options = DeploymentOptions.GetDefaultPublishOptions();
-                        await options.InitializeFromProfile(profile.DeployOptions, parameters.ProfilePath);
-                    }
+                    options = DeploymentOptions.GetDefaultPublishOptions();
+                    await options.InitializeFromProfile(profile.DeployOptions, parameters.ProfilePath);
                 }
+            }
 
-                await requestContext.SendResult(new DacFxOptionsResult()
-                {
-                    DeploymentOptions = options,
-                    Success = true,
-                    ErrorMessage = string.Empty,
-                });
-            }
-            catch (Exception e)
+            await requestContext.SendResult(new DacFxOptionsResult()
             {
-                await requestContext.SendError(e);
-            }
+                DeploymentOptions = options,
+                Success = true,
+                ErrorMessage = string.Empty,
+            });
         }
 
         /// <summary>
@@ -273,17 +227,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleValidateStreamingJobRequest(ValidateStreamingJobParams parameters, RequestContext<ValidateStreamingJobResult> requestContext)
         {
-            try
-            {
-                ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
-                ValidateStreamingJobResult result = operation.ValidateQuery();
+            ValidateStreamingJobOperation operation = new ValidateStreamingJobOperation(parameters);
+            ValidateStreamingJobResult result = operation.ValidateQuery();
 
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            await requestContext.SendResult(result);
         }
 
         /// <summary>
@@ -317,18 +264,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public async Task HandleParseTSqlScriptRequest(ParseTSqlScriptRequestParams requestParams, RequestContext<ParseTSqlScriptResult> requestContext)
         {
-            try
+            var script = System.IO.File.ReadAllText(requestParams.FilePath);
+            await requestContext.SendResult(new ParseTSqlScriptResult()
             {
-                var script = System.IO.File.ReadAllText(requestParams.FilePath);
-                await requestContext.SendResult(new ParseTSqlScriptResult()
-                {
-                    ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(script, requestParams.DatabaseSchemaProvider)
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                ContainsCreateTableStatement = DacTableDesigner.ScriptContainsCreateTableStatements(script, requestParams.DatabaseSchemaProvider)
+            });
         }
 
         public async Task HandleGenerateTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
