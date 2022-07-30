@@ -32,6 +32,8 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
 using Newtonsoft.Json;
 using System.Reflection;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Environment;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -291,6 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     hostRequirements: new SqlServerHostRequirements() { NICCount = 1 });
 
                 SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
+                List<string> skuRecommendationReportPaths = new List<string>();
 
                 // generate SQL DB recommendations, if applicable
                 List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
@@ -323,6 +326,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                             });
                         }
                     }
+
+                    SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> {{ req, sqlDbResults }}, 
+                        AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+                    var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                    var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+                    skuRecommendationReportPaths.Add(sqlDbRecommendationReportFullPath + ".html");
                 }
 
                 // generate SQL MI recommendations, if applicable
@@ -351,6 +362,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                             NegativeJustifications = null,
                         });
                     }
+
+                    SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlMiResults } },
+                        AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                    var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                    var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+                    skuRecommendationReportPaths.Add(sqlMiRecommendationReportFullPath + ".html");
                 }
 
                 // generate SQL VM recommendations, if applicable
@@ -380,6 +399,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                             NegativeJustifications = null,
                         });
                     }
+
+                    SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlVmResults } },
+                        AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
+                    var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                    var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
+                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
+                    skuRecommendationReportPaths.Add(sqlVmRecommendationReportFullPath + ".html");
                 }
 
                 GetSkuRecommendationsResult results = new GetSkuRecommendationsResult
@@ -387,7 +414,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     SqlDbRecommendationResults = sqlDbResults,
                     SqlMiRecommendationResults = sqlMiResults,
                     SqlVmRecommendationResults = sqlVmResults,
-                    InstanceRequirements = req
+                    InstanceRequirements = req,
+                    SkuRecommendationReportPaths = skuRecommendationReportPaths
                 };
 
                 await requestContext.SendResult(results);

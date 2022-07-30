@@ -1,0 +1,213 @@
+var app = angular.module("SkuRecommendationApp", ['ngSanitize']);
+app.controller("SkuRecommendationController", ['$scope', '$timeout', function ($scope) {
+
+    $scope.recommendations = {SerializedRecommendations};
+
+    // Gets the appropriate class name for the data cell where recommended sizing is displayed, depending on what needs to be displayed there
+    $scope.getStorageSizingClass = function (sku) {
+        if (sku.Platform == "SQL Server on Azure VM")
+        {
+            // SQL VM recommendations display the full data/log/tempdb storage layout, so left align the text so we can display it all in a list
+            return "col-md-2 text-left";
+        }
+        else
+        {
+            // SQL DB and MI recommendations simply display the amount of data storage to provision
+            return "col-md-2 text-center";
+        }
+    }
+
+    // Populate and open modal with requirements for a given recommendation
+    $scope.openRequirements = function (requirements, recommendation) {
+        $("#modal").find(".modal-title").text("Requirements");
+
+        var body = "";
+
+        // for a SQL DB recommendation, show the db level requirements
+        if (recommendation.RecommendedSku.Platform == "Azure SQL Database")
+        {
+            body += "The estimated requirements of this database are as follows: <br/>";
+            body += "<ul>";
+
+            var db = requirements.DatabaseLevelRequirements.find(db => db.DatabaseName == recommendation.DatabaseName);
+
+            body += "<li>CPU requirement: " + db.CpuRequirementInCores.toFixed(2) + " vCores</li>";
+            body += "<li>Memory requirement: " + (db.MemoryRequirementInMB / 1024).toFixed(2) + " GB</li>";
+            body += "<li>Storage requirements: <ul><li>Data: " + (db.DataStorageRequirementInMB / 1024).toFixed(2) + " GB</li>";
+            body += "<li>Log: " + (db.LogStorageRequirementInMB / 1024).toFixed(2) + " GB</li></ul>";
+            body += "<li>IOPS requirements: <ul><li>Data: " + db.DataIOPSRequirement.toFixed(2) + " IOPS</li>";
+            body += "<li>Log: " + db.LogIOPSRequirement.toFixed(2) + " IOPS</li></ul>";
+
+            if (db.IOLatencyRequirementInMs == "NaN") 
+            {
+                body += "<li>IO latency requirement: N/A</li>";
+            }
+            else
+            {
+                body += "<li>IO latency requirement: " + db.IOLatencyRequirementInMs.toFixed(2) + " ms</li>";
+            }
+
+        }
+        // for a SQL MI or SQL VM recommendation, show the instance level requirements
+        else
+        {
+            body += "The estimated requirements of this instance are as follows: <br/>";
+            body += "<ul>";
+
+            body += "<li>CPU requirement: " + requirements.CpuRequirementInCores.toFixed(2) + " vCores</li>";
+            body += "<li>Memory requirement: " + (requirements.MemoryRequirementInMB / 1024).toFixed(2) + " GB</li>";
+            body += "<li>Storage requirements: <ul><li>Data: " + (requirements.DataStorageRequirementInMB / 1024).toFixed(2) + " GB</li>";
+            body += "<li>Log: " + (requirements.LogStorageRequirementInMB / 1024).toFixed(2) + " GB</li></ul>";
+            body += "<li>IOPS requirements: <ul><li>Data: " + requirements.DataIOPSRequirement.toFixed(2) + " IOPS</li>";
+            body += "<li>Log: " + requirements.LogIOPSRequirement.toFixed(2) + " IOPS</li></ul>";
+
+            if (requirements.IOLatencyRequirementInMs == "NaN") 
+            {
+                body += "<li>IO latency requirement: N/A</li>";
+            }
+            else
+            {
+                body += "<li>IO latency requirement: " + requirements.IOLatencyRequirementInMs.toFixed(2) + " ms</li>";
+            }
+        }
+
+        body += "</ul>";
+        
+        $("#modal").find(".modal-body").html(body);
+        $("#modal").modal("show");
+    }
+
+    // Populate and open modal with justifications for a given recommendation
+    $scope.openJustifications = function (recommendation) {
+        $("#modal").find(".modal-title").text("Justifications");
+
+        var body = "<ul>";
+        for (var i = 0; i < recommendation.Justifications.length; i ++)
+        {
+            body += "<li>" + recommendation.Justifications[i] + "</li>";
+        }
+        body += "</ul>";
+
+        $("#modal").find(".modal-body").html(body);
+        $("#modal").modal("show");
+    }
+
+    // Format database name text
+    $scope.formatDatabaseName = function (databaseName) {
+        if (databaseName)
+        {
+            return databaseName;
+        }
+        else
+        {
+            return "<i>N/A (whole instance)</i>";
+        }
+    }
+
+    // Format platform and service tier text
+    $scope.formatPlatformServiceTier = function (sku)
+    {
+        if (Object.keys(sku).length === 0)
+        {
+            return "No recommendation returned";
+        }
+
+        var platformServiceTier = sku.Platform;
+
+        if (sku.Platform == "Azure SQL Managed Instance")
+        {
+            if (sku.HardwareGeneration == "Gen5")
+            {
+                platformServiceTier = platformServiceTier + " - Gen5";
+            }
+            else 
+            {
+                platformServiceTier = platformServiceTier + " " + sku.HardwareGeneration;
+            }
+        }
+
+        if (sku.Platform == "Azure SQL Database" || sku.Platform == "Azure SQL Managed Instance")
+        {
+            if (sku.ServiceTier == "GeneralPurpose")
+            {
+                platformServiceTier += " - General Purpose";
+            }
+            else if (sku.ServiceTier == "BusinessCritical")
+            {
+                platformServiceTier += " - Business Critical";
+            }
+        }
+        
+        return platformServiceTier;
+    }
+
+    // Format compute sizing text
+    $scope.formatComputeSizing = function (sku) {
+        if (Object.keys(sku).length === 0)
+        {
+            return "<i>N/A</i>";
+        }
+
+        if (sku.Platform == "Azure SQL Database" || sku.Platform == "Azure SQL Managed Instance")
+        {
+            return sku.SizeInVCores + " vCores";
+        }
+        else
+        {
+            return sku.VirtualMachineFamily + " - " + sku.VirtualMachineSize + " (" + sku.SizeInVCores + " vCores)"
+        }
+    }
+
+    // Format storage sizing text
+    $scope.formatStorageSizing = function (sku) {
+        if (Object.keys(sku).length === 0)
+        {
+            return "<i>N/A</i>";
+        }
+
+        if (sku.Platform == "Azure SQL Database" || sku.Platform == "Azure SQL Managed Instance")
+        {
+            return sku.StorageSizeInGb + " GB";
+        }
+        else
+        {
+            var result = "";
+
+            result += "Data disks: <ul>";
+            for (var i = 0; i < sku.DataDisks.length; i ++)
+            {
+                result += "<li>" + sku.DataDisks[i].Size + " <br/>(Caching: " + sku.DataDisks[i].Caching + ")</li>";
+            }
+            result += "</ul>";
+
+            result += "Log disks: <ul>";
+            for (var i = 0; i < sku.LogDisks.length; i ++)
+            {
+                result += "<li>" + sku.LogDisks[i].Size + " <br/>(Caching: " + sku.LogDisks[i].Caching + ")</li>";
+            }
+            result += "</ul>";
+
+            result += "TempDb disks: <ul>";
+            if (sku.TempDbDisks.length == 0)
+            {
+                result += "<li>Use local ephemeral SSD <code>D:\\</code> drive</li>";
+            }
+            else
+            {
+                for (var i = 0; i < sku.TempDbDisks.length; i ++)
+                {
+                    result += "<li>" + sku.TempDbDisks[i].Size + " <br/>(Caching: " + sku.TempDbDisks[i].Caching + ")</li>";
+                }
+            }
+            result += "</ul>";
+
+            return result;
+        }
+    }
+}]);
+
+app.filter("convertHtml", function ($sce) { 
+    return function(text) {
+        return $sce.trustAsHtml(text);
+    };
+});
