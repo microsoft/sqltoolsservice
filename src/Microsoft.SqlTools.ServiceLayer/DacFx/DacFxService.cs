@@ -291,6 +291,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
+        public async Task HandleGetObjectsFromModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            try
+            {
+                GenerateTSqlModelOperation operation = new GenerateTSqlModelOperation(requestParams);
+                TSqlModel model = operation.GenerateTSqlModel();
+
+                projectModels.Value[operation.Parameters.ProjectUri] = model;
+                await requestContext.SendResult(new ResultStatus
+                {
+                    Success = true,
+                    ErrorMessage = null
+                });
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+        }
+
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
         {
             Task.Run(async () =>
