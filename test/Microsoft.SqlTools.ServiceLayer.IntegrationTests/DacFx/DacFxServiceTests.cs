@@ -948,7 +948,7 @@ public class TSqlModelRequestTests
     [TearDown]
     public void CleanUp()
     {
-        Directory.Delete(TSqlModelTestFolder);
+        Directory.Delete(TSqlModelTestFolder, true);
     }
 
     /// <summary>
