@@ -17,7 +17,6 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlServer.Dac.Model;
 using NUnit.Framework;
 using Moq;
@@ -28,7 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
     public class DacFxServiceTests
     {
         private string publishProfileFolder = Path.Combine("..", "..", "..", "DacFx", "PublishProfiles");
-        private string TSqlModelTestFolder = Path.Combine("..", "..", "..", "DacFx", "TSqlModels");
         private const string SourceScript = @"CREATE TABLE [dbo].[table1]
 (
     [ID] INT NOT NULL PRIMARY KEY,
@@ -930,102 +928,106 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}");
             }
         }
+    }
+}
 
-        /// <summary>
-        /// Verify the generate Tsql model operation
-        /// </summary>
-        [Test]
-        public void GenerateTSqlModelFromSqlFiles()
-        {
-            DacFxService service = new DacFxService();
-            Directory.CreateDirectory(TSqlModelTestFolder);
-            string sqlTable1DefinitionPath = Path.Join(TSqlModelTestFolder, "table1.sql");
-            string sqlTable2DefinitionPath = Path.Join(TSqlModelTestFolder, "table2.sql");
-            const string table1 = @"CREATE TABLE [dbo].[table1]
+[TestFixture]
+public class TSqlModelRequestTests
+{
+    private string TSqlModelTestFolder = string.Empty;
+
+    private DacFxService service = new DacFxService();
+
+    [SetUp]
+    public void Create()
+    {
+        TSqlModelTestFolder = Path.Combine("..", "..", "..", "DacFx", "TSqlModels", Guid.NewGuid().ToString());
+        Directory.CreateDirectory(TSqlModelTestFolder);
+    }
+
+    [TearDown]
+    public void CleanUp()
+    {
+        Directory.Delete(TSqlModelTestFolder, true);
+    }
+
+    /// <summary>
+    /// Verify the generate Tsql model operation
+    /// </summary>
+    [Test]
+    public void GenerateTSqlModelFromSqlFiles()
+    {
+        string sqlTable1DefinitionPath = Path.Join(TSqlModelTestFolder, "table1.sql");
+        string sqlTable2DefinitionPath = Path.Join(TSqlModelTestFolder, "table2.sql");
+        const string table1 = @"CREATE TABLE [dbo].[table1]
             (
                 [ID] INT NOT NULL PRIMARY KEY,
             )";
-            const string table2 = @"CREATE TABLE [dbo].[table2]
+        const string table2 = @"CREATE TABLE [dbo].[table2]
             (
                 [ID] INT NOT NULL PRIMARY KEY,
             )";
-            // create sql file
-            File.WriteAllText(sqlTable1DefinitionPath, table1);
-            File.WriteAllText(sqlTable2DefinitionPath, table2);
+        // create sql file
+        File.WriteAllText(sqlTable1DefinitionPath, table1);
+        File.WriteAllText(sqlTable2DefinitionPath, table2);
 
-            var generateTSqlScriptParams = new GenerateTSqlModelParams
-            {
-                ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
-                ModelTargetVersion = "Sql160",
-                FilePaths = new[] { sqlTable1DefinitionPath, sqlTable2DefinitionPath }
-            };
-
-            GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
-            var model = op.GenerateTSqlModel();
-            var objects = model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList();
-
-            VerifyAndCleanup(sqlTable1DefinitionPath);
-            VerifyAndCleanup(sqlTable2DefinitionPath);
-            Directory.Delete(TSqlModelTestFolder);
-
-            Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
-            Assert.That(objects, Is.Not.Empty);
-
-            var tableNames = objects.Select(o => o.Name.ToString()).ToList();
-
-            Assert.That(tableNames.Count, Is.EqualTo(2), "Model was not populated correctly");
-            CollectionAssert.AreEquivalent(tableNames, new[] { "[dbo].[table1]", "[dbo].[table2]" }, "Table names do not match");
-        }
-
-        /// <summary>
-        /// Verify the generate Tsql model operation, creates an empty model when files are empty
-        /// </summary>
-        [Test]
-        public void GenerateEmptyTSqlModel()
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
         {
-            DacFxService service = new DacFxService();
-            Directory.CreateDirectory(TSqlModelTestFolder);
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new[] { sqlTable1DefinitionPath, sqlTable2DefinitionPath }
+        };
 
-            var generateTSqlScriptParams = new GenerateTSqlModelParams
-            {
-                ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
-                ModelTargetVersion = "Sql160",
-                FilePaths = new string[] { }
-            };
+        GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
+        var model = op.GenerateTSqlModel();
+        var objects = model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList();
 
-            GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
-            var model = op.GenerateTSqlModel();
+        Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
+        Assert.That(objects, Is.Not.Empty, "Model is empty");
 
-            // clean up
-            Directory.Delete(TSqlModelTestFolder);
+        var tableNames = objects.Select(o => o.Name.ToString()).ToList();
 
-            Assert.That(model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList().Count, Is.EqualTo(0), "Model is not empty");
-            Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
-        }
+        Assert.That(tableNames.Count, Is.EqualTo(2), "Model was not populated correctly");
+        CollectionAssert.AreEquivalent(tableNames, new[] { "[dbo].[table1]", "[dbo].[table2]" }, "Table names do not match");
+    }
 
-        /// <summary>
-        /// Verify the generate TSql Model handle
-        /// </summary>
-        [Test]
-        public async Task VerifyGenerateTSqlModelHandle()
+    /// <summary>
+    /// Verify the generate Tsql model operation, creates an empty model when files are empty
+    /// </summary>
+    [Test]
+    public void GenerateEmptyTSqlModel()
+    {
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
         {
-            DacFxService service = new DacFxService();
-            Directory.CreateDirectory(TSqlModelTestFolder);
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new string[] { }
+        };
 
-            var generateTSqlScriptParams = new GenerateTSqlModelParams
-            {
-                ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
-                ModelTargetVersion = "Sql160",
-                FilePaths = new string[] { }
-            };
+        GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
+        var model = op.GenerateTSqlModel();
 
-            var requestContext = new Mock<RequestContext<ResultStatus>>();
-            requestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
-            await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
+        Assert.That(model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList().Count, Is.EqualTo(0), "Model is not empty");
+        Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
+    }
 
-            Directory.Delete(TSqlModelTestFolder);
+    /// <summary>
+    /// Verify the generate TSql Model handle
+    /// </summary>
+    [Test]
+    public async Task VerifyGenerateTSqlModelHandle()
+    {
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
+        {
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new string[] { }
+        };
 
-            Assert.True(service.projectModels.Value.Keys.Contains(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
-        }
+        var requestContext = new Mock<RequestContext<bool>>();
+        requestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
+
+        await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
+        Assert.That(service.projectModels.Value, Contains.Key(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
     }
 }
