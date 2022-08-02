@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public const string DefaultSqlPdwInstanceKey = "defaultSqlPdw";
         public const string DefaultSqlAzureV12InstanceKey = "defaultSqlAzureV12";
         public const string DefaultSql2016InstanceKey = "defaultSql2016";
+        public const string DefaultSql2019InstanceKey = "defaultSql2019";
         public const string DefaultSql2022InstanceKey = "defaultSql2022";
         public const string DefaultSqlvNextInstanceKey = "defaultSqlvNext";
 
@@ -70,6 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public static InstanceInfo DefaultSql2016
         {
             get { return GetInstance(DefaultSql2016InstanceKey); }
+        }
+
+        public static  InstanceInfo DefaultSql2019
+        {
+            get { return GetInstance(DefaultSql2019InstanceKey); }
         }
 
         public static  InstanceInfo DefaultSql2022
