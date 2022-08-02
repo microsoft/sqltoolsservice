@@ -67,7 +67,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The name of this object as included in its node path
         /// </summary>
-        public string NodePathName {
+        public string NodePathName
+        {
             get
             {
                 if (string.IsNullOrEmpty(nodePathName))
@@ -123,10 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// for many nodes such as the server, the display label will be different
         /// to the value.
         /// </summary>
-        public string Label {
+        public string Label
+        {
             get
             {
-                if(label == null)
+                if (label == null)
                 {
                     return NodeValue;
                 }
@@ -166,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 nodePath = null;
             }
         }
-        
+
         /// <summary>
         /// Path identifying this node: for example a table will be at ["server", "database", "tables", "tableName"].
         /// This enables rapid navigation of the tree without the need for a global registry of elements.
@@ -193,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     return false;
                 }
                 // Otherwise add this value to the beginning of the path and keep iterating up
-                path = string.Format(CultureInfo.InvariantCulture, 
+                path = string.Format(CultureInfo.InvariantCulture,
                     "{0}{1}{2}", node.NodePathName, string.IsNullOrEmpty(path) ? "" : PathPartSeperator.ToString(), path);
                 return true;
             });
@@ -229,7 +231,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
                 NodeSubType = this.NodeSubType,
-                ErrorMessage = this.ErrorMessage
+                ErrorMessage = this.ErrorMessage,
+                ObjectType = this.NodeTypeId.ToString()
             };
         }
 
@@ -290,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             children.Add(newChild);
             newChild.Parent = this;
         }
-        
+
         /// <summary>
         /// Optional context to help with lookup of children
         /// </summary>
@@ -400,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             return string.Compare(thisItem.NodeValue, otherItem.NodeValue, StringComparison.OrdinalIgnoreCase);
         }
-        
+
         public int CompareTo(TreeNode other)
         {
 
