@@ -5158,4 +5158,17 @@ The Query Processor estimates that implementing the following index could improv
     <value>There are multiple table definitions in the script, only the first table can be edited in the designer.</value>
     <comment></comment>
   </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Included columns are not supported for a clustered index.</value>
+    <comment></comment>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Filter predicate is not supported for a clustered index.</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been included to the index &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
+  </data>
 </root>

@@ -33,7 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new MemoryOptimizedTableIdentityColumnRule(),
             new TableShouldAvoidHavingMultipleEdgeConstraintsRule(),
             new ColumnCannotBeListedMoreThanOnceInPrimaryKeyRule(),
-            new MutipleCreateTableStatementsInScriptRule()
+            new MutipleCreateTableStatementsInScriptRule(),
+            new ClusteredIndexCannotHaveFilterPredicate(),
+            new ClusteredIndexCannotHaveIncludedColumnsRule(),
+            new ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule()
         };
 
         /// <summary>
@@ -70,6 +73,50 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         Description = SR.IndexMustHaveColumnsRuleDescription(index.Name),
                         PropertyPath = new object[] { TablePropertyNames.Indexes, i }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ClusteredIndexCannotHaveIncludedColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                if (index.IsClustered && index.IncludedColumns.Count != 0)
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = SR.ClusteredIndexCannotHaveIncludedColumnsRuleDescription,
+                        PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IncludedColumns, 0 }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ClusteredIndexCannotHaveFilterPredicate : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                if (index.IsClustered && index.FilterPredicate != null)
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = SR.ClusteredIndexCannotHaveFilterPredicateRuleDescription,
+                        PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.FilterPredicate }
                     });
                 }
             }
@@ -123,6 +170,37 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     else
                     {
                         existingColumns.Add(columnSpec.Column);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                var existingColumns = new HashSet<string>();
+                for (int j = 0; j < index.IncludedColumns.Count; j++)
+                {
+                    var col = index.IncludedColumns[j];
+                    if (existingColumns.Contains(col))
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(col, index.Name, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IncludedColumns, j }
+                        });
+                    }
+                    else
+                    {
+                        existingColumns.Add(col);
                     }
                 }
             }

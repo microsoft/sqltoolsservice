@@ -2366,3 +2366,6 @@ TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription = The table has mor
 ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(string columnName) = Cannot use duplicate column names in primary key, column name: {0}
 MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription = Memory-optimized table is not supported for this database.
 MutipleCreateTableStatementsInScriptRuleDescription = There are multiple table definitions in the script, only the first table can be edited in the designer.
+ClusteredIndexCannotHaveIncludedColumnsRuleDescription = Included columns are not supported for a clustered index.
+ClusteredIndexCannotHaveFilterPredicateRuleDescription = Filter predicate is not supported for a clustered index.
+ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.

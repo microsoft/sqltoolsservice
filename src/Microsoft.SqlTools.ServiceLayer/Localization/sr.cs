@@ -9373,6 +9373,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ClusteredIndexCannotHaveIncludedColumnsRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexCannotHaveIncludedColumnsRuleDescription);
+            }
+        }
+
+        public static string ClusteredIndexCannotHaveFilterPredicateRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexCannotHaveFilterPredicateRuleDescription);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9736,6 +9752,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(string columnName)
         {
             return Keys.GetString(Keys.ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription, columnName);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription, columnName, indexName, rowNumber);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13467,6 +13488,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string MutipleCreateTableStatementsInScriptRuleDescription = "MutipleCreateTableStatementsInScriptRuleDescription";
+
+
+            public const string ClusteredIndexCannotHaveIncludedColumnsRuleDescription = "ClusteredIndexCannotHaveIncludedColumnsRuleDescription";
+
+
+            public const string ClusteredIndexCannotHaveFilterPredicateRuleDescription = "ClusteredIndexCannotHaveFilterPredicateRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription = "ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription";
 
 
             private Keys()

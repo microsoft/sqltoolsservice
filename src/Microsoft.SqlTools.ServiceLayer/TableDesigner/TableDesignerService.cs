@@ -940,6 +940,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.FilterPredicate.Value = index.FilterPredicate;
                 indexVM.FilterPredicate.Enabled = !index.IsClustered || index.FilterPredicate != null;
                 indexVM.IncludedColumns.Enabled = !index.IsClustered || index.IncludedColumns.Count() > 0;
+                indexVM.IncludedColumns.CanAddRows = !index.IsClustered;
 
                 foreach (var column in index.IncludedColumns)
                 {
