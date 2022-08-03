@@ -53,9 +53,7 @@
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
-		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment">
-		<PrivateAssets>analyzers;build</PrivateAssets>
-		</PackageReference>
+		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
