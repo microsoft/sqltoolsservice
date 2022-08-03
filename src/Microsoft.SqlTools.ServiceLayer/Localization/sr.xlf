@@ -6254,6 +6254,36 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Average Row Size</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="IndexIncludedColumnsGroupTitle">
+        <source>Included Columns</source>
+        <target state="new">Included Columns</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsPropertyDescription">
+        <source>The included columns of the index</source>
+        <target state="new">The included columns of the index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsAddColumn">
+        <source>Add Column</source>
+        <target state="new">Add Column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsColumnPropertyName">
+        <source>Column</source>
+        <target state="new">Column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the index</source>
+        <target state="new">Filter predicate of the index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="new">Filter Predicate</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

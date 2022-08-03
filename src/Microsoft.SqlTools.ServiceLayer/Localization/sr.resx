@@ -4803,6 +4803,30 @@ The Query Processor estimates that implementing the following index could improv
     <value>Is Ascending</value>
     <comment></comment>
   </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Included Columns</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>The included columns of the index</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Add Column</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Column</value>
+    <comment></comment>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filter predicate of the index</value>
+    <comment></comment>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filter Predicate</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columns</value>
     <comment></comment>

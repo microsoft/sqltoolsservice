@@ -88,6 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IsClustered = "isClustered";
         public const string Columns = "columns";
         public const string IncludedColumns = "includedColumns";
+        public const string FilterPredicate = "filterPredicate";
         public const string ColumnsDisplayValue = "columnsDisplayValue";
     }
 

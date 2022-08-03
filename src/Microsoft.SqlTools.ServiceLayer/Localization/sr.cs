@@ -8773,6 +8773,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string IndexIncludedColumnsGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsGroupTitle);
+            }
+        }
+
+        public static string IndexIncludedColumnsPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsPropertyDescription);
+            }
+        }
+
+        public static string IndexIncludedColumnsAddColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsAddColumn);
+            }
+        }
+
+        public static string IndexIncludedColumnsColumnPropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsColumnPropertyName);
+            }
+        }
+
+        public static string IndexFilterPredicatePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexFilterPredicatePropertyDescription);
+            }
+        }
+
+        public static string IndexFilterPredicatePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexFilterPredicatePropertyTitle);
+            }
+        }
+
         public static string TableDesignerColumnsDisplayValueTitle
         {
             get
@@ -13161,6 +13209,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string IndexColumnIsAscendingPropertyTitle = "IndexColumnIsAscendingPropertyTitle";
+
+
+            public const string IndexIncludedColumnsGroupTitle = "IndexIncludedColumnsGroupTitle";
+
+
+            public const string IndexIncludedColumnsPropertyDescription = "IndexIncludedColumnsPropertyDescription";
+
+
+            public const string IndexIncludedColumnsAddColumn = "IndexIncludedColumnsAddColumn";
+
+
+            public const string IndexIncludedColumnsColumnPropertyName = "IndexIncludedColumnsColumnPropertyName";
+
+
+            public const string IndexFilterPredicatePropertyDescription = "IndexFilterPredicatePropertyDescription";
+
+
+            public const string IndexFilterPredicatePropertyTitle = "IndexFilterPredicatePropertyTitle";
 
 
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
