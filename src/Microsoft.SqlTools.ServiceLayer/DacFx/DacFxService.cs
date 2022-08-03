@@ -58,6 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
             serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest);
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest);
+            serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest);
         }
 
         /// <summary>
@@ -291,7 +292,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public async Task HandleGetObjectsFromModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
+        public async Task HandleGetObjectsFromTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             try
             {

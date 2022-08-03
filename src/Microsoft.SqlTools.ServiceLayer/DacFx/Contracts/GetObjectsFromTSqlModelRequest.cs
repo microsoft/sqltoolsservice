@@ -18,17 +18,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         public string ProjectUri { get; set; }
 
         /// <summary>
-        /// The version of Sql Server to target
+        /// Object types to query
         /// </summary>
-        public string ObjectType { get; set; }
+        public string[] ObjectTypes { get; set; }
     }
 
     /// <summary>
     /// Defines the generate sql model request
     /// </summary>
-    class GenerateTSqlModelRequest
+    class GetObjectsFromTSqlModelRequest
     {
         public static readonly RequestType<GenerateTSqlModelParams, ResultStatus> Type =
-            RequestType<GenerateTSqlModelParams, ResultStatus>.Create("dacFx/generateTSqlModel");
+            RequestType<GenerateTSqlModelParams, ResultStatus>.Create("dacFx/getObjectsFromTSqlModel");
     }
 }
