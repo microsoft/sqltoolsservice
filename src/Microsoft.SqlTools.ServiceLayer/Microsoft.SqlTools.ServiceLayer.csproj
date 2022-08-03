@@ -39,10 +39,6 @@
 			</PropertyGroup>
 			<ItemGroup>
 				<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-				<Content Include="./Migration/Metadata/**">
-					<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-				</Content>
 				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
 			</ItemGroup>
 		</Otherwise>
