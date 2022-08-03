@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public InputBoxProperties ColumnsDisplayValue { get; set; } = new InputBoxProperties();
 
         public TableComponentProperties<IndexedColumnSpecification> Columns { get; set; } = new TableComponentProperties<IndexedColumnSpecification>();
+        public TableComponentProperties<IndexIncludedColumnSpecification> IncludedColumns { get; set; } = new TableComponentProperties<IndexIncludedColumnSpecification>();
     }
 
     public class IndexedColumnSpecification
@@ -26,5 +27,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public DropdownProperties Column { get; set; } = new DropdownProperties();
 
         public CheckBoxProperties Ascending { get; set; } = new CheckBoxProperties();
+    }
+
+    public class IndexIncludedColumnSpecification
+    {
+        public DropdownProperties Column { get; set; } = new DropdownProperties();
     }
 }

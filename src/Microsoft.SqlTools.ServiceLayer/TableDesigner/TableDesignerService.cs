@@ -917,6 +917,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     indexVM.Columns.Data.Add(columnSpecVM);
                 }
+                foreach (var column in index.IncludedColumns)
+                {
+                    var includedColumnsVM = new IndexIncludedColumnSpecification();
+                    includedColumnsVM.Column.Value = column;
+                    includedColumnsVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
+                    indexVM.IncludedColumns.Data.Add(includedColumnsVM);
+                }
                 indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
                 indexVM.ColumnsDisplayValue.Enabled = false;
                 tableViewModel.Indexes.Data.Add(indexVM);
@@ -1184,6 +1191,33 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new CheckBoxProperties()
                     {
                         Title = SR.TableDesignerIsUniquePropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.IncludedColumns,
+                    Description = "INCLUDED COLUMNS",
+                    ComponentType = DesignerComponentType.Table,
+                    Group = "haha",
+                    ComponentProperties = new TableComponentProperties<IndexIncludedColumnSpecification>()
+                    {
+                        Title = "SR.includeddcol",
+                        ObjectTypeDisplayName = "SR.includedcol",
+                        Columns = new List<string> () { IndexIncludedColumnSpecificationPropertyNames.Column},
+                        LabelForAddNewButton = "SR.addnewcol",
+                        ItemProperties = new List<DesignerDataPropertyInfo>()
+                        {
+                            new DesignerDataPropertyInfo()
+                            {
+                                PropertyName = IndexIncludedColumnSpecificationPropertyNames.Column,
+                                ComponentType = DesignerComponentType.Dropdown,
+                                ComponentProperties = new DropdownProperties()
+                                {
+                                    Title = "SR.includeddcol",
+                                    Width = 150
+                                }
+                            },
+                        }
                     }
                 }
             });
