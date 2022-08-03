@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Returns the file extension for XMl values that represent an execution plan.
         /// </summary>
-        /// <param name="cellValue"></param>
+        /// <param name="cellValue">The DBCellValue containing XML execution plan data.</param>
         /// <param name="column">The DbColumnWrapper instance that corresponds with the DbCellValue</param>
         /// <returns>The corresponding file extension for the execution plan or an empty string if not applicable.</returns>
         private string GetDbCellValueExecutionPlanFileExtension(DbCellValue cellValue, DbColumnWrapper column)
