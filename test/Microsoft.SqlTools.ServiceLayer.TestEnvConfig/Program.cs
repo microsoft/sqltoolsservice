@@ -94,9 +94,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 
         private static void SaveSettings(string settingFile)
         {
+            Console.WriteLine($"settings file content: {File.ReadAllText(settingFile)}");
             var xdoc = XDocument.Load(settingFile);
             List<InstanceInfo> settings = new List<InstanceInfo>();
-            
             foreach (var setting in xdoc.Descendants("Instance"))
             {
                 var passwordEnvVariableValue = Environment.GetEnvironmentVariable((setting.Attribute("VersionKey").Value + "_password"));
