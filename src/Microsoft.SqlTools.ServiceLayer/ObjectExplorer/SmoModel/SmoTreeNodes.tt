@@ -71,13 +71,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	foreach (var TreeNode in allTreeNodes)
 	{
 		var name = TreeNode.GetAttribute("Name");
-		WriteLine(string.Format("    internal sealed partial class {0} : SmoTreeNode", name));
+		WriteLine("    internal sealed partial class {0} : SmoTreeNode", name);
 		WriteLine("    {");
-		WriteLine(string.Format("        public {0}() : base()", name));
+		WriteLine("        public {0}() : base()", name);
 		WriteLine("        {");
 		WriteLine("            NodeValue = string.Empty;");
-		WriteLine(string.Format("            this.NodeType = \"{0}\";", name.Replace("TreeNode", string.Empty)));
-		WriteLine(string.Format("            this.NodeTypeId = NodeTypes.{0};", name.Replace("TreeNode", string.Empty)));
+		WriteLine("            this.NodeType = \"{0}\";", name.Replace("TreeNode", string.Empty));
+		WriteLine("            this.NodeTypeId = NodeTypes.{0};", name.Replace("TreeNode", string.Empty));
 		WriteLine("            OnInitialize();");
 		WriteLine("        }");
 		WriteLine("    }");
@@ -110,10 +110,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine("    [Export(typeof(ChildFactory))]");
 			WriteLine("    [Shared]");
 
-			WriteLine(string.Format("    internal partial class {0}ChildFactory : {1}", type, childFactoryBaseClass));
+			WriteLine("    internal partial class {0}ChildFactory : {1}", type, childFactoryBaseClass);
 
 			WriteLine("    {");
-			WriteLine(string.Format("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ \"{0}\" }}; }}", type));
+			WriteLine("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ \"{0}\" }}; }}", type);
 
 			List<XmlElement> children = GetChildren(xmlFile, type);
 			List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
@@ -220,11 +220,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 						WriteLine("                properties.Add(new NodeSmoProperty");
 						WriteLine("                {");
-						WriteLine(string.Format("                   Name = \"{0}\",", propertyName));
+						WriteLine("                   Name = \"{0}\",", propertyName);
 
 						if (!string.IsNullOrWhiteSpace(validFor))
 						{
-							WriteLine(string.Format("                   ValidFor = {0}", GetValidForFlags(validFor)));
+							WriteLine("                   ValidFor = {0}", GetValidForFlags(validFor));
 						}
 						WriteLine("                });");
 					}
@@ -253,15 +253,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 					if (TreeNodeExists(xmlFile, child.GetAttribute("Name") + "TreeNode"))
 					{
-						WriteLine(string.Format("            currentChildren.Add(new {0}TreeNode {{ SortPriority = SmoTreeNode.NextSortPriority }} );", child.GetAttribute("Name")));
+						WriteLine("            currentChildren.Add(new {0}TreeNode {{ SortPriority = SmoTreeNode.NextSortPriority }} );", child.GetAttribute("Name"));
 					}
 					else
 					{
 						WriteLine("            currentChildren.Add(new FolderNode {");
-						WriteLine(string.Format("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel")));
-						WriteLine(string.Format("                NodeType = \"{0}\",", "Folder"));
-						WriteLine(string.Format("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name")));
-						WriteLine(string.Format("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false"));
+						WriteLine("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel"));
+						WriteLine("                NodeType = \"{0}\",", "Folder");
+						WriteLine("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name"));
+						WriteLine("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false");
 
 						if (msShippedOwned != null)
 						{
@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						}
 						if (!string.IsNullOrWhiteSpace(validFor))
 						{
-							WriteLine(string.Format("                ValidFor = {0},", GetValidForFlags(validFor)));
+							WriteLine("                ValidFor = {0},", GetValidForFlags(validFor));
 						}
 						WriteLine("                SortPriority = SmoTreeNode.NextSortPriority,");
 						WriteLine("            });");
@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					Write("                return new [] {");
 					foreach (var typeToRe in allTypes)
 					{
-					   Write(string.Format(" typeof({0}Querier),", typeToRe));
+					   Write(" typeof({0}Querier),", typeToRe);
 					}
 					WriteLine(" };");
 				}
@@ -313,15 +313,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 					if (!string.IsNullOrEmpty(nodeType))
 					{
-
-						WriteLine(string.Format("            child.NodeType = \"{0}\";", nodeType));
+						WriteLine("            child.NodeType = \"{0}\";", nodeType);
 					}
-
 				}
 				else
 				{
 					var modelNodeChildren = GetNodeElement(xmlFile, TreeNode.Replace("TreeNode",string.Empty));
-					WriteLine(string.Format("            var child = new {0}();", TreeNode));
+					WriteLine("            var child = new {0}();", TreeNode);
 					if (modelNodeChildren.ChildNodes.Count == 0)
 					{
 						WriteLine("            child.IsAlwaysLeaf = true;");
@@ -332,8 +330,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					WriteLine("            child.SortPriority = SmoTreeNode.NextSortPriority;");
 				}
 				WriteLine("            InitializeChild(parent, child, context);");
-
-
 				WriteLine("            return child;");
 				WriteLine("        }");
 			}
