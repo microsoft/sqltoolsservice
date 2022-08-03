@@ -23,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IsNull { get; set; }
 
         /// <summary>
+        /// The file extension to be used for any XML cell values representing an execution plan.
+        /// </summary>
+        public string ExecutionPlanFileExtension { get; set; }
+
+        /// <summary>
         /// Culture invariant display value for the cell, this value can later be used by the client to convert back to the original value.
         /// </summary>
         public string InvariantCultureDisplayValue { get; set; }
@@ -51,6 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             other.IsNull = IsNull;
             other.RawObject = RawObject;
             other.RowId = RowId;
+            other.ExecutionPlanFileExtension = ExecutionPlanFileExtension;
         }
     }
 }

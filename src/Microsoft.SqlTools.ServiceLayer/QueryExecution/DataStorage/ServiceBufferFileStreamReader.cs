@@ -202,10 +202,34 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
                 FileStreamReadResult result = readFunc(currentFileOffset, rowId, column);
                 currentFileOffset += result.TotalLength;
+                result.Value.ExecutionPlanFileExtension = GetDbCellValueExecutionPlanFileExtension(result.Value, column);
                 results.Add(result.Value);
             }
 
             return results;
+        }
+
+        /// <summary>
+        /// Returns the file extension for XMl values that represent an execution plan.
+        /// </summary>
+        /// <param name="cellValue"></param>
+        /// <param name="column">The DbColumnWrapper instance that corresponds with the DbCellValue</param>
+        /// <returns>The corresponding file extension for the execution plan or an empty string if not applicable.</returns>
+        private string GetDbCellValueExecutionPlanFileExtension(DbCellValue cellValue, DbColumnWrapper column)
+        {
+            if (!column.IsXml && !column.IsJson)
+            {
+                return string.Empty;
+            }
+
+            var planFileExtension = string.Empty;
+
+            if (cellValue.DisplayValue.Contains("ShowPlanXML")) // Should xmlns value be used instead? "http://schemas.microsoft.com/sqlserver/2004/07/showplan"
+            {
+                planFileExtension = ".sqlplan";
+            }
+
+            return planFileExtension;
         }
 
         #endregion
