@@ -330,7 +330,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     /// </summary>
     public sealed class TypeConvertor
     {
-        private static Dictionary<SqlDbType,Type> _typeMap = new Dictionary<SqlDbType,Type>();
+        private static Dictionary<SqlDbType, Type> _typeMap = new Dictionary<SqlDbType, Type>();
 
         static TypeConvertor()
         {
