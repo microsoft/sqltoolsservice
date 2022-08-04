@@ -990,7 +990,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
-            this.SetIndexesViewInfo(view, tableDesigner);
+            this.SetIndexesViewInfo(view);
             this.SetGraphTableViewInfo(view, tableDesigner);
             this.SetEdgeConstraintsViewInfo(view, tableDesigner);
             this.SetTemporalTableViewInfo(view, tableDesigner);
@@ -1175,7 +1175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.CheckConstraintTableOptions.CanInsertRows = false;
         }
 
-        private void SetIndexesViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
+        private void SetIndexesViewInfo(TableDesignerView view)
         {
             view.IndexTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
                 new DesignerDataPropertyInfo()
