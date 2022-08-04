@@ -2369,3 +2369,4 @@ MutipleCreateTableStatementsInScriptRuleDescription = There are multiple table d
 ClusteredIndexCannotHaveIncludedColumnsRuleDescription = Included columns are not supported for a clustered index.
 ClusteredIndexCannotHaveFilterPredicateRuleDescription = Filter predicate is not supported for a clustered index.
 ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.
+ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.

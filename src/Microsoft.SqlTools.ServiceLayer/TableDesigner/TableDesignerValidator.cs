@@ -36,7 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new MutipleCreateTableStatementsInScriptRule(),
             new ClusteredIndexCannotHaveFilterPredicate(),
             new ClusteredIndexCannotHaveIncludedColumnsRule(),
-            new ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule()
+            new ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule(),
+            new ColumnCannotDuplicateWitIndexKeyColumnsRule()
         };
 
         /// <summary>
@@ -201,6 +202,33 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     else
                     {
                         existingColumns.Add(col);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnCannotDuplicateWitIndexKeyColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                var keyCols = new HashSet<string>(index.Columns.Select(s => s.Column));
+                for (int j = 0; j < index.IncludedColumns.Count; j++)
+                {
+                    var col = index.IncludedColumns[j];
+                    if (keyCols.Contains(col))
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(col, index.Name, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IncludedColumns, j }
+                        });
                     }
                 }
             }

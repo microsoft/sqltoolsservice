@@ -9759,6 +9759,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription, columnName, indexName, rowNumber);
         }
 
+        public static string ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription, columnName, indexName, rowNumber);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -13497,6 +13502,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription = "ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription";
+
+
+            public const string ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription = "ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription";
 
 
             private Keys()

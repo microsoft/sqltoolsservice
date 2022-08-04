@@ -5171,4 +5171,9 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been part of the index &apos;{1}&apos; and it cannot be included. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
+  </data>
 </root>
