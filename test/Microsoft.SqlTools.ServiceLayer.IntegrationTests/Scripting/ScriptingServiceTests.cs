@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
             var scriptingParams = new ScriptingParams
             {
-                OwnerUri = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
+                OwnerUri = result.ScriptFile.ClientUri
             };
             if (isSelectScript)
             {

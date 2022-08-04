@@ -76,42 +76,28 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         internal async Task HandleConvertNotebookToSqlRequest(ConvertNotebookToSqlParams parameters, RequestContext<ConvertNotebookToSqlResult> requestContext)
         {
-            try
-            {
-                var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
+            var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
 
-                var result = new ConvertNotebookToSqlResult
-                {
-                    Content = ConvertNotebookDocToSql(notebookDoc)
-                };
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            var result = new ConvertNotebookToSqlResult
             {
-                await requestContext.SendError(e);
-            }
+                Content = ConvertNotebookDocToSql(notebookDoc)
+            };
+            await requestContext.SendResult(result);
         }
 
         internal async Task HandleConvertSqlToNotebookRequest(ConvertSqlToNotebookParams parameters, RequestContext<ConvertSqlToNotebookResult> requestContext)
         {
-            try
+            // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+            // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+            // what the document events are sent in as.
+            var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
+            var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
+            // Temporary notebook that we just fill in with the sql until the parsing logic is added
+            var result = new ConvertSqlToNotebookResult
             {
-                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                // what the document events are sent in as.
-                var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
-                var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
-                // Temporary notebook that we just fill in with the sql until the parsing logic is added
-                var result = new ConvertSqlToNotebookResult
-                {
-                    Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
-                };
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
+            };
+            await requestContext.SendResult(result);
         }
 
         #endregion // Convert Handlers

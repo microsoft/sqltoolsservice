@@ -9,7 +9,6 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -57,9 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)
                 {
-                    var parentProcess = Process.GetProcessById(commandOptions.ParentProcessId.Value);
-                    var statusThread = new Thread(() => CheckParentStatusLoop(parentProcess));
-                    statusThread.Start();
+                    ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
                 }
 
                 serviceHost.WaitForExit();
@@ -81,21 +78,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             {
                 Logger.Close();
                 sqlClientListener?.Dispose();
-            }
-        }
-
-        private static void CheckParentStatusLoop(Process parent)
-        {
-            Logger.Write(TraceEventType.Information, $"Starting thread to check status of parent process. Parent PID: {parent.Id}");
-            while (true)
-            {
-                if (parent.HasExited)
-                {
-                    var processName = Process.GetCurrentProcess().ProcessName;
-                    Logger.Write(TraceEventType.Information, $"Terminating {processName} process because parent process has exited. Parent PID: {parent.Id}");
-                    Environment.Exit(0);
-                }
-                Thread.Sleep(5000);
             }
         }
     }

@@ -198,11 +198,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
-            executionPlanRequest.Validate();
+            var contextMock = RequestContextMocks.Create<QueryExecutionPlanResult>(null);
+            Assert.That(() => queryService.HandleExecutionPlanRequest(executionPlanParams, contextMock.Object), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -229,11 +226,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // ... And I then ask for an execution plan from a result set 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
-            executionPlanRequest.Validate();
+            var contextMock = RequestContextMocks.Create<QueryExecutionPlanResult>(null);
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleExecutionPlanRequest(executionPlanParams, contextMock.Object));
         }
         
         #endregion

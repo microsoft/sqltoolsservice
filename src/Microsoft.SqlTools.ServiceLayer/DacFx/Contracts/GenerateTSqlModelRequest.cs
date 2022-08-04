@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -33,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     class GenerateTSqlModelRequest
     {
-        public static readonly RequestType<GenerateTSqlModelParams, ResultStatus> Type =
-            RequestType<GenerateTSqlModelParams, ResultStatus>.Create("dacFx/generateTSqlModel");
+        public static readonly RequestType<GenerateTSqlModelParams, bool> Type =
+            RequestType<GenerateTSqlModelParams, bool>.Create("dacFx/generateTSqlModel");
     }
 }

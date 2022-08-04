@@ -264,6 +264,12 @@ namespace Microsoft.SqlTools.Utility
         public static void Error(string logMessage) => Write(TraceEventType.Error, logMessage);
 
         /// <summary>
+        /// Writes an exception to the log file with the Error event level
+        /// </summary>
+        /// <param name="exception"></param>
+        public static void Error(Exception exception) => Write(TraceEventType.Error, exception.ToString());
+
+        /// <summary>
         /// Writes a message to the log file with the Critical event level
         /// </summary>
         /// <param name="logMessage">The message text to be written.</param>
