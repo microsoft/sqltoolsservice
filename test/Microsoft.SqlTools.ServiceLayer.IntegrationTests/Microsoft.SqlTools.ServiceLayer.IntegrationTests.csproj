@@ -22,14 +22,6 @@
         <Compile Remove="Migration\*" />
       </ItemGroup>
     </When>
-    <Otherwise>
-      <ItemGroup>
-        <Content Include="..\..\src\Microsoft.SqlTools.ServiceLayer\Migration\Metadata\**">
-          <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-      </ItemGroup>
-    </Otherwise>
   </Choose>
 
   <ItemGroup>
