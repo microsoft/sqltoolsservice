@@ -6301,8 +6301,8 @@ The Query Processor estimates that implementing the following index could improv
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
       </trans-unit>
       <trans-unit id="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription">
-        <source>Column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</source>
-        <target state="new">Column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</target>
+        <source>Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</source>
+        <target state="new">Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</target>
         <note>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
       </trans-unit>
