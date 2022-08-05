@@ -785,6 +785,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         { TableTemporalType.SystemVersioned }
                     }
                 });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "LedgerType",
+                    Type = typeof(Enum),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { LedgerTableType.None },
+                        { LedgerTableType.AppendOnlyLedgerTable },
+                        { LedgerTableType.UpdatableLedgerTable }
+                    }
+                });
                 return filters;
             }
         }
@@ -808,6 +820,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                    Name = "TemporalType",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "LedgerType",
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
                 });
                 properties.Add(new NodeSmoProperty
                 {
@@ -1312,18 +1329,53 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
                 var filters = new List<INodeFilter>();
-                filters.Add(new NodePropertyFilter
+                filters.Add(new NodeOrFilter
                 {
-                    Property = "TemporalType",
-                    Type = typeof(Enum),
-                    TypeToReverse = typeof(SqlHistoryTableQuerier),
-                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                    Values = new List<object>
-                    {
-                        { TableTemporalType.HistoryTable }
+                    FilterList = new List<NodePropertyFilter> {
+                        new NodePropertyFilter
+                        {
+                            Property = "TemporalType",
+                            Type = typeof(Enum),
+                            TypeToReverse = typeof(SqlHistoryTableQuerier),
+                            ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                            Values = new List<object>
+                            {
+                                { TableTemporalType.HistoryTable }
+                            }
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "LedgerType",
+                            Type = typeof(Enum),
+                            TypeToReverse = typeof(SqlHistoryTableQuerier),
+                            ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                            Values = new List<object>
+                            {
+                                { LedgerTableType.HistoryTable }
+                            }
+                        },
                     }
                 });
                 return filters;
+            }
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "LedgerType",
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "TemporalType",
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                return properties;
             }
         }
 

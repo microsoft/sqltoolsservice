@@ -17,27 +17,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Property name
         /// </summary>
-        public string Property { get; set; }
+        public string Property { get; set; } = string.Empty;
 
         /// <summary>
         /// Filter values
         /// </summary>
-        public List<object> Values { get; set; }
+        public List<object> Values { get; set; } = default!;
 
         /// <summary>
         /// Type of the filter values
         /// </summary>
-        public Type Type { get; set; }
+        public Type Type { get; set; } = default!;
 
         /// <summary>
         /// Indicates which platforms a filter is valid for
         /// </summary>
-        public ValidForFlag ValidFor { get; set; }
+        public ValidForFlag ValidFor { get; set; } = ValidForFlag.None;
 
         /// <summary>
         /// The type of the Querier the filter can be applied to
         /// </summary>
-        public Type TypeToReverse { get; set; }
+        public Type TypeToReverse { get; set; } = default!;
 
         /// <summary>
         /// Returns true if the filter can be apply to the given type and Server type
