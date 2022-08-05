@@ -2,17 +2,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
-using System.Reflection;
+using Microsoft.SqlTools.Utility;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using Microsoft.SqlTools.Utility;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -254,8 +254,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             }
 
             return Activator.CreateInstance(type, val, 
-                (descriptionAttribute != null ? descriptionAttribute.Description : ""), 
-                (displayNameAttribute != null ? displayNameAttribute.DisplayName : ""));
+                (descriptionAttribute != null ? descriptionAttribute.Description : string.Empty), 
+                (displayNameAttribute != null ? displayNameAttribute.DisplayName : string.Empty));
         }
 
         /// <summary>
@@ -266,12 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <returns>string[]</returns>
         public string[] ConvertObjectTypeToStringArray(ObjectType[] excludeObjectTypes)
         {
-            List<string> returnVal = new List<string>();
-            foreach (ObjectType excludeObject in excludeObjectTypes)
-            {
-                returnVal.Add(excludeObject.ToString());
-            }
-            return returnVal.ToArray();
+            return excludeObjectTypes.Select(t => t.ToString()).ToArray();
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()

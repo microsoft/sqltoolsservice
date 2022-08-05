@@ -848,20 +848,21 @@ Streaming query statement contains a reference to missing output stream 'Missing
         {
             DeploymentOptions options = new DeploymentOptions();
 
-            // Verify the object types dictionaty should exists
+            // Verify the object types dictionary should exists
             Assert.That(options.ObjectTypesDictionary, Is.Not.Null, "Object types dictionary is empty");
 
             // Verify that the objects dictionary has all the item from Enum
-            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), "Object types dictionary do not have all the items from ObjectType enum");
+            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), @"ObjectTypesDictionary is missing these objectTypes: {0}", 
+                string.Join(", ", Enum.GetNames(typeof(ObjectType)).Except(options.ObjectTypesDictionary.Keys)));
 
             // Verify the options in the objects dictionary exists in the ObjectType Enum
             foreach (var objTypeRow in options.ObjectTypesDictionary)
             {
                 // Verify the option exists in ObjectType Enum
-                Assert.That(Enum.IsDefined(typeof(ObjectType), objTypeRow.Key), Is.True, @"{0} is not an enum member", objTypeRow.Key);
+                Assert.That(Enum.IsDefined(typeof(ObjectType), objTypeRow.Key), Is.True, $"{objTypeRow.Key} is not an enum member");
 
                 // Verify the options display name exists
-                Assert.That(objTypeRow.Value, Is.Not.Empty, @"Display name for the option {0} is empty", objTypeRow.Key);
+                Assert.That(objTypeRow.Value, Is.Not.Empty, $"Display name for the option {objTypeRow.Key} is empty");
             }
         }
 

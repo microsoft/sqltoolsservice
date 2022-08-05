@@ -54,23 +54,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         {
                             foreach(string objectTypeValue in excludeObjectTypeOptionsArray)
                             {
-                                // Convert the first char of the enum to upper case, as the excludeObjectTypes values are coming in lower case which needs to be converted
-                                string name = char.ToUpper(objectTypeValue.ToCharArray()[0]) + objectTypeValue.Substring(1);
-                                ObjectType enumName = new ObjectType(); 
+                                ObjectType objectTypeName = new ObjectType(); 
                                    
-                                if (name != null && Enum.TryParse(name, out enumName))
+                                if (objectTypeValue != null && Enum.TryParse(objectTypeValue, ignoreCase: true, out objectTypeName))
                                 {
-                                    finalExcludeObjects.Add(enumName);
+                                    finalExcludeObjects.Add(objectTypeName);
                                 }
                                 else
                                 {
-                                    Logger.Write(TraceEventType.Error, string.Format($"{0} is not part of ObjectTypes enum", name));
+                                    Logger.Write(TraceEventType.Error, string.Format($"{objectTypeValue} is not part of ObjectTypes enum"));
                                 }
                             }
                             // set final values to excludeObjectType property
                             prop.SetValue(dacOptions, finalExcludeObjects.ToArray());
                         }
-                        
                     }
 
                     // BooleanOptionsDictionary has all the deployment options and is being processed separately in the second iteration by collecting here
