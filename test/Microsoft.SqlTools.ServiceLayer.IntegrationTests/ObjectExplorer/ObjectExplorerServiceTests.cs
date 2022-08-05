@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -471,7 +472,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 if (!string.IsNullOrEmpty(baseline))
                 {
                     string actual = stringBuilder.ToString();
-                    Assert.That(actual, Is.EqualTo(baseline), $"Baseline comparison for {baselineFileName} failed");
+
+                    // write output to a bin directory for easier comparison
+                    string outputRegeneratedFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                        @"ObjectExplorerServiceTests\Baselines\Regenerated");
+                    string outputRegeneratedFilePath = Path.Combine(outputRegeneratedFolder, baselineFileName);
+                    string msg = "";
+
+                    try
+                    {
+                        Directory.CreateDirectory(outputRegeneratedFolder);
+                        File.WriteAllText(outputRegeneratedFilePath, actual);
+                        msg = $"Generated output written to :\t{outputRegeneratedFilePath}\n\t" +
+                              $"Baseline output located at  :\t{GetBaseLineFile(baselineFileName)}";
+                    }
+                    catch (Exception e)
+                    {
+                        //We don't want to fail the test completely if we failed to write the regenerated baseline
+                        //(especially if the test passed).
+                        msg = $"Errors also occurred while attempting to write the new baseline file {outputRegeneratedFilePath} : {e.Message}";
+                    }
+
+                    Assert.That(actual, Is.EqualTo(baseline), $"Baseline comparison for {baselineFileName} failed\n\t" + msg);
                 }
             });
 

@@ -6306,6 +6306,21 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
       </trans-unit>
+      <trans-unit id="UpdatableLedger_LabelPart">
+        <source>Updatable Ledger</source>
+        <target state="new">Updatable Ledger</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AppendOnlyLedger_LabelPart">
+        <source>Append-Only Ledger</source>
+        <target state="new">Append-Only Ledger</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Ledger_LabelPart">
+        <source>Ledger</source>
+        <target state="new">Ledger</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

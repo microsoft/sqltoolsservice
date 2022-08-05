@@ -680,6 +680,12 @@ History_LabelPart = History
 
 SystemVersioned_LabelPart = System-Versioned
 
+UpdatableLedger_LabelPart = Updatable Ledger
+
+AppendOnlyLedger_LabelPart = Append-Only Ledger
+
+Ledger_LabelPart = Ledger
+
 External_LabelPart = External
 
 FileTable_LabelPart = File Table
