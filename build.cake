@@ -649,6 +649,7 @@ Task("SRGen")
             Information("{0}", dotnetArgs);
             Run(dotnetcli, dotnetArgs)
             .ExceptionOnError("Failed to run SRGen.");
+            Warning(System.IO.File.ReadAllLines(System.IO.Path.Combine(workingDirectory, "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\sr.cs")).Skip(1).FirstOrDefault());
 
             // Update XLF file from new Resx file
             var doc = new XliffParser.XlfDocument(outputXlf);
