@@ -689,7 +689,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -862,7 +862,6 @@ Streaming query statement contains a reference to missing output stream 'Missing
 
                 // Verify the options display name exists
                 Assert.That(objTypeRow.Value, Is.Not.Empty, @"Display name for the option {0} is empty", objTypeRow.Key);
-
             }
         }
 
