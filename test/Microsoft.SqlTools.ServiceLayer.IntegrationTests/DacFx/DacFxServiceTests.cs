@@ -589,7 +589,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -669,7 +669,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -689,7 +689,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -839,6 +839,33 @@ Streaming query statement contains a reference to missing output stream 'Missing
             dacfxRequestContext.VerifyAll();
         }
 
+        /// <summary>
+        /// Verify Object Types Dictionary items with ObjectType Enum members
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void ValidateObjectTypesOptionswithEnum()
+        {
+            DeploymentOptions options = new DeploymentOptions();
+
+            // Verify the object types dictionary should exists
+            Assert.That(options.ObjectTypesDictionary, Is.Not.Null, "Object types dictionary is empty");
+
+            // Verify that the objects dictionary has all the item from Enum
+            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), @"ObjectTypesDictionary is missing these objectTypes: {0}", 
+                string.Join(", ", Enum.GetNames(typeof(ObjectType)).Except(options.ObjectTypesDictionary.Keys)));
+
+            // Verify the options in the objects dictionary exists in the ObjectType Enum
+            foreach (var objTypeRow in options.ObjectTypesDictionary)
+            {
+                // Verify the option exists in ObjectType Enum
+                Assert.That(Enum.IsDefined(typeof(ObjectType), objTypeRow.Key), Is.True, $"{objTypeRow.Key} is not an enum member");
+
+                // Verify the options display name exists
+                Assert.That(objTypeRow.Value, Is.Not.Empty, $"Display name for the option {objTypeRow.Key} is empty");
+            }
+        }
+
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
         {
             return expected.Success == actual.Success
@@ -860,7 +887,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
 
                     if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
                     {
-                        Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                        Assert.True((defaultP as string[])?.Length == (actualP as string[])?.Length, "Number of excluded objects is different not equal");
                     }
                     else
                     {

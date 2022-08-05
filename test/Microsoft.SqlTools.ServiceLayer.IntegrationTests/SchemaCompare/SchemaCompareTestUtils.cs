@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
                     if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
                     {
-                        Assert.That((defaultPValue as ObjectType[]).Length, Is.EqualTo((actualPValue as ObjectType[]).Length), $"Number of excluded objects is different; expected: {(defaultPValue as ObjectType[]).Length} actual: {(actualPValue as ObjectType[]).Length}");
+                        Assert.That((defaultPValue as string[]).Length, Is.EqualTo((actualPValue as string[]).Length), $"Number of excluded objects is different.");
                     }
                     else
                     {
