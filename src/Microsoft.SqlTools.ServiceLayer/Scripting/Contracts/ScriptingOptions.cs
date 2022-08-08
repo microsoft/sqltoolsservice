@@ -123,8 +123,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   Script110Compat
         ///   Script120Compat
         ///   Script130Compat
-        ///   Script140Compat  
-        ///   Script150Compat  
+        ///   Script140Compat
+        ///   Script150Compat
+        ///   Script160Compat
         /// </summary>
         /// <remarks>
         /// The default is Script140Compat.

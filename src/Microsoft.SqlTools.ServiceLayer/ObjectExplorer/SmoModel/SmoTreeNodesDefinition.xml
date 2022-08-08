@@ -71,17 +71,23 @@
   </Node>
 
   <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode">
-    <Filters >
+    <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
       <Filter Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
         <Value>TableTemporalType.None</Value>
         <Value>TableTemporalType.SystemVersioned</Value>
       </Filter>
+      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+        <Value>LedgerTableType.None</Value>
+        <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
+        <Value>LedgerTableType.UpdatableLedgerTable</Value>
+      </Filter>
     </Filters>
     <Properties>
       <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-	    <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+      <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
       <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
@@ -169,10 +175,19 @@
   -->
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
-      <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
-        <Value>TableTemporalType.HistoryTable</Value>
-      </Filter>
+      <Or>
+        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+          <Value>TableTemporalType.HistoryTable</Value>
+        </Filter>
+        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+          <Value>LedgerTableType.HistoryTable</Value>
+        </Filter>
+      </Or>
     </Filters>
+    <Properties>
+      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
+      <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+    </Properties>
     <Child Name="Columns"/>
     <Child Name="Keys"/>
     <Child Name="Constraints"/>

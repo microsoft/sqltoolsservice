@@ -193,6 +193,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             return new Dictionary<string, SqlServerVersion>
             {
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script160Compat.ToString(), SqlServerVersion.Version160},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script150Compat.ToString(), SqlServerVersion.Version150},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script140Compat.ToString(), SqlServerVersion.Version140},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script130Compat.ToString(), SqlServerVersion.Version130},

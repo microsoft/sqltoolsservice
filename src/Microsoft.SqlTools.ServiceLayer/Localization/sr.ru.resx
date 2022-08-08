@@ -3826,4 +3826,43 @@
   <data name="AverageRowSize" xml:space="preserve">
     <value>Средний размер строки</value>
   </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Включенные столбцы</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>Включенные столбцы индекса</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Добавить столбец</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Столбец</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Предикат фильтра индекса</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Фильтр (предикат)</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Включенные столбцы не поддерживаются для кластеризованного индекса.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Предикат фильтра не поддерживается для кластеризованного индекса.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Столбец с именем "{0}" уже добавлен в индекс "{1}". Номер строки: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>Включенный столбец с именем "{0}" уже является частью индекса "{1}" не может быть включен. Номер строки: {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Обновляемый реестр</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Реестр только для добавления</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Реестр</value>
+  </data>
 </root>

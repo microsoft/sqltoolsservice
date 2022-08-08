@@ -103,10 +103,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <summary>
         /// Controller for collecting performance data for SKU recommendation
         /// </summary>
-        internal SqlDataQueryController DataCollectionController 
-        { 
-            get; 
-            set; 
+        internal SqlDataQueryController DataCollectionController
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -162,10 +162,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     await requestContext.SendResult(results);
                 }
             }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
             finally
             {
                 ConnectionService.Disconnect(new DisconnectParams { OwnerUri = randomUri, Type = null });
@@ -201,21 +197,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 var connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
 
                 this.DataCollectionController = new SqlDataQueryController(
-                    connectionString, 
-                    parameters.DataFolder, 
+                    connectionString,
+                    parameters.DataFolder,
                     parameters.PerfQueryIntervalInSec,
-                    parameters.NumberOfIterations, 
-                    parameters.StaticQueryIntervalInSec, 
+                    parameters.NumberOfIterations,
+                    parameters.StaticQueryIntervalInSec,
                     null);
 
                 this.DataCollectionController.Start();
 
                 // TO-DO: what should be returned?
                 await requestContext.SendResult(new StartPerfDataCollectionResult() { DateTimeStarted = DateTime.UtcNow });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
             }
             finally
             {
@@ -230,17 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             StopPerfDataCollectionParams parameters,
             RequestContext<StopPerfDataCollectionResult> requestContext)
         {
-            try
-            {
-                this.DataCollectionController.Dispose();
+            this.DataCollectionController.Dispose();
 
-                // TO-DO: what should be returned?
-                await requestContext.SendResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
+            // TO-DO: what should be returned?
+            await requestContext.SendResult(new StopPerfDataCollectionResult() { DateTimeStopped = DateTime.UtcNow });
         }
 
         /// <summary>
@@ -250,26 +235,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             RefreshPerfDataCollectionParams parameters,
             RequestContext<RefreshPerfDataCollectionResult> requestContext)
         {
-            try
-            {
-                bool isCollecting = !(this.DataCollectionController is null) ? this.DataCollectionController.IsRunning() : false;
-                List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
-                List<string> errors = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime) : new List<string>();
+            bool isCollecting = !(this.DataCollectionController is null) ? this.DataCollectionController.IsRunning() : false;
+            List<string> messages = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestMessages(parameters.LastRefreshedTime) : new List<string>();
+            List<string> errors = !(this.DataCollectionController is null) ? this.DataCollectionController.FetchLatestErrors(parameters.LastRefreshedTime) : new List<string>();
 
-                RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult() 
-                { 
-                    RefreshTime = DateTime.UtcNow,
-                    IsCollecting = isCollecting,
-                    Messages = messages,
-                    Errors = errors,
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            RefreshPerfDataCollectionResult result = new RefreshPerfDataCollectionResult()
             {
-                await requestContext.SendError(e.ToString());
-            }
+                RefreshTime = DateTime.UtcNow,
+                IsCollecting = isCollecting,
+                Messages = messages,
+                Errors = errors,
+            };
+
+            await requestContext.SendResult(result);
         }
         /// <summary>
         /// Handle request to generate SKU recommendations
@@ -428,87 +406,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
-                List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
-                List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
-                List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
-                long sqlDbDuration = -1;
-                long sqlMiDuration = -1;
-                long sqlVmDuration = -1;
+            List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
+            List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
+            List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
+            long sqlDbDuration = -1;
+            long sqlMiDuration = -1;
+            long sqlVmDuration = -1;
 
-                CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
-                    instanceId: parameters.TargetSqlInstance,
-                    directory: parameters.DataFolder, 
-                    queryInterval: parameters.PerfQueryIntervalInSec, 
-                    logger: null, 
-                    dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
+            CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
+                instanceId: parameters.TargetSqlInstance,
+                directory: parameters.DataFolder, 
+                queryInterval: parameters.PerfQueryIntervalInSec, 
+                logger: null, 
+                dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
 
-                // generate SQL DB recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+            // generate SQL DB recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+            {
+                Stopwatch sqlDbStopwatch = new Stopwatch();
+                sqlDbStopwatch.Start();
+
+                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
+                ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
+                DataTable SqlMISpec = pi.SqlMISpec.Copy();
+                if (!parameters.IncludePreviewSkus)
                 {
-                    Stopwatch sqlDbStopwatch = new Stopwatch();
-                    sqlDbStopwatch.Start();
-
-                    List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
-                    ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
-                    DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                    if (!parameters.IncludePreviewSkus)
-                    {
-                        SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
-                        p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
-                    }
-                    MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                    DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                    sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                    if (sqlDbResults.Count < parameters.DatabaseAllowList.Count)
-                    {
-                        // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                        List<string> databasesWithRecommendation = sqlDbResults.Select(db => db.DatabaseName).ToList();
-                        foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
-                        {
-                            sqlDbResults.Add(new SkuRecommendationResult()
-                            {
-                                //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
-                                SqlInstanceName = parameters.TargetSqlInstance,
-                                DatabaseName = databaseWithoutRecommendation,
-                                TargetSku = null,
-                                MonthlyCost = null,
-                                Ranking = -1,
-                                PositiveJustifications = null,
-                                NegativeJustifications = null,
-                            });
-                        }
-                    }
-
-                    sqlDbStopwatch.Stop();
-                    sqlDbDuration = sqlDbStopwatch.ElapsedMilliseconds;
+                    SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
+                    p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
                 }
+                MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+                DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+                sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
 
-                // generate SQL MI recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+                if (sqlDbResults.Count < parameters.DatabaseAllowList.Count)
                 {
-                    Stopwatch sqlMiStopwatch = new Stopwatch();
-                    sqlMiStopwatch.Start();
-
-                    List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
-                    ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
-                    DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                    if (!parameters.IncludePreviewSkus)
+                    // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
+                    List<string> databasesWithRecommendation = sqlDbResults.Select(db => db.DatabaseName).ToList();
+                    foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
                     {
-                        SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
-                        p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
-                    }
-                    MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                    DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                    sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                    // if no result was generated, create a result with a null SKU
-                    if (!sqlMiResults.Any())
-                    {
-                        sqlMiResults.Add(new SkuRecommendationResult()
+                        sqlDbResults.Add(new SkuRecommendationResult()
                         {
+                            //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
                             SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = null,
+                            DatabaseName = databaseWithoutRecommendation,
                             TargetSku = null,
                             MonthlyCost = null,
                             Ranking = -1,
@@ -516,58 +456,73 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                             NegativeJustifications = null,
                         });
                     }
-
-                    sqlMiStopwatch.Stop();
-                    sqlMiDuration = sqlMiStopwatch.ElapsedMilliseconds;
                 }
 
-                // generate SQL VM recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+                sqlDbStopwatch.Stop();
+                sqlDbDuration = sqlDbStopwatch.ElapsedMilliseconds;
+            }
+
+            // generate SQL MI recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+            {
+                Stopwatch sqlMiStopwatch = new Stopwatch();
+                sqlMiStopwatch.Start();
+
+                List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
+                ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
+                DataTable SqlMISpec = pi.SqlMISpec.Copy();
+                if (!parameters.IncludePreviewSkus)
                 {
-                    // elastic model currently doesn't support VM recommendation, return null SKU for now
-                    // Stopwatch sqlVmStopwatch = new Stopwatch();
-                    // sqlVmStopwatch.Start();
-                    // prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
-                    // sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+                    SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
+                    p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
+                }
+                MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+                DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
+                sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
 
-                    // // if no result was generated, create a result with a null SKU
-                    // if (!sqlVmResults.Any())
-                    // {
-                    //     sqlVmResults.Add(new SkuRecommendationResult()
-                    //     {
-                    //         SqlInstanceName = parameters.TargetSqlInstance,
-                    //         DatabaseName = null,
-                    //         TargetSku = null,
-                    //         MonthlyCost = null,
-                    //         Ranking = -1,
-                    //         PositiveJustifications = null,
-                    //         NegativeJustifications = null,
-                    //     });
-                    // }
-
-                    // sqlVmStopwatch.Stop();
-                    // sqlVmDuration = sqlVmStopwatch.ElapsedMilliseconds;
-                    
-                    sqlVmResults.Add(new SkuRecommendationResult()
-                        {
-                            SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = null,
-                            TargetSku = null,
-                            MonthlyCost = null,
-                            Ranking = -1,
-                            PositiveJustifications = null,
-                            NegativeJustifications = null,
-                        });
+                // if no result was generated, create a result with a null SKU
+                if (!sqlMiResults.Any())
+                {
+                    sqlMiResults.Add(new SkuRecommendationResult()
+                    {
+                        SqlInstanceName = parameters.TargetSqlInstance,
+                        DatabaseName = null,
+                        TargetSku = null,
+                        MonthlyCost = null,
+                        Ranking = -1,
+                        PositiveJustifications = null,
+                        NegativeJustifications = null,
+                    });
                 }
 
-                return new RecommendationResultSet() {
-                    SqlDbRecommendationResults = sqlDbResults,
-                    SqlMiRecommendationResults = sqlMiResults,
-                    SqlVmRecommendationResults = sqlVmResults,
-                    SqlDbRecommendationDurationInMs = sqlDbDuration,
-                    SqlMiRecommendationDurationInMs = sqlMiDuration,
-                    SqlVmRecommendationDurationInMs = sqlVmDuration
-                };
+                sqlMiStopwatch.Stop();
+                sqlMiDuration = sqlMiStopwatch.ElapsedMilliseconds;
+            }
+
+            // generate SQL VM recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+            {
+                // elastic model currently doesn't support VM recommendation, return null SKU for now                
+                sqlVmResults.Add(new SkuRecommendationResult()
+                    {
+                        SqlInstanceName = parameters.TargetSqlInstance,
+                        DatabaseName = null,
+                        TargetSku = null,
+                        MonthlyCost = null,
+                        Ranking = -1,
+                        PositiveJustifications = null,
+                        NegativeJustifications = null,
+                    });
+            }
+
+            return new RecommendationResultSet() {
+                SqlDbRecommendationResults = sqlDbResults,
+                SqlMiRecommendationResults = sqlMiResults,
+                SqlVmRecommendationResults = sqlVmResults,
+                SqlDbRecommendationDurationInMs = sqlDbDuration,
+                SqlMiRecommendationDurationInMs = sqlMiDuration,
+                SqlVmRecommendationDurationInMs = sqlVmDuration
+            };
         }
 
         internal class AssessmentRequest : IAssessmentRequest
@@ -803,7 +758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                         vmCapabilities.AddRange(vmPreviewCapabilities);
                     }
-                    
+
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
                         .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))

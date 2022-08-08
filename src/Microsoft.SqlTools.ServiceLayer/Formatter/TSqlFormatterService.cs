@@ -78,23 +78,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         public async Task HandleDocFormatRequest(DocumentFormattingParams docFormatParams, RequestContext<TextEdit[]> requestContext)
         {
-            Func<Task<TextEdit[]>> requestHandler = () =>
-            {
-                return FormatAndReturnEdits(docFormatParams);
-            };
-            await HandleRequest(requestHandler, requestContext, "HandleDocFormatRequest");
-
+            Logger.Verbose("HandleDocFormatRequest");
+            TextEdit[] result = await FormatAndReturnEdits(docFormatParams);
+            await requestContext.SendResult(result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true));
         }
 
         public async Task HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams, RequestContext<TextEdit[]> requestContext)
         {
-            Func<Task<TextEdit[]>> requestHandler = () =>
-            {
-                return FormatRangeAndReturnEdits(docRangeFormatParams);
-            };
-            await HandleRequest(requestHandler, requestContext, "HandleDocRangeFormatRequest");
-
+            Logger.Verbose("HandleDocRangeFormatRequest");
+            TextEdit[] result = await FormatRangeAndReturnEdits(docRangeFormatParams);
+            await requestContext.SendResult(result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false));
         }
         private static TelemetryProperties CreateTelemetryProps(bool isDocFormat)
@@ -229,23 +223,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             };
             return edit;
         }
-
-        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
-        {
-            Logger.Write(TraceEventType.Verbose, requestType);
-
-            try
-            {
-                T result = await handler();
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
-        }
-
-
 
         public string Format(TextReader input)
         {

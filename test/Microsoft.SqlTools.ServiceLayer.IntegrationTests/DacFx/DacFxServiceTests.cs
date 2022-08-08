@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
@@ -16,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlServer.Dac.Model;
 using NUnit.Framework;
 using Moq;
 using System.Reflection;
@@ -587,7 +589,7 @@ FROM MissingEdgeHubInputStream'";
                     UpgradeExisting = true,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -667,7 +669,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>(new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -687,7 +689,7 @@ FROM MissingEdgeHubInputStream'";
                     DatabaseName = targetDb.DatabaseName,
                     DeploymentOptions = new DeploymentOptions()
                     {
-                        ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>( new[] { ObjectType.Views })
+                        ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { Enum.GetName(ObjectType.Views) })
                     }
                 };
 
@@ -837,6 +839,33 @@ Streaming query statement contains a reference to missing output stream 'Missing
             dacfxRequestContext.VerifyAll();
         }
 
+        /// <summary>
+        /// Verify Object Types Dictionary items with ObjectType Enum members
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void ValidateObjectTypesOptionswithEnum()
+        {
+            DeploymentOptions options = new DeploymentOptions();
+
+            // Verify the object types dictionary should exists
+            Assert.That(options.ObjectTypesDictionary, Is.Not.Null, "Object types dictionary is empty");
+
+            // Verify that the objects dictionary has all the item from Enum
+            Assert.That(options.ObjectTypesDictionary.Count, Is.EqualTo(Enum.GetNames(typeof(ObjectType)).Length), @"ObjectTypesDictionary is missing these objectTypes: {0}", 
+                string.Join(", ", Enum.GetNames(typeof(ObjectType)).Except(options.ObjectTypesDictionary.Keys)));
+
+            // Verify the options in the objects dictionary exists in the ObjectType Enum
+            foreach (var objTypeRow in options.ObjectTypesDictionary)
+            {
+                // Verify the option exists in ObjectType Enum
+                Assert.That(Enum.IsDefined(typeof(ObjectType), objTypeRow.Key), Is.True, $"{objTypeRow.Key} is not an enum member");
+
+                // Verify the options display name exists
+                Assert.That(objTypeRow.Value, Is.Not.Empty, $"Display name for the option {objTypeRow.Key} is empty");
+            }
+        }
+
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
         {
             return expected.Success == actual.Success
@@ -858,7 +887,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
 
                     if (v.Name == nameof(DeploymentOptions.ExcludeObjectTypes))
                     {
-                        Assert.True((defaultP as ObjectType[])?.Length == (actualP as ObjectType[])?.Length, "Number of excluded objects is different not equal");
+                        Assert.True((defaultP as string[])?.Length == (actualP as string[])?.Length, "Number of excluded objects is different not equal");
                     }
                     else
                     {
@@ -926,5 +955,106 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 Assert.That(actualValue, Is.EqualTo(expectedValue), $"Actual Property from Service is not equal to default property for {optionRow.Key}");
             }
         }
+    }
+}
+
+[TestFixture]
+public class TSqlModelRequestTests
+{
+    private string TSqlModelTestFolder = string.Empty;
+
+    private DacFxService service = new DacFxService();
+
+    [SetUp]
+    public void Create()
+    {
+        TSqlModelTestFolder = Path.Combine("..", "..", "..", "DacFx", "TSqlModels", Guid.NewGuid().ToString());
+        Directory.CreateDirectory(TSqlModelTestFolder);
+    }
+
+    [TearDown]
+    public void CleanUp()
+    {
+        Directory.Delete(TSqlModelTestFolder, true);
+    }
+
+    /// <summary>
+    /// Verify the generate Tsql model operation
+    /// </summary>
+    [Test]
+    public void GenerateTSqlModelFromSqlFiles()
+    {
+        string sqlTable1DefinitionPath = Path.Join(TSqlModelTestFolder, "table1.sql");
+        string sqlTable2DefinitionPath = Path.Join(TSqlModelTestFolder, "table2.sql");
+        const string table1 = @"CREATE TABLE [dbo].[table1]
+            (
+                [ID] INT NOT NULL PRIMARY KEY,
+            )";
+        const string table2 = @"CREATE TABLE [dbo].[table2]
+            (
+                [ID] INT NOT NULL PRIMARY KEY,
+            )";
+        // create sql file
+        File.WriteAllText(sqlTable1DefinitionPath, table1);
+        File.WriteAllText(sqlTable2DefinitionPath, table2);
+
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
+        {
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new[] { sqlTable1DefinitionPath, sqlTable2DefinitionPath }
+        };
+
+        GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
+        var model = op.GenerateTSqlModel();
+        var objects = model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList();
+
+        Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
+        Assert.That(objects, Is.Not.Empty, "Model is empty");
+
+        var tableNames = objects.Select(o => o.Name.ToString()).ToList();
+
+        Assert.That(tableNames.Count, Is.EqualTo(2), "Model was not populated correctly");
+        CollectionAssert.AreEquivalent(tableNames, new[] { "[dbo].[table1]", "[dbo].[table2]" }, "Table names do not match");
+    }
+
+    /// <summary>
+    /// Verify the generate Tsql model operation, creates an empty model when files are empty
+    /// </summary>
+    [Test]
+    public void GenerateEmptyTSqlModel()
+    {
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
+        {
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new string[] { }
+        };
+
+        GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
+        var model = op.GenerateTSqlModel();
+
+        Assert.That(model.GetObjects(DacQueryScopes.UserDefined, ModelSchema.Table).ToList().Count, Is.EqualTo(0), "Model is not empty");
+        Assert.That(model.Version.ToString(), Is.EqualTo(generateTSqlScriptParams.ModelTargetVersion), $"Model version is not equal to {generateTSqlScriptParams.ModelTargetVersion}");
+    }
+
+    /// <summary>
+    /// Verify the generate TSql Model handle
+    /// </summary>
+    [Test]
+    public async Task VerifyGenerateTSqlModelHandle()
+    {
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
+        {
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new string[] { }
+        };
+
+        var requestContext = new Mock<RequestContext<bool>>();
+        requestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
+
+        await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
+        Assert.That(service.projectModels.Value, Contains.Key(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
     }
 }

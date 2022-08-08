@@ -93,17 +93,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
             {
                 ExternalLanguageOperations = operations.Object
             };
-            await VerifyError<ExternalLanguageDeleteResponseParams>(
-               test: async (requestContext, connectionUrl) =>
-               {
-                   ExternalLanguageDeleteRequestParams requestParams = new ExternalLanguageDeleteRequestParams
-                   {
-                       OwnerUri = connectionUrl,
-                       LanguageName = language.Name
-                   };
-                   await service.HandleExternalLanguageDeleteRequest(requestParams, requestContext);
-                   return null;
-               });
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var requestContext = RequestContextMocks.Create<ExternalLanguageDeleteResponseParams>(r => { });
+                ExternalLanguageDeleteRequestParams requestParams = new ExternalLanguageDeleteRequestParams
+                {
+                    OwnerUri = queryTempFile.FilePath,
+                    LanguageName = language.Name
+                };
+                Assert.That(() => service.HandleExternalLanguageDeleteRequest(requestParams, requestContext.Object), Throws.Exception);
+            }
         }
 
         [Test]
@@ -174,17 +174,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
             {
                 ExternalLanguageOperations = operations.Object
             };
-            await VerifyError<ExternalLanguageUpdateResponseParams>(
-               test: async (requestContext, connectionUrl) =>
-               {
-                   ExternalLanguageUpdateRequestParams requestParams = new ExternalLanguageUpdateRequestParams
-                   {
-                       OwnerUri = connectionUrl,
-                       Language = language
-                   };
-                   await service.HandleExternalLanguageUpdateRequest(requestParams, requestContext);
-                   return null;
-               });
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var requestContext = RequestContextMocks.Create<ExternalLanguageUpdateResponseParams>(r => { });
+                ExternalLanguageUpdateRequestParams requestParams = new ExternalLanguageUpdateRequestParams
+                {
+                    OwnerUri = queryTempFile.FilePath,
+                    Language = language
+                };
+                Assert.That(() => service.HandleExternalLanguageUpdateRequest(requestParams, requestContext.Object), Throws.Exception);
+            }
         }
 
         [Test]
@@ -254,16 +254,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageExtensibility
             {
                 ExternalLanguageOperations = operations.Object
             };
-            await VerifyError<ExternalLanguageListResponseParams>(
-               test: async (requestContext, connectionUrl) =>
-               {
-                   ExternalLanguageListRequestParams requestParams = new ExternalLanguageListRequestParams
-                   {
-                       OwnerUri = connectionUrl
-                   };
-                   await service.HandleExternalLanguageListRequest(requestParams, requestContext);
-                   return null;
-               });
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var requestContext = RequestContextMocks.Create<ExternalLanguageListResponseParams>(r => { });
+                var requestParams = new ExternalLanguageListRequestParams
+                {
+                    OwnerUri = queryTempFile.FilePath
+                };
+                Assert.That(() => service.HandleExternalLanguageListRequest(requestParams, requestContext.Object), Throws.Exception);
+            }
         }
 
         [Test]

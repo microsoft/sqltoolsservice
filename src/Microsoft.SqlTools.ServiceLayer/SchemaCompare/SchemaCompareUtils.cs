@@ -43,15 +43,30 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 foreach (PropertyInfo deployOptionsProp in deploymentOptionsProperties)
                 {
                     var prop = propType.GetProperty(deployOptionsProp.Name);
-                    if (prop != null)
+                    // Set the excludeObjectTypes values to the DacDeployOptions
+                    if (prop != null && deployOptionsProp.Name == nameof(deploymentOptions.ExcludeObjectTypes))
                     {
+                        List<ObjectType> finalExcludeObjects = new List<ObjectType> { };
                         var val = deployOptionsProp.GetValue(deploymentOptions);
-                        var selectedVal = val.GetType().GetProperty("Value").GetValue(val);
+                        string[] excludeObjectTypeOptionsArray = (string[])val.GetType().GetProperty("Value").GetValue(val);
 
-                        // Set the excludeObjectTypes values to the DacDeployOptions
-                        if (selectedVal != null && deployOptionsProp.Name == nameof(deploymentOptions.ExcludeObjectTypes))
+                        if (excludeObjectTypeOptionsArray != null)
                         {
-                            prop.SetValue(dacOptions, selectedVal);
+                            foreach(string objectTypeValue in excludeObjectTypeOptionsArray)
+                            {
+                                ObjectType objectTypeName = new ObjectType(); 
+                                   
+                                if (objectTypeValue != null && Enum.TryParse(objectTypeValue, ignoreCase: true, out objectTypeName))
+                                {
+                                    finalExcludeObjects.Add(objectTypeName);
+                                }
+                                else
+                                {
+                                    Logger.Write(TraceEventType.Error, string.Format($"{objectTypeValue} is not part of ObjectTypes enum"));
+                                }
+                            }
+                            // set final values to excludeObjectType property
+                            prop.SetValue(dacOptions, finalExcludeObjects.ToArray());
                         }
                     }
 

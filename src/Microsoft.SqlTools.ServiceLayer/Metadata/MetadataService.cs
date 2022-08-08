@@ -65,40 +65,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             MetadataQueryParams metadataParams,
             RequestContext<MetadataQueryResult> requestContext)
         {
-            try
+            Func<Task> requestHandler = async () =>
             {
-                Func<Task> requestHandler = async () =>
-                {
-                    ConnectionInfo connInfo;
-                    MetadataService.ConnectionServiceInstance.TryFindConnection(
-                        metadataParams.OwnerUri,
-                        out connInfo);
+                ConnectionInfo connInfo;
+                MetadataService.ConnectionServiceInstance.TryFindConnection(
+                    metadataParams.OwnerUri,
+                    out connInfo);
 
-                    var metadata = new List<ObjectMetadata>();
-                    if (connInfo != null)
+                var metadata = new List<ObjectMetadata>();
+                if (connInfo != null)
+                {
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
                     {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
-                        {
-                            ReadMetadata(sqlConn, metadata);
-                        }
+                        ReadMetadata(sqlConn, metadata);
                     }
+                }
 
-                    await requestContext.SendResult(new MetadataQueryResult
-                    {
-                        Metadata = metadata.ToArray()
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                await requestContext.SendResult(new MetadataQueryResult
                 {
-                    await requestContext.SendError(t.Exception.ToString());
+                    Metadata = metadata.ToArray()
                 });
-                MetadataListTask = task;
-            }
-            catch (Exception ex)
+            };
+
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
             {
-                await requestContext.SendError(ex.ToString());
-            }
+                await requestContext.SendError(t.Exception.ToString());
+            });
+            MetadataListTask = task;
         }
 
         internal Task MetadataListTask { get; set; }
@@ -131,34 +124,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             string objectType,
             RequestContext<TableMetadataResult> requestContext)
         {
-            try
-            {
-                ConnectionInfo connInfo;
-                MetadataService.ConnectionServiceInstance.TryFindConnection(
-                    metadataParams.OwnerUri,
-                    out connInfo);
+            ConnectionInfo connInfo;
+            MetadataService.ConnectionServiceInstance.TryFindConnection(
+                metadataParams.OwnerUri,
+                out connInfo);
 
-                ColumnMetadata[] metadata = null;
-                if (connInfo != null)
+            ColumnMetadata[] metadata = null;
+            if (connInfo != null)
+            {
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
                 {
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Metadata"))
-                    {
-                        TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
-                            sqlConn, metadataParams.Schema,
-                            metadataParams.ObjectName, objectType);
-                        metadata = table.Columns;
-                    }
+                    TableMetadata table = new SmoMetadataFactory().GetObjectMetadata(
+                        sqlConn, metadataParams.Schema,
+                        metadataParams.ObjectName, objectType);
+                    metadata = table.Columns;
                 }
+            }
 
-                await requestContext.SendResult(new TableMetadataResult
-                {
-                    Columns = metadata
-                });
-            }
-            catch (Exception ex)
+            await requestContext.SendResult(new TableMetadataResult
             {
-                await requestContext.SendError(ex.ToString());
-            }
+                Columns = metadata
+            });
         }
 
         internal static bool IsSystemDatabase(string database)

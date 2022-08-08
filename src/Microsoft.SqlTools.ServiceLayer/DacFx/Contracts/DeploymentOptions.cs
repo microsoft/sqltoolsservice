@@ -2,14 +2,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using Microsoft.SqlServer.Dac;
+using Microsoft.SqlTools.Utility;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Dac;
 using System.Reflection;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -50,31 +53,36 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class DeploymentOptions
     {
         #region Properties
-        public DeploymentOptionProperty<ObjectType[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<ObjectType[]>
+
+        /// <summary>
+        /// These default exclude options are for schema compare extension, It require some default options to be excluded for SC operations
+        /// Where as the publish operation does not require any defaults, removing all default options for publish is handled in <azuredatastudio>\extensions\sql-database-projects\src\dialogs\publishDatabaseDialog.ts
+        /// </summary>
+        public DeploymentOptionProperty<string[]> ExcludeObjectTypes { get; set; } = new DeploymentOptionProperty<string[]>
         (
-            new ObjectType[] {
-                ObjectType.ServerTriggers,
-                ObjectType.Routes,
-                ObjectType.LinkedServerLogins,
-                ObjectType.Endpoints,
-                ObjectType.ErrorMessages,
-                ObjectType.Files,
-                ObjectType.Logins,
-                ObjectType.LinkedServers,
-                ObjectType.Credentials,
-                ObjectType.DatabaseScopedCredentials,
-                ObjectType.DatabaseEncryptionKeys,
-                ObjectType.MasterKeys,
-                ObjectType.DatabaseAuditSpecifications,
-                ObjectType.Audits,
-                ObjectType.ServerAuditSpecifications,
-                ObjectType.CryptographicProviders,
-                ObjectType.ServerRoles,
-                ObjectType.EventSessions,
-                ObjectType.DatabaseOptions,
-                ObjectType.EventNotifications,
-                ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles
+            new string[] {
+                Enum.GetName(ObjectType.ServerTriggers),
+                Enum.GetName(ObjectType.Routes),
+                Enum.GetName(ObjectType.LinkedServerLogins),
+                Enum.GetName(ObjectType.Endpoints),
+                Enum.GetName(ObjectType.ErrorMessages),
+                Enum.GetName(ObjectType.Files),
+                Enum.GetName(ObjectType.Logins),
+                Enum.GetName(ObjectType.LinkedServers),
+                Enum.GetName(ObjectType.Credentials),
+                Enum.GetName(ObjectType.DatabaseScopedCredentials),
+                Enum.GetName(ObjectType.DatabaseEncryptionKeys),
+                Enum.GetName(ObjectType.MasterKeys),
+                Enum.GetName(ObjectType.DatabaseAuditSpecifications),
+                Enum.GetName(ObjectType.Audits),
+                Enum.GetName(ObjectType.ServerAuditSpecifications),
+                Enum.GetName(ObjectType.CryptographicProviders),
+                Enum.GetName(ObjectType.ServerRoles),
+                Enum.GetName(ObjectType.EventSessions),
+                Enum.GetName(ObjectType.DatabaseOptions),
+                Enum.GetName(ObjectType.EventNotifications),
+                Enum.GetName(ObjectType.ServerRoleMembership),
+                Enum.GetName(ObjectType.AssemblyFiles)
             }
         );
 
@@ -83,6 +91,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// </summary>
         public Dictionary<string, DeploymentOptionProperty<bool>> BooleanOptionsDictionary { get; set; } = new Dictionary<string, DeploymentOptionProperty<bool>>(StringComparer.InvariantCultureIgnoreCase);
 
+        /// <summary>
+        /// Contains object types enum name and its display name from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs Enum
+        /// key: optionName, value:DisplayName
+        /// </summary>
+        public Dictionary<string, string> ObjectTypesDictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         #endregion
 
         public DeploymentOptions()
@@ -165,6 +178,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
                     this.BooleanOptionsDictionary[prop.Name] = (DeploymentOptionProperty<bool>)setProp;
                 }
             }
+
+            // Preparing object types dictionary
+            InitializeObjectTypesDictionary();
         }
 
         public void SetOptions(DacDeployOptions options)
@@ -194,6 +210,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         }
 
         /// <summary>
+        /// Preparing all object types which are considered as boolean options
+        /// </summary>
+        public void InitializeObjectTypesDictionary()
+        {
+            Type objectTypeEnum = typeof(ObjectType);
+            foreach (string name in Enum.GetNames(objectTypeEnum))
+            {
+                MemberInfo[] member = objectTypeEnum.GetMember(name);
+                MemberInfo info = member?.FirstOrDefault();
+                string displayName = info?.GetCustomAttribute<DisplayAttribute>().GetName();
+                if (string.IsNullOrEmpty(displayName))
+                {
+                    // not expecting display name for any options as empty string
+                    Logger.Write(TraceEventType.Error, string.Format($"Display name is empty for the Object type enum {0}", name));
+                }
+                else
+                {
+                    // Add the property to the Dictionary
+                    ObjectTypesDictionary[name] = displayName;
+                }
+            }
+        }
+
+        /// <summary>
         /// Prepares and returns the value and description of a property
         /// </summary>
         /// <param name="prop"></param>
@@ -206,10 +246,27 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
             Type type = val != null ? typeof(DeploymentOptionProperty<>).MakeGenericType(val.GetType())
                 : typeof(DeploymentOptionProperty<>).MakeGenericType(prop.PropertyType);
 
-            object setProp = Activator.CreateInstance(type, val, 
-                (descriptionAttribute != null ? descriptionAttribute.Description : ""), 
-                (displayNameAttribute != null ? displayNameAttribute.DisplayName : ""));
-            return setProp;
+            // DeploymentOptions ExcludeObjectTypes are String[] type and need special casting here
+            if (prop.Name == nameof(this.ExcludeObjectTypes))
+            {
+                type = typeof(DeploymentOptionProperty<string[]>);
+                val = val != null ? ConvertObjectTypeToStringArray((ObjectType[])val): new string[] { };
+            }
+
+            return Activator.CreateInstance(type, val, 
+                (descriptionAttribute != null ? descriptionAttribute.Description : string.Empty), 
+                (displayNameAttribute != null ? displayNameAttribute.DisplayName : string.Empty));
+        }
+
+        /// <summary>
+        /// Converting ObjectType to String[] as the deployemnt options excludeObjectTypes is string[] but the DacFx DacDeployOptions excludeObjectTypes is of ObjectType[]
+        /// Loading options from profile and schema compare .scmp file should need this conversion
+        /// </summary>
+        /// <param name="excludeObjectTypes"></param>
+        /// <returns>string[]</returns>
+        public string[] ConvertObjectTypeToStringArray(ObjectType[] excludeObjectTypes)
+        {
+            return excludeObjectTypes.Select(t => t.ToString()).ToArray();
         }
 
         public static DeploymentOptions GetDefaultSchemaCompareOptions()
@@ -221,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         {
             DeploymentOptions result = new DeploymentOptions();
 
-            result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != ObjectType.DatabaseScopedCredentials).ToArray(); // re-include database-scoped credentials
+            result.ExcludeObjectTypes.Value = result.ExcludeObjectTypes.Value.Where(x => x != Enum.GetName(ObjectType.DatabaseScopedCredentials)).ToArray(); // re-include database-scoped credentials
 
             return result;
         }
