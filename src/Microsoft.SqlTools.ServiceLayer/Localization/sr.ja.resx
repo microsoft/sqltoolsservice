@@ -3826,4 +3826,43 @@
   <data name="AverageRowSize" xml:space="preserve">
     <value>平均行サイズ</value>
   </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>付加列</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>インデックスの付加列</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>列の追加</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>インデックスのフィルター述語</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>フィルター述語</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>付加列は、クラスター化インデックスではサポートされていません。</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>クラスター化インデックスでは、フィルター述語はサポートされていません。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の列は既にインデックス '{1}' に付加されています。行番号: {2}。</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の付加列は既にインデックス '{1}' の一部であり、付加することはできません。行番号: {2}。</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>更新可能な台帳</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>追加専用台帳</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>台帳</value>
+  </data>
 </root>

@@ -3826,4 +3826,43 @@
   <data name="AverageRowSize" xml:space="preserve">
     <value>平均行大小</value>
   </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>包含列</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>索引包含的列</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>添加列</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>索引的筛选器谓词</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>筛选器谓词</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>聚集索引不支持包含的列。</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>聚集索引不支持筛选器谓词。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>已将名为 "{0}" 的列包含到索引 "{1}"。行号: {2}。</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>名为 "{0}" 的包含列已是索引 "{1}" 的一部分，因此不能包含它。行号: {2}。</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>可更新账本</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>仅追加账本</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>账本</value>
+  </data>
 </root>

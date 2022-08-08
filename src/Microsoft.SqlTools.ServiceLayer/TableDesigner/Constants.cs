@@ -87,6 +87,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string IsUnique = "isUnique";
         public const string IsClustered = "isClustered";
         public const string Columns = "columns";
+        public const string IncludedColumns = "includedColumns";
+        public const string FilterPredicate = "filterPredicate";
         public const string ColumnsDisplayValue = "columnsDisplayValue";
     }
 
@@ -94,6 +96,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     {
         public const string Column = "column";
         public const string Ascending = "ascending";
+    }
+
+    public static class IndexIncludedColumnSpecificationPropertyNames
+    {
+        public const string Column = "column";
     }
 
     public static class EdgeConstraintPropertyNames

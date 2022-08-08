@@ -15,6 +15,18 @@ SmoTreeNodesDefinition.xml defines all the hierarchies and all the supported obj
 * How to filter objects based on the properties in each node
 * How to query each object (Reference to another generated code to query each object type)
 
+#### Filters
+
+\<Filters> is an optional part of an SMO Node definition, which is used to filter objects based on the expected properties for a certain node type.
+
+A \<Filters> node is comprised of \<Or> and \<Filter> nodes
+   - A \<Filter> node defines the properties to construct a NodePropertyFilter object
+   - An \<Or> node defines a list of \<Filter> nodes that are or'ed in the resulting URN Query
+
+\<Filters> can have an arbitrary number of top-level \<Or> and \<Filter> nodes.
+All filters defined at the top-level are and'ed in the resulting URN Query.
+This is generated into the `IEnumerable<INodeFilter> Filters` property for a particular SMO object in SmoTreeNodes.cs.
+
 ### SmoQueryModelDefinition.xml
 
 SmoQueryModelDefinition.xml defines the supported object types and how to query each type using SMO library. ChildQuerierTypes attribute in SmoTreeNodesDefinition.xml nodes has reference to the types in this xml file. It includes:
@@ -27,7 +39,7 @@ To get each object type, SMO by default only gets the name and schema and not al
 
 To optimize the query to get the properties needed to create each node, add the properties to the node element in SmoTreeNodesDefinition.xml.
 
-For example, to get the table node, we also need to get two properties IsSystemVersioned and TemporalType which are included as properties in the table node:
+For example, to get the table node, we also need to get three properties IsSystemVersioned, LedgerType, and TemporalType which are included as properties in the table node:
 
 ### Sample
 
@@ -39,13 +51,36 @@ For example, to get the table node, we also need to get two properties IsSystemV
         <Value>TableTemporalType.None</Value>
         <Value>TableTemporalType.SystemVersioned</Value>
       </Filter>
+      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+        <Value>LedgerTableType.None</Value>
+        <Value>LedgerTableType.UpdatableLedgerTable</Value>
+        <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
+      </Filter>
     </Filters>
     <Properties>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
-	  <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
+      <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
+      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
 </Node>
+```
+
+### Sample \<Or> Node Usage
+
+```xml
+  <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
+    <Filters>
+      <Or>
+        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+          <Value>TableTemporalType.HistoryTable</Value>
+        </Filter>
+        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+          <Value>LedgerTableType.HistoryTable</Value>
+        </Filter>
+      </Or>
+    </Filters>
+  </Node>
 ```
 
 ## Guides

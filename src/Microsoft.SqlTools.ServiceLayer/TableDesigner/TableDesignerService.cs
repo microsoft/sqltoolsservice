@@ -281,6 +281,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case IndexPropertyNames.Columns:
                                 table.Indexes.Items[indexL1].AddNewColumnSpecification();
                                 break;
+                            case IndexPropertyNames.IncludedColumns:
+                                table.Indexes.Items[indexL1].AddNewIncludedColumn();
+                                break;
                             default:
                                 break;
                         }
@@ -357,6 +360,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         {
                             case IndexPropertyNames.Columns:
                                 table.Indexes.Items[indexL1].RemoveColumnSpecification(indexL2);
+                                break;
+                            case IndexPropertyNames.IncludedColumns:
+                                table.Indexes.Items[indexL1].RemoveIncludedColumn(indexL2);
                                 break;
                             default:
                                 break;
@@ -601,6 +607,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case IndexPropertyNames.Description:
                                 sqlIndex.Description = GetStringValue(newValue);
                                 break;
+                            case IndexPropertyNames.FilterPredicate:
+                                sqlIndex.FilterPredicate = GetStringValue(newValue);
+                                break;
                             default:
                                 break;
                         }
@@ -681,6 +690,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                                         break;
                                     case IndexColumnSpecificationPropertyNames.Ascending:
                                         sqlIndex.UpdateIsAscending(indexL2, GetBooleanValue(newValue));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            case IndexPropertyNames.IncludedColumns:
+                                switch (propertyNameL3)
+                                {
+                                    case IndexIncludedColumnSpecificationPropertyNames.Column:
+                                        sqlIndex.UpdateIncludedColumn(indexL2, GetStringValue(newValue));
                                         break;
                                     default:
                                         break;
@@ -917,6 +936,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     indexVM.Columns.Data.Add(columnSpecVM);
                 }
+
+                indexVM.FilterPredicate.Value = index.FilterPredicate;
+                indexVM.FilterPredicate.Enabled = !index.IsClustered || index.FilterPredicate != null;
+                indexVM.IncludedColumns.Enabled = !index.IsClustered || index.IncludedColumns.Count() > 0;
+                indexVM.IncludedColumns.CanAddRows = !index.IsClustered;
+
+                foreach (var column in index.IncludedColumns)
+                {
+                    var includedColumnsVM = new IndexIncludedColumnSpecification();
+                    includedColumnsVM.Column.Value = column;
+                    includedColumnsVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
+                    indexVM.IncludedColumns.Data.Add(includedColumnsVM);
+                }
+
                 indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
                 indexVM.ColumnsDisplayValue.Enabled = false;
                 tableViewModel.Indexes.Data.Add(indexVM);
@@ -1184,6 +1217,43 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new CheckBoxProperties()
                     {
                         Title = SR.TableDesignerIsUniquePropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.FilterPredicate,
+                    Description = SR.IndexFilterPredicatePropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.IndexFilterPredicatePropertyTitle,
+                        Width = 200
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.IncludedColumns,
+                    Description = SR.IndexIncludedColumnsPropertyDescription,
+                    ComponentType = DesignerComponentType.Table,
+                    Group = SR.IndexIncludedColumnsGroupTitle,
+                    ComponentProperties = new TableComponentProperties<IndexIncludedColumnSpecification>()
+                    {
+                        AriaLabel = SR.IndexIncludedColumnsGroupTitle,
+                        Columns = new List<string> () { IndexIncludedColumnSpecificationPropertyNames.Column},
+                        LabelForAddNewButton = SR.IndexIncludedColumnsAddColumn,
+                        ItemProperties = new List<DesignerDataPropertyInfo>()
+                        {
+                            new DesignerDataPropertyInfo()
+                            {
+                                PropertyName = IndexIncludedColumnSpecificationPropertyNames.Column,
+                                ComponentType = DesignerComponentType.Dropdown,
+                                ComponentProperties = new DropdownProperties()
+                                {
+                                    Title = SR.IndexIncludedColumnsColumnPropertyName,
+                                    Width = 150
+                                }
+                            },
+                        }
                     }
                 }
             });

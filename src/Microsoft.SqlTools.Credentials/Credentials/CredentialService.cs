@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.Credentials
         /// </summary>
         private CredentialService()
             : this(null, new StoreConfig()
-                { CredentialFolder = DefaultSecretsFolder, CredentialFile = DefaultSecretsFile, IsRelativeToUserHomeDir = true})
+            { CredentialFolder = DefaultSecretsFolder, CredentialFile = DefaultSecretsFile, IsRelativeToUserHomeDir = true })
         {
         }
 
@@ -67,12 +67,12 @@ namespace Microsoft.SqlTools.Credentials
         /// </summary>
         internal static ICredentialStore GetStoreForOS(StoreConfig config)
         {
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new Win32CredentialStore();
             }
 #if !WINDOWS_ONLY_BUILD
-            else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return new OSXCredentialStore();
             }
@@ -161,16 +161,8 @@ namespace Microsoft.SqlTools.Credentials
         private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(TraceEventType.Verbose, requestType);
-
-            try
-            {
-                T result = await handler();
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+            T result = await handler();
+            await requestContext.SendResult(result);
         }
 
     }

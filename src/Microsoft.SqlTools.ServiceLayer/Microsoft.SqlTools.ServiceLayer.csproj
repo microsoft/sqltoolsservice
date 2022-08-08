@@ -23,7 +23,7 @@
 		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
 			<PropertyGroup>
 				<PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
-				<PackageVersion>1.0.0</PackageVersion>
+				<PackageVersion>1.1.0</PackageVersion>
 				<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
 				<PackAsTool>true</PackAsTool>
 				<ToolCommandName>$(AssemblyName)</ToolCommandName>
@@ -39,10 +39,6 @@
 			</PropertyGroup>
 			<ItemGroup>
 				<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-				<Content Include="./Migration/Metadata/**">
-					<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-					<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-				</Content>
 				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
 			</ItemGroup>
 		</Otherwise>

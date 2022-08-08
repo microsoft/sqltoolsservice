@@ -6254,6 +6254,73 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">平均行サイズ</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="IndexIncludedColumnsGroupTitle">
+        <source>Included Columns</source>
+        <target state="translated">付加列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsPropertyDescription">
+        <source>The included columns of the index</source>
+        <target state="translated">インデックスの付加列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsAddColumn">
+        <source>Add Column</source>
+        <target state="translated">列の追加</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsColumnPropertyName">
+        <source>Column</source>
+        <target state="translated">列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the index</source>
+        <target state="translated">インデックスのフィルター述語</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="translated">フィルター述語</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexCannotHaveIncludedColumnsRuleDescription">
+        <source>Included columns are not supported for a clustered index.</source>
+        <target state="translated">付加列は、クラスター化インデックスではサポートされていません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexCannotHaveFilterPredicateRuleDescription">
+        <source>Filter predicate is not supported for a clustered index.</source>
+        <target state="translated">クラスター化インデックスでは、フィルター述語はサポートされていません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription">
+        <source>Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.</source>
+        <target state="translated">'{0}' という名前の列は既にインデックス '{1}' に付加されています。行番号: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription">
+        <source>Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</source>
+        <target state="translated">'{0}' という名前の付加列は既にインデックス '{1}' の一部であり、付加することはできません。行番号: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="UpdatableLedger_LabelPart">
+        <source>Updatable Ledger</source>
+        <target state="translated">更新可能な台帳</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AppendOnlyLedger_LabelPart">
+        <source>Append-Only Ledger</source>
+        <target state="translated">追加専用台帳</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Ledger_LabelPart">
+        <source>Ledger</source>
+        <target state="translated">台帳</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

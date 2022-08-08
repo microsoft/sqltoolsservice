@@ -58,5 +58,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Error message returned from the engine for a object explorer node failure reason, if any.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// The object type of the node. e.g. Database, Server, Tables...
+        /// </summary>
+        public string ObjectType { get; set; }
     }
 }

@@ -4,11 +4,6 @@ steps:
   inputs:
     useGlobalJson: true
 
-- task: UseDotNet@2
-  displayName: 'Installing dotnet 3.1 to run srgen (To be removed after srgen is updated)'
-  inputs:
-    version: 3.1.406
-
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:

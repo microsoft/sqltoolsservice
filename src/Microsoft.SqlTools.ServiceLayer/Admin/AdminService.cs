@@ -81,24 +81,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<DefaultDatabaseInfoResponse> requestContext)
         {
-            try
-            {
-                var response = new DefaultDatabaseInfoResponse();
-                ConnectionInfo connInfo;
-                AdminService.ConnectionServiceInstance.TryFindConnection(
-                    optionsParams.OwnerUri,
-                    out connInfo);
+            var response = new DefaultDatabaseInfoResponse();
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                optionsParams.OwnerUri,
+                out connInfo);
 
-                using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
-                {
-                    response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception ex)
+            using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
             {
-                await requestContext.SendError(ex.ToString());
-            }                
+                response.DefaultDatabaseInfo = DatabaseTaskHelper.DatabasePrototypeToDatabaseInfo(taskHelper.Prototype);
+                await requestContext.SendResult(response);
+            }
         }
 
         /// <summary>
@@ -108,32 +101,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             CreateDatabaseParams databaseParams,
             RequestContext<CreateDatabaseResponse> requestContext)
         {
-            try
-            {        
-                var response = new DefaultDatabaseInfoResponse();
-                ConnectionInfo connInfo;
-                AdminService.ConnectionServiceInstance.TryFindConnection(
-                    databaseParams.OwnerUri,
-                    out connInfo);
+            var response = new DefaultDatabaseInfoResponse();
+            ConnectionInfo connInfo;
+            AdminService.ConnectionServiceInstance.TryFindConnection(
+                databaseParams.OwnerUri,
+                out connInfo);
 
-                using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
-                {
-                    DatabasePrototype prototype = taskHelper.Prototype;
-                    DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
-
-                    Database db = prototype.ApplyChanges();
-
-                    await requestContext.SendResult(new CreateDatabaseResponse()
-                    {
-                        Result = true,
-                        TaskId = 0
-                    });
-                }
-            }
-            catch (Exception ex)
+            using (var taskHelper = CreateDatabaseTaskHelper(connInfo))
             {
-                await requestContext.SendError(ex.ToString());
-            }         
+                DatabasePrototype prototype = taskHelper.Prototype;
+                DatabaseTaskHelper.ApplyToPrototype(databaseParams.DatabaseInfo, taskHelper.Prototype);
+
+                Database db = prototype.ApplyChanges();
+
+                await requestContext.SendResult(new CreateDatabaseResponse()
+                {
+                    Result = true,
+                    TaskId = 0
+                });
+            }
         }
 
         /// <summary>
@@ -143,39 +129,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             GetDatabaseInfoParams databaseParams,
             RequestContext<GetDatabaseInfoResponse> requestContext)
         {
-            try
+            Func<Task> requestHandler = async () =>
             {
-                Func<Task> requestHandler = async () =>
+                ConnectionInfo connInfo;
+                AdminService.ConnectionServiceInstance.TryFindConnection(
+                        databaseParams.OwnerUri,
+                        out connInfo);
+                DatabaseInfo info = null;
+
+                if (connInfo != null)
                 {
-                    ConnectionInfo connInfo;
-                    AdminService.ConnectionServiceInstance.TryFindConnection(
-                            databaseParams.OwnerUri,
-                            out connInfo);
-                    DatabaseInfo info = null;
+                    info = GetDatabaseInfo(connInfo);
+                }
 
-                    if (connInfo != null)
-                    {
-                        info = GetDatabaseInfo(connInfo);
-                    }
-
-                    await requestContext.SendResult(new GetDatabaseInfoResponse()
-                    {
-                        DatabaseInfo = info
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+                await requestContext.SendResult(new GetDatabaseInfoResponse()
                 {
-                    await requestContext.SendError(t.Exception.ToString());
+                    DatabaseInfo = info
                 });
+            };
 
-            }
-            catch (Exception ex)
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
             {
-                await requestContext.SendError(ex.ToString());
-            }
+                await requestContext.SendError(t.Exception.ToString());
+            });
         }
-        
+
         /// <summary>
         /// Return database info for a specific database
         /// </summary>

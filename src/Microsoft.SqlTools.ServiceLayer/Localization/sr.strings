@@ -680,6 +680,12 @@ History_LabelPart = History
 
 SystemVersioned_LabelPart = System-Versioned
 
+UpdatableLedger_LabelPart = Updatable Ledger
+
+AppendOnlyLedger_LabelPart = Append-Only Ledger
+
+Ledger_LabelPart = Ledger
+
 External_LabelPart = External
 
 FileTable_LabelPart = File Table
@@ -2280,6 +2286,12 @@ IndexIsUniquePropertyDescription = Whether the data entered into this index must
 TableDesignerIsUniquePropertyTitle = Is Unique
 IndexColumnIsAscendingPropertyDescription = Specifies the sort order of the column.
 IndexColumnIsAscendingPropertyTitle = Is Ascending
+IndexIncludedColumnsGroupTitle = Included Columns
+IndexIncludedColumnsPropertyDescription = The included columns of the index
+IndexIncludedColumnsAddColumn = Add Column
+IndexIncludedColumnsColumnPropertyName = Column
+IndexFilterPredicatePropertyDescription = Filter predicate of the index
+IndexFilterPredicatePropertyTitle = Filter Predicate
 TableDesignerColumnsDisplayValueTitle = Columns
 TableDesignerDeleteColumnConfirmationMessage = Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?
 TableDesignerGraphTableGroupTitle = Graph Table
@@ -2360,3 +2372,7 @@ TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription = The table has mor
 ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(string columnName) = Cannot use duplicate column names in primary key, column name: {0}
 MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription = Memory-optimized table is not supported for this database.
 MutipleCreateTableStatementsInScriptRuleDescription = There are multiple table definitions in the script, only the first table can be edited in the designer.
+ClusteredIndexCannotHaveIncludedColumnsRuleDescription = Included columns are not supported for a clustered index.
+ClusteredIndexCannotHaveFilterPredicateRuleDescription = Filter predicate is not supported for a clustered index.
+ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.
+ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.

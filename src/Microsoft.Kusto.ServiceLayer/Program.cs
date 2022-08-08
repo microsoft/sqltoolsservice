@@ -48,6 +48,12 @@ namespace Microsoft.Kusto.ServiceLayer
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
+                // If this service was started by another process, then it should shutdown when that parent process does.
+                if (commandOptions.ParentProcessId != null)
+                {
+                    ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
+                }
+
                 serviceHost.WaitForExit();
             }
             catch (Exception e)
