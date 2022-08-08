@@ -3826,4 +3826,43 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="AverageRowSize" xml:space="preserve">
     <value>Promedio de tamaño de fila</value>
   </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Columnas incluidas</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>Columnas incluidas del índice</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Agregar columna</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Columna</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filtrar predicado del índice</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Predicado de filtro</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>No se admiten columnas incluidas para un índice agrupado.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>No se admite el predicado de filtro para un índice agrupado.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>La columna con el nombre '{0}' ya se ha incluido en el índice '{1}'. Número de fila: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>La columna incluida con el nombre '{0}' ya forma parte del índice '{1}' y no se puede incluir. Número de fila: {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Libro de contabilidad actualizable</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Libro de contabilidad de solo anexo</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Libro de contabilidad</value>
+  </data>
 </root>
