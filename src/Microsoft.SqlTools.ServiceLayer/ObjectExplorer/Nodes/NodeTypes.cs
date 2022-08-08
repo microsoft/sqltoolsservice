@@ -133,6 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         SecurityPolicies,
         DatabaseScopedCredentials,
         ExternalTables,
+        DroppedLedgerTables,
         ExternalResource,
         ExternalDataSources,
         ExternalFileFormats,

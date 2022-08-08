@@ -797,6 +797,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         { LedgerTableType.UpdatableLedgerTable }
                     }
                 });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerTable",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object> { 0 },
+                });
                 return filters;
             }
         }
@@ -843,6 +850,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.SystemTables,
                 IsSystemObject = true,
                 IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_DroppedLedgerTables,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.DroppedLedgerTables,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1299,6 +1314,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Values = new List<object> { 1 },
                 });
                 return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new TableTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class DroppedLedgerTablesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "DroppedLedgerTables" }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerTable",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsDroppedLedgerTable",
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                return properties;
             }
         }
 
