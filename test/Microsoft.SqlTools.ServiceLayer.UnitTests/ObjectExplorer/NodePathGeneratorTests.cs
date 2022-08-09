@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void FindCorrectPathsForColumnWithDatabaseRoot()
         {
-            var paths = NodePathGenerator.FindNodePaths(databaseSession, "Column", string.Empty, "testColumn", databaseName, new List<string> { "testSchema.testTable" });
+            var paths = NodePathGenerator.FindNodePaths(databaseSession, "Column", null, "testColumn", databaseName, new List<string> { "testSchema.testTable" });
             var expectedPaths = new List<string>
             {
                 "testServer/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
@@ -126,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void FindCorrectPathsForDatabase()
         {
-            var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", string.Empty, databaseName, string.Empty);
+            var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", null, databaseName, string.Empty);
             var expectedPaths = new List<string>
             {
                 "testServer/Databases/testDatabase",
