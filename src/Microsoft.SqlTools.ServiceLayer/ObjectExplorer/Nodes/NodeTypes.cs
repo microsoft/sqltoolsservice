@@ -133,13 +133,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         SecurityPolicies,
         DatabaseScopedCredentials,
         ExternalTables,
-        DroppedLedgerTables,
         ExternalResource,
         ExternalDataSources,
         ExternalFileFormats,
         ExternalTable,
         AlwaysEncryptedKeys,
         ColumnMasterKeys,
-        ColumnEncryptionKeys
+        ColumnEncryptionKeys,
+        DroppedLedgerTables,
     }
 }
