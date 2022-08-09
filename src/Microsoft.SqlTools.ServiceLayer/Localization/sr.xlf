@@ -6321,6 +6321,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Ledger</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="new">Dropped Ledger Tables</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

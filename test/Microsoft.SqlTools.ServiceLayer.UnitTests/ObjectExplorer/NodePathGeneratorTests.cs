@@ -48,7 +48,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/testDatabase/Tables/testSchema.testTable",
                 "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable",
                 "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable",
-                "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable"
+                "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable",
+                "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable",
+                "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -61,11 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void FindCorrectPathsForTableWithDatabaseRoot()
         {
-            var paths = NodePathGenerator.FindNodePaths(databaseSession, "Table", "testSchema", "testTable", null);
+            var paths = NodePathGenerator.FindNodePaths(databaseSession, "Table", "testSchema", "testTable", string.Empty);
             var expectedPaths = new List<string>
             {
                 "testServer/testDatabase/Tables/testSchema.testTable",
-                "testServer/testDatabase/Tables/System Tables/testSchema.testTable"
+                "testServer/testDatabase/Tables/System Tables/testSchema.testTable",
+                "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -85,6 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
@@ -106,6 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             {
                 "testServer/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
             };
@@ -120,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void FindCorrectPathsForDatabase()
         {
-            var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", null, databaseName, null);
+            var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", null, databaseName, string.Empty);
             var expectedPaths = new List<string>
             {
                 "testServer/Databases/testDatabase",

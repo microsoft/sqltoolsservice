@@ -82,6 +82,7 @@
         <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
         <Value>LedgerTableType.UpdatableLedgerTable</Value>
       </Filter>
+      <Filter Property="IsDroppedLedgerTable" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
     </Filters>
     <Properties>
       <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
@@ -92,6 +93,7 @@
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <Child Name="ExternalTables"/>
+    <Child Name="DroppedLedgerTables" IsDroppedLedgerTable="1"/>
   </Node>
 
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
@@ -160,6 +162,14 @@
     <Filters >
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
     </Filters>
+  </Node>
+  <Node Name="DroppedLedgerTables" LocLabel="SR.SchemaHierarchy_DroppedLedgerTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2022|AzureV12">
+    <Filters >
+      <Filter Property="IsDroppedLedgerTable" Value="1" Type="bool" />
+    </Filters>
+    <Properties>
+      <Property Name="IsDroppedLedgerTable" ValidFor="Sql2022|AzureV12"/>
+    </Properties>
   </Node>
   <!--
   <Node Name="FileTables" LocLabel="SR.SchemaHierarchy_FileTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022">
