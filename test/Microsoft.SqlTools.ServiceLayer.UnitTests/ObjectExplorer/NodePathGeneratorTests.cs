@@ -93,7 +93,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
-                "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
+                "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -113,7 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
                 "testServer/testDatabase/Views/testSchema.testTable/Columns/testColumn",
-                "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
+                "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);

@@ -99,8 +99,10 @@
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
+      <Filter Property="IsDroppedLedgerView" Value="0" Type="bool" ValidFor="Sql2022|AzureV12"/>
     </Filters>
     <Child Name="SystemViews" IsSystemObject="1"/>
+    <Child Name="DroppedLedgerViews" IsDroppedLedgerView="1"/>
   </Node>
 
   <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
@@ -246,6 +248,12 @@
   <Node Name="SystemViews" LocLabel="SR.SchemaHierarchy_SystemViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
     <Filters>
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
+    </Filters>
+  </Node>
+
+  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
+    <Filters>
+      <Filter Property="IsDroppedLedgerView" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
     </Filters>
   </Node>
 
