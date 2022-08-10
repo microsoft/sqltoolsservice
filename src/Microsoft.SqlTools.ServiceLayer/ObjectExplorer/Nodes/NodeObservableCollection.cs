@@ -34,8 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             get
             {
-                // SMO objects are already sorted so no need to sort them again
-                return this.FirstOrDefault() is SmoTreeNode;
+                // SMO objects are already sorted so no need to sort them again, unless they have dropped folders
+                bool anyDroppedFolders = this.Any(
+                        node => node is FolderNode &&
+                        (node.NodeTypeId == NodeTypes.DroppedLedgerTables ||
+                         node.NodeTypeId == NodeTypes.DroppedLedgerViews));
+                return this.FirstOrDefault() is SmoTreeNode && !anyDroppedFolders;
             }
         }
 

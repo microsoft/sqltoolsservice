@@ -858,7 +858,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.DroppedLedgerTables,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
+                SortPriority = Int16.MaxValue,
             });
         }
 
@@ -922,7 +922,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.DroppedLedgerViews,
                 IsSystemObject = false,
                 IsMsShippedOwned = true,
-                SortPriority = SmoTreeNode.NextSortPriority,
+                SortPriority = Int16.MaxValue,
             });
         }
 
