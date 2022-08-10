@@ -136,4 +136,47 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
     }
+
+
+    /// <summary>
+    /// Custom name and icon for dropped ledger tables
+    /// </summary>
+    internal partial class DroppedLedgerTablesChildFactory : SmoChildFactoryBase
+    {
+        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
+                {
+                    if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.AppendOnlyLedger_LabelPart})";
+                    }
+                    else if (table.LedgerType == LedgerTableType.UpdatableLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.UpdatableLedger_LabelPart})";
+                    }
+                }
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
+            }
+
+            return string.Empty;
+        }
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            return "Ledger";
+        }
+
+        public override string GetNodePathName(object smoObject)
+        {
+            return TableCustomNodeHelper.GetPathName(smoObject);
+        }
+    }
+
 }

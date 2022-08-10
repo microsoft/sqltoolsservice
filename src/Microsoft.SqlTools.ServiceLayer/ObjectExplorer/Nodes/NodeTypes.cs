@@ -141,5 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         ColumnMasterKeys,
         ColumnEncryptionKeys,
         DroppedLedgerTables,
+        DroppedLedgerViews,
     }
 }

@@ -895,6 +895,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Type = typeof(bool),
                     Values = new List<object> { 0 },
                 });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerView",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object> { 0 },
+                });
                 return filters;
             }
         }
@@ -906,6 +913,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemViews,
                 IsSystemObject = true,
+                IsMsShippedOwned = true,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_DroppedLedgerViews,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.DroppedLedgerViews,
+                IsSystemObject = false,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
@@ -1815,6 +1830,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlViewQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ViewTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class DroppedLedgerViewsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "DroppedLedgerViews" }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerView",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
                     Values = new List<object> { 1 },
                 });
                 return filters;
