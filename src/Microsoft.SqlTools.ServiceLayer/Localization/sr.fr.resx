@@ -3790,4 +3790,79 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>Il existe plusieurs définitions de table dans le script, seule la première table peut être modifiée dans le concepteur.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Opération</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Objet</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Coût estimé en %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Coût estimé du sous-arbre</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Lignes réelles</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Lignes estimées</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Exécutions réelles</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Exécutions estimées</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Coût CPU estimé</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Coût d’E/S estimé</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Taille réelle des données</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Taille moyenne de ligne</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Colonnes incluses</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>Les colonnes incluses de l'index</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Ajouter une colonne</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Colonne</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Prédicat de filtre de l'index</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Prédicat de Filtre</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Les colonnes incluses ne sont pas prises en charge pour un index clusterisé.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Le prédicat de filtre n'est pas pris en charge pour un index clusterisé.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>La colonne portant le nom '{0}' a déjà été incluse dans l'index '{1}'. Numéro de ligne : {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>La colonne incluse avec le nom '{0}' a déjà fait partie de l'index '{1}' et ne peut pas être incluse. Numéro de ligne : {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Registre actualisable</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Registre en annexe uniquement</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Registre</value>
+  </data>
 </root>

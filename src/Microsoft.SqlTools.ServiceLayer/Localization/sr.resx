@@ -1280,6 +1280,14 @@
     <value>External Tables</value>
     <comment></comment>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Dropped Ledger Tables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Dropped Ledger Views</value>
+    <comment></comment>
+  </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
     <value>Always Encrypted Keys</value>
     <comment></comment>
@@ -1378,6 +1386,18 @@
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
     <value>System-Versioned</value>
+    <comment></comment>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Updatable Ledger</value>
+    <comment></comment>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Append-Only Ledger</value>
+    <comment></comment>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Ledger</value>
     <comment></comment>
   </data>
   <data name="External_LabelPart" xml:space="preserve">
@@ -4644,6 +4664,54 @@ The Query Processor estimates that implementing the following index could improv
     <value>Parallel Execution</value>
     <comment>tooltip text for node parallelism overlay</comment>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operation</value>
+    <comment></comment>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Object</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>Estimated Cost %</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Estimated Subtree Cost</value>
+    <comment></comment>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Actual Rows</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Estimated Rows</value>
+    <comment></comment>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Actual Executions</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Estimated Executions</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Estimated CPU Cost</value>
+    <comment></comment>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Estimated IO Cost</value>
+    <comment></comment>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Average Row Size</value>
+    <comment></comment>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Actual Data Size</value>
+    <comment></comment>
+  </data>
   <data name="TableNotInitializedException" xml:space="preserve">
     <value>Initialization is not properly done for table with id &apos;{0}&apos;</value>
     <comment>.
@@ -4753,6 +4821,30 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
     <value>Is Ascending</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Included Columns</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>The included columns of the index</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Add Column</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Column</value>
+    <comment></comment>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filter predicate of the index</value>
+    <comment></comment>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filter Predicate</value>
     <comment></comment>
   </data>
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
@@ -5085,5 +5177,23 @@ The Query Processor estimates that implementing the following index could improv
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>There are multiple table definitions in the script, only the first table can be edited in the designer.</value>
     <comment></comment>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Included columns are not supported for a clustered index.</value>
+    <comment></comment>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Filter predicate is not supported for a clustered index.</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been included to the index &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>Included column with name &apos;{0}&apos; has already been part of the index &apos;{1}&apos; and it cannot be included. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
 </root>

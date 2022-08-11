@@ -2045,6 +2045,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaHierarchy_DroppedLedgerTables
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DroppedLedgerTables);
+            }
+        }
+
+        public static string SchemaHierarchy_DroppedLedgerViews
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DroppedLedgerViews);
+            }
+        }
+
         public static string SchemaHierarchy_AlwaysEncryptedKeys
         {
             get
@@ -2242,6 +2258,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.SystemVersioned_LabelPart);
+            }
+        }
+
+        public static string UpdatableLedger_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.UpdatableLedger_LabelPart);
+            }
+        }
+
+        public static string AppendOnlyLedger_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.AppendOnlyLedger_LabelPart);
+            }
+        }
+
+        public static string Ledger_LabelPart
+        {
+            get
+            {
+                return Keys.GetString(Keys.Ledger_LabelPart);
             }
         }
 
@@ -8485,6 +8525,102 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Operation
+        {
+            get
+            {
+                return Keys.GetString(Keys.Operation);
+            }
+        }
+
+        public static string Object
+        {
+            get
+            {
+                return Keys.GetString(Keys.Object);
+            }
+        }
+
+        public static string EstimatedCost
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedCost);
+            }
+        }
+
+        public static string EstimatedSubtree
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedSubtree);
+            }
+        }
+
+        public static string ActualRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualRows);
+            }
+        }
+
+        public static string EstimatedRows
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedRows);
+            }
+        }
+
+        public static string ActualExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualExecutions);
+            }
+        }
+
+        public static string EstimatedExecutions
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedExecutions);
+            }
+        }
+
+        public static string EstimatedCpu
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedCpu);
+            }
+        }
+
+        public static string EstimatedIO
+        {
+            get
+            {
+                return Keys.GetString(Keys.EstimatedIO);
+            }
+        }
+
+        public static string AverageRowSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.AverageRowSize);
+            }
+        }
+
+        public static string ActualDataSize
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualDataSize);
+            }
+        }
+
         public static string TableEditPathNotProvidedException
         {
             get
@@ -8674,6 +8810,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.IndexColumnIsAscendingPropertyTitle);
+            }
+        }
+
+        public static string IndexIncludedColumnsGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsGroupTitle);
+            }
+        }
+
+        public static string IndexIncludedColumnsPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsPropertyDescription);
+            }
+        }
+
+        public static string IndexIncludedColumnsAddColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsAddColumn);
+            }
+        }
+
+        public static string IndexIncludedColumnsColumnPropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIncludedColumnsColumnPropertyName);
+            }
+        }
+
+        public static string IndexFilterPredicatePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexFilterPredicatePropertyDescription);
+            }
+        }
+
+        public static string IndexFilterPredicatePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexFilterPredicatePropertyTitle);
             }
         }
 
@@ -9229,6 +9413,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ClusteredIndexCannotHaveIncludedColumnsRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexCannotHaveIncludedColumnsRuleDescription);
+            }
+        }
+
+        public static string ClusteredIndexCannotHaveFilterPredicateRuleDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ClusteredIndexCannotHaveFilterPredicateRuleDescription);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9592,6 +9792,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(string columnName)
         {
             return Keys.GetString(Keys.ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription, columnName);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription, columnName, indexName, rowNumber);
+        }
+
+        public static string ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription, columnName, indexName, rowNumber);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -10451,6 +10661,12 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SchemaHierarchy_ExternalTables = "SchemaHierarchy_ExternalTables";
 
 
+            public const string SchemaHierarchy_DroppedLedgerTables = "SchemaHierarchy_DroppedLedgerTables";
+
+
+            public const string SchemaHierarchy_DroppedLedgerViews = "SchemaHierarchy_DroppedLedgerViews";
+
+
             public const string SchemaHierarchy_AlwaysEncryptedKeys = "SchemaHierarchy_AlwaysEncryptedKeys";
 
 
@@ -10524,6 +10740,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SystemVersioned_LabelPart = "SystemVersioned_LabelPart";
+
+
+            public const string UpdatableLedger_LabelPart = "UpdatableLedger_LabelPart";
+
+
+            public const string AppendOnlyLedger_LabelPart = "AppendOnlyLedger_LabelPart";
+
+
+            public const string Ledger_LabelPart = "Ledger_LabelPart";
 
 
             public const string External_LabelPart = "External_LabelPart";
@@ -12950,6 +13175,42 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ParallelismOverlayTooltip = "ParallelismOverlayTooltip";
 
 
+            public const string Operation = "Operation";
+
+
+            public const string Object = "Object";
+
+
+            public const string EstimatedCost = "EstimatedCost";
+
+
+            public const string EstimatedSubtree = "EstimatedSubtree";
+
+
+            public const string ActualRows = "ActualRows";
+
+
+            public const string EstimatedRows = "EstimatedRows";
+
+
+            public const string ActualExecutions = "ActualExecutions";
+
+
+            public const string EstimatedExecutions = "EstimatedExecutions";
+
+
+            public const string EstimatedCpu = "EstimatedCpu";
+
+
+            public const string EstimatedIO = "EstimatedIO";
+
+
+            public const string AverageRowSize = "AverageRowSize";
+
+
+            public const string ActualDataSize = "ActualDataSize";
+
+
             public const string TableNotInitializedException = "TableNotInitializedException";
 
 
@@ -13029,6 +13290,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string IndexColumnIsAscendingPropertyTitle = "IndexColumnIsAscendingPropertyTitle";
+
+
+            public const string IndexIncludedColumnsGroupTitle = "IndexIncludedColumnsGroupTitle";
+
+
+            public const string IndexIncludedColumnsPropertyDescription = "IndexIncludedColumnsPropertyDescription";
+
+
+            public const string IndexIncludedColumnsAddColumn = "IndexIncludedColumnsAddColumn";
+
+
+            public const string IndexIncludedColumnsColumnPropertyName = "IndexIncludedColumnsColumnPropertyName";
+
+
+            public const string IndexFilterPredicatePropertyDescription = "IndexFilterPredicatePropertyDescription";
+
+
+            public const string IndexFilterPredicatePropertyTitle = "IndexFilterPredicatePropertyTitle";
 
 
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
@@ -13269,6 +13548,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string MutipleCreateTableStatementsInScriptRuleDescription = "MutipleCreateTableStatementsInScriptRuleDescription";
+
+
+            public const string ClusteredIndexCannotHaveIncludedColumnsRuleDescription = "ClusteredIndexCannotHaveIncludedColumnsRuleDescription";
+
+
+            public const string ClusteredIndexCannotHaveFilterPredicateRuleDescription = "ClusteredIndexCannotHaveFilterPredicateRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription = "ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription";
+
+
+            public const string ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription = "ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription";
 
 
             private Keys()

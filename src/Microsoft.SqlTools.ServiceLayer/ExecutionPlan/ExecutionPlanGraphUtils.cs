@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
-        {   
+        {
             return new ExecutionPlanNode
             {
                 ID = currentNode.ID,
@@ -49,7 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Edges = currentNode.Edges.Select(x => ConvertShowPlanEdgeToExecutionPlanEdge(x)).ToList(),
                 Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
-                ElapsedTimeInMs = currentNode.ElapsedTimeInMs
+                ElapsedTimeInMs = currentNode.ElapsedTimeInMs,
+                TopOperationsData = ParseTopOperationsData(currentNode)
             };
         }
 
@@ -161,6 +162,221 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
             }
             return propsList;
+        }
+
+        public static List<TopOperationsDataItem> ParseTopOperationsData(Node currentNode)
+        {   
+            const string OBJECT_COLUMN_KEY = "Object";
+            const string ESTIMATED_ROWS_COLUMN_KEY = "EstimateRows";
+            const string ACTUAL_ROWS_COLUMN_KEY = "ActualRows";
+            const string AVERAGE_ROW_SIZE_COLUMN_KEY = "AvgRowSize";
+            const string ACTUAL_EXECUTIONS_COLUMN_KEY = "ActualExecutions";
+            const string ESTIMATED_EXECUTIONS_COLUMN_KEY = "EstimateExecutions";
+            const string ESTIMATED_CPU_COLUMN_KEY = "EstimateCPU";
+            const string ESTIMATED_IO_COLUMN_KEY = "EstimateIO";
+            const string PARALLEL_COLUMN_KEY = "Parallel";
+            const string ORDERED_COLUMN_KEY = "Ordered";
+            const string ACTUAL_REWINDS_COLUMN_KEY = "ActualRewinds";
+            const string ESTIMATED_REWINDS_COLUMN_KEY = "EstimateRewinds";
+            const string ACTUAL_REBINDS_COLUMN_KEY = "ActualRebinds";
+            const string ESTIMATED_REBINDS_COLUMN_KEY = "EstimateRebinds";
+            const string PARTITIONED_COLUMN_KEY = "Partitioned";
+
+
+            List<TopOperationsDataItem> result = new List<TopOperationsDataItem>();
+            result.Add(new TopOperationsDataItem
+            {
+                ColumnName = SR.Operation,
+                DataType = PropertyValueDataType.String,
+                DisplayValue = currentNode.Operation.DisplayName
+            });
+
+            if (currentNode[OBJECT_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Object,
+                    DataType = PropertyValueDataType.String,
+                    DisplayValue =  ((ExpandableObjectWrapper)currentNode[OBJECT_COLUMN_KEY]).DisplayName
+                });
+            }
+
+            result.Add(new TopOperationsDataItem
+            {
+                ColumnName = SR.EstimatedCost,
+                DataType = PropertyValueDataType.Number,
+                DisplayValue = Math.Round(currentNode.RelativeCost * 100, 2)
+            });
+
+            result.Add(new TopOperationsDataItem
+            {
+                ColumnName = SR.EstimatedSubtree,
+                DataType = PropertyValueDataType.Number,
+                DisplayValue = Math.Round(currentNode.SubtreeCost, 1)
+            });
+
+            if (currentNode[ESTIMATED_ROWS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedRows,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = Math.Round((double)currentNode[ESTIMATED_ROWS_COLUMN_KEY])
+                });
+            }
+
+
+            if (currentNode[ACTUAL_ROWS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualRows,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ACTUAL_ROWS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.AverageRowSize,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ACTUAL_EXECUTIONS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualExecutions,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ACTUAL_EXECUTIONS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ESTIMATED_EXECUTIONS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedExecutions,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ESTIMATED_EXECUTIONS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ESTIMATED_CPU_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedCpu,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ESTIMATED_CPU_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ESTIMATED_IO_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedIO,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ESTIMATED_IO_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ESTIMATED_ROWS_COLUMN_KEY] != null && currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedDataSize,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = (double)currentNode[ESTIMATED_ROWS_COLUMN_KEY] * (double)currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY]
+                });
+            }
+
+
+            if (currentNode[ACTUAL_ROWS_COLUMN_KEY] != null && currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualDataSize,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = (double)(currentNode[ACTUAL_ROWS_COLUMN_KEY] as RunTimeCounters).MaxCounter * (double)currentNode[AVERAGE_ROW_SIZE_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[PARALLEL_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Parallel,
+                    DataType = PropertyValueDataType.Boolean,
+                    DisplayValue = currentNode[PARALLEL_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ORDERED_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Ordered,
+                    DataType = PropertyValueDataType.Boolean,
+                    DisplayValue = currentNode[ORDERED_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ACTUAL_REWINDS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualRewinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ACTUAL_REWINDS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ESTIMATED_REWINDS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedRewinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ESTIMATED_REWINDS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ACTUAL_REBINDS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.ActualRebinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ACTUAL_REBINDS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[ESTIMATED_REBINDS_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.EstimatedRebinds,
+                    DataType = PropertyValueDataType.Number,
+                    DisplayValue = currentNode[ESTIMATED_REBINDS_COLUMN_KEY]
+                });
+            }
+
+            if (currentNode[PARTITIONED_COLUMN_KEY] != null)
+            {
+                result.Add(new TopOperationsDataItem
+                {
+                    ColumnName = SR.Partitioned,
+                    DataType = PropertyValueDataType.Boolean,
+                    DisplayValue = currentNode[PARTITIONED_COLUMN_KEY]
+                });
+            }
+            return result;
         }
 
         private static List<ExecutionPlanRecommendation> ParseRecommendations(ShowPlanGraph g, string fileName)

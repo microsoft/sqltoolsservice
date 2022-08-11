@@ -139,6 +139,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         ExternalTable,
         AlwaysEncryptedKeys,
         ColumnMasterKeys,
-        ColumnEncryptionKeys
+        ColumnEncryptionKeys,
+        DroppedLedgerTables,
+        DroppedLedgerViews,
     }
 }

@@ -267,33 +267,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         }
 
         /// <summary>
-        /// Compares two strings and gives appropriate output
-        /// </summary>
-        /// <param name="actualContent">Actual string</param>
-        /// <param name="baselineContent">Expected string</param>
-        /// <remarks>Fails test if strings do not match; comparison is done using an InvariantCulture StringComparer</remarks>
-        public static void CompareActualWithBaseline(string actualContent, string baselineContent)
-        {
-
-            int _compareResult = string.Compare(actualContent, baselineContent, StringComparison.OrdinalIgnoreCase);
-            if (_compareResult != 0)
-            {
-                Trace.WriteLine("Debug Info:");
-                Trace.WriteLine("========BEGIN=EXPECTED========");
-                Trace.WriteLine(baselineContent);
-                Trace.WriteLine("=========END=EXPECTED=========");
-                Trace.WriteLine("=========BEGIN=ACTUAL=========");
-                Trace.WriteLine(actualContent);
-                Trace.WriteLine("==========END=ACTUAL==========");
-                Assert.True(false, string.Format("Comparison failed! (actualContent {0} baselineContent)", (_compareResult < 0 ? "<" : ">")));    //we already know it is not equal
-            }
-            else
-            {
-                Trace.WriteLine("Compare match! All is fine...");
-            }
-        }
-
-        /// <summary>
         /// Gets the name of the testscript with the provided name
         /// </summary>
         /// <param name="name">Name of the test</param>

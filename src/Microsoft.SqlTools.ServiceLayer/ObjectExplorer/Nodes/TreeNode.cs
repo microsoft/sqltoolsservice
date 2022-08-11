@@ -67,7 +67,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The name of this object as included in its node path
         /// </summary>
-        public string NodePathName {
+        public string NodePathName
+        {
             get
             {
                 if (string.IsNullOrEmpty(nodePathName))
@@ -123,10 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// for many nodes such as the server, the display label will be different
         /// to the value.
         /// </summary>
-        public string Label {
+        public string Label
+        {
             get
             {
-                if(label == null)
+                if (label == null)
                 {
                     return NodeValue;
                 }
@@ -166,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 nodePath = null;
             }
         }
-        
+
         /// <summary>
         /// Path identifying this node: for example a table will be at ["server", "database", "tables", "tableName"].
         /// This enables rapid navigation of the tree without the need for a global registry of elements.
@@ -193,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     return false;
                 }
                 // Otherwise add this value to the beginning of the path and keep iterating up
-                path = string.Format(CultureInfo.InvariantCulture, 
+                path = string.Format(CultureInfo.InvariantCulture,
                     "{0}{1}{2}", node.NodePathName, string.IsNullOrEmpty(path) ? "" : PathPartSeperator.ToString(), path);
                 return true;
             });
@@ -229,7 +231,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
                 NodeSubType = this.NodeSubType,
-                ErrorMessage = this.ErrorMessage
+                ErrorMessage = this.ErrorMessage,
+                ObjectType = this.NodeTypeId.ToString()
             };
         }
 
@@ -290,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             children.Add(newChild);
             newChild.Parent = this;
         }
-        
+
         /// <summary>
         /// Optional context to help with lookup of children
         /// </summary>
@@ -400,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             return string.Compare(thisItem.NodeValue, otherItem.NodeValue, StringComparison.OrdinalIgnoreCase);
         }
-        
+
         public int CompareTo(TreeNode other)
         {
 
@@ -410,23 +413,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 return CompareSamePriorities(this, other);
             }
 
-            if (this.SortPriority.HasValue &&
-                !other.SortPriority.HasValue)
-            {
-                return -1; // this is above other
-            }
-            if (!this.SortPriority.HasValue)
-            {
-                return 1; // this is below other
-            }
+            // Higher SortPriority = lower in the list. A couple nodes are defined with SortPriority of Int16.MaxValue
+            // so they're placed at the bottom of the node list (Dropped Ledger Tables and Dropped Ledger Views folders)
+            // Individual objects, like tables and views, don't have a SortPriority defined, so their values need
+            // to be resolved. If a node doesn't have a SortPriority, set it to the second-highest value.
+            int thisPriority = this.SortPriority ?? Int32.MaxValue - 1;
+            int otherPriority = other.SortPriority ?? Int32.MaxValue - 1;
 
-            // Both have sort priority
-            int priDiff = this.SortPriority.Value - other.SortPriority.Value;
-            if (priDiff < 0)
-                return -1; // this is below other
-            if (priDiff == 0)
-                return 0;
-            return 1;
+            // diff > 0 == this below other
+            // diff < 0 == other below this
+            return thisPriority - otherPriority;
         }
     }
 }

@@ -3790,4 +3790,79 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>Há múltiplas definições de tabela no script, somente a primeira tabela pode ser editada no designer.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operação</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Objeto</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>% do Custo Estimado</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>Custo da subárvore estimado</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>Linhas Atuais</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>Linhas Estimadas</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>Execuções Reais</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>Execuções Estimadas</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>Custo estimado da CPU</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>Custo Estimado de E/S</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>Tamanho Real dos Dados</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>Tamanho Médio da Linha</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Colunas Incluídas</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>As colunas incluídas do índice</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Adicionar Coluna</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Coluna</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Predicado de filtro do índice</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filtro (Predicado)</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Não há suporte para colunas incluídas em um índice clusterizado.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Não há suporte para o predicado de filtro em um índice clusterizado.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>A coluna com o nome “{0}” já foi incluída no índice “{1}”. Número da linha: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>A coluna incluída com o nome “{0}” já fez parte do índice “{1}” e não pode ser incluída. Número da linha: {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Razão Atualizável</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Razão Somente Acréscimo</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Razão</value>
+  </data>
 </root>

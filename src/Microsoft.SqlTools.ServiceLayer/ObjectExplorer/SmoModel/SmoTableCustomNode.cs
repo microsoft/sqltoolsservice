@@ -16,7 +16,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             try
             {
-                Table table = smoObject as Table;
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
+                {
+                    if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.AppendOnlyLedger_LabelPart})";
+                    }
+                    else if (table.LedgerType == LedgerTableType.UpdatableLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.UpdatableLedger_LabelPart})";
+                    }
+                }
                 if (table != null && IsPropertySupported("IsSystemVersioned", smoContext, table, CachedSmoProperties) && table.IsSystemVersioned)
                 {
                     return $"{table.Schema}.{table.Name} ({SR.SystemVersioned_LabelPart})";
@@ -42,7 +53,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             try
             {
-                Table table = smoObject as Table;
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties) &&
+                    (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable || table.LedgerType == LedgerTableType.UpdatableLedgerTable))
+                {
+                    return "Ledger";
+                }
                 if (table != null && IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
                 {
                     return "Temporal";
@@ -70,17 +86,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     }
 
     /// <summary>
-    /// Custom name for history table
+    /// Custom name and icon for history table
     /// </summary>
     internal partial class TableChildFactory : SmoChildFactoryBase
     {
         public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
         {
-            Table table = smoObject as Table;
+            Table? table = smoObject as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name} ({SR.History_LabelPart})";
             }
+
+            return string.Empty;
+        }
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties) &&
+                    table.LedgerType == LedgerTableType.HistoryTable)
+                {
+                    return "LedgerHistory";
+                }
+            }
+            catch {}
 
             return string.Empty;
         }
@@ -95,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         internal static string GetPathName(object smoObject)
         {
-            Table table = smoObject as Table;
+            Table? table = smoObject as Table;
             if (table != null)
             {
                 return $"{table.Schema}.{table.Name}";
@@ -104,4 +136,47 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return string.Empty;
         }
     }
+
+
+    /// <summary>
+    /// Custom name and icon for dropped ledger tables
+    /// </summary>
+    internal partial class DroppedLedgerTablesChildFactory : SmoChildFactoryBase
+    {
+        public override string GetNodeCustomName(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                Table? table = smoObject as Table;
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
+                {
+                    if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.AppendOnlyLedger_LabelPart})";
+                    }
+                    else if (table.LedgerType == LedgerTableType.UpdatableLedgerTable)
+                    {
+                        return $"{table.Schema}.{table.Name} ({SR.UpdatableLedger_LabelPart})";
+                    }
+                }
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
+            }
+
+            return string.Empty;
+        }
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            return "Ledger";
+        }
+
+        public override string GetNodePathName(object smoObject)
+        {
+            return TableCustomNodeHelper.GetPathName(smoObject);
+        }
+    }
+
 }

@@ -72,40 +72,40 @@ END
         private DeploymentOptions GetIgnoreColumnOptions()
         {
             var options = new DeploymentOptions();
-            options.IgnoreColumnOrder = new DeploymentOptionProperty<bool>(true);
+            options.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreColumnOrder)].Value = true;
             return options;
         }
 
         private DeploymentOptions GetExcludeTableValuedFunctionOptions()
         {
             var options = new DeploymentOptions();
-            options.ExcludeObjectTypes = new DeploymentOptionProperty<ObjectType[]>
+            options.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>
                 (
-                    new ObjectType[]{
-                        ObjectType.ServerTriggers,
-                        ObjectType.Routes,
-                        ObjectType.LinkedServerLogins,
-                        ObjectType.Endpoints,
-                        ObjectType.ErrorMessages,
-                        ObjectType.Filegroups,
-                        ObjectType.Files,
-                        ObjectType.Logins,
-                        ObjectType.LinkedServers,
-                        ObjectType.Credentials,
-                        ObjectType.DatabaseScopedCredentials,
-                        ObjectType.DatabaseEncryptionKeys,
-                        ObjectType.MasterKeys,
-                        ObjectType.DatabaseAuditSpecifications,
-                        ObjectType.Audits,
-                        ObjectType.ServerAuditSpecifications,
-                        ObjectType.CryptographicProviders,
-                        ObjectType.ServerRoles,
-                        ObjectType.EventSessions,
-                        ObjectType.DatabaseOptions,
-                        ObjectType.EventNotifications,
-                        ObjectType.ServerRoleMembership,
-                        ObjectType.AssemblyFiles,
-                        ObjectType.TableValuedFunctions, //added Functions to excluded types
+                    new string[]{
+                        Enum.GetName(ObjectType.ServerTriggers),
+                        Enum.GetName(ObjectType.Routes),
+                        Enum.GetName(ObjectType.LinkedServerLogins),
+                        Enum.GetName(ObjectType.Endpoints),
+                        Enum.GetName(ObjectType.ErrorMessages),
+                        Enum.GetName(ObjectType.Filegroups),
+                        Enum.GetName(ObjectType.Files),
+                        Enum.GetName(ObjectType.Logins),
+                        Enum.GetName(ObjectType.LinkedServers),
+                        Enum.GetName(ObjectType.Credentials),
+                        Enum.GetName(ObjectType.DatabaseScopedCredentials),
+                        Enum.GetName(ObjectType.DatabaseEncryptionKeys),
+                        Enum.GetName(ObjectType.MasterKeys),
+                        Enum.GetName(ObjectType.DatabaseAuditSpecifications),
+                        Enum.GetName(ObjectType.Audits),
+                        Enum.GetName(ObjectType.ServerAuditSpecifications),
+                        Enum.GetName(ObjectType.CryptographicProviders),
+                        Enum.GetName(ObjectType.ServerRoles),
+                        Enum.GetName(ObjectType.EventSessions),
+                        Enum.GetName(ObjectType.DatabaseOptions),
+                        Enum.GetName(ObjectType.EventNotifications),
+                        Enum.GetName(ObjectType.ServerRoleMembership),
+                        Enum.GetName(ObjectType.AssemblyFiles),
+                        Enum.GetName(ObjectType.TableValuedFunctions), //added Functions to excluded types
                     }
                 );
             return options;

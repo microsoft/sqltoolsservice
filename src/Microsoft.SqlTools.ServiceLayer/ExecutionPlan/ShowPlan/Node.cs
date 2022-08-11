@@ -579,11 +579,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// <summary>
         /// Gets lines of text displayed under the icon.
         /// </summary>
-        /// <returns>Array of strings.</returns>
-        
-        /// <summary>
-        /// Gets lines of text displayed under the icon.
-        /// </summary>
         /// <param name="roundCostForSmallGraph">Converts decimal costs in case of graph with less than 20 nodes.</param>
         /// <returns>Array of strings.</returns>
         public string[] GetDisplayLinesOfText(bool roundCostForSmallGraph = false)
@@ -595,7 +590,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             if (!this.HasPDWCost || cost > 0)
             {
-                if(roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < 20){
+                if (roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < Node.LargePlanNodeCount)
+                {
                     cost = Math.Round(cost);
                 }
                 string costText = SR.CostFormat(cost.ToString("0.##"));
@@ -733,6 +729,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// List of Seek or Scan type operators that can be considered match
         /// </summary>
         private List<string> SeekOrScanPhysicalOpList = new List<string> { "IndexSeek", "TableScan", "IndexScan", "ColumnstoreIndexScan" };
+
+        #endregion
+
+        #region Constants
+
+        public static readonly int LargePlanNodeCount = 20;
 
         #endregion
 

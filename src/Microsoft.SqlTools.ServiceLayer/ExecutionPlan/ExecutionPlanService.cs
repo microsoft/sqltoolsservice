@@ -55,18 +55,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
         private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)
         {
-            try
+            var plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
+            await requestContext.SendResult(new GetExecutionPlanResult
             {
-                var plans = ExecutionPlanGraphUtils.CreateShowPlanGraph(requestParams.GraphInfo.GraphFileContent, "");
-                await requestContext.SendResult(new GetExecutionPlanResult
-                {
-                    Graphs = plans
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
+                Graphs = plans
+            });
         }
 
         /// <summary>
@@ -76,39 +69,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             ExecutionPlanComparisonParams requestParams,
             RequestContext<ExecutionPlanComparisonResult> requestContext)
         {
-            try
+            var nodeBuilder = new XmlPlanNodeBuilder(ShowPlanType.Unknown);
+            var firstPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.FirstExecutionPlanGraphInfo.GraphFileContent, requestParams.FirstExecutionPlanGraphInfo.PlanIndexInFile);
+            var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(firstPlanXml, ShowPlanType.Unknown);
+            var firstRootNode = firstGraphSet?[0]?.Root;
+
+            var secondPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.SecondExecutionPlanGraphInfo.GraphFileContent, requestParams.SecondExecutionPlanGraphInfo.PlanIndexInFile);
+            var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(secondPlanXml, ShowPlanType.Unknown);
+            var secondRootNode = secondGraphSet?[0]?.Root;
+
+            var manager = new SkeletonManager();
+            var firstSkeletonNode = manager.CreateSkeleton(firstRootNode);
+            var secondSkeletonNode = manager.CreateSkeleton(secondRootNode);
+            manager.ColorMatchingSections(firstSkeletonNode, secondSkeletonNode, requestParams.IgnoreDatabaseName);
+
+            var firstGraphComparisonResultDTO = firstSkeletonNode.ConvertToDTO();
+            var secondGraphComparisonResultDTO = secondSkeletonNode.ConvertToDTO();
+            ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstGraphComparisonResultDTO, secondGraphComparisonResultDTO);
+            ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondGraphComparisonResultDTO, firstGraphComparisonResultDTO);
+
+            var result = new ExecutionPlanComparisonResult()
             {
-                var nodeBuilder = new XmlPlanNodeBuilder(ShowPlanType.Unknown);
-                var firstPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.FirstExecutionPlanGraphInfo.GraphFileContent, requestParams.FirstExecutionPlanGraphInfo.PlanIndexInFile);
-                var firstGraphSet = ShowPlanGraph.ParseShowPlanXML(firstPlanXml, ShowPlanType.Unknown);
-                var firstRootNode = firstGraphSet?[0]?.Root;
+                FirstComparisonResult = firstGraphComparisonResultDTO,
+                SecondComparisonResult = secondGraphComparisonResultDTO
+            };
 
-                var secondPlanXml = nodeBuilder.GetSingleStatementXml(requestParams.SecondExecutionPlanGraphInfo.GraphFileContent, requestParams.SecondExecutionPlanGraphInfo.PlanIndexInFile);
-                var secondGraphSet = ShowPlanGraph.ParseShowPlanXML(secondPlanXml, ShowPlanType.Unknown);
-                var secondRootNode = secondGraphSet?[0]?.Root;
-
-                var manager = new SkeletonManager();
-                var firstSkeletonNode = manager.CreateSkeleton(firstRootNode);
-                var secondSkeletonNode = manager.CreateSkeleton(secondRootNode);
-                manager.ColorMatchingSections(firstSkeletonNode, secondSkeletonNode, requestParams.IgnoreDatabaseName);
-
-                var firstGraphComparisonResultDTO = firstSkeletonNode.ConvertToDTO();
-                var secondGraphComparisonResultDTO = secondSkeletonNode.ConvertToDTO();
-                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(firstGraphComparisonResultDTO, secondGraphComparisonResultDTO);
-                ExecutionPlanGraphUtils.CopyMatchingNodesIntoSkeletonDTO(secondGraphComparisonResultDTO, firstGraphComparisonResultDTO);
-
-                var result = new ExecutionPlanComparisonResult()
-                {
-                    FirstComparisonResult = firstGraphComparisonResultDTO,
-                    SecondComparisonResult = secondGraphComparisonResultDTO
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
+            await requestContext.SendResult(result);
         }
 
         /// <summary>

@@ -135,11 +135,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     await requestContext.SendError(ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                // Send just the error message back for now as stack trace isn't useful
-                await requestContext.SendError(ex.Message);
-            }
         }
     }
 }

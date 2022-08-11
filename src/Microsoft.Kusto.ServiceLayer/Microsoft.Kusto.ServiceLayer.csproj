@@ -20,6 +20,15 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+    <PackageId>Microsoft.SqlServer.KustoServiceLayer.Tool</PackageId>
+    <PackageVersion>1.1.0</PackageVersion>
+    <PackageDescription>.NET client Kusto Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>$(AssemblyName)</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.OperationalInsights" />
     <PackageReference Include="Microsoft.SqlServer.DACFx" />

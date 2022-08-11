@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Newtonsoft.Json;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 {
@@ -75,50 +76,36 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
 
         internal async Task HandleConvertNotebookToSqlRequest(ConvertNotebookToSqlParams parameters, RequestContext<ConvertNotebookToSqlResult> requestContext)
         {
-            try
-            {
-                var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
+            var notebookDoc = JsonConvert.DeserializeObject<NotebookDocument>(parameters.Content);
 
-                var result = new ConvertNotebookToSqlResult
-                {
-                    Content = ConvertNotebookDocToSql(notebookDoc)
-                };
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            var result = new ConvertNotebookToSqlResult
             {
-                await requestContext.SendError(e);
-            }
+                Content = ConvertNotebookDocToSql(notebookDoc)
+            };
+            await requestContext.SendResult(result);
         }
 
         internal async Task HandleConvertSqlToNotebookRequest(ConvertSqlToNotebookParams parameters, RequestContext<ConvertSqlToNotebookResult> requestContext)
         {
-            try
+            // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+            // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+            // what the document events are sent in as.
+            var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
+            var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
+            // Temporary notebook that we just fill in with the sql until the parsing logic is added
+            var result = new ConvertSqlToNotebookResult
             {
-                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                // what the document events are sent in as.
-                var escapedClientUri = Uri.EscapeUriString(parameters.ClientUri);
-                var file = WorkspaceService<SqlToolsSettings>.Instance.Workspace.GetFile(escapedClientUri);
-                // Temporary notebook that we just fill in with the sql until the parsing logic is added
-                var result = new ConvertSqlToNotebookResult
-                {
-                    Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
-                };
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+                Content = JsonConvert.SerializeObject(ConvertSqlToNotebook(file.Contents))
+            };
+            await requestContext.SendResult(result);
         }
 
         #endregion // Convert Handlers
 
-        internal static NotebookDocument ConvertSqlToNotebook(string sql)
+        internal static NotebookDocument ConvertSqlToNotebook(string? sql)
         {
             // Notebooks use \n so convert any other newlines now
-            sql = sql.Replace("\r\n", "\n");
+            sql = sql?.Replace("\r\n", "\n") ?? string.Empty;
 
             var doc = new NotebookDocument
             {
@@ -200,8 +187,13 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
                         commentBlock = commentBlock.Remove(commentBlock.Length - 2);
                     }
 
-                    doc.Cells.Add(GenerateMarkdownCell(commentBlock.Trim()));
-                } else if (fragment.TokenType == NotebookTokenType.SinglelineComment)
+                    // Trim off extra spaces for each line. This helps keep comment asterisks aligned on the 
+                    // same column for multiline comments.
+                    var commentLines = commentBlock.Trim().Split("\n").Select(comment => comment.Trim());
+                    commentBlock = string.Join("\n", commentLines);
+                    doc.Cells.Add(GenerateMarkdownCell(commentBlock));
+                }
+                else if (fragment.TokenType == NotebookTokenType.SinglelineComment)
                 {
                     string commentBlock = fragment.Text;
                     // Trim off the starting comment token (--)
@@ -247,21 +239,39 @@ namespace Microsoft.SqlTools.ServiceLayer.NotebookConvert
         /// Converts a Notebook document into a single string that can be inserted into a SQL
         /// query.
         /// </summary>
-        private static string ConvertNotebookDocToSql(NotebookDocument doc)
+        internal static string ConvertNotebookDocToSql(NotebookDocument? doc)
         {
-            // Add an extra blank line between each block for readability
-            return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
+            if (doc?.Cells == null)
             {
-                return cell.CellType switch
+                return string.Empty;
+            }
+            else
+            {
+                // Add an extra blank line between each block for readability
+                return string.Join(Environment.NewLine + Environment.NewLine, doc.Cells.Select(cell =>
                 {
-                    // Markdown is text so wrapped in a comment block
-                    "markdown" => $@"/*
-{string.Join(Environment.NewLine, cell.Source)}
+                    // Notebooks use \n newlines, so convert the cell source to \r\n if running on Windows.
+                    IEnumerable<string> cellSource;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        cellSource = cell.Source.Select(text => text.Replace("\n", Environment.NewLine));
+                    }
+                    else
+                    {
+                        cellSource = cell.Source;
+                    }
+
+                    return cell.CellType switch
+                    {
+                        // Markdown is text so wrapped in a comment block
+                        "markdown" => $@"/*
+{string.Join("", cellSource)}
 */",
-                    // Everything else (just code blocks for now) is left as is
-                    _ => string.Join("", cell.Source),
-                };
-            }));
+                        // Everything else (just code blocks for now) is left as is
+                        _ => string.Join("", cellSource),
+                    };
+                }));
+            }
         }
     }
 

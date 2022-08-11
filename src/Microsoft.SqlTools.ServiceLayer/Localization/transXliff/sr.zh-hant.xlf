@@ -6194,6 +6194,133 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">指令碼中有多個資料表定義，只能編輯設計工具中第一個資料表。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Operation">
+        <source>Operation</source>
+        <target state="translated">作業</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Object">
+        <source>Object</source>
+        <target state="translated">物件</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCost">
+        <source>Estimated Cost %</source>
+        <target state="translated">預估成本 %</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedSubtree">
+        <source>Estimated Subtree Cost</source>
+        <target state="translated">預估的樹狀子目錄成本</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualRows">
+        <source>Actual Rows</source>
+        <target state="translated">實際資料列數</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedRows">
+        <source>Estimated Rows</source>
+        <target state="translated">預估的資料列數</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualExecutions">
+        <source>Actual Executions</source>
+        <target state="translated">實際執行次數</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedExecutions">
+        <source>Estimated Executions</source>
+        <target state="translated">預估的執行數</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedCpu">
+        <source>Estimated CPU Cost</source>
+        <target state="translated">預估的 CPU 成本</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EstimatedIO">
+        <source>Estimated IO Cost</source>
+        <target state="translated">預估的 I/O 成本</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualDataSize">
+        <source>Actual Data Size</source>
+        <target state="translated">實際資料大小</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AverageRowSize">
+        <source>Average Row Size</source>
+        <target state="translated">平均資料列大小</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsGroupTitle">
+        <source>Included Columns</source>
+        <target state="translated">包含的資料行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsPropertyDescription">
+        <source>The included columns of the index</source>
+        <target state="translated">索引所包含的欄標籤</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsAddColumn">
+        <source>Add Column</source>
+        <target state="translated">加入資料行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIncludedColumnsColumnPropertyName">
+        <source>Column</source>
+        <target state="translated">資料行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the index</source>
+        <target state="translated">篩選索引的述詞</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="translated">篩選述詞</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexCannotHaveIncludedColumnsRuleDescription">
+        <source>Included columns are not supported for a clustered index.</source>
+        <target state="translated">叢集索引不支援所包含的欄標籤。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ClusteredIndexCannotHaveFilterPredicateRuleDescription">
+        <source>Filter predicate is not supported for a clustered index.</source>
+        <target state="translated">叢集索引不支援篩選述詞。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription">
+        <source>Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.</source>
+        <target state="translated">名稱為 '{0}' 的資料行已包含於索引 '{1}' 中。列數: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription">
+        <source>Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.</source>
+        <target state="translated">所包含名為 '{0}' 已是索引 '{1}' 的一部分，因此無法包含在內。列數: {2}。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="UpdatableLedger_LabelPart">
+        <source>Updatable Ledger</source>
+        <target state="translated">可更新總帳</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AppendOnlyLedger_LabelPart">
+        <source>Append-Only Ledger</source>
+        <target state="translated">僅限附加總帳</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Ledger_LabelPart">
+        <source>Ledger</source>
+        <target state="translated">總帳</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

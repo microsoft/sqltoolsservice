@@ -201,42 +201,36 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Handles request to execute a selection of a document in the workspace service
         /// </summary>
-        internal async Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
+        internal Task HandleExecuteRequest(ExecuteRequestParamsBase executeParams,
             RequestContext<ExecuteRequestResult> requestContext)
         {
-            try
+            // Setup actions to perform upon successful start and on failure to start
+            Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
             {
-                // Setup actions to perform upon successful start and on failure to start
-                Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
-                {
-                    await requestContext.SendResult(new ExecuteRequestResult());
-                    Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
-                    return true;
-                };
-                Func<string, Task> queryCreateFailureAction = message =>
-                {
-                    Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
-                    return requestContext.SendError(message);
-                };
+                await requestContext.SendResult(new ExecuteRequestResult());
+                Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
+                return true;
+            };
+            Func<string, Task> queryCreateFailureAction = message =>
+            {
+                Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                return requestContext.SendError(message);
+            };
 
-                // Use the internal handler to launch the query
-                WorkTask = Task.Run(async () =>
-                {
-                    await InterServiceExecuteQuery(
-                        executeParams,
-                        null,
-                        requestContext,
-                        queryCreateSuccessAction,
-                        queryCreateFailureAction,
-                        null,
-                        null,
-                        isQueryEditor(executeParams.OwnerUri));
-                });
-            }
-            catch (Exception ex)
+            // Use the internal handler to launch the query
+            WorkTask = Task.Run(async () =>
             {
-                await requestContext.SendError(ex.ToString());
-            }
+                await InterServiceExecuteQuery(
+                    executeParams,
+                    null,
+                    requestContext,
+                    queryCreateSuccessAction,
+                    queryCreateFailureAction,
+                    null,
+                    null,
+                    isQueryEditor(executeParams.OwnerUri));
+            });
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -245,116 +239,109 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleSimpleExecuteRequest(SimpleExecuteParams executeParams,
             RequestContext<SimpleExecuteResult> requestContext)
         {
-            try
+            string randomUri = Guid.NewGuid().ToString();
+            ExecuteStringParams executeStringParams = new ExecuteStringParams
             {
-                string randomUri = Guid.NewGuid().ToString();
-                ExecuteStringParams executeStringParams = new ExecuteStringParams
+                Query = executeParams.QueryString,
+                // generate guid as the owner uri to make sure every query is unique
+                OwnerUri = randomUri
+            };
+
+            // get connection
+            ConnectionInfo connInfo;
+            if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
+            {
+                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                return;
+            }
+
+            ConnectParams connectParams = new ConnectParams
+            {
+                OwnerUri = randomUri,
+                Connection = connInfo.ConnectionDetails,
+                Type = ConnectionType.Default
+            };
+
+            Task workTask = Task.Run(async () =>
+            {
+                await ConnectionService.Connect(connectParams);
+
+                ConnectionInfo newConn;
+                ConnectionService.TryFindConnection(randomUri, out newConn);
+
+                Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
+
+                ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
+
+                // handle sending event back when the query completes
+                Query.QueryAsyncEventHandler queryComplete = async query =>
                 {
-                    Query = executeParams.QueryString,
-                    // generate guid as the owner uri to make sure every query is unique
-                    OwnerUri = randomUri
-                };
-
-                // get connection
-                ConnectionInfo connInfo;
-                if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
-                {
-                    await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
-                    return;
-                }
-
-                ConnectParams connectParams = new ConnectParams
-                {
-                    OwnerUri = randomUri,
-                    Connection = connInfo.ConnectionDetails,
-                    Type = ConnectionType.Default
-                };
-
-                Task workTask = Task.Run(async () =>
-                {
-                    await ConnectionService.Connect(connectParams);
-
-                    ConnectionInfo newConn;
-                    ConnectionService.TryFindConnection(randomUri, out newConn);
-
-                    Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
-
-                    ResultOnlyContext<SimpleExecuteResult> newContext = new ResultOnlyContext<SimpleExecuteResult>(requestContext);
-
-                    // handle sending event back when the query completes
-                    Query.QueryAsyncEventHandler queryComplete = async query =>
+                    try
                     {
-                        try
+                        // check to make sure any results were recieved
+                        if (query.Batches.Length == 0
+                            || query.Batches[0].ResultSets.Count == 0)
                         {
-                            // check to make sure any results were recieved
-                            if (query.Batches.Length == 0
-                                || query.Batches[0].ResultSets.Count == 0)
-                            {
-                                await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
-                                return;
-                            }
-
-                            long rowCount = query.Batches[0].ResultSets[0].RowCount;
-                            // check to make sure there is a safe amount of rows to load into memory
-                            if (rowCount > Int32.MaxValue)
-                            {
-                                await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
-                                return;
-                            }
-
-                            SimpleExecuteResult result = new SimpleExecuteResult
-                            {
-                                RowCount = rowCount,
-                                ColumnInfo = query.Batches[0].ResultSets[0].Columns,
-                                Rows = new DbCellValue[0][]
-                            };
-
-                            if (rowCount > 0)
-                            {
-                                SubsetParams subsetRequestParams = new SubsetParams
-                                {
-                                    OwnerUri = randomUri,
-                                    BatchIndex = 0,
-                                    ResultSetIndex = 0,
-                                    RowsStartIndex = 0,
-                                    RowsCount = Convert.ToInt32(rowCount)
-                                };
-                                // get the data to send back
-                                ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
-                                result.Rows = subset.Rows;
-                            }
-                            await requestContext.SendResult(result);
+                            await requestContext.SendError(SR.QueryServiceResultSetHasNoResults);
+                            return;
                         }
-                        finally
+
+                        long rowCount = query.Batches[0].ResultSets[0].RowCount;
+                        // check to make sure there is a safe amount of rows to load into memory
+                        if (rowCount > Int32.MaxValue)
                         {
-                            Query removedQuery;
-                            Task removedTask;
-                            // remove the active query since we are done with it
-                            ActiveQueries.TryRemove(randomUri, out removedQuery);
-                            ActiveSimpleExecuteRequests.TryRemove(randomUri, out removedTask);
-                            ConnectionService.Disconnect(new DisconnectParams()
+                            await requestContext.SendError(SR.QueryServiceResultSetTooLarge);
+                            return;
+                        }
+
+                        SimpleExecuteResult result = new SimpleExecuteResult
+                        {
+                            RowCount = rowCount,
+                            ColumnInfo = query.Batches[0].ResultSets[0].Columns,
+                            Rows = new DbCellValue[0][]
+                        };
+
+                        if (rowCount > 0)
+                        {
+                            SubsetParams subsetRequestParams = new SubsetParams
                             {
                                 OwnerUri = randomUri,
-                                Type = null
-                            });
+                                BatchIndex = 0,
+                                ResultSetIndex = 0,
+                                RowsStartIndex = 0,
+                                RowsCount = Convert.ToInt32(rowCount)
+                            };
+                            // get the data to send back
+                            ResultSetSubset subset = await InterServiceResultSubset(subsetRequestParams);
+                            result.Rows = subset.Rows;
                         }
-                    };
-
-                    // handle sending error back when query fails
-                    Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
+                        await requestContext.SendResult(result);
+                    }
+                    finally
                     {
-                        await requestContext.SendError(e);
-                    };
+                        Query removedQuery;
+                        Task removedTask;
+                        // remove the active query since we are done with it
+                        ActiveQueries.TryRemove(randomUri, out removedQuery);
+                        ActiveSimpleExecuteRequests.TryRemove(randomUri, out removedTask);
+                        ConnectionService.Disconnect(new DisconnectParams()
+                        {
+                            OwnerUri = randomUri,
+                            Type = null
+                        });
+                    }
+                };
 
-                    await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
-                });
+                // handle sending error back when query fails
+                Query.QueryAsyncErrorEventHandler queryFail = async (q, e) =>
+                {
+                    await requestContext.SendError(e);
+                };
 
-                ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+                await InterServiceExecuteQuery(executeStringParams, newConn, newContext, null, queryCreateFailureAction, queryComplete, queryFail);
+            });
+
+            ActiveSimpleExecuteRequests.TryAdd(randomUri, workTask);
         }
 
 
@@ -392,21 +379,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleResultSubsetRequest(SubsetParams subsetParams,
             RequestContext<SubsetResult> requestContext)
         {
-            try
+            ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
+            var result = new SubsetResult
             {
-                ResultSetSubset subset = await InterServiceResultSubset(subsetParams);
-                var result = new SubsetResult
-                {
-                    ResultSubset = subset
-                };
-                await requestContext.SendResult(result);
-                Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
-            }
-            catch (Exception e)
-            {
-                // This was unexpected, so send back as error
-                await requestContext.SendError(e.Message);
-            }
+                ResultSubset = subset
+            };
+            await requestContext.SendResult(result);
+            Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
         }
 
 
@@ -416,24 +395,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleQueryExecutionOptionsRequest(QueryExecutionOptionsParams queryExecutionOptionsParams,
             RequestContext<bool> requestContext)
         {
-            try
+            string uri = queryExecutionOptionsParams.OwnerUri;
+            if (ActiveQueryExecutionSettings.ContainsKey(uri))
             {
-                string uri = queryExecutionOptionsParams.OwnerUri;
-                if (ActiveQueryExecutionSettings.ContainsKey(uri))
-                {
-                    QueryExecutionSettings settings;
-                    ActiveQueryExecutionSettings.TryRemove(uri, out settings);
-                }
-
-                ActiveQueryExecutionSettings.TryAdd(uri, queryExecutionOptionsParams.Options);
-
-                await requestContext.SendResult(true);
+                QueryExecutionSettings settings;
+                ActiveQueryExecutionSettings.TryRemove(uri, out settings);
             }
-            catch (Exception e)
-            {
-                // This was unexpected, so send back as error
-                await requestContext.SendError(e.Message);
-            }
+
+            ActiveQueryExecutionSettings.TryAdd(uri, queryExecutionOptionsParams.Options);
+
+            await requestContext.SendResult(true);
         }
 
         /// <summary>
@@ -442,28 +413,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal async Task HandleExecutionPlanRequest(QueryExecutionPlanParams planParams,
             RequestContext<QueryExecutionPlanResult> requestContext)
         {
-            try
+            // Attempt to load the query
+            Query query;
+            if (!ActiveQueries.TryGetValue(planParams.OwnerUri, out query))
             {
-                // Attempt to load the query
-                Query query;
-                if (!ActiveQueries.TryGetValue(planParams.OwnerUri, out query))
-                {
-                    await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
-                    return;
-                }
+                await requestContext.SendError(SR.QueryServiceRequestsNoQuery);
+                return;
+            }
 
-                // Retrieve the requested execution plan and return it
-                var result = new QueryExecutionPlanResult
-                {
-                    ExecutionPlan = await query.GetExecutionPlan(planParams.BatchIndex, planParams.ResultSetIndex)
-                };
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
+            // Retrieve the requested execution plan and return it
+            var result = new QueryExecutionPlanResult
             {
-                // This was unexpected, so send back as error
-                await requestContext.SendError(e.Message);
-            }
+                ExecutionPlan = await query.GetExecutionPlan(planParams.BatchIndex, planParams.ResultSetIndex)
+            };
+            await requestContext.SendResult(result);
         }
 
         /// <summary>
@@ -510,10 +473,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     Messages = e.Message
                 });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.Message);
             }
         }
 

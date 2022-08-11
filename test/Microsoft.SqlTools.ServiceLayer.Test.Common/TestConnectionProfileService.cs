@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public const string DefaultSqlAzureV12InstanceKey = "defaultSqlAzureV12";
         public const string DefaultSql2016InstanceKey = "defaultSql2016";
         public const string DefaultSql2019InstanceKey = "defaultSql2019";
+        public const string DefaultSql2022InstanceKey = "defaultSql2022";
         public const string DefaultSqlvNextInstanceKey = "defaultSqlvNext";
 
         private TestConnectionProfileService()
@@ -72,9 +73,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             get { return GetInstance(DefaultSql2016InstanceKey); }
         }
 
-        public static  InstanceInfo DefaultSql2019
+        public static InstanceInfo DefaultSql2019
         {
             get { return GetInstance(DefaultSql2019InstanceKey); }
+        }
+
+        public static InstanceInfo DefaultSql2022
+        {
+            get { return GetInstance(DefaultSql2022InstanceKey); }
         }
 
         public static InstanceInfo DefaultSqlvNext
@@ -93,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return instanceInfo;
         }
 
-        public ConnectParams GetConnectionParameters(string key = DefaultSql2019InstanceKey, string databaseName = null)
+        public ConnectParams GetConnectionParameters(string key = DefaultSql2022InstanceKey, string databaseName = null)
         {
             InstanceInfo instanceInfo = GetInstance(key);
             if (instanceInfo != null)
@@ -111,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public ConnectParams GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
         {
             string key = ConvertServerTypeToVersionKey(serverType);
-            return  GetConnectionParameters(key, databaseName);
+            return GetConnectionParameters(key, databaseName);
         }
 
         /// <summary>
@@ -134,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     foreach (var serverIdentity in testServers)
                     {
                         var instance = settings != null ? settings.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
-                        if (instance.ServerType == TestServerType.None)
+                        if (instance?.ServerType == TestServerType.None)
                         {
                             instance.ServerType = serverIdentity.ServerType;
                             AddInstance(instance);
@@ -149,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Assert.True(false, "Fail to load the SQL connection instances. error: " + ex.Message);
             }
@@ -157,6 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         private static void AddInstance(InstanceInfo instance)
         {
+            Console.WriteLine($"Checking whether instance should be added to connections cache, server type: {instance.ServerType.ToString()}, version key: {instance.VersionKey}");
             if (instance != null && (instance.ServerType != TestServerType.None || !string.IsNullOrEmpty(instance.VersionKey)))
             {
                 TestServerType serverType = instance.ServerType == TestServerType.None ? TestServerType.OnPrem : instance.ServerType; //Default to onPrem
@@ -170,13 +177,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         instance.Password = credential.Password;
                     }
                     connectionProfilesCache.Add(versionKey, instance);
+                    Console.WriteLine("Instance added.");
                 }
+                else
+                {
+                    Console.WriteLine("Instance already in the cache.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Instance skipped.");
             }
         }
 
         private static string ConvertServerTypeToVersionKey(TestServerType serverType)
         {
-            return serverType == TestServerType.OnPrem ? DefaultSql2019InstanceKey : DefaultSqlAzureV12InstanceKey;
+            return serverType == TestServerType.OnPrem ? DefaultSql2022InstanceKey : DefaultSqlAzureV12InstanceKey;
         }
 
         /// <summary>

@@ -163,11 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             var workspaceService = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
             var queryService = Common.GetPrimedExecutionService(null, true, false, false, workspaceService);
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            var contextMock = RequestContextMocks.Create<SubsetResult>(null);
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleResultSubsetRequest(subsetParams, contextMock.Object));
         }
 
         [Test]
@@ -186,11 +183,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // ... And I then ask for a valid set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            var contextMock = RequestContextMocks.Create<SubsetResult>(null);
+            Assert.That(() => queryService.HandleResultSubsetRequest(subsetParams, contextMock.Object), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -208,11 +202,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // ... And I then ask for a set of results from it
             var subsetParams = new SubsetParams { OwnerUri = Constants.OwnerUri, RowsCount = 1, ResultSetIndex = 0, RowsStartIndex = 0 };
-            var subsetRequest = new EventFlowValidator<SubsetResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleResultSubsetRequest(subsetParams, subsetRequest.Object);
-            subsetRequest.Validate();
+            var contextMock = RequestContextMocks.Create<SubsetResult>(null);
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleResultSubsetRequest(subsetParams, contextMock.Object));
         }
 
         #endregion

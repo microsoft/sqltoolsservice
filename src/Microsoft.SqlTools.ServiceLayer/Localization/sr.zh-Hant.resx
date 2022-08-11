@@ -3790,4 +3790,79 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>指令碼中有多個資料表定義，只能編輯設計工具中第一個資料表。</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>作業</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>物件</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>預估成本 %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>預估的樹狀子目錄成本</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>實際資料列數</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>預估的資料列數</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>實際執行次數</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>預估的執行數</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>預估的 CPU 成本</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>預估的 I/O 成本</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>實際資料大小</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>平均資料列大小</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>包含的資料行</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>索引所包含的欄標籤</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>加入資料行</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>篩選索引的述詞</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>篩選述詞</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>叢集索引不支援所包含的欄標籤。</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>叢集索引不支援篩選述詞。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已包含於索引 '{1}' 中。列數: {2}。</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>所包含名為 '{0}' 已是索引 '{1}' 的一部分，因此無法包含在內。列數: {2}。</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>可更新總帳</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>僅限附加總帳</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>總帳</value>
+  </data>
 </root>

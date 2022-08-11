@@ -3790,4 +3790,79 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>スクリプトに複数のテーブル定義があり、デザイナーで編集できるのは最初のテーブルのみです。</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>オブジェクト</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>推定コスト %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>サブツリーの推定コスト</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>実際の行数</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>推定行数</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>実際の実行回数</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>推定実行回数</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>CPU の推定コスト</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>IO の推定コスト</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>実際のデータ サイズ</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>平均行サイズ</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>付加列</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>インデックスの付加列</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>列の追加</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>インデックスのフィルター述語</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>フィルター述語</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>付加列は、クラスター化インデックスではサポートされていません。</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>クラスター化インデックスでは、フィルター述語はサポートされていません。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の列は既にインデックス '{1}' に付加されています。行番号: {2}。</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の付加列は既にインデックス '{1}' の一部であり、付加することはできません。行番号: {2}。</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>更新可能な台帳</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>追加専用台帳</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>台帳</value>
+  </data>
 </root>

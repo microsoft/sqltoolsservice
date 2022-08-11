@@ -213,4 +213,7 @@
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
     <value>포함된 {0} 파일을 찾을 수 없습니다.</value>
   </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>매개 변수에 null, 빈 문자열 또는 공백 문자열이 포함되어 있습니다.</value>
+  </data>
 </root>

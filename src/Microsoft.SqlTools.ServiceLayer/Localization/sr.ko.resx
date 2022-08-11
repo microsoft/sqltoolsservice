@@ -3790,4 +3790,79 @@
   <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
     <value>스크립트에는 여러 테이블 정의가 있으며 디자이너에서 첫 번째 테이블만 편집할 수 있습니다.</value>
   </data>
+  <data name="Operation" xml:space="preserve">
+    <value>작업</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>개체</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>예상 비용(%)</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>예상 하위 트리 비용</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>실제 행 수</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>예상 행 수</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>실제 실행 횟수</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>예상 실행 횟수</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>예상 CPU 비용</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>예상 IO 비용</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>실제 데이터 크기</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>평균 행 크기</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>포함된 열</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>인덱스의 포함된 열</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>열 추가</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>열</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>인덱스의 필터 조건자</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>필터 조건자</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>포함된 열은 클러스터형 인덱스에 대해 지원되지 않습니다.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>필터 조건자는 클러스터형 조건자에 대해 지원되지 않습니다.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 열이 이미 인덱스 '{1}'에 포함되어 있습니다. 행 번호: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 포함된 열은 이미 인덱스 '{1}'의 일부이므로 포함할 수 없습니다. 행 번호: {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>업데이트할 수 있는 원장</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>추가 전용 원장</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>원장</value>
+  </data>
 </root>

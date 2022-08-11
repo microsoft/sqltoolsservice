@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -16,7 +18,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
@@ -242,8 +243,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         //This takes take long to run so not a good test for CI builds
         public async Task VerifySystemObjects()
         {
-            string queryFileName = null;
-            string baselineFileName = null;
+            string queryFileName = string.Empty;
+            string baselineFileName = string.Empty;
             string databaseName = "#testDb#";
             await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, "SystemOBjects", baselineFileName, true), true);
         }
@@ -267,8 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             catch (Exception ex)
             {
                 string msg = ex.BuildRecursiveErrorMessage();
-                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
-                Assert.False(true, msg);
+                throw new Exception($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
             }
             finally
             {
@@ -297,50 +297,50 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
         private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session, bool serverNode = true)
         {
-            Assert.NotNull(session);
-            Assert.NotNull(session.Root);
+            Assert.That(session, Is.Not.Null, nameof(session));
+            Assert.That(session.Root, Is.Not.Null, nameof(session.Root));
             NodeInfo nodeInfo = session.Root.ToNodeInfo();
-            Assert.AreEqual(false, nodeInfo.IsLeaf);
+            Assert.That(nodeInfo.IsLeaf, Is.False, "Should not be a leaf node");
 
-            NodeInfo databaseNode = null;
+            NodeInfo? databaseNode = null;
 
             if (serverNode)
             {
-                Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Server.ToString());
+                Assert.That(nodeInfo.NodeType, Is.EqualTo(NodeTypes.Server.ToString()), "Server node has incorrect type");
                 var children = session.Root.Expand(new CancellationToken());
 
                 //All server children should be folder nodes
                 foreach (var item in children)
                 {
-                    Assert.AreEqual("Folder", item.NodeType);
+                    Assert.That(item.NodeType, Is.EqualTo(NodeTypes.Folder.ToString()), $"Node {item.Label} should be folder");
                 }
 
                 var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
                 var databasesChildren = (await _service.ExpandNode(session, databasesRoot.GetNodePath())).Nodes;
                 var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
 
-                //Verify the test databases is in the list
-                Assert.NotNull(databases);
+                // Verify the test databases is in the list
                 Assert.False(databases.Any(x => x.Label == "master"));
-                var systemDatabasesNode = databasesChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_SystemDatabases);
-                Assert.NotNull(systemDatabasesNode);
+                Assert.That(databases, Has.None.Matches<NodeInfo>(n => n.Label == "master"), "master database not expected in user databases folder");
+                var systemDatabasesNodes = databasesChildren.Where(x => x.Label == SR.SchemaHierarchy_SystemDatabases).ToList();
+                Assert.That(systemDatabasesNodes, Has.Count.EqualTo(1), $"Exactly one {SR.SchemaHierarchy_SystemDatabases} node expected");
 
-                var systemDatabases = await _service.ExpandNode(session, systemDatabasesNode.NodePath);
-                Assert.True(systemDatabases.Nodes.Any(x => x.Label == "master"));
+                var expandResponse = await _service.ExpandNode(session, systemDatabasesNodes.First().NodePath);
+                Assert.That(expandResponse.Nodes, Has.One.Matches<NodeInfo>(n => n.Label == "master"), "master database expected in system databases folder");
 
                 databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
             else
             {
-                Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Database.ToString());
+                Assert.That(nodeInfo.NodeType, Is.EqualTo(NodeTypes.Database.ToString()), $"Database node {nodeInfo.Label} has incorrect type");
                 databaseNode = session.Root.ToNodeInfo();
                 Assert.True(databaseNode.Label.Contains(databaseName));
                 var databasesChildren = (await _service.ExpandNode(session, databaseNode.NodePath)).Nodes;
                 Assert.False(databasesChildren.Any(x => x.Label == SR.SchemaHierarchy_SystemDatabases));
 
             }
-            Assert.NotNull(databaseNode);
-            return databaseNode;
+            Assert.That(databaseNode, Is.Not.Null, "Database node should not be null");
+            return databaseNode!;
         }
 
         private async Task ExpandAndVerifyDatabaseNode(string databaseName, ObjectExplorerSession session)
@@ -369,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Console.WriteLine($"Session closed uri:{uri}");
         }
 
-        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session, StringBuilder stringBuilder = null, bool verifySystemObjects = false)
+        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session, StringBuilder? stringBuilder = null, bool verifySystemObjects = false)
         {
             if (node != null && !node.IsLeaf)
             {
@@ -432,11 +432,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             // These are node types for which the label doesn't include a schema
             // (usually because the objects themselves aren't schema-bound)
-            var schemalessLabelNodeTypes = new List<string> () { 
-                "Column", 
-                "Key", 
-                "Constraint", 
-                "Index", 
+            var schemalessLabelNodeTypes = new List<string> () {
+                "Column",
+                "Key",
+                "Constraint",
+                "Index",
                 "Statistic",
                 "Trigger",
                 "StoredProcedureParameter",
@@ -473,7 +473,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 if (!string.IsNullOrEmpty(baseline))
                 {
                     string actual = stringBuilder.ToString();
-                    BaselinedTest.CompareActualWithBaseline(actual, baseline);
+
+                    // Dropped ledger objects have a randomly generated GUID appended to their name when they are deleted
+                    // For testing purposes, those guids need to be replaced with a deterministic string
+                    actual = Regex.Replace(actual, "[A-Z0-9]{32}", "<<NonDeterministic>>");
+
+                    // Write output to a bin directory for easier comparison
+                    string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+                    string outputRegeneratedFolder = Path.Combine(assemblyPath, @"ObjectExplorerServiceTests\Baselines\Regenerated");
+                    string outputRegeneratedFilePath = Path.Combine(outputRegeneratedFolder, baselineFileName);
+                    string msg = "";
+
+                    try
+                    {
+                        Directory.CreateDirectory(outputRegeneratedFolder);
+                        File.WriteAllText(outputRegeneratedFilePath, actual);
+                        msg = $"Generated output written to :\t{outputRegeneratedFilePath}\n\t" +
+                              $"Baseline output located at  :\t{GetBaseLineFile(baselineFileName)}";
+                    }
+                    catch (Exception e)
+                    {
+                        // We don't want to fail the test completely if we failed to write the regenerated baseline
+                        // (especially if the test passed).
+                        msg = $"Errors also occurred while attempting to write the new baseline file {outputRegeneratedFilePath} : {e.Message}";
+                    }
+
+                    Assert.That(actual, Is.EqualTo(baseline), $"Baseline comparison for {baselineFileName} failed\n\t" + msg);
                 }
             });
 

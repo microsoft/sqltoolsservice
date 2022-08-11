@@ -19,6 +19,31 @@
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 
+	<Choose>
+		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+			<PropertyGroup>
+				<PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
+				<PackageVersion>1.1.0</PackageVersion>
+				<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
+				<PackAsTool>true</PackAsTool>
+				<ToolCommandName>$(AssemblyName)</ToolCommandName>
+				<PackageOutputPath>./nupkg</PackageOutputPath>
+			</PropertyGroup>
+			<ItemGroup>
+				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<DefineConstants>$(DefineConstants);INCLUDE_MIGRATION</DefineConstants>
+			</PropertyGroup>
+			<ItemGroup>
+				<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
+
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
@@ -28,15 +53,11 @@
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
-		<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
 			<Aliases>ASAScriptDom</Aliases>
 		</PackageReference>
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
@@ -51,11 +72,7 @@
 		<Content Include="..\..\Notice.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include=".\Migration\Metadata\**">
-			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<EmbeddedResource Include="ObjectExplorer\SmoModel\TreeNodeDefinition.xml" />
+		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>

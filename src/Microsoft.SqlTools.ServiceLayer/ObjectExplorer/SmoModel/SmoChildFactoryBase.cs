@@ -104,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
             {
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
                     Property = "Name",
                     Type = typeof(string),
@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     continue;
                 }
-                string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
+                string propertyFilter = INodeFilter.GetPropertyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
@@ -160,22 +160,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             return filterTheNode;
-        }
-
-        private string GetProperyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
-        {
-            string filter = string.Empty;
-            if (filters != null)
-            {
-                var filtersToApply = filters.Where(f => f.CanApplyFilter(querierType, validForFlag)).ToList();
-                filter = string.Empty;
-                if (filtersToApply.Any())
-                {
-                    filter = NodeFilter.ConcatProperties(filtersToApply);
-                }
-            }
-
-            return filter;
         }
 
         private bool IsCompatibleQuerier(SmoQuerier querier)
@@ -257,11 +241,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
             get
             {
-                return Enumerable.Empty<NodeFilter>();
+                return Enumerable.Empty<INodeFilter>();
             }
         }
 

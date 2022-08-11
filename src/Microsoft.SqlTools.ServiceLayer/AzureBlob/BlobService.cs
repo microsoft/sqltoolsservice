@@ -42,39 +42,32 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
            CreateSasParams optionsParams,
            RequestContext<CreateSasResponse> requestContext)
         {
-            try
-            {
-                ConnectionInfo connInfo;
-                ConnectionService.Instance.TryFindConnection(
-                       optionsParams.OwnerUri,
-                       out connInfo);
-                var response = new CreateSasResponse();
+            ConnectionInfo connInfo;
+            ConnectionService.Instance.TryFindConnection(
+                   optionsParams.OwnerUri,
+                   out connInfo);
+            var response = new CreateSasResponse();
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(SR.ConnectionServiceListDbErrorNotConnected(optionsParams.OwnerUri));
-                    return;
-                }
-                if (connInfo.IsCloud)
-                {
-                    await requestContext.SendError(SR.NotSupportedCloudCreateSas);
-                    return;
-                }
-                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
-                {
-                    // Connection gets disconnected when backup is done
-                    ServerConnection serverConnection = new ServerConnection(sqlConn);
-                    Server sqlServer = new Server(serverConnection);
-                    
-                    SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
-                    string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
-                    response.SharedAccessSignature = sharedAccessSignature;
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception ex)
+            if (connInfo == null)
             {
-                await requestContext.SendError(ex);
+                await requestContext.SendError(SR.ConnectionServiceListDbErrorNotConnected(optionsParams.OwnerUri));
+                return;
+            }
+            if (connInfo.IsCloud)
+            {
+                await requestContext.SendError(SR.NotSupportedCloudCreateSas);
+                return;
+            }
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "AzureBlob"))
+            {
+                // Connection gets disconnected when backup is done
+                ServerConnection serverConnection = new ServerConnection(sqlConn);
+                Server sqlServer = new Server(serverConnection);
+
+                SharedAccessSignatureCreator sharedAccessSignatureCreator = new SharedAccessSignatureCreator(sqlServer);
+                string sharedAccessSignature = sharedAccessSignatureCreator.CreateSqlSASCredential(optionsParams.StorageAccountName, optionsParams.BlobContainerKey, optionsParams.BlobContainerUri, optionsParams.ExpirationDate);
+                response.SharedAccessSignature = sharedAccessSignature;
+                await requestContext.SendResult(response);
             }
         }
     }

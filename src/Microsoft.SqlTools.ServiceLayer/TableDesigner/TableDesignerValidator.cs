@@ -33,7 +33,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new MemoryOptimizedTableIdentityColumnRule(),
             new TableShouldAvoidHavingMultipleEdgeConstraintsRule(),
             new ColumnCannotBeListedMoreThanOnceInPrimaryKeyRule(),
-            new MutipleCreateTableStatementsInScriptRule()
+            new MutipleCreateTableStatementsInScriptRule(),
+            new ClusteredIndexCannotHaveFilterPredicate(),
+            new ClusteredIndexCannotHaveIncludedColumnsRule(),
+            new ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule(),
+            new ColumnCannotDuplicateWitIndexKeyColumnsRule()
         };
 
         /// <summary>
@@ -70,6 +74,50 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     {
                         Description = SR.IndexMustHaveColumnsRuleDescription(index.Name),
                         PropertyPath = new object[] { TablePropertyNames.Indexes, i }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ClusteredIndexCannotHaveIncludedColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                if (index.IsClustered && index.IncludedColumns.Count != 0)
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = SR.ClusteredIndexCannotHaveIncludedColumnsRuleDescription,
+                        PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IncludedColumns, 0 }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ClusteredIndexCannotHaveFilterPredicate : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                if (index.IsClustered && index.FilterPredicate != null)
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = SR.ClusteredIndexCannotHaveFilterPredicateRuleDescription,
+                        PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.FilterPredicate }
                     });
                 }
             }
@@ -123,6 +171,64 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     else
                     {
                         existingColumns.Add(columnSpec.Column);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                var existingColumns = new HashSet<string>();
+                for (int j = 0; j < index.IncludedColumns.Count; j++)
+                {
+                    var col = index.IncludedColumns[j];
+                    if (existingColumns.Contains(col))
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(col, index.Name, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IncludedColumns, j }
+                        });
+                    }
+                    else
+                    {
+                        existingColumns.Add(col);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnCannotDuplicateWitIndexKeyColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                var keyCols = new HashSet<string>(index.Columns.Select(s => s.Column));
+                for (int j = 0; j < index.IncludedColumns.Count; j++)
+                {
+                    var col = index.IncludedColumns[j];
+                    if (keyCols.Contains(col))
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(col, index.Name, j + 1),
+                            PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IncludedColumns, j }
+                        });
                     }
                 }
             }
@@ -189,52 +295,51 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
             {
                 var foreignKey = table.ForeignKeys.Items[i];
-                if (existingNames.Contains(foreignKey.Name))
+                if (existingNames.Contains(foreignKey.SystemName))
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = SR.NoDuplicateConstraintNameRuleDescription(foreignKey.Name, i + 1),
+                        Description = SR.NoDuplicateConstraintNameRuleDescription(foreignKey.SystemName, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.Name }
                     });
                 }
                 else
                 {
-                    existingNames.Add(foreignKey.Name);
-
+                    existingNames.Add(foreignKey.SystemName);
                 }
             }
 
             for (int i = 0; i < table.CheckConstraints.Items.Count; i++)
             {
                 var checkConstraint = table.CheckConstraints.Items[i];
-                if (existingNames.Contains(checkConstraint.Name))
+                if (existingNames.Contains(checkConstraint.SystemName))
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = SR.NoDuplicateConstraintNameRuleDescription(checkConstraint.Name, i + 1),
+                        Description = SR.NoDuplicateConstraintNameRuleDescription(checkConstraint.SystemName, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.CheckConstraints, i, CheckConstraintPropertyNames.Name }
                     });
                 }
                 else
                 {
-                    existingNames.Add(checkConstraint.Name);
+                    existingNames.Add(checkConstraint.SystemName);
                 }
             }
 
             for (int i = 0; i < table.EdgeConstraints.Items.Count; i++)
             {
                 var edgeConstraint = table.EdgeConstraints.Items[i];
-                if (existingNames.Contains(edgeConstraint.Name))
+                if (existingNames.Contains(edgeConstraint.SystemName))
                 {
                     errors.Add(new TableDesignerIssue()
                     {
-                        Description = SR.NoDuplicateConstraintNameRuleDescription(edgeConstraint.Name, i + 1),
+                        Description = SR.NoDuplicateConstraintNameRuleDescription(edgeConstraint.SystemName, i + 1),
                         PropertyPath = new object[] { TablePropertyNames.EdgeConstraints, i, EdgeConstraintPropertyNames.Name }
                     });
                 }
                 else
                 {
-                    existingNames.Add(edgeConstraint.Name);
+                    existingNames.Add(edgeConstraint.SystemName);
                 }
             }
             return errors;

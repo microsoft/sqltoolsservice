@@ -1,4 +1,4 @@
-#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
+#addin "nuget:?package=Newtonsoft.Json&version=13.0.1"
 #addin "mssql.ResX"
 #addin "mssql.XliffParser"
 
@@ -52,6 +52,7 @@ public class BuildPlan
     public string[] PackageProjects { get; set; }
     // The set of projects that we want to call dotnet pack on which require publishing being done first
     public string[] PackagePublishedProjects { get; set; }
+    public string[] DotnetToolProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -273,7 +274,19 @@ Task("DotnetPackPublished")
     }
 });
 
-
+/// <summary>
+///  Packages dotnet tool projects specified in DotnetToolProjects.
+/// </summary>
+Task("DotnetPackServiceTools")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.DotnetToolProjects)
+    {
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        DotnetPack(outputFolder, projectFolder, project);
+    }
+});
 
 /// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
@@ -630,7 +643,7 @@ Task("SRGen")
             }
 
             // Run SRGen
-            var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+            var dotnetArgs = string.Format("--roll-forward Major {0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
             srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
             Information("{0}", dotnetcli);
             Information("{0}", dotnetArgs);

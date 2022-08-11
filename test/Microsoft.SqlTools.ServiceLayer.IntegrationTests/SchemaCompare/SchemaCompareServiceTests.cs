@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using System.Collections.Generic;
+using Microsoft.SqlServer.Dac;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
@@ -1355,8 +1356,8 @@ WITH VALUES
                 DeploymentOptions options = new DeploymentOptions();
 
                 // ensure that files are excluded seperate from filegroups
-                Assert.True(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Files));
-                Assert.False(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Filegroups));
+                Assert.True(options.ExcludeObjectTypes.Value.Contains(Enum.GetName(SqlServer.Dac.ObjectType.Files)));
+                Assert.False(options.ExcludeObjectTypes.Value.Contains(Enum.GetName(SqlServer.Dac.ObjectType.Filegroups)));
 
                 var schemaCompareParams = new SchemaCompareParams
                 {
@@ -1823,21 +1824,20 @@ WITH VALUES
             {
                 SourceEndpointInfo = sourceInfo,
                 TargetEndpointInfo = targetInfo,
-                DeploymentOptions = new DeploymentOptions()
-                {
-                    // change some random ones explicitly
-                    AllowDropBlockingAssemblies = new DeploymentOptionProperty<bool>(true),
-                    DropConstraintsNotInSource = new DeploymentOptionProperty<bool>(true),
-                    IgnoreAnsiNulls = new DeploymentOptionProperty<bool>(true),
-                    NoAlterStatementsToChangeClrTypes = new DeploymentOptionProperty<bool>(false),
-                    PopulateFilesOnFileGroups = new DeploymentOptionProperty<bool>(false),
-                    VerifyDeployment = new DeploymentOptionProperty<bool>(false),
-                    DisableIndexesForDataPhase = new DeploymentOptionProperty<bool>(false)
-                },
+                DeploymentOptions = new DeploymentOptions(),
                 ScmpFilePath = filePath,
                 ExcludedSourceObjects = schemaCompareObjectIds,
                 ExcludedTargetObjects = null,
             };
+
+            // change some random ones explicitly
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropConstraintsNotInSource)].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreAnsiNulls)].Value = true;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.NoAlterStatementsToChangeClrTypes)].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.PopulateFilesOnFileGroups)].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.VerifyDeployment)].Value = false;
+            schemaCompareParams.DeploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
 
             SchemaCompareSaveScmpOperation schemaCompareOperation = new SchemaCompareSaveScmpOperation(schemaCompareParams, result.ConnectionInfo, result.ConnectionInfo);
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
