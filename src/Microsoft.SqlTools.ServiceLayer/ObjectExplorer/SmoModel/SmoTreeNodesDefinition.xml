@@ -165,7 +165,7 @@
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="DroppedLedgerTables" LocLabel="SR.SchemaHierarchy_DroppedLedgerTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2022|AzureV12" SortPriority="Int16.MaxValue">
+  <Node Name="DroppedLedgerTables" LocLabel="SR.SchemaHierarchy_DroppedLedgerTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
     <Filters >
       <Filter Property="IsDroppedLedgerTable" Value="1" Type="bool" />
     </Filters>
@@ -251,7 +251,7 @@
     </Filters>
   </Node>
 
-  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode" SortPriority="Int16.MaxValue">
+  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode" SortPriority="Int32.MaxValue">
     <Filters>
       <Filter Property="IsDroppedLedgerView" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
     </Filters>

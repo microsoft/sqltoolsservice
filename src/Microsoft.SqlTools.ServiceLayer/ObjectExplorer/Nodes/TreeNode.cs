@@ -417,8 +417,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             // so they're placed at the bottom of the node list (Dropped Ledger Tables and Dropped Ledger Views folders)
             // Individual objects, like tables and views, don't have a SortPriority defined, so their values need
             // to be resolved. If a node doesn't have a SortPriority, set it to the second-highest value.
-            int thisPriority = this.SortPriority ?? Int16.MaxValue - 1;
-            int otherPriority = other.SortPriority ?? Int16.MaxValue - 1;
+            int thisPriority = this.SortPriority ?? Int32.MaxValue - 1;
+            int otherPriority = other.SortPriority ?? Int32.MaxValue - 1;
 
             // diff > 0 == this below other
             // diff < 0 == other below this
