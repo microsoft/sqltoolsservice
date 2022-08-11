@@ -3865,4 +3865,10 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Libro mastro</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Tabelle del libro mastro eliminate</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Dropped Ledger Views</value>
+  </data>
 </root>

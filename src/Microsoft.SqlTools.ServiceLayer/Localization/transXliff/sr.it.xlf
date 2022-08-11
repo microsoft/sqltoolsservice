@@ -6321,6 +6321,16 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Libro mastro</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">Tabelle del libro mastro eliminate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="new">Dropped Ledger Views</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

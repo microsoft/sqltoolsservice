@@ -6321,6 +6321,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">원장</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">드롭된 원장 테이블</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="new">Dropped Ledger Views</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

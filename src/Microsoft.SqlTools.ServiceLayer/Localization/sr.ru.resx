@@ -3865,4 +3865,10 @@
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Реестр</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Удаленные таблицы реестра</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Dropped Ledger Views</value>
+  </data>
 </root>

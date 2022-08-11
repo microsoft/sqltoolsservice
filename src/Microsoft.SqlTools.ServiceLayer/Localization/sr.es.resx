@@ -3865,4 +3865,10 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Libro de contabilidad</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Tablas de libro de contabilidad descartadas</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Dropped Ledger Views</value>
+  </data>
 </root>

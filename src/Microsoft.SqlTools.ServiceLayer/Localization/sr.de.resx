@@ -3865,4 +3865,10 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Ledger</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Verworfene Ledgertabellen</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Dropped Ledger Views</value>
+  </data>
 </root>
