@@ -34,11 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 }
                 else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
                 {
-                    return $"{table.Schema}.{table.Name} ({SR.External_LabelPart})"; 
+                    return $"{table.Schema}.{table.Name} ({SR.External_LabelPart})";
                 }
                 else if (table != null && IsPropertySupported("IsFileTable", smoContext, table, CachedSmoProperties) && table.IsFileTable)
                 {
-                    return $"{table.Schema}.{table.Name} ({SR.FileTable_LabelPart})"; 
+                    return $"{table.Schema}.{table.Name} ({SR.FileTable_LabelPart})";
                 }
             }
             catch
@@ -63,13 +63,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return "Temporal";
                 }
+                if (table != null && IsPropertySupported("IsEdge", smoContext, table, CachedSmoProperties) && table.IsEdge)
+                {
+                    return "GraphEdge";
+                }
+                if (table != null && IsPropertySupported("IsNode", smoContext, table, CachedSmoProperties) && table.IsNode)
+                {
+                    return "GraphNode";
+                }
                 // TODO carbon issue 3125 enable "External" subtype once icon is ready. Otherwise will get missing icon here.
                 // else if (table != null && IsPropertySupported("IsExternal", smoContext, table, CachedSmoProperties) && table.IsExternal)
                 // {
                 //     return "External";
                 // }
-               // return string.Empty;
-
+                // return string.Empty;
             }
             catch
             {
@@ -112,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return "LedgerHistory";
                 }
             }
-            catch {}
+            catch { }
 
             return string.Empty;
         }
