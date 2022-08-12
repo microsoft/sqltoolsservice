@@ -90,6 +90,8 @@
       <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
       <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
       <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand"/>
+      <Property Name="IsEdge" ValidFor="Sql2017|Sql2019|Sql2022|AzureV12"/>
+      <Property Name="IsNode" ValidFor="Sql2017|Sql2019|Sql2022|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <Child Name="ExternalTables"/>
