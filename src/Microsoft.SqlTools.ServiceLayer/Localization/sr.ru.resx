@@ -3869,6 +3869,6 @@
     <value>Удаленные таблицы реестра</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Удаленные представления реестра</value>
   </data>
 </root>

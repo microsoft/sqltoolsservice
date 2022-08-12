@@ -3869,6 +3869,6 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Tabelas do Razão Descartadas</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Exibições do Razão Descartadas</value>
   </data>
 </root>

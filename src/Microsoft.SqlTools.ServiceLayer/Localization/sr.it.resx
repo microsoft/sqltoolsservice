@@ -3869,6 +3869,6 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
     <value>Tabelle del libro mastro eliminate</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Visualizzazioni del libro mastro eliminate</value>
   </data>
 </root>

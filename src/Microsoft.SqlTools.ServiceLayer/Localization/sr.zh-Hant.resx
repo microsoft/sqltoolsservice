@@ -3869,6 +3869,6 @@
     <value>已卸除的總帳資料表</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>已卸除的總帳檢視</value>
   </data>
 </root>

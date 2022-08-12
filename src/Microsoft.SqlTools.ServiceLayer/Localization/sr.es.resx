@@ -3869,6 +3869,6 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>Tablas de libro de contabilidad descartadas</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Vistas de libro de contabilidad descartadas</value>
   </data>
 </root>

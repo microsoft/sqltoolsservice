@@ -3869,6 +3869,6 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Tables de registre supprimées</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Affichages de registre supprimés</value>
   </data>
 </root>

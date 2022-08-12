@@ -3869,6 +3869,6 @@
     <value>드롭된 원장 테이블</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>드롭된 원장 보기</value>
   </data>
 </root>

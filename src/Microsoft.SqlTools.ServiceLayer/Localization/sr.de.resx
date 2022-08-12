@@ -3869,6 +3869,6 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Verworfene Ledgertabellen</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Verworfene Ledgeransichten</value>
   </data>
 </root>

@@ -3869,6 +3869,6 @@
     <value>已删除账本表</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>已删除账本视图</value>
   </data>
 </root>
