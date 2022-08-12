@@ -6328,7 +6328,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
         <source>Dropped Ledger Views</source>
-        <target state="new">Dropped Ledger Views</target>
+        <target state="translated">Verworfene Ledgeransichten</target>
         <note></note>
       </trans-unit>
     </body>

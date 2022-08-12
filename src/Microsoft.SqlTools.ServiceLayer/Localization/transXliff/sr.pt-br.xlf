@@ -6328,7 +6328,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
         <source>Dropped Ledger Views</source>
-        <target state="new">Dropped Ledger Views</target>
+        <target state="translated">Exibições do Razão Descartadas</target>
         <note></note>
       </trans-unit>
     </body>

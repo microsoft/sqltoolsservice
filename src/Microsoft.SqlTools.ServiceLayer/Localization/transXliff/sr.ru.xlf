@@ -6328,7 +6328,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
         <source>Dropped Ledger Views</source>
-        <target state="new">Dropped Ledger Views</target>
+        <target state="translated">Удаленные представления реестра</target>
         <note></note>
       </trans-unit>
     </body>

@@ -6328,7 +6328,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
         <source>Dropped Ledger Views</source>
-        <target state="new">Dropped Ledger Views</target>
+        <target state="translated">Affichages de registre supprimés</target>
         <note></note>
       </trans-unit>
     </body>
