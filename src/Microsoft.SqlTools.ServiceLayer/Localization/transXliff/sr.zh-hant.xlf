@@ -6321,6 +6321,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">總帳</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">已卸除的總帳資料表</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">已卸除的總帳檢視</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
