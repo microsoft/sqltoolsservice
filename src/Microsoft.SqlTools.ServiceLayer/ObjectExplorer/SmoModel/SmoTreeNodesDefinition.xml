@@ -198,9 +198,11 @@
     </Filters>
     <Properties>
       <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
+      <Property Name="IsLedger" ValidFor="Sql2022|AzureV12"/>
       <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
     </Properties>
-    <Child Name="Columns"/>
+    <Child Name="Columns" IsLedger="0"/>
+    <Child Name="LedgerTableColumns" LedgerType="LedgerTableType.AppendOnlyLedgerTable"/>
     <Child Name="Keys"/>
     <Child Name="Constraints"/>
     <Child Name="Triggers"/>
@@ -222,7 +224,25 @@
     <Child Name="Statistics"/>
   </Node>
 
-  <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort=""/>
+  <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort="">
+    <Filters>
+      <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
+    </Filters>
+  </Node>
+
+  <Node Name="LedgerTableColumns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort="">
+    <Filters>
+      <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
+    </Filters>
+    <Child Name="DroppedLedgerColumns"/>
+  </Node>
+
+  <Node Name="DroppedLedgerColumns" LocLabel="SR.SchemaHierarchy_DroppedLedgerColumns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort="" SortPriority="Int32.MaxValue">
+    <Filters>
+      <Filter Property="IsDroppedLedgerColumn" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
+    </Filters>
+  </Node>
+
   <Node Name="Keys" LocLabel="SR.SchemaHierarchy_Keys" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Key" ChildQuerierTypes="SqlIndex;SqlForeignKeyConstraint" ValidFor="NotSqlDw">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
@@ -230,10 +250,12 @@
         <Value>IndexKeyType.DriUniqueKey</Value>
       </Filter>
     </Filters>
-	 
   </Node>
+
   <Node Name="Constraints" LocLabel="SR.SchemaHierarchy_Constraints" BaseClass="ModelBased" NodeType="Constraint" Strategy="ElementsInRelationship" ChildQuerierTypes="SqlDefaultConstraint;SqlCheck"/>
+
   <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+
   <Node Name="Indexes" LocLabel="SR.SchemaHierarchy_Indexes" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Index" ChildQuerierTypes="SqlIndex;SqlFullTextIndex" ValidFor="NotSqlDemand">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
@@ -243,6 +265,7 @@
       </Filter>
     </Filters>
   </Node>
+
   <Node Name="Statistics" LocLabel="SR.SchemaHierarchy_Statistics" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Statistic" ChildQuerierTypes="SqlStatistic" ValidFor="NotSqlDemand"/>
 
   <Node Name="SystemViews" LocLabel="SR.SchemaHierarchy_SystemViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">

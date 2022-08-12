@@ -2045,6 +2045,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaHierarchy_DroppedLedgerColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DroppedLedgerColumns);
+            }
+        }
+
         public static string SchemaHierarchy_DroppedLedgerTables
         {
             get

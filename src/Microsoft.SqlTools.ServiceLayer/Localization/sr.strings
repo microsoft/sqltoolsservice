@@ -630,6 +630,8 @@ SchemaHierarchy_ExternalResources = External Resources
 
 SchemaHierarchy_ExternalTables = External Tables
 
+SchemaHierarchy_DroppedLedgerColumns = Dropped Ledger Columns
+
 SchemaHierarchy_DroppedLedgerTables = Dropped Ledger Tables
 
 SchemaHierarchy_DroppedLedgerViews = Dropped Ledger Views
