@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
-    public class IsExecutionPlanXmlRequestParams
+    public class IsExecutionPlanXmlParams
     {
         /// <summary>
         /// Execution plan XML that originated from a DMV or database table.
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
     public class IsExecutionPlanXmlRequest
     {
         public static readonly
-            RequestType<IsExecutionPlanXmlRequestParams, IsExecutionPlanXmlResult> Type =
-                RequestType<IsExecutionPlanXmlRequestParams, IsExecutionPlanXmlResult>.Create("queryExecutionPlan/isExecutionPlanXml");
+            RequestType<IsExecutionPlanXmlParams, IsExecutionPlanXmlResult> Type =
+                RequestType<IsExecutionPlanXmlParams, IsExecutionPlanXmlResult>.Create("queryExecutionPlan/isExecutionPlanXml");
     }
 }

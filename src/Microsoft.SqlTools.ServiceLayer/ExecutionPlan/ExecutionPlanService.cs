@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         internal async Task HandleIsExecutionPlanXmlRequest(
-            IsExecutionPlanXmlRequestParams requestParams,
+            IsExecutionPlanXmlParams requestParams,
             RequestContext<IsExecutionPlanXmlResult> requestContext)
         {
             var isExecutionPlanXml = false;
