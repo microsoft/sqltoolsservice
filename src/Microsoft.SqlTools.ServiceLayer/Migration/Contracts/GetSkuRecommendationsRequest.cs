@@ -88,6 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// SQL instance requirements, representing an aggregated view of the performance requirements of the source instance
         /// </summary>
         public SqlInstanceRequirements InstanceRequirements { get; set; }
+
+        /// <summary>
+        /// File paths where the recommendation reports were saved
+        /// </summary>
+        public List<string> SkuRecommendationReportPaths { get; set; }
     }
 
     public class GetSkuRecommendationsRequest
