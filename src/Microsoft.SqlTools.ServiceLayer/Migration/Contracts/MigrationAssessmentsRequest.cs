@@ -36,6 +36,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// Contains the raw assessment response 
         /// </summary>
         public ISqlMigrationAssessmentModel RawAssessmentResult { get; set; }
+        /// <summary>
+        /// File path where the assessment report was saved
+        /// </summary>
+        public string AssessmentReportPath { get; set; }
     }
 
     /// <summary>
