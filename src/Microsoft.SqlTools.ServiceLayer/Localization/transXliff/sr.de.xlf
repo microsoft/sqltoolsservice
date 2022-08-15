@@ -6321,6 +6321,16 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Ledger</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">Verworfene Ledgertabellen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">Verworfene Ledgeransichten</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

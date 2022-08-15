@@ -630,6 +630,10 @@ SchemaHierarchy_ExternalResources = External Resources
 
 SchemaHierarchy_ExternalTables = External Tables
 
+SchemaHierarchy_DroppedLedgerTables = Dropped Ledger Tables
+
+SchemaHierarchy_DroppedLedgerViews = Dropped Ledger Views
+
 SchemaHierarchy_AlwaysEncryptedKeys = Always Encrypted Keys
 
 SchemaHierarchy_ColumnMasterKeys = Column Master Keys

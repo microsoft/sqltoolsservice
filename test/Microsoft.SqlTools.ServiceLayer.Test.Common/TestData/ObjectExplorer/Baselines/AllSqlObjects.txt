@@ -160,6 +160,24 @@ NodeType: Constraint Label: DF_Person_ModifiedDate SubType: Status:
 NodeType: Trigger Label: TableTrigger SubType: Status:
 NodeType: Index Label: PK_Person_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: PK_Person_BusinessEntityID SubType: Status:
+NodeType: Table Label: HumanResources.MSSQL_DroppedLedgerTable_Ledger_For_Drop_<<NonDeterministic>> (Updatable Ledger) SubType:Ledger Status:
+NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
+NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
+NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:
+NodeType: Column Label: OrganizationNode (hierarchyid, null) SubType: Status:
+NodeType: Column Label: ledger_start_transaction_id (bigint, not null) SubType: Status:
+NodeType: Column Label: ledger_end_transaction_id (bigint, null) SubType: Status:
+NodeType: Column Label: ledger_start_sequence_number (bigint, not null) SubType: Status:
+NodeType: Column Label: ledger_end_sequence_number (bigint, null) SubType: Status:
+NodeType: HistoryTable Label: HumanResources.MSSQL_DroppedLedgerHistory_Ledger_For_Drop_History_<<NonDeterministic>> (History) SubType:LedgerHistory Status:
+NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
+NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
+NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:
+NodeType: Column Label: OrganizationNode (hierarchyid, null) SubType: Status:
+NodeType: Column Label: ledger_start_transaction_id (bigint, not null) SubType: Status:
+NodeType: Column Label: ledger_end_transaction_id (bigint, null) SubType: Status:
+NodeType: Column Label: ledger_start_sequence_number (bigint, not null) SubType: Status:
+NodeType: Column Label: ledger_end_sequence_number (bigint, null) SubType: Status:
 NodeType: View Label: HumanResources.Employee_Ledger_AppendOnly_Ledger (Ledger) SubType:Ledger Status:
 NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
@@ -208,6 +226,15 @@ NodeType: Column Label: Suffix (nvarchar(10), null) SubType: Status:
 NodeType: Column Label: JobTitle (nvarchar(50), not null) SubType: Status:
 NodeType: Column Label: AdditionalContactInfo (AdditionalContactInfoSchemaCollection, null) SubType: Status:
 NodeType: Trigger Label: ViewTrigger SubType: Status:
+NodeType: View Label: HumanResources.MSSQL_DroppedLedgerView_Ledger_For_Drop_Ledger_<<NonDeterministic>> (Ledger) SubType:Ledger Status:
+NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
+NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
+NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:
+NodeType: Column Label: OrganizationNode (hierarchyid, null) SubType: Status:
+NodeType: Column Label: ledger_transaction_id (bigint, null) SubType: Status:
+NodeType: Column Label: ledger_sequence_number (bigint, null) SubType: Status:
+NodeType: Column Label: ledger_operation_type (int, not null) SubType: Status:
+NodeType: Column Label: ledger_operation_type_desc (nvarchar(6), not null) SubType: Status:
 NodeType: Synonym Label: dbo.MyProduct SubType: Status:
 NodeType: StoredProcedure Label: dbo.uspGetList SubType: Status:
 NodeType: StoredProcedureParameter Label: @Product (varchar, Input, No default) SubType:Input Status:

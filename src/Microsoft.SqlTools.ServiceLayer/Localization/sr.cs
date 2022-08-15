@@ -2045,6 +2045,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaHierarchy_DroppedLedgerTables
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DroppedLedgerTables);
+            }
+        }
+
+        public static string SchemaHierarchy_DroppedLedgerViews
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DroppedLedgerViews);
+            }
+        }
+
         public static string SchemaHierarchy_AlwaysEncryptedKeys
         {
             get
@@ -10643,6 +10659,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_ExternalTables = "SchemaHierarchy_ExternalTables";
+
+
+            public const string SchemaHierarchy_DroppedLedgerTables = "SchemaHierarchy_DroppedLedgerTables";
+
+
+            public const string SchemaHierarchy_DroppedLedgerViews = "SchemaHierarchy_DroppedLedgerViews";
 
 
             public const string SchemaHierarchy_AlwaysEncryptedKeys = "SchemaHierarchy_AlwaysEncryptedKeys";

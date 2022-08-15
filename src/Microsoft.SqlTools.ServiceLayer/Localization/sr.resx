@@ -1280,6 +1280,14 @@
     <value>External Tables</value>
     <comment></comment>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Dropped Ledger Tables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Dropped Ledger Views</value>
+    <comment></comment>
+  </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
     <value>Always Encrypted Keys</value>
     <comment></comment>

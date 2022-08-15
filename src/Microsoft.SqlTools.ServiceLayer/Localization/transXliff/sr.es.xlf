@@ -6321,6 +6321,16 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Libro de contabilidad</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">Tablas de libro de contabilidad descartadas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">Vistas de libro de contabilidad descartadas</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

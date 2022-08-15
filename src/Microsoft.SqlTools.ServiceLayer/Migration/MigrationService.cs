@@ -9,6 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Reflection;
+using System.Data;
+using System.Diagnostics;
+using Newtonsoft.Json;
 using Microsoft.SqlServer.DataCollection.Common;
 using Microsoft.SqlServer.Management.Assessment.Checks;
 using Microsoft.SqlServer.Management.Assessment;
@@ -29,14 +33,12 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
-using Newtonsoft.Json;
-using System.Reflection;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Environment;
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy;
-using System.Data;
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlManagedInstance;
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
-using System.Diagnostics;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -301,6 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 long sqlDbDuration = -1;
                 long sqlMiDuration = -1;
                 long sqlVmDuration = -1;
+                List<string> skuRecommendationReportPaths = new List<string>();
 
                 SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
                 AzurePreferences prefs = new AzurePreferences() {
@@ -314,6 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     Stopwatch sqlDbStopwatch = new Stopwatch();
                     sqlDbStopwatch.Start();
+
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
                     sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
@@ -339,6 +343,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                     sqlDbStopwatch.Stop();
                     sqlDbDuration = sqlDbStopwatch.ElapsedMilliseconds;
+
+                    SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> {{ req, sqlDbResults }}, 
+                        AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+                    var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                    var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+                    skuRecommendationReportPaths.Add(sqlDbRecommendationReportFullPath + ".html");
                 }
 
                 // generate SQL MI recommendations, if applicable
@@ -346,6 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     Stopwatch sqlMiStopwatch = new Stopwatch();
                     sqlMiStopwatch.Start();
+
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
                     sqlMiResults = provider.GetSkuRecommendation(prefs, req);
 
@@ -366,6 +379,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                     sqlMiStopwatch.Stop();
                     sqlMiDuration = sqlMiStopwatch.ElapsedMilliseconds;
+
+                    SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlMiResults } },
+                        AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                    var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                    var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+                    skuRecommendationReportPaths.Add(sqlMiRecommendationReportFullPath + ".html");
                 }
 
                 // generate SQL VM recommendations, if applicable
@@ -373,6 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     Stopwatch sqlVmStopwatch = new Stopwatch();
                     sqlVmStopwatch.Start();
+
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
                     sqlVmResults = provider.GetSkuRecommendation(prefs, req);
 
@@ -393,6 +415,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                     sqlVmStopwatch.Stop();
                     sqlVmDuration = sqlVmStopwatch.ElapsedMilliseconds;
+
+                    SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlVmResults } },
+                        AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
+                    var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                    var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
+                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
+                    skuRecommendationReportPaths.Add(sqlVmRecommendationReportFullPath + ".html");
                 }
 
                 return new RecommendationResultSet() {
@@ -401,7 +431,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     SqlVmRecommendationResults = sqlVmResults,
                     SqlDbRecommendationDurationInMs = sqlDbDuration,
                     SqlMiRecommendationDurationInMs = sqlMiDuration,
-                    SqlVmRecommendationDurationInMs = sqlVmDuration
+                    SqlVmRecommendationDurationInMs = sqlVmDuration,
+                    SkuRecommendationReportPaths = skuRecommendationReportPaths
                 };
         }
 
@@ -412,6 +443,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             long sqlDbDuration = -1;
             long sqlMiDuration = -1;
             long sqlVmDuration = -1;
+            List<string> skuRecommendationReportPaths = new List<string>();
 
             CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
                 instanceId: parameters.TargetSqlInstance,
@@ -460,6 +492,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 sqlDbStopwatch.Stop();
                 sqlDbDuration = sqlDbStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> {{ req, sqlDbResults }}, 
+                    AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+                var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+                skuRecommendationReportPaths.Add(sqlDbRecommendationReportFullPath + ".html");
             }
 
             // generate SQL MI recommendations, if applicable
@@ -497,6 +537,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 sqlMiStopwatch.Stop();
                 sqlMiDuration = sqlMiStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlMiResults } },
+                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+                skuRecommendationReportPaths.Add(sqlMiRecommendationReportFullPath + ".html");
             }
 
             // generate SQL VM recommendations, if applicable
@@ -521,7 +569,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 SqlVmRecommendationResults = sqlVmResults,
                 SqlDbRecommendationDurationInMs = sqlDbDuration,
                 SqlMiRecommendationDurationInMs = sqlMiDuration,
-                SqlVmRecommendationDurationInMs = sqlVmDuration
+                SqlVmRecommendationDurationInMs = sqlVmDuration,
+                SkuRecommendationReportPaths = skuRecommendationReportPaths
             };
         }
 
@@ -558,7 +607,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
             DmaEngine engine = new DmaEngine(connectionStrings);
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
-            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false);
+            var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+            var assessmentReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentReportFileName);
+            engine.SaveAssessmentResultsToJson(contextualizedAssessmentResult, false, assessmentReportFullPath);
+
             var server = (contextualizedAssessmentResult.Servers.Count > 0) ? ParseServerAssessmentInfo(contextualizedAssessmentResult.Servers[0], engine) : null;
 
             return new MigrationAssessmentResult()
@@ -567,7 +619,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 Errors = ParseAssessmentError(contextualizedAssessmentResult.Errors),
                 StartTime = contextualizedAssessmentResult.StartedOn.ToString(),
                 EndedTime = contextualizedAssessmentResult.EndedOn.ToString(),
-                RawAssessmentResult = contextualizedAssessmentResult
+                RawAssessmentResult = contextualizedAssessmentResult,
+                AssessmentReportPath = assessmentReportFullPath
             };
         }
 

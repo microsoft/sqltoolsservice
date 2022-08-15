@@ -116,6 +116,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// How long the SQL VM recommendations took to generate, in milliseconds. Equal to -1 if SQL DB recommendations are not applicable.
         /// </summary>
         public long SqlVmRecommendationDurationInMs { get; set; }
+
+        /// <summary>
+        /// File paths where the recommendation reports were saved
+        /// </summary>
+        public List<string> SkuRecommendationReportPaths { get; set; }
     }
 
     public class GetSkuRecommendationsRequest

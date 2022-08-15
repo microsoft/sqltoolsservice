@@ -3865,4 +3865,10 @@
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>台帳</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>削除された台帳テーブル</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>ドロップされた台帳ビュー</value>
+  </data>
 </root>

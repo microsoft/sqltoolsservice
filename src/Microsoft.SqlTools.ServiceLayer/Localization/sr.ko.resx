@@ -3865,4 +3865,10 @@
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>원장</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>드롭된 원장 테이블</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>드롭된 원장 보기</value>
+  </data>
 </root>

@@ -7786,6 +7786,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SchemaHierarchy_DroppedLedgerTables" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Dropped Ledger Tables]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[削除された台帳テーブル]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";SchemaHierarchy_DroppedLedgerViews" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Dropped Ledger Views]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ドロップされた台帳ビュー]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SchemaHierarchy_Endpoints" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Endpoints]]></Val>

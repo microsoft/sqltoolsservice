@@ -3865,4 +3865,10 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Razão</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Tabelas do Razão Descartadas</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Exibições do Razão Descartadas</value>
+  </data>
 </root>
