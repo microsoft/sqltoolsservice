@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             ServiceHost = serviceHost;
             ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan);
             ServiceHost.SetRequestHandler(ExecutionPlanComparisonRequest.Type, HandleExecutionPlanComparisonRequest);
-            ServiceHost.SetRequestHandler(ExecutionPlanResultSetClickRequest.Type, HandleExecutionPlanResultSetClickRequest);
+            ServiceHost.SetRequestHandler(IsExecutionPlanXmlRequest.Type, HandleIsExecutionPlanXmlRequest);
         }
 
         private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)
@@ -98,9 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             await requestContext.SendResult(result);
         }
 
-        internal async Task HandleExecutionPlanResultSetClickRequest(
-            ExecutionPlanResultSetClickRequestParams requestParams,
-            RequestContext<ExecutionPlanResultSetClickResult> requestContext)
+        internal async Task HandleIsExecutionPlanXmlRequest(
+            IsExecutionPlanXmlRequestParams requestParams,
+            RequestContext<IsExecutionPlanXmlResult> requestContext)
         {
             var isExecutionPlanXml = false;
             var executionPlanFileExtension = string.Empty;
@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 executionPlanFileExtension = "sqlplan";
             }
 
-            var requestResult = new ExecutionPlanResultSetClickResult()
+            var requestResult = new IsExecutionPlanXmlResult()
             {
                 IsExecutionPlanXml = isExecutionPlanXml,
                 QueryExecutionPlanFileExtension = executionPlanFileExtension

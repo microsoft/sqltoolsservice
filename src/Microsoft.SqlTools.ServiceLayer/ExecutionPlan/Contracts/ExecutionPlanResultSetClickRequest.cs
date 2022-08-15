@@ -7,15 +7,15 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
-    public class ExecutionPlanResultSetClickRequestParams
+    public class IsExecutionPlanXmlRequestParams
     {
         /// <summary>
         /// Execution plan XML that originated from a DMV or database table.
         /// </summary>
-        public string ExecutionPlanXml { get; set; }
+        public string ExecutionPlanXml { get; set; } = string.Empty;
     }
 
-    public class ExecutionPlanResultSetClickResult
+    public class IsExecutionPlanXmlResult
     {
         /// <summary>
         /// Flag that indicates if the XML for the request is for an execution plan.
@@ -29,10 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public string QueryExecutionPlanFileExtension { get; set; } = string.Empty;
     }
 
-    public class ExecutionPlanResultSetClickRequest
+    public class IsExecutionPlanXmlRequest
     {
         public static readonly
-            RequestType<ExecutionPlanResultSetClickRequestParams, ExecutionPlanResultSetClickResult> Type =
-                RequestType<ExecutionPlanResultSetClickRequestParams, ExecutionPlanResultSetClickResult>.Create("queryExecutionPlan/executionPlanResultSetClick");
+            RequestType<IsExecutionPlanXmlRequestParams, IsExecutionPlanXmlResult> Type =
+                RequestType<IsExecutionPlanXmlRequestParams, IsExecutionPlanXmlResult>.Create("queryExecutionPlan/isExecutionPlanXml");
     }
 }
