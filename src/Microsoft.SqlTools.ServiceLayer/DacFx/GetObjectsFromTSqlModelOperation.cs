@@ -5,8 +5,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Dac.Model;
@@ -14,7 +14,7 @@ using Microsoft.SqlServer.Dac.Model;
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
     /// <summary>
-    /// Class to represent creating a dacfx model
+    /// Class to represent request to get objects from model
     /// </summary>
     class GetObjectsFromTSqlModelOperation
     {
@@ -29,9 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Get user defined objects from model
+        /// Get user defined top level type objects from model
         /// </summary>
-        public IEnumerable<TSqlObject> GetObjectsFromTSqlModel()
+        public TSqlObjectInfo[] GetObjectsFromTSqlModel()
         {
             try
             {
@@ -40,11 +40,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     filters.Add(MapType(type));
                 }
-                return Model.GetObjects(DacQueryScopes.UserDefined, filters.ToArray());
+                var objects = Model.GetObjects(DacQueryScopes.UserDefined, filters.ToArray()).ToList();
+
+                return objects.Select(o => new TSqlObjectInfo
+                {
+                    Name = o.Name.ToString(),
+                    ObjectType = o.ObjectType.Name,
+                    ReferencedObjects = o.GetReferencedRelationshipInstances().ToList().Select(r => new TSqlObjectRelationship
+                    {
+                        Name = r.ObjectName.ToString(),
+                        ObjectType = r.Object.ObjectType.Name,
+                        RelationshipType = r.Relationship.Type.ToString(),
+                        FromObjectName = r.FromObject.Name.ToString(),
+                        FromObjectType = r.FromObject.ObjectType.Name
+                    }).ToArray()
+                }).ToArray();
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, $"Failed to generate model. Error: {ex.Message}");
+                Logger.Write(TraceEventType.Information, $"Failed to get user defined objects from model. Error: {ex.Message}");
                 throw;
             }
         }
@@ -55,9 +69,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 case "table": return ModelSchema.Table;
                 case "view": return ModelSchema.View;
-                case "dataType": return ModelSchema.DataType;
-                default:  throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
-                        nameof(dataSourceType));
+                default:
+                    throw new ArgumentException($@"Unsupported data source type ""{type}""",
+                        nameof(type));
             }
         }
     }

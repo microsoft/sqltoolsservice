@@ -3,12 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
-    /// Parameters to generate a SQL model
+    /// Parameters to get objects from SQL model
     /// </summary>
     public class GetObjectsFromTSqlModelParams
     {
@@ -24,11 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     }
 
     /// <summary>
-    /// Defines the generate sql model request
+    /// Defines the get objects sql model request
     /// </summary>
     class GetObjectsFromTSqlModelRequest
     {
-        public static readonly RequestType<GenerateTSqlModelParams, ResultStatus> Type =
-            RequestType<GenerateTSqlModelParams, ResultStatus>.Create("dacFx/getObjectsFromTSqlModel");
+        public static readonly RequestType<GetObjectsFromTSqlModelParams, TSqlObjectInfo[]> Type =
+            RequestType<GetObjectsFromTSqlModelParams, TSqlObjectInfo[]>.Create("dacFx/getObjectsFromTSqlModel");
     }
 }

@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
             serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest);
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest);
-            serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest);
+            serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest);
         }
 
         /// <summary>
@@ -287,19 +287,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        public async Task HandleGetObjectsFromTSqlModelRequest(GenerateTSqlModelParams requestParams, RequestContext<ResultStatus> requestContext)
+        public async Task HandleGetObjectsFromTSqlModelRequest(GetObjectsFromTSqlModelParams requestParams, RequestContext<TSqlObjectInfo[]> requestContext)
         {
             try
             {
-                GenerateTSqlModelOperation operation = new GenerateTSqlModelOperation(requestParams);
-                TSqlModel model = operation.GenerateTSqlModel();
-
-                projectModels.Value[operation.Parameters.ProjectUri] = model;
-                await requestContext.SendResult(new ResultStatus
-                {
-                    Success = true,
-                    ErrorMessage = null
-                });
+                var model = projectModels.Value[requestParams.ProjectUri];
+                GetObjectsFromTSqlModelOperation operation = new GetObjectsFromTSqlModelOperation(requestParams, model);
+                TSqlObjectInfo[] objectInfos = operation.GetObjectsFromTSqlModel();
+                await requestContext.SendResult(objectInfos);
+                
             }
             catch (Exception e)
             {
