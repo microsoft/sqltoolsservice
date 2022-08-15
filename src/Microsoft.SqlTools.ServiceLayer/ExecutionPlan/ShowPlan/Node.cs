@@ -85,12 +85,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                     firstLine = this.Operation.DisplayName;
                 }
 
-                // Check if the PhysicalOp is specialized to a specific kind
-                string firstLineAppend = this["PhysicalOperationKind"] as string;
-                if (firstLineAppend != null)
-                {
-                    firstLine = String.Format(CultureInfo.CurrentCulture, "{0} {1}", firstLine, Constants.Parenthesis(firstLineAppend));
-                }
+                // // Check if the PhysicalOp is specialized to a specific kind
+                // string firstLineAppend = this["PhysicalOperationKind"] as string;
+                // if (firstLineAppend != null)
+                // {
+                //     firstLine = String.Format(CultureInfo.CurrentCulture, "{0} {1}", firstLine, Constants.Parenthesis(firstLineAppend));
+                // }
 
 
                 string secondLine;
@@ -585,33 +585,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             string newDisplayNameLines = this.DisplayName;
 
-            // cost
-            double cost = this.RelativeCost * 100;
+            // // cost
+            // double cost = this.RelativeCost * 100;
 
-            if (!this.HasPDWCost || cost > 0)
-            {
-                if (roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < Node.LargePlanNodeCount)
-                {
-                    cost = Math.Round(cost);
-                }
-                string costText = SR.CostFormat(cost.ToString("0.##"));
-                newDisplayNameLines += '\n' + costText;
-            }
+            // if (!this.HasPDWCost || cost > 0)
+            // {
+            //     if (roundCostForSmallGraph && this.graph != null && this.graph.NodeStmtMap.Count < Node.LargePlanNodeCount)
+            //     {
+            //         cost = Math.Round(cost);
+            //     }
+            //     string costText = SR.CostFormat(cost.ToString("0.##"));
+            //     newDisplayNameLines += '\n' + costText;
+            // }
 
 
-            // elapsed time in miliseconds
-            string elapsedTime = GetElapsedTimeDisplayString();
-            if (!String.IsNullOrEmpty(elapsedTime))
-            {
-                newDisplayNameLines += '\n' + elapsedTime;
-            }
+            // // elapsed time in miliseconds
+            // string elapsedTime = GetElapsedTimeDisplayString();
+            // if (!String.IsNullOrEmpty(elapsedTime))
+            // {
+            //     newDisplayNameLines += '\n' + elapsedTime;
+            // }
 
-            // actual/estimated rows
-            string rowStatistics = GetRowStatisticsDisplayString();
-            if (!String.IsNullOrEmpty(rowStatistics))
-            {
-                newDisplayNameLines += '\n' + rowStatistics;
-            }
+            // // actual/estimated rows
+            // string rowStatistics = GetRowStatisticsDisplayString();
+            // if (!String.IsNullOrEmpty(rowStatistics))
+            // {
+            //     newDisplayNameLines += '\n' + rowStatistics;
+            // }
 
             return newDisplayNameLines.Split('\n');
         }
@@ -704,6 +704,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             return SR.ActualOfEstimated(actualString, estimateString, percent);
         }
 
+        public string GetRowCountDisplayString() {
+            var actualRowsCounters = this[NodeBuilderConstants.ActualRows] as RunTimeCounters;
+            ulong? actualRows = actualRowsCounters != null ? actualRowsCounters.TotalCounters : (ulong?)null;
+            if(actualRows!= null){
+                return actualRows.Value.ToString();
+            }
+            var estimateRows = this[NodeBuilderConstants.EstimateRows] as double?;
+            var estimateExecutions = this[NodeBuilderConstants.EstimateExecutions] as double?;
+
+            if (estimateRows != null)
+            {
+                if (estimateExecutions != null)
+                {
+                    estimateRows = estimateRows * estimateExecutions;
+                }
+                // we display estimate rows as integer so need round function
+                estimateRows = Math.Round(estimateRows.Value);
+            } 
+            return estimateRows == null ? "" : estimateRows.Value.ToString();
+        }
+
+        public string GetNodeCostDisplayString() {
+            double cost = this.RelativeCost * 100;
+            string costText = "";
+            if (!this.HasPDWCost || cost > 0)
+            {
+                if (this.graph != null && this.graph.NodeStmtMap.Count < Node.LargePlanNodeCount)
+                {
+                    cost = Math.Round(cost);
+                }
+                costText = cost.ToString("0.##")+"%";
+            }
+            return costText;
+        }
 
         #endregion
 

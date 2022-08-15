@@ -40,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 ID = currentNode.ID,
                 Type = currentNode.Operation.Image,
                 Cost = currentNode.Cost,
+                RowCountDisplayString = currentNode.GetRowCountDisplayString(),
+                CostDisplayString = currentNode.GetNodeCostDisplayString(),
                 SubTreeCost = currentNode.SubtreeCost,
                 Description = currentNode.Description,
                 Subtext = currentNode.GetDisplayLinesOfText(true),
