@@ -279,9 +279,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 GetSkuRecommendationsResult results = new GetSkuRecommendationsResult
                 {
-                    BaselineModelResults = baselineResults,
-                    ElasticModelResults = elasticResults,
-                    InstanceRequirements = req
+                    SqlDbRecommendationResults = baselineResults.sqlDbResults,
+                    SqlDbRecommendationDurationInMs = baselineResults.sqlDbDurationInMs,
+                    SqlMiRecommendationResults = baselineResults.sqlMiResults,
+                    SqlMiRecommendationDurationInMs = baselineResults.sqlMiDurationInMs,
+                    SqlVmRecommendationResults = baselineResults.sqlVmResults,
+                    SqlVmRecommendationDurationInMs = baselineResults.sqlVmDurationInMs,
+                    ElasticSqlDbRecommendationResults = elasticResults.sqlDbResults,
+                    ElasticSqlDbRecommendationDurationInMs = elasticResults.sqlDbDurationInMs,
+                    ElasticSqlMiRecommendationResults = elasticResults.sqlMiResults,
+                    ElasticSqlMiRecommendationDurationInMs = elasticResults.sqlMiDurationInMs,
+                    ElasticSqlVmRecommendationResults = elasticResults.sqlVmResults,                
+                    ElasticSqlVmRecommendationDurationInMs = elasticResults.sqlVmDurationInMs,
+                    InstanceRequirements = req,
+                    SkuRecommendationReportPaths = new List<string> { baselineResults.sqlDbReportPath, baselineResults.sqlMiReportPath, baselineResults.sqlVmReportPath },
+                    ElasticSkuRecommendationReportPaths = new List<string> { elasticResults.sqlDbReportPath, elasticResults.sqlMiReportPath, elasticResults.sqlVmReportPath },
                 };
 
                 await requestContext.SendResult(results);
@@ -297,13 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
-                List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
-                List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
-                List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
-                long sqlDbDuration = -1;
-                long sqlMiDuration = -1;
-                long sqlVmDuration = -1;
-                List<string> skuRecommendationReportPaths = new List<string>();
+                RecommendationResultSet resultSet = new RecommendationResultSet();
 
                 SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
                 AzurePreferences prefs = new AzurePreferences() {
@@ -319,15 +325,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     sqlDbStopwatch.Start();
 
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
-                    sqlDbResults = provider.GetSkuRecommendation(prefs, req);
+                    resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
-                    if (sqlDbResults.Count < parameters.DatabaseAllowList.Count)
+                    if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
                     {
                         // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                        List<string> databasesWithRecommendation = sqlDbResults.Select(db => db.DatabaseName).ToList();
+                        List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
                         foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
                         {
-                            sqlDbResults.Add(new SkuRecommendationResult()
+                            resultSet.sqlDbResults.Add(new SkuRecommendationResult()
                             {
                                 //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
                                 SqlInstanceName = parameters.TargetSqlInstance,
@@ -342,15 +348,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     }
 
                     sqlDbStopwatch.Stop();
-                    sqlDbDuration = sqlDbStopwatch.ElapsedMilliseconds;
+                    resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
 
                     SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> {{ req, sqlDbResults }}, 
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } }, 
                         AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
                     var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                     var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
                     ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
-                    skuRecommendationReportPaths.Add(sqlDbRecommendationReportFullPath + ".html");
+                    resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
                 }
 
                 // generate SQL MI recommendations, if applicable
@@ -360,12 +366,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     sqlMiStopwatch.Start();
 
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
-                    sqlMiResults = provider.GetSkuRecommendation(prefs, req);
+                    resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
 
                     // if no result was generated, create a result with a null SKU
-                    if (!sqlMiResults.Any())
+                    if (!resultSet.sqlMiResults.Any())
                     {
-                        sqlMiResults.Add(new SkuRecommendationResult()
+                        resultSet.sqlMiResults.Add(new SkuRecommendationResult()
                         {
                             SqlInstanceName = parameters.TargetSqlInstance,
                             DatabaseName = null,
@@ -378,15 +384,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     }
 
                     sqlMiStopwatch.Stop();
-                    sqlMiDuration = sqlMiStopwatch.ElapsedMilliseconds;
+                    resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
 
                     SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlMiResults } },
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
                         AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
                     var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                     var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
                     ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
-                    skuRecommendationReportPaths.Add(sqlMiRecommendationReportFullPath + ".html");
+                    resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
                 }
 
                 // generate SQL VM recommendations, if applicable
@@ -396,12 +402,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     sqlVmStopwatch.Start();
 
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
-                    sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+                    resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
 
                     // if no result was generated, create a result with a null SKU
-                    if (!sqlVmResults.Any())
+                    if (!resultSet.sqlVmResults.Any())
                     {
-                        sqlVmResults.Add(new SkuRecommendationResult()
+                        resultSet.sqlVmResults.Add(new SkuRecommendationResult()
                         {
                             SqlInstanceName = parameters.TargetSqlInstance,
                             DatabaseName = null,
@@ -414,36 +420,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     }
 
                     sqlVmStopwatch.Stop();
-                    sqlVmDuration = sqlVmStopwatch.ElapsedMilliseconds;
+                    resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
 
                     SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlVmResults } },
+                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
                         AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
                     var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                     var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
                     ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
-                    skuRecommendationReportPaths.Add(sqlVmRecommendationReportFullPath + ".html");
+                    resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
                 }
 
-                return new RecommendationResultSet() {
-                    SqlDbRecommendationResults = sqlDbResults,
-                    SqlMiRecommendationResults = sqlMiResults,
-                    SqlVmRecommendationResults = sqlVmResults,
-                    SqlDbRecommendationDurationInMs = sqlDbDuration,
-                    SqlMiRecommendationDurationInMs = sqlMiDuration,
-                    SqlVmRecommendationDurationInMs = sqlVmDuration,
-                    SkuRecommendationReportPaths = skuRecommendationReportPaths
-                };
+                return resultSet;
         }
 
         internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
-            List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
-            List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
-            List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
-            long sqlDbDuration = -1;
-            long sqlMiDuration = -1;
-            long sqlVmDuration = -1;
-            List<string> skuRecommendationReportPaths = new List<string>();
+            RecommendationResultSet resultSet = new RecommendationResultSet();
+
+            // List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
+            // List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
+            // List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
+            // long sqlDbDuration = -1;
+            // long sqlMiDuration = -1;
+            // long sqlVmDuration = -1;
+            // List<string> skuRecommendationReportPaths = new List<string>();
 
             CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
                 instanceId: parameters.TargetSqlInstance,
@@ -468,15 +468,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 }
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
+                resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
 
-                if (sqlDbResults.Count < parameters.DatabaseAllowList.Count)
+                if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
                 {
                     // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                    List<string> databasesWithRecommendation = sqlDbResults.Select(db => db.DatabaseName).ToList();
+                    List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
                     foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
                     {
-                        sqlDbResults.Add(new SkuRecommendationResult()
+                        resultSet.sqlDbResults.Add(new SkuRecommendationResult()
                         {
                             //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
                             SqlInstanceName = parameters.TargetSqlInstance,
@@ -491,15 +491,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 }
 
                 sqlDbStopwatch.Stop();
-                sqlDbDuration = sqlDbStopwatch.ElapsedMilliseconds;
+                resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
 
                 SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> {{ req, sqlDbResults }}, 
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } }, 
                     AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
                 var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                 var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
                 ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
-                skuRecommendationReportPaths.Add(sqlDbRecommendationReportFullPath + ".html");
+                resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
             }
 
             // generate SQL MI recommendations, if applicable
@@ -518,12 +518,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 }
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
-                sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
+                resultSet.sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
 
                 // if no result was generated, create a result with a null SKU
-                if (!sqlMiResults.Any())
+                if (!resultSet.sqlMiResults.Any())
                 {
-                    sqlMiResults.Add(new SkuRecommendationResult()
+                    resultSet.sqlMiResults.Add(new SkuRecommendationResult()
                     {
                         SqlInstanceName = parameters.TargetSqlInstance,
                         DatabaseName = null,
@@ -536,22 +536,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 }
 
                 sqlMiStopwatch.Stop();
-                sqlMiDuration = sqlMiStopwatch.ElapsedMilliseconds;
+                resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
 
                 SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, sqlMiResults } },
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
                     AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
                 var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                 var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
                 ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
-                skuRecommendationReportPaths.Add(sqlMiRecommendationReportFullPath + ".html");
+                resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
             }
 
             // generate SQL VM recommendations, if applicable
             if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
             {
                 // elastic model currently doesn't support VM recommendation, return null SKU for now                
-                sqlVmResults.Add(new SkuRecommendationResult()
+                resultSet.sqlVmResults = new List<SkuRecommendationResult> {
+                    new SkuRecommendationResult()
                     {
                         SqlInstanceName = parameters.TargetSqlInstance,
                         DatabaseName = null,
@@ -560,18 +561,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                         Ranking = -1,
                         PositiveJustifications = null,
                         NegativeJustifications = null,
-                    });
+                    }
+                };
+                resultSet.sqlVmDurationInMs = -1;
+                resultSet.sqlVmReportPath = String.Empty;
             }
 
-            return new RecommendationResultSet() {
-                SqlDbRecommendationResults = sqlDbResults,
-                SqlMiRecommendationResults = sqlMiResults,
-                SqlVmRecommendationResults = sqlVmResults,
-                SqlDbRecommendationDurationInMs = sqlDbDuration,
-                SqlMiRecommendationDurationInMs = sqlMiDuration,
-                SqlVmRecommendationDurationInMs = sqlVmDuration,
-                SkuRecommendationReportPaths = skuRecommendationReportPaths
-            };
+            return resultSet;
         }
 
         internal class AssessmentRequest : IAssessmentRequest
