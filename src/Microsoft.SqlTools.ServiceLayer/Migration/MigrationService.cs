@@ -437,14 +437,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
             RecommendationResultSet resultSet = new RecommendationResultSet();
 
-            // List<SkuRecommendationResult> sqlDbResults = new List<SkuRecommendationResult>();
-            // List<SkuRecommendationResult> sqlMiResults = new List<SkuRecommendationResult>();
-            // List<SkuRecommendationResult> sqlVmResults = new List<SkuRecommendationResult>();
-            // long sqlDbDuration = -1;
-            // long sqlMiDuration = -1;
-            // long sqlVmDuration = -1;
-            // List<string> skuRecommendationReportPaths = new List<string>();
-
             CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
                 instanceId: parameters.TargetSqlInstance,
                 directory: parameters.DataFolder, 
