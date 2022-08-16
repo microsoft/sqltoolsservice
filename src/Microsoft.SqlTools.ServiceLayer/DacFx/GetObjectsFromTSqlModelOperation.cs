@@ -65,12 +65,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public static ModelTypeClass MapType(string type)
         {
-            switch (type)
+            switch (type.ToLower())
             {
                 case "table": return ModelSchema.Table;
                 case "view": return ModelSchema.View;
                 default:
-                    throw new ArgumentException($@"Unsupported data source type ""{type}""",
+                    throw new ArgumentException($"Unsupported data source type '{type}'",
                         nameof(type));
             }
         }

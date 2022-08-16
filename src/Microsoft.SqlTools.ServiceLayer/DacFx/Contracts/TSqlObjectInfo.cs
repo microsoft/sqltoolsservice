@@ -11,21 +11,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class TSqlObjectInfo
     {
         public string Name { get; set; }
+
         public string ObjectType { get; set; }
 
-        public TSqlObjectRelationship[] ReferencedObjects {get; set;}
+        public TSqlObjectRelationship[] ReferencedObjects { get; set; }
     }
 
-    public class TSqlObjectRelationship 
+    /// <summary>
+    /// Describes objects referenced and their relationship type
+    /// </summary>
+    public class TSqlObjectRelationship
     {
-        public string Name {get; set;}
+        public string Name { get; set; }
+
         public string ObjectType { get; set; }
 
-        public string RelationshipType {get; set;}
+        public string RelationshipType { get; set; }
+        
+        public string FromObjectName { get; set; }
 
-        public string  FromObjectName {get; set;}
-
-         public string  FromObjectType {get; set;}
+        public string FromObjectType { get; set; }
     }
 
 }
