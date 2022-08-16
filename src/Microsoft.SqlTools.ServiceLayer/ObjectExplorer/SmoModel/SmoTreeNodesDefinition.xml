@@ -95,7 +95,7 @@
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <Child Name="ExternalTables"/>
-    <Child Name="DroppedLedgerTables" IsDroppedLedgerTable="1"/>
+    <Child Name="DroppedLedgerTables"/>
   </Node>
 
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
@@ -104,7 +104,7 @@
       <Filter Property="IsDroppedLedgerView" Value="0" Type="bool" ValidFor="Sql2022|AzureV12"/>
     </Filters>
     <Child Name="SystemViews" IsSystemObject="1"/>
-    <Child Name="DroppedLedgerViews" IsDroppedLedgerView="1"/>
+    <Child Name="DroppedLedgerViews"/>
   </Node>
 
   <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
@@ -253,7 +253,7 @@
     </Filters>
   </Node>
 
-  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode" SortPriority="Int32.MaxValue">
+  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
     <Filters>
       <Filter Property="IsDroppedLedgerView" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
     </Filters>
