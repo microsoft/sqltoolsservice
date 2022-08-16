@@ -60,12 +60,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     int perfQueryIntervalInSec,
                     int numberOfIterations,
                     int staticQueryIntervalInSec,
-                    ISqlAssessmentLogger logger)
+                    ISqlAssessmentLogger logger = null)
         {
             this.outputFolder = outputFolder;
             this.perfQueryIntervalInSec = perfQueryIntervalInSec;
             this.numberOfIterations = numberOfIterations;
-            this._logger = logger;
+            this._logger = logger ?? new DefaultPerfDataCollectionLogger();
             this.messages = new List<KeyValuePair<string, DateTime>>();
             this.errors = new List<KeyValuePair<string, DateTime>>();
             perfDataCache = new SqlPerfDataPointsCache(this.outputFolder, _logger);
