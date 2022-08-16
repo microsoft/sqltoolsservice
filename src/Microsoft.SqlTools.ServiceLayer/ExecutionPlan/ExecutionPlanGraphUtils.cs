@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var complexProperty = prop.Value as ExpandableObjectWrapper;
                 if (complexProperty == null)
                 {
-                    if(!prop.IsBrowsable)
+                    if (!prop.IsBrowsable)
                     {
                         continue;
                     }
@@ -167,7 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         }
 
         public static List<TopOperationsDataItem> ParseTopOperationsData(Node currentNode)
-        {   
+        {
             const string OBJECT_COLUMN_KEY = "Object";
             const string ESTIMATED_ROWS_COLUMN_KEY = "EstimateRows";
             const string ACTUAL_ROWS_COLUMN_KEY = "ActualRows";
@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 {
                     ColumnName = SR.Object,
                     DataType = PropertyValueDataType.String,
-                    DisplayValue =  ((ExpandableObjectWrapper)currentNode[OBJECT_COLUMN_KEY]).DisplayName
+                    DisplayValue = ((ExpandableObjectWrapper)currentNode[OBJECT_COLUMN_KEY]).DisplayName
                 });
             }
 
