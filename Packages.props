@@ -19,7 +19,7 @@
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="3.1.0" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="3.1.1" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="161.47021.0" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="161.47008.0" />
 		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6263.0-preview" GeneratePathProperty="true" />
