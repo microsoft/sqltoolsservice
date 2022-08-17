@@ -5056,7 +5056,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Formula that the column uses if it is a computed column</value>
+    <value>An expression that defines the value of a computed column. More information: https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression</value>
     <comment></comment>
   </data>
   <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
