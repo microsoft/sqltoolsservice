@@ -3865,4 +3865,10 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Registre</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Tables de registre supprimées</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Affichages de registre supprimés</value>
+  </data>
 </root>

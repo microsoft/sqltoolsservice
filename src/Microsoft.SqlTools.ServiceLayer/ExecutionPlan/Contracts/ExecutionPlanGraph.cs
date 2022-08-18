@@ -46,6 +46,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public double Cost { get; set; }
         /// <summary>
+        /// Output row count associated with the node
+        /// </summary>
+        public string RowCountDisplayString { get; set; }
+        /// <summary>
+        ///  Cost string for the node
+        /// </summary>
+        /// <value></value>
+        public string CostDisplayString { get; set; }
+        /// <summary>
         /// Cost of the node subtree
         /// </summary>
         public double SubTreeCost { get; set; }
