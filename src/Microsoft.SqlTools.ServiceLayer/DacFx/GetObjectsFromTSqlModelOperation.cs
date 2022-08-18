@@ -16,14 +16,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// <summary>
     /// Class to represent request to get objects from model
     /// </summary>
-    class GetObjectsFromTSqlModelOperation
+    public class GetObjectsFromTSqlModelOperation
     {
-        public TSqlModel Model;
+        private TSqlModel Model;
         public GetObjectsFromTSqlModelParams Parameters { get; }
 
         public GetObjectsFromTSqlModelOperation(GetObjectsFromTSqlModelParams parameters, TSqlModel model)
         {
             Validate.IsNotNull("parameters", parameters);
+            Validate.IsNotNull("model", model);
             this.Parameters = parameters;
             this.Model = model;
         }
@@ -35,12 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             try
             {
-                List<ModelTypeClass> filters = new List<ModelTypeClass>();
-                foreach (var type in Parameters.ObjectTypes)
-                {
-                    filters.Add(MapType(type));
-                }
-                var objects = Model.GetObjects(DacQueryScopes.UserDefined, filters.ToArray()).ToList();
+                var filters = Parameters.ObjectTypes.Select(t => MapType(t)).ToArray();
+                var objects = Model.GetObjects(DacQueryScopes.UserDefined, filters).ToList();
 
                 return objects.Select(o => new TSqlObjectInfo
                 {
@@ -58,11 +55,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, $"Failed to get user defined objects from model. Error: {ex.Message}");
+                Logger.Error($"Failed to get user defined objects from model. Error: {ex.Message}");
                 throw;
             }
         }
 
+        /// <summary>
+        /// Class to represent the type of objects to query within the sql model
+        /// </summary>
         public static ModelTypeClass MapType(string type)
         {
             switch (type.ToLower())
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 case "table": return ModelSchema.Table;
                 case "view": return ModelSchema.View;
                 default:
-                    throw new ArgumentException($"Unsupported data source type '{type}'",
+                    throw new ArgumentException($"Unsupported model type: '{type}'",
                         nameof(type));
             }
         }

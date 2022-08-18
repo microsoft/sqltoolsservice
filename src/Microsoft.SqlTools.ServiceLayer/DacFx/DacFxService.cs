@@ -293,21 +293,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleGetObjectsFromTSqlModelRequest(GetObjectsFromTSqlModelParams requestParams, RequestContext<TSqlObjectInfo[]> requestContext)
         {
-            try
-            {
-                TSqlObjectInfo[] objectInfos = {};
-                var model = projectModels.Value[requestParams.ProjectUri];
+            TSqlObjectInfo[] objectInfos = { };
+            var model = projectModels.Value[requestParams.ProjectUri];
 
-                if (model != null)
-                {
-                    GetObjectsFromTSqlModelOperation operation = new GetObjectsFromTSqlModelOperation(requestParams, model);
-                    objectInfos = operation.GetObjectsFromTSqlModel();
-                }
-                await requestContext.SendResult(objectInfos);
-            }
-            catch (Exception e)
+            if (model == null)
             {
-                await requestContext.SendError(e);
+                await requestContext.SendError(new Exception($"Could not find SQL model from project {requestParams.ProjectUri}"));
+            }
+            else
+            {
+                GetObjectsFromTSqlModelOperation operation = new GetObjectsFromTSqlModelOperation(requestParams, model);
+                objectInfos = operation.GetObjectsFromTSqlModel();
+                await requestContext.SendResult(objectInfos);
             }
         }
 
