@@ -328,7 +328,7 @@ END OF Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider NOTICES AN
 
 %% Microsoft.Data.SqlClient NOTICES AND INFORMATION BEGIN HERE
 
-"Microsoft.Data.SqlClient  2.1.1 Copyright (c) .NET Foundation and Contributors
+"Microsoft.Data.SqlClient  3.1.1 Copyright (c) .NET Foundation and Contributors
 
 All rights reserved.
 
