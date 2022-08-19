@@ -1052,7 +1052,7 @@ public class TSqlModelRequestTests
         // create sql file
         File.WriteAllText(sqlTable1DefinitionPath, table1);
         File.WriteAllText(sqlTable2DefinitionPath, table2);
-        File.WriteAllText(sqlTable2DefinitionPath, view1);
+        File.WriteAllText(view1DefinitionPath, view1);
 
         var generateTSqlScriptParams = new GenerateTSqlModelParams
         {
