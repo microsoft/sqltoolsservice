@@ -4,9 +4,7 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Dac.Model;
