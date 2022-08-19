@@ -1082,6 +1082,5 @@ public class TSqlModelRequestTests
         Assert.IsNotNull(actualResponse);
         Assert.AreEqual(actualResponse.Capacity, 2);
         CollectionAssert.AreEquivalent(actualResponse.Select(o => o.Name), new[] { "[dbo].[table1]", "[dbo].[table2]" }, "Table names do not match");
-        //Assert.That(service.projectModels.Value, Contains.Key(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
     }
 }
