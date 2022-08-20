@@ -9966,10 +9966,13 @@
       </Item>
       <Item ItemId=";TableColumnComputedFormulaDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Formula that the column uses if it is a computed column]]></Val>
+          <Val><![CDATA[An expression that defines the value of a computed column. [More information]5D;(https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[列が計算列である場合に使用される式]]></Val>
+            <Val><![CDATA[計算列の値を定義する式。[More information]5D;(https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Formula that the column uses if it is a computed column]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
