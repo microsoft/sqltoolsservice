@@ -3716,7 +3716,7 @@
     <value>計算資料行能否有 NULL 值 (只有當資料行為永續性，才能指定非 NULL)</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>計算資料行所使用的公式</value>
+    <value>定義計算資料行值的運算式。[詳細資訊](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>公式</value>

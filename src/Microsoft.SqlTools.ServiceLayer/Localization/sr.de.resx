@@ -3716,7 +3716,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Gibt an, ob die berechnete Spalte einen NULL-Wert aufweisen darf (NOT NULL kann nur angegeben werden, wenn die Spalte beständig ist).</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Die Formel, die von der Spalte verwendet wird, wenn die Spalte eine berechnete Spalte ist.</value>
+    <value>Ein Ausdruck, der den Wert einer berechneten Spalte definiert. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formel</value>
