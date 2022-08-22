@@ -3716,7 +3716,7 @@
     <value>计算列是否可以具有 NULL 值(仅当列为持久列时才能指定 NOT NULL)。</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>列使用的公式(如果是计算列)</value>
+    <value>定义已计算列的值的表达式。[详细信息](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>公式</value>
