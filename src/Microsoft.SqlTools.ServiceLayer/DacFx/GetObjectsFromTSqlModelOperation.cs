@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch (Exception ex)
             {
-                Logger.Error($"Failed to get user defined objects from model. Error: {ex.Message}");
+                Logger.Error(new Exception(SR.GetUserDefinedObjectsFromModelFailed, ex));
                 throw;
             }
         }
@@ -65,11 +65,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             switch (type.ToLower())
             {
-                case "table": return ModelSchema.Table;
-                case "view": return ModelSchema.View;
+                case "table":
+                    return ModelSchema.Table;
+                case "view":
+                    return ModelSchema.View;
                 default:
-                    throw new ArgumentException($"Unsupported model type: '{type}'",
-                        nameof(type));
+                    throw new ArgumentException(SR.UnsupportedModelType(type));
             }
         }
     }

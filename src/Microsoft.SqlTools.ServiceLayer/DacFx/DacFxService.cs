@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             if (model == null)
             {
-                await requestContext.SendError(new Exception($"Could not find SQL model from project {requestParams.ProjectUri}"));
+                await requestContext.SendError(new Exception(SR.SqlProjectModelNotFound(requestParams.ProjectUri)));
             }
             else
             {
@@ -306,6 +306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 objectInfos = operation.GetObjectsFromTSqlModel();
                 await requestContext.SendResult(objectInfos);
             }
+            return;
         }
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
