@@ -3716,7 +3716,7 @@
     <value>Допускается ли значение NULL у вычисляемого столбца (значение NOT NULL можно указать лишь в том случае, если этот столбец является сохраняемым)</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Формула, используемая столбцом, если он является вычисляемым.</value>
+    <value>Выражение, определяющее значение вычисляемого столбца. [Дополнительные сведения](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Формула</value>
@@ -3864,5 +3864,11 @@
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Реестр</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Удаленные таблицы реестра</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Удаленные представления реестра</value>
   </data>
 </root>

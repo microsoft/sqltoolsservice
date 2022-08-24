@@ -3716,7 +3716,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Si la colonne calculée peut avoir une valeur NULL (NOT NULL ne peut être spécifié que si la colonne est persistante)</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Formule que la colonne utilise s’il s’agit d’une colonne calculée.</value>
+    <value>Expression qui définit la valeur d’une colonne calculée. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formule</value>
@@ -3864,5 +3864,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Registre</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Tables de registre supprimées</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Affichages de registre supprimés</value>
   </data>
 </root>

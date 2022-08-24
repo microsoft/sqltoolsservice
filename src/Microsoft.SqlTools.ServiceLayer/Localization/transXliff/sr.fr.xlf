@@ -6059,8 +6059,8 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
-        <source>Formula that the column uses if it is a computed column</source>
-        <target state="translated">Formule que la colonne utilise s’il s’agit d’une colonne calculée.</target>
+        <source>An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</source>
+        <target state="translated">Expression qui définit la valeur d’une colonne calculée. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
@@ -6319,6 +6319,16 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       <trans-unit id="Ledger_LabelPart">
         <source>Ledger</source>
         <target state="translated">Registre</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">Tables de registre supprimées</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">Affichages de registre supprimés</target>
         <note></note>
       </trans-unit>
     </body>

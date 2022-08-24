@@ -3716,7 +3716,7 @@
     <value>計算列が NULL 値を持つことができるかどうか (NOT NULL は、列が保持される場合にのみ指定できます)</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>列が計算列である場合に使用される式</value>
+    <value>計算列の値を定義する式。[More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>数式</value>
@@ -3864,5 +3864,11 @@
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>台帳</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>削除された台帳テーブル</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>ドロップされた台帳ビュー</value>
   </data>
 </root>

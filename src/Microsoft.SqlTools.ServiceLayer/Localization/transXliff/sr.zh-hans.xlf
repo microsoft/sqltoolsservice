@@ -6059,8 +6059,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
-        <source>Formula that the column uses if it is a computed column</source>
-        <target state="translated">列使用的公式(如果是计算列)</target>
+        <source>An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</source>
+        <target state="translated">定义已计算列的值的表达式。[详细信息](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
@@ -6319,6 +6319,16 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="Ledger_LabelPart">
         <source>Ledger</source>
         <target state="translated">账本</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">已删除账本表</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">已删除账本视图</target>
         <note></note>
       </trans-unit>
     </body>

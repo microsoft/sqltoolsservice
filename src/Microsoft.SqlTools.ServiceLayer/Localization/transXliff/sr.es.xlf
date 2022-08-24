@@ -6059,8 +6059,8 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
-        <source>Formula that the column uses if it is a computed column</source>
-        <target state="translated">Fórmula que la columna usa si se trata de una columna calculada</target>
+        <source>An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</source>
+        <target state="translated">Expresión que define el valor de una columna calculada. [Más información](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
@@ -6319,6 +6319,16 @@ El procesador de consultas estima que la implementación del siguiente índice p
       <trans-unit id="Ledger_LabelPart">
         <source>Ledger</source>
         <target state="translated">Libro de contabilidad</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerTables">
+        <source>Dropped Ledger Tables</source>
+        <target state="translated">Tablas de libro de contabilidad descartadas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerViews">
+        <source>Dropped Ledger Views</source>
+        <target state="translated">Vistas de libro de contabilidad descartadas</target>
         <note></note>
       </trans-unit>
     </body>

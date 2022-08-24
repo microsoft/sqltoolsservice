@@ -3716,7 +3716,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
     <value>Indica se la colonna calcolata può avere un valore NULL (è possibile specificare NOT NULL solo se la colonna è persistente).</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Formula utilizzata da una colonna calcolata</value>
+    <value>Espressione che definisce il valore di una colonna calcolata. [Altre informazioni](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formula</value>
@@ -3864,5 +3864,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Libro mastro</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Tabelle del libro mastro eliminate</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Visualizzazioni del libro mastro eliminate</value>
   </data>
 </root>
