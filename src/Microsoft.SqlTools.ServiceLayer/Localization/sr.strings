@@ -2360,3 +2360,10 @@ TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription = The table has mor
 ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription(string columnName) = Cannot use duplicate column names in primary key, column name: {0}
 MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription = Memory-optimized table is not supported for this database.
 MutipleCreateTableStatementsInScriptRuleDescription = There are multiple table definitions in the script, only the first table can be edited in the designer.
+
+############################################################################
+# TSql Model
+
+SqlProjectModelNotFound(string projectUri) = Could not find SQL model from project: {0}.
+UnsupportedModelType(string type) = Unsupported model type: {0}.
+GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.
