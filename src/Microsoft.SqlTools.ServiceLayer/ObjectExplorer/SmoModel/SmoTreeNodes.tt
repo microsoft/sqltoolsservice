@@ -241,7 +241,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("        {");
 				foreach (var child in children)
 				{
-					XmlElement childAsXmlElement = GetNodeElement(xmlFile, child.GetAttribute("Name"));
+					var childName = child.GetAttribute("Name");
+
+					XmlElement childAsXmlElement = GetNodeElement(xmlFile, childName);
 					if (childAsXmlElement == null)
 					{
 						// TODO SHould we error with clear message that this needs to be fixed?
@@ -251,16 +253,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					var msShippedOwned = childAsXmlElement.GetAttributeNode("IsMsShippedOwned");
 					var validFor = childAsXmlElement.GetAttribute("ValidFor");
 
-					if (TreeNodeExists(xmlFile, child.GetAttribute("Name") + "TreeNode"))
+					var sortPriority = childAsXmlElement.GetAttribute("SortPriority");
+					if (sortPriority == string.Empty)
 					{
-						WriteLine("            currentChildren.Add(new {0}TreeNode {{ SortPriority = SmoTreeNode.NextSortPriority }} );", child.GetAttribute("Name"));
+						sortPriority = "SmoTreeNode.NextSortPriority";
+					}
+
+					if (TreeNodeExists(xmlFile, childName + "TreeNode"))
+					{
+						WriteLine("            currentChildren.Add(new {0}TreeNode {{ SortPriority = {1} }} );", childName, sortPriority);
 					}
 					else
 					{
 						WriteLine("            currentChildren.Add(new FolderNode {");
 						WriteLine("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel"));
 						WriteLine("                NodeType = \"{0}\",", "Folder");
-						WriteLine("                NodeTypeId = NodeTypes.{0},", child.GetAttribute("Name"));
+						WriteLine("                NodeTypeId = NodeTypes.{0},", childName);
 						WriteLine("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false");
 
 						if (msShippedOwned != null)
@@ -271,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						{
 							WriteLine("                ValidFor = {0},", GetValidForFlags(validFor));
 						}
-						WriteLine("                SortPriority = SmoTreeNode.NextSortPriority,");
+						WriteLine("                SortPriority = {0},", sortPriority);
 						WriteLine("            });");
 					}
 				}

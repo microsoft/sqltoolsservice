@@ -785,6 +785,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         { TableTemporalType.SystemVersioned }
                     }
                 });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "LedgerType",
+                    Type = typeof(Enum),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object>
+                    {
+                        { LedgerTableType.None },
+                        { LedgerTableType.AppendOnlyLedgerTable },
+                        { LedgerTableType.UpdatableLedgerTable }
+                    }
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerTable",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object> { 0 },
+                });
                 return filters;
             }
         }
@@ -811,8 +830,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 });
                 properties.Add(new NodeSmoProperty
                 {
+                   Name = "LedgerType",
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
                    Name = "IsExternal",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsEdge",
+                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsNode",
+                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12
                 });
                 return properties;
             }
@@ -827,6 +861,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_DroppedLedgerTables,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.DroppedLedgerTables,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                SortPriority = Int32.MaxValue,
             });
         }
 
@@ -863,6 +905,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Type = typeof(bool),
                     Values = new List<object> { 0 },
                 });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerView",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object> { 0 },
+                });
                 return filters;
             }
         }
@@ -876,6 +925,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_DroppedLedgerViews,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.DroppedLedgerViews,
+                IsSystemObject = false,
+                IsMsShippedOwned = true,
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                SortPriority = Int32.MaxValue,
             });
         }
 
@@ -1303,6 +1361,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
     [Export(typeof(ChildFactory))]
     [Shared]
+    internal partial class DroppedLedgerTablesChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "DroppedLedgerTables" }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerTable",
+                    Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsDroppedLedgerTable",
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                return properties;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlTableQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new TableTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
     internal partial class TableChildFactory : SmoChildFactoryBase
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Table" }; }
@@ -1312,18 +1421,53 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
                 var filters = new List<INodeFilter>();
-                filters.Add(new NodePropertyFilter
+                filters.Add(new NodeOrFilter
                 {
-                    Property = "TemporalType",
-                    Type = typeof(Enum),
-                    TypeToReverse = typeof(SqlHistoryTableQuerier),
-                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                    Values = new List<object>
-                    {
-                        { TableTemporalType.HistoryTable }
+                    FilterList = new List<NodePropertyFilter> {
+                        new NodePropertyFilter
+                        {
+                            Property = "TemporalType",
+                            Type = typeof(Enum),
+                            TypeToReverse = typeof(SqlHistoryTableQuerier),
+                            ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                            Values = new List<object>
+                            {
+                                { TableTemporalType.HistoryTable }
+                            }
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "LedgerType",
+                            Type = typeof(Enum),
+                            TypeToReverse = typeof(SqlHistoryTableQuerier),
+                            ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                            Values = new List<object>
+                            {
+                                { LedgerTableType.HistoryTable }
+                            }
+                        },
                     }
                 });
                 return filters;
+            }
+        }
+
+        public override IEnumerable<NodeSmoProperty> SmoProperties
+        {
+            get
+            {
+                var properties = new List<NodeSmoProperty>();
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "LedgerType",
+                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "TemporalType",
+                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12
+                });
+                return properties;
             }
         }
 
@@ -1697,6 +1841,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlViewQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ViewTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class DroppedLedgerViewsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "DroppedLedgerViews" }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerView",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
                     Values = new List<object> { 1 },
                 });
                 return filters;

@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -241,8 +243,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         //This takes take long to run so not a good test for CI builds
         public async Task VerifySystemObjects()
         {
-            string queryFileName = null;
-            string baselineFileName = null;
+            string queryFileName = string.Empty;
+            string baselineFileName = string.Empty;
             string databaseName = "#testDb#";
             await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, "SystemOBjects", baselineFileName, true), true);
         }
@@ -471,7 +473,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 if (!string.IsNullOrEmpty(baseline))
                 {
                     string actual = stringBuilder.ToString();
-                    Assert.That(actual, Is.EqualTo(baseline), $"Baseline comparison for {baselineFileName} failed");
+
+                    // Dropped ledger objects have a randomly generated GUID appended to their name when they are deleted
+                    // For testing purposes, those guids need to be replaced with a deterministic string
+                    actual = Regex.Replace(actual, "[A-Z0-9]{32}", "<<NonDeterministic>>");
+
+                    // Write output to a bin directory for easier comparison
+                    string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+                    string outputRegeneratedFolder = Path.Combine(assemblyPath, @"ObjectExplorerServiceTests\Baselines\Regenerated");
+                    string outputRegeneratedFilePath = Path.Combine(outputRegeneratedFolder, baselineFileName);
+                    string msg = "";
+
+                    try
+                    {
+                        Directory.CreateDirectory(outputRegeneratedFolder);
+                        File.WriteAllText(outputRegeneratedFilePath, actual);
+                        msg = $"Generated output written to :\t{outputRegeneratedFilePath}\n\t" +
+                              $"Baseline output located at  :\t{GetBaseLineFile(baselineFileName)}";
+                    }
+                    catch (Exception e)
+                    {
+                        // We don't want to fail the test completely if we failed to write the regenerated baseline
+                        // (especially if the test passed).
+                        msg = $"Errors also occurred while attempting to write the new baseline file {outputRegeneratedFilePath} : {e.Message}";
+                    }
+
+                    Assert.That(actual, Is.EqualTo(baseline), $"Baseline comparison for {baselineFileName} failed\n\t" + msg);
                 }
             });
 

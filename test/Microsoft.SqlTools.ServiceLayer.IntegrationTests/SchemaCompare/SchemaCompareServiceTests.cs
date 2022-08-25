@@ -1356,8 +1356,8 @@ WITH VALUES
                 DeploymentOptions options = new DeploymentOptions();
 
                 // ensure that files are excluded seperate from filegroups
-                Assert.True(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Files));
-                Assert.False(options.ExcludeObjectTypes.Value.Contains(SqlServer.Dac.ObjectType.Filegroups));
+                Assert.True(options.ExcludeObjectTypes.Value.Contains(Enum.GetName(SqlServer.Dac.ObjectType.Files)));
+                Assert.False(options.ExcludeObjectTypes.Value.Contains(Enum.GetName(SqlServer.Dac.ObjectType.Filegroups)));
 
                 var schemaCompareParams = new SchemaCompareParams
                 {

@@ -413,23 +413,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 return CompareSamePriorities(this, other);
             }
 
-            if (this.SortPriority.HasValue &&
-                !other.SortPriority.HasValue)
-            {
-                return -1; // this is above other
-            }
-            if (!this.SortPriority.HasValue)
-            {
-                return 1; // this is below other
-            }
+            // Higher SortPriority = lower in the list. A couple nodes are defined with SortPriority of Int16.MaxValue
+            // so they're placed at the bottom of the node list (Dropped Ledger Tables and Dropped Ledger Views folders)
+            // Individual objects, like tables and views, don't have a SortPriority defined, so their values need
+            // to be resolved. If a node doesn't have a SortPriority, set it to the second-highest value.
+            int thisPriority = this.SortPriority ?? Int32.MaxValue - 1;
+            int otherPriority = other.SortPriority ?? Int32.MaxValue - 1;
 
-            // Both have sort priority
-            int priDiff = this.SortPriority.Value - other.SortPriority.Value;
-            if (priDiff < 0)
-                return -1; // this is below other
-            if (priDiff == 0)
-                return 0;
-            return 1;
+            // diff > 0 == this below other
+            // diff < 0 == other below this
+            return thisPriority - otherPriority;
         }
     }
 }

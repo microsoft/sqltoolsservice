@@ -3716,7 +3716,7 @@
     <value>계산 열에 NULL 값을 사용할 수 있는지 여부를 지정합니다(지속형 열인 경우에만 NOT NULL을 지정할 수 있습니다).</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>열이 계산 열인 경우 열에서 사용하는 수식입니다.</value>
+    <value>계산 열의 값을 정의하는 식입니다. [자세한 정보](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>수식</value>
@@ -3825,5 +3825,50 @@
   </data>
   <data name="AverageRowSize" xml:space="preserve">
     <value>평균 행 크기</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>포함된 열</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>인덱스의 포함된 열</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>열 추가</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>열</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>인덱스의 필터 조건자</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>필터 조건자</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>포함된 열은 클러스터형 인덱스에 대해 지원되지 않습니다.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>필터 조건자는 클러스터형 조건자에 대해 지원되지 않습니다.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 열이 이미 인덱스 '{1}'에 포함되어 있습니다. 행 번호: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 포함된 열은 이미 인덱스 '{1}'의 일부이므로 포함할 수 없습니다. 행 번호: {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>업데이트할 수 있는 원장</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>추가 전용 원장</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>원장</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>드롭된 원장 테이블</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>드롭된 원장 보기</value>
   </data>
 </root>

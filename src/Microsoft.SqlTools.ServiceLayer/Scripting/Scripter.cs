@@ -46,6 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             serverVersionMap.Add(13, "Script140Compat");
             serverVersionMap.Add(14, "Script140Compat");
             serverVersionMap.Add(15, "Script140Compat");
+            serverVersionMap.Add(16, "Script160Compat");
 
             // Mapping the object types for scripting
             objectScriptMap.Add("table", "Table");

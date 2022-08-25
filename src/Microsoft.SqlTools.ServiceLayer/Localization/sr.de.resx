@@ -3716,7 +3716,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Gibt an, ob die berechnete Spalte einen NULL-Wert aufweisen darf (NOT NULL kann nur angegeben werden, wenn die Spalte beständig ist).</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Die Formel, die von der Spalte verwendet wird, wenn die Spalte eine berechnete Spalte ist.</value>
+    <value>Ein Ausdruck, der den Wert einer berechneten Spalte definiert. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Formel</value>
@@ -3825,5 +3825,50 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   </data>
   <data name="AverageRowSize" xml:space="preserve">
     <value>Durchschnittliche Zeilengröße</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>Eingeschlossene Spalten</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>Die eingeschlossenen Spalten des Indexes</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>Spalte hinzufügen</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>Spalte</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filterprädikat des Indexes</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filterprädikat</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Eingeschlossene Spalten werden für einen gruppierten Index nicht unterstützt.</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>Das Filterprädikat wird für einen gruppierten Index nicht unterstützt.</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>Die Spalte mit dem Namen "{0}" wurde bereits in den Index "{1}" eingeschlossen. Zeilennummer: {2}.</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>Die eingeschlossene Spalte mit dem Namen "{0}" war bereits Teil des Indexes "{1}" und kann nicht eingeschlossen werden. Zeilennummer: {2}.</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>Aktualisierbarer Ledger</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>Ledger nur zum Anfügen</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>Ledger</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>Verworfene Ledgertabellen</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>Verworfene Ledgeransichten</value>
   </data>
 </root>
