@@ -37,7 +37,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new ClusteredIndexCannotHaveFilterPredicate(),
             new ClusteredIndexCannotHaveIncludedColumnsRule(),
             new ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule(),
-            new ColumnCannotDuplicateWitIndexKeyColumnsRule()
+            new ColumnCannotDuplicateWitIndexKeyColumnsRule(),
+            new ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRule(),
+            new ComputedColumnNeedToBePersistedInForeignKeyRule()
         };
 
         /// <summary>
@@ -657,6 +659,57 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     else
                     {
                         existingNames.Add(columnSpec.Column);
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            if (table.PrimaryKey != null)
+            {
+                for (int i = 0; i < table.PrimaryKey.Columns.Count; i++)
+                {
+                    var columnSpec = table.PrimaryKey.Columns[i];
+                    var col = table.Columns.Items.First(item => item.Name == columnSpec.Column);
+                    if (col != null && col.IsComputed && !(col.IsComputedPersisted == true && col.IsComputedPersistedNullable == false))
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription(col.Name),
+                            PropertyPath = new object[] { TablePropertyNames.PrimaryKeyColumns, i, IndexColumnSpecificationPropertyNames.Column }
+                        });
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ComputedColumnNeedToBePersistedInForeignKeyRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.ForeignKeys.Items.Count; i++)
+            {
+                for (int j = 0; j < table.ForeignKeys.Items[i].Columns.Count; j++)
+                {
+                    var col = table.Columns.Items.First(item => item.Name == table.ForeignKeys.Items[i].Columns[j]);
+                    if (col != null && col.IsComputed && col.IsComputedPersisted != true)
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(col.Name, table.ForeignKeys.Items[i].SystemName),
+                            PropertyPath = new object[] { TablePropertyNames.ForeignKeys, i, ForeignKeyPropertyNames.ColumnMapping, j, ForeignKeyColumnMappingPropertyNames.Column }
+                        });
                     }
                 }
             }

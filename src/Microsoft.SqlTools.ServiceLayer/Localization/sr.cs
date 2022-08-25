@@ -9804,6 +9804,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription, columnName, indexName, rowNumber);
         }
 
+        public static string ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription(string columnName)
+        {
+            return Keys.GetString(Keys.ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription, columnName);
+        }
+
+        public static string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName)
+        {
+            return Keys.GetString(Keys.ComputedColumnNeedToBePersistedInForeignKeyRuleDescription, columnName, foreignKeyName);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -13560,6 +13570,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription = "ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription";
+
+
+            public const string ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription = "ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription";
+
+
+            public const string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription = "ComputedColumnNeedToBePersistedInForeignKeyRuleDescription";
 
 
             private Keys()
