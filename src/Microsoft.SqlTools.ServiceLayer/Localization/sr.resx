@@ -5196,6 +5196,16 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>The computed column with name &apos;{0}&apos; has to be persisted and not nullable to be part of a primary key.</value>
+    <comment>.
+ Parameters: 0 - columnName (string) </comment>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>The computed column with name &apos;{0}&apos; has to be persisted to be part of the foreign key &apos;{1}&apos;.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Could not find SQL model from project: {0}.</value>
     <comment>.
