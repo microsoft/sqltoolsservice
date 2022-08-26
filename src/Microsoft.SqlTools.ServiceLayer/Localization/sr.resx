@@ -5206,4 +5206,18 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Could not find SQL model from project: {0}.</value>
+    <comment>.
+ Parameters: 0 - projectUri (string) </comment>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Unsupported model type: {0}.</value>
+    <comment>.
+ Parameters: 0 - type (string) </comment>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Failed to get user defined objects from model.</value>
+    <comment></comment>
+  </data>
 </root>

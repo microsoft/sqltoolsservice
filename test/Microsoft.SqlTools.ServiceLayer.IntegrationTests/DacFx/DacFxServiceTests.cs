@@ -1057,4 +1057,57 @@ public class TSqlModelRequestTests
         await service.HandleGenerateTSqlModelRequest(generateTSqlScriptParams, requestContext.Object);
         Assert.That(service.projectModels.Value, Contains.Key(generateTSqlScriptParams.ProjectUri), "Model was not stored under project uri");
     }
+
+    /// <summary>
+    /// Verify the get objects TSql Model handle
+    /// </summary>
+    [Test]
+    public async Task VerifyGetObjectsFromTSqlModelHandle()
+    {
+        string sqlTable1DefinitionPath = Path.Join(TSqlModelTestFolder, "table1.sql");
+        string sqlTable2DefinitionPath = Path.Join(TSqlModelTestFolder, "table2.sql");
+        string view1DefinitionPath = Path.Join(TSqlModelTestFolder, "view1.sql");
+        const string table1 = @"CREATE TABLE [dbo].[table1]
+            (
+                [ID] INT NOT NULL PRIMARY KEY,
+            )";
+        const string table2 = @"CREATE TABLE [dbo].[table2]
+            (
+                [ID] INT NOT NULL PRIMARY KEY,
+            )";
+        const string view1 = "CREATE VIEW [dbo].[view1] AS SELECT dbo.table1.* FROM dbo.table1";
+        // create sql file
+        File.WriteAllText(sqlTable1DefinitionPath, table1);
+        File.WriteAllText(sqlTable2DefinitionPath, table2);
+        File.WriteAllText(view1DefinitionPath, view1);
+
+        var generateTSqlScriptParams = new GenerateTSqlModelParams
+        {
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ModelTargetVersion = "Sql160",
+            FilePaths = new[] { sqlTable1DefinitionPath, sqlTable2DefinitionPath }
+        };
+       
+        GenerateTSqlModelOperation op = new GenerateTSqlModelOperation(generateTSqlScriptParams);
+        var model = op.GenerateTSqlModel();
+
+        service.projectModels.Value.TryAdd(generateTSqlScriptParams.ProjectUri, model);
+        
+         var getObjectsParams = new GetObjectsFromTSqlModelParams
+        {
+            ProjectUri = Path.Join(TSqlModelTestFolder, "test.sqlproj"),
+            ObjectTypes = new[] { "Table" }
+        };
+
+        var requestContext = new Mock<RequestContext<TSqlObjectInfo[]>>();
+        var actualResponse = new List<TSqlObjectInfo>();
+        requestContext.Setup(x => x.SendResult(It.IsAny<TSqlObjectInfo[]>()))
+                .Callback<TSqlObjectInfo[]>(actual => actualResponse = actual.ToList())
+                .Returns(Task.CompletedTask);
+        await service.HandleGetObjectsFromTSqlModelRequest(getObjectsParams, requestContext.Object);
+
+        Assert.IsNotNull(actualResponse);
+        Assert.AreEqual(actualResponse.Count, 2);
+        CollectionAssert.AreEquivalent(actualResponse.Select(o => o.Name), new[] { "[dbo].[table1]", "[dbo].[table2]" }, "Table names do not match");
+    }
 }

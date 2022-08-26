@@ -57,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
             serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest);
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest);
+            serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest);
         }
 
         /// <summary>
@@ -284,6 +285,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 await requestContext.SendError(e);
             }
+        }
+
+        /// <summary>
+        /// Handles request to get objects from sql model
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleGetObjectsFromTSqlModelRequest(GetObjectsFromTSqlModelParams requestParams, RequestContext<TSqlObjectInfo[]> requestContext)
+        {
+            TSqlObjectInfo[] objectInfos = { };
+            var model = projectModels.Value[requestParams.ProjectUri];
+
+            if (model == null)
+            {
+                await requestContext.SendError(new Exception(SR.SqlProjectModelNotFound(requestParams.ProjectUri)));
+            }
+            else
+            {
+                GetObjectsFromTSqlModelOperation operation = new GetObjectsFromTSqlModelOperation(requestParams, model);
+                objectInfos = operation.GetObjectsFromTSqlModel();
+                await requestContext.SendResult(objectInfos);
+            }
+            return;
         }
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)

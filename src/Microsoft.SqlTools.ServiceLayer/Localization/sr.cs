@@ -9429,6 +9429,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string GetUserDefinedObjectsFromModelFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.GetUserDefinedObjectsFromModelFailed);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9812,6 +9820,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName)
         {
             return Keys.GetString(Keys.ComputedColumnNeedToBePersistedInForeignKeyRuleDescription, columnName, foreignKeyName);
+        }
+
+        public static string SqlProjectModelNotFound(string projectUri)
+        {
+            return Keys.GetString(Keys.SqlProjectModelNotFound, projectUri);
+        }
+
+        public static string UnsupportedModelType(string type)
+        {
+            return Keys.GetString(Keys.UnsupportedModelType, type);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13576,6 +13594,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription = "ComputedColumnNeedToBePersistedInForeignKeyRuleDescription";
+
+
+            public const string SqlProjectModelNotFound = "SqlProjectModelNotFound";
+
+
+            public const string UnsupportedModelType = "UnsupportedModelType";
+
+
+            public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
 
 
             private Keys()
