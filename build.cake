@@ -643,7 +643,7 @@ Task("SRGen")
             }
 
             // Run SRGen
-            var dotnetArgs = string.Format("--roll-forward Major {0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+            var dotnetArgs = string.Format("--roll-forward LatestMajor {0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
             srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
             Information("{0}", dotnetcli);
             Information("{0}", dotnetArgs);
