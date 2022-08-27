@@ -153,7 +153,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 });
         }
 
-        public void SetEventHandler<TParams>(
+         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler)
         {
@@ -179,10 +179,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 (eventMessage, messageWriter) =>
                 {
                     var eventContext = new EventContext(messageWriter);
-
-                        try
-                        {
-                        TParams typedParams = default(TParams);
+                    TParams typedParams = default(TParams);
+                    try
+                    {                
                         if (eventMessage.Contents != null)
                         {
                             try
@@ -191,16 +190,17 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             }
                             catch (Exception ex)
                             {
-                                    throw new Exception($"{eventType.MethodName} : Error parsing message contents {eventMessage.Contents}", ex);
+                                Logger.Write(TraceEventType.Verbose, ex.ToString());
                             }
-                        }
+                        }                        
+                    }
+                    catch (Exception ex)
+                    {
+                        // There's nothing on the client side to send an error back to so just log the error and move on
+                        Logger.Error(ex);
+                    }
+
                     return eventHandler(typedParams, eventContext);
-                        }
-                        catch (Exception ex)
-                        {
-                            // There's nothing on the client side to send an error back to so just log the error and move on
-                            Logger.Error(ex);
-                        }
                 });
         }
 
