@@ -3268,6 +3268,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";GetUserDefinedObjectsFromModelFailed" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to get user defined objects from model.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[모델에서 사용자 정의 개체를 가져오지 못했습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";GoodEnoughPlanFound" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Good Enough Plan Found]]></Val>
@@ -9694,6 +9703,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SqlProjectModelNotFound" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Could not find SQL model from project: {0}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트에서 SQL 모델을 찾을 수 없습니다. {0}.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SqlScriptFormatterDecimalMissingPrecision" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Exact numeric column is missing numeric precision or numeric scale]]></Val>
@@ -11034,6 +11052,15 @@
           <Val><![CDATA[Unsupported device type {0} for engine edition {1}.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[엔진 버전 {1}에 대해 지원되지 않는 디바이스 유형 {0}입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";UnsupportedModelType" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unsupported model type: {0}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[지원되지 않는 모델 형식: {0}.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
