@@ -6331,6 +6331,35 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Verworfene Ledgeransichten</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlProjectModelNotFound">
+        <source>Could not find SQL model from project: {0}.</source>
+        <target state="translated">Das SQL-Modell wurde im Projekt {0} nicht gefunden.</target>
+        <note>.
+ Parameters: 0 - projectUri (string) </note>
+      </trans-unit>
+      <trans-unit id="UnsupportedModelType">
+        <source>Unsupported model type: {0}.</source>
+        <target state="translated">Nicht unterstützter Modelltyp: {0}.</target>
+        <note>.
+ Parameters: 0 - type (string) </note>
+      </trans-unit>
+      <trans-unit id="GetUserDefinedObjectsFromModelFailed">
+        <source>Failed to get user defined objects from model.</source>
+        <target state="translated">Fehler beim Abrufen benutzerdefinierter Objekte aus dem Modell.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</source>
+        <target state="translated">Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden und darf nicht Nullwerte zulassen, um Teil eines Primärschlüssels zu sein.</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.</source>
+        <target state="translated">Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden, um Teil des Fremdschlüssels „{1}“ zu sein.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
