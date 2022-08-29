@@ -127,17 +127,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// null upon validation success</returns>
         private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
-            if (connectionParams == null)
+            string paramValidationErrorMessage;
+            if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
-                    Messages = SR.ConnectionServiceConnectErrorNullParams
-                };
-            }
-            if (!connectionParams.IsValid(out string paramValidationErrorMessage))
-            {
-                return new ConnectionCompleteParams
-                {
+                    ErrorMessage = paramValidationErrorMessage,
                     OwnerUri = connectionParams.OwnerUri,
                     Messages = paramValidationErrorMessage
                 };

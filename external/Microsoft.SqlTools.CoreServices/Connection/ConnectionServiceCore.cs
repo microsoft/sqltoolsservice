@@ -220,17 +220,11 @@ namespace Microsoft.SqlTools.CoreServices.Connection
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             string paramValidationErrorMessage;
-            if (connectionParams == null)
-            {
-                return new ConnectionCompleteParams
-                {
-                    Messages = SR.ConnectionServiceConnectErrorNullParams
-                };
-            }
             if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
+                    ErrorMessage = paramValidationErrorMessage,
                     OwnerUri = connectionParams.OwnerUri,
                     Messages = paramValidationErrorMessage
                 };
