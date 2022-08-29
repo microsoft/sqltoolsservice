@@ -29,14 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         }
 
 
-        public static string ConnectionServiceConnectErrorNullParams
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnectErrorNullParams);
-            }
-        }
-
         public static string ConnectionServiceListDbErrorNullOwnerUri
         {
             get
@@ -9838,9 +9830,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
-
-
-            public const string ConnectionServiceConnectErrorNullParams = "ConnectionServiceConnectErrorNullParams";
 
 
             public const string ConnectionServiceListDbErrorNullOwnerUri = "ConnectionServiceListDbErrorNullOwnerUri";

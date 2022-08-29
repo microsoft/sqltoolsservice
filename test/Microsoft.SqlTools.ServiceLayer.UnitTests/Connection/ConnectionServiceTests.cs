@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task CantConnectWithoutUsername([Values(null, "")]string databaseName)
+        public async Task CantConnectWithoutUsername()
         {
             // Connect
             var connectionDetails = TestObjects.GetTestConnectionDetails();

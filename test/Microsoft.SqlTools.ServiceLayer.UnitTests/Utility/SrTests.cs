@@ -31,7 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionParamsValidateNullOwnerUri);
             Assert.NotNull(ServiceLayerSr.ConnectionParamsValidateNullServerName);
             Assert.NotNull(ServiceLayerSr.ConnectionParamsValidateNullSqlAuth(""));
-            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnectErrorNullParams);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnectionCanceled);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidAuthType(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidIntent(""));
