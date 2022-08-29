@@ -320,14 +320,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             string paramValidationErrorMessage;
-            if (connectionParams == null)
-            {
-                return new ConnectionCompleteParams
-                {
-                    ErrorMessage = SR.ConnectionServiceConnectErrorNullParams,
-                    Messages = SR.ConnectionServiceConnectErrorNullParams
-                };
-            }
             if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams

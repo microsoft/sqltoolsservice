@@ -248,6 +248,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
+        /// Verify that we cannot connect to the default database when no username is
+        /// provided as a parameter.
+        /// </summary>
+        [Test]
+        public async Task CantConnectWithoutUsername([Values(null, "")]string databaseName)
+        {
+            // Connect
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            connectionDetails.UserName = "";
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = connectionDetails
+                });
+
+            Assert.AreEqual(SR.ConnectionParamsValidateNullSqlAuth("UserName"), connectionResult.ErrorMessage);
+        }
+
+        /// <summary>
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
         /// </summary>
