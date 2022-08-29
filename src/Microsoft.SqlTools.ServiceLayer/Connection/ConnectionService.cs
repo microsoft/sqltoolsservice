@@ -325,8 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return new ConnectionCompleteParams
                 {
                     ErrorMessage = paramValidationErrorMessage,
-                    OwnerUri = connectionParams.OwnerUri,
-                    Messages = paramValidationErrorMessage
+                    OwnerUri = connectionParams.OwnerUri
                 };
             }
 
