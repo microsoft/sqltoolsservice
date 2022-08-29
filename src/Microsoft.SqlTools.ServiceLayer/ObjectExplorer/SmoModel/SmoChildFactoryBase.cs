@@ -53,6 +53,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 allChildren.RemoveAll(x => x.IsSystemObject);
             }
+            if (parent.NodeSubType != "Ledger" && parent.NodeTypeId != NodeTypes.Table)
+            {
+                allChildren.RemoveAll(x => x.IsLedgerOnly);
+            }
             if (context != null && context.ValidFor != 0 && context.ValidFor != ValidForFlag.All)
             {
                 allChildren.RemoveAll(x =>

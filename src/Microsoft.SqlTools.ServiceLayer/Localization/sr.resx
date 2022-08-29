@@ -1280,6 +1280,10 @@
     <value>External Tables</value>
     <comment></comment>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Dropped Ledger Columns</value>
+    <comment></comment>
+  </data>
   <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
     <value>Dropped Ledger Tables</value>
     <comment></comment>

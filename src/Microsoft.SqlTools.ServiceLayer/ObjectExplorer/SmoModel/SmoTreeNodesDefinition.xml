@@ -204,7 +204,7 @@
       <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
     </Properties>
     <Child Name="Columns" IsLedger="0"/>
-    <Child Name="LedgerTableColumns" LedgerType="LedgerTableType.AppendOnlyLedgerTable"/>
+    <Child Name="LedgerTableColumns" IsLedgerOnly="1"/>
     <Child Name="Keys"/>
     <Child Name="Constraints"/>
     <Child Name="Triggers"/>
@@ -236,7 +236,7 @@
     <Filters>
       <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
     </Filters>
-    <Child Name="DroppedLedgerColumns"/>
+    <Child Name="DroppedLedgerColumns" IsLedgerOnly="1"/>
   </Node>
 
   <Node Name="DroppedLedgerColumns" LocLabel="SR.SchemaHierarchy_DroppedLedgerColumns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort="" SortPriority="Int32.MaxValue">

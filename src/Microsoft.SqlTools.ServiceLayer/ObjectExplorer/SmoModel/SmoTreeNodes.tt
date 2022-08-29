@@ -270,7 +270,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine("                NodeType = \"{0}\",", "Folder");
 						WriteLine("                NodeTypeId = NodeTypes.{0},", childName);
 						WriteLine("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false");
-
+						if (child.GetAttribute("IsLedgerOnly").Equals("1"))
+						{
+							 WriteLine("                IsLedgerOnly = true,");
+						}
 						if (msShippedOwned != null)
 						{
 							WriteLine("                IsMsShippedOwned = true,");

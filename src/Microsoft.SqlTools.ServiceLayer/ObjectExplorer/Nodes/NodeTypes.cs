@@ -143,5 +143,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         DroppedLedgerTables,
         DroppedLedgerViews,
         DroppedLedgerColumns,
+        LedgerTableColumns,
     }
 }

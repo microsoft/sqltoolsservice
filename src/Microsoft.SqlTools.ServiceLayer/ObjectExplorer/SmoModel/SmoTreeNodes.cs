@@ -1490,6 +1490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.LedgerTableColumns,
                 IsSystemObject = false,
+                IsLedgerOnly = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1720,6 +1721,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DroppedLedgerColumns,
                 IsSystemObject = false,
+                IsLedgerOnly = true,
                 SortPriority = Int32.MaxValue,
             });
         }
