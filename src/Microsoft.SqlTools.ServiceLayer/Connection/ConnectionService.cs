@@ -324,6 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return new ConnectionCompleteParams
                 {
+                    ErrorMessage = SR.ConnectionServiceConnectErrorNullParams,
                     Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
@@ -331,6 +332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return new ConnectionCompleteParams
                 {
+                    ErrorMessage = paramValidationErrorMessage,
                     OwnerUri = connectionParams.OwnerUri,
                     Messages = paramValidationErrorMessage
                 };
