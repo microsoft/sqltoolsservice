@@ -1197,7 +1197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     parameters.OwnerUri,
                     out connInfo);
                 result.Success = true;
-                result.Notebooks = await AgentNotebookHelper.GetAgentNotebooks(connInfo);
+                result.Notebooks = AgentNotebookHelper.GetAgentNotebooks(connInfo).Result;
             }
             catch (Exception e)
             {
@@ -1246,7 +1246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 ConnectionServiceInstance.TryFindConnection(
                                             parameters.OwnerUri,
                                             out connInfo);
-                result.NotebookMaterialized = await AgentNotebookHelper.GetMaterializedNotebook(connInfo, parameters.NotebookMaterializedId, parameters.TargetDatabase);
+                result.NotebookMaterialized = AgentNotebookHelper.GetMaterializedNotebook(connInfo, parameters.NotebookMaterializedId, parameters.TargetDatabase).Result;
                 result.Success = true;
             }
             catch (Exception e)
