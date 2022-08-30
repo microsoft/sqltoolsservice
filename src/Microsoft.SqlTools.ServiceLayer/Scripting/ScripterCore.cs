@@ -700,6 +700,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 filterExpressions.Add("@GeneratedAlwaysType=0");
             }
 
+            if (server.Version.Major >= 16 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12))
+            {
+                filterExpressions.Add("@IsDroppedLedgerColumn=0");
+            }
+
             // Check if we're called for SQL2017/Sterling+.
             // We need to omit graph internal columns if such are present on this table.
             if (server.Version.Major >= 14 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && !isDw))
