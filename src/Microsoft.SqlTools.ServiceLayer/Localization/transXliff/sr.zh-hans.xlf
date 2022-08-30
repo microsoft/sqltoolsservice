@@ -6059,8 +6059,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
-        <source>Formula that the column uses if it is a computed column</source>
-        <target state="translated">列使用的公式(如果是计算列)</target>
+        <source>An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</source>
+        <target state="translated">定义已计算列的值的表达式。[详细信息](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
@@ -6330,6 +6330,35 @@ The Query Processor estimates that implementing the following index could improv
         <source>Dropped Ledger Views</source>
         <target state="translated">已删除账本视图</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="SqlProjectModelNotFound">
+        <source>Could not find SQL model from project: {0}.</source>
+        <target state="translated">无法从项目中找到 SQL 模型: {0}。</target>
+        <note>.
+ Parameters: 0 - projectUri (string) </note>
+      </trans-unit>
+      <trans-unit id="UnsupportedModelType">
+        <source>Unsupported model type: {0}.</source>
+        <target state="translated">不支持的模型类型: {0}。</target>
+        <note>.
+ Parameters: 0 - type (string) </note>
+      </trans-unit>
+      <trans-unit id="GetUserDefinedObjectsFromModelFailed">
+        <source>Failed to get user defined objects from model.</source>
+        <target state="translated">无法从模型中获取用户定义的对象。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</source>
+        <target state="translated">名称为“{0}”的计算列必须保留，并且不能为 null 才能成为主键的一部分。</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.</source>
+        <target state="translated">名称为“{0}”的计算列必须保留为外键“{1}”的一部分。</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
     </body>
   </file>

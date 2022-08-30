@@ -2350,7 +2350,7 @@ TableColumnComputedGroupTitle = Computed Column Specifications
 TableColumnIsComputedTitle = Is Computed
 TableColumnIsComputedDescription = Specifies whether the column is a computed column
 TableColumnComputedFormulaTitle = Formula
-TableColumnComputedFormulaDescription = Formula that the column uses if it is a computed column
+TableColumnComputedFormulaDescription = An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)
 TableColumnIsComputedPersistedTitle = Is Persisted
 TableColumnIsComputedPersistedDescription = Whether the computed column is saved with the data source
 TableColumnIsComputedPersistedNullableTitle = Is Persisted Nullable
@@ -2382,3 +2382,12 @@ ClusteredIndexCannotHaveIncludedColumnsRuleDescription = Included columns are no
 ClusteredIndexCannotHaveFilterPredicateRuleDescription = Filter predicate is not supported for a clustered index.
 ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been included to the index '{1}'. Row number: {2}.
 ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.
+ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription(string columnName) = The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.
+ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName) = The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.
+
+############################################################################
+# TSql Model
+
+SqlProjectModelNotFound(string projectUri) = Could not find SQL model from project: {0}.
+UnsupportedModelType(string type) = Unsupported model type: {0}.
+GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.

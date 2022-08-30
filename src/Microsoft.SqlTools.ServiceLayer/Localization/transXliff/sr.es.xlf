@@ -6059,8 +6059,8 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaDescription">
-        <source>Formula that the column uses if it is a computed column</source>
-        <target state="translated">Fórmula que la columna usa si se trata de una columna calculada</target>
+        <source>An expression that defines the value of a computed column. [More information](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</source>
+        <target state="translated">Expresión que define el valor de una columna calculada. [Más información](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableColumnComputedFormulaTitle">
@@ -6330,6 +6330,35 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <source>Dropped Ledger Views</source>
         <target state="translated">Vistas de libro de contabilidad descartadas</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="SqlProjectModelNotFound">
+        <source>Could not find SQL model from project: {0}.</source>
+        <target state="translated">No se ha podido encontrar el modelo SQL del proyecto: {0}.</target>
+        <note>.
+ Parameters: 0 - projectUri (string) </note>
+      </trans-unit>
+      <trans-unit id="UnsupportedModelType">
+        <source>Unsupported model type: {0}.</source>
+        <target state="translated">Tipo de modelo no admitido: {0}.</target>
+        <note>.
+ Parameters: 0 - type (string) </note>
+      </trans-unit>
+      <trans-unit id="GetUserDefinedObjectsFromModelFailed">
+        <source>Failed to get user defined objects from model.</source>
+        <target state="translated">No se han podido obtener los objetos definidos por el usuario del modelo.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</source>
+        <target state="translated">La columna calculada con el nombre "{0}" debe ser persistente y no acepta valores NULL para formar parte de una clave principal.</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.</source>
+        <target state="translated">La columna calculada con el nombre "{0}" debe ser persistente para formar parte de la clave externa "{1}".</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
     </body>
   </file>

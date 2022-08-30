@@ -3716,7 +3716,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Se a coluna computada pode ter um valor NULL (NOT NULO só pode ser especificado se a coluna persistir)</value>
   </data>
   <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
-    <value>Fórmula que a coluna usa se for uma coluna computada</value>
+    <value>Uma expressão que define o valor de uma coluna computada. [Mais informações](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
   </data>
   <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
     <value>Fórmula</value>
