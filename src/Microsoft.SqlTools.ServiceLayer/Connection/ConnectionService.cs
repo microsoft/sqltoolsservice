@@ -331,8 +331,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 return new ConnectionCompleteParams
                 {
-                    ErrorMessage = paramValidationErrorMessage,
-                    OwnerUri = connectionParams.OwnerUri
+                    OwnerUri = connectionParams.OwnerUri,
+                    ErrorMessage = paramValidationErrorMessage
                 };
             }
 
@@ -568,7 +568,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                response.ErrorMessage = ex.ToString();
+                response.Messages = ex.ToString();
+                response.ErrorMessage = ex.Message;
             }
 
             return response;

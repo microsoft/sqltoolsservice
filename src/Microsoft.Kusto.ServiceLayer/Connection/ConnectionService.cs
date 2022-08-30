@@ -139,8 +139,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 return new ConnectionCompleteParams
                 {
+                    OwnerUri = connectionParams.OwnerUri,
                     ErrorMessage = paramValidationErrorMessage,
-                    OwnerUri = connectionParams.OwnerUri
                 };
             }
 
@@ -371,7 +371,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                response.ErrorMessage = ex.ToString();
+                response.Messages = ex.ToString();
+                response.ErrorMessage = ex.Message;
             }
 
             return response;
