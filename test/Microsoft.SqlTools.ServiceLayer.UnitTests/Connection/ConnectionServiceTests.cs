@@ -248,8 +248,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Verify that we cannot connect to the default database when no username is
-        /// provided as a parameter.
+        /// Verify that we cannot connect to the default database when no username
+        /// is provided and the authentication type is basic auth.
         /// </summary>
         [Test]
         public async Task CantConnectWithoutUsername()
