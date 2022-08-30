@@ -127,7 +127,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// null upon validation success</returns>
         private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
-            string paramValidationErrorMessage;
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -135,7 +134,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
-            if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            if (!connectionParams.IsValid(out string paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
