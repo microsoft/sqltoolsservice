@@ -2,6 +2,11 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" original="sr.resx" source-language="en">
     <body>
+      <trans-unit id="ConnectionServiceConnectErrorNullParams">
+        <source>Connection parameters cannot be null</source>
+        <target state="new">Connection parameters cannot be null</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceListDbErrorNullOwnerUri">
         <source>OwnerUri cannot be null or empty</source>
         <target state="new">OwnerUri cannot be null or empty</target>
@@ -6354,11 +6359,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.</target>
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceConnectErrorNullParams">
-        <source>Connection parameters cannot be null</source>
-        <target state="new">Connection parameters cannot be null</target>
-        <note></note>
       </trans-unit>
     </body>
   </file>
