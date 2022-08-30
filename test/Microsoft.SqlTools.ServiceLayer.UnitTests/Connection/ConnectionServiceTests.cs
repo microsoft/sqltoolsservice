@@ -440,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456"},
             new object[] {"Integrated", "", "my-server", "test", "sa", "123456"},
             new object[] {"Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456"}
-	};
+	    };
         /// <summary>
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
