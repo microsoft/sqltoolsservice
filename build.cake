@@ -615,7 +615,6 @@ Task("SRGen")
 
             // build remaining paths relative to the project directory
             var parentDir = System.IO.Directory.GetParent(projectDir).Name;
-            Information("Current parent directory is {0}", parentDir);
             var localizationDir = System.IO.Path.Combine(".", "Localization");
             var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
             var projectNameSpace = projectName + ".Localization";
@@ -679,7 +678,6 @@ Task("SRGen")
                 if(parentDir.Equals("external")){
                     templateDirToUse = locExternalTemplateDir;
                 }
-                Information("Template used is {0}", templateDirToUse); 
                 var templateFileLocation = System.IO.Path.Combine(templateDirToUse, System.IO.Path.GetFileName(docName) + ".template");
                 var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
                 var templateFile = templateDoc.Files.Single();
