@@ -248,6 +248,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
+        /// Verify that we cannot connect to the default database when no username
+        /// is provided and the authentication type is basic auth.
+        /// </summary>
+        [Test]
+        public async Task CantConnectWithoutUsername()
+        {
+            // Connect
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            connectionDetails.UserName = "";
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = connectionDetails
+                });
+
+            Assert.That(connectionResult.ErrorMessage, Is.EqualTo(SR.ConnectionParamsValidateNullSqlAuth("UserName")));
+        }
+
+        /// <summary>
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
         /// </summary>
@@ -402,7 +423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     Connection = invalidConnectionDetails
                 });
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
         static readonly object[] invalidParameters =
@@ -419,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456"},
             new object[] {"Integrated", "", "my-server", "test", "sa", "123456"},
             new object[] {"Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456"}
-    };
+	    };
         /// <summary>
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
@@ -442,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     }
                 });
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
         static readonly object[] noUserNameOrPassword =
@@ -492,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 TestObjects.GetTestConnectionService()
                 .Connect(null);
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
 

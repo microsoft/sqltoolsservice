@@ -6331,6 +6331,35 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Affichages de registre supprimés</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlProjectModelNotFound">
+        <source>Could not find SQL model from project: {0}.</source>
+        <target state="translated">Impossible de trouver le modèle SQL du projet : {0}.</target>
+        <note>.
+ Parameters: 0 - projectUri (string) </note>
+      </trans-unit>
+      <trans-unit id="UnsupportedModelType">
+        <source>Unsupported model type: {0}.</source>
+        <target state="translated">Type de modèle non pris en charge : {0}.</target>
+        <note>.
+ Parameters: 0 - type (string) </note>
+      </trans-unit>
+      <trans-unit id="GetUserDefinedObjectsFromModelFailed">
+        <source>Failed to get user defined objects from model.</source>
+        <target state="translated">Impossible d'obtenir les objets définis par l'utilisateur à partir du modèle.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</source>
+        <target state="translated">La colonne calculée avec le nom '{0}' doit être persistante et ne peut pas faire partie d’une clé primaire avec la valeur Null.</target>
+        <note>.
+ Parameters: 0 - columnName (string) </note>
+      </trans-unit>
+      <trans-unit id="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription">
+        <source>The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.</source>
+        <target state="translated">La colonne calculée avec le nom '{0}' doit être persistante pour faire partie de la '{1}' de clé étrangère.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
