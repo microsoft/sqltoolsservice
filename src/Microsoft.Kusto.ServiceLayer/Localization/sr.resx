@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>Connection parameters cannot be null</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
     <comment></comment>

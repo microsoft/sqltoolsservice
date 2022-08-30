@@ -29,6 +29,14 @@ namespace Microsoft.Kusto.ServiceLayer
         }
 
 
+        public static string ConnectionServiceConnectErrorNullParams
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnectErrorNullParams);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNullOwnerUri
         {
             get
@@ -3112,6 +3120,9 @@ namespace Microsoft.Kusto.ServiceLayer
             static ResourceManager resourceManager = new ResourceManager("Microsoft.Kusto.ServiceLayer.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
             static CultureInfo _culture = null;
+
+
+            public const string ConnectionServiceConnectErrorNullParams = "ConnectionServiceConnectErrorNullParams";
 
 
             public const string ConnectionServiceListDbErrorNullOwnerUri = "ConnectionServiceListDbErrorNullOwnerUri";

@@ -6355,6 +6355,11 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnectErrorNullParams">
+        <source>Connection parameters cannot be null</source>
+        <target state="new">Connection parameters cannot be null</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

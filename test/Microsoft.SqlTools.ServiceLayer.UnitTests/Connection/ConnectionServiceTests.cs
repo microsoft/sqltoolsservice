@@ -265,7 +265,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     Connection = connectionDetails
                 });
 
-            Assert.AreEqual(SR.ConnectionParamsValidateNullSqlAuth("UserName"), connectionResult.ErrorMessage);
+            Assert.That(connectionResult.ErrorMessage, Is.EqualTo(SR.ConnectionParamsValidateNullSqlAuth("UserName")));
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     Connection = invalidConnectionDetails
                 });
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
         static readonly object[] invalidParameters =
@@ -440,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456"},
             new object[] {"Integrated", "", "my-server", "test", "sa", "123456"},
             new object[] {"Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456"}
-    };
+        };
         /// <summary>
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
@@ -463,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     }
                 });
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
         static readonly object[] noUserNameOrPassword =
@@ -513,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 TestObjects.GetTestConnectionService()
                 .Connect(null);
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
 

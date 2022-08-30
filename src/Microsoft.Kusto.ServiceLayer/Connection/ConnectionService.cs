@@ -128,6 +128,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             string paramValidationErrorMessage;
+            if (connectionParams == null)
+            {
+                return new ConnectionCompleteParams
+                {
+                    Messages = SR.ConnectionServiceConnectErrorNullParams
+                };
+            }
             if (!connectionParams.IsValid(out paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
@@ -364,7 +371,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                response.Messages = ex.ToString();
+                response.ErrorMessage = ex.ToString();
             }
 
             return response;

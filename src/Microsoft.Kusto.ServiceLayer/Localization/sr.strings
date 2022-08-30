@@ -23,6 +23,8 @@
 ############################################################################
 # Connection Service
 
+ConnectionServiceConnectErrorNullParams = Connection parameters cannot be null
+
 ConnectionServiceListDbErrorNullOwnerUri = OwnerUri cannot be null or empty
 
 ConnectionServiceListDbErrorNotConnected(string uri) = SpecifiedUri '{0}' does not have existing connection
