@@ -613,7 +613,6 @@ Task("SRGen")
             System.IO.Directory.SetCurrentDirectory(projectDir);
 
             // build remaining paths relative to the project directory
-            var parentDir = System.IO.Directory.GetParent(projectDir).Name;
             var localizationDir = System.IO.Path.Combine(".", "Localization");
             var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
             var projectNameSpace = projectName + ".Localization";
