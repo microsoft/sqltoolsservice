@@ -3871,4 +3871,19 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Exibições do Razão Descartadas</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Não foi possível encontrar o modelo SQL do projeto: {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Tipo de modelo sem suporte: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Falha ao obter objetos definidos pelo usuário a partir do modelo.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>A coluna computada com o nome '{0}' deve ser persistente e não anulável para fazer parte de uma chave primária.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>A coluna computada com o nome '{0}' deve ser persistida para fazer parte da chave estrangeira '{1}'.</value>
+  </data>
 </root>

@@ -3871,4 +3871,19 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>已删除账本视图</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>无法从项目中找到 SQL 模型: {0}。</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>不支持的模型类型: {0}。</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>无法从模型中获取用户定义的对象。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>名称为“{0}”的计算列必须保留，并且不能为 null 才能成为主键的一部分。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>名称为“{0}”的计算列必须保留为外键“{1}”的一部分。</value>
+  </data>
 </root>

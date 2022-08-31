@@ -3871,4 +3871,19 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Vistas de libro de contabilidad descartadas</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>No se ha podido encontrar el modelo SQL del proyecto: {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Tipo de modelo no admitido: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>No se han podido obtener los objetos definidos por el usuario del modelo.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La columna calculada con el nombre "{0}" debe ser persistente y no acepta valores NULL para formar parte de una clave principal.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La columna calculada con el nombre "{0}" debe ser persistente para formar parte de la clave externa "{1}".</value>
+  </data>
 </root>

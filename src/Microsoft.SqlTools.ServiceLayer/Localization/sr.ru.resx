@@ -3871,4 +3871,19 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Удаленные представления реестра</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Не удалось найти модель SQL из проекта: {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Неподдерживаемый тип модели: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Не удалось получить пользовательские объекты из модели.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Вычисляемый столбец с именем "{0}" должен быть сохранен и не может быть равен NULL, чтобы входить в состав первичного ключа.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Вычисляемый столбец с именем "{0}" должен быть сохранен в составе внешнего ключа "{1}".</value>
+  </data>
 </root>
