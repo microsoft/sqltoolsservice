@@ -599,10 +599,9 @@ Task("SRGen")
     try
     {
         var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization");
         var externalProjects = System.IO.Directory.GetFiles(externalFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-        var locExternalTemplateDir = System.IO.Path.Combine(externalFolder, "../localization");
         var allProjects = projects.Concat(externalProjects).ToList();
+        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization");
 
         foreach(var project in allProjects) {
             var projectDir = System.IO.Path.GetDirectoryName(project);
@@ -674,11 +673,7 @@ Task("SRGen")
                 var xlfFile = xlfDoc.Files.Single();
 
                 // load a language template
-                var templateDirToUse = locTemplateDir;
-                if(parentDir.Equals("external")){
-                    templateDirToUse = locExternalTemplateDir;
-                }
-                var templateFileLocation = System.IO.Path.Combine(templateDirToUse, System.IO.Path.GetFileName(docName) + ".template");
+                var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
                 var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
                 var templateFile = templateDoc.Files.Single();
 
