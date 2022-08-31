@@ -3871,4 +3871,19 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Affichages de registre supprimés</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Impossible de trouver le modèle SQL du projet : {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Type de modèle non pris en charge : {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Impossible d'obtenir les objets définis par l'utilisateur à partir du modèle.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La colonne calculée avec le nom '{0}' doit être persistante et ne peut pas faire partie d’une clé primaire avec la valeur Null.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La colonne calculée avec le nom '{0}' doit être persistante pour faire partie de la '{1}' de clé étrangère.</value>
+  </data>
 </root>

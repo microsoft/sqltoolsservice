@@ -3871,4 +3871,19 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Visualizzazioni del libro mastro eliminate</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Non è stato possibile trovare il modello SQL dal progetto: {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Tipo di modello non supportato: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Non è stato possibile ottenere gli oggetti definiti dal modello.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La colonna calcolata denominata '{0}' deve essere resa persistente e non nullable per far parte di una chiave primaria.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La colonna calcolata denominata '{0}' deve essere resa persistente per far parte della chiave esterna '{1}'.</value>
+  </data>
 </root>

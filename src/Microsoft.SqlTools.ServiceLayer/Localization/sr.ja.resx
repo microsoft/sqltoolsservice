@@ -3871,4 +3871,19 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>ドロップされた台帳ビュー</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>プロジェクトから SQL モデルが見つかりませんでした: {0}。</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>サポートされていないモデルの種類: {0}。</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>モデルからユーザー定義オブジェクトを取得できませんでした。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>"{0}' という名前の計算列は永続化する必要があり、主キーの一部として null 許容されません。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の計算列は、外部キー '{1}' の一部として保持する必要があります。</value>
+  </data>
 </root>

@@ -3871,4 +3871,19 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Verworfene Ledgeransichten</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>Das SQL-Modell wurde im Projekt {0} nicht gefunden.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Nicht unterstützter Modelltyp: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>Fehler beim Abrufen benutzerdefinierter Objekte aus dem Modell.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden und darf nicht Nullwerte zulassen, um Teil eines Primärschlüssels zu sein.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden, um Teil des Fremdschlüssels „{1}“ zu sein.</value>
+  </data>
 </root>
