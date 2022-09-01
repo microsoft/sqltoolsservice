@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private const string SqlAzureEdition = "SQL Azure";
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
-        public const int MaxTries = 200; // Max number of tries to wait for a connection database to start up when its paused before giving up.
+        public const int MaxTries = 100; // Max number of tries to wait for a connection database to start up when its paused before giving up.
 
         /// <summary>
         /// Singleton service instance
