@@ -35,6 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private const string SqlAzureEdition = "SQL Azure";
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
+        public const int MaxTries = 200; // Max number of tries to wait for a connection database to start up when its paused before giving up.
+
         /// <summary>
         /// Singleton service instance
         /// </summary>
@@ -377,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-           ConnectionCompleteParams response = await this.getResponseConnect(connectionInfo, connectionParams);
+            ConnectionCompleteParams response = await this.getResponseConnect(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
@@ -400,15 +402,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return completeParams;
         }
 
-        private async Task<ConnectionCompleteParams> getResponseConnect(ConnectionInfo connectionInfo, ConnectParams connectionParams){
+        private async Task<ConnectionCompleteParams> getResponseConnect(ConnectionInfo connectionInfo, ConnectParams connectionParams)
+        {
             Boolean firstRun = true;
+            int counter = 0;
             ConnectionCompleteParams response = null;
-            while(firstRun){
+            while (firstRun && counter <= MaxTries)
+            {
                 response = await TryOpenConnection(connectionInfo, connectionParams);
-                if(response == null){
-                    firstRun = false;
+                if (response?.ErrorNumber == 40613)
+                {
+                    counter++;
                 }
-                else{
+                else
+                {
                     firstRun = false;
                 }
             }
