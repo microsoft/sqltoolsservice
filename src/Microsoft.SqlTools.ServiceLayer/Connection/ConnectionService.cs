@@ -377,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-            ConnectionCompleteParams response = await TryOpenConnection(connectionInfo, connectionParams);
+           ConnectionCompleteParams response = await this.getResponseConnect(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
@@ -398,6 +398,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
 
             return completeParams;
+        }
+
+        private async Task<ConnectionCompleteParams> getResponseConnect(ConnectionInfo connectionInfo, ConnectParams connectionParams){
+            Boolean firstRun = true;
+            ConnectionCompleteParams response = null;
+            while(firstRun){
+                response = await TryOpenConnection(connectionInfo, connectionParams);
+                if(response == null){
+                    firstRun = false;
+                }
+                else{
+                    firstRun = false;
+                }
+            }
+            return response;
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
