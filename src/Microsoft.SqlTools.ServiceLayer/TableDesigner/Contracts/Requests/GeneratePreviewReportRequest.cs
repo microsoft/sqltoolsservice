@@ -12,29 +12,39 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
     /// The service request to generate preview report describing the changes.
     /// </summary>
 
-    public class GeneratePreviewReportResult 
+    public class GeneratePreviewReportResult
     {
         /// <summary>
         /// The report generated for publish preview
         /// </summary>
-        public string Report;
+        public string? Report { get; set; }
 
         /// <summary>
         /// format (mimetype) of the string
         /// </summary>
-        public string MimeType;
+        public string? MimeType { get; set; }
+
+        /// <summary>
+        /// Whether user confirmation is required.
+        /// </summary>
+        public bool RequireConfirmation { get; set; }
+
+        /// <summary>
+        /// The confirmation text.
+        /// </summary>
+        public string? ConfirmationText { get; set; }
 
         /// <summary>
         /// Metadata about the table
         /// </summary>
-        public Dictionary<string, string> Metadata { get; set; }
+        public Dictionary<string, string>? Metadata { get; set; }
 
         /// <summary>
         /// The table schema validation error
         /// </summary>
-        public string SchemaValidationError { get; set; }
+        public string? SchemaValidationError { get; set; }
     }
-    
+
     /// <summary>
     /// The service request to generate preview report describing the changes.
     /// </summary>
