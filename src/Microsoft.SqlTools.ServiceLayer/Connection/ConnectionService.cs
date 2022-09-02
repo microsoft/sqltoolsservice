@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-            ConnectionCompleteParams response = await this.getResponseConnect(connectionInfo, connectionParams);
+            ConnectionCompleteParams response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
@@ -402,12 +402,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return completeParams;
         }
 
-        private async Task<ConnectionCompleteParams> getResponseConnect(ConnectionInfo connectionInfo, ConnectParams connectionParams)
+        private async Task<ConnectionCompleteParams> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
         {
-            Boolean firstRun = true;
+            Boolean isRetriable = true;
             int counter = 0;
             ConnectionCompleteParams response = null;
-            while (firstRun && counter <= MaxTries)
+            while (isRetriable && counter <= MaxTries)
             {
                 response = await TryOpenConnection(connectionInfo, connectionParams);
                 // If a serverless database is sleeping, it will return this error number and will need to be retried.
@@ -418,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 else
                 {
                     // Every other response, we can stop.
-                    firstRun = false;
+                    isRetriable = false;
                 }
             }
             return response;
