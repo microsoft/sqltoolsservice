@@ -15,7 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public CheckBoxProperties IsClustered { get; set; } = new CheckBoxProperties();
 
         public CheckBoxProperties IsUnique { get; set; } = new CheckBoxProperties();
+        public CheckBoxProperties IsHash { get; set; } = new CheckBoxProperties();
 
+        public InputBoxProperties BucketCount { get; set; } = new InputBoxProperties();
         public InputBoxProperties ColumnsDisplayValue { get; set; } = new InputBoxProperties();
         public InputBoxProperties FilterPredicate { get; set; } = new InputBoxProperties();
 

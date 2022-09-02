@@ -8861,6 +8861,46 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string IndexIsHashPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsHashPropertyDescription);
+            }
+        }
+
+        public static string IndexIsHashPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsHashPropertyTitle);
+            }
+        }
+
+        public static string IndexBucketCountPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexBucketCountPropertyDescription);
+            }
+        }
+
+        public static string IndexBucketCountPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexBucketCountPropertyTitle);
+            }
+        }
+
+        public static string HashIndexGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashIndexGroupTitle);
+            }
+        }
+
         public static string TableDesignerColumnsDisplayValueTitle
         {
             get
@@ -9812,6 +9852,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName)
         {
             return Keys.GetString(Keys.ComputedColumnNeedToBePersistedInForeignKeyRuleDescription, columnName, foreignKeyName);
+        }
+
+        public static string HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription, indexName);
+        }
+
+        public static string HashIndexMustHaveBucketCountRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.HashIndexMustHaveBucketCountRuleDescription, indexName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13320,6 +13370,21 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string IndexFilterPredicatePropertyTitle = "IndexFilterPredicatePropertyTitle";
 
 
+            public const string IndexIsHashPropertyDescription = "IndexIsHashPropertyDescription";
+
+
+            public const string IndexIsHashPropertyTitle = "IndexIsHashPropertyTitle";
+
+
+            public const string IndexBucketCountPropertyDescription = "IndexBucketCountPropertyDescription";
+
+
+            public const string IndexBucketCountPropertyTitle = "IndexBucketCountPropertyTitle";
+
+
+            public const string HashIndexGroupTitle = "HashIndexGroupTitle";
+
+
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
 
 
@@ -13576,6 +13641,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription = "ComputedColumnNeedToBePersistedInForeignKeyRuleDescription";
+
+
+            public const string HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription = "HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription";
+
+
+            public const string HashIndexMustHaveBucketCountRuleDescription = "HashIndexMustHaveBucketCountRuleDescription";
 
 
             private Keys()

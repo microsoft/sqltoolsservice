@@ -2296,6 +2296,11 @@ IndexIncludedColumnsAddColumn = Add Column
 IndexIncludedColumnsColumnPropertyName = Column
 IndexFilterPredicatePropertyDescription = Filter predicate of the index
 IndexFilterPredicatePropertyTitle = Filter Predicate
+IndexIsHashPropertyDescription = Whether the index is a hash index
+IndexIsHashPropertyTitle = Is Hash
+IndexBucketCountPropertyDescription = Bucket count of the hash index, note the value will always automatically round up to the next power of 2. 
+IndexBucketCountPropertyTitle = Bucket Count
+HashIndexGroupTitle = Hash Index
 TableDesignerColumnsDisplayValueTitle = Columns
 TableDesignerDeleteColumnConfirmationMessage = Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?
 TableDesignerGraphTableGroupTitle = Graph Table
@@ -2382,3 +2387,5 @@ ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, 
 ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.
 ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription(string columnName) = The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.
 ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName) = The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.
+HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription(string indexName) = Hash index with name '{0}' is not supported on a non memory-optimized table.
+HashIndexMustHaveBucketCountRuleDescription(string indexName) = Hash index '{0}' does not have a bucket count.

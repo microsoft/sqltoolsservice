@@ -86,6 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Enabled = "enabled";
         public const string IsUnique = "isUnique";
         public const string IsClustered = "isClustered";
+        public const string IsHash = "isHash";
+        public const string BucketCount = "bucketCount";
         public const string Columns = "columns";
         public const string IncludedColumns = "includedColumns";
         public const string FilterPredicate = "filterPredicate";

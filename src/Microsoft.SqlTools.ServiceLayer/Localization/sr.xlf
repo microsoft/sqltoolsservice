@@ -6343,6 +6343,43 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
+      <trans-unit id="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription">
+        <source>Hash index with name '{0}' is not supported on a non memory-optimized table.</source>
+        <target state="new">Hash index with name '{0}' is not supported on a non memory-optimized table.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="HashIndexMustHaveBucketCountRuleDescription">
+        <source>Hash index '{0}' does not have a bucket count.</source>
+        <target state="new">Hash index '{0}' does not have a bucket count.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="IndexIsHashPropertyDescription">
+        <source>Whether the index is a hash index</source>
+        <target state="new">Whether the index is a hash index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsHashPropertyTitle">
+        <source>Is Hash</source>
+        <target state="new">Is Hash</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexBucketCountPropertyDescription">
+        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </source>
+        <target state="new">Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexBucketCountPropertyTitle">
+        <source>Bucket Count</source>
+        <target state="new">Bucket Count</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HashIndexGroupTitle">
+        <source>Hash Index</source>
+        <target state="new">Hash Index</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

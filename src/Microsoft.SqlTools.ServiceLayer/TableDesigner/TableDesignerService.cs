@@ -610,6 +610,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                             case IndexPropertyNames.FilterPredicate:
                                 sqlIndex.FilterPredicate = GetStringValue(newValue);
                                 break;
+                            case IndexPropertyNames.IsHash:
+                                sqlIndex.IsHash = GetBooleanValue(newValue);
+                                break;
+                            case IndexPropertyNames.BucketCount:
+                                sqlIndex.BucketCount = GetInt32Value(newValue);
+                                break;
                             default:
                                 break;
                         }
@@ -928,10 +934,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.IsClustered.Checked = index.IsClustered;
                 indexVM.Enabled.Checked = index.Enabled;
                 indexVM.IsUnique.Checked = index.IsUnique;
+                indexVM.IsHash.Checked = index.IsHash;
+                indexVM.IsHash.Enabled = table.IsMemoryOptimized || index.IsHash;
+                indexVM.BucketCount.Value = index.BucketCount?.ToString();
+                indexVM.BucketCount.Enabled = table.IsMemoryOptimized || index.IsHash;
                 foreach (var columnSpec in index.Columns)
                 {
                     var columnSpecVM = new IndexedColumnSpecification();
                     columnSpecVM.Ascending.Checked = columnSpec.IsAscending;
+                    columnSpecVM.Ascending.Enabled = index.CanEditIsAscending;
                     columnSpecVM.Column.Value = columnSpec.Column;
                     columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
                     indexVM.Columns.Data.Add(columnSpecVM);
@@ -1227,6 +1238,29 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ComponentProperties = new InputBoxProperties()
                     {
                         Title = SR.IndexFilterPredicatePropertyTitle,
+                        Width = 200
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.IsHash,
+                    Description = SR.IndexIsHashPropertyDescription,
+                    ComponentType = DesignerComponentType.Checkbox,
+                    Group = SR.HashIndexGroupTitle,
+                    ComponentProperties = new CheckBoxProperties()
+                    {
+                        Title = SR.IndexIsHashPropertyTitle
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = IndexPropertyNames.BucketCount,
+                    Description = SR.IndexBucketCountPropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    Group = SR.HashIndexGroupTitle,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.IndexBucketCountPropertyTitle,
                         Width = 200
                     }
                 },

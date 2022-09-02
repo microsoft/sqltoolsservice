@@ -4847,6 +4847,26 @@ The Query Processor estimates that implementing the following index could improv
     <value>Filter Predicate</value>
     <comment></comment>
   </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>Whether the index is a hash index</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>Is Hash</value>
+    <comment></comment>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <comment></comment>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>Bucket Count</value>
+    <comment></comment>
+  </data>
+  <data name="HashIndexGroupTitle" xml:space="preserve">
+    <value>Hash Index</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columns</value>
     <comment></comment>
@@ -5205,5 +5225,15 @@ The Query Processor estimates that implementing the following index could improv
     <value>The computed column with name &apos;{0}&apos; has to be persisted to be part of the foreign key &apos;{1}&apos;.</value>
     <comment>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>Hash index with name &apos;{0}&apos; is not supported on a non memory-optimized table.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>Hash index &apos;{0}&apos; does not have a bucket count.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
   </data>
 </root>
