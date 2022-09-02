@@ -1,8 +1,11 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Rename
 {
@@ -44,8 +47,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
         {
             return this.HandleRequest<bool>(requestContext, async () =>
             {
-                await requestContext.SendResult(true);
+                Logger.Verbose("Handle Request in ProcessRenameEditRequest()");
+                bool operationExecutedSuccessFull = false;
+                RenameUtils.Validate(requestParams);
+                ConnectionInfo connInfo;
+                try
+                {
+
+                    ConnectionService.Instance.TryFindConnection(
+                           requestParams.TableInfo.OwnerUri,
+                           out connInfo);
+
+
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
+                    {
+
+                    }
+                    operationExecutedSuccessFull = true;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Error on executing renaming operation: " + e.ToString())
+                }
+                await requestContext.SendResult(operationExecutedSuccessFull);
             });
+        }
+
+        private void ExecuteRenaming(ProcessRenameEditRequestParams requestParams, SqlConnection sqlConn)
+        {
+            string sqlCommand = @"
+                USE [];
+                GO
+                BEGIN TRAN
+                    EXEC sp_rename 'Sales.SalesTerritory', 'SalesTerr';
+                END TRAN
+                GO
+            ";
         }
 
         public void Dispose()

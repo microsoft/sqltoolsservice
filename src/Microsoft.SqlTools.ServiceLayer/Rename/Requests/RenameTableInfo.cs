@@ -7,8 +7,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename.Requests
         public string Schema { get; set; }
         public string ConnectionString { get; set; }
         public string Id { get; set; }
-        public string AccessToken { get; set; }
         public bool IsNewTable { get; set; }
+        public string OwnerUri { get; set; }
 
     }
 }

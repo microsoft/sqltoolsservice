@@ -9832,6 +9832,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.UnsupportedModelType, type);
         }
 
+        public static string TableDoesNotExist
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDoesNotExist);
+            }
+        }
+
+        public static string FeatureNotYetImplemented
+        {
+            get
+            {
+                return Keys.GetString(Keys.FeatureNotYetImplemented);
+            }
+        }
+
+        public static string RenameRequestParametersNotNullOrEmpty
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameRequestParametersNotNullOrEmpty);
+            }
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -13603,6 +13627,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
+
+            public const string TableDoesNotExist = "TableDoesNotExist";
+
+            public const string FeatureNotYetImplemented = "FeatureNotYetImplemented";
+
+            public const string RenameRequestParametersNotNullOrEmpty = "RenameRequestParametersNotNullOrEmpty";
 
 
             private Keys()
