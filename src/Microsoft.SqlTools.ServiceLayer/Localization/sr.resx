@@ -163,8 +163,13 @@
     <value>Connection canceled</value>
     <comment></comment>
   </data>
+  <data name="ConnectionServiceServerlessRetryNotification" xml:space="preserve">
+    <value>Connection is awakening from sleep, Retrying {0} times to connect again, please wait.</value>
+    <comment>.
+ Parameters: 0 - retries (int) </comment>
+  </data>
   <data name="ConnectionServiceServerlessRetryFailed" xml:space="preserve">
-    <value>Could not reconnect to sleeping database after &apos;{0}&apos; tries. Original Error: &apos;{1}&apos;</value>
+    <value>Could not reconnect to sleeping database after {0} tries. Original Error: &apos;{1}&apos;</value>
     <comment>.
  Parameters: 0 - retries (int), 1 - error (string) </comment>
   </data>

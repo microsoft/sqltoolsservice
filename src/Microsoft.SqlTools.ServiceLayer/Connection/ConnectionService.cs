@@ -414,6 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 if (response?.ErrorNumber == 40613)
                 {
                     Logger.Write(TraceEventType.Information, "Attempt to retry serverless DB connection no. " + (counter + 1) + " for " + connectionInfo.OwnerUri);
+                    await ServiceHost.SendEvent(ConnectionServerlessRetryNotification.Type, SR.ConnectionServiceServerlessRetryNotification(counter + 1));
                     counter++;
                 }
                 else

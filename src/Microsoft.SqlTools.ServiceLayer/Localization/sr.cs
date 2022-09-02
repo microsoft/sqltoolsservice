@@ -9475,6 +9475,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
         }
 
+        public static string ConnectionServiceServerlessRetryNotification(int retries)
+        {
+            return Keys.GetString(Keys.ConnectionServiceServerlessRetryNotification, retries);
+        }
+
         public static string ConnectionServiceServerlessRetryFailed(int retries, string error)
         {
             return Keys.GetString(Keys.ConnectionServiceServerlessRetryFailed, retries, error);
@@ -9881,6 +9886,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
+
+
+            public const string ConnectionServiceServerlessRetryNotification = "ConnectionServiceServerlessRetryNotification";
 
 
             public const string ConnectionServiceServerlessRetryFailed = "ConnectionServiceServerlessRetryFailed";
