@@ -92,6 +92,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Top operations table data for the node
         /// </summary>
         public List<TopOperationsDataItem> TopOperationsData { get; set; }
+        /// <summary>
+        /// Cost metrics for the node
+        /// </summary>
+        public List<ExecutionPlanCostMetrics> CostMetrics { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase
@@ -125,6 +129,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Indicates the data type of the property
         /// </summary>
         public PropertyValueDataType DataType { get; set; }
+    }
+
+    public class ExecutionPlanCostMetrics
+    {
+        /// <summary>
+        /// Name of the cost metric
+        /// </summary>
+        public string? Name { get; set; }
+        /// <summary>
+        /// Value held by the cost metric
+        /// </summary>
+        public string? Value { get; set; }
     }
 
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
