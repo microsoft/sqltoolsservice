@@ -5211,6 +5211,10 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
   </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>I have read the summary and understand the potential risks.</value>
+    <comment></comment>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Could not find SQL model from project: {0}.</value>
     <comment>.

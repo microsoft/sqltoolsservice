@@ -6365,6 +6365,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Could not reconnect to sleeping database after '{0}' tries. Original Error: '{1}'</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="TableDesignerConfirmationText">
+        <source>I have read the summary and understand the potential risks.</source>
+        <target state="new">I have read the summary and understand the potential risks.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
