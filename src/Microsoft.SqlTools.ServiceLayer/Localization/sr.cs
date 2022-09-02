@@ -8909,6 +8909,102 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ColumnStoreIndexNamePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexNamePropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexNamePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexNamePropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexDescriptionPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexDescriptionPropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexDescriptionPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexDescriptionPropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexIsClusteredPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexIsClusteredPropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexIsClusteredPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexIsClusteredPropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexFilterPredicatePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexFilterPredicatePropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexFilterPredicatePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexFilterPredicatePropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexColumnsPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexColumnsPropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexColumnsGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexColumnsGroupTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexAddColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexAddColumn);
+            }
+        }
+
+        public static string ColumnStoreIndexColumnPropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexColumnPropertyName);
+            }
+        }
+
         public static string TableDesignerDeleteColumnConfirmationMessage
         {
             get
@@ -13386,6 +13482,42 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
+
+
+            public const string ColumnStoreIndexNamePropertyTitle = "ColumnStoreIndexNamePropertyTitle";
+
+
+            public const string ColumnStoreIndexNamePropertyDescription = "ColumnStoreIndexNamePropertyDescription";
+
+
+            public const string ColumnStoreIndexDescriptionPropertyTitle = "ColumnStoreIndexDescriptionPropertyTitle";
+
+
+            public const string ColumnStoreIndexDescriptionPropertyDescription = "ColumnStoreIndexDescriptionPropertyDescription";
+
+
+            public const string ColumnStoreIndexIsClusteredPropertyDescription = "ColumnStoreIndexIsClusteredPropertyDescription";
+
+
+            public const string ColumnStoreIndexIsClusteredPropertyTitle = "ColumnStoreIndexIsClusteredPropertyTitle";
+
+
+            public const string ColumnStoreIndexFilterPredicatePropertyDescription = "ColumnStoreIndexFilterPredicatePropertyDescription";
+
+
+            public const string ColumnStoreIndexFilterPredicatePropertyTitle = "ColumnStoreIndexFilterPredicatePropertyTitle";
+
+
+            public const string ColumnStoreIndexColumnsPropertyDescription = "ColumnStoreIndexColumnsPropertyDescription";
+
+
+            public const string ColumnStoreIndexColumnsGroupTitle = "ColumnStoreIndexColumnsGroupTitle";
+
+
+            public const string ColumnStoreIndexAddColumn = "ColumnStoreIndexAddColumn";
+
+
+            public const string ColumnStoreIndexColumnPropertyName = "ColumnStoreIndexColumnPropertyName";
 
 
             public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";

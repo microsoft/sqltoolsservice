@@ -42,6 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public TableComponentProperties<EdgeConstraintViewModel> EdgeConstraints { get; set; } = new TableComponentProperties<EdgeConstraintViewModel>();
 
         public TableComponentProperties<IndexViewModel> Indexes { get; set; } = new TableComponentProperties<IndexViewModel>();
+        public TableComponentProperties<ColumnStoreIndexViewModel> ColumnStoreIndexes { get; set; } = new TableComponentProperties<ColumnStoreIndexViewModel>();
 
         public InputBoxProperties Script { get; set; } = new InputBoxProperties();
     }

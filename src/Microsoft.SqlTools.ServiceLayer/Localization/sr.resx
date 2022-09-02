@@ -4871,6 +4871,54 @@ The Query Processor estimates that implementing the following index could improv
     <value>Columns</value>
     <comment></comment>
   </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>Name of the column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>Description</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>Description of the column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Whether the column store index is clustered.</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Is Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filter predicate of the column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filter Predicate</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>Columns in this column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>Columns</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>Add Column</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>Column</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
     <value>Removing a column will also remove it from the indexes and foreign keys. Are you sure you want to continue?</value>
     <comment></comment>

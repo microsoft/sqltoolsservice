@@ -6380,6 +6380,66 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Hash Index</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ColumnStoreIndexNamePropertyTitle">
+        <source>Name</source>
+        <target state="new">Name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexNamePropertyDescription">
+        <source>Name of the column store index</source>
+        <target state="new">Name of the column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
+        <source>Description</source>
+        <target state="new">Description</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
+        <source>Description of the column store index</source>
+        <target state="new">Description of the column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexIsClusteredPropertyDescription">
+        <source>Whether the column store index is clustered.</source>
+        <target state="new">Whether the column store index is clustered.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="new">Is Clustered</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the column store index</source>
+        <target state="new">Filter predicate of the column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="new">Filter Predicate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
+        <source>Columns in this column store index</source>
+        <target state="new">Columns in this column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
+        <source>Columns</source>
+        <target state="new">Columns</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexAddColumn">
+        <source>Add Column</source>
+        <target state="new">Add Column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnPropertyName">
+        <source>Column</source>
+        <target state="new">Column</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
