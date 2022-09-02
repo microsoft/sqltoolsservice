@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private const string SqlAzureEdition = "SQL Azure";
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
-        public const int MaxTries = 100; // Max number of tries to wait for a connection database to start up when its paused before giving up.
+        public const int MaxTries = 10; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
 
         /// <summary>
         /// Singleton service instance
@@ -410,12 +410,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             while (firstRun && counter <= MaxTries)
             {
                 response = await TryOpenConnection(connectionInfo, connectionParams);
+                // If a serverless database is sleeping, it will return this error number and will need to be retried.
                 if (response?.ErrorNumber == 40613)
                 {
                     counter++;
                 }
                 else
                 {
+                    // Every other response, we can stop.
                     firstRun = false;
                 }
             }
