@@ -2382,6 +2382,7 @@ ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription(string columnName, 
 ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription(string columnName, string indexName, int rowNumber) = Included column with name '{0}' has already been part of the index '{1}' and it cannot be included. Row number: {2}.
 ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription(string columnName) = The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.
 ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName) = The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.
+TableDesignerConfirmationText = I have read the summary and understand the potential risks.
 
 ############################################################################
 # TSql Model
