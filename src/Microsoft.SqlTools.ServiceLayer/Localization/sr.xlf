@@ -6360,6 +6360,11 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceServerlessRetryFailed">
+        <source>Could not reconnect to sleeping database after '{0}' tries. Original Error: '{1}'</source>
+        <target state="new">Could not reconnect to sleeping database after '{0}' tries. Original Error: '{1}'</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -163,6 +163,11 @@
     <value>Connection canceled</value>
     <comment></comment>
   </data>
+  <data name="ConnectionServiceServerlessRetryFailed" xml:space="preserve">
+    <value>Could not reconnect to sleeping database after &apos;{0}&apos; tries. Original Error: &apos;{1}&apos;</value>
+    <comment>.
+ Parameters: 0 - retries (int), 1 - error (string) </comment>
+  </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
     <comment></comment>

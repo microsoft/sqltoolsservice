@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private const string SqlAzureEdition = "SQL Azure";
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
-        public const int MaxTries = 10; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
+        public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
 
         /// <summary>
         /// Singleton service instance
@@ -404,22 +404,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private async Task<ConnectionCompleteParams> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
         {
-            Boolean isRetriable = true;
             int counter = 0;
             ConnectionCompleteParams response = null;
-            while (isRetriable && counter <= MaxTries)
+            while (counter <= MaxServerlessReconnectTries)
             {
                 response = await TryOpenConnection(connectionInfo, connectionParams);
                 // If a serverless database is sleeping, it will return this error number and will need to be retried.
+                // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
                 if (response?.ErrorNumber == 40613)
                 {
+                    Logger.Write(TraceEventType.Information, "Attempt to retry serverless DB connection no. " + (counter + 1) + " for " + connectionInfo.OwnerUri);
                     counter++;
                 }
                 else
                 {
                     // Every other response, we can stop.
-                    isRetriable = false;
+                    break;
                 }
+            }
+            if (response != null && counter == MaxServerlessReconnectTries)
+            {
+                response.ErrorMessage = SR.ConnectionServiceServerlessRetryFailed(MaxServerlessReconnectTries, response.ErrorMessage);
             }
             return response;
         }
