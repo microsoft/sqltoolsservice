@@ -9429,6 +9429,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerConfirmationText
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerConfirmationText);
+            }
+        }
+
         public static string GetUserDefinedObjectsFromModelFailed
         {
             get
@@ -13610,6 +13618,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription = "ComputedColumnNeedToBePersistedInForeignKeyRuleDescription";
+
+
+            public const string TableDesignerConfirmationText = "TableDesignerConfirmationText";
 
 
             public const string SqlProjectModelNotFound = "SqlProjectModelNotFound";

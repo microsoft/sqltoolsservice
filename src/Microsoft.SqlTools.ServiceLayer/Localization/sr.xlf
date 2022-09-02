@@ -6360,6 +6360,11 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
+      <trans-unit id="TableDesignerConfirmationText">
+        <source>I have read the summary and understand the potential risks.</source>
+        <target state="new">I have read the summary and understand the potential risks.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
