@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
         private bool disposed = false;
 
         private static Lazy<RenameService> renameServiceInstance = new Lazy<RenameService>(() => new RenameService());
+        public static RenameService Instance => renameServiceInstance.Value;
 
         private IProtocolEndpoint ServiceHost { get; set; }
 
