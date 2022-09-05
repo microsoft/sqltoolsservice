@@ -1,8 +1,15 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 using System;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
 
 namespace Microsoft.SqlTools.ServiceLayer.Rename
 {
+    /// <summary>
+    /// Help class for Rename Service
+    /// </summary>
     public static class RenameUtils
     {
         public static void Validate(ProcessRenameEditRequestParams requestParams)
