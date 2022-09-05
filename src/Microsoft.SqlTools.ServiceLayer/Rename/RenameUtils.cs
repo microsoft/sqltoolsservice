@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             {
                 throw new InvalidOperationException(SR.TableDoesNotExist);
             }
-            if (requestParams.ChangeInfo.Type == ChangeType.Column)
+            if (requestParams.ChangeInfo.Type == ChangeType.COLUMN)
             {
                 throw new NotImplementedException(SR.FeatureNotYetImplemented);
             }
@@ -19,6 +19,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             {
                 throw new ArgumentException(SR.RenameRequestParametersNotNullOrEmpty);
             }
+        }
+
+        public static string CombineTableNameWithSchema(string schema, string tableName)
+        {
+            schema = schema.Replace("[", "").Replace("]", "").Trim();
+            tableName = tableName.Replace("[", "").Replace("]", "").Trim();
+            return String.Join(".", schema, tableName);
         }
     }
 }

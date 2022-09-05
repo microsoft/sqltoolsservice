@@ -53,21 +53,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                 ConnectionInfo connInfo;
                 try
                 {
-
                     ConnectionService.Instance.TryFindConnection(
                            requestParams.TableInfo.OwnerUri,
                            out connInfo);
 
-
                     using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
                     {
-
+                        ExecuteRenaming(requestParams, sqlConn);
                     }
                     operationExecutedSuccessFull = true;
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("Error on executing renaming operation: " + e.ToString())
+                    Logger.Error("Error on executing renaming operation: " + e.ToString());
+                    throw new InvalidOperationException("The renaming operation was not successfull executed");
                 }
                 await requestContext.SendResult(operationExecutedSuccessFull);
             });
@@ -75,14 +74,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
 
         private void ExecuteRenaming(ProcessRenameEditRequestParams requestParams, SqlConnection sqlConn)
         {
-            string sqlCommand = @"
-                USE [];
+            Logger.Verbose("Inside in the ExecuteRenaming()-Method");
+            string sql = String.Format(@"
+                USE [{0}];
                 GO
                 BEGIN TRAN
-                    EXEC sp_rename 'Sales.SalesTerritory', 'SalesTerr';
+                    EXEC sp_rename @objname = '{1}', @newname = '{2}', @objtype ='{3}';
                 END TRAN
                 GO
-            ";
+            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.TableName), RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.ChangeInfo.NewName), Enum.GetName(requestParams.ChangeInfo.Type));
+            using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
+            {
+                int sqlRespone = Convert.ToInt32(sqlCommand.ExecuteScalar());
+                if (sqlRespone != 0)
+                {
+                    throw new InvalidOperationException("The renaming operation was not successfull executed");
+                }
+            }
+            Logger.Verbose("Exiting the ExecuteRenaming()-Method");
         }
 
         public void Dispose()

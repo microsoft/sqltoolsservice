@@ -1,8 +1,12 @@
+using System.ComponentModel;
+
 namespace Microsoft.SqlTools.ServiceLayer.Rename.Requests
 {
     public enum ChangeType
     {
-        Table, Column
+        TABLE,
+        COLUMN
+
     }
     public class RenameTableChangeInfo
     {
