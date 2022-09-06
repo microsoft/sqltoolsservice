@@ -6360,6 +6360,135 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
+      <trans-unit id="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription">
+        <source>Hash index with name '{0}' is not supported on a non memory-optimized table.</source>
+        <target state="new">Hash index with name '{0}' is not supported on a non memory-optimized table.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="HashIndexMustHaveBucketCountRuleDescription">
+        <source>Hash index '{0}' does not have a bucket count.</source>
+        <target state="new">Hash index '{0}' does not have a bucket count.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="IndexIsHashPropertyDescription">
+        <source>Whether the index is a hash index</source>
+        <target state="new">Whether the index is a hash index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexIsHashPropertyTitle">
+        <source>Is Hash</source>
+        <target state="new">Is Hash</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexBucketCountPropertyDescription">
+        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </source>
+        <target state="new">Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="IndexBucketCountPropertyTitle">
+        <source>Bucket Count</source>
+        <target state="new">Bucket Count</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HashIndexGroupTitle">
+        <source>Hash Index</source>
+        <target state="new">Hash Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexNamePropertyTitle">
+        <source>Name</source>
+        <target state="new">Name</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexNamePropertyDescription">
+        <source>Name of the column store index</source>
+        <target state="new">Name of the column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
+        <source>Description</source>
+        <target state="new">Description</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
+        <source>Description of the column store index</source>
+        <target state="new">Description of the column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexIsClusteredPropertyDescription">
+        <source>Whether the column store index is clustered.</source>
+        <target state="new">Whether the column store index is clustered.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
+        <source>Is Clustered</source>
+        <target state="new">Is Clustered</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
+        <source>Filter predicate of the column store index</source>
+        <target state="new">Filter predicate of the column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
+        <source>Filter Predicate</source>
+        <target state="new">Filter Predicate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
+        <source>Columns in this column store index</source>
+        <target state="new">Columns in this column store index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
+        <source>Columns</source>
+        <target state="new">Columns</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexAddColumn">
+        <source>Add Column</source>
+        <target state="new">Add Column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnStoreIndexColumnPropertyName">
+        <source>Column</source>
+        <target state="new">Column</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
+        <source>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</source>
+        <target state="new">Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
+        <source>Column Store Indexes</source>
+        <target state="new">Column Store Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnStoreIndexObjectType">
+        <source>Column Store Index</source>
+        <target state="new">Column Store Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewColumnStoreIndexLabel">
+        <source>New Column Store Index</source>
+        <target state="new">New Column Store Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription">
+        <source>Non-clustered column store index '{0}' does not have any columns associated with it.</source>
+        <target state="new">Non-clustered column store index '{0}' does not have any columns associated with it.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerConfirmationText">
+        <source>I have read the summary and understand the potential risks.</source>
+        <target state="translated">我已閱讀摘要並瞭解潛在風險。</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
