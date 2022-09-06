@@ -63,9 +63,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public double RelativeCost { get; set; }
         /// <summary>
-        /// Time take by the node operation in milliseconds
+        /// Time taken by the node operation in milliseconds
         /// </summary>
         public long? ElapsedTimeInMs { get; set; }
+        /// <summary>
+        /// CPU Time taken by the node operation in milliseconds
+        /// </summary>
+        public long? ElapsedCpuTimeInMs { get; set; }
         /// <summary>
         /// Node properties to be shown in the tooltip
         /// </summary>
@@ -95,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// Cost metrics for the node
         /// </summary>
-        public List<ExecutionPlanCostMetrics> CostMetrics { get; set; }
+        public List<ExecutionPlanCostMetrics> RowReadMetrics { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase

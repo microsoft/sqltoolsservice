@@ -504,6 +504,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             }
         }
 
+        public long? ElapsedCpuTimeInMs
+        {
+            get
+            {
+                long? time = null;
+                var actualStatsWrapper = this["ActualTimeStatistics"] as ExpandableObjectWrapper;
+                if (actualStatsWrapper != null)
+                {
+                    var counters = actualStatsWrapper["ActualCPUms"] as RunTimeCounters;
+                    if (counters != null)
+                    {
+                        var elapsedTime = counters.MaxCounter;
+                        long ticks = (long)elapsedTime * TimeSpan.TicksPerMillisecond;
+                        time = new DateTime(ticks).Millisecond;
+                    }
+                }
+                return time;
+            }
+        }
+
         /// <summary>
         /// ENU name for Logical Operator
         /// </summary>

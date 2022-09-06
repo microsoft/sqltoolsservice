@@ -52,8 +52,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
                 ElapsedTimeInMs = currentNode.ElapsedTimeInMs,
+                ElapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs,
                 TopOperationsData = ParseTopOperationsData(currentNode),
-                CostMetrics = GetCostMetrics(currentNode.Properties)
+                RowReadMetrics = GetReadRowMetrics(currentNode.Properties)
             };
         }
 
@@ -101,10 +102,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             };
         }
 
-        public static List<ExecutionPlanCostMetrics> GetCostMetrics(PropertyDescriptorCollection properties)
+        public static List<ExecutionPlanCostMetrics> GetReadRowMetrics(PropertyDescriptorCollection properties)
         {
             var metrics = new List<ExecutionPlanCostMetrics>();
-            
+
             if (properties["EstimateRowsAllExecs"] != null)
             {
                 var estimatedRowsAllExecsProperty = properties["EstimateRowsAllExecs"] as PropertyValue;
