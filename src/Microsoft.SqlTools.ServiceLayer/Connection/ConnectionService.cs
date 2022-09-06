@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-            ConnectionCompleteParams response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
+            ConnectionCompleteParams? response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
@@ -402,10 +402,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return completeParams;
         }
 
-        private async Task<ConnectionCompleteParams> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
+        private async Task<ConnectionCompleteParams?> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
         {
             int counter = 0;
-            ConnectionCompleteParams response = null;
+            ConnectionCompleteParams? response = null;
             while (counter <= MaxServerlessReconnectTries)
             {
                 // The OpenAsync function used in TryOpenConnection does not retry when a database is sleeping.
