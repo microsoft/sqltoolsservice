@@ -6360,22 +6360,10 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </note>
       </trans-unit>
-      <trans-unit id="ConnectionServiceServerlessRetryFailed">
-        <source>Could not reconnect to sleeping database after {0} tries. Original Error: '{1}'</source>
-        <target state="new">Could not reconnect to sleeping database after {0} tries. Original Error: '{1}'</target>
-        <note>.
- Parameters: 0 - retries (int), 1 - error (string) </note>
-      </trans-unit>
       <trans-unit id="TableDesignerConfirmationText">
         <source>I have read the summary and understand the potential risks.</source>
         <target state="new">I have read the summary and understand the potential risks.</target>
         <note></note>
-      </trans-unit>
-      <trans-unit id="ConnectionServiceServerlessRetryNotification">
-        <source>Connection is awakening from sleep, Retrying {0} times to connect again, please wait.</source>
-        <target state="new">Connection is awakening from sleep, Retrying {0} times to connect again, please wait.</target>
-        <note>.
- Parameters: 0 - retries (int) </note>
       </trans-unit>
     </body>
   </file>

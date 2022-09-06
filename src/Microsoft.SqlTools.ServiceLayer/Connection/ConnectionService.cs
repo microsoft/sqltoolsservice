@@ -408,24 +408,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectionCompleteParams response = null;
             while (counter <= MaxServerlessReconnectTries)
             {
+                // The OpenAsync function used in TryOpenConnection does not retry when a database is sleeping.
+                // SqlClient will be implemented at a later time, which will have automatic retries.  
                 response = await TryOpenConnection(connectionInfo, connectionParams);
                 // If a serverless database is sleeping, it will return this error number and will need to be retried.
                 // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
                 if (response?.ErrorNumber == 40613)
                 {
-                    Logger.Write(TraceEventType.Information, "Attempt to retry serverless DB connection no. " + (counter + 1) + " for " + connectionInfo.OwnerUri);
-                    await ServiceHost.SendEvent(ConnectionServerlessRetryNotification.Type, SR.ConnectionServiceServerlessRetryNotification(counter + 1));
                     counter++;
+                    if(counter != MaxServerlessReconnectTries) {
+                        Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
+                    }
                 }
                 else
                 {
                     // Every other response, we can stop.
                     break;
                 }
-            }
-            if (response != null && counter == MaxServerlessReconnectTries)
-            {
-                response.ErrorMessage = SR.ConnectionServiceServerlessRetryFailed(MaxServerlessReconnectTries, response.ErrorMessage);
             }
             return response;
         }

@@ -43,10 +43,6 @@ ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' fo
 
 ConnectionServiceConnectionCanceled = Connection canceled
 
-ConnectionServiceServerlessRetryNotification(int retries) = Connection is awakening from sleep, Retrying {0} times to connect again, please wait.
-
-ConnectionServiceServerlessRetryFailed(int retries, string error) = Could not reconnect to sleeping database after {0} tries. Original Error: '{1}'
-
 ### Connection Params Validation Errors
 
 ConnectionParamsValidateNullOwnerUri = OwnerUri cannot be null or empty
