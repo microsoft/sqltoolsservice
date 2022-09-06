@@ -3871,4 +3871,19 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>已卸除的總帳檢視</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>在專案中找不到 SQL 模型: {0}。</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>不支援的模型類型: {0}。</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>無法從模型取得使用者定義物件。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的計算資料行必須保存且不可為 Null，才能成為主索引鍵的一部分。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的計算資料行必須保存，才能成為外部索引鍵 '{1}' 的一部分。</value>
+  </data>
 </root>

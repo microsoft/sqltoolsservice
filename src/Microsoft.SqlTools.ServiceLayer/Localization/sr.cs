@@ -9589,6 +9589,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerConfirmationText
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerConfirmationText);
+            }
+        }
+
+        public static string GetUserDefinedObjectsFromModelFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.GetUserDefinedObjectsFromModelFailed);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9992,6 +10008,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName)
         {
             return Keys.GetString(Keys.NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription, indexName);
+        }
+
+        public static string SqlProjectModelNotFound(string projectUri)
+        {
+            return Keys.GetString(Keys.SqlProjectModelNotFound, projectUri);
+        }
+
+        public static string UnsupportedModelType(string type)
+        {
+            return Keys.GetString(Keys.UnsupportedModelType, type);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13828,6 +13854,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription = "NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription";
+
+
+            public const string TableDesignerConfirmationText = "TableDesignerConfirmationText";
+
+
+            public const string SqlProjectModelNotFound = "SqlProjectModelNotFound";
+
+
+            public const string UnsupportedModelType = "UnsupportedModelType";
+
+
+            public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
 
 
             private Keys()

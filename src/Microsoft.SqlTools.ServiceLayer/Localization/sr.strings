@@ -2406,3 +2406,11 @@ HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription(string indexName) 
 HashIndexMustHaveBucketCountRuleDescription(string indexName) = Hash index '{0}' does not have a bucket count.
 ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.
 NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName) = Non-clustered column store index '{0}' does not have any columns associated with it.
+TableDesignerConfirmationText = I have read the summary and understand the potential risks.
+
+############################################################################
+# TSql Model
+
+SqlProjectModelNotFound(string projectUri) = Could not find SQL model from project: {0}.
+UnsupportedModelType(string type) = Unsupported model type: {0}.
+GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.

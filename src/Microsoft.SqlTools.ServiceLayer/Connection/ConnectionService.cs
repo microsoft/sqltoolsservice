@@ -319,20 +319,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// null upon validation success</returns>
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
-            string paramValidationErrorMessage;
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
                 {
-                    Messages = SR.ConnectionServiceConnectErrorNullParams
+                    ErrorMessage = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
-            if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            if (!connectionParams.IsValid(out string paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
                     OwnerUri = connectionParams.OwnerUri,
-                    Messages = paramValidationErrorMessage
+                    ErrorMessage = paramValidationErrorMessage
                 };
             }
 
@@ -569,6 +568,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 response.Messages = ex.ToString();
+                response.ErrorMessage = ex.Message;
             }
 
             return response;

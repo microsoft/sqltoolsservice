@@ -6331,6 +6331,23 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Dropped Ledger Views</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SqlProjectModelNotFound">
+        <source>Could not find SQL model from project: {0}.</source>
+        <target state="new">Could not find SQL model from project: {0}.</target>
+        <note>.
+ Parameters: 0 - projectUri (string) </note>
+      </trans-unit>
+      <trans-unit id="UnsupportedModelType">
+        <source>Unsupported model type: {0}.</source>
+        <target state="new">Unsupported model type: {0}.</target>
+        <note>.
+ Parameters: 0 - type (string) </note>
+      </trans-unit>
+      <trans-unit id="GetUserDefinedObjectsFromModelFailed">
+        <source>Failed to get user defined objects from model.</source>
+        <target state="new">Failed to get user defined objects from model.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription">
         <source>The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</source>
         <target state="new">The computed column with name '{0}' has to be persisted and not nullable to be part of a primary key.</target>
@@ -6466,6 +6483,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Non-clustered column store index '{0}' does not have any columns associated with it.</target>
         <note>.
  Parameters: 0 - indexName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerConfirmationText">
+        <source>I have read the summary and understand the potential risks.</source>
+        <target state="new">I have read the summary and understand the potential risks.</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

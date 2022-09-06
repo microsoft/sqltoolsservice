@@ -196,9 +196,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 {
                     var table = this.GetTableDesigner(tableInfo);
                     var report = table.GenerateReport();
-                    generatePreviewReportResult.Report = report;
+                    generatePreviewReportResult.Report = report.Report;
                     generatePreviewReportResult.MimeType = "text/markdown";
                     generatePreviewReportResult.Metadata = this.GetMetadata(tableInfo);
+                    generatePreviewReportResult.RequireConfirmation = report.RequireTableRecreation || report.PossibleDataLoss || report.HasWarnings;
+                    generatePreviewReportResult.ConfirmationText = generatePreviewReportResult.RequireConfirmation ? SR.TableDesignerConfirmationText : null;
                     await requestContext.SendResult(generatePreviewReportResult);
                 }
                 catch (DesignerValidationException e)
