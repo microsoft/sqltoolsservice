@@ -9061,6 +9061,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string TableDesignerColumnStoreIndexesTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnStoreIndexesTableTitle);
+            }
+        }
+
+        public static string TableDesignerColumnStoreIndexObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnStoreIndexObjectType);
+            }
+        }
+
+        public static string AddNewColumnStoreIndexLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.AddNewColumnStoreIndexLabel);
+            }
+        }
+
         public static string TableDesignerEdgeConstraintsTabTitle
         {
             get
@@ -9958,6 +9982,16 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string HashIndexMustHaveBucketCountRuleDescription(string indexName)
         {
             return Keys.GetString(Keys.HashIndexMustHaveBucketCountRuleDescription, indexName);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription, columnName, indexName, rowNumber);
+        }
+
+        public static string NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription, indexName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13541,6 +13575,15 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string TableDesignerGraphTableTypeNone = "TableDesignerGraphTableTypeNone";
 
 
+            public const string TableDesignerColumnStoreIndexesTableTitle = "TableDesignerColumnStoreIndexesTableTitle";
+
+
+            public const string TableDesignerColumnStoreIndexObjectType = "TableDesignerColumnStoreIndexObjectType";
+
+
+            public const string AddNewColumnStoreIndexLabel = "AddNewColumnStoreIndexLabel";
+
+
             public const string TableDesignerEdgeConstraintsTabTitle = "TableDesignerEdgeConstraintsTabTitle";
 
 
@@ -13779,6 +13822,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string HashIndexMustHaveBucketCountRuleDescription = "HashIndexMustHaveBucketCountRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription = "ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription";
+
+
+            public const string NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription = "NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription";
 
 
             private Keys()

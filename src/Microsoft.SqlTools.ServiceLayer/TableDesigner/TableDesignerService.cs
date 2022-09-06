@@ -1037,21 +1037,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.Description.Value = index.Description;
                 indexVM.Description.Enabled = index.CanEditDescription;
                 indexVM.IsClustered.Checked = index.IsClustered;
-                foreach (var columnSpec in index.Columns)
-                {
-                    var columnSpecVM = new ColumnStoreIndexedColumnSpecification();
-                    columnSpecVM.Column.Value = columnSpec.Column;
-                    columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
-                    indexVM.Columns.Data.Add(columnSpecVM);
-                }
-
                 indexVM.FilterPredicate.Value = index.FilterPredicate;
                 indexVM.FilterPredicate.Enabled = !index.IsClustered || index.FilterPredicate != null;
                 indexVM.Columns.Enabled = !index.IsClustered || index.Columns.Count() > 0;
                 indexVM.Columns.CanAddRows = !index.IsClustered;
-
-                indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
                 indexVM.ColumnsDisplayValue.Enabled = false;
+
+                // avoid populating columns for CLUSTERED column store index
+                if (!index.IsClustered)
+                {
+                    indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
+
+                    foreach (var columnSpec in index.Columns)
+                    {
+                        var columnSpecVM = new ColumnStoreIndexedColumnSpecification();
+                        columnSpecVM.Column.Value = columnSpec.Column;
+                        columnSpecVM.Column.Values = tableDesigner.GetColumnsForTable(table.FullName).ToList();
+                        indexVM.Columns.Data.Add(columnSpecVM);
+                    }
+                }
                 tableViewModel.ColumnStoreIndexes.Data.Add(indexVM);
             }
 
@@ -1409,9 +1413,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var columnStoreIndexesTableProperties = new TableComponentProperties<ColumnStoreIndexViewModel>()
             {
-                Title = SR.TableDesignerEdgeConstraintsTabTitle,
-                ObjectTypeDisplayName = SR.TableDesignerEdgeConstraintObjectType,
-                LabelForAddNewButton = SR.AddNewEdgeConstraintLabel
+                Title = SR.TableDesignerColumnStoreIndexesTableTitle,
+                ObjectTypeDisplayName = SR.TableDesignerColumnStoreIndexObjectType,
+                LabelForAddNewButton = SR.AddNewColumnStoreIndexLabel
             };
             columnStoreIndexesTableProperties.Columns.AddRange(new string[] { ColumnStoreIndexPropertyNames.Name, ColumnStoreIndexPropertyNames.ColumnsDisplayValue, ColumnStoreIndexPropertyNames.IsClustered });
             columnStoreIndexesTableProperties.ItemProperties.AddRange(new DesignerDataPropertyInfo[] {

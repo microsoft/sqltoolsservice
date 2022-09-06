@@ -4947,6 +4947,18 @@ The Query Processor estimates that implementing the following index could improv
     <value>None</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>Column Store Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>Column Store Index</value>
+    <comment></comment>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>New Column Store Index</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
     <value>Edge Constraints</value>
     <comment></comment>
@@ -5281,6 +5293,16 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
     <value>Hash index &apos;{0}&apos; does not have a bucket count.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been added to the non-clustered column store index &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Non-clustered column store index &apos;{0}&apos; does not have any columns associated with it.</value>
     <comment>.
  Parameters: 0 - indexName (string) </comment>
   </data>

@@ -6440,6 +6440,33 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Column</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
+        <source>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</source>
+        <target state="new">Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</target>
+        <note>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
+        <source>Column Store Indexes</source>
+        <target state="new">Column Store Indexes</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerColumnStoreIndexObjectType">
+        <source>Column Store Index</source>
+        <target state="new">Column Store Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AddNewColumnStoreIndexLabel">
+        <source>New Column Store Index</source>
+        <target state="new">New Column Store Index</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription">
+        <source>Non-clustered column store index '{0}' does not have any columns associated with it.</source>
+        <target state="new">Non-clustered column store index '{0}' does not have any columns associated with it.</target>
+        <note>.
+ Parameters: 0 - indexName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
