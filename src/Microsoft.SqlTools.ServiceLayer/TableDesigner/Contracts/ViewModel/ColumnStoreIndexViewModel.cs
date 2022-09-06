@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
 {
     /// <summary>
-    /// The view model of index.
+    /// The view model of column store index.
     /// </summary>
     public class ColumnStoreIndexViewModel : ObjectViewModelBase
     {
