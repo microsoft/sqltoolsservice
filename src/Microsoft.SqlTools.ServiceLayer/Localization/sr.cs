@@ -8861,11 +8861,147 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string IndexIsHashPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsHashPropertyDescription);
+            }
+        }
+
+        public static string IndexIsHashPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexIsHashPropertyTitle);
+            }
+        }
+
+        public static string IndexBucketCountPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexBucketCountPropertyDescription);
+            }
+        }
+
+        public static string IndexBucketCountPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.IndexBucketCountPropertyTitle);
+            }
+        }
+
+        public static string HashIndexGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.HashIndexGroupTitle);
+            }
+        }
+
         public static string TableDesignerColumnsDisplayValueTitle
         {
             get
             {
                 return Keys.GetString(Keys.TableDesignerColumnsDisplayValueTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexNamePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexNamePropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexNamePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexNamePropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexDescriptionPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexDescriptionPropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexDescriptionPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexDescriptionPropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexIsClusteredPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexIsClusteredPropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexIsClusteredPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexIsClusteredPropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexFilterPredicatePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexFilterPredicatePropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexFilterPredicatePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexFilterPredicatePropertyTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexColumnsPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexColumnsPropertyDescription);
+            }
+        }
+
+        public static string ColumnStoreIndexColumnsGroupTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexColumnsGroupTitle);
+            }
+        }
+
+        public static string ColumnStoreIndexAddColumn
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexAddColumn);
+            }
+        }
+
+        public static string ColumnStoreIndexColumnPropertyName
+        {
+            get
+            {
+                return Keys.GetString(Keys.ColumnStoreIndexColumnPropertyName);
             }
         }
 
@@ -8922,6 +9058,30 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.TableDesignerGraphTableTypeNone);
+            }
+        }
+
+        public static string TableDesignerColumnStoreIndexesTableTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnStoreIndexesTableTitle);
+            }
+        }
+
+        public static string TableDesignerColumnStoreIndexObjectType
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerColumnStoreIndexObjectType);
+            }
+        }
+
+        public static string AddNewColumnStoreIndexLabel
+        {
+            get
+            {
+                return Keys.GetString(Keys.AddNewColumnStoreIndexLabel);
             }
         }
 
@@ -9828,6 +9988,26 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName)
         {
             return Keys.GetString(Keys.ComputedColumnNeedToBePersistedInForeignKeyRuleDescription, columnName, foreignKeyName);
+        }
+
+        public static string HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription, indexName);
+        }
+
+        public static string HashIndexMustHaveBucketCountRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.HashIndexMustHaveBucketCountRuleDescription, indexName);
+        }
+
+        public static string ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(string columnName, string indexName, int rowNumber)
+        {
+            return Keys.GetString(Keys.ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription, columnName, indexName, rowNumber);
+        }
+
+        public static string NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName)
+        {
+            return Keys.GetString(Keys.NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription, indexName);
         }
 
         public static string SqlProjectModelNotFound(string projectUri)
@@ -13362,7 +13542,58 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string IndexFilterPredicatePropertyTitle = "IndexFilterPredicatePropertyTitle";
 
 
+            public const string IndexIsHashPropertyDescription = "IndexIsHashPropertyDescription";
+
+
+            public const string IndexIsHashPropertyTitle = "IndexIsHashPropertyTitle";
+
+
+            public const string IndexBucketCountPropertyDescription = "IndexBucketCountPropertyDescription";
+
+
+            public const string IndexBucketCountPropertyTitle = "IndexBucketCountPropertyTitle";
+
+
+            public const string HashIndexGroupTitle = "HashIndexGroupTitle";
+
+
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
+
+
+            public const string ColumnStoreIndexNamePropertyTitle = "ColumnStoreIndexNamePropertyTitle";
+
+
+            public const string ColumnStoreIndexNamePropertyDescription = "ColumnStoreIndexNamePropertyDescription";
+
+
+            public const string ColumnStoreIndexDescriptionPropertyTitle = "ColumnStoreIndexDescriptionPropertyTitle";
+
+
+            public const string ColumnStoreIndexDescriptionPropertyDescription = "ColumnStoreIndexDescriptionPropertyDescription";
+
+
+            public const string ColumnStoreIndexIsClusteredPropertyDescription = "ColumnStoreIndexIsClusteredPropertyDescription";
+
+
+            public const string ColumnStoreIndexIsClusteredPropertyTitle = "ColumnStoreIndexIsClusteredPropertyTitle";
+
+
+            public const string ColumnStoreIndexFilterPredicatePropertyDescription = "ColumnStoreIndexFilterPredicatePropertyDescription";
+
+
+            public const string ColumnStoreIndexFilterPredicatePropertyTitle = "ColumnStoreIndexFilterPredicatePropertyTitle";
+
+
+            public const string ColumnStoreIndexColumnsPropertyDescription = "ColumnStoreIndexColumnsPropertyDescription";
+
+
+            public const string ColumnStoreIndexColumnsGroupTitle = "ColumnStoreIndexColumnsGroupTitle";
+
+
+            public const string ColumnStoreIndexAddColumn = "ColumnStoreIndexAddColumn";
+
+
+            public const string ColumnStoreIndexColumnPropertyName = "ColumnStoreIndexColumnPropertyName";
 
 
             public const string TableDesignerDeleteColumnConfirmationMessage = "TableDesignerDeleteColumnConfirmationMessage";
@@ -13384,6 +13615,15 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerGraphTableTypeNone = "TableDesignerGraphTableTypeNone";
+
+
+            public const string TableDesignerColumnStoreIndexesTableTitle = "TableDesignerColumnStoreIndexesTableTitle";
+
+
+            public const string TableDesignerColumnStoreIndexObjectType = "TableDesignerColumnStoreIndexObjectType";
+
+
+            public const string AddNewColumnStoreIndexLabel = "AddNewColumnStoreIndexLabel";
 
 
             public const string TableDesignerEdgeConstraintsTabTitle = "TableDesignerEdgeConstraintsTabTitle";
@@ -13618,6 +13858,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ComputedColumnNeedToBePersistedInForeignKeyRuleDescription = "ComputedColumnNeedToBePersistedInForeignKeyRuleDescription";
+
+
+            public const string HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription = "HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription";
+
+
+            public const string HashIndexMustHaveBucketCountRuleDescription = "HashIndexMustHaveBucketCountRuleDescription";
+
+
+            public const string ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription = "ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription";
+
+
+            public const string NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription = "NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription";
 
 
             public const string TableDesignerConfirmationText = "TableDesignerConfirmationText";

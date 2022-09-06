@@ -21,6 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts
         public BuiltinTableOptions IndexTableOptions { get; set; } = new BuiltinTableOptions();
         public BuiltinTableOptions IndexColumnSpecificationTableOptions { get; set; } = new BuiltinTableOptions();
         public List<DesignerDataPropertyInfo> AdditionalPrimaryKeyProperties { get; set; } = new List<DesignerDataPropertyInfo>();
+        public List<DesignerDataPropertyWithTabInfo> AdditionalComponents { get; set; } = new List<DesignerDataPropertyWithTabInfo>();
         public BuiltinTableOptions PrimaryKeyColumnSpecificationTableOptions = new BuiltinTableOptions();
         public List<DesignerTabView> AdditionalTabs { get; } = new List<DesignerTabView>();
         public bool UseAdvancedSaveMode { get; set; }
