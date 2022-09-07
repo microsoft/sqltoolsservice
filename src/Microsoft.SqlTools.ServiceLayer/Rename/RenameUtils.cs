@@ -14,6 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
     {
         public static void Validate(ProcessRenameEditRequestParams requestParams)
         {
+            if (requestParams == null)
+            {
+                throw new ArgumentNullException();
+            }
             if (requestParams.TableInfo.IsNewTable == true)
             {
                 throw new InvalidOperationException(SR.TableDoesNotExist);
