@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 ElapsedTimeInMs = currentNode.ElapsedTimeInMs,
                 ElapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs,
                 TopOperationsData = ParseTopOperationsData(currentNode),
-                RowReadMetrics = GetReadRowMetrics(currentNode.Properties)
+                RowMetrics = GetRowMetrics(currentNode.Properties)
             };
         }
 
@@ -102,9 +102,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             };
         }
 
-        public static List<ExecutionPlanCostMetrics> GetReadRowMetrics(PropertyDescriptorCollection properties)
+        public static Dictionary<string, string?> GetRowMetrics(PropertyDescriptorCollection properties)
         {
-            var metrics = new List<ExecutionPlanCostMetrics>();
+            var metrics = new Dictionary<string, string?>();
 
             if (properties["EstimateRowsAllExecs"] != null)
             {
@@ -112,10 +112,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var name = estimatedRowsAllExecsProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(estimatedRowsAllExecsProperty);
 
-                metrics.Add(new ExecutionPlanCostMetrics() {
-                    Name = name,
-                    Value = displayValue
-                });
+                if (name != null)
+                {
+                    metrics[name] = displayValue;
+                }
             }
 
             if (properties["EstimatedRowsRead"] != null)
@@ -124,10 +124,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var name = estimatedRowsReadProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(estimatedRowsReadProperty);
 
-                metrics.Add(new ExecutionPlanCostMetrics() {
-                    Name = name,
-                    Value = displayValue
-                });
+                if (name != null)
+                {
+                    metrics[name] = displayValue;
+                }
             }
 
             if (properties["ActualRows"] != null)
@@ -136,10 +136,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var name = actualRowsProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(actualRowsProperty);
 
-                metrics.Add(new ExecutionPlanCostMetrics() {
-                    Name = name,
-                    Value = displayValue
-                });
+                if (name != null)
+                {
+                    metrics[name] = displayValue;
+                }
             }
 
             if (properties["ActualRowsRead"] != null)
@@ -148,10 +148,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 var name = actualRowsReadProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(actualRowsReadProperty);
 
-                metrics.Add(new ExecutionPlanCostMetrics() {
-                    Name = name,
-                    Value = displayValue
-                });
+                if (name != null)
+                {
+                    metrics[name] = displayValue;
+                }
             }
 
             return metrics;

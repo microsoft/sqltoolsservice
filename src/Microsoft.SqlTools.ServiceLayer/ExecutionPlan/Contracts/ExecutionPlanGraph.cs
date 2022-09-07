@@ -97,9 +97,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public List<TopOperationsDataItem> TopOperationsData { get; set; }
         /// <summary>
-        /// Cost metrics for the node
+        /// Rows read metrics for the node
         /// </summary>
-        public List<ExecutionPlanCostMetrics> RowReadMetrics { get; set; }
+        public Dictionary<string, string?> RowMetrics { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase
