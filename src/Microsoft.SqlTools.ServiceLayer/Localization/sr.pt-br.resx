@@ -3887,76 +3887,76 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>A coluna computada com o nome '{0}' deve ser persistida para fazer parte da chave estrangeira '{1}'.</value>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>Hash index with name '{0}' is not supported on a non memory-optimized table.</value>
+    <value>O índice de hash com o nome '{0}' não tem suporte em uma tabela não otimizada para memória.</value>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>Hash index '{0}' does not have a bucket count.</value>
+    <value>O índice de hash '{0}' não tem um número de buckets.</value>
   </data>
   <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>Whether the index is a hash index</value>
+    <value>Se o índice é um índice de hash</value>
   </data>
   <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>Is Hash</value>
+    <value>É hash</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <value>Número de buckets do índice de hash, observe que o valor sempre será arredondado automaticamente para a próxima potência de 2. </value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Bucket Count</value>
+    <value>Número de buckets</value>
   </data>
   <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
+    <value>Índice de hash</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>Name</value>
+    <value>Nome</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name of the column store index</value>
+    <value>Nome do índice do repositório de colunas</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>Description</value>
+    <value>Descrição</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description of the column store index</value>
+    <value>Descrição do índice do repositório de colunas</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Whether the column store index is clustered.</value>
+    <value>Se o índice de repositório de colunas está clusterizado.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Is Clustered</value>
+    <value>Está Clusterizado</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Filter predicate of the column store index</value>
+    <value>Predicado do filtro de índice do repositório de colunas</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Filter Predicate</value>
+    <value>Predicado do Filtro</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Columns in this column store index</value>
+    <value>As colunas nesse índice do repositório de colunas</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Columns</value>
+    <value>Colunas</value>
   </data>
   <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Add Column</value>
+    <value>Adicionar Coluna</value>
   </data>
   <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Column</value>
+    <value>Coluna</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</value>
+    <value>A coluna com o nome '{0}' já foi adicionada ao índice do repositório de colunas não clusterizadas '{1}'. Número da linha: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Índices do Repositório de Colunas</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>Índice de Repositório de Coluna</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>New Column Store Index</value>
+    <value>Novo Índice do Repositório de Colunas</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Non-clustered column store index '{0}' does not have any columns associated with it.</value>
+    <value>O índice do repositório de colunas não clusterizadas '{0}' não tem nenhuma coluna associada a ele.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Li o resumo e entendo os riscos potenciais.</value>
