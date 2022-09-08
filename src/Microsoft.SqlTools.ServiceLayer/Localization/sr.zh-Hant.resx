@@ -3887,76 +3887,76 @@
     <value>名稱為 '{0}' 的計算資料行必須保存，才能成為外部索引鍵 '{1}' 的一部分。</value>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>Hash index with name '{0}' is not supported on a non memory-optimized table.</value>
+    <value>未經記憶體最佳化的資料表不支援名稱為 '{0}' 的雜湊索引。</value>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>Hash index '{0}' does not have a bucket count.</value>
+    <value>雜湊索引 '{0}' 沒有貯體計數。</value>
   </data>
   <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>Whether the index is a hash index</value>
+    <value>索引是否為雜湊索引</value>
   </data>
   <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>Is Hash</value>
+    <value>是雜湊</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <value>雜湊索引的貯體計數，請注意，值一律會自動四捨五入到下一個 2 次方。 </value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Bucket Count</value>
+    <value>貯體計數</value>
   </data>
   <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
+    <value>雜湊索引</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>Name</value>
+    <value>名稱</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name of the column store index</value>
+    <value>資料行存放區索引的名稱</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>Description</value>
+    <value>描述</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description of the column store index</value>
+    <value>資料行存放區索引的描述</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Whether the column store index is clustered.</value>
+    <value>資料行存放區索引是否為叢集。</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Is Clustered</value>
+    <value>為叢集</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Filter predicate of the column store index</value>
+    <value>資料行存放區索引的篩選述詞。</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Filter Predicate</value>
+    <value>篩選述詞</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Columns in this column store index</value>
+    <value>此資料行存放區索引中的資料行</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Columns</value>
+    <value>資料行</value>
   </data>
   <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Add Column</value>
+    <value>新增資料行</value>
   </data>
   <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Column</value>
+    <value>資料行</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</value>
+    <value>名稱為 '{0}' 的資料行已新增至非叢集的資料行存放區索引 '{1}'。列號: {2}。</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>資料行存放區索引</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>資料行存放區索引</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>New Column Store Index</value>
+    <value>新增資料行存放區索引</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Non-clustered column store index '{0}' does not have any columns associated with it.</value>
+    <value>非叢集資料行存放區索引 '{0}' 沒有任何與其相關的資料行。</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>我已閱讀摘要並瞭解潛在風險。</value>

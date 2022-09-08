@@ -3887,76 +3887,76 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Die berechnete Spalte mit dem Namen „{0}“ muss beibehalten werden, um Teil des Fremdschlüssels „{1}“ zu sein.</value>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>Hash index with name '{0}' is not supported on a non memory-optimized table.</value>
+    <value>Der Hashindex mit dem Namen "{0}" wird für eine nicht speicheroptimierte Tabelle nicht unterstützt.</value>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>Hash index '{0}' does not have a bucket count.</value>
+    <value>Der Hashindex "{0}" weist keine Bucketanzahl auf.</value>
   </data>
   <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>Whether the index is a hash index</value>
+    <value>Gibt an, ob der Index ein Hashindex ist.</value>
   </data>
   <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>Is Hash</value>
+    <value>Ist Hash</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <value>Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird. </value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Bucket Count</value>
+    <value>Bucketanzahl</value>
   </data>
   <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
+    <value>Hashindex</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name of the column store index</value>
+    <value>Name des Columnstore-Index</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>Description</value>
+    <value>Beschreibung</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description of the column store index</value>
+    <value>Beschreibung des Columnstore-Index</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Whether the column store index is clustered.</value>
+    <value>Gibt an, ob der Columnstore-Index gruppiert ist.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Is Clustered</value>
+    <value>Ist Gruppiert</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Filter predicate of the column store index</value>
+    <value>Das Filterprädikat des Columnstore-Index.</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Filter Predicate</value>
+    <value>Filterprädikat</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Columns in this column store index</value>
+    <value>Spalten in diesem Columnstore-Index</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Columns</value>
+    <value>Spalten</value>
   </data>
   <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Add Column</value>
+    <value>Spalte hinzufügen</value>
   </data>
   <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Column</value>
+    <value>Spalte</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</value>
+    <value>Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index {1} bereits hinzugefügt. Zeilennummer: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Columnstore-Indizes</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>Columnstore-Index</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>New Column Store Index</value>
+    <value>Neuer ColumnStore-Index</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Non-clustered column store index '{0}' does not have any columns associated with it.</value>
+    <value>Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Ich habe die Zusammenfassung gelesen und bin mir der potenziellen Risiken bewusst.</value>

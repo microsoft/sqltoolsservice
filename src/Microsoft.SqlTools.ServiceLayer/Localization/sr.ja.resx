@@ -3887,76 +3887,76 @@
     <value>'{0}' という名前の計算列は、外部キー '{1}' の一部として保持する必要があります。</value>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>Hash index with name '{0}' is not supported on a non memory-optimized table.</value>
+    <value>'{0}' という名前のハッシュ インデックスは、非メモリ最適化テーブルではサポートされていません。</value>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>Hash index '{0}' does not have a bucket count.</value>
+    <value>ハッシュ インデックス '{0}' にはバケット数がありません。</value>
   </data>
   <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>Whether the index is a hash index</value>
+    <value>インデックスがハッシュ インデックスであるかどうか</value>
   </data>
   <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>Is Hash</value>
+    <value>ハッシュ</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <value>ハッシュ インデックスのバケット数。値は常に次の二乗に自動的に切り上げられます。 </value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Bucket Count</value>
+    <value>バケット数</value>
   </data>
   <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
+    <value>ハッシュ インデックス</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>Name</value>
+    <value>名前</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name of the column store index</value>
+    <value>列ストア インデックスの名前</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>Description</value>
+    <value>説明</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description of the column store index</value>
+    <value>列ストア インデックスの説明</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Whether the column store index is clustered.</value>
+    <value>列ストア インデックスがクラスター化されているかどうか。</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Is Clustered</value>
+    <value>クラスター化</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Filter predicate of the column store index</value>
+    <value>列ストア インデックスのフィルター述語</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Filter Predicate</value>
+    <value>フィルター述語</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Columns in this column store index</value>
+    <value>この列ストア インデックスの列</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Columns</value>
+    <value>列</value>
   </data>
   <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Add Column</value>
+    <value>列の追加</value>
   </data>
   <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Column</value>
+    <value>列</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</value>
+    <value>'{0}' という名前の列は、クラスター化されていない列ストア インデックス '{1}' に既に追加されています。行番号: {2}。</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>列ストア インデックス</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>列ストア インデックス</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>New Column Store Index</value>
+    <value>新しい列ストア インデックス</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Non-clustered column store index '{0}' does not have any columns associated with it.</value>
+    <value>クラスター化されていない列ストア インデックス '{0}' には、列が関連付けされていません。</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>概要を読み、潜在的なリスクを理解しました。</value>
