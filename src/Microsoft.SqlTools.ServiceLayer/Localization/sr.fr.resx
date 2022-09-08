@@ -3902,13 +3902,13 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Bucket Count</value>
+    <value>Nombre de compartiments</value>
   </data>
   <data name="HashIndexGroupTitle" xml:space="preserve">
     <value>Hash Index</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>Name</value>
+    <value>Nom</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
     <value>Name of the column store index</value>
@@ -3923,34 +3923,34 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Whether the column store index is clustered.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Is Clustered</value>
+    <value>Est en cluster</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
     <value>Filter predicate of the column store index</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Filter Predicate</value>
+    <value>Prédicat de Filtre</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
     <value>Columns in this column store index</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Columns</value>
+    <value>Colonnes</value>
   </data>
   <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Add Column</value>
+    <value>Ajouter une colonne</value>
   </data>
   <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Column</value>
+    <value>Colonne</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
     <value>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Index de banque de colonnes</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>Stockage de colonnes d'index</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
     <value>New Column Store Index</value>

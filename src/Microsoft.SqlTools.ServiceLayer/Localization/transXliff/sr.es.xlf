@@ -6389,7 +6389,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyTitle">
         <source>Bucket Count</source>
-        <target state="new">Bucket Count</target>
+        <target state="translated">Número de cubos</target>
         <note></note>
       </trans-unit>
       <trans-unit id="HashIndexGroupTitle">
@@ -6399,7 +6399,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
-        <target state="new">Name</target>
+        <target state="translated">Nombre</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyDescription">
@@ -6409,7 +6409,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
         <source>Description</source>
-        <target state="new">Description</target>
+        <target state="translated">Descripción</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
@@ -6424,7 +6424,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
         <source>Is Clustered</source>
-        <target state="new">Is Clustered</target>
+        <target state="translated">En clúster</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
@@ -6434,7 +6434,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
         <source>Filter Predicate</source>
-        <target state="new">Filter Predicate</target>
+        <target state="translated">Predicado de filtro</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
@@ -6444,17 +6444,17 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
         <source>Columns</source>
-        <target state="new">Columns</target>
+        <target state="translated">Columnas</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexAddColumn">
         <source>Add Column</source>
-        <target state="new">Add Column</target>
+        <target state="translated">Agregar columna</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnPropertyName">
         <source>Column</source>
-        <target state="new">Column</target>
+        <target state="translated">Columna</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
@@ -6465,12 +6465,12 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
         <source>Column Store Indexes</source>
-        <target state="new">Column Store Indexes</target>
+        <target state="translated">Índices de almacenamiento de columnas</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexObjectType">
         <source>Column Store Index</source>
-        <target state="new">Column Store Index</target>
+        <target state="translated">Índice de almacenamiento de columnas</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AddNewColumnStoreIndexLabel">

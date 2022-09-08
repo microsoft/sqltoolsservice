@@ -3887,76 +3887,76 @@
     <value>Вычисляемый столбец с именем "{0}" должен быть сохранен в составе внешнего ключа "{1}".</value>
   </data>
   <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
-    <value>Hash index with name '{0}' is not supported on a non memory-optimized table.</value>
+    <value>Хэш-индекс с именем "{0}" не поддерживается в таблице, не оптимизированной для памяти.</value>
   </data>
   <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
-    <value>Hash index '{0}' does not have a bucket count.</value>
+    <value>Хэш-индекс "{0}" не имеет числа контейнеров.</value>
   </data>
   <data name="IndexIsHashPropertyDescription" xml:space="preserve">
-    <value>Whether the index is a hash index</value>
+    <value>Является ли индекс хэш-индексом</value>
   </data>
   <data name="IndexIsHashPropertyTitle" xml:space="preserve">
-    <value>Is Hash</value>
+    <value>В хэше</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <value>Число контейнеров хэш-индекса. Обратите внимание, что значение всегда будет автоматически округляться до следующей степени 2. </value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
-    <value>Bucket Count</value>
+    <value>Число контейнеров</value>
   </data>
   <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
+    <value>Хэш-индекс</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
-    <value>Name</value>
+    <value>Имя</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name of the column store index</value>
+    <value>Имя индекса хранилища столбцов</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
-    <value>Description</value>
+    <value>Описание</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description of the column store index</value>
+    <value>Описание индекса хранения столбцов</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Whether the column store index is clustered.</value>
+    <value>Является ли индекс хранилища столбцов кластеризованным.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
-    <value>Is Clustered</value>
+    <value>Кластеризованный</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Filter predicate of the column store index</value>
+    <value>Предикат фильтра индекса хранилища столбцов</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
-    <value>Filter Predicate</value>
+    <value>Фильтр (предикат)</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Columns in this column store index</value>
+    <value>Столбцы в индексе хранения столбцов</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
-    <value>Columns</value>
+    <value>Столбцы</value>
   </data>
   <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
-    <value>Add Column</value>
+    <value>Добавить столбец</value>
   </data>
   <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
-    <value>Column</value>
+    <value>Столбец</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</value>
+    <value>Столбец с именем "{0}" уже добавлен в некластеризованный индекс хранилища столбцов "{1}". Номер строки: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Индексы хранилища столбцов</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>Индекс хранилища столбцов</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>New Column Store Index</value>
+    <value>Добавить новый индекс хранилища столбцов</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Non-clustered column store index '{0}' does not have any columns associated with it.</value>
+    <value>Некластеризованный индекс хранения столбцов "{0}" не имеет связанных с ним столбцов.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Я прочел сводку и понимаю возможные риски.</value>
