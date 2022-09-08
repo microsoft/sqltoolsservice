@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string ExistingHistoryTableName = "existingHistoryTable";
         public const string IsMemoryOptimized = "isMemoryOptimized";
         public const string Durability = "durability";
+        public const string PrimaryKey = "primaryKey";
         public const string PrimaryKeyName = "primaryKeyName";
         public const string PrimaryKeyDescription = "primaryKeyDescription";
         public const string PrimaryKeyIsClustered = "primaryKeyIsClustered";
