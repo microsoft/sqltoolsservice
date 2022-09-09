@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                 catch (Exception e)
                 {
                     await requestContext.SendError(e);
-                    throw e;
+                    // throw e;
                 }
             });
         }

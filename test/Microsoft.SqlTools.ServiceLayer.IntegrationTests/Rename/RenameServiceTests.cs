@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.BatchParser.Utility;
@@ -67,6 +68,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Rename
             await SqlTestDb.DropDatabase(testDb.DatabaseName);
         }
 
+        [Test]
+        public async Task TestRenameColumnNotExisting()
+        {
+            await renameService.HandleProcessRenameEditRequest(this.InitRequestParams(testDb, "RenameColumn", this.startTableName, this.startColumnName + "_NOT", "dbo", ChangeType.COLUMN), requestContextMock.Object);
+            Thread.Sleep(2000);
+
+            VerifyErrorSent(requestContextMock);
+            await SqlTestDb.DropDatabase(testDb.DatabaseName);
+        }
+
+        [Test]
+        public async Task TestRenameTableNotExisting()
+        {
+            await renameService.HandleProcessRenameEditRequest(this.InitRequestParams(testDb, "RenameColumn", this.startTableName, this.startTableName + "_NOT", "dbo", ChangeType.TABLE), requestContextMock.Object);
+            Thread.Sleep(2000);
+
+            VerifyErrorSent(requestContextMock);
+            await SqlTestDb.DropDatabase(testDb.DatabaseName);
+        }
 
         private static bool VerifySendedFeedback(bool result, bool expectedResult)
         {
@@ -134,5 +154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Rename
             }
             return true;
         }
+
+        protected void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
+        {
+            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<InvalidOperationException>()), Times.Once);
+        }
+
     }
 }
