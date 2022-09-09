@@ -31,12 +31,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             }
         }
 
-        public static string CombineTableNameWithSchema(string schema, string tableName, string oldname = "")
+        public static string CombineTableNameWithSchema(string schema, string tableName, string column = "")
         {
             schema = schema.Replace("[", "").Replace("]", "").Trim();
             tableName = tableName.Replace("[", "").Replace("]", "").Trim();
-            oldname = oldname.Replace("[", "").Replace("]", "").Trim();
-            return String.Join(".", schema, tableName, oldname);
+            column = column.Replace("[", "").Replace("]", "").Trim();
+            if (!String.IsNullOrEmpty(column))
+            {
+                return String.Join(".", schema, tableName, column);
+            }
+            return String.Join(".", schema, tableName);
         }
 
         public static string GetRenameSQLCommand(ProcessRenameEditRequestParams requestParams)
