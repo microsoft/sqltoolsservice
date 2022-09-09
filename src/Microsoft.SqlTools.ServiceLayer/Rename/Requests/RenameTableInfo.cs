@@ -13,7 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename.Requests
         public string OldName { get; set; }
         public string Schema { get; set; }
         public string Id { get; set; }
-        public bool IsNewTable { get; set; }
         public string OwnerUri { get; set; }
         public string Database { get; set; }
 

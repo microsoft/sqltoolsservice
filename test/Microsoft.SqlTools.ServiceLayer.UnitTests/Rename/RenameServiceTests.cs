@@ -29,7 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Rename
             //Arrange
             RenameTableInfo renameTableInfo = new RenameTableInfo
             {
-                IsNewTable = true
             };
             ProcessRenameEditRequestParams renameProcessEditRequestParams = new ProcessRenameEditRequestParams
             {

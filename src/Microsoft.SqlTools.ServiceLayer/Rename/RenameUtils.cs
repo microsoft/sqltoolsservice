@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
 
@@ -13,19 +14,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
     /// </summary>
     public static class RenameUtils
     {
+        private static readonly string RegexMatchPatternValidObjectName = @"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$";
         public static void Validate(ProcessRenameEditRequestParams requestParams)
         {
             if (requestParams == null)
             {
                 throw new ArgumentNullException();
             }
-            if (requestParams.TableInfo.IsNewTable == true)
-            {
-                throw new InvalidOperationException(SR.TableDoesNotExist);
-            }
-            if (String.IsNullOrEmpty(requestParams.TableInfo.Schema) || String.IsNullOrEmpty(requestParams.TableInfo.OldName) || String.IsNullOrEmpty(requestParams.TableInfo.Id))
+            if (String.IsNullOrEmpty(requestParams.TableInfo.TableName) || String.IsNullOrEmpty(requestParams.TableInfo.Database) || String.IsNullOrEmpty(requestParams.TableInfo.Schema) || String.IsNullOrEmpty(requestParams.TableInfo.OldName) || String.IsNullOrEmpty(requestParams.ChangeInfo.NewName))
             {
                 throw new ArgumentException(SR.RenameRequestParametersNotNullOrEmpty);
+            }
+            if (Regex.IsMatch(requestParams.TableInfo.Schema, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.TableInfo.Database, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.TableInfo.OldName, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.TableInfo.TableName, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.ChangeInfo.NewName, RegexMatchPatternValidObjectName))
+            {
+                throw new ArgumentOutOfRangeException(SR.NotAllowedCharacterForRenaming);
             }
         }
 

@@ -104,7 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Rename
             {
                 Database = testDb.DatabaseName,
                 Id = "1",
-                IsNewTable = false,
                 OldName = OldName,
                 Schema = schema,
                 OwnerUri = this.ownerUri,

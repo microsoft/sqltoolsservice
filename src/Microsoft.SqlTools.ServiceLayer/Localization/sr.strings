@@ -2389,3 +2389,7 @@ ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, st
 SqlProjectModelNotFound(string projectUri) = Could not find SQL model from project: {0}.
 UnsupportedModelType(string type) = Unsupported model type: {0}.
 GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.
+
+#Rename Service
+NotAllowedCharacterForRenaming = The name contains characters which are not allowed
+RenameRequestParametersNotNullOrEmpty = The arguments must not be null nor empty
