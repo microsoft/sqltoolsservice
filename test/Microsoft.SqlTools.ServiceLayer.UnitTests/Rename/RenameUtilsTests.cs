@@ -83,6 +83,62 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Rename
             Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
         }
 
+        [Test]
+        public void TestGetRenameSQLCommandTable()
+        {
+            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
+                "testTable", ChangeType.TABLE, "test", "dbo", "testTable", "TestDB"
+            );
+            string expected = @"
+                USE [TestDB];
+                    EXEC sp_rename @objname = 'dbo.test', @newname = 'testTable';
+            ";
+            string res = RenameUtils.GetRenameSQLCommand(requestParams);
+            Assert.AreEqual(expected.Replace("\n", "").Replace("\r", ""), res.Replace("\n", "").Replace("\r", ""));
+        }
+        [Test]
+        public void TestGetRenameSQLCommandColumn()
+        {
+            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
+                "C1", ChangeType.COLUMN, "test", "dbo", "testTable", "TestDB"
+            );
+            string expected = @"
+                USE [TestDB];
+                    EXEC sp_rename @objname = 'dbo.testTable.test', @newname = 'C1', @objtype ='COLUMN';
+            ";
+            string res = RenameUtils.GetRenameSQLCommand(requestParams);
+            Assert.AreEqual(expected.Replace("\n", "").Replace("\r", ""), res.Replace("\n", "").Replace("\r", ""));
+        }
+        [Test]
+        public void TestCombineTableNameWithSchemaWithOldNames()
+        {
+            Assert.AreEqual("dbo.test.c1", RenameUtils.CombineTableNameWithSchema("dbo", "test", "c1"));
+        }
+        [Test]
+        public void TestCombineTableNameWithSchemaWithOldNamesBrackets()
+        {
+            Assert.AreEqual("dbo.test.c1", RenameUtils.CombineTableNameWithSchema("[dbo]", "[test]", "[c1]"));
+        }
+        [Test]
+        public void TestCombineTableNameWithSchemaWithOldNamesBracketsSpace()
+        {
+            Assert.AreEqual("dbo.test.c1", RenameUtils.CombineTableNameWithSchema(" [dbo] ", " [test] ", " [c1] "));
+        }
+        public void TestCombineTableNameWithSchema()
+        {
+            Assert.AreEqual("dbo.test", RenameUtils.CombineTableNameWithSchema("dbo", "test"));
+        }
+        [Test]
+        public void TestCombineTableNameWithSchemaWithBrackets()
+        {
+            Assert.AreEqual("dbo.test", RenameUtils.CombineTableNameWithSchema("[dbo]", "[test]"));
+        }
+        [Test]
+        public void TestCombineTableNameWithSchemaWithBracketsSpace()
+        {
+            Assert.AreEqual("dbo.test", RenameUtils.CombineTableNameWithSchema(" [dbo] ", " [test] "));
+        }
+
         private ProcessRenameEditRequestParams InitProcessRenameEditRequestParams(string newName, ChangeType type, string oldName, string schema, string tableName, string database)
         {
             RenameTableChangeInfo changeInfo = new RenameTableChangeInfo
