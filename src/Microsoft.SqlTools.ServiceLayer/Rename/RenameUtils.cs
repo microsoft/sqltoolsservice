@@ -31,11 +31,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             }
         }
 
-        public static string CombineTableNameWithSchema(string schema, string tableName)
+        public static string CombineTableNameWithSchema(string schema, string tableName, string oldname = "")
         {
             schema = schema.Replace("[", "").Replace("]", "").Trim();
             tableName = tableName.Replace("[", "").Replace("]", "").Trim();
-            return String.Join(".", schema, tableName);
+            oldname = oldname.Replace("[", "").Replace("]", "").Trim();
+            return String.Join(".", schema, tableName, oldname);
         }
 
         public static string GetRenameSQLCommand(ProcessRenameEditRequestParams requestParams)
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                 return String.Format(@"
                 USE [{0}];
                     EXEC sp_rename @objname = '{1}', @newname = '{2}', @objtype ='{3}';
-            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.TableName) + "." + requestParams.TableInfo.OldName, requestParams.ChangeInfo.NewName, Enum.GetName(requestParams.ChangeInfo.Type));
+            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.TableName, requestParams.TableInfo.OldName), requestParams.ChangeInfo.NewName, Enum.GetName(requestParams.ChangeInfo.Type));
             }
             else
             {
