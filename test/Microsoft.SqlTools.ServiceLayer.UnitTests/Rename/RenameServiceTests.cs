@@ -44,6 +44,4 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Rename
             Assert.That(() => renameService.HandleProcessRenameEditRequest(renameProcessEditRequestParams, contextMock.Object), Throws.InvalidOperationException);
         }
     }
-
-
 }

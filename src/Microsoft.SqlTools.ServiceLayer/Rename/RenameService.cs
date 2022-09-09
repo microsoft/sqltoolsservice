@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.Data;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
@@ -22,9 +22,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
         private static Lazy<RenameService> renameServiceInstance = new Lazy<RenameService>(() => new RenameService());
         public static RenameService Instance => renameServiceInstance.Value;
 
+        public static ConnectionService connectionService;
+
         private IProtocolEndpoint serviceHost;
 
         public RenameService() { }
+        /// <summary>
+        /// Internal for testing purposes only
+        /// </summary>
+        internal static ConnectionService ConnectionServiceInstance
+        {
+            get
+            {
+                if (connectionService == null)
+                {
+                    connectionService = ConnectionService.Instance;
+                }
+                return connectionService;
+            }
+            set
+            {
+                connectionService = value;
+            }
+        }
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
@@ -60,11 +80,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                ConnectionInfo connInfo;
                try
                {
-                   ConnectionService.Instance.TryFindConnection(
+                   connectionService.TryFindConnection(
                           requestParams.TableInfo.OwnerUri,
                           out connInfo);
 
-                   using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
+                   using (IDbConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
                    {
                        ExecuteRenaming(requestParams, sqlConn);
                    }
@@ -79,20 +99,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
            });
         }
 
-        private void ExecuteRenaming(ProcessRenameEditRequestParams requestParams, SqlConnection sqlConn)
+        private void ExecuteRenaming(ProcessRenameEditRequestParams requestParams, IDbConnection sqlConn)
         {
             Logger.Verbose("Inside in the ExecuteRenaming()-Method");
-            string sql = String.Format(@"
-                USE [{0}];
-                GO
-                BEGIN TRAN
-                    EXEC sp_rename @objname = '{1}', @newname = '{2}', @objtype ='{3}';
-                END TRAN
-                GO
-            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.TableName), RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.ChangeInfo.NewName), Enum.GetName(requestParams.ChangeInfo.Type));
-            using (SqlCommand sqlCommand = new SqlCommand(sql, sqlConn))
+            string sql = RenameUtils.GetRenameSQLCommand(requestParams);
+
+            using (IDbCommand command = sqlConn.CreateCommand())
             {
-                int sqlRespone = Convert.ToInt32(sqlCommand.ExecuteScalar());
+                command.CommandText = sql;
+                int sqlRespone = Convert.ToInt32(command.ExecuteScalar());
                 if (sqlRespone != 0)
                 {
                     throw new InvalidOperationException("The renaming operation was not successfull executed");

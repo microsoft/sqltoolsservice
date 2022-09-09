@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
 
 namespace Microsoft.SqlTools.ServiceLayer.Rename
@@ -22,11 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             {
                 throw new InvalidOperationException(SR.TableDoesNotExist);
             }
-            if (requestParams.ChangeInfo.Type == ChangeType.COLUMN)
-            {
-                throw new NotImplementedException(SR.FeatureNotYetImplemented);
-            }
-            if (String.IsNullOrEmpty(requestParams.TableInfo.Schema) || String.IsNullOrEmpty(requestParams.TableInfo.TableName) || String.IsNullOrEmpty(requestParams.TableInfo.ConnectionString) || String.IsNullOrEmpty(requestParams.TableInfo.Server) || String.IsNullOrEmpty(requestParams.TableInfo.Id))
+            if (String.IsNullOrEmpty(requestParams.TableInfo.Schema) || String.IsNullOrEmpty(requestParams.TableInfo.OldName) || String.IsNullOrEmpty(requestParams.TableInfo.Id))
             {
                 throw new ArgumentException(SR.RenameRequestParametersNotNullOrEmpty);
             }
@@ -37,6 +34,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             schema = schema.Replace("[", "").Replace("]", "").Trim();
             tableName = tableName.Replace("[", "").Replace("]", "").Trim();
             return String.Join(".", schema, tableName);
+        }
+
+        public static string GetRenameSQLCommand(ProcessRenameEditRequestParams requestParams)
+        {
+            Logger.Verbose("Inside in the GetRenameSQLCommand()-Method");
+            if (requestParams.ChangeInfo.Type == ChangeType.COLUMN)
+            {
+                return String.Format(@"
+                USE [{0}];
+                    EXEC sp_rename @objname = '{1}', @newname = '{2}', @objtype ='{3}';
+            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.TableName) + "." + requestParams.TableInfo.OldName, requestParams.ChangeInfo.NewName, Enum.GetName(requestParams.ChangeInfo.Type));
+            }
+            else
+            {
+                return String.Format(@"
+                USE [{0}];
+                    EXEC sp_rename @objname = '{1}', @newname = '{2}';
+            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.OldName), requestParams.ChangeInfo.NewName);
+            }
         }
     }
 }

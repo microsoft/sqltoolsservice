@@ -9840,14 +9840,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string FeatureNotYetImplemented
-        {
-            get
-            {
-                return Keys.GetString(Keys.FeatureNotYetImplemented);
-            }
-        }
-
         public static string RenameRequestParametersNotNullOrEmpty
         {
             get
@@ -13630,7 +13622,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             public const string TableDoesNotExist = "TableDoesNotExist";
 
-            public const string FeatureNotYetImplemented = "FeatureNotYetImplemented";
 
             public const string RenameRequestParametersNotNullOrEmpty = "RenameRequestParametersNotNullOrEmpty";
 

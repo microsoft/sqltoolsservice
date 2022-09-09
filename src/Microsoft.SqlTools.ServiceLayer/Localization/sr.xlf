@@ -6365,11 +6365,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">The table has to exists to be renamed</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="FeatureNotYetImplemented">
-        <source>This feature is not yet implemented</source>
-        <target state="new">This feature is not yet implemented</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="RenameRequestParametersNotNullOrEmpty">
         <source>The arguments must not be null nor empty</source>
         <target state="new">The arguments must not be null nor empty</target>
