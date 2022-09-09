@@ -135,18 +135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         public PropertyValueDataType DataType { get; set; }
     }
 
-    public class ExecutionPlanCostMetrics
-    {
-        /// <summary>
-        /// Name of the cost metric
-        /// </summary>
-        public string? Name { get; set; }
-        /// <summary>
-        /// Value held by the cost metric
-        /// </summary>
-        public string? Value { get; set; }
-    }
-
     public class NestedExecutionPlanGraphProperty : ExecutionPlanGraphPropertyBase
     {
         /// <summary>
