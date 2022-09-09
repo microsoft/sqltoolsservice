@@ -4,17 +4,25 @@
 //
 using System;
 using System.Text.RegularExpressions;
-using Microsoft.SqlTools.BatchParser.Utility;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
 
 namespace Microsoft.SqlTools.ServiceLayer.Rename
 {
     /// <summary>
-    /// Help class for Rename Service
+    /// Helper class for Rename Service
     /// </summary>
     public static class RenameUtils
     {
+        private static readonly string UrnPrefix = "Server[@Name='{0}']/Database[@Name='{1}']/Table[@Name='{2}' and @Schema='{3}']";
         private static readonly string RegexMatchPatternValidObjectName = @"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$";
+        /// <summary>
+        /// Method to validate all the parameters for the renaming operation
+        /// </summary>
+        /// <param name="requestParams">parameters which should be checked</param>
         public static void Validate(ProcessRenameEditRequestParams requestParams)
         {
             if (requestParams == null)
@@ -25,41 +33,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             {
                 throw new ArgumentException(SR.RenameRequestParametersNotNullOrEmpty);
             }
-            if (Regex.IsMatch(requestParams.TableInfo.Schema, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.TableInfo.Database, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.TableInfo.OldName, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.TableInfo.TableName, RegexMatchPatternValidObjectName) || Regex.IsMatch(requestParams.ChangeInfo.NewName, RegexMatchPatternValidObjectName))
+            if (!Regex.IsMatch(requestParams.TableInfo.Schema, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.TableInfo.Database, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.TableInfo.OldName, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.TableInfo.TableName, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.ChangeInfo.NewName, RegexMatchPatternValidObjectName))
             {
                 throw new ArgumentOutOfRangeException(SR.NotAllowedCharacterForRenaming);
             }
         }
-
-        public static string CombineTableNameWithSchema(string schema, string tableName, string column = "")
+        /// <summary>
+        /// Method to get the sqlobject, which should be renamed
+        /// </summary>
+        /// <param name="requestParams">parameters which are required for the rename operation</param>
+        /// <param name="connection">the sqlconnection on the server to search for the sqlobject</param>
+        /// <returns>the sqlobject if implements the interface IRenamable, so they can be renamed</returns>
+        public static IRenamable GetSQLRenameObject(ProcessRenameEditRequestParams requestParams, SqlConnection connection)
         {
-            schema = schema.Replace("[", "").Replace("]", "").Trim();
-            tableName = tableName.Replace("[", "").Replace("]", "").Trim();
-            column = column.Replace("[", "").Replace("]", "").Trim();
-            if (!String.IsNullOrEmpty(column))
-            {
-                return String.Join(".", schema, tableName, column);
-            }
-            return String.Join(".", schema, tableName);
+            ServerConnection serverConnection = new ServerConnection(connection);
+            Server server = new Server(serverConnection);
+
+            Database database = new Database(server, requestParams.TableInfo.Database);
+            SqlSmoObject dbObject = database.Parent.GetSmoObject(new Urn(GetURNFromDatabaseSqlObjects(requestParams, serverConnection.TrueName)));
+
+            return (IRenamable)dbObject;
         }
-
-        public static string GetRenameSQLCommand(ProcessRenameEditRequestParams requestParams)
+        /// <summary>
+        /// Method to generate the Uniform Resource Name (URN) of a sqlobject 
+        /// </summary>
+        /// <param name="requestParams">parameters which are required for the rename operation</param>
+        /// <param name="trueNameOfServer">return the name of the server (@@Servername)</param>
+        /// <returns>URN string of the sqlobject</returns>
+        public static string GetURNFromDatabaseSqlObjects(ProcessRenameEditRequestParams requestParams, string trueNameOfServer)
         {
-            Logger.Verbose("Inside in the GetRenameSQLCommand()-Method");
+            String urnTableReplaced = String.Format(RenameUtils.UrnPrefix, trueNameOfServer, requestParams.TableInfo.Database, requestParams.TableInfo.TableName, requestParams.TableInfo.Schema, requestParams.TableInfo.OldName);
+
             if (requestParams.ChangeInfo.Type == ChangeType.COLUMN)
             {
-                return String.Format(@"
-                USE [{0}];
-                    EXEC sp_rename @objname = '{1}', @newname = '{2}', @objtype ='{3}';
-            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.TableName, requestParams.TableInfo.OldName), requestParams.ChangeInfo.NewName, Enum.GetName(requestParams.ChangeInfo.Type));
+                return String.Format(urnTableReplaced + "/Column[@Name='{0}']", requestParams.TableInfo.OldName);
             }
-            else
-            {
-                return String.Format(@"
-                USE [{0}];
-                    EXEC sp_rename @objname = '{1}', @newname = '{2}';
-            ", requestParams.TableInfo.Database, RenameUtils.CombineTableNameWithSchema(requestParams.TableInfo.Schema, requestParams.TableInfo.OldName), requestParams.ChangeInfo.NewName);
-            }
+            return urnTableReplaced;
         }
     }
 }

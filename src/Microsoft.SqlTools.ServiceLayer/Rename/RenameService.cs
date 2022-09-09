@@ -3,8 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.Data;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Rename.Requests;
@@ -65,11 +66,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                 catch (Exception e)
                 {
                     await requestContext.SendError(e);
-                    // throw e;
                 }
             });
         }
-
+        /// <summary>
+        /// Method to handle the renaming operation
+        /// </summary>
+        /// <param name="requestParams">parameters which are needed to execute renaming operation</param>
+        /// <param name="requestContext">Request Context</param>
+        /// <returns></returns>
         internal Task HandleProcessRenameEditRequest(ProcessRenameEditRequestParams requestParams, RequestContext<bool> requestContext)
         {
             return this.HandleRequest<bool>(requestContext, async () =>
@@ -84,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                           requestParams.TableInfo.OwnerUri,
                           out connInfo);
 
-                   using (IDbConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
+                   using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
                    {
                        ExecuteRenaming(requestParams, sqlConn);
                    }
@@ -99,23 +104,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
            });
         }
 
-        private void ExecuteRenaming(ProcessRenameEditRequestParams requestParams, IDbConnection sqlConn)
+        /// <summary>
+        /// Method to execute the renaming operation on the server
+        /// </summary>
+        /// <param name="requestParams">parameters which are needed to execute renaming operation</param>
+        /// <param name="sqlConn">the sqlconnection on which the operation is executed</param>
+        private void ExecuteRenaming(ProcessRenameEditRequestParams requestParams, SqlConnection sqlConn)
         {
             Logger.Verbose("Inside in the ExecuteRenaming()-Method");
-            string sql = RenameUtils.GetRenameSQLCommand(requestParams);
-
-            using (IDbCommand command = sqlConn.CreateCommand())
+            IRenamable renameObject = RenameUtils.GetSQLRenameObject(requestParams, sqlConn);
+            try
             {
-                command.CommandText = sql;
-                int sqlRespone = Convert.ToInt32(command.ExecuteScalar());
-                if (sqlRespone != 0)
-                {
-                    throw new InvalidOperationException("The renaming operation was not successfull executed");
-                }
+                renameObject.Rename(requestParams.ChangeInfo.NewName);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error on renaming operation: " + e);
+                throw new InvalidOperationException("The renaming operation was not successfull executed");
             }
             Logger.Verbose("Exiting the ExecuteRenaming()-Method");
         }
-
+        /// <summary>
+        /// Disposes resources
+        /// </summary>
         public void Dispose()
         {
             if (!disposed)

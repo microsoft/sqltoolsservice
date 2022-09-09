@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Rename
         [Test]
         public async Task TestRenameTableNotExisting()
         {
-            await renameService.HandleProcessRenameEditRequest(this.InitRequestParams(testDb, "RenameColumn", this.startTableName, this.startTableName + "_NOT", "dbo", ChangeType.TABLE), requestContextMock.Object);
+            await renameService.HandleProcessRenameEditRequest(this.InitRequestParams(testDb, "RenameColumn", this.startTableName + "_NOT", this.startTableName + "_NOT", "dbo", ChangeType.TABLE), requestContextMock.Object);
             Thread.Sleep(2000);
 
             VerifyErrorSent(requestContextMock);
@@ -103,7 +103,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Rename
             RenameTableInfo info = new RenameTableInfo
             {
                 Database = testDb.DatabaseName,
-                Id = "1",
                 OldName = OldName,
                 Schema = schema,
                 OwnerUri = this.ownerUri,
