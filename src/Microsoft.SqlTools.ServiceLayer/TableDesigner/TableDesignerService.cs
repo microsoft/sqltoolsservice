@@ -5,12 +5,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
@@ -25,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string TableDesignerApplicationName = "azdata-table-designer";
 
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
+        private Dictionary<string, NameChangeInfo> offlineTableRenameMap = new Dictionary<string, NameChangeInfo>();
+        private Dictionary<string, NameChangeInfo> offlineSchemaChangeMap = new Dictionary<string, NameChangeInfo>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
 
@@ -149,7 +153,56 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return this.HandleRequest<PublishTableChangesResponse>(requestContext, async () =>
             {
                 var tableDesigner = this.GetTableDesigner(tableInfo);
+
+                if (!string.IsNullOrEmpty(tableInfo.ProjectFilePath))
+                {
+                    // This is needed until refactoring is supported in ADS sql projects https://github.com/microsoft/azuredatastudio/issues/13920
+                    // Changing the table/schema name back to the original value here is needed because DacFx will treat the table designer rename/schema change as a
+                    // drop old table and create new table, which removes the table's script from the current file and creates a new file containing the table definition
+                    // and new table name as the filename
+                    var table = tableDesigner.TableViewModel;
+
+                    if (offlineTableRenameMap.TryGetValue(tableInfo.Id, out var tableName))
+                    {
+                        table.Name = tableName.originalName;
+                    }
+
+                    if (offlineSchemaChangeMap.TryGetValue(tableInfo.Id, out var schemaName))
+                    {
+                        table.Schema = schemaName.originalName;
+                    }
+                }
+
                 tableDesigner.CommitChanges();
+
+                // This is needed until refactoring is supported in ADS sql projects https://github.com/microsoft/azuredatastudio/issues/13920
+                // handle table/schema rename if offline table designer for sql project
+                if (!string.IsNullOrEmpty(tableInfo.ProjectFilePath) && (offlineTableRenameMap.ContainsKey(tableInfo.Id) || offlineSchemaChangeMap.ContainsKey(tableInfo.Id)))
+                {
+                    // rename the table and/or change schema in only the create table statement
+                    // this will not rename any dependencies on the table or constraints that contained the old table name
+                    var table = tableDesigner.TableViewModel;
+                    string tableFileInitialContents = File.ReadAllText(tableInfo.TableScriptPath);
+
+                    offlineTableRenameMap.TryGetValue(tableInfo.Id, out var tableName);
+                    string originalTableName = tableName?.originalName ?? table.Name;
+                    string updatedTableName = tableName?.newName ?? table.Name;
+
+                    offlineSchemaChangeMap.TryGetValue(tableInfo.Id, out var schemaName);
+                    string originalSchema = schemaName?.originalName ?? table.Schema;
+                    string updatedSchema = schemaName?.newName ?? table.Schema;
+
+                    // handle the different formats the create table statement could be, with and without brackets and schema
+                    string pattern = $"create\\s+table\\s+((\\[?{originalTableName}\\]?)|\\[?{originalSchema}\\]?.\\[?{originalTableName}\\]?)";
+                    string updatedCreateTableStatement = $"CREATE TABLE [{updatedSchema}].[{updatedTableName}]";
+                    string updatedContents = Regex.Replace(tableFileInitialContents, pattern, updatedCreateTableStatement, RegexOptions.IgnoreCase);
+                    File.WriteAllText(tableInfo.TableScriptPath, updatedContents);
+
+                    // cleanup
+                    offlineTableRenameMap.Remove(tableInfo.Id);
+                    offlineSchemaChangeMap.Remove(tableInfo.Id);
+                }
+
                 string oldId = tableInfo.Id;
                 if (tableInfo.ProjectFilePath == null)
                 {
@@ -218,6 +271,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 var td = this.GetTableDesigner(tableInfo);
                 td.Dispose();
                 this.idTableMap.Remove(tableInfo.Id);
+                this.offlineTableRenameMap.Remove(tableInfo.Id);
+                this.offlineSchemaChangeMap.Remove(tableInfo.Id);
                 await requestContext.SendResult(new DisposeTableDesignerResponse());
             });
         }
@@ -428,10 +483,24 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                         table.Description = GetStringValue(newValue);
                         break;
                     case TablePropertyNames.Name:
-                        table.Name = GetStringValue(newValue);
+                        string newTableName = GetStringValue(newValue);
+
+                        if (!String.IsNullOrEmpty(requestParams.TableInfo.ProjectFilePath))
+                        {
+                            this.UpdateOfflineChangeMap(offlineTableRenameMap, requestParams.TableInfo.Id, table.Name, newTableName);
+                        }
+
+                        table.Name = newTableName;
                         break;
                     case TablePropertyNames.Schema:
-                        table.Schema = GetStringValue(newValue);
+                        string newSchemaName = GetStringValue(newValue);
+
+                        if (!String.IsNullOrEmpty(requestParams.TableInfo.ProjectFilePath))
+                        {
+                            this.UpdateOfflineChangeMap(offlineSchemaChangeMap, requestParams.TableInfo.Id, table.Schema, newSchemaName);
+                        }
+
+                        table.Schema = newSchemaName;
                         break;
                     case TablePropertyNames.GraphTableType:
                         var wasEdgeTable = table.IsEdge;
@@ -845,15 +914,42 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return (bool)value;
         }
 
+        /// <summary>
+        /// This is needed until refactoring is supported in ADS sql projects https://github.com/microsoft/azuredatastudio/issues/13920
+        /// Schema change and Table rename are two changes that will currently cause the table to be dropped and recreated, not altered or renamed,
+        /// which is why we need to keep track of them separately in STS and perform the rename after the other changes are committed through DacFx
+        /// </summary>
+        /// <param name="nameChangMap">Map to update with name change. Currently used for schema change and table rename</param>
+        /// <param name="tableId">Id of table</param>
+        /// <param name="originalName">original name</param>
+        /// <param name="newName">new name</param>
+        private void UpdateOfflineChangeMap(Dictionary<string, NameChangeInfo> nameChangMap, string tableId, string originalName, string newName)
+        {
+            bool previouslyChanged = nameChangMap.TryGetValue(tableId, out NameChangeInfo nameChangeInfo);
+            if (previouslyChanged)
+            {
+                if (newName == nameChangeInfo?.originalName)
+                {
+                    //  remove map if the name was changed back to the original name
+                    nameChangMap.Remove(tableId);
+                }
+                else
+                {
+                    // update existing entry with new name
+                    nameChangMap[tableId] = new NameChangeInfo(nameChangeInfo.originalName, newName);
+                }
+            }
+            else
+            {
+                nameChangMap.Add(tableId, new NameChangeInfo(originalName, newName));
+            }
+        }
+
         private TableViewModel GetTableViewModel(TableInfo tableInfo)
         {
             var tableDesigner = this.GetTableDesigner(tableInfo);
             var table = tableDesigner.TableViewModel;
             var tableViewModel = new TableViewModel();
-            // Disable table renaming for sql project scenario until this issue is fixed: https://github.com/microsoft/azuredatastudio/issues/19557
-            var enableTableRenaming = tableInfo.ProjectFilePath == null;
-            tableViewModel.Name.Enabled = enableTableRenaming;
-            tableViewModel.Schema.Enabled = enableTableRenaming;
 
             tableViewModel.Name.Value = table.Name;
             tableViewModel.Schema.Value = table.Schema;
@@ -1828,6 +1924,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 disposed = true;
             }
+        }
+    }
+
+    /// <summary>
+    /// Keeps track of the original and new name of a table or schema. Used for offline table designer due to current 
+    /// limitations of refactoring not being supported for sql projects in ADS
+    /// </summary>
+    public class NameChangeInfo
+    {
+        public string originalName;
+        public string newName;
+
+        public NameChangeInfo(string originalName, string newName)
+        {
+            this.originalName = originalName;
+            this.newName = newName;
         }
     }
 }
