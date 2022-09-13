@@ -3871,4 +3871,94 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>已删除账本视图</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>无法从项目中找到 SQL 模型: {0}。</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>不支持的模型类型: {0}。</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>无法从模型中获取用户定义的对象。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>名称为“{0}”的计算列必须保留，并且不能为 null 才能成为主键的一部分。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>名称为“{0}”的计算列必须保留为外键“{1}”的一部分。</value>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>非内存优化表不支持名为“{0}”的哈希索引。</value>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>哈希索引“{0}”没有桶计数。</value>
+  </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>索引是否为哈希索引</value>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>是哈希</value>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>哈希索引的桶计数，请注意，该值将始终自动向上舍入到 2 的下一次幂。 </value>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>桶计数</value>
+  </data>
+  <data name="HashIndexGroupTitle" xml:space="preserve">
+    <value>哈希索引</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>列存储索引的名称</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>列存储索引的说明</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>列存储索引是否聚集。</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>为聚集</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>列存储索引的筛选器谓词</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>筛选器谓词</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>此列存储索引中的列</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>添加列</value>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>已将名为“{0}”的列添加到非聚集列存储索引“{1}”。行号: {2}。</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>列存储索引</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>列存储索引</value>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>新的列存储区索引</value>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>非聚集列存储索引“{0}”没有任何与其关联的列。</value>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>我已阅读摘要并了解潜在风险。</value>
+  </data>
 </root>

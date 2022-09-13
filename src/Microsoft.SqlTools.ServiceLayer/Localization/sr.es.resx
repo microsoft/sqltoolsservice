@@ -3871,4 +3871,94 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Vistas de libro de contabilidad descartadas</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>No se ha podido encontrar el modelo SQL del proyecto: {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>Tipo de modelo no admitido: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>No se han podido obtener los objetos definidos por el usuario del modelo.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>La columna calculada con el nombre "{0}" debe ser persistente y no acepta valores NULL para formar parte de una clave principal.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>La columna calculada con el nombre "{0}" debe ser persistente para formar parte de la clave externa "{1}".</value>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>No se admite el índice hash con el nombre '{0}' en una tabla no optimizada para memoria.</value>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>El índice hash '{0}' no tiene un recuento de cubos.</value>
+  </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>Si el índice es un índice hash</value>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>Es hash</value>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>Recuento de depósitos del índice hash. Tenga en cuenta que el valor siempre se redondeará automáticamente a la siguiente potencia de 2. </value>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>Número de cubos</value>
+  </data>
+  <data name="HashIndexGroupTitle" xml:space="preserve">
+    <value>Índice hash</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>Nombre del índice del almacén de columnas</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>Descripción del índice del almacén de columnas</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Indica si el índice del almacén de columnas está agrupado.</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>En clúster</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Predicado de filtro del índice de almacén de columnas</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Predicado de filtro</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>Columnas en este índice de almacén de columnas</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>Columnas</value>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>Agregar columna</value>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>Columna</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>La columna con el nombre '{0}' ya se ha agregado al índice de almacén de columnas no agrupado '{1}'. Número de fila: {2}.</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>Índices de almacenamiento de columnas</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>Índice de almacenamiento de columnas</value>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>Nuevo índice de almacén de columnas</value>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>El índice del almacén de columnas no agrupado '{0}' no tiene ninguna columna asociada.</value>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>He leído el resumen y entiendo los posibles riesgos.</value>
+  </data>
 </root>

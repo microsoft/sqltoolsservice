@@ -39,7 +39,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             new ColumnCanOnlyAppearOnceInIndexIncludedColumnsRule(),
             new ColumnCannotDuplicateWitIndexKeyColumnsRule(),
             new ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRule(),
-            new ComputedColumnNeedToBePersistedInForeignKeyRule()
+            new ComputedColumnNeedToBePersistedInForeignKeyRule(),
+            new HashIndexNotSupportedInNonMemoryOptimizedTableRule(),
+            new HashIndexMustHaveBucketCountRule(),
+            new ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRule(),
+            new NonClusteredColumnStoreIndexMustHaveColumnsRule()
         };
 
         /// <summary>
@@ -750,6 +754,109 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     Description = SR.MutipleCreateTableStatementsInScriptRuleDescription,
                     Severity = Contracts.IssueSeverity.Information
                 });
+            }
+            return errors;
+        }
+    }
+
+    public class HashIndexNotSupportedInNonMemoryOptimizedTableRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            if (!table.IsMemoryOptimized)
+            {
+                for (int i = 0; i < table.Indexes.Items.Count; i++)
+                {
+                    var index = table.Indexes.Items[i];
+                    if (index.IsHash)
+                    {
+                        errors.Add(new TableDesignerIssue()
+                        {
+                            Description = SR.HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription(index.Name),
+                            PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.IsHash }
+                        });
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class HashIndexMustHaveBucketCountRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.Indexes.Items.Count; i++)
+            {
+                var index = table.Indexes.Items[i];
+                if (index.IsHash && !index.BucketCount.HasValue)
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = SR.HashIndexMustHaveBucketCountRuleDescription(index.Name),
+                        PropertyPath = new object[] { TablePropertyNames.Indexes, i, IndexPropertyNames.BucketCount }
+                    });
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.ColumnStoreIndexes.Items.Count; i++)
+            {
+                var index = table.ColumnStoreIndexes.Items[i];
+                if (!index.IsClustered)
+                {
+                    var existingColumns = new HashSet<string>();
+                    for (int j = 0; j < index.Columns.Count; j++)
+                    {
+                        var columnSpec = index.Columns[j];
+                        if (existingColumns.Contains(columnSpec.Column))
+                        {
+                            errors.Add(new TableDesignerIssue()
+                            {
+                                Description = SR.ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(columnSpec.Column, index.Name, j + 1),
+                                PropertyPath = new object[] { TablePropertyNames.ColumnStoreIndexes, i, ColumnStoreIndexPropertyNames.Columns, j }
+                            });
+                        }
+                        else
+                        {
+                            existingColumns.Add(columnSpec.Column);
+                        }
+                    }
+                }
+            }
+            return errors;
+        }
+    }
+
+    public class NonClusteredColumnStoreIndexMustHaveColumnsRule : ITableDesignerValidationRule
+    {
+        public List<TableDesignerIssue> Run(Dac.TableDesigner designer)
+        {
+            var table = designer.TableViewModel;
+            var errors = new List<TableDesignerIssue>();
+            for (int i = 0; i < table.ColumnStoreIndexes.Items.Count; i++)
+            {
+                var index = table.ColumnStoreIndexes.Items[i];
+                if (!index.IsClustered && index.Columns.Count == 0)
+                {
+                    errors.Add(new TableDesignerIssue()
+                    {
+                        Description = SR.NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(index.Name),
+                        PropertyPath = new object[] { TablePropertyNames.ColumnStoreIndexes, i }
+                    });
+                }
             }
             return errors;
         }

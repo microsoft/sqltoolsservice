@@ -54,10 +54,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Table? table = smoObject as Table;
-                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties) &&
-                    (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable || table.LedgerType == LedgerTableType.UpdatableLedgerTable))
+                if (table != null && IsPropertySupported("LedgerType", smoContext, table, CachedSmoProperties))
                 {
-                    return "Ledger";
+                    if (table.LedgerType == LedgerTableType.AppendOnlyLedgerTable)
+                    {
+                        return "LedgerAppendOnly";
+                    }
+                    if (table.LedgerType == LedgerTableType.UpdatableLedgerTable)
+                    {
+                        return "LedgerUpdatable";
+                    }
                 }
                 if (table != null && IsPropertySupported("TemporalType", smoContext, table, CachedSmoProperties) && table.TemporalType != TableTemporalType.None)
                 {
@@ -177,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            return "Ledger";
+            return "LedgerDropped";
         }
 
         public override string GetNodePathName(object smoObject)

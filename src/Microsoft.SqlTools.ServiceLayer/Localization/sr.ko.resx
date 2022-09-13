@@ -3871,4 +3871,94 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>드롭된 원장 보기</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>프로젝트에서 SQL 모델을 찾을 수 없습니다. {0}.</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>지원되지 않는 모델 형식: {0}.</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>모델에서 사용자 정의 개체를 가져오지 못했습니다.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 계산 열은 유지되어야 하며 기본 키의 일부가 되도록 null을 허용하지 않습니다.</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 계산 열은 외래 키 '{1}'의 일부여야 합니다.</value>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 해시 인덱스가 메모리 최적화 테이블이 아닌 테이블에서 지원되지 않습니다.</value>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>'{0}' 해시 인덱스에 버킷 수가 없습니다.</value>
+  </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>인덱스가 해시 인덱스인지 여부입니다.</value>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>해시 여부</value>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>해시 인덱스의 버킷 수입니다. 값은 항상 다음 2의 거듭제곱으로 자동으로 반올림됩니다. </value>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>버킷 수</value>
+  </data>
+  <data name="HashIndexGroupTitle" xml:space="preserve">
+    <value>해시 인덱스</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>열 저장소 인덱스의 이름</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>설명</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>열 저장소 인덱스 설명</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>열 저장소 인덱스가 클러스터형인지 여부입니다.</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>클러스터형 여부</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>열 저장소 인덱스의 필터 조건자</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>필터 조건자</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>이 열 저장소 인덱스에 있는 열</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>열</value>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>열 추가</value>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>열</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>이름이 '{0}'인 열이 클러스터형이 아닌 '{1}' 열 저장소 인덱스에 이미 추가되었습니다. 행 번호: {2}.</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>열 저장소 인덱스</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>열 저장소 인덱스</value>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>새 열 저장 인덱스</value>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>클러스터형이 아닌 '{0}' 열 저장소 인덱스에 연결된 열이 없습니다.</value>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>요약을 읽고 잠재적인 위험을 이해했습니다.</value>
+  </data>
 </root>

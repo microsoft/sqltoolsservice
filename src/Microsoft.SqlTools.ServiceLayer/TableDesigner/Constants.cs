@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string ForeignKeys = "foreignKeys";
         public const string CheckConstraints = "checkConstraints";
         public const string Indexes = "indexes";
+        public const string ColumnStoreIndexes = "columnStoreIndexes";
         public const string EdgeConstraints = "edgeConstraints";
         public const string GraphTableType = "graphTableType";
         public const string IsSystemVersioningEnabled = "isSystemVersioningEnabled";
@@ -22,6 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string ExistingHistoryTableName = "existingHistoryTable";
         public const string IsMemoryOptimized = "isMemoryOptimized";
         public const string Durability = "durability";
+        public const string PrimaryKey = "primaryKey";
         public const string PrimaryKeyName = "primaryKeyName";
         public const string PrimaryKeyDescription = "primaryKeyDescription";
         public const string PrimaryKeyIsClustered = "primaryKeyIsClustered";
@@ -86,6 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public const string Enabled = "enabled";
         public const string IsUnique = "isUnique";
         public const string IsClustered = "isClustered";
+        public const string IsHash = "isHash";
+        public const string BucketCount = "bucketCount";
         public const string Columns = "columns";
         public const string IncludedColumns = "includedColumns";
         public const string FilterPredicate = "filterPredicate";
@@ -99,6 +103,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     }
 
     public static class IndexIncludedColumnSpecificationPropertyNames
+    {
+        public const string Column = "column";
+    }
+
+    public static class ColumnStoreIndexPropertyNames
+    {
+        public const string Name = "name";
+        public const string Description = "description";
+        public const string IsClustered = "isClustered";
+        public const string Columns = "columns";
+        public const string FilterPredicate = "filterPredicate";
+        public const string ColumnsDisplayValue = "columnsDisplayValue";
+    }
+
+    public static class ColumnStoreIndexColumnSpecificationPropertyNames
     {
         public const string Column = "column";
     }

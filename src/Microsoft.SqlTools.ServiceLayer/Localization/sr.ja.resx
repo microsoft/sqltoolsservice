@@ -3871,4 +3871,94 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>ドロップされた台帳ビュー</value>
   </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>プロジェクトから SQL モデルが見つかりませんでした: {0}。</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>サポートされていないモデルの種類: {0}。</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>モデルからユーザー定義オブジェクトを取得できませんでした。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>"{0}' という名前の計算列は永続化する必要があり、主キーの一部として null 許容されません。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の計算列は、外部キー '{1}' の一部として保持する必要があります。</value>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前のハッシュ インデックスは、非メモリ最適化テーブルではサポートされていません。</value>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>ハッシュ インデックス '{0}' にはバケット数がありません。</value>
+  </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>インデックスがハッシュ インデックスであるかどうか</value>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>ハッシュ</value>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>ハッシュ インデックスのバケット数。値は常に次の二乗に自動的に切り上げられます。 </value>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>バケット数</value>
+  </data>
+  <data name="HashIndexGroupTitle" xml:space="preserve">
+    <value>ハッシュ インデックス</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>列ストア インデックスの名前</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>列ストア インデックスの説明</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>列ストア インデックスがクラスター化されているかどうか。</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>クラスター化</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>列ストア インデックスのフィルター述語</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>フィルター述語</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>この列ストア インデックスの列</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>列の追加</value>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>'{0}' という名前の列は、クラスター化されていない列ストア インデックス '{1}' に既に追加されています。行番号: {2}。</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>列ストア インデックス</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>列ストア インデックス</value>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>新しい列ストア インデックス</value>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>クラスター化されていない列ストア インデックス '{0}' には、列が関連付けされていません。</value>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>概要を読み、潜在的なリスクを理解しました。</value>
+  </data>
 </root>

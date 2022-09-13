@@ -4851,8 +4851,76 @@ The Query Processor estimates that implementing the following index could improv
     <value>Filter Predicate</value>
     <comment></comment>
   </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>Whether the index is a hash index</value>
+    <comment></comment>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>Is Hash</value>
+    <comment></comment>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <comment></comment>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>Bucket Count</value>
+    <comment></comment>
+  </data>
+  <data name="HashIndexGroupTitle" xml:space="preserve">
+    <value>Hash Index</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columns</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>Name of the column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>Description</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>Description of the column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>Whether the column store index is clustered.</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>Is Clustered</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>Filter predicate of the column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>Filter Predicate</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>Columns in this column store index</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>Columns</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>Add Column</value>
+    <comment></comment>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>Column</value>
     <comment></comment>
   </data>
   <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
@@ -4881,6 +4949,18 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
     <value>None</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>Column Store Indexes</value>
+    <comment></comment>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>Column Store Index</value>
+    <comment></comment>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>New Column Store Index</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
@@ -5209,6 +5289,30 @@ The Query Processor estimates that implementing the following index could improv
     <value>The computed column with name &apos;{0}&apos; has to be persisted to be part of the foreign key &apos;{1}&apos;.</value>
     <comment>.
  Parameters: 0 - columnName (string), 1 - foreignKeyName (string) </comment>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>Hash index with name &apos;{0}&apos; is not supported on a non memory-optimized table.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>Hash index &apos;{0}&apos; does not have a bucket count.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>Column with name &apos;{0}&apos; has already been added to the non-clustered column store index &apos;{1}&apos;. Row number: {2}.</value>
+    <comment>.
+ Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>Non-clustered column store index &apos;{0}&apos; does not have any columns associated with it.</value>
+    <comment>.
+ Parameters: 0 - indexName (string) </comment>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>I have read the summary and understand the potential risks.</value>
+    <comment></comment>
   </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Could not find SQL model from project: {0}.</value>

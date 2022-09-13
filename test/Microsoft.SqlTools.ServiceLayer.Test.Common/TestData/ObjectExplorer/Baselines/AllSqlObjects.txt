@@ -51,7 +51,7 @@ NodeType: Index Label: NonClusteredIndex-Login (Non-Unique, Non-Clustered) SubTy
 NodeType: Index Label: PK_Employee_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: NonClusteredIndex-Login SubType: Status:
 NodeType: Statistic Label: PK_Employee_BusinessEntityID SubType: Status:
-NodeType: Table Label: HumanResources.Employee_Ledger (Updatable Ledger) SubType:Ledger Status:
+NodeType: Table Label: HumanResources.Employee_Ledger (Updatable Ledger) SubType:LedgerUpdatable Status:
 NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
 NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:
@@ -85,7 +85,7 @@ NodeType: Column Label: ledger_start_transaction_id (bigint, not null) SubType: 
 NodeType: Column Label: ledger_end_transaction_id (bigint, null) SubType: Status:
 NodeType: Column Label: ledger_start_sequence_number (bigint, not null) SubType: Status:
 NodeType: Column Label: ledger_end_sequence_number (bigint, null) SubType: Status:
-NodeType: Table Label: HumanResources.Employee_Ledger_AppendOnly (Append-Only Ledger) SubType:Ledger Status:
+NodeType: Table Label: HumanResources.Employee_Ledger_AppendOnly (Append-Only Ledger) SubType:LedgerAppendOnly Status:
 NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
 NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:
@@ -160,7 +160,7 @@ NodeType: Constraint Label: DF_Person_ModifiedDate SubType: Status:
 NodeType: Trigger Label: TableTrigger SubType: Status:
 NodeType: Index Label: PK_Person_BusinessEntityID (Unique, Clustered) SubType:PrimaryKey Status:
 NodeType: Statistic Label: PK_Person_BusinessEntityID SubType: Status:
-NodeType: Table Label: HumanResources.MSSQL_DroppedLedgerTable_Ledger_For_Drop_<<NonDeterministic>> (Updatable Ledger) SubType:Ledger Status:
+NodeType: Table Label: HumanResources.MSSQL_DroppedLedgerTable_Ledger_For_Drop_<<NonDeterministic>> (Updatable Ledger) SubType:LedgerDropped Status:
 NodeType: Column Label: BusinessEntityID (int, not null) SubType: Status:
 NodeType: Column Label: NationalIDNumber (nvarchar(15), not null) SubType: Status:
 NodeType: Column Label: LoginID (nvarchar(256), not null) SubType: Status:

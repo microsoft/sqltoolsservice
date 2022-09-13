@@ -749,23 +749,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+                    // Premium BC/GP
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeries));
+
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeries));
+
                     if (includePreviewSkus)
-                    {
-                        // Premium BC/GP
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.BusinessCritical,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeries));
-
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeries));
-
+                    {                       
                         // Premium Memory Optimized BC/GP
                         eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                         AzureSqlTargetPlatform.AzureSqlManagedInstance,
