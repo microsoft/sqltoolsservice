@@ -1673,6 +1673,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.DroppedLedgerColumns,
                 IsSystemObject = false,
                 IsLedger = true,
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
                 SortPriority = Int32.MaxValue,
             });
         }
