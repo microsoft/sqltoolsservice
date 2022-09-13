@@ -1486,14 +1486,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Columns,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.LedgerTableColumns,
-                IsSystemObject = false,
-                IsLedgerOnly = true,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Keys,
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Keys,
@@ -1673,47 +1665,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        internal override Type[] ChildQuerierTypes
-        {
-            get
-            {
-                return new [] { typeof(SqlColumnQuerier), };
-            }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "Column";
-            child.SortPriority = SmoTreeNode.NextSortPriority;
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class LedgerTableColumnsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { "LedgerTableColumns" }; }
-
-        public override IEnumerable<INodeFilter> Filters
-        {
-            get
-            {
-                var filters = new List<INodeFilter>();
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "IsDroppedLedgerColumn",
-                    Type = typeof(bool),
-                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
-                    Values = new List<object> { 0 },
-                });
-                return filters;
-            }
-        }
-
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
@@ -1721,7 +1672,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DroppedLedgerColumns,
                 IsSystemObject = false,
-                IsLedgerOnly = true,
                 SortPriority = Int32.MaxValue,
             });
         }
@@ -1780,7 +1730,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Column";
-            child.SortPriority = SmoTreeNode.NextSortPriority;
             InitializeChild(parent, child, context);
             return child;
         }
