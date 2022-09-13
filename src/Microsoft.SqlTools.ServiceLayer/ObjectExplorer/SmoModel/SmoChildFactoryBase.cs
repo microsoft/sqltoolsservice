@@ -53,10 +53,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 allChildren.RemoveAll(x => x.IsSystemObject);
             }
-            if (parent.NodeSubType != "LedgerAppendOnly" && parent.NodeSubType != "LedgerUpdatable" && parent.NodeSubType != "LedgerDropped")
+
+            // Remove the Dropped Ledger Columns folder if this isn't under a ledger table
+            Table? parentTable = context.Parent as Table;
+            if (parentTable == null ||
+                !(parentTable.LedgerType == LedgerTableType.UpdatableLedgerTable ||
+                  parentTable.LedgerType == LedgerTableType.AppendOnlyLedgerTable))
             {
                 allChildren.RemoveAll(x => x.IsLedger);
             }
+
             if (context != null && context.ValidFor != 0 && context.ValidFor != ValidForFlag.All)
             {
                 allChildren.RemoveAll(x =>

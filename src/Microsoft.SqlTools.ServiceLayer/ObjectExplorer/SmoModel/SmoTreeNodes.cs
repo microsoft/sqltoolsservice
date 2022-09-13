@@ -1672,6 +1672,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DroppedLedgerColumns,
                 IsSystemObject = false,
+                IsLedger = true,
                 SortPriority = Int32.MaxValue,
             });
         }
