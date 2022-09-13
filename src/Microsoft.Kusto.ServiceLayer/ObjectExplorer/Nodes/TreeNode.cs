@@ -495,7 +495,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         {
             return string.Compare(thisItem.NodeValue, otherItem.NodeValue, StringComparison.OrdinalIgnoreCase);
         }
-
+        
         public int CompareTo(TreeNode other)
         {
 
