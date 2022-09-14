@@ -106,9 +106,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             var metrics = new Dictionary<string, string?>();
 
-            if (properties["EstimateRowsAllExecs"] != null)
+            var estimatedRowsAllExecsProperty = properties["EstimateRowsAllExecs"] as PropertyValue;
+            if (estimatedRowsAllExecsProperty != null)
             {
-                var estimatedRowsAllExecsProperty = properties["EstimateRowsAllExecs"] as PropertyValue;
                 var name = estimatedRowsAllExecsProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(estimatedRowsAllExecsProperty);
 
@@ -118,9 +118,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 }
             }
 
-            if (properties["EstimatedRowsRead"] != null)
+            var estimatedRowsReadProperty = properties["EstimatedRowsRead"] as PropertyValue;
+            if (estimatedRowsReadProperty != null)
             {
-                var estimatedRowsReadProperty = properties["EstimatedRowsRead"] as PropertyValue;
                 var name = estimatedRowsReadProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(estimatedRowsReadProperty);
 
@@ -130,9 +130,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 }
             }
 
-            if (properties["ActualRows"] != null)
+            var actualRowsProperty = properties["ActualRows"] as PropertyValue;
+            if (actualRowsProperty != null)
             {
-                var actualRowsProperty = properties["ActualRows"] as PropertyValue;
                 var name = actualRowsProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(actualRowsProperty);
 
@@ -142,9 +142,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 }
             }
 
-            if (properties["ActualRowsRead"] != null)
+            var actualRowsReadProperty = properties["ActualRowsRead"] as PropertyValue;
+            if (actualRowsReadProperty != null)
             {
-                var actualRowsReadProperty = properties["ActualRowsRead"] as PropertyValue;
                 var name = actualRowsReadProperty?.Name;
                 var displayValue = GetPropertyDisplayValue(actualRowsReadProperty);
 
