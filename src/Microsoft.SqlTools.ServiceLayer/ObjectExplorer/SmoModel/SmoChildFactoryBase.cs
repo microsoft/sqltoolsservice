@@ -67,11 +67,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 });
 
                 // Remove the Dropped Ledger Columns folder if this isn't under a ledger table
-                Table? parentTable = context.Parent as Table;
                 allChildren.RemoveAll(x =>
                 {
-                    if (x.IsLedger)
+                    if (x.NodeTypeId == NodeTypes.DroppedLedgerColumns)
                     {
+                        Table? parentTable = context.Parent as Table;
                         if (parentTable == null ||
                             !(parentTable.LedgerType == LedgerTableType.UpdatableLedgerTable ||
                             parentTable.LedgerType == LedgerTableType.AppendOnlyLedgerTable))

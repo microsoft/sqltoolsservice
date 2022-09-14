@@ -1464,11 +1464,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 });
                 properties.Add(new NodeSmoProperty
                 {
-                   Name = "IsLedger",
-                   ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
-                });
-                properties.Add(new NodeSmoProperty
-                {
                    Name = "TemporalType",
                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12
                 });
@@ -1672,7 +1667,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DroppedLedgerColumns,
                 IsSystemObject = false,
-                IsLedger = true,
                 ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
                 SortPriority = Int32.MaxValue,
             });

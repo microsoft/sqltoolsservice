@@ -99,11 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public bool IsSystemObject { get; set; }
 
         /// <summary>
-        // True if the node includes ledger objects
-        /// </summary>
-        public bool IsLedger { get; set; } = false;
-
-        /// <summary>
         /// Enum defining the type of the node - for example Server, Database, Folder, Table
         /// </summary>
         public NodeTypes NodeTypeId { get; set; }

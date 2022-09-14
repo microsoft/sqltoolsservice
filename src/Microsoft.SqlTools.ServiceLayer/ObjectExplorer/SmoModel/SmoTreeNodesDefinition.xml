@@ -228,7 +228,7 @@
     <Filters>
       <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
     </Filters>
-    <Child Name="DroppedLedgerColumns" IsLedger="1"/>
+    <Child Name="DroppedLedgerColumns"/>
   </Node>
 
   <Node Name="DroppedLedgerColumns" LocLabel="SR.SchemaHierarchy_DroppedLedgerColumns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
