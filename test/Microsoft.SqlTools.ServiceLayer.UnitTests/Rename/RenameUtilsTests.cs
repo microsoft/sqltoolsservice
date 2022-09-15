@@ -35,54 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Rename
             Assert.Throws<ArgumentException>(() => RenameUtils.Validate(requestParams));
         }
         [Test]
-        public void TestValidateInvalidNewName()
-        {
-            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
-                "test}Table", ChangeType.TABLE, "test", "dbo", "testTable", "TestDB"
-            );
-            Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
-        }
-        [Test]
-        public void TestValidateInvalidSchema()
-        {
-            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
-                "testTable", ChangeType.TABLE, "test", "db]o", "testTable", "TestDB"
-            );
-            Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
-        }
-        [Test]
-        public void TestValidateInvalidNewNameTolong()
-        {
-            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
-                "Lorem_ipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaatestToLongForTableNameIt_", ChangeType.TABLE, "test", "dbo", "testTable", "TestDB"
-            );
-            Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
-        }
-        [Test]
-        public void TestValidateInvalidOldNameTolong()
-        {
-            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
-                "testTable", ChangeType.TABLE, "Lorem_ipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaatestToLongForTableNameIt_", "dbo", "testTable", "TestDB"
-            );
-            Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
-        }
-        [Test]
-        public void TestValidateInvalidSchemaTolong()
-        {
-            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
-                "testTable", ChangeType.TABLE, "test", "Lorem_ipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaatestToLongForTableNameIt_", "testTable", "TestDB"
-            );
-            Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
-        }
-        [Test]
-        public void TestValidateInvalidDatabaseTolong()
-        {
-            ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(
-                "testTable", ChangeType.TABLE, "test", "dbo", "testTable", "Lorem_ipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaatestToLongForTableNameIt_"
-            );
-            Assert.Throws<ArgumentOutOfRangeException>(() => RenameUtils.Validate(requestParams));
-        }
-        [Test]
         public void TestGetUrnTableString()
         {
             ProcessRenameEditRequestParams requestParams = this.InitProcessRenameEditRequestParams(

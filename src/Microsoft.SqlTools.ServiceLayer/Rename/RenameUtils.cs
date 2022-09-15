@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -32,10 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
             if (String.IsNullOrEmpty(requestParams.TableInfo.TableName) || String.IsNullOrEmpty(requestParams.TableInfo.Database) || String.IsNullOrEmpty(requestParams.TableInfo.Schema) || String.IsNullOrEmpty(requestParams.TableInfo.OldName) || String.IsNullOrEmpty(requestParams.ChangeInfo.NewName))
             {
                 throw new ArgumentException(SR.RenameRequestParametersNotNullOrEmpty);
-            }
-            if (!Regex.IsMatch(requestParams.TableInfo.Schema, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.TableInfo.Database, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.TableInfo.OldName, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.TableInfo.TableName, RegexMatchPatternValidObjectName) || !Regex.IsMatch(requestParams.ChangeInfo.NewName, RegexMatchPatternValidObjectName))
-            {
-                throw new ArgumentOutOfRangeException(SR.NotAllowedCharacterForRenaming);
             }
         }
         /// <summary>
