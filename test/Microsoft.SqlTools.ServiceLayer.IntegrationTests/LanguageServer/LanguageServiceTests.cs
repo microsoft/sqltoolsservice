@@ -246,12 +246,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Thread.Sleep(2000);
 
             // We should get back a non-null ScriptParseInfo
-            ScriptParseInfo parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
-            Assert.NotNull(parseInfo);
+            ScriptParseInfo? parseInfo = service.GetScriptParseInfo(result.ScriptFile.ClientUri);
+            Assert.That(parseInfo, Is.Not.Null, "ScriptParseInfo");
 
             // And we should get back a non-null SignatureHelp
             SignatureHelp signatureHelp = service.GetSignatureHelp(textDocument, result.ScriptFile);
-            Assert.NotNull(signatureHelp);
+            Assert.That(signatureHelp, Is.Not.Null, "SignatureHelp");
         }
 
         /// <summary>

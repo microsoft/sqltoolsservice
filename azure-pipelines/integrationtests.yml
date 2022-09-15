@@ -70,7 +70,7 @@ steps:
     inputs:
       command: test
       projects: '**/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj'
-      arguments: '--no-build'
+      arguments: '--no-build --filter GetSignatureHelpReturnsNotNullIfParseInfoInitialized'
       testRunTitle: 'SqlToolsService Integration Tests'
     env:
       AzureStorageAccountKey: '$(sqltools-backup-url-tests-storageaccountkey)'
