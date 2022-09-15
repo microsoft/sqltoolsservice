@@ -99,6 +99,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             {
                 Column smoColumn = smoResult.Columns[i];
 
+                // Don't return columns that are dropped
+                if (smoColumn.IsDroppedLedgerColumn)
+                {
+                    continue;
+                }
+
                 string defaultValue = null;
                 try
                 {
