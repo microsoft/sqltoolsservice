@@ -6331,6 +6331,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Dropped Ledger Views</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="new">Dropped Ledger Columns</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="new">Could not find SQL model from project: {0}.</target>

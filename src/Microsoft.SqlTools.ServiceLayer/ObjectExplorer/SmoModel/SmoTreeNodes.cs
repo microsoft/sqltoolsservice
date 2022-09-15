@@ -1644,6 +1644,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     {
         public override IEnumerable<string> ApplicableParents() { return new[] { "Columns" }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerColumn",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object> { 0 },
+                });
+                return filters;
+            }
+        }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_DroppedLedgerColumns,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.DroppedLedgerColumns,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                SortPriority = Int32.MaxValue,
+            });
+        }
+
         internal override Type[] ChildQuerierTypes
         {
             get
@@ -1658,6 +1686,46 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             child.IsAlwaysLeaf = true;
             child.NodeType = "Column";
             child.SortPriority = SmoTreeNode.NextSortPriority;
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class DroppedLedgerColumnsChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "DroppedLedgerColumns" }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "IsDroppedLedgerColumn",
+                    Type = typeof(bool),
+                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    Values = new List<object> { 1 },
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlColumnQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
+            child.NodeType = "Column";
             InitializeChild(parent, child, context);
             return child;
         }

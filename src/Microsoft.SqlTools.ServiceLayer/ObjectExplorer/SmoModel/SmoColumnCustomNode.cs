@@ -89,6 +89,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 Name = "XmlDocumentConstraint",
                 ValidFor = ValidForFlag.NotSqlDw
+            },
+            new NodeSmoProperty
+            {
+                Name = "IsDroppedLedgerColumn",
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
             }
         });
 

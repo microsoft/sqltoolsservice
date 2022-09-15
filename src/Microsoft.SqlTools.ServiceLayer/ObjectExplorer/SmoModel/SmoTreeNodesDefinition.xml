@@ -224,7 +224,19 @@
     <Child Name="Statistics"/>
   </Node>
 
-  <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort=""/>
+  <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort="">
+    <Filters>
+      <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
+    </Filters>
+    <Child Name="DroppedLedgerColumns"/>
+  </Node>
+
+  <Node Name="DroppedLedgerColumns" LocLabel="SR.SchemaHierarchy_DroppedLedgerColumns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
+    <Filters>
+      <Filter Property="IsDroppedLedgerColumn" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
+    </Filters>
+  </Node>
+
   <Node Name="Keys" LocLabel="SR.SchemaHierarchy_Keys" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Key" ChildQuerierTypes="SqlIndex;SqlForeignKeyConstraint" ValidFor="NotSqlDw">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
