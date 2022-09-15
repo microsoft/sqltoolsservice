@@ -7,20 +7,20 @@
 		<PackageReference Update="System.Runtime.Loader" Version="4.3.0" />
 		<PackageReference Update="System.Composition" Version="1.4.1" />
 		<PackageReference Update="System.Security.Permissions" Version="4.7.0" />
-		<PackageReference Update="System.Text.Encoding.CodePages" Version="4.7.1" />
-		<PackageReference Update="System.Text.Encodings.Web" Version="4.7.2" />
+		<PackageReference Update="System.Text.Encoding.CodePages" Version="5.0.0" />
+		<PackageReference Update="System.Text.Encodings.Web" Version="6.0.0" />
 		<PackageReference Update="System.Reactive.Core" Version="5.0.0" />
 
 		<PackageReference Update="Microsoft.Rest.ClientRuntime" Version="2.3.21" />
 		<PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
-		<PackageReference Update="Microsoft.Extensions.DependencyModel" Version="3.1.4" />
+		<PackageReference Update="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
 
 		<PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
-		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="3.1.1" />
-		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="161.47021.0" />
+		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="3.0.0" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.0" />
+		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.7.0-preview" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="161.47008.0" />
 		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6281.0-preview" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />

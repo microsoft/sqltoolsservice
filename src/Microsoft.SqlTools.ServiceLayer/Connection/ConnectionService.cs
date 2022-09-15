@@ -22,6 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using Azure.Identity;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -115,7 +116,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         static ConnectionService()
         {
-            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(AzureActiveDirectoryAuthenticationCallback);
+            var tokenCredential = new DefaultAzureCredential();
+            SqlColumnEncryptionAzureKeyVaultProvider sqlColumnEncryptionAzureKeyVaultProvider = new SqlColumnEncryptionAzureKeyVaultProvider(tokenCredential);
             SqlConnection.RegisterColumnEncryptionKeyStoreProviders(customProviders: new Dictionary<string, SqlColumnEncryptionKeyStoreProvider>(capacity: 1, comparer: StringComparer.OrdinalIgnoreCase)
             {
                 { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
@@ -1206,7 +1208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionDetails"></param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails)
         {
-            return CreateConnectionStringBuilder(connectionDetails).ToString();
+            return CreateConnectionStringBuilder(connectionDetails).ToString() + ";TrustServerCertificate=true;";
         }
 
         /// <summary>

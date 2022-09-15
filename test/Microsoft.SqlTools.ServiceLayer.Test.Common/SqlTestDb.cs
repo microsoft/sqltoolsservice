@@ -35,6 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 {
                     DataSource = connectParams.Connection.ServerName,
                     InitialCatalog = connectParams.Connection.DatabaseName,
+                    TrustServerCertificate = true,
                 };
 
                 if (connectParams.Connection.AuthenticationType == "Integrated")
