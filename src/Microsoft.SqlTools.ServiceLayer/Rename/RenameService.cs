@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Rename
                catch (Exception e)
                {
                    Logger.Error("Error on executing renaming operation: " + e.ToString());
-                   throw new InvalidOperationException("The renaming operation was not successfull executed");
+                   throw new InvalidOperationException(SR.ErrorOnRenameOperationMessage);
                }
                await requestContext.SendResult(operationExecutedSuccessFull);
            });

@@ -10035,6 +10035,13 @@ namespace Microsoft.SqlTools.ServiceLayer
                 return Keys.GetString(Keys.NotAllowedCharacterForRenaming);
             }
         }
+        public static string ErrorOnRenameOperationMessage
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorOnRenameOperationMessage);
+            }
+        }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
@@ -13886,6 +13893,8 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string RenameRequestParametersNotNullOrEmpty = "RenameRequestParametersNotNullOrEmpty";
 
             public const string NotAllowedCharacterForRenaming = "NotAllowedCharacterForRenaming";
+
+            public const string ErrorOnRenameOperationMessage = "ErrorOnRenameOperationMessage";
 
             private Keys()
             { }
