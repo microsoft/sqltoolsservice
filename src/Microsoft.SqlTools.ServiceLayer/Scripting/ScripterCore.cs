@@ -700,6 +700,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 filterExpressions.Add("@GeneratedAlwaysType=0");
             }
 
+            // Check if we're called for EDIT for SQL2022+/Sterling+.
+            // We need to omit dropped ledger columns if such are present
             if (server.Version.Major >= 16 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12))
             {
                 filterExpressions.Add("@IsDroppedLedgerColumn=0");
