@@ -14,10 +14,10 @@ steps:
   - script: docker pull mcr.microsoft.com/mssql/server:2022-latest
     displayName: Pull MSSQL Docker Image
 
-  - bash: echo "##vso[task.setvariable variable=defaultSql2022_password;issecret=true]Test-$(Build.BuildNumber)-$(Get-Date -format yyyyMMdd-Hmmss)"
+  - bash: echo "##vso[task.setvariable variable=sqlOnPrem_password;issecret=true]Test-$(Build.BuildNumber)-$(Get-Date -format yyyyMMdd-Hmmss)"
     displayName: Generate password for test server
 
-  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(defaultSql2022_password)" -e "MSSQL_AGENT_ENABLED=True" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2022-latest'
+  - script: 'docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$(sqlOnPrem_password)" -e "MSSQL_AGENT_ENABLED=True" -p 1433:1433 --name sql1 -h sql1 -d mcr.microsoft.com/mssql/server:2022-latest'
     displayName: Starting Server in Docker Container
 
   - task: UseDotNet@2
@@ -37,21 +37,25 @@ steps:
     inputs:
       projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
 
-  - task: DownloadSecureFile@1
-    displayName: Download Test Environment Configuration
-    name: testEnvironmentPath
-    inputs:
-      secureFile: 'SQLConnectionInstances.xml'
+  - bash: 'echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+        <Instances>
+          <Instance VersionKey=\"sqlOnPrem\">
+          <DataSource>localhost</DataSource>
+          <UserId>sa</UserId>
+          <Password></Password>
+        </Instance>
+      </Instances>" > test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
+    displayName: 'Writing test environment config file'
 
   - task: DotNetCoreCLI@2
     displayName: Setting Up Test Environment
     inputs:
       command: run
-      projects: '**/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
-      arguments: $(testEnvironmentPath.secureFilePath)
+      projects: 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/Microsoft.SqlTools.ServiceLayer.TestEnvConfig.csproj'
+      arguments: 'test/Microsoft.SqlTools.ServiceLayer.TestEnvConfig/SQLConnectionInstances.xml'
       testRunTitle: 'Setting tests'
     env:
-      defaultSql2022_password: '$(defaultSql2022_password)'
+      sqlOnPrem_password: '$(sqlOnPrem_password)'
 
   - task: AzureKeyVault@1
     displayName: 'Azure Key Vault: SqlToolsSecretStore'
