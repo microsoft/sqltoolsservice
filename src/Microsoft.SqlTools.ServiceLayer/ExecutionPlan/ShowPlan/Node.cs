@@ -36,10 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             this.LogicalOpUnlocName = null;
             this.PhysicalOpUnlocName = null;
             this.root = context.Graph.Root;
-            if (this.root == null)
-            {
-                this.root = this;
-            }
+            this.root ??= this;
             this.Graph = context.Graph;
         }
 

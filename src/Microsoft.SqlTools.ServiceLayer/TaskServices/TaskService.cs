@@ -36,10 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             get
             {
-                if(taskManager == null)
-                {
-                    taskManager = SqlTaskManager.Instance;
-                }
+                taskManager ??= SqlTaskManager.Instance;
                 return taskManager;
             }
             set

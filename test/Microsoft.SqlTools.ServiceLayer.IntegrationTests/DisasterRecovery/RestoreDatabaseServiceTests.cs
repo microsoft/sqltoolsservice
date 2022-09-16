@@ -50,18 +50,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 
         private async Task VerifyBackupFileCreated()
         {
-            if (fullBackupFilePath == null)
-            {
-                fullBackupFilePath = await CreateBackupFile();
-            }
+            fullBackupFilePath ??= await CreateBackupFile();
         }
 
         private async Task<string[]> GetBackupFilesToRecoverDatabaseCreated()
         {
-            if (backupFilesToRecoverDatabase == null)
-            {
-                backupFilesToRecoverDatabase = await CreateBackupSetsToRecoverDatabase();
-            }
+            backupFilesToRecoverDatabase ??= await CreateBackupSetsToRecoverDatabase();
             return backupFilesToRecoverDatabase;
         }
 

@@ -80,10 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (functionTypeParser == null)
-                {
-                    functionTypeParser = new FunctionTypeParser();
-                }
+                functionTypeParser ??= new FunctionTypeParser();
                 return functionTypeParser;
             }
         }

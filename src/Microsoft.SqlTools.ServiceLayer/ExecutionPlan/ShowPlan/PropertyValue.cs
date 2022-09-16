@@ -139,11 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
                 if (this.displayName != null || this.displayNameKey != null)
                 {
-                    if (this.displayName == null)
-                    {
-                        this.displayName = SR.Keys.GetString(this.displayNameKey);
-                    }
-
+                    this.displayName ??= SR.Keys.GetString(this.displayNameKey);
                     return this.displayName;
                 }
 
@@ -159,11 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
                 if (this.description != null || this.descriptionKey != null)
                 {
-                    if (this.description == null)
-                    {
-                        this.description = SR.Keys.GetString(this.descriptionKey);
-                    }
-
+                    this.description ??= SR.Keys.GetString(this.descriptionKey);
                     return this.description;
                 }
 
@@ -188,10 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             {
                 this.displayNameKey = displayNameDescriptionAttribute.DisplayName;
                 this.descriptionKey = displayNameDescriptionAttribute.Description;
-                if (this.descriptionKey == null)
-                {
-                    this.descriptionKey = this.displayNameKey;
-                }
+                this.descriptionKey ??= this.displayNameKey;
             }
 
             DisplayOrderAttribute displayOrderAttribute =

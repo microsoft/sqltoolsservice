@@ -101,11 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             get
             {
-                if (m_hashTable == null)
-                {
-                    m_hashTable = new Hashtable();
-                }
-
+                m_hashTable ??= new Hashtable();
                 return m_hashTable;
             }
         }
@@ -808,11 +804,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     throw new InvalidOperationException();
                 }
 
-                if (m_server == null)
-                {
-                    // NOTE: ServerConnection property will constuct the object if needed
-                    m_server = new Server(ServerConnection);
-                }
+                // NOTE: ServerConnection property will constuct the object if needed
+                m_server ??= new Server(ServerConnection);
             }           
             else if (this.serverType == ServerType.SQLCE)
             {
@@ -933,10 +926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         public string GetDocumentPropertyString(string propertyName)
         {
             object result = GetDocumentPropertyValue(propertyName);
-            if (result == null)
-            {
-                result = string.Empty;
-            }
+            result ??= string.Empty;
 
             return (string)result;
         }
@@ -1203,10 +1193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             bool databaseExists = false,
             XmlDocument containerDoc = null)
         {
-            if (containerDoc == null)
-            {
-                containerDoc = CreateDataContainerDocument(connInfo, databaseExists);
-            }
+            containerDoc ??= CreateDataContainerDocument(connInfo, databaseExists);
 
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
 

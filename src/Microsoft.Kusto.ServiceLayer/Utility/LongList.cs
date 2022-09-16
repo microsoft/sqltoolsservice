@@ -85,12 +85,9 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
             }
             else // need to split values into several arrays 
             {
-                if (expandedList == null)
-                {
-                    // very inefficient so delay as much as possible
-                    // immediately add 0th array
-                    expandedList = new List<List<T>> {shortList};
-                }
+                // very inefficient so delay as much as possible
+                // immediately add 0th array
+                expandedList ??= new List<List<T>> {shortList};
 
                 int arrayIndex = (int)(Count / this.ExpandListSize); // 0 based
 

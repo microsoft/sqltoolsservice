@@ -51,10 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
 

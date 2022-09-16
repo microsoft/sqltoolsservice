@@ -6,7 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 {
@@ -372,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 if (member.Name == enumMemberName)
                 {
                     object[] attributes = member.GetCustomAttributes(typeof(System.Xml.Serialization.XmlEnumAttribute), true);
-                    foreach (System.Xml.Serialization.XmlEnumAttribute attribute in attributes)
+                    foreach (System.Xml.Serialization.XmlEnumAttribute attribute in attributes.Cast<XmlEnumAttribute>())
                     {
                         return attribute.Name;
                     }
