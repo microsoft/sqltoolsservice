@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
@@ -68,12 +69,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <summary>
         /// Initializes
         /// </summary>
-        public void Initialize()
+        public void Initialize(Stream inputStream = null, Stream outputStream = null)
         {
             if (!this.isInitialized)
             {
                 // Start the provided protocol channel
-                this.protocolChannel.Start(this.messageProtocolType);
+                this.protocolChannel.Start(this.messageProtocolType, inputStream, outputStream);
 
                 // Start the message dispatcher
                 this.MessageDispatcher = new MessageDispatcher(this.protocolChannel);

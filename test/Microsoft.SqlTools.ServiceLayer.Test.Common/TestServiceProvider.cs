@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -190,8 +191,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
 
-                // Grab the instance of the service host
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                // Initialize the ServiceHost, using a MemoryStream for the output stream so that we don't fill up the logs
+                // with a bunch of outgoing messages (which aren't used for anything during tests)
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, null, new MemoryStream());
 
                 // Set up our logger to write to Console for tests to help debug issues
                 Logger.Initialize(autoFlush: true);

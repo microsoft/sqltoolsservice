@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         private Stream inputStream;
         private Stream outputStream;
 
-        protected override void Initialize(IMessageSerializer messageSerializer)
+        protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
         {
 #if !NanoServer
             // Ensure that the console is using UTF-8 encoding
@@ -29,8 +29,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
 #endif
 
             // Open the standard input/output streams
-            this.inputStream = System.Console.OpenStandardInput();
-            this.outputStream = System.Console.OpenStandardOutput();
+            this.inputStream = inputStream ?? System.Console.OpenStandardInput();
+            this.outputStream = outputStream ?? System.Console.OpenStandardOutput();
 
             // Set up the reader and writer
             this.MessageReader = 
