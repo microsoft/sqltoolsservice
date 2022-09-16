@@ -37,7 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return ConnectionService.Instance;
+                connectionService ??= ConnectionService.Instance;
+                return connectionService;
             }
             set
             {

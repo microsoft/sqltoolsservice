@@ -7,13 +7,19 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    /// <summary>
-    /// Property class for ObjectManagement Service
-    /// </summary>
     public class RenameRequestParams : GeneralRequestDetails
     {
+        /// <summary>
+        /// uniform resource name of the object  
+        /// </summary>
         public string ObjectUrn { get; set; }
+        /// <summary>
+        /// the new name of the object
+        /// </summary>
         public string NewName { get; set; }
+        /// <summary>
+        /// Connection uri
+        /// </summary>
         public string ConnectionUri { get; set; }
     }
     public class RenameRequest
