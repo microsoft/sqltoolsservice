@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
             }
         }
 
-        protected override void Initialize(IMessageSerializer messageSerializer)
+        protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
         {
             this.serviceProcess = new Process
             {
@@ -73,8 +73,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
             this.ProcessId = this.serviceProcess.Id;
 
             // Open the standard input/output streams
-            this.inputStream = this.serviceProcess.StandardOutput.BaseStream;
-            this.outputStream = this.serviceProcess.StandardInput.BaseStream;
+            this.inputStream = inputStream ?? this.serviceProcess.StandardOutput.BaseStream;
+            this.outputStream = outputStream ?? this.serviceProcess.StandardInput.BaseStream;
 
             // Set up the message reader and writer
             this.MessageReader = 
