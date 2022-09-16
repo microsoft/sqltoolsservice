@@ -887,6 +887,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
         public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
+            Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
@@ -1487,20 +1488,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Get function signature help for the current position
         /// </summary>
-        internal SignatureHelp GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal SignatureHelp? GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
+            Logger.Verbose($"GetSignatureHelp -  {scriptFile}");
             int startLine = textDocumentPosition.Position.Line;
             int endColumn = textDocumentPosition.Position.Character;
 
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            ScriptParseInfo? scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
 
             if (scriptParseInfo == null)
             {
+                Logger.Verbose($"GetSignatureHelp - Could not find ScriptParseInfo for {scriptFile}");
                 // Cache not set up yet - skip and wait until later
                 return null;
             }
 
-            ConnectionInfo connInfo;
+            ConnectionInfo? connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
@@ -1509,6 +1512,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
+            } else
+            {
+                Logger.Verbose($"GetSignatureHelp - No reparse needed for {scriptFile}");
             }
 
             if (scriptParseInfo.ParseResult != null)
@@ -1558,6 +1564,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
+            Logger.Verbose($"GetSignatureHelp - No ScriptParseInfo.ParseResult for {scriptFile}");
 
             // return null if there isn't a tooltip for the current location
             return null;
@@ -1836,10 +1843,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
                 {
+                    Logger.Verbose($"Updating ScriptParseInfo for uri {uri}");
                     this.ScriptParseInfoMap[uri] = scriptInfo;
                 }
                 else
                 {
+                    Logger.Verbose($"Adding ScriptParseInfo for uri {uri}");
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
                 }
 
@@ -1852,16 +1861,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>
-        internal ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        internal ScriptParseInfo? GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
             lock (this.parseMapLock)
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
                 {
+                    Logger.Verbose($"Found ScriptParseInfo for uri {uri}");
                     return this.ScriptParseInfoMap[uri];
                 }
                 else if (createIfNotExists)
                 {
+                    Logger.Verbose($"ScriptParseInfo for uri {uri} did not exist, creating new one");
                     // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
@@ -1869,6 +1880,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
+                    Logger.Verbose($"Could not find ScriptParseInfo for uri {uri}");
                     return null;
                 }
             }
@@ -1880,6 +1892,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
                 {
+                    Logger.Verbose($"Removing ScriptParseInfo for uri {uri}");
                     return this.ScriptParseInfoMap.Remove(uri);
                 }
                 else
