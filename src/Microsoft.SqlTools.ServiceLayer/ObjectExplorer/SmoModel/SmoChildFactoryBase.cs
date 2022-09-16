@@ -53,6 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 allChildren.RemoveAll(x => x.IsSystemObject);
             }
+
             if (context != null && context.ValidFor != 0 && context.ValidFor != ValidForFlag.All)
             {
                 allChildren.RemoveAll(x =>
@@ -61,6 +62,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     if (folderNode != null && !ServerVersionHelper.IsValidFor(context.ValidFor, folderNode.ValidFor))
                     {
                         return true;
+                    }
+                    return false;
+                });
+
+                // Remove the Dropped Ledger Columns folder if this isn't under a ledger table
+                allChildren.RemoveAll(x =>
+                {
+                    if (x.NodeTypeId == NodeTypes.DroppedLedgerColumns)
+                    {
+                        Table? parentTable = context.Parent as Table;
+                        if (parentTable == null ||
+                            !(parentTable.LedgerType == LedgerTableType.UpdatableLedgerTable ||
+                            parentTable.LedgerType == LedgerTableType.AppendOnlyLedgerTable))
+                        {
+                            return true;
+                        }
                     }
                     return false;
                 });

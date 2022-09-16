@@ -14,6 +14,7 @@ using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -31,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public TableDesignerService()
         {
         }
+
+        public TableDesignerSettings Settings { get; private set; } = new TableDesignerSettings();
 
         /// <summary>
         /// Gets the singleton instance object
@@ -61,7 +64,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
             this.ServiceHost.SetRequestHandler(GeneratePreviewReportRequest.Type, HandleGeneratePreviewReportRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
+            Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
+
         }
+
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        {
+            Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel;
+            return Task.FromResult(0);
+        }
+
         private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
         {
             // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.

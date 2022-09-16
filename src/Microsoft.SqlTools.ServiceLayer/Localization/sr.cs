@@ -2045,6 +2045,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaHierarchy_DroppedLedgerColumns
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_DroppedLedgerColumns);
+            }
+        }
+
         public static string SchemaHierarchy_DroppedLedgerTables
         {
             get
@@ -10898,6 +10906,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_ExternalTables = "SchemaHierarchy_ExternalTables";
+
+
+            public const string SchemaHierarchy_DroppedLedgerColumns = "SchemaHierarchy_DroppedLedgerColumns";
 
 
             public const string SchemaHierarchy_DroppedLedgerTables = "SchemaHierarchy_DroppedLedgerTables";

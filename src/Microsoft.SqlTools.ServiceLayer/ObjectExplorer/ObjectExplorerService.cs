@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -23,6 +24,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
@@ -380,6 +382,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             NodeInfo[] nodes = null;
             TreeNode node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
+
+            // Performance Optimization for table designer to load the database model earlier based on user configuration.
+            if (node.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
+            {
+                // The operation below are not blocking, but just in case, wrapping it with a task run to make sure it has no impact on the node expansion time.
+                var _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
+                        builder.InitialCatalog = node.NodeValue;
+                        builder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
+                        var azureToken = session.ConnectionInfo.ConnectionDetails.AzureAccountToken;
+                        TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Write(TraceEventType.Warning, $"Failed to start database initialization for table designer: {ex.Message}");
+                    }
+                });
+            }
 
             // This node was likely returned from a different node provider. Ignore expansion and return an empty array
             // since we don't need to add any nodes under this section of the tree.
