@@ -21,19 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         private static Dictionary<string, InstanceInfo> connectionProfilesCache = new Dictionary<string, InstanceInfo>();
         private static TestConnectionProfileService instance = new TestConnectionProfileService();
 
-        public const string DefaultSql2005InstanceKey = "defaultSql2005";
-        public const string DefaultSql2008InstanceKey = "defaultSql2008";
-        public const string DefaultSql2011InstanceKey = "defaultSql2011";
-        public const string DefaultSql2012Pcu1InstanceKey = "defaultSql2012pcu1";
-        public const string DefaultSql2014InstanceKey = "defaultSql2014";
-        public const string DefaultSqlAzureInstanceKey = "defaultSqlAzure";
-        public const string DefaultServerlessInstanceKey = "defaultServerless";
-        public const string DefaultSqlPdwInstanceKey = "defaultSqlPdw";
-        public const string DefaultSqlAzureV12InstanceKey = "defaultSqlAzureV12";
-        public const string DefaultSql2016InstanceKey = "defaultSql2016";
-        public const string DefaultSql2019InstanceKey = "defaultSql2019";
-        public const string DefaultSql2022InstanceKey = "defaultSql2022";
-        public const string DefaultSqlvNextInstanceKey = "defaultSqlvNext";
+        public const string SqlAzureInstanceKey = "sqlAzure";
+        public const string SqlOnPremInstanceKey = "sqlOnPrem";
 
         private TestConnectionProfileService()
         {
@@ -48,44 +37,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public static InstanceInfo DefaultSql2012Pcu1
+        public static InstanceInfo SqlAzure
         {
-            get { return GetInstance(DefaultSql2012Pcu1InstanceKey); }
+            get { return GetInstance(SqlAzureInstanceKey); }
         }
 
-        public static InstanceInfo DefaultSql2014
+        public static InstanceInfo SqlOnPrem
         {
-            get { return GetInstance(DefaultSql2014InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSqlAzure
-        {
-            get { return GetInstance(DefaultSqlAzureInstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSqlAzureV12
-        {
-            get { return GetInstance(DefaultSqlAzureV12InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSql2016
-        {
-            get { return GetInstance(DefaultSql2016InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSql2019
-        {
-            get { return GetInstance(DefaultSql2019InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSql2022
-        {
-            get { return GetInstance(DefaultSql2022InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSqlvNext
-        {
-            get { return GetInstance(DefaultSqlvNextInstanceKey); }
+            get { return GetInstance(SqlOnPremInstanceKey); }
         }
 
         /// <summary>
@@ -99,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return instanceInfo;
         }
 
-        public ConnectParams GetConnectionParameters(string key = DefaultSql2022InstanceKey, string databaseName = null)
+        public ConnectParams GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
         {
             InstanceInfo instanceInfo = GetInstance(key);
             if (instanceInfo != null)
@@ -192,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         private static string ConvertServerTypeToVersionKey(TestServerType serverType)
         {
-            return serverType == TestServerType.OnPrem ? DefaultSql2022InstanceKey : DefaultSqlAzureV12InstanceKey;
+            return serverType == TestServerType.OnPrem ? SqlOnPremInstanceKey : SqlAzureInstanceKey;
         }
 
         /// <summary>
@@ -214,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 connectParams.Connection.DatabaseName = databaseName;
                 connectParams.Connection.DatabaseDisplayName = databaseName;
             }
-            if (key == DefaultSqlAzureInstanceKey || key == DefaultSqlAzureV12InstanceKey)
+            if (key == SqlAzureInstanceKey || key == SqlAzureInstanceKey)
             {
                 connectParams.Connection.ConnectTimeout = 30;
                 connectParams.Connection.Encrypt = true;

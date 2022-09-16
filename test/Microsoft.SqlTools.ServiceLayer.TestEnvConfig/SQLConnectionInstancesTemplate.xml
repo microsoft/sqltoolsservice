@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Instances>
-	<Instance VersionKey="defaultSql2022">
+	<Instance VersionKey="sqlOnPrem">
 		<DataSource>[server name]</DataSource>
 		<UserId>[user name for SQL authentication]</UserId>
 		<Password>[password for SQL authentication]</Password>
 	 </Instance>
-	 <Instance VersionKey="defaultSqlAzureV12">
+	 <Instance VersionKey="sqlAzure">
 		<DataSource>[server name]</DataSource>
 		<UserId>[user name for SQL authentication]</UserId>
 		<Password>[password for SQL authentication]</Password>
