@@ -70,10 +70,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 path = schema + "." + path;
             }
 
-            if (path == null)
-            {
-                path = "";
-            }
+            path ??= "";
 
             foreach (var matchingNode in matchingNodes)
             {

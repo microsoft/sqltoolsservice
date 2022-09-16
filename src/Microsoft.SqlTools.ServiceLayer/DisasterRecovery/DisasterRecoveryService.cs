@@ -52,10 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set
@@ -68,10 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             get
             {
-                if (sqlTaskManagerInstance == null)
-                {
-                    sqlTaskManagerInstance = SqlTaskManager.Instance;
-                }
+                sqlTaskManagerInstance ??= SqlTaskManager.Instance;
                 return sqlTaskManagerInstance;
             }
             set
@@ -87,10 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             get
             {
-                if (fileBrowserService == null)
-                {
-                    fileBrowserService = FileBrowserService.Instance;
-                }
+                fileBrowserService ??= FileBrowserService.Instance;
                 return fileBrowserService;
             }
             set

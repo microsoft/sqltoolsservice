@@ -51,10 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (filterTypeParser == null)
-                {
-                    filterTypeParser = new FilterTypeParser();
-                }
+                filterTypeParser ??= new FilterTypeParser();
                 return filterTypeParser;
             }
         }

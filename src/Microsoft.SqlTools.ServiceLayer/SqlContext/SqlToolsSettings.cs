@@ -20,10 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.sqlTools == null)
-                {
-                    this.sqlTools = new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
-                }
+                this.sqlTools ??= new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
                 return this.sqlTools;
             } 
             set
@@ -40,10 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.mssqlTools == null)
-                {
-                    this.mssqlTools = new SqlToolsSettingsValues(false);
-                }
+                this.mssqlTools ??= new SqlToolsSettingsValues(false);
                 return this.mssqlTools;
             } 
             set
@@ -60,10 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.allSqlTools == null)
-                {
-                    this.allSqlTools = new SqlToolsSettingsValues(false);
-                }
+                this.allSqlTools ??= new SqlToolsSettingsValues(false);
                 return this.allSqlTools;
             } 
             set

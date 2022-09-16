@@ -191,10 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (workspaceServiceInstance == null)
-                {
-                    workspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
-                }
+                workspaceServiceInstance ??= WorkspaceService<SqlToolsSettings>.Instance;
                 return workspaceServiceInstance;
             }
             set
@@ -207,10 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (this.serviceHostInstance == null)
-                {
-                    this.serviceHostInstance = ServiceHost.Instance;
-                }
+                this.serviceHostInstance ??= ServiceHost.Instance;
                 return this.serviceHostInstance;
             }
             set

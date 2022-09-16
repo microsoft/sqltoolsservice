@@ -146,8 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             get 
             {
-                if (this._baselineSubDir == null)
-                    this._baselineSubDir = string.Empty;
+                this._baselineSubDir ??= string.Empty;
                 return this._baselineSubDir; 
             }
             set { this._baselineSubDir = value; }

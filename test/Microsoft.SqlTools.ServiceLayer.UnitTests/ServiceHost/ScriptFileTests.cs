@@ -24,10 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
         public static ScriptFile GetTestScriptFile(string initialText = null)
         {
-            if (initialText == null)
-            {
-                initialText = ScriptFileTests.query;
-            }
+            initialText ??= ScriptFileTests.query;
 
             string ownerUri = System.IO.Path.GetTempFileName();
 

@@ -40,9 +40,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 object value = relOpProperty.GetValue(parsedItem);
                 if (value != null)
                 {
-                    if (value is IEnumerable)
+                    if (value is IEnumerable enumerable)
                     {
-                        foreach (object item in (IEnumerable)value)
+                        foreach (object item in enumerable)
                         {
                             yield return item;
                         }
@@ -72,10 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (relOpBaseTypeParser == null)
-                {
-                    relOpBaseTypeParser = new RelOpBaseTypeParser();
-                }
+                relOpBaseTypeParser ??= new RelOpBaseTypeParser();
                 return relOpBaseTypeParser;
             }
         }

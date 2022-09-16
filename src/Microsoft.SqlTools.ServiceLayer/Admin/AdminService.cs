@@ -42,10 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             get
             {
-                if (AdminService.connectionService == null)
-                {
-                    AdminService.connectionService = ConnectionService.Instance;
-                }
+                AdminService.connectionService ??= ConnectionService.Instance;
                 return AdminService.connectionService;
             }
 
