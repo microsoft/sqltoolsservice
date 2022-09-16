@@ -1493,12 +1493,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Get function signature help for the current position
         /// </summary>
-        internal SignatureHelp? GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal SignatureHelp GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
             int endColumn = textDocumentPosition.Position.Character;
 
-            ScriptParseInfo? scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
 
             if (scriptParseInfo == null)
             {
@@ -1858,9 +1858,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>
-        internal ScriptParseInfo? GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        internal ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
-            return null;
             lock (this.parseMapLock)
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
