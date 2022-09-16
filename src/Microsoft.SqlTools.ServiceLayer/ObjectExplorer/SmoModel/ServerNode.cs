@@ -53,10 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             get
             {
-                if (smoWrapper == null)
-                {
-                    smoWrapper = new SmoWrapper();
-                }
+                smoWrapper ??= new SmoWrapper();
                 return smoWrapper;
             }
             set

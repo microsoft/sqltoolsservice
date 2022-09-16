@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -43,10 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set
@@ -117,11 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
             }
 
-            if (parameters.FilePath == null)
-            {
-                // Create a temporary and random path to handle this operation
-                parameters.FilePath = Path.GetTempFileName();
-            }
+            // Create a temporary and random path to handle this operation
+            parameters.FilePath ??= Path.GetTempFileName();
 
             if (!ShouldCreateScriptAsOperation(parameters))
             {
@@ -229,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 disposed = true;
 
-                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
+                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values.Cast<ScriptingScriptOperation>())
                 {
                     operation.Dispose();
                 }

@@ -151,10 +151,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             get
             {
-                if (workspaceServiceInstance == null)
-                {
-                    workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
-                }
+                workspaceServiceInstance ??=  WorkspaceService<SqlToolsSettings>.Instance;
                 return workspaceServiceInstance;
             }
             set
@@ -167,10 +164,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             get
             {
-                if (this.serviceHostInstance == null)
-                {
-                    this.serviceHostInstance = ServiceHost.Instance;
-                }
+                this.serviceHostInstance ??= ServiceHost.Instance;
                 return this.serviceHostInstance;
             }
             set
@@ -872,10 +866,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
 
             // if there are no completions then provide the default list
-            if (resultCompletionItems == null)          // this is the getting default keyword option when its not connected
-            {
-                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
-            }
+            // this is the getting default keyword option when its not connected
+            resultCompletionItems ??= DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
 
             return resultCompletionItems;
         }
