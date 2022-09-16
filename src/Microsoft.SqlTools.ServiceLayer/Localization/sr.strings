@@ -2418,7 +2418,4 @@ UnsupportedModelType(string type) = Unsupported model type: {0}.
 GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.
 
 #ObjectManagement Service
-NotAllowedCharacterForRenaming = The name contains characters which are not allowed
-RenameRequestParametersNotNullOrEmpty = The arguments must not be null nor empty
-ErrorOnRenameOperationMessage = The renaming operation was not successfull executed
 ErrorConnectionNotFound = The connection could not be found

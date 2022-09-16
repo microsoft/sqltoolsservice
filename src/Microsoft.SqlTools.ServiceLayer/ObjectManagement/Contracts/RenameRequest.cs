@@ -5,16 +5,16 @@
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Requests
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
     /// <summary>
     /// Property class for ObjectManagement Service
     /// </summary>
     public class RenameRequestParams : GeneralRequestDetails
     {
-        public string UrnOfObject { get; set; }
+        public string ObjectUrn { get; set; }
         public string NewName { get; set; }
-        public string OwnerUri { get; set; }
+        public string ConnectionUri { get; set; }
     }
     public class RenameRequest
     {

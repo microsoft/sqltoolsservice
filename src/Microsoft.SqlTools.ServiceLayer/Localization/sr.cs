@@ -9613,6 +9613,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ErrorConnectionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorConnectionNotFound);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -10026,36 +10034,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string UnsupportedModelType(string type)
         {
             return Keys.GetString(Keys.UnsupportedModelType, type);
-        }
-
-        public static string RenameRequestParametersNotNullOrEmpty
-        {
-            get
-            {
-                return Keys.GetString(Keys.RenameRequestParametersNotNullOrEmpty);
-            }
-        }
-
-        public static string NotAllowedCharacterForRenaming
-        {
-            get
-            {
-                return Keys.GetString(Keys.NotAllowedCharacterForRenaming);
-            }
-        }
-        public static string ErrorOnRenameOperationMessage
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrorOnRenameOperationMessage);
-            }
-        }
-         public static string ErrorConnectionNotFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrorConnectionNotFound);
-            }
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -13908,12 +13886,8 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
 
-            public const string RenameRequestParametersNotNullOrEmpty = "RenameRequestParametersNotNullOrEmpty";
-
-            public const string NotAllowedCharacterForRenaming = "NotAllowedCharacterForRenaming";
-
-            public const string ErrorOnRenameOperationMessage = "ErrorOnRenameOperationMessage";
             public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
+
 
             private Keys()
             { }

@@ -10,7 +10,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Requests;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ObjectManagementService
     {
+        private const string ObjectManagementServiceApplicationName = "azdata-object-management";
         private static Lazy<ObjectManagementService> objectManagementServiceInstance = new Lazy<ObjectManagementService>(() => new ObjectManagementService());
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
 
@@ -51,61 +52,41 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             this.serviceHost = serviceHost;
-            this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleProcessRenameEditRequest);
+            this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest);
+        }
 
-        }
-        internal Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
-        {
-            return Task.Run(async () =>
-            {
-                try
-                {
-                    await action();
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(e);
-                }
-            });
-        }
         /// <summary>
         /// Method to handle the renaming operation
         /// </summary>
         /// <param name="requestParams">parameters which are needed to execute renaming operation</param>
         /// <param name="requestContext">Request Context</param>
         /// <returns></returns>
-        internal Task HandleProcessRenameEditRequest(RenameRequestParams requestParams, RequestContext<bool> requestContext)
+        internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<bool> requestContext)
         {
-            return this.HandleRequest<bool>(requestContext, async () =>
-           {
-               Logger.Verbose("Handle Request in HandleProcessRenameEditRequest()");
-               ConnectionInfo connInfo;
-               try
-               {
-                   if (connectionService.TryFindConnection(
-                           requestParams.OwnerUri,
-                           out connInfo))
-                   {
-                       using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "RenamingDatabaseObjects"))
-                       {
-                           IRenamable renameObject = this.GetSQLRenameObject(requestParams, sqlConn);
 
-                           renameObject.Rename(requestParams.NewName);
-                       }
-                   }
-                   else
-                   {
-                       Logger.Error("The connection could not be found.");
-                       throw new Exception(SR.ErrorConnectionNotFound);
-                   }
-               }
-               catch (Exception e)
-               {
-                   Logger.Error($"An error occurred while renaming {requestParams.UrnOfObject}: " + e);
-                   throw new Exception(SR.ErrorOnRenameOperationMessage, e);
-               }
-               await requestContext.SendResult(true);
-           });
+            Logger.Verbose("Handle Request in HandleProcessRenameEditRequest()");
+            ConnectionInfo connInfo;
+
+            if (connectionService.TryFindConnection(
+                    requestParams.ConnectionUri,
+                    out connInfo))
+            {
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, ObjectManagementServiceApplicationName))
+                {
+
+                    IRenamable renameObject = this.GetSQLRenameObject(requestParams, sqlConn);
+
+                    renameObject.Rename(requestParams.NewName);
+                }
+            }
+            else
+            {
+                Logger.Error($"The connection {requestParams.ConnectionUri} could not be found.");
+                throw new Exception(SR.ErrorConnectionNotFound);
+            }
+
+            await requestContext.SendResult(true);
+
         }
 
         /// <summary>
@@ -118,7 +99,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             ServerConnection serverConnection = new ServerConnection(connection);
             Server server = new Server(serverConnection);
-            SqlSmoObject dbObject = server.GetSmoObject(new Urn(requestParams.UrnOfObject));
+            SqlSmoObject dbObject = server.GetSmoObject(new Urn(requestParams.ObjectUrn));
+
 
             return (IRenamable)dbObject;
         }
