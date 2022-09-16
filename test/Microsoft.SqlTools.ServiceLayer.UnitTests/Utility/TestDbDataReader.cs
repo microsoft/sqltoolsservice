@@ -68,10 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             {
                 throw new TestDbException();
             }
-            if (RowEnumerator == null)
-            {
-                RowEnumerator = ResultSetEnumerator.Current.GetEnumerator();
-            }
+            RowEnumerator ??= ResultSetEnumerator.Current.GetEnumerator();
             return RowEnumerator.MoveNext();
         }
 

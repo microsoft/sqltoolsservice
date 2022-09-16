@@ -75,10 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set

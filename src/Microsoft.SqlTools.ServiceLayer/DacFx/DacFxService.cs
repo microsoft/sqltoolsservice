@@ -347,10 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             get
             {
-                if (sqlTaskManagerInstance == null)
-                {
-                    sqlTaskManagerInstance = SqlTaskManager.Instance;
-                }
+                sqlTaskManagerInstance ??= SqlTaskManager.Instance;
                 return sqlTaskManagerInstance;
             }
             set
@@ -366,10 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set

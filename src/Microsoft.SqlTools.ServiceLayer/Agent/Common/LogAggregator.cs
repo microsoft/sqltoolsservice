@@ -416,10 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             e.Source = sourceName;
 
-            if (m_exceptionList == null)
-            {
-                m_exceptionList = new List<Exception>();
-            }
+            m_exceptionList ??= new List<Exception>();
             m_exceptionList.Add(e);
         }
 

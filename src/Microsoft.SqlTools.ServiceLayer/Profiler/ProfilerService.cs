@@ -55,10 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
 
@@ -144,11 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 }
                 catch { }
 
-                if (xeSession == null)
-                {
-                    // create a new XEvent session and Profiler session
-                    xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
-                }
+                // create a new XEvent session and Profiler session
+                xeSession ??= this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
 
                 // start monitoring the profiler session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);

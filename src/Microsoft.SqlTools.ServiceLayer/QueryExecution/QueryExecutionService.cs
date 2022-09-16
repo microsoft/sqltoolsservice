@@ -72,13 +72,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             get
             {
-                if (BufferFileStreamFactory == null)
-                {
-                    BufferFileStreamFactory = new ServiceBufferFileStreamFactory
+                BufferFileStreamFactory ??= new ServiceBufferFileStreamFactory
                     {
                         QueryExecutionSettings = Settings.QueryExecutionSettings
                     };
-                }
                 return BufferFileStreamFactory;
             }
         }

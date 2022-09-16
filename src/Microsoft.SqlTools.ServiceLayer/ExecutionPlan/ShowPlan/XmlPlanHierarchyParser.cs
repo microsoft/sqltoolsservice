@@ -56,10 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (xmlPlanHierarchyParser == null)
-                {
-                    xmlPlanHierarchyParser = new XmlPlanHierarchyParser();
-                }
+                xmlPlanHierarchyParser ??= new XmlPlanHierarchyParser();
                 return xmlPlanHierarchyParser;
             }
         }

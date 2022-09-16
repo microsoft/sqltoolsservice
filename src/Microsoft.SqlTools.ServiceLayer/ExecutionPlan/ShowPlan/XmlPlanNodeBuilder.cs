@@ -12,6 +12,7 @@ using System.Xml;
 using System.Text;
 using System.Xml.Serialization;
 using System.Reflection;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 {
@@ -40,10 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         public ShowPlanGraph[] Execute(object dataSource)
         {
             ShowPlanXML plan = dataSource as ShowPlanXML;
-            if (plan == null)
-            {
-                plan = ReadXmlShowPlan(dataSource);
-            }
+            plan ??= ReadXmlShowPlan(dataSource);
             List<ShowPlanGraph> graphs = new List<ShowPlanGraph>();
 
             int statementIndex = 0;
@@ -238,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             {
                 ArrayList targetStatementList = new ArrayList();
 
-                foreach (BaseStmtInfoType statement in statementBlock.Items)
+                foreach (BaseStmtInfoType statement in statementBlock.Items.Cast<BaseStmtInfoType>())
                 {
                     targetStatementList.Add(statement);
 
@@ -264,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                     //add this element and its children
                     if (stmtThen.Statements != null && stmtThen.Statements.Items != null)
                     {
-                        foreach (BaseStmtInfoType subStatement in stmtThen.Statements.Items)
+                        foreach (BaseStmtInfoType subStatement in stmtThen.Statements.Items.Cast<BaseStmtInfoType>())
                         {
                             targetStatementList.Add(subStatement);
                             FlattenConditionClauses(subStatement, targetStatementList);
@@ -280,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                         //add this element and its children
                         if (stmtElse.Statements != null && stmtElse.Statements.Items != null)
                         {
-                            foreach (BaseStmtInfoType subStatement in stmtElse.Statements.Items)
+                            foreach (BaseStmtInfoType subStatement in stmtElse.Statements.Items.Cast<BaseStmtInfoType>())
                             {
                                 targetStatementList.Add(subStatement);
                                 FlattenConditionClauses(subStatement, targetStatementList);
@@ -302,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             {
                 ArrayList targetStatementList = new ArrayList();
 
-                foreach (BaseStmtInfoType statement in statementBlock.Items)
+                foreach (BaseStmtInfoType statement in statementBlock.Items.Cast<BaseStmtInfoType>())
                 {
                     targetStatementList.Add(statement);
 
@@ -351,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                     // Call itself recursively.
                     if (functionItem.Function.Statements != null && functionItem.Function.Statements.Items != null)
                     {
-                        foreach (BaseStmtInfoType functionStatement in functionItem.Function.Statements.Items)
+                        foreach (BaseStmtInfoType functionStatement in functionItem.Function.Statements.Items.Cast<BaseStmtInfoType>())
                         {
                             ExtractFunctions(functionStatement, targetStatementList);
                         }
@@ -369,7 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             if (statementBlock != null && statementBlock.Items != null)
             {
-                foreach (BaseStmtInfoType statement in statementBlock.Items)
+                foreach (BaseStmtInfoType statement in statementBlock.Items.Cast<BaseStmtInfoType>())
                 {
                     yield return statement;
                 }
@@ -402,10 +400,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 // check Memory Optimized table.
                 bool memoryOptimzed = false;
                 XmlNode scan = rootNode.SelectSingleNode("descendant::shp:IndexScan", nsMgr);
-                if (scan == null)
-                {
-                    scan = rootNode.SelectSingleNode("descendant::shp:TableScan", nsMgr);
-                }
+                scan ??= rootNode.SelectSingleNode("descendant::shp:TableScan", nsMgr);
+                
                 if (scan != null && scan.Attributes["Storage"] != null)
                 {
                     if (0 == string.Compare(scan.Attributes["Storage"].Value, "MemoryOptimized", StringComparison.Ordinal))
