@@ -10050,6 +10050,13 @@ namespace Microsoft.SqlTools.ServiceLayer
                 return Keys.GetString(Keys.ErrorOnRenameOperationMessage);
             }
         }
+         public static string ErrorConnectionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorConnectionNotFound);
+            }
+        }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
@@ -13906,6 +13913,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string NotAllowedCharacterForRenaming = "NotAllowedCharacterForRenaming";
 
             public const string ErrorOnRenameOperationMessage = "ErrorOnRenameOperationMessage";
+            public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
 
             private Keys()
             { }

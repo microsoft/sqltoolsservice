@@ -2417,7 +2417,8 @@ SqlProjectModelNotFound(string projectUri) = Could not find SQL model from proje
 UnsupportedModelType(string type) = Unsupported model type: {0}.
 GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.
 
-#Rename Service
+#ObjectManagement Service
 NotAllowedCharacterForRenaming = The name contains characters which are not allowed
 RenameRequestParametersNotNullOrEmpty = The arguments must not be null nor empty
 ErrorOnRenameOperationMessage = The renaming operation was not successfull executed
+ErrorConnectionNotFound = The connection could not be found
