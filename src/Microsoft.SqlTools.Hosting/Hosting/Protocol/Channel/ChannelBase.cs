@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 
@@ -33,7 +34,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// Starts the channel and initializes the MessageDispatcher.
         /// </summary>
         /// <param name="messageProtocolType">The type of message protocol used by the channel.</param>
-        public void Start(MessageProtocolType messageProtocolType)
+        /// <param name="inputStream">Optional stream to use for the input stream</param>
+        /// <param name="outputStream">Optional stream to use for the output stream</param>
+        public void Start(MessageProtocolType messageProtocolType, Stream? inputStream = null, Stream? outputStream = null)
         {
             IMessageSerializer messageSerializer = null;
             if (messageProtocolType == MessageProtocolType.LanguageServer)
@@ -45,7 +48,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
                 messageSerializer = new V8MessageSerializer();
             }
 
-            this.Initialize(messageSerializer);
+            this.Initialize(messageSerializer, inputStream, outputStream);
         }
 
         /// <summary>
@@ -70,7 +73,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// assignment of the MessageReader and MessageWriter properties.
         /// </summary>
         /// <param name="messageSerializer">The IMessageSerializer to use for message serialization.</param>
-        protected abstract void Initialize(IMessageSerializer messageSerializer);
+        /// <param name="inputStream">Optional stream to use for the input stream</param>
+        /// <param name="outputStream">Optional stream to use for the output stream</param>
+        protected abstract void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null);
 
         /// <summary>
         /// A method to be implemented by subclasses to handle shutdown

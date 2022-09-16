@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             byte[] messageBytes = Encoding.UTF8.GetBytes(serializedMessage);
             byte[] headerBytes = 
-                Encoding.ASCII.GetBytes("TEST" + 
+                Encoding.ASCII.GetBytes(
                     string.Format(
                         Constants.ContentLengthFormatString,
                         messageBytes.Length));
