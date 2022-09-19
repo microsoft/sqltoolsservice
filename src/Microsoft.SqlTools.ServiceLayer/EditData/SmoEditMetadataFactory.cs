@@ -86,16 +86,16 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     throw new ArgumentOutOfRangeException(nameof(objectType), SR.EditDataUnsupportedObjectType(objectType));
             }
 
-            // Filter out dropped ledger columns from the list of columns to be returned
-            //
-            smoResult.Columns.ClearAndInitialize("[(@IsDroppedLedgerColumn=0)]", new [] {nameof(Column.IsDroppedLedgerColumn), nameof(Column.DataType)});
-
             // A bug in SMO makes it necessary to call refresh to attain certain properties (such as IsMemoryOptimized)
             smoResult.Refresh();
             if (smoResult.State != SqlSmoState.Existing)
             {
                 throw new ArgumentOutOfRangeException(nameof(objectNamedParts), SR.EditDataObjectNotFound);
             }
+
+            // Filter out dropped ledger columns from the list of columns to be returned
+            // and grab the specific column properties checked below
+            smoResult.Columns.ClearAndInitialize("[(@IsDroppedLedgerColumn=0)]", new [] { nameof(Column.DataType), nameof(Column.DefaultConstraintName) });
 
             // Generate the edit column metadata
             List<EditColumnMetadata> editColumns = new List<EditColumnMetadata>();
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                 try
                 {
                     // The default value may be escaped
-                    defaultValue = smoColumn.DefaultConstraint == null
+                    defaultValue = string.IsNullOrEmpty(smoColumn.DefaultConstraintName)
                         ? null
                         : FromSqlScript.UnwrapLiteral(smoColumn.DefaultConstraint.Text);
                 }
