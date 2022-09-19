@@ -6331,6 +6331,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">已删除账本视图</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">已删除账本列</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">无法从项目中找到 SQL 模型: {0}。</target>

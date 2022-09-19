@@ -3871,6 +3871,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>ドロップされた台帳ビュー</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>削除された台帳列</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>プロジェクトから SQL モデルが見つかりませんでした: {0}。</value>
   </data>

@@ -3871,6 +3871,9 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Vistas de libro de contabilidad descartadas</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Columnas de libro de contabilidad descartadas</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>No se ha podido encontrar el modelo SQL del proyecto: {0}.</value>
   </data>

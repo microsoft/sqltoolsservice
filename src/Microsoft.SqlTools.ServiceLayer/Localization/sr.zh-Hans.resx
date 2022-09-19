@@ -3871,6 +3871,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>已删除账本视图</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>已删除账本列</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>无法从项目中找到 SQL 模型: {0}。</value>
   </data>

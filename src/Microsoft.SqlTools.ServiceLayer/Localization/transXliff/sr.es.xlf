@@ -6331,6 +6331,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Vistas de libro de contabilidad descartadas</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Columnas de libro de contabilidad descartadas</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">No se ha podido encontrar el modelo SQL del proyecto: {0}.</target>

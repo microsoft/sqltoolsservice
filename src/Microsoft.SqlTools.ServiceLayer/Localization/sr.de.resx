@@ -3871,6 +3871,9 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Verworfene Ledgeransichten</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Verworfene Ledgerspalten</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Das SQL-Modell wurde im Projekt {0} nicht gefunden.</value>
   </data>
