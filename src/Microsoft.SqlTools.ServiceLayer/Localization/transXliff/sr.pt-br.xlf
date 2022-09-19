@@ -6331,6 +6331,11 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Exibições do Razão Descartadas</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Colunas do Razão Descartadas</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">Não foi possível encontrar o modelo SQL do projeto: {0}.</target>

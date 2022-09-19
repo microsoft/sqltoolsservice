@@ -3871,6 +3871,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>드롭된 원장 보기</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>삭제된 원장 열</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>프로젝트에서 SQL 모델을 찾을 수 없습니다. {0}.</value>
   </data>
