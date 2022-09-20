@@ -139,9 +139,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool IncludeHeaders { get; set; }
 
         /// <summary>
-        ///
+        /// Character sequence to separate a each row in the table. Should be either CR, CRLF, or
+        /// LF. If not provided, defaults to the system default line ending sequence.
         /// </summary>
-        public string LineSeperator { get; set; }
+        public string? LineSeparator { get; set; }
     }
 
     /// <summary>
