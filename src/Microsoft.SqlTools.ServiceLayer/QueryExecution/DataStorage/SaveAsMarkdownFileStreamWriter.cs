@@ -7,17 +7,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
+    /// <summary>
+    /// Writer for exporting results to a Markdown table.
+    /// </summary>
     public class SaveAsMarkdownFileStreamWriter : SaveAsStreamWriter
     {
         private const string Delimiter = "|";
-        private static readonly Regex NewlineRegex = new Regex("(\r\n|\n|\r)", RegexOptions.Compiled);
+        private static readonly Regex NewlineRegex = new Regex(@"(\r\n|\n|\r)", RegexOptions.Compiled);
 
         private readonly Encoding encoding;
         private readonly string lineSeparator;
@@ -29,9 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             : base(stream, requestParams, columns)
         {
             // Parse the request params
-            this.lineSeparator = string.IsNullOrEmpty(requestParams.LineSeperator)
+            this.lineSeparator = string.IsNullOrEmpty(requestParams.LineSeparator)
                 ? Environment.NewLine
-                : requestParams.LineSeperator;
+                : requestParams.LineSeparator;
             this.encoding = ParseEncoding(requestParams.Encoding, Encoding.UTF8);
 
             // Output the header if requested
@@ -76,7 +79,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
 
             // Escape HTML entities, since Markdown supports inline HTML
-            field = SecurityElement.Escape(field);
+            field = HttpUtility.HtmlEncode(field);
+
+            // TODO: Convert excess whitespace to &nbsp;
 
             // Escape pipe delimiters
             field = field.Replace(@"|", @"\|");
