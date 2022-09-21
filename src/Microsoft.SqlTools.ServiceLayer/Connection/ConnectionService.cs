@@ -136,21 +136,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.LockedDatabaseManager.ConnectionService = this;
         }
 
-        public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
-        {
-            RequestSecurityTokenParams message = new RequestSecurityTokenParams()
-            {
-                Authority = authority,
-                Provider = "Azure",
-                Resource = resource,
-                Scope = scope
-            };
-
-            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
-
-            return response.Token;
-        }
-
         /// <summary>
         /// Returns a connection queue for given type
         /// </summary>
