@@ -836,6 +836,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Columns:
                         table.Columns.Move(fromIndex, toIndex);
                         break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        table.PrimaryKey.MoveColumn(fromIndex, toIndex);
+                        break;
                     default:
                         break;
                 }
@@ -1142,6 +1145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
             view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Column);
             view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Ascending);
+            view.PrimaryKeyColumnSpecificationTableOptions.CanMoveRows = true;
         }
 
         private void SetColumnsViewInfo(TableDesignerView view)

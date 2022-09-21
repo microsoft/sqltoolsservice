@@ -3871,6 +3871,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Удаленные представления реестра</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Удаленные столбцы реестра</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Не удалось найти модель SQL из проекта: {0}.</value>
   </data>

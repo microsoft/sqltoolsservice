@@ -67,23 +67,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
         The following is an example of a setting_file: 
 
 <Configuration>
-    <Instance Name=""defaultSql2005"">
-        <DataSource>SQL2005 servername</DataSource>
+    <Instance Name=""sqlOnPrem"">
+       <DataSource>SQL On-Prem servername</DataSource>
         <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 2005 remote share</RemoteShare>
+        <RemoteShare>SQL remote share</RemoteShare>
     </Instance>
-    <Instance Name=""defaultSql2008"">
-       <DataSource>SQL2008 servername</DataSource>
-        <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 2008 remote share</RemoteShare>
-    </Instance>
-    <Instance Name=""defaultSql2011"">
-       <DataSource>SQL2011 servername</DataSource>
-        <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 20011 remote share</RemoteShare>
-    </Instance>
-    <Instance Name=""defaultSqlAzureV12"">
-        <DataSource>SQLAzure servername</DataSource>
+    <Instance Name=""sqlAzure"">
+        <DataSource>SQL Azure servername</DataSource>
         <BackupMethod>RemoteShare</BackupMethod>
         <RemoteShare>SQLAzure remote share</RemoteShare>
         <UserId>user id</UserId>

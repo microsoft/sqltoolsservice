@@ -41,6 +41,7 @@ using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
+        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext, Stream? inputStream = null, Stream? outputStream = null)
         {
             ServiceHost serviceHost = ServiceHost.Instance;
             lock (lockObject)
@@ -61,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 if (!isLoaded)
                 {
                     // Grab the instance of the service host
-                    serviceHost.Initialize();
+                    serviceHost.Initialize(inputStream, outputStream);
 
                     InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext);
 

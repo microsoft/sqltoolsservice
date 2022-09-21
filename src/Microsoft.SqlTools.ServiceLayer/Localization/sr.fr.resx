@@ -3871,6 +3871,9 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Affichages de registre supprimés</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Colonnes de registre supprimées</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Impossible de trouver le modèle SQL du projet : {0}.</value>
   </data>

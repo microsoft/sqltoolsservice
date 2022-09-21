@@ -6331,6 +6331,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">드롭된 원장 보기</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">삭제된 원장 열</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">프로젝트에서 SQL 모델을 찾을 수 없습니다. {0}.</target>
