@@ -23,12 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
     public class ObjectManagementServiceTests
     {
-        private readonly string table_query = @"CREATE TABLE testTable1_RenamingTable (c1 int)
-                            GO
-                            ";
-        private readonly string ownerUri = "testDB";
-        private readonly string startTableName = "testTable1_RenamingTable";
-        private readonly string startColumnName = "c1";
+        private const string TableQuery = @"CREATE TABLE testTable1_RenamingTable (c1 int)";
+        private const string OWNERURI = "testDB";
         private ObjectManagementService objectManagementService;
         private SqlTestDb testDb;
         private Mock<RequestContext<bool>> requestContextMock;
@@ -36,37 +32,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [SetUp]
         public async Task TestInitialize()
         {
-            this.testDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, table_query, "RenameTest");
+            this.testDb = await SqlTestDb.CreateNewAsync(serverType: TestServerType.OnPrem, query: TableQuery, dbNamePrefix: "RenameTest");
 
             requestContextMock = new Mock<RequestContext<bool>>();
             ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
 
-            TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, this.ownerUri, ConnectionType.Default);
+            TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OWNERURI, ConnectionType.Default);
 
             ObjectManagementService.ConnectionServiceInstance = connectionService;
             this.objectManagementService = new ObjectManagementService();
+        }
+
+        [TearDown]
+        public async Task TearDownTestDatabase()
+        {
+            await SqlTestDb.DropDatabase(testDb.DatabaseName);
         }
 
         [Test]
         public async Task TestRenameTable()
         {
             await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
-            Thread.Sleep(2000);
-            requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => VerifySendedFeedback(r, true))));
-            await CheckGeneratedScript(testDb.DatabaseName, "CREATE TABLE [dbo].[RenamingTable]");
 
-            await SqlTestDb.DropDatabase(testDb.DatabaseName);
+            requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => r == true)));
+            await CheckGeneratedScript(testDb.DatabaseName, "CREATE TABLE [dbo].[RenamingTable]");
         }
 
         [Test]
         public async Task TestRenameColumn()
         {
             await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1']", testDb.DatabaseName)), requestContextMock.Object);
-            Thread.Sleep(2000);
-            requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => VerifySendedFeedback(r, true))));
+
+            requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => r == true)));
             await CheckGeneratedScript(testDb.DatabaseName, "[RenameColumn] [int] NULL");
 
-            await SqlTestDb.DropDatabase(testDb.DatabaseName);
         }
 
         [Test]
@@ -75,10 +74,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Assert.ThrowsAsync<FailedOperationException>(async () =>
             {
                 await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName)), requestContextMock.Object);
-                Thread.Sleep(2000);
+
             });
 
-            await SqlTestDb.DropDatabase(testDb.DatabaseName);
         }
 
         [Test]
@@ -87,9 +85,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Assert.ThrowsAsync<FailedOperationException>(async () =>
             {
                 await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
-                Thread.Sleep(2000);
+
             });
-            await SqlTestDb.DropDatabase(testDb.DatabaseName);
         }
 
         [Test]
@@ -104,14 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Assert.ThrowsAsync<Exception>(async () =>
             {
                 await objectManagementService.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object);
-                Thread.Sleep(2000);
-            });
-            await SqlTestDb.DropDatabase(testDb.DatabaseName);
-        }
 
-        private static bool VerifySendedFeedback(bool result, bool expectedResult)
-        {
-            return result == expectedResult;
+            });
         }
 
         private RenameRequestParams InitRequestParams(string newName, string UrnOfObject)
@@ -119,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return new RenameRequestParams
             {
                 NewName = newName,
-                ConnectionUri = this.ownerUri,
+                ConnectionUri = OWNERURI,
                 ObjectUrn = UrnOfObject,
             };
         }
@@ -144,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 };
                 ScriptingService service = new ScriptingService();
                 await service.HandleScriptExecuteRequest(scriptingParams, requestContext.Object);
-                Thread.Sleep(2000);
+
                 await service.ScriptingTask;
             }
             requestContext.Verify(x => x.SendResult(It.Is<ScriptingResult>(r =>
@@ -160,12 +151,5 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
             return true;
         }
-
-        protected void VerifyErrorSent<T>(Mock<RequestContext<T>> contextMock)
-        {
-            contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Never);
-            contextMock.Verify(c => c.SendError(It.IsAny<Exception>()), Times.Once);
-        }
-
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     public class RenameRequestParams : GeneralRequestDetails
     {
         /// <summary>
-        /// uniform resource name of the object  
+        /// SFC (SMO) URN identifying the object  
         /// </summary>
         public string ObjectUrn { get; set; }
         /// <summary>
