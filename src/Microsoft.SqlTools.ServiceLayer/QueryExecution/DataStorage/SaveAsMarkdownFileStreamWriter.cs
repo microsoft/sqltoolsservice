@@ -22,8 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         private const string Delimiter = "|";
         private static readonly Regex NewlineRegex = new Regex(@"(\r\n|\n|\r)", RegexOptions.Compiled);
 
-        private readonly Encoding encoding;
-        private readonly string lineSeparator;
+        private readonly Encoding _encoding;
+        private readonly string _lineSeparator;
 
         public SaveAsMarkdownFileStreamWriter(
             Stream stream,
@@ -32,10 +32,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             : base(stream, requestParams, columns)
         {
             // Parse the request params
-            this.lineSeparator = string.IsNullOrEmpty(requestParams.LineSeparator)
+            this._lineSeparator = string.IsNullOrEmpty(requestParams.LineSeparator)
                 ? Environment.NewLine
                 : requestParams.LineSeparator;
-            this.encoding = ParseEncoding(requestParams.Encoding, Encoding.UTF8);
+            this._encoding = ParseEncoding(requestParams.Encoding, Encoding.UTF8);
 
             // Output the header if requested
             if (requestParams.IncludeHeaders)
@@ -81,10 +81,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // Escape HTML entities, since Markdown supports inline HTML
             field = HttpUtility.HtmlEncode(field);
 
-            // TODO: Convert excess whitespace to &nbsp;
-
             // Escape pipe delimiters
             field = field.Replace(@"|", @"\|");
+
+            // @TODO: Allow option to encode multiple whitespace characters as &nbsp;
 
             // Replace newlines with br tags, since cell values must be single line
             field = NewlineRegex.Replace(field, @"<br />");
@@ -92,9 +92,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             return field;
         }
 
-        internal void WriteLine(string line)
+        private void WriteLine(string line)
         {
-            byte[] bytes = this.encoding.GetBytes(line + this.lineSeparator);
+            byte[] bytes = this._encoding.GetBytes(line + this._lineSeparator);
             this.FileStream.Write(bytes);
         }
     }

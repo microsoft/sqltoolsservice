@@ -157,16 +157,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.AreEqual(expected, output);
         }
 
-        // @TODO: Convert excess whitespace to &nbsp;
-        // [TestCase("\tSomething")] // Starts with tab
-        // [TestCase("Something\t")] // Ends with tab
-        // [TestCase("\rSomething")] // Starts with carriage return
-        // [TestCase("Something\r")] // Ends with carriage return
-        // [TestCase("\nSomething")] // Starts with line feed
-        // [TestCase("Something\n")] // Ends with line feed
-        // [TestCase(" Something")]  // Starts with space
-        // [TestCase("Something ")]  // Ends with space
-        // [TestCase(" Something ")] // Starts and ends with space
+        // @TODO: Convert excess whitespace to &nbsp; on user choice
+        // [TestCase("\tSomething")]       // Starts with tab
+        // [TestCase("Something\t")]       // Ends with tab
+        // [TestCase(" Something")]        // Starts with space
+        // [TestCase("Something ")]        // Ends with space
+        // [TestCase(" Something ")]       // Starts and ends with space
+        // [TestCase("Something    else")] // Contains multiple consecutive spaces
         // public void EncodeMarkdownField_WhitespaceAtFrontOrBack_ShouldBeWrapped(string field)
         // {
         //     // Setup: Create MarkdownFileStreamWriter that specifies the text identifier and field separator
