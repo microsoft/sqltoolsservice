@@ -535,9 +535,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             RequestContext<SaveResultRequestResult> requestContext)
         {
             // Use the default markdown file factory if we haven't overridden it
-            IFileStreamFactory markdownFactory = MarkdownFileFactory ?? new SaveAsMarkdownFileStreamFactory(
-                this.Settings.QueryExecutionSettings,
-                saveParams);
+            IFileStreamFactory markdownFactory = this.MarkdownFileFactory ??
+                                                 new SaveAsMarkdownFileStreamFactory(saveParams)
+                                                 {
+                                                     QueryExecutionSettings = this.Settings.QueryExecutionSettings,
+                                                 };
+
             await this.SaveResultsHelper(saveParams, requestContext, markdownFactory);
         }
 

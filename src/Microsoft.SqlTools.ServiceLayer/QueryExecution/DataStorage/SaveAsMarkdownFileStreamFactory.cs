@@ -14,17 +14,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
     public class SaveAsMarkdownFileStreamFactory : IFileStreamFactory
     {
-        private readonly SaveResultsAsMarkdownRequestParams saveRequestParams;
+        private readonly SaveResultsAsMarkdownRequestParams _saveRequestParams;
 
         /// <summary>
         /// Constructs and initializes a new instance of <see cref="SaveAsMarkdownFileStreamFactory"/>.
         /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="requestParams"></param>
-        public SaveAsMarkdownFileStreamFactory(QueryExecutionSettings settings, SaveResultsAsMarkdownRequestParams requestParams)
+        /// <param name="requestParams">Parameters for the save as request</param>
+        public SaveAsMarkdownFileStreamFactory(SaveResultsAsMarkdownRequestParams requestParams)
         {
-            this.QueryExecutionSettings = settings;
-            this.saveRequestParams = requestParams;
+            this._saveRequestParams = requestParams;
         }
 
         /// <inheritdoc />
@@ -57,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         {
             return new SaveAsMarkdownFileStreamWriter(
                 new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite),
-                this.saveRequestParams,
+                this._saveRequestParams,
                 columns);
         }
 

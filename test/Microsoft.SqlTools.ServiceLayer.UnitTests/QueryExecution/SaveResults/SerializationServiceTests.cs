@@ -60,19 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         protected Mock<IProtocolEndpoint> HostMock { get; private set; }
         protected SerializationService SerializationService { get; private set; }
 
-        [Test]
-        public async Task SaveResultsAsCsvNoHeaderSuccess()
-        {
-            await TestSaveAsCsvSuccess(false);
-        }
-
-        [Test]
-        public async Task SaveResultsAsCsvWithHeaderSuccess()
-        {
-            await TestSaveAsCsvSuccess(true);
-        }
-
-        private async Task TestSaveAsCsvSuccess(bool includeHeaders)
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task TestSaveAsCsvSuccess(bool includeHeaders)
         {
             await this.RunFileSaveTest(async (filePath) =>
             {
@@ -102,18 +92,47 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             });
         }
 
-        [Test]
-        public async Task SaveResultsAsCsvNoHeaderMultiRequestSuccess()
+        [TestCase(true)]
+        [TestCase(false)]
+        public Task TestSaveAsMarkdownSuccess(bool includeHeaders)
         {
-            await TestSaveAsCsvMultiRequestSuccess(false);
+            return this.RunFileSaveTest(async filePath =>
+            {
+                // Give:
+                // ... A simple data set that requires 1 message
+                var saveParams = new SerializeDataStartRequestParams
+                {
+                    FilePath = filePath,
+                    Columns = DefaultColumns,
+                    Rows = DefaultData,
+                    IsLastBatch = true,
+                    SaveFormat = "markdown",
+                    IncludeHeaders = includeHeaders,
+                };
+
+                // When: I attempt to save this to a file
+                var efv = new EventFlowValidator<SerializeDataResult>()
+                    .AddStandardResultValidator()
+                    .Complete();
+
+                await SerializationService.RunSerializeStartRequest(saveParams, efv.Object);
+
+                // Then:
+                // ... There should not have been any errors
+                efv.Validate();
+
+                // ... And the file should look as expected
+                VerifyContents.VerifyMarkdownMatchesData(
+                    saveParams.Rows,
+                    saveParams.Columns,
+                    saveParams.IncludeHeaders,
+                    saveParams.FilePath);
+            });
         }
 
-        [Test]
-        public async Task SaveResultsAsCsvWithHeaderMultiRequestSuccess()
-        {
-            await TestSaveAsCsvMultiRequestSuccess(true);
-        }
-        private async Task TestSaveAsCsvMultiRequestSuccess(bool includeHeaders)
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task TestSaveAsCsvMultiRequestSuccess(bool includeHeaders)
         {
             Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "csv";
@@ -145,6 +164,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             };
             Action<string> validation = (filePath) => {
                 VerifyContents.VerifyXmlMatchesData(DefaultData, DefaultColumns, filePath);
+            };
+            await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task SaveAsMarkdownMultiRequestSuccess(bool includeHeaders)
+        {
+            Action<SerializeDataStartRequestParams> setParams = serializeParams =>
+            {
+                serializeParams.SaveFormat = "markdown";
+                serializeParams.IncludeHeaders = includeHeaders;
+            };
+            Action<string> validation = filePath =>
+            {
+                VerifyContents.VerifyMarkdownMatchesData(DefaultData, DefaultColumns, includeHeaders, filePath);
             };
             await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
         }
@@ -266,6 +301,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 Assert.True(expected[i] == actual[i], $"Line '{line}' does not match values '{string.Join(",", expected)}' as '{expected[i]}' does not equal '{actual[i]}'");
             }
         }
+
+        public static void VerifyMarkdownMatchesData(
+            DbCellValue[][] data,
+            ColumnInfo[] columns,
+            bool includeHeaders,
+            string filePath)
+        {
+            Assert.True(File.Exists(filePath));
+            string[] lines = File.ReadAllLines(filePath);
+
+            int expectedLength = includeHeaders ? data.Length + 2 : data.Length;
+            Assert.AreEqual(expectedLength, lines.Length);
+
+            int lineOffset = 0;
+            if (includeHeaders)
+            {
+                // First line is |col1|col2|...
+                Assert.AreEqual($"|{string.Join("|", columns.Select(c => c.Name))}|", lines[0]);
+                // Second line is |---|---|...
+                Assert.AreEqual($"|{string.Join("", Enumerable.Repeat("---|", columns.Length))}", lines[1]);
+
+                lineOffset = 2;
+            }
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                var expectedLine = $"|{string.Join("|", data[i].Select(GetMarkdownPrintValue).ToArray())}|";
+                Assert.AreEqual(expectedLine, lines[i + lineOffset]);
+            }
+        }
+
+        private static string GetMarkdownPrintValue(DbCellValue d) =>
+            d.IsNull ? "NULL" : d.DisplayValue;
 
         public static void VerifyJsonMatchesData(DbCellValue[][] data, ColumnInfo[] columns, string filePath)
         {
