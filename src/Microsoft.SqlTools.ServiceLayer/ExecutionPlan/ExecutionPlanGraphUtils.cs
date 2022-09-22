@@ -37,10 +37,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         {
             var costMetrics = new CostMetrics() {
                 ElapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs,
-                EstimateRowsForAllExecutions = ExecutionPlanGraphUtils.GetEstimatedRowsForAllExecutions(currentNode.Properties["EstimateRowsAllExecs"] as PropertyValue),
-                EstimatedRowsRead = ExecutionPlanGraphUtils.GetEstimatedRowsRead(currentNode.Properties["EstimatedRowsRead"] as PropertyValue),
-                ActualRows = ExecutionPlanGraphUtils.GetActualRows(currentNode.Properties["ActualRows"] as PropertyValue),
-                ActualRowsRead = ExecutionPlanGraphUtils.GetActualRowsRead(currentNode.Properties["ActualRowsRead"] as PropertyValue)
+                EstimateRowsForAllExecutions = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["EstimateRowsAllExecs"] as PropertyValue),
+                EstimatedRowsRead = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["EstimatedRowsRead"] as PropertyValue),
+                ActualRows = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["ActualRows"] as PropertyValue),
+                ActualRowsRead = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["ActualRowsRead"] as PropertyValue)
             };
 
             return new ExecutionPlanNode
@@ -107,54 +107,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 RowSize = edge.RowSize,
                 Properties = GetProperties(edge.Properties)
             };
-        }
-
-        private static string GetEstimatedRowsForAllExecutions(PropertyValue? property)
-        {
-            var estimatedRowsForAllExecutions = string.Empty;
-
-            if (property != null)
-            {
-                estimatedRowsForAllExecutions = GetPropertyDisplayValue(property);
-            }
-
-            return estimatedRowsForAllExecutions;
-        }
-
-        private static string GetEstimatedRowsRead(PropertyValue? property)
-        {
-            var estimatedRowsRead = string.Empty;
-
-            if (property != null)
-            {
-                estimatedRowsRead = GetPropertyDisplayValue(property);
-            }
-
-            return estimatedRowsRead;
-        }
-
-        private static string GetActualRows(PropertyValue? property)
-        {
-            var actualRows = string.Empty;
-
-            if (property != null)
-            {
-                actualRows = GetPropertyDisplayValue(property);
-            }
-
-            return actualRows;
-        }
-
-        private static string GetActualRowsRead(PropertyValue? property)
-        {
-            var actualRowsRead = string.Empty;
-
-            if (property != null)
-            {
-                actualRowsRead = GetPropertyDisplayValue(property);
-            }
-
-            return actualRowsRead;
         }
 
         public static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)
@@ -470,8 +422,13 @@ GO
 ";
         }
 
-        private static string GetPropertyDisplayValue(PropertyValue property)
+        private static string GetPropertyDisplayValue(PropertyValue? property)
         {
+            if (property == null)
+            {
+                return String.Empty;
+            }
+
             try
             {
                 // Get the property value.
