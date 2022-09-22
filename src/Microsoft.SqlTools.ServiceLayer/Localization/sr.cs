@@ -9613,6 +9613,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ErrorConnectionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorConnectionNotFound);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -13877,6 +13885,8 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
+
+            public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
 
 
             private Keys()
