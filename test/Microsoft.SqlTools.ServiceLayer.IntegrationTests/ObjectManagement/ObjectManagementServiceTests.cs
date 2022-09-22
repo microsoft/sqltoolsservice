@@ -3,17 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
-using System.Threading;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using NUnit.Framework;
@@ -52,20 +52,41 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public async Task TestRenameTable()
         {
+            //arrange & act
             await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
 
+            //assert
             requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => r == true)));
-            await CheckGeneratedScript(testDb.DatabaseName, "CREATE TABLE [dbo].[RenamingTable]");
+
+            Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.tables WHERE name='RenamingTable'");
+            Assert.IsTrue(queryRenameObject.HasExecuted);
+            Assert.IsFalse(queryRenameObject.HasErrored);
+            Assert.AreEqual(1, queryRenameObject.Batches[0].ResultSets[0].RowCount);
+
+            Query queryOldObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.tables WHERE name='testTable1_RenamingTable'");
+            Assert.IsTrue(queryOldObject.HasExecuted);
+            Assert.IsFalse(queryOldObject.HasErrored);
+            Assert.AreEqual(0, queryOldObject.Batches[0].ResultSets[0].RowCount);
         }
 
         [Test]
         public async Task TestRenameColumn()
         {
+            //arrange & act
             await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1']", testDb.DatabaseName)), requestContextMock.Object);
 
+            //assert
             requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => r == true)));
-            await CheckGeneratedScript(testDb.DatabaseName, "[RenameColumn] [int] NULL");
 
+            Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.columns WHERE name='RenameColumn'");
+            Assert.IsTrue(queryRenameObject.HasExecuted);
+            Assert.IsFalse(queryRenameObject.HasErrored);
+            Assert.AreEqual(1, queryRenameObject.Batches[0].ResultSets[0].RowCount);
+
+            Query queryOldObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.columns WHERE name='C1'");
+            Assert.IsTrue(queryOldObject.HasExecuted);
+            Assert.IsFalse(queryOldObject.HasErrored);
+            Assert.AreEqual(0, queryOldObject.Batches[0].ResultSets[0].RowCount);
         }
 
         [Test]
@@ -74,7 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Assert.ThrowsAsync<FailedOperationException>(async () =>
             {
                 await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName)), requestContextMock.Object);
-
             });
 
         }
@@ -85,7 +105,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Assert.ThrowsAsync<FailedOperationException>(async () =>
             {
                 await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
-
             });
         }
 
@@ -115,41 +134,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             };
         }
 
-        private async Task CheckGeneratedScript(string databaseName, string expectedResult)
+        private Query ExecuteQuery(string queryText)
         {
-            var requestContext = new Mock<RequestContext<ScriptingResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<ScriptingResult>())).Returns(Task.FromResult(new object()));
-            ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
-            {
-                TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(databaseName, queryTempFile.FilePath, ConnectionType.Default);
-                var scriptingParams = new ScriptingParams
-                {
-                    OwnerUri = queryTempFile.FilePath,
-                    ScriptDestination = "ToEditor",
-                    Operation = ScriptingOperationType.Create
-                };
-                scriptingParams.ScriptOptions = new ScriptOptions
-                {
-                    ScriptCreateDrop = "ScriptCreate",
-                };
-                ScriptingService service = new ScriptingService();
-                await service.HandleScriptExecuteRequest(scriptingParams, requestContext.Object);
+            TestConnectionResult conResult = LiveConnectionHelper.InitLiveConnectionInfo();
+            ConnectionInfo connInfo = conResult.ConnectionInfo;
+            IFileStreamFactory fileStreamFactory = MemoryFileSystem.GetFileStreamFactory(new ConcurrentDictionary<string, byte[]>());
 
-                await service.ScriptingTask;
-            }
-            requestContext.Verify(x => x.SendResult(It.Is<ScriptingResult>(r =>
-                VerifyScriptingResult(r, expectedResult)
-            )));
-        }
-        private static bool VerifyScriptingResult(ScriptingResult result, string expectedScript)
-        {
-            Logger.Verbose(result.Script);
-            if (!result.Script.Contains(expectedScript))
-            {
-                return false;
-            }
-            return true;
+            QueryExecutionSettings settings = new QueryExecutionSettings() { IsSqlCmdMode = false };
+            Query query = new Query(queryText, connInfo, settings, fileStreamFactory);
+            query.Execute();
+            query.ExecutionTask.Wait();
+            return query;
         }
     }
 }
