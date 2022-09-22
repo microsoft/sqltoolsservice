@@ -35,6 +35,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
 
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
         {
+            var costMetrics = new CostMetrics() {
+                ElapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs,
+                EstimateRowsForAllExecutions = ExecutionPlanGraphUtils.GetEstimatedRowsForAllExecutions(currentNode.Properties["EstimateRowsAllExecs"] as PropertyValue),
+                EstimatedRowsRead = ExecutionPlanGraphUtils.GetEstimatedRowsRead(currentNode.Properties["EstimatedRowsRead"] as PropertyValue),
+                ActualRows = ExecutionPlanGraphUtils.GetActualRows(currentNode.Properties["ActualRows"] as PropertyValue),
+                ActualRowsRead = ExecutionPlanGraphUtils.GetActualRowsRead(currentNode.Properties["ActualRowsRead"] as PropertyValue)
+            };
+
             return new ExecutionPlanNode
             {
                 ID = currentNode.ID,
@@ -52,9 +60,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
                 ElapsedTimeInMs = currentNode.ElapsedTimeInMs,
-                ElapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs,
                 TopOperationsData = ParseTopOperationsData(currentNode),
-                RowMetrics = GetRowMetrics(currentNode.Properties)
+                CostMetrics = costMetrics
             };
         }
 
@@ -102,59 +109,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             };
         }
 
-        public static Dictionary<string, string?> GetRowMetrics(PropertyDescriptorCollection properties)
+        private static string GetEstimatedRowsForAllExecutions(PropertyValue? property)
         {
-            var metrics = new Dictionary<string, string?>();
+            var estimatedRowsForAllExecutions = string.Empty;
 
-            var estimatedRowsAllExecsProperty = properties["EstimateRowsAllExecs"] as PropertyValue;
-            if (estimatedRowsAllExecsProperty != null)
+            if (property != null)
             {
-                var name = estimatedRowsAllExecsProperty?.Name;
-                var displayValue = GetPropertyDisplayValue(estimatedRowsAllExecsProperty);
-
-                if (name != null)
-                {
-                    metrics[name] = displayValue;
-                }
+                estimatedRowsForAllExecutions = GetPropertyDisplayValue(property);
             }
 
-            var estimatedRowsReadProperty = properties["EstimatedRowsRead"] as PropertyValue;
-            if (estimatedRowsReadProperty != null)
-            {
-                var name = estimatedRowsReadProperty?.Name;
-                var displayValue = GetPropertyDisplayValue(estimatedRowsReadProperty);
+            return estimatedRowsForAllExecutions;
+        }
 
-                if (name != null)
-                {
-                    metrics[name] = displayValue;
-                }
+        private static string GetEstimatedRowsRead(PropertyValue? property)
+        {
+            var estimatedRowsRead = string.Empty;
+
+            if (property != null)
+            {
+                estimatedRowsRead = GetPropertyDisplayValue(property);
             }
 
-            var actualRowsProperty = properties["ActualRows"] as PropertyValue;
-            if (actualRowsProperty != null)
-            {
-                var name = actualRowsProperty?.Name;
-                var displayValue = GetPropertyDisplayValue(actualRowsProperty);
+            return estimatedRowsRead;
+        }
 
-                if (name != null)
-                {
-                    metrics[name] = displayValue;
-                }
+        private static string GetActualRows(PropertyValue? property)
+        {
+            var actualRows = string.Empty;
+
+            if (property != null)
+            {
+                actualRows = GetPropertyDisplayValue(property);
             }
 
-            var actualRowsReadProperty = properties["ActualRowsRead"] as PropertyValue;
-            if (actualRowsReadProperty != null)
-            {
-                var name = actualRowsReadProperty?.Name;
-                var displayValue = GetPropertyDisplayValue(actualRowsReadProperty);
+            return actualRows;
+        }
 
-                if (name != null)
-                {
-                    metrics[name] = displayValue;
-                }
+        private static string GetActualRowsRead(PropertyValue? property)
+        {
+            var actualRowsRead = string.Empty;
+
+            if (property != null)
+            {
+                actualRowsRead = GetPropertyDisplayValue(property);
             }
 
-            return metrics;
+            return actualRowsRead;
         }
 
         public static List<ExecutionPlanGraphPropertyBase> GetProperties(PropertyDescriptorCollection props)

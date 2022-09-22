@@ -67,10 +67,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public long? ElapsedTimeInMs { get; set; }
         /// <summary>
-        /// CPU Time taken by the node operation in milliseconds
-        /// </summary>
-        public long? ElapsedCpuTimeInMs { get; set; }
-        /// <summary>
         /// Node properties to be shown in the tooltip
         /// </summary>
         public List<ExecutionPlanGraphPropertyBase> Properties { get; set; }
@@ -97,9 +93,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public List<TopOperationsDataItem> TopOperationsData { get; set; }
         /// <summary>
-        /// Rows read metrics for the node
+        /// The cost metrics for the node.
         /// </summary>
-        public Dictionary<string, string?> RowMetrics { get; set; }
+        public CostMetrics CostMetrics { get; set; }
+    }
+
+    public class CostMetrics
+    {
+        /// <summary>
+        /// CPU Time taken by the node operation in milliseconds
+        /// </summary>
+        public long? ElapsedCpuTimeInMs { get; set; }
+        /// <summary>
+        /// Estimate number of rows for all executions.
+        /// </summary>
+        public string? EstimateRowsForAllExecutions { get; set; }
+        /// <summary>
+        /// Estimated number of rows read.
+        /// </summary>
+        public string? EstimatedRowsRead { get; set; }
+        /// <summary>
+        /// The actual total number of rows.
+        /// </summary>
+        public string? ActualRows { get; set; }
+        /// <summary>
+        /// The actual number of rows read.
+        /// </summary>
+        public string? ActualRowsRead { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase
