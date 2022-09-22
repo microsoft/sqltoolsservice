@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public TestServerType ServerType { get; set; }
 
         public bool DoNotCleanupDb { get; set; }
+
         public string ConnectionString
         {
             get

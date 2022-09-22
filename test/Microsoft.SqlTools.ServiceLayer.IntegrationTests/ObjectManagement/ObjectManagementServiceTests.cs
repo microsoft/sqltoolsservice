@@ -87,7 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             Assert.That(queryOldObject.HasExecuted, Is.True, "The query to check for the old column was not executed");
             Assert.That(queryOldObject.HasErrored, Is.False, "There were errors on the execution of the query to check for the old column");
             Assert.That(queryOldObject.Batches[0].ResultSets[0].RowCount, Is.EqualTo(0), "Did find the old column which should have been renamed");
-
         }
 
         [Test]
