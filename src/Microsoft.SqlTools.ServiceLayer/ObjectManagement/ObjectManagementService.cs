@@ -23,11 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private const string ObjectManagementServiceApplicationName = "azdata-object-management";
         private static Lazy<ObjectManagementService> objectManagementServiceInstance = new Lazy<ObjectManagementService>(() => new ObjectManagementService());
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
-
         public static ConnectionService connectionService;
-
         private IProtocolEndpoint serviceHost;
-
         public ObjectManagementService() { }
 
         /// <summary>
@@ -60,7 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <returns></returns>
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<bool> requestContext)
         {
-
             Logger.Verbose("Handle Request in HandleProcessRenameEditRequest()");
             ConnectionInfo connInfo;
 
@@ -71,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, ObjectManagementServiceApplicationName))
                 {
 
-                    IRenamable renameObject = this.GetSQLRenameObject(requestParams, sqlConn);
+                    IRenamable renameObject = this.GetRenamable(requestParams, sqlConn);
 
                     renameObject.Rename(requestParams.NewName);
                 }
@@ -83,7 +79,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             await requestContext.SendResult(true);
-
         }
 
         /// <summary>
@@ -92,13 +87,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="requestParams">parameters which are required for the rename operation</param>
         /// <param name="connection">the sqlconnection on the server to search for the sqlobject</param>
         /// <returns>the sql object if implements the interface IRenamable, so they can be renamed</returns>
-        private IRenamable GetSQLRenameObject(RenameRequestParams requestParams, SqlConnection connection)
+        private IRenamable GetRenamable(RenameRequestParams requestParams, SqlConnection connection)
         {
             ServerConnection serverConnection = new ServerConnection(connection);
             Server server = new Server(serverConnection);
             SqlSmoObject dbObject = server.GetSmoObject(new Urn(requestParams.ObjectUrn));
-
-
             return (IRenamable)dbObject;
         }
     }

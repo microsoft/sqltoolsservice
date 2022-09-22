@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
     public class ObjectManagementServiceTests
     {
         private const string TableQuery = @"CREATE TABLE testTable1_RenamingTable (c1 int)";
-        private const string OWNERURI = "testDB";
+        private const string OwnerUri = "testDB";
         private ObjectManagementService objectManagementService;
         private SqlTestDb testDb;
         private Mock<RequestContext<bool>> requestContextMock;
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             requestContextMock = new Mock<RequestContext<bool>>();
             ConnectionService connectionService = LiveConnectionHelper.GetLiveTestConnectionService();
 
-            TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OWNERURI, ConnectionType.Default);
+            TestConnectionResult connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, OwnerUri, ConnectionType.Default);
 
             ObjectManagementService.ConnectionServiceInstance = connectionService;
             this.objectManagementService = new ObjectManagementService();
@@ -59,14 +59,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => r == true)));
 
             Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.tables WHERE name='RenamingTable'");
-            Assert.IsTrue(queryRenameObject.HasExecuted);
-            Assert.IsFalse(queryRenameObject.HasErrored);
-            Assert.AreEqual(1, queryRenameObject.Batches[0].ResultSets[0].RowCount);
+            Assert.That(queryRenameObject.HasExecuted, Is.True, "The query to check for the renamed table was not executed");
+            Assert.That(queryRenameObject.HasErrored, Is.False, "There were errors on the execution of the query to check for the renamed table");
+            Assert.That(queryRenameObject.Batches[0].ResultSets[0].RowCount, Is.EqualTo(1), "Did not find the table with the new name after the rename operation");
 
             Query queryOldObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.tables WHERE name='testTable1_RenamingTable'");
-            Assert.IsTrue(queryOldObject.HasExecuted);
-            Assert.IsFalse(queryOldObject.HasErrored);
-            Assert.AreEqual(0, queryOldObject.Batches[0].ResultSets[0].RowCount);
+            Assert.That(queryOldObject.HasExecuted, Is.True, "The query to check for the old table was not executed");
+            Assert.That(queryOldObject.HasErrored, Is.False, "There were errors on the execution of the query to check for the old table");
+            Assert.That(queryOldObject.Batches[0].ResultSets[0].RowCount, Is.EqualTo(0), "Did find the old table which should have been renamed");
         }
 
         [Test]
@@ -79,33 +79,33 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             requestContextMock.Verify(x => x.SendResult(It.Is<bool>(r => r == true)));
 
             Query queryRenameObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.columns WHERE name='RenameColumn'");
-            Assert.IsTrue(queryRenameObject.HasExecuted);
-            Assert.IsFalse(queryRenameObject.HasErrored);
-            Assert.AreEqual(1, queryRenameObject.Batches[0].ResultSets[0].RowCount);
+            Assert.That(queryRenameObject.HasExecuted, Is.True, "The query to check for the renamed column was not executed");
+            Assert.That(queryRenameObject.HasErrored, Is.False, "There were errors on the execution of the query to check for the renamed column");
+            Assert.That(queryRenameObject.Batches[0].ResultSets[0].RowCount, Is.EqualTo(1), "Did not find the column with the new name after the rename operation");
 
             Query queryOldObject = ExecuteQuery("SELECT * FROM " + testDb.DatabaseName + ".sys.columns WHERE name='C1'");
-            Assert.IsTrue(queryOldObject.HasExecuted);
-            Assert.IsFalse(queryOldObject.HasErrored);
-            Assert.AreEqual(0, queryOldObject.Batches[0].ResultSets[0].RowCount);
+            Assert.That(queryOldObject.HasExecuted, Is.True, "The query to check for the old column was not executed");
+            Assert.That(queryOldObject.HasErrored, Is.False, "There were errors on the execution of the query to check for the old column");
+            Assert.That(queryOldObject.Batches[0].ResultSets[0].RowCount, Is.EqualTo(0), "Did find the old column which should have been renamed");
+
         }
 
         [Test]
         public async Task TestRenameColumnNotExisting()
         {
-            Assert.ThrowsAsync<FailedOperationException>(async () =>
+            Assert.That(async () =>
             {
                 await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenameColumn", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_RenamingTable' and @Schema='dbo']/Column[@Name='C1_NOT']", testDb.DatabaseName)), requestContextMock.Object);
-            });
-
+            }, Throws.Exception.TypeOf<FailedOperationException>(), "Did find the column, which should not have existed");
         }
 
         [Test]
         public async Task TestRenameTableNotExisting()
         {
-            Assert.ThrowsAsync<FailedOperationException>(async () =>
+            Assert.That(async () =>
             {
                 await objectManagementService.HandleRenameRequest(this.InitRequestParams("RenamingTable", String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName)), requestContextMock.Object);
-            });
+            }, Throws.Exception.TypeOf<FailedOperationException>(), "Did find the table, which should not have existed");
         }
 
         [Test]
@@ -117,11 +117,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 ConnectionUri = "NOT_EXISTING",
                 ObjectUrn = String.Format("Server/Database[@Name='{0}']/Table[@Name='testTable1_Not' and @Schema='dbo']", testDb.DatabaseName),
             };
-            Assert.ThrowsAsync<Exception>(async () =>
+            Assert.That(async () =>
             {
                 await objectManagementService.HandleRenameRequest(testRenameRequestParams, requestContextMock.Object);
 
-            });
+            }, Throws.Exception.TypeOf<Exception>(), "Did find the connection, which should not have existed");
         }
 
         private RenameRequestParams InitRequestParams(string newName, string UrnOfObject)
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return new RenameRequestParams
             {
                 NewName = newName,
-                ConnectionUri = OWNERURI,
+                ConnectionUri = OwnerUri,
                 ObjectUrn = UrnOfObject,
             };
         }

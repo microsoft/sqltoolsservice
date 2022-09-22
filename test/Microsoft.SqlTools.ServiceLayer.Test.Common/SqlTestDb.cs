@@ -76,7 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             SqlTestDb testDb = new SqlTestDb();
 
             databaseName = databaseName ?? GetUniqueDBName(dbNamePrefix);
-
             string createDatabaseQuery = Scripts.CreateDatabaseQuery.Replace("#DatabaseName#", databaseName);
             await TestServiceProvider.Instance.RunQueryAsync(serverType, MasterDatabaseName, createDatabaseQuery);
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Test database '{0}' is created", databaseName));
