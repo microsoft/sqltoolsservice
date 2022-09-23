@@ -5328,4 +5328,8 @@ The Query Processor estimates that implementing the following index could improv
     <value>Failed to get user defined objects from model.</value>
     <comment></comment>
   </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>The connection could not be found</value>
+    <comment></comment>
+  </data>
 </root>

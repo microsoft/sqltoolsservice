@@ -13886,6 +13886,7 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
 
+
             public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
 
 
