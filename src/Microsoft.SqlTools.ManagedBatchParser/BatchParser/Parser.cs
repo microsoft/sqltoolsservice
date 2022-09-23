@@ -614,10 +614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         internal static void RaiseError(ErrorCode errorCode, Token token, string message = null)
         {
-            if (message == null)
-            {
-                message = string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text);
-            }
+            message ??= string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text);
             throw new BatchParserException(errorCode, token, message);
         }
 

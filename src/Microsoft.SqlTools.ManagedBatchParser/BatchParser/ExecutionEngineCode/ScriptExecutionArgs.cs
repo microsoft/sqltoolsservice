@@ -130,11 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
         {
             get
             {
-                if (cmdVariables == null)
-                {
-                    cmdVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-                }
-
+                cmdVariables ??= new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
                 return cmdVariables;
             }
         }
