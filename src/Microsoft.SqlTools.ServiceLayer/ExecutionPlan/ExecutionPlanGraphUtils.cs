@@ -426,7 +426,7 @@ GO
         {
             if (property == null)
             {
-                return String.Empty;
+                return string.Empty;
             }
 
             try
@@ -436,7 +436,7 @@ GO
 
                 if (propertyValue == null)
                 {
-                    return String.Empty;
+                    return string.Empty;
                 }
 
                 // Convert the property value to the text.
@@ -445,7 +445,7 @@ GO
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, e.ToString());
-                return String.Empty;
+                return string.Empty;
             }
         }
 
