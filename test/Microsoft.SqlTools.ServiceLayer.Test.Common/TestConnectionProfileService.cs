@@ -208,6 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectParams.Connection.UserName = connectionProfile.User;
             connectParams.Connection.Password = connectionProfile.Password;
             connectParams.Connection.MaxPoolSize = 200;
+            connectParams.Connection.TrustServerCertificate = true;
             connectParams.Connection.AuthenticationType = connectionProfile.AuthenticationType.ToString();
             if (!string.IsNullOrEmpty(databaseName))
             {

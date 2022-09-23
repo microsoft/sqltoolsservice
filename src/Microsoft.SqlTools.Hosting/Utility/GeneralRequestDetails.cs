@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.Utility
 {
@@ -59,6 +60,11 @@ namespace Microsoft.SqlTools.Utility
                         value = (T)enumValue;
                     }
                 }
+                else if (typeof(T) == typeof(SqlConnectionEncryptOption))
+                {
+                    // TODO: To be replaced with official TryParse implementation from SqlConnectionEncryptOption
+                    TryParseEncryptOption(value, out value);
+                }
             }
             else if (value != null && (typeof(T).IsEnum))
             {
@@ -74,6 +80,42 @@ namespace Microsoft.SqlTools.Utility
         }
 
         /// <summary>
+        /// Converts <paramref name="value"/> to its equivalent object of type <see cref="SqlConnectionEncryptOption"/>.
+        /// </summary>
+        /// <param name="value">Object to convert</param>
+        /// <param name="result">Converted value to type <see cref="SqlConnectionEncryptOption"/></param>
+        /// <returns><see langword="true"/> if parsing was successful, else <see langword="false"/></returns>
+        /// <remarks>Temporarily added until <see cref="SqlConnectionEncryptOption"/> makes its parser public.</remarks>
+        private static bool TryParseEncryptOption(object value, out object result)
+        {
+            switch (value.ToString()?.ToLower())
+            {
+                case "true":
+                case "yes":
+                case "mandatory":
+                    {
+                        result = SqlConnectionEncryptOption.Mandatory;
+                        return true;
+                    }
+                case "false":
+                case "no":
+                case "optional":
+                    {
+                        result = SqlConnectionEncryptOption.Optional;
+                        return true;
+                    }
+                case "strict":
+                    {
+                        result = SqlConnectionEncryptOption.Strict;
+                        return true;
+                    }
+                default:
+                    result = null;
+                    return false;
+            }
+        }
+
+        /// <summary>
         /// This method exists because in NetStandard the Enum.TryParse methods that accept in a type
         /// are not present, and the generic TryParse method requires the type T to be non-nullable which
         /// is hard to check. This is different to the NetCore definition for some reason.
@@ -86,7 +128,7 @@ namespace Microsoft.SqlTools.Utility
                 enumValue = Enum.Parse(t, value);
                 return true;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 enumValue = default(T);
                 return false;

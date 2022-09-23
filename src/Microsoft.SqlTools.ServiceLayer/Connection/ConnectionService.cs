@@ -1305,9 +1305,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
             }
-            if (connectionDetails.Encrypt.HasValue)
+            if (connectionDetails.Encrypt != null)
             {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
+                connectionBuilder.Encrypt = connectionDetails.Encrypt;
             }
             if (connectionDetails.TrustServerCertificate.HasValue)
             {

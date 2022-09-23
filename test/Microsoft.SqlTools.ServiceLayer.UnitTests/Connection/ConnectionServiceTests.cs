@@ -521,8 +521,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
-            new object[] {"Encrypt", true, "Encrypt"},
-            new object[] {"Encrypt", false, "Encrypt"},
+            new object[] {"Encrypt", SqlConnectionEncryptOption.Mandatory, "Encrypt"},
+            new object[] {"Encrypt", SqlConnectionEncryptOption.Optional, "Encrypt"},
+            new object[] {"Encrypt", SqlConnectionEncryptOption.Strict, "Encrypt"},
             new object[] {"ColumnEncryptionSetting", "Enabled", "Column Encryption Setting=Enabled"},
             new object[] {"ColumnEncryptionSetting", "Disabled", "Column Encryption Setting=Disabled"},
             new object[] {"ColumnEncryptionSetting", "enabled", "Column Encryption Setting=Enabled"},
@@ -1653,7 +1654,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual("{your_password}", details.Password);
             Assert.AreEqual(false, details.PersistSecurityInfo);
             Assert.AreEqual(false, details.MultipleActiveResultSets);
-            Assert.AreEqual(true, details.Encrypt);
+            Assert.AreEqual(SqlConnectionEncryptOption.Mandatory, details.Encrypt);
             Assert.AreEqual(false, details.TrustServerCertificate);
             Assert.AreEqual(30, details.ConnectTimeout);
         }
