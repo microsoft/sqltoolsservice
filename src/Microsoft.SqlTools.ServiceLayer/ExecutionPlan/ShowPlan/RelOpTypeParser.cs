@@ -722,10 +722,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (relOpTypeParser == null)
-                {
-                    relOpTypeParser = new RelOpTypeParser();
-                }
+                relOpTypeParser ??= new RelOpTypeParser();
                 return relOpTypeParser;
             }
         }

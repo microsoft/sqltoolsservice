@@ -171,9 +171,9 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
                         AddCell((string)o);
                         break;
                     default:
-                        if (o is TimeSpan) //TimeSpan doesn't have TypeCode
+                        if (o is TimeSpan span) //TimeSpan doesn't have TypeCode
                         {
-                            AddCell((TimeSpan)o);
+                            AddCell(span);
                             break;
                         }
                         AddCell(dbCellValue.DisplayValue);
@@ -510,10 +510,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         public ExcelSheet AddSheet(string sheetName = null)
         {
             string sheetFileName = "sheet" + (sheetNames.Count + 1);
-            if (sheetName == null)
-            {
-                sheetName = sheetFileName;
-            }
+            sheetName ??= sheetFileName;
             EnsureValidSheetName(sheetName);
 
             sheetNames.Add(sheetName);

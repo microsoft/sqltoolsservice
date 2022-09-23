@@ -32,11 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {         
             //first, see if the object implemented this interface to override standard behavior
             System.Reflection.ICustomAttributeProvider attribProvider = objectToGetAttributeFrom as System.Reflection.ICustomAttributeProvider;
-            if (attribProvider == null)
-            {
-                //if not, get it from its type
-                attribProvider = (System.Reflection.ICustomAttributeProvider)objectToGetAttributeFrom.GetType();
-            }
+            //if not, get it from its type
+            attribProvider ??= (System.Reflection.ICustomAttributeProvider)objectToGetAttributeFrom.GetType();
 
             object[] attribs = attribProvider.GetCustomAttributes(customAttribute, true);
             if (attribs != null && attribs.Length > 0)

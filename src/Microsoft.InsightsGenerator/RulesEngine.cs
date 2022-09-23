@@ -61,10 +61,7 @@ namespace Microsoft.InsightsGenerator
         public static string FindMatchedTemplate(List<List<string>> singleHashHeaders, DataArray columnInfo)
         {
             var resultTemplate = new StringBuilder();
-            if (Templates == null)
-            {
-                Templates = GetTemplates();
-            }
+            Templates ??= GetTemplates();
             var headersWithSingleHash = GetTopHeadersWithHash(singleHashHeaders);
 
             foreach (var template in Templates)

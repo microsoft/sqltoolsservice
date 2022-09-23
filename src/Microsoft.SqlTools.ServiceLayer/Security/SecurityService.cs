@@ -47,10 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
 

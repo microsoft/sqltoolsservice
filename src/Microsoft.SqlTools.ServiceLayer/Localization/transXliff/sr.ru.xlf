@@ -6331,6 +6331,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Удаленные представления реестра</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Удаленные столбцы реестра</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">Не удалось найти модель SQL из проекта: {0}.</target>

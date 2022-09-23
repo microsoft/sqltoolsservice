@@ -6331,6 +6331,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Affichages de registre supprimés</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Colonnes de registre supprimées</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">Impossible de trouver le modèle SQL du projet : {0}.</target>

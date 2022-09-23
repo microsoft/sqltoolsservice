@@ -3871,6 +3871,9 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Exibições do Razão Descartadas</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Colunas do Razão Descartadas</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Não foi possível encontrar o modelo SQL do projeto: {0}.</value>
   </data>

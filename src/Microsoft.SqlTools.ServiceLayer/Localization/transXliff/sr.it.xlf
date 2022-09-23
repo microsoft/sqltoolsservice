@@ -6331,6 +6331,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Visualizzazioni del libro mastro eliminate</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Colonne del libro mastro eliminate</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">Non è stato possibile trovare il modello SQL dal progetto: {0}.</target>

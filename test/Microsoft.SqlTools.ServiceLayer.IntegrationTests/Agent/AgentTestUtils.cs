@@ -357,10 +357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             AgentNotebookInfo notebook = null)
         {
             var service = new AgentService();
-            if (notebook == null)
-            {
-                notebook = GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
-            }
+            notebook ??= GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
             string tempNotebookPath = CreateTemplateNotebookFile();
 
             await AgentNotebookHelper.CreateNotebook(

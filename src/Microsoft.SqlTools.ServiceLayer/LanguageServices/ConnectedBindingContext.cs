@@ -169,14 +169,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (this.parseOptions == null)
-                {
-                    this.parseOptions = new ParseOptions(
+                this.parseOptions ??= new ParseOptions(
                         batchSeparator: LanguageService.DefaultBatchSeperator,
                         isQuotedIdentifierSet: true, 
                         compatibilityLevel: DatabaseCompatibilityLevel,
                         transactSqlVersion: TransactSqlVersion);
-                }
                 return this.parseOptions;
             }
         }

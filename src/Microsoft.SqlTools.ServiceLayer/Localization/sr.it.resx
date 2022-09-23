@@ -3871,6 +3871,9 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Visualizzazioni del libro mastro eliminate</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Colonne del libro mastro eliminate</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Non è stato possibile trovare il modello SQL dal progetto: {0}.</value>
   </data>

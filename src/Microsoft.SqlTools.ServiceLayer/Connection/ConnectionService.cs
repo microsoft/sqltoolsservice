@@ -84,10 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
-                if (lockedDatabaseManager == null)
-                {
-                    lockedDatabaseManager = DatabaseLocksManager.Instance;
-                }
+                lockedDatabaseManager ??= DatabaseLocksManager.Instance;
                 return lockedDatabaseManager;
             }
             set
@@ -216,10 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
-                if (this.connectionFactory == null)
-                {
-                    this.connectionFactory = new SqlConnectionFactory();
-                }
+                this.connectionFactory ??= new SqlConnectionFactory();
                 return this.connectionFactory;
             }
 

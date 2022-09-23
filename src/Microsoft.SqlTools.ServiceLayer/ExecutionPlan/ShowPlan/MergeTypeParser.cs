@@ -65,10 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (mergeTypeParser == null)
-                {
-                    mergeTypeParser = new MergeTypeParser();
-                }
+                mergeTypeParser ??= new MergeTypeParser();
                 return mergeTypeParser;
             }
         }

@@ -70,10 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 path = schema + "." + path;
             }
 
-            if (path == null)
-            {
-                path = "";
-            }
+            path ??= "";
 
             foreach (var matchingNode in matchingNodes)
             {

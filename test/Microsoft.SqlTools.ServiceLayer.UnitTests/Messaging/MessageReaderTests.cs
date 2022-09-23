@@ -236,10 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 
         private byte[] GetMessageBytes(string messageString, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
+            encoding ??= Encoding.UTF8;
 
             byte[] messageBytes = Encoding.UTF8.GetBytes(messageString);
             byte[] headerBytes = Encoding.ASCII.GetBytes(string.Format(Constants.ContentLengthFormatString, messageBytes.Length));

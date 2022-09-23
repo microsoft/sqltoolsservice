@@ -78,10 +78,7 @@ namespace Microsoft.SqlTools.ResourceProvider.DefaultImpl
         public string ResourceGroupName {
             get
             {
-                if (this.resourceGroupName == null)
-                {
-                    this.resourceGroupName = ParseResourceGroupNameFromId();
-                }
+                this.resourceGroupName ??= ParseResourceGroupNameFromId();
                 return this.resourceGroupName ?? string.Empty;
             }
             set

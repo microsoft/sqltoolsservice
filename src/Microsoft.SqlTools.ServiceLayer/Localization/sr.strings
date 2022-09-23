@@ -2416,3 +2416,6 @@ TableDesignerConfirmationText = I have read the summary and understand the poten
 SqlProjectModelNotFound(string projectUri) = Could not find SQL model from project: {0}.
 UnsupportedModelType(string type) = Unsupported model type: {0}.
 GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.
+
+#ObjectManagement Service
+ErrorConnectionNotFound = The connection could not be found
