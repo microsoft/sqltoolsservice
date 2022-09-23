@@ -1060,7 +1060,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.Columns.CanAddRows = !index.IsClustered;
                 indexVM.ColumnsDisplayValue.Enabled = false;
 
-                // avoid populating columns for CLUSTERED column store index
+                // avoid populating columns for CLUSTERED columnstore index
                 if (!index.IsClustered)
                 {
                     indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
@@ -1432,6 +1432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var columnStoreIndexesTableProperties = new TableComponentProperties<ColumnStoreIndexViewModel>()
             {
                 Title = SR.TableDesignerColumnStoreIndexesTableTitle,
+                AriaLabel = SR.TableDesignerColumnStoreIndexesTableTitle,
                 ObjectTypeDisplayName = SR.TableDesignerColumnStoreIndexObjectType,
                 LabelForAddNewButton = SR.AddNewColumnStoreIndexLabel
             };
