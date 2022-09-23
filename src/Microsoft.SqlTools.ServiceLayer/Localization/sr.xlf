@@ -6494,6 +6494,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">I have read the summary and understand the potential risks.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ErrorConnectionNotFound">
+        <source>The connection could not be found</source>
+        <target state="new">The connection could not be found</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
