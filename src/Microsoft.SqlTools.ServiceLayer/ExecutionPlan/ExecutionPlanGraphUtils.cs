@@ -33,15 +33,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             }).ToList();
         }
 
+        private static void ParseCostMetricProperty(List<CostMetric> costMetrics, string name, PropertyValue? property)
+        {
+            if (property != null)
+            {
+                var costMetric = new CostMetric()
+                {
+                    Name = name,
+                    Value = ExecutionPlanGraphUtils.GetPropertyDisplayValue(property)
+                };
+
+                costMetrics.Add(costMetric);
+            }
+        }
+
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
         {
-            var costMetrics = new CostMetrics() {
-                ElapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs,
-                EstimateRowsForAllExecutions = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["EstimateRowsAllExecs"] as PropertyValue),
-                EstimatedRowsRead = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["EstimatedRowsRead"] as PropertyValue),
-                ActualRows = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["ActualRows"] as PropertyValue),
-                ActualRowsRead = ExecutionPlanGraphUtils.GetPropertyDisplayValue(currentNode.Properties["ActualRowsRead"] as PropertyValue)
-            };
+            var costMetrics = new List<CostMetric>();
+
+            var elapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs;
+            if (elapsedCpuTimeInMs.HasValue)
+            {
+                var costMetric = new CostMetric()
+                {
+                    Name = "ElapsedCpuTime",
+                    Value = $"{elapsedCpuTimeInMs.Value}"
+                };
+                costMetrics.Add(costMetric);
+            }
+
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "EstimateRowsAllExecs", currentNode.Properties["EstimateRowsAllExecs"] as PropertyValue);
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "EstimatedRowsRead", currentNode.Properties["EstimatedRowsRead"] as PropertyValue);
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "ActualRows", currentNode.Properties["ActualRows"] as PropertyValue);
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "ActualRowsRead", currentNode.Properties["ActualRowsRead"] as PropertyValue);
 
             return new ExecutionPlanNode
             {

@@ -95,31 +95,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// <summary>
         /// The cost metrics for the node.
         /// </summary>
-        public CostMetrics CostMetrics { get; set; }
+        public List<CostMetric> CostMetrics { get; set; }
     }
 
-    public class CostMetrics
+    public class CostMetric
     {
         /// <summary>
-        /// CPU Time taken by the node operation in milliseconds
+        /// Name of the cost metric
         /// </summary>
-        public long? ElapsedCpuTimeInMs { get; set; }
+        public string Name { get; set; }
         /// <summary>
-        /// Estimate number of rows for all executions.
+        /// The value for the cost metric
         /// </summary>
-        public string? EstimateRowsForAllExecutions { get; set; }
-        /// <summary>
-        /// Estimated number of rows read.
-        /// </summary>
-        public string? EstimatedRowsRead { get; set; }
-        /// <summary>
-        /// The actual total number of rows.
-        /// </summary>
-        public string? ActualRows { get; set; }
-        /// <summary>
-        /// The actual number of rows read.
-        /// </summary>
-        public string? ActualRowsRead { get; set; }
+        public string Value { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase
