@@ -508,8 +508,8 @@
       <Item ItemId=";AddNewColumnStoreIndexLabel" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[New Columnstore Index]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Neuer ColumnStore-Index]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Neuer Columnstore-Index]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[New Column Store Index]]></Val>
@@ -1303,8 +1303,8 @@
       <Item ItemId=";ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index {1} bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index "{1}" bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
@@ -1369,7 +1369,7 @@
       <Item ItemId=";ColumnStoreIndexColumnsPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Columns in this columnstore index]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Spalten in diesem Columnstore-Index]]></Val>
           </Tgt>
           <Prev Cat="Text">
@@ -1381,8 +1381,8 @@
       <Item ItemId=";ColumnStoreIndexDescriptionPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Description of the columnstore index]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Beschreibung des Columnstore-Index]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Beschreibung des Columnstore-Indexes]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Description of the column store index]]></Val>
@@ -1402,8 +1402,8 @@
       <Item ItemId=";ColumnStoreIndexFilterPredicatePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Filter predicate of the columnstore index]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Das Filterprädikat des Columnstore-Index.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Filterprädikat des Columnstore-Indexes]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Filter predicate of the column store index]]></Val>
@@ -1423,7 +1423,7 @@
       <Item ItemId=";ColumnStoreIndexIsClusteredPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Whether the columnstore index is clustered.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Gibt an, ob der Columnstore-Index gruppiert ist.]]></Val>
           </Tgt>
           <Prev Cat="Text">
@@ -1444,8 +1444,8 @@
       <Item ItemId=";ColumnStoreIndexNamePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Name of the columnstore index]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Name des Columnstore-Index]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Name des Columnstore-Indexes]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Name of the column store index]]></Val>
@@ -5551,7 +5551,7 @@
       <Item ItemId=";NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Non-clustered columnstore index '{0}' does not have any columns associated with it.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.]]></Val>
           </Tgt>
           <Prev Cat="Text">
@@ -10492,7 +10492,7 @@
       <Item ItemId=";TableDesignerColumnStoreIndexesTableTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Columnstore Indexes]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Columnstore-Indizes]]></Val>
           </Tgt>
           <Prev Cat="Text">
