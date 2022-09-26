@@ -3914,28 +3914,28 @@
     <value>Имя</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Имя индекса хранилища столбцов</value>
+    <value>Имя индекса columnstore</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
     <value>Описание</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Описание индекса хранения столбцов</value>
+    <value>Описание индекса columnstore</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Является ли индекс хранилища столбцов кластеризованным.</value>
+    <value>Является ли индекс columnstore кластерированным.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
     <value>Кластеризованный</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Предикат фильтра индекса хранилища столбцов</value>
+    <value>Предикат фильтра индекса columnstore</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
     <value>Фильтр (предикат)</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Столбцы в индексе хранения столбцов</value>
+    <value>Столбцы в этом индексе columnstore</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
     <value>Столбцы</value>
@@ -3947,21 +3947,24 @@
     <value>Столбец</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Столбец с именем "{0}" уже добавлен в некластеризованный индекс хранилища столбцов "{1}". Номер строки: {2}.</value>
+    <value>Столбец с именем "{0}" уже добавлен в некластеризованный индекс columnstore "{1}". Номер строки: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Индексы хранилища столбцов</value>
+    <value>Индексы columnstore</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Индекс хранилища столбцов</value>
+    <value>Индекс columnstore</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>Добавить новый индекс хранилища столбцов</value>
+    <value>Новый индекс columnstore</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Некластеризованный индекс хранения столбцов "{0}" не имеет связанных с ним столбцов.</value>
+    <value>У некластеризованного индекса columnstore "{0}" нет связанных с ним столбцов.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Я прочел сводку и понимаю возможные риски.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>Не удалось найти соединение.</value>
   </data>
 </root>

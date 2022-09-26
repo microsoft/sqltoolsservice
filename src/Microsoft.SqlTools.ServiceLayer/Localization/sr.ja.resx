@@ -3959,9 +3959,12 @@
     <value>新しい列ストア インデックス</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>クラスター化されていない列ストア インデックス '{0}' には、列が関連付けされていません。</value>
+    <value>非クラスター化列ストア インデックス '{0}' には、列が関連付けされていません。</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>概要を読み、潜在的なリスクを理解しました。</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>接続が見つかりませんでした</value>
   </data>
 </root>
