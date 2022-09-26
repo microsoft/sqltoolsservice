@@ -3914,28 +3914,28 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Nom</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Nom de l’index du magasin de colonnes</value>
+    <value>Nom de l’index columnstore</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
     <value>Description</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description de l’index du magasin de colonnes</value>
+    <value>Description de l’index columnstore</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Indique si l’index du magasin de colonnes est en cluster.</value>
+    <value>Indique si l’index columnstore est en cluster.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
     <value>Est en cluster</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Prédicat de filtre de l’index du magasin de colonnes</value>
+    <value>Prédicat de filtre de l’index columnstore</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
     <value>Prédicat de Filtre</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Colonnes de cet index de magasin de colonnes</value>
+    <value>Colonnes de cet index columnstore</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
     <value>Colonnes</value>
@@ -3947,21 +3947,24 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Colonne</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>La colonne portant le nom «* {0} » a déjà été ajoutée à l’index de magasin de colonnes non cluster « {1} ». Numéro de ligne : {2}.</value>
+    <value>La colonne nommée '{0}' a déjà été ajoutée à l’index columnstore non cluster '{1}'. Numéro de ligne : {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Index de banque de colonnes</value>
+    <value>Index Columnstore</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Stockage de colonnes d'index</value>
+    <value>Index Columnstore</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>Nouvel index stockage en colonne</value>
+    <value>Nouvel index columnstore</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Aucune colonne n’est associée à l’index de banque des colonnes non cluster «{0} ».</value>
+    <value>Aucune colonne n’est associée à l’index columnstore « {0} » non cluster.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>J’ai lu le résumé et compris les risques potentiels.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>Nous n’avons pas pu établir la connexion.</value>
   </data>
 </root>
