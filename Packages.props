@@ -23,8 +23,7 @@
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.7.0-preview" />
 		<!-- TODO: Update SmoMetadataProvider to a later version that provides binary for .NET Standard 2.1-->
 		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.7.0-preview" />
-		<!-- TODO: Update Microsoft.SqlServer.DACFx to a later version that supports MDS 5.0.0 -->
-		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6295.0-preview" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="161.6304.0-preview" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.9]" />
