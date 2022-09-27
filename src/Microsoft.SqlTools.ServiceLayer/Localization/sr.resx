@@ -4867,10 +4867,6 @@ The Query Processor estimates that implementing the following index could improv
     <value>Bucket Count</value>
     <comment></comment>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
-    <comment></comment>
-  </data>
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columns</value>
     <comment></comment>
