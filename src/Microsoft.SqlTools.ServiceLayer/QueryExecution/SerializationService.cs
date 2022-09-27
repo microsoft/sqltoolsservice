@@ -259,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         };
                         break;
                     default:
-                        throw new Exception(SR.SerializationServiceUnsupportedFormat(this.requestParams.SaveFormat));
+                        throw new Exception($"FUCK: '{this.requestParams.SaveFormat}'");
                 }
                 this.writer = factory.GetWriter(requestParams.FilePath, columns);
             }

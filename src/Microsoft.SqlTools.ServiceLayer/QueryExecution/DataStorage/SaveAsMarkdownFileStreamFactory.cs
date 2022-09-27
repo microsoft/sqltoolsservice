@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         [Obsolete("Not implemented for export factories.")]
         public string CreateFile()
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("CreateFile not implemented for export factories");
         }
 
         /// <inheritdoc />

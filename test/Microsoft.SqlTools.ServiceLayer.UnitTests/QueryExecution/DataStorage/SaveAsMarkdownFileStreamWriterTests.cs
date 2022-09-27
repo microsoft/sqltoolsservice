@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             );
 
             // Assert
-            Assert.Throws<ArgumentNullException>(action);
+            Assert.That(action, Throws.ArgumentNullException);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             );
 
             // Assert
-            Assert.Throws<ArgumentNullException>(action);
+            Assert.That(action, Throws.ArgumentNullException);
         }
 
         [Test]
@@ -62,13 +62,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             using var outputStream = new MemoryStream(output);
 
             // If: I construct a Markdown file writer
-            var writer = new SaveAsMarkdownFileStreamWriter(outputStream, requestParams, columns);
-            writer.Dispose();
+            using var writer = new SaveAsMarkdownFileStreamWriter(outputStream, requestParams, columns);
 
             // Then:
             // ... It should have written a line
             string[] lines = ParseWriterOutput(output, Environment.NewLine);
-            Assert.AreEqual(2, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(2), "Expected two lines of output");
 
             // ... It should have written a header line like |col1|col2|
             // ... It should have written a separator line like |---|---|
@@ -96,13 +95,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             using var outputStream = new MemoryStream(output);
 
             // If: I construct a Markdown file writer
-            var writer = new SaveAsMarkdownFileStreamWriter(outputStream, requestParams, columns);
-            writer.Dispose();
+            using var writer = new SaveAsMarkdownFileStreamWriter(outputStream, requestParams, columns);
 
             // Then:
             // ... It should have written a line
             string[] lines = ParseWriterOutput(output, Environment.NewLine);
-            Assert.AreEqual(2, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(2), "Expected two lines of output");
 
             // ... It should have written a header line like |col1|col2|
             // ... It should have written a separator line like |---|---|
@@ -123,13 +121,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             using var outputStream = new MemoryStream(output);
 
             // If: I construct a Markdown file writer
-            var writer = new SaveAsMarkdownFileStreamWriter(outputStream, requestParams, columns);
-            writer.Dispose();
+            using var writer = new SaveAsMarkdownFileStreamWriter(outputStream, requestParams, columns);
 
             // Then:
             // ... It not have written anything
             string[] lines = ParseWriterOutput(output, Environment.NewLine);
-            Assert.IsEmpty(lines);
+            Assert.That(lines, Is.Empty);
         }
 
         [TestCase("Something\rElse")] // Contains carriage return
@@ -142,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then: It should replace it the newline character(s) with a <br />
             const string expected = "Something<br />Else";
-            Assert.AreEqual(expected, output);
+            Assert.That(output, Is.EqualTo(expected));
         }
 
         [Test]
@@ -185,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then: The entity characters should be HTML encoded
             const string expected = "&lt;&lt;&gt;&gt;&amp;&#174;&#177;&#223;&#252;&#193;";
-            Assert.AreEqual(expected, output);
+            Assert.That(output, Is.EqualTo(expected));
         }
 
         [Test]
@@ -195,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = SaveAsMarkdownFileStreamWriter.EncodeMarkdownField(null);
 
             // Then: there should be a string version of null returned
-            Assert.AreEqual("NULL", output);
+            Assert.That(output, Is.EqualTo("NULL"));
         }
 
         [Test]
@@ -218,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then: It should write one line with the two cells
             string[] lines = ParseWriterOutput(output, Environment.NewLine);
-            Assert.AreEqual(1, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(1), "Expected one line of output");
 
             ValidateLine(lines[0], data.Select(c => c.DisplayValue));
         }
@@ -250,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // Then:
             // ... It should have written one line with the two cells written
             var lines = ParseWriterOutput(output, Environment.NewLine);
-            Assert.AreEqual(1, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(1), "Expected one line of output");
 
             ValidateLine(lines[0], data.Skip(1).Take(2).Select(c => c.DisplayValue));
         }
@@ -278,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // Then:
             // ... It should have written one line with the data properly encoded
             string[] lines = ParseWriterOutput(output, Environment.NewLine);
-            Assert.AreEqual(1, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(1), "Expected one line of output");
 
             ValidateLine(lines[0], new[] { "\\|Something\\|<br />\\|&lt;&lt;&gt;&gt;&amp;\\|" });
         }
@@ -308,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // Then:
             // ... The lines should be split by the custom line separator
             var lines = ParseWriterOutput(output, "$$");
-            Assert.AreEqual(3, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(3), "Expected three lines of output");
 
             // Note: Header output has been tested in constructor tests
         }
@@ -336,8 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             // ... It should have written the umlaut as an HTML entity in utf-16le
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             string outputString = Encoding.Unicode.GetString(output).TrimEnd('\0', '\r', '\n');
-            Assert.AreEqual("|&#252;|", outputString);
-
+            Assert.That(outputString, Is.EqualTo("|&#252;|"));
         }
 
         private static (DbColumnWrapper[] columns, DbCellValue[] cells) GetTestValues(int columnCount)
@@ -355,28 +351,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         private static string[] ParseWriterOutput(byte[] output, string lineSeparator)
         {
             string outputString = Encoding.UTF8.GetString(output).Trim('\0');
-            string[] lines = outputString.Split(lineSeparator, StringSplitOptions.None);
+            string[] lines = outputString.Split(lineSeparator);
 
             // Make sure the file ends with a new line and return all but the meaningful lines
-            Assert.IsEmpty(lines[^1]);
+            Assert.That(lines[^1], Is.Empty, "Output did not end with a newline");
             return lines.Take(lines.Length - 1).ToArray();
         }
 
         private static void ValidateLine(string line, IEnumerable<string> expectedCells)
         {
-            Assert.IsTrue(line.StartsWith("|"));
-            Assert.IsTrue(line.EndsWith("|"));
-
             string[] cells = UnescapedPipe.Split(line);
             string[] expectedCellsArray = expectedCells as string[] ?? expectedCells.ToArray();
-            Assert.AreEqual(expectedCellsArray.Length, cells.Length - 2);
+            Assert.That(cells.Length - 2, Is.EqualTo(expectedCellsArray.Length), "Wrong number of cells in output");
 
-            Assert.IsEmpty(cells[0]);
-            Assert.IsEmpty(cells[^1]);
+            Assert.That(cells[0], Is.Empty, "Row did not start with |");
+            Assert.That(cells[^1], Is.Empty, "Row did not end with |");
 
             for (int i = 0; i < expectedCellsArray.Length; i++)
             {
-                Assert.AreEqual(expectedCellsArray[i], cells[i + 1]);
+                Assert.That(cells[i + 1], Is.EqualTo(expectedCellsArray[i]), "Wrong cell value");
             }
         }
     }
