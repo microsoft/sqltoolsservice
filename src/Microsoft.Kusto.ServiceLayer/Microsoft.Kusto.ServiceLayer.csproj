@@ -32,6 +32,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.OperationalInsights" />
     <PackageReference Include="Microsoft.SqlServer.DACFx" />
+	<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" />
     <PackageReference Include="System.Net.Http" />
