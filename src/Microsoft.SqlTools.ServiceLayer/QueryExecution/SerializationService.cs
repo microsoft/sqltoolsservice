@@ -243,6 +243,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             SaveRequestParams = CreateCsvRequestParams()
                         };
                         break;
+                    case "markdown":
+                        factory = new SaveAsMarkdownFileStreamFactory(CreateMarkdownRequestParams());
+                        break;
                     case "xml":
                         factory = new SaveAsXmlFileStreamFactory()
                         {
@@ -304,6 +307,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 MaxCharsToStore = this.requestParams.MaxCharsToStore
             };
         }
+
+        private SaveResultsAsMarkdownRequestParams CreateMarkdownRequestParams() =>
+            new SaveResultsAsMarkdownRequestParams
+            {
+                FilePath = this.requestParams.FilePath,
+                BatchIndex = 0,
+                ResultSetIndex = 0,
+                IncludeHeaders = this.requestParams.IncludeHeaders,
+                LineSeparator = this.requestParams.LineSeparator,
+                Encoding = this.requestParams.Encoding,
+            };
+
         private SaveResultsAsXmlRequestParams CreateXmlRequestParams()
         {
             return new SaveResultsAsXmlRequestParams

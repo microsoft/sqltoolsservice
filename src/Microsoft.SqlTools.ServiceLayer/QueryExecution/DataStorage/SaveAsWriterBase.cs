@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -104,6 +105,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public void FlushBuffer()
         {
             FileStream.Flush();
+        }
+
+        /// <summary>
+        /// Attempts to parse the provided <paramref name="encoding"/> and return an encoding that
+        /// matches the encoding name or codepage number.
+        /// </summary>
+        /// <param name="encoding">Encoding name or codepage number to parse.</param>
+        /// <param name="fallbackEncoding">
+        /// Encoding to return if no encoding of provided name/codepage number exists.
+        /// </param>
+        /// <returns>
+        /// Desired encoding object or the <paramref name="fallbackEncoding"/> if the desired
+        /// encoding could not be found.
+        /// </returns>
+        protected static Encoding ParseEncoding(string encoding, Encoding fallbackEncoding)
+        {
+            // If the encoding is a number, we try to look up a codepage encoding using the
+            // parsed number as a codepage. If it is not a number, attempt to look up an
+            // encoding with the provided encoding name. If getting the encoding fails in
+            // either case, we will return the fallback encoding.
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            try
+            {
+                return int.TryParse(encoding, out int codePage)
+                    ? Encoding.GetEncoding(codePage)
+                    : Encoding.GetEncoding(encoding);
+            }
+            catch
+            {
+                return fallbackEncoding;
+            }
         }
 
         #region IDisposable Implementation
