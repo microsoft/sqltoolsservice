@@ -57,6 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.Pooling, expectedForBoolean);
             Assert.AreEqual(details.Replication, expectedForBoolean);
             Assert.AreEqual(details.TrustServerCertificate, expectedForBoolean);
+            Assert.AreEqual(details.HostNameInCertificate, expectedForStrings);
             Assert.AreEqual(details.Port, expectedForInt);
         }
 
@@ -97,6 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.Pooling = (index++ % 2 == 0);
             details.Replication = (index++ % 2 == 0);
             details.TrustServerCertificate = (index++ % 2 == 0);
+            details.HostNameInCertificate = expectedForStrings + index++;
             details.Port = expectedForInt + index++;
 
             index = 0;
@@ -129,6 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.Pooling, (index++ % 2 == 0));
             Assert.AreEqual(details.Replication, (index++ % 2 == 0));
             Assert.AreEqual(details.TrustServerCertificate, (index++ % 2 == 0));
+            Assert.AreEqual(details.HostNameInCertificate, expectedForStrings + index++);
             Assert.AreEqual(details.Port, (expectedForInt + index++));
         }
 
@@ -170,6 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.Pooling = (index++ % 2 == 0);
             details.Replication = (index++ % 2 == 0);
             details.TrustServerCertificate = (index++ % 2 == 0);
+            details.HostNameInCertificate = expectedForStrings + index++;
             details.Port = expectedForInt + index++;
 
             if (optionMetadata.Options.Count() != details.Options.Count)

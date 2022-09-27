@@ -176,6 +176,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
+                        Name = "hostNameInCertificate",
+                        DisplayName = "HostNameInCertificate",
+                        Description = "Specifies host name in certificate to be used for certificate validation, when encryption is enabled.",
+                        GroupName = "Security",
+                        ValueType = ConnectionOption.ValueTypeString,
+                    },
+                    new ConnectionOption
+                    {
                         Name = "attachedDBFileName",
                         DisplayName = "Attached DB file name",
                         Description = "The name of the primary file, including the full path name, of an attachable database",

@@ -167,8 +167,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectParams.Connection.UserName = connectionProfile.User;
             connectParams.Connection.Password = connectionProfile.Password;
             connectParams.Connection.MaxPoolSize = 200;
-            connectParams.Connection.TrustServerCertificate = true;
             connectParams.Connection.AuthenticationType = connectionProfile.AuthenticationType.ToString();
+
+            if (connectParams.Connection.Encrypt == Data.SqlClient.SqlConnectionEncryptOption.Strict)
+            {
+                connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
+            }
+            else
+            {
+                connectParams.Connection.TrustServerCertificate = true;
+            }
+
             if (!string.IsNullOrEmpty(databaseName))
             {
                 connectParams.Connection.DatabaseName = databaseName;
@@ -179,7 +188,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 connectParams.Connection.ConnectTimeout = 30;
                 connectParams.Connection.Encrypt = true;
                 connectParams.Connection.TrustServerCertificate = false;
+                connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
             }
+
             return connectParams;
         }
     }

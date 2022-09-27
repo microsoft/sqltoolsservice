@@ -1644,7 +1644,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
 
-            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
 
@@ -1656,6 +1656,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(false, details.MultipleActiveResultSets);
             Assert.AreEqual(SqlConnectionEncryptOption.Mandatory, details.Encrypt);
             Assert.AreEqual(false, details.TrustServerCertificate);
+            Assert.AreEqual("{servername}", details.HostNameInCertificate);
             Assert.AreEqual(30, details.ConnectTimeout);
         }
 

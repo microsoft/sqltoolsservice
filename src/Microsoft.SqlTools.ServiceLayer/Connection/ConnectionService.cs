@@ -1307,6 +1307,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
             }
+            if (connectionDetails.HostNameInCertificate != null)
+            {
+                connectionBuilder.HostNameInCertificate = connectionDetails.HostNameInCertificate;
+            }
             if (connectionDetails.PersistSecurityInfo.HasValue)
             {
                 connectionBuilder.PersistSecurityInfo = connectionDetails.PersistSecurityInfo.Value;
@@ -1485,6 +1489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Replication = builder.Replication,
                 ServerName = builder.DataSource,
                 TrustServerCertificate = builder.TrustServerCertificate,
+                HostNameInCertificate = builder.HostNameInCertificate,
                 TypeSystemVersion = builder.TypeSystemVersion,
                 UserName = builder.UserID,
                 WorkstationId = builder.WorkstationID,

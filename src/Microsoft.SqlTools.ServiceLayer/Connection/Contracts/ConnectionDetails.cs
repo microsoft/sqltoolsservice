@@ -180,6 +180,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
+        /// Gets or sets a value that indicates the host name in the certificate to be used for certificate validation when encryption is enabled.
+        /// </summary>
+        public string? HostNameInCertificate
+        {
+            get
+            {
+                return GetOptionValue<string?>("hostNameInCertificate");
+            }
+
+            set
+            {
+                SetOptionValue("hostNameInCertificate", value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a Boolean value that indicates if security-sensitive information, such as the password, is not returned as part of the connection if the connection is open or has ever been in an open state.
         /// </summary>
         public bool? PersistSecurityInfo
