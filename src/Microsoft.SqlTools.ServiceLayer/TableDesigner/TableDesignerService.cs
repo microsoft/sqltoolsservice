@@ -1111,7 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
-            this.SetIndexesViewInfo(view);
+            this.SetIndexesViewInfo(view, tableDesigner);
             this.SetColumnStoreIndexesViewInfo(view);
             this.SetGraphTableViewInfo(view, tableDesigner);
             this.SetEdgeConstraintsViewInfo(view, tableDesigner);
@@ -1298,7 +1298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.CheckConstraintTableOptions.CanInsertRows = false;
         }
 
-        private void SetIndexesViewInfo(TableDesignerView view)
+        private void SetIndexesViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
         {
             view.IndexTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
                 new DesignerDataPropertyInfo()
@@ -1355,29 +1355,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 },
                 new DesignerDataPropertyInfo()
                 {
-                    PropertyName = IndexPropertyNames.IsHash,
-                    Description = SR.IndexIsHashPropertyDescription,
-                    ComponentType = DesignerComponentType.Checkbox,
-                    Group = SR.HashIndexGroupTitle,
-                    ComponentProperties = new CheckBoxProperties()
-                    {
-                        Title = SR.IndexIsHashPropertyTitle
-                    }
-                },
-                new DesignerDataPropertyInfo()
-                {
-                    PropertyName = IndexPropertyNames.BucketCount,
-                    Description = SR.IndexBucketCountPropertyDescription,
-                    ComponentType = DesignerComponentType.Input,
-                    Group = SR.HashIndexGroupTitle,
-                    ComponentProperties = new InputBoxProperties()
-                    {
-                        Title = SR.IndexBucketCountPropertyTitle,
-                        Width = 200
-                    }
-                },
-                new DesignerDataPropertyInfo()
-                {
                     PropertyName = IndexPropertyNames.IncludedColumns,
                     Description = SR.IndexIncludedColumnsPropertyDescription,
                     ComponentType = DesignerComponentType.Table,
@@ -1403,6 +1380,34 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 }
             });
+
+            if (tableDesigner.TableViewModel.IsMemoryOptimized || tableDesigner.TableViewModel.Indexes.Items.Any(idx => idx.IsHash))
+            {
+                view.IndexTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
+                    new DesignerDataPropertyInfo()
+                    {
+                        PropertyName = IndexPropertyNames.IsHash,
+                        Description = SR.IndexIsHashPropertyDescription,
+                        ComponentType = DesignerComponentType.Checkbox,
+                        ComponentProperties = new CheckBoxProperties()
+                        {
+                            Title = SR.IndexIsHashPropertyTitle
+                        }
+                    },
+                    new DesignerDataPropertyInfo()
+                    {
+                        PropertyName = IndexPropertyNames.BucketCount,
+                        Description = SR.IndexBucketCountPropertyDescription,
+                        ComponentType = DesignerComponentType.Input,
+                        ComponentProperties = new InputBoxProperties()
+                        {
+                            Title = SR.IndexBucketCountPropertyTitle,
+                            Width = 200
+                        }
+                    },
+                });
+            }
+
             view.IndexTableOptions.PropertiesToDisplay = new List<string>() { IndexPropertyNames.Name, IndexPropertyNames.ColumnsDisplayValue, IndexPropertyNames.IsClustered, IndexPropertyNames.IsUnique };
             view.IndexTableOptions.CanAddRows = true;
             view.IndexTableOptions.CanRemoveRows = true;

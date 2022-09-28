@@ -2302,7 +2302,6 @@ IndexIsHashPropertyDescription = Whether the index is a hash index
 IndexIsHashPropertyTitle = Is Hash
 IndexBucketCountPropertyDescription = Bucket count of the hash index, note the value will always automatically round up to the next power of 2. 
 IndexBucketCountPropertyTitle = Bucket Count
-HashIndexGroupTitle = Hash Index
 TableDesignerColumnsDisplayValueTitle = Columns
 ColumnStoreIndexNamePropertyTitle = Name
 ColumnStoreIndexNamePropertyDescription = Name of the columnstore index
