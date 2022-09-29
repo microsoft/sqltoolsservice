@@ -6397,11 +6397,6 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Nombre de compartiments</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Index de hachage</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Nom</target>

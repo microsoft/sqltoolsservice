@@ -6397,11 +6397,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Число контейнеров</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Хэш-индекс</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Имя</target>

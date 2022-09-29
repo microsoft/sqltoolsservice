@@ -3907,9 +3907,6 @@
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>バケット数</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>ハッシュ インデックス</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>名前</value>
   </data>

@@ -6397,11 +6397,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">桶计数</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">哈希索引</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">名称</target>

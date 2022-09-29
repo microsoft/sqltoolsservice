@@ -6397,11 +6397,6 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Número de cubos</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Índice hash</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Nombre</target>
