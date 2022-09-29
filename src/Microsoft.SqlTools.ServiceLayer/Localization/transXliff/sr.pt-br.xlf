@@ -6397,11 +6397,6 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Número de buckets</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Índice de hash</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Nome</target>

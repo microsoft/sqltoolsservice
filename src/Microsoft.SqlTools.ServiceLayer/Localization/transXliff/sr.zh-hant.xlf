@@ -6397,11 +6397,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">貯體計數</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">雜湊索引</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">名稱</target>

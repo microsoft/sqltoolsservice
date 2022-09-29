@@ -6397,11 +6397,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">버킷 수</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">해시 인덱스</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">이름</target>

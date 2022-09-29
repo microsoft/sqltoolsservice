@@ -6397,11 +6397,6 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Numero di bucket</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Indice hash</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Nome</target>
