@@ -8901,14 +8901,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string HashIndexGroupTitle
-        {
-            get
-            {
-                return Keys.GetString(Keys.HashIndexGroupTitle);
-            }
-        }
-
         public static string TableDesignerColumnsDisplayValueTitle
         {
             get
@@ -13555,9 +13547,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string IndexBucketCountPropertyTitle = "IndexBucketCountPropertyTitle";
-
-
-            public const string HashIndexGroupTitle = "HashIndexGroupTitle";
 
 
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";

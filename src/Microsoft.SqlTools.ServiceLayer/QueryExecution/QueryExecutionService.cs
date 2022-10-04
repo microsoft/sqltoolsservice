@@ -99,6 +99,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal IFileStreamFactory JsonFileFactory { get; set; }
 
         /// <summary>
+        /// File factory to be used to create Markdown files from result sets.
+        /// </summary>
+        /// <remarks>Internal to allow overriding in unit testing.</remarks>
+        internal IFileStreamFactory? MarkdownFileFactory { get; set; }
+
+        /// <summary>
         /// File factory to be used to create XML files from result sets. Set to internal in order
         /// to allow overriding in unit testing
         /// </summary>
@@ -174,6 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
             serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
             serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsMarkdownRequest.Type, this.HandleSaveResultsAsMarkdownRequest);
             serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest);
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
@@ -516,6 +523,25 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 QueryExecutionSettings = Settings.QueryExecutionSettings
             };
             await SaveResultsHelper(saveParams, requestContext, jsonFactory);
+        }
+
+        /// <summary>
+        /// Processes a request to save a result set to a file in Markdown format.
+        /// </summary>
+        /// <param name="saveParams">Parameters for the request</param>
+        /// <param name="requestContext">Context of the request</param>
+        internal async Task HandleSaveResultsAsMarkdownRequest(
+            SaveResultsAsMarkdownRequestParams saveParams,
+            RequestContext<SaveResultRequestResult> requestContext)
+        {
+            // Use the default markdown file factory if we haven't overridden it
+            IFileStreamFactory markdownFactory = this.MarkdownFileFactory ??
+                                                 new SaveAsMarkdownFileStreamFactory(saveParams)
+                                                 {
+                                                     QueryExecutionSettings = this.Settings.QueryExecutionSettings,
+                                                 };
+
+            await this.SaveResultsHelper(saveParams, requestContext, markdownFactory);
         }
 
         /// <summary>

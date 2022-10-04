@@ -507,10 +507,13 @@
       </Item>
       <Item ItemId=";AddNewColumnStoreIndexLabel" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[New Column Store Index]]></Val>
+          <Val><![CDATA[New Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Nuevo índice de almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[New Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1299,10 +1302,13 @@
       </Item>
       <Item ItemId=";ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[La columna con el nombre '{0}' ya se ha agregado al índice de almacén de columnas no agrupado '{1}'. Número de fila: {2}.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1362,19 +1368,25 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexColumnsPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Columns in this column store index]]></Val>
+          <Val><![CDATA[Columns in this columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Columnas en este índice de almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Columns in this column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";ColumnStoreIndexDescriptionPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Description of the column store index]]></Val>
+          <Val><![CDATA[Description of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Descripción del índice del almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Description of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1389,10 +1401,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexFilterPredicatePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          <Val><![CDATA[Filter predicate of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Predicado de filtro del índice de almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1407,10 +1422,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexIsClusteredPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          <Val><![CDATA[Whether the columnstore index is clustered.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Indica si el índice del almacén de columnas está agrupado.]]></Val>
+            <Val><![CDATA[Si el índice de almacén de columnas está agrupado.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1425,10 +1443,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexNamePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Name of the column store index]]></Val>
+          <Val><![CDATA[Name of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nombre del índice del almacén de columnas]]></Val>
+            <Val><![CDATA[Nombre del índice de almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Name of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2598,6 +2619,15 @@
           <Val><![CDATA[The job schedule ending time must be after the starting time.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[La hora de finalización de la programación de trabajo debe ser posterior a la hora de inicio.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ErrorConnectionNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The connection could not be found]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[No se encontró la conexión]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5520,10 +5550,13 @@
       </Item>
       <Item ItemId=";NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          <Val><![CDATA[Non-clustered columnstore index '{0}' does not have any columns associated with it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[El índice del almacén de columnas no agrupado '{0}' no tiene ninguna columna asociada.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10446,19 +10479,25 @@
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexObjectType" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Index]]></Val>
+          <Val><![CDATA[Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Índice de almacenamiento de columnas]]></Val>
+            <Val><![CDATA[Índice de almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexesTableTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Indexes]]></Val>
+          <Val><![CDATA[Columnstore Indexes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Índices de almacenamiento de columnas]]></Val>
+            <Val><![CDATA[Índices de almacén de columnas]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Indexes]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

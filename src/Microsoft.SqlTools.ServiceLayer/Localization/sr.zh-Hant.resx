@@ -3907,9 +3907,6 @@
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>貯體計數</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>雜湊索引</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>名稱</value>
   </data>
@@ -3956,12 +3953,15 @@
     <value>資料行存放區索引</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>新增資料行存放區索引</value>
+    <value>新的資料行存放區索引</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>非叢集資料行存放區索引 '{0}' 沒有任何與其相關的資料行。</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>我已閱讀摘要並瞭解潛在風險。</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>找不到該連接</value>
   </data>
 </root>

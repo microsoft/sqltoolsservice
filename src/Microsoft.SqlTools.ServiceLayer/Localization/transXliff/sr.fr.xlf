@@ -6397,19 +6397,14 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Nombre de compartiments</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Index de hachage</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Nom</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyDescription">
-        <source>Name of the column store index</source>
-        <target state="translated">Nom de l’index du magasin de colonnes</target>
+        <source>Name of the columnstore index</source>
+        <target state="translated">Nom de l’index columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
@@ -6418,13 +6413,13 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
-        <source>Description of the column store index</source>
-        <target state="translated">Description de l’index du magasin de colonnes</target>
+        <source>Description of the columnstore index</source>
+        <target state="translated">Description de l’index columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyDescription">
-        <source>Whether the column store index is clustered.</source>
-        <target state="translated">Indique si l’index du magasin de colonnes est en cluster.</target>
+        <source>Whether the columnstore index is clustered.</source>
+        <target state="translated">Indique si l’index columnstore est en cluster.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
@@ -6433,8 +6428,8 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
-        <source>Filter predicate of the column store index</source>
-        <target state="translated">Prédicat de filtre de l’index du magasin de colonnes</target>
+        <source>Filter predicate of the columnstore index</source>
+        <target state="translated">Prédicat de filtre de l’index columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
@@ -6443,8 +6438,8 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
-        <source>Columns in this column store index</source>
-        <target state="translated">Colonnes de cet index de magasin de colonnes</target>
+        <source>Columns in this columnstore index</source>
+        <target state="translated">Colonnes de cet index columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
@@ -6463,35 +6458,40 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
-        <source>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</source>
-        <target state="translated">La colonne portant le nom «* {0} » a déjà été ajoutée à l’index de magasin de colonnes non cluster « {1} ». Numéro de ligne : {2}.</target>
+        <source>Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.</source>
+        <target state="translated">La colonne nommée '{0}' a déjà été ajoutée à l’index columnstore non cluster '{1}'. Numéro de ligne : {2}.</target>
         <note>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
-        <source>Column Store Indexes</source>
-        <target state="translated">Index de banque de colonnes</target>
+        <source>Columnstore Indexes</source>
+        <target state="translated">Index Columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexObjectType">
-        <source>Column Store Index</source>
-        <target state="translated">Stockage de colonnes d'index</target>
+        <source>Columnstore Index</source>
+        <target state="translated">Index Columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AddNewColumnStoreIndexLabel">
-        <source>New Column Store Index</source>
-        <target state="translated">Nouvel index stockage en colonne</target>
+        <source>New Columnstore Index</source>
+        <target state="translated">Nouvel index columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription">
-        <source>Non-clustered column store index '{0}' does not have any columns associated with it.</source>
-        <target state="translated">Aucune colonne n’est associée à l’index de banque des colonnes non cluster «{0} ».</target>
+        <source>Non-clustered columnstore index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">Aucune colonne n’est associée à l’index columnstore « {0} » non cluster.</target>
         <note>.
  Parameters: 0 - indexName (string) </note>
       </trans-unit>
       <trans-unit id="TableDesignerConfirmationText">
         <source>I have read the summary and understand the potential risks.</source>
         <target state="translated">J’ai lu le résumé et compris les risques potentiels.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorConnectionNotFound">
+        <source>The connection could not be found</source>
+        <target state="translated">Nous n’avons pas pu établir la connexion.</target>
         <note></note>
       </trans-unit>
     </body>

@@ -61,18 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
             textIdentifierString = textIdentifier.ToString();
 
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            try
-            {
-                encoding = int.TryParse(requestParams.Encoding, out int codePage)
-                    ? Encoding.GetEncoding(codePage)
-                    : Encoding.GetEncoding(requestParams.Encoding);
-            }
-            catch
-            {
-                // Fallback encoding when specified codepage is invalid
-                encoding = Encoding.GetEncoding("utf-8");
-            }
+            encoding = ParseEncoding(requestParams.Encoding, Encoding.UTF8);
 
             // Output the header if the user requested it
             if (requestParams.IncludeHeaders)
