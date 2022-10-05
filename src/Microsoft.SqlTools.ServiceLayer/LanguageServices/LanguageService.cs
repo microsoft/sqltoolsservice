@@ -1523,7 +1523,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem? queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: LanguageService.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -1551,11 +1551,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                                 else
                                 {
+                                    Logger.Verbose($"GetSignatureHelp - Didn't get any method locations from parse result");
                                     return null;
                                 }
                             });
+                        if (queueItem == null)
+                        {
+                            Logger.Verbose($"GetSignatureHelp - Didn't get QueueItem");
+                            return null;
+                        }
 
                         queueItem.ItemProcessed.WaitOne();
+                        Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
                     finally
