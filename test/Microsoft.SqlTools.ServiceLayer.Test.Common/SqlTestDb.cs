@@ -46,6 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 {
                     builder.UserID = connectParams.Connection.UserName;
                     builder.Password = connectParams.Connection.Password;
+                    builder.PersistSecurityInfo = true;
                 }
 
                 return builder.ToString();
