@@ -89,18 +89,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public virtual QueueItem QueueBindingOperation(
             string key,
-            Func<IBindingContext, CancellationToken, object> bindOperation,
-            Func<IBindingContext, object> timeoutOperation = null,
-            Func<Exception, object> errorHandler = null,
+            Func<IBindingContext, CancellationToken, object?> bindOperation,
+            Func<IBindingContext, object>? timeoutOperation = null,
+            Func<Exception, object>? errorHandler = null,
             int? bindingTimeout = null,
             int? waitForLockTimeout = null)
         {
-            // don't add null operations to the binding queue
-            if (bindOperation == null)
-            {
-                return null;
-            }
-
             QueueItem queueItem = new QueueItem()
             {
                 Key = key,
