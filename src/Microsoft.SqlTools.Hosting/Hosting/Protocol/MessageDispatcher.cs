@@ -26,6 +26,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         internal Dictionary<string, Func<Message, MessageWriter, Task>> requestHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
+        internal Dictionary<string, bool> requestHandlerParallelismMap =
+            new Dictionary<string, bool>();
 
         internal Dictionary<string, Func<Message, MessageWriter, Task>> eventHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
@@ -112,7 +114,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
-            bool overrideExisting)
+            bool overrideExisting,
+            bool isParallelProcessingSupported = true)
         {
             if (overrideExisting)
             {
@@ -120,6 +123,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 this.requestHandlers.Remove(requestType.MethodName);
             }
 
+            this.requestHandlerParallelismMap.Add(requestType.MethodName, isParallelProcessingSupported);
             this.requestHandlers.Add(
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
@@ -285,6 +289,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             MessageWriter messageWriter)
         {
             Task handlerToAwait = null;
+            bool isParallelProcessingSupported = true;
 
             if (messageToDispatch.MessageType == MessageType.Request)
             {
@@ -297,6 +302,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 // {
                 //     // TODO: Message not supported error
                 // }
+                this.requestHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
             }
             else if (messageToDispatch.MessageType == MessageType.Response)
             {
@@ -324,7 +330,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
-                if (this.ParallelMessageProcessing)
+                if (this.ParallelMessageProcessing && isParallelProcessingSupported)
                 {
                     // Run the task in a separate thread so that the main
                     // thread is not blocked.
