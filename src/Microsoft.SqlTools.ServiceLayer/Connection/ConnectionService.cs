@@ -1708,6 +1708,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return serverConnection;
         }
 
+        /// <summary>
+        /// Reset Server Connection password to a new value.
+        /// </summary>
+        /// <param name="serverConnection">The Server Connection to change the password</param>
+        /// <param name="newPassword">The new password to be set for the connection</param>
+        public static void ChangePassword(ServerConnection serverConnection, string newPassword)
+        {
+            serverConnection.ChangePassword(newPassword);
+        }
+
         public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
         {
             // verify that the connection is open
