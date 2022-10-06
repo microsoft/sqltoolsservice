@@ -528,7 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         [DisplayOrder(6), DisplayNameDescription(SR.Keys.OperationType)]
         public object OperationType { get { return null; } }
 
-        [ShowInToolTip, DisplayOrder(300), DisplayNameDescription(SR.Keys.NodeId)]
+        [ShowInToolTip, DisplayOrder(300), DisplayNameDescription(SR.Keys.NodeId), BetterValue(BetterValue.None)]
         public int NodeId { get { return 0; } }
 
         [ShowInToolTip, DisplayOrder(301), DisplayNameDescription(SR.Keys.PrimaryNodeId)]
