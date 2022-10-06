@@ -4704,6 +4704,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>Estimated CPU Cost</value>
     <comment></comment>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Actual CPU Cost</value>
+    <comment></comment>
+  </data>
   <data name="EstimatedIO" xml:space="preserve">
     <value>Estimated IO Cost</value>
     <comment></comment>

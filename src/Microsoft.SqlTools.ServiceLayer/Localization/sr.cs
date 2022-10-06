@@ -8605,6 +8605,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ActualCpu
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualCpu);
+            }
+        }
+
         public static string EstimatedIO
         {
             get
@@ -13427,6 +13435,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EstimatedCpu = "EstimatedCpu";
+
+
+            public const string ActualCpu = "ActualCpu";
 
 
             public const string EstimatedIO = "EstimatedIO";
