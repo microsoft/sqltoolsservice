@@ -1104,6 +1104,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
+         /// <summary>
+        /// Handle new change password requests
+        /// </summary>
+        /// <param name="connectParams"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleChangePasswordRequest(
+            ChangePasswordParams changePasswordParams,
+            RequestContext<bool> requestContext)
+        {
+            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
+
+            try
+            {
+                //RunConnectRequestHandlerTask(changePasswordParams);
+                await requestContext.SendResult(true);
+            }
+            catch
+            {
+                await requestContext.SendResult(false);
+            }
+        }
+
         private void RunConnectRequestHandlerTask(ConnectParams connectParams)
         {
             // create a task to connect asynchronously so that other requests are not blocked in the meantime
