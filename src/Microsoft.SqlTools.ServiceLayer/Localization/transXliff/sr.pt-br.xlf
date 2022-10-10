@@ -6494,6 +6494,11 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Não foi possível encontrar a conexão</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Custo Real da CPU</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

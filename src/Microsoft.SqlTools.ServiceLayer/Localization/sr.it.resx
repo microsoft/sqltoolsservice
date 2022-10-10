@@ -3964,4 +3964,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>La connessione non è stata trovata</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Costo CPU effettivo</value>
+  </data>
 </root>
