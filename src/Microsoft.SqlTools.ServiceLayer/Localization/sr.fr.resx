@@ -3964,4 +3964,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Nous n’avons pas pu établir la connexion.</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Coût réel du processeur</value>
+  </data>
 </root>

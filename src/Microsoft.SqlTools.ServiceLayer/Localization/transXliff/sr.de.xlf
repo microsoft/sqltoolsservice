@@ -6494,6 +6494,11 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Die Verbindung konnte nicht gefunden werden</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Tatsächliche CPU-Kosten</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -3964,4 +3964,7 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>연결을 찾을 수 없습니다.</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>실제 CPU 비용</value>
+  </data>
 </root>

@@ -3964,4 +3964,7 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Не удалось найти соединение.</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Фактическая стоимость ЦП</value>
+  </data>
 </root>
