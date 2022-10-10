@@ -6494,6 +6494,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Не удалось найти соединение.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Фактическая стоимость ЦП</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

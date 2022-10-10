@@ -6494,6 +6494,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">La connessione non è stata trovata</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Costo CPU effettivo</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
