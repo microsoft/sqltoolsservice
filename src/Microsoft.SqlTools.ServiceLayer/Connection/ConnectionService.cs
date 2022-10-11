@@ -314,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns>A ConnectionCompleteParams object upon validation error,
         /// null upon validation success</returns>
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
-        {
+         {
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -1103,30 +1103,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendResult(false);
             }
         }
-
-         /// <summary>
-        /// Handle new change password requests
-        /// </summary>
-        /// <param name="connectParams"></param>
-        /// <param name="requestContext"></param>
-        /// <returns></returns>
-        protected async Task HandleChangePasswordRequest(
-            ChangePasswordParams changePasswordParams,
-            RequestContext<bool> requestContext)
-        {
-            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
-
-            try
-            {
-                //RunConnectRequestHandlerTask(changePasswordParams);
-                await requestContext.SendResult(true);
-            }
-            catch
-            {
-                await requestContext.SendResult(false);
-            }
-        }
-
         private void RunConnectRequestHandlerTask(ConnectParams connectParams)
         {
             // create a task to connect asynchronously so that other requests are not blocked in the meantime
@@ -1144,6 +1120,67 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                     // open connection based on request details
                     result = await Connect(connectParams);
+                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                }
+                catch (Exception ex)
+                {
+                    ConnectionCompleteParams result = new ConnectionCompleteParams()
+                    {
+                        Messages = ex.ToString()
+                    };
+                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                }
+            }).ContinueWithOnFaulted(null);
+        }
+
+        /// <summary>
+        /// Handle new change password requests
+        /// </summary>
+        /// <param name="connectParams"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleChangePasswordRequest(
+            ChangePasswordParams changePasswordParams,
+            RequestContext<bool> requestContext)
+        {
+            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
+
+            try
+            {
+                RunChangePasswordRequestHandlerTask(changePasswordParams);
+                await requestContext.SendResult(true);
+            }
+            catch
+            {
+                await requestContext.SendResult(false);
+            }
+        }
+
+        private void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
+        {
+            // create a task to connect asynchronously so that other requests are not blocked in the meantime
+            Task.Run(async () =>
+            {
+                try
+                {
+                    // result is null if the ConnectParams was successfully validated
+                    ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
+                    Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
+                    if (result != null)
+                    {
+                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                        return;
+                    }
+                    else if(isPasswordEmpty) {
+                        result =  new ConnectionCompleteParams
+                        {
+                            OwnerUri = changePasswordParams.OwnerUri,
+                            ErrorMessage = "New password is empty!"
+                        };
+                    }
+
+                    // open connection based on request details
+                    result = await Connect(changePasswordParams);
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
                 catch (Exception ex)
