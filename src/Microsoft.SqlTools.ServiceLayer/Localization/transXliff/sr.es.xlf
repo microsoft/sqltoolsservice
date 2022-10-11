@@ -6494,6 +6494,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">No se encontró la conexión</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Costo real de CPU</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

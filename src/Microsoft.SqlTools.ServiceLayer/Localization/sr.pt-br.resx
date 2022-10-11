@@ -3964,4 +3964,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Não foi possível encontrar a conexão</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Custo Real da CPU</value>
+  </data>
 </root>

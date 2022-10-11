@@ -3964,4 +3964,7 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>找不到該連接</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>實際 CPU 成本</value>
+  </data>
 </root>

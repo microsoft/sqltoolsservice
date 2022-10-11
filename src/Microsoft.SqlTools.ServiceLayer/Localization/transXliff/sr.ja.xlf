@@ -6494,6 +6494,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">接続が見つかりませんでした</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">実際の CPU コスト</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
