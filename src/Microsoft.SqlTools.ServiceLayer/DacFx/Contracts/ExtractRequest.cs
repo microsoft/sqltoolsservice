@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// <summary>
         /// Gets or sets whether permissions should be included in the extract
         /// </summary>
-        public bool? ImportPermissions { get; set; }
+        public bool? IncludePermissions { get; set; }
     }
 
     /// <summary>
