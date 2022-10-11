@@ -372,6 +372,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
 
+            if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
+                // Do something with passwordChange.
+                ServerConnection serverConnection = ConnectionService.OpenServerConnection(connectionInfo);
+                ConnectionService.ChangePassword(serverConnection, (connectionParams as ChangePasswordParams).NewPassword);
+                serverConnection.Disconnect();
+            }
+
             // Try to open a connection with the given ConnectParams
             ConnectionCompleteParams? response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
             if (response != null)
