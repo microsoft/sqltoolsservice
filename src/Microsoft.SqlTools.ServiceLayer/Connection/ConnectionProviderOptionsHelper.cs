@@ -155,8 +155,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         Description =
                         "When true, SQL Server uses SSL encryption for all data sent between the client and server if the servers has a certificate installed",
                         GroupName = "Security",
-                        ValueType = ConnectionOption.ValueTypeObject,
-                        ObjectType = "SqlConnectionEncryptOption"
+                        ValueType = ConnectionOption.ValueTypeBoolean,
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "strictEncryption",
+                        DisplayName = "Strict Encryption",
+                        Description =
+                        "When true (and encrypt=true), SQL Server uses strict SSL encryption for all data sent between the client and server if the servers has a certificate installed",
+                        GroupName = "Security",
+                        ValueType = ConnectionOption.ValueTypeBoolean,
                     },
                     new ConnectionOption
                     {

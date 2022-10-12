@@ -1299,15 +1299,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
             }
-            if (connectionDetails.Encrypt != null)
+            if(connectionDetails.Encrypt.HasTrue())
             {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt;
+                if (connectionDetails.StrictEncryption.HasTrue())
+                {
+                    connectionBuilder.Encrypt = SqlConnectionEncryptOption.Strict;
+                }
+                else
+                {
+                    connectionBuilder.Encrypt = SqlConnectionEncryptOption.Mandatory;
+                }
+            }
+            else
+            {
+                connectionBuilder.Encrypt = SqlConnectionEncryptOption.Optional;
             }
             if (connectionDetails.TrustServerCertificate.HasValue)
             {
                 connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
             }
-            if (connectionDetails.HostNameInCertificate != null)
+            if (!string.IsNullOrEmpty(connectionDetails.HostNameInCertificate))
             {
                 connectionBuilder.HostNameInCertificate = connectionDetails.HostNameInCertificate;
             }
@@ -1475,7 +1486,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
                 EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
                 EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
-                Encrypt = builder.Encrypt,
+                Encrypt = builder.Encrypt != SqlConnectionEncryptOption.Optional,
+                StrictEncryption = builder.Encrypt == SqlConnectionEncryptOption.Strict,
                 FailoverPartner = builder.FailoverPartner,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,
                 MaxPoolSize = builder.MaxPoolSize,

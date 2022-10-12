@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
@@ -148,18 +147,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
-        /// Gets or sets a <see cref="SqlConnectionEncryptOption"/> value that indicates whether SQL Server uses SSL encryption for all data sent between the client and server if the server has a certificate installed.
+        /// Gets or sets a <see cref="Boolean"/> value that indicates whether SQL Server uses SSL encryption for all data sent between the client and server if the server has a certificate installed.
         /// </summary>
-        public SqlConnectionEncryptOption? Encrypt
+        public bool? Encrypt
         {
             get
             {
-                return GetOptionValue<SqlConnectionEncryptOption?>("encrypt");
+                return GetOptionValue<bool?>("encrypt");
             }
 
             set
             {
-                SetOptionValue("encrypt", value?.ToString());
+                SetOptionValue("encrypt", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a <see cref="Boolean"/> value that indicates whether SQL Server uses strict SSL encryption for all data sent between the client and server if the server has a certificate installed.
+        /// </summary>
+        public bool? StrictEncryption
+        {
+            get
+            {
+                return GetOptionValue<bool?>("strictEncryption");
+            }
+
+            set
+            {
+                SetOptionValue("strictEncryption", value);
             }
         }
 

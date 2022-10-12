@@ -521,9 +521,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
-            new object[] {"Encrypt", SqlConnectionEncryptOption.Mandatory, "Encrypt"},
-            new object[] {"Encrypt", SqlConnectionEncryptOption.Optional, "Encrypt"},
-            new object[] {"Encrypt", SqlConnectionEncryptOption.Strict, "Encrypt"},
+            new object[] {"Encrypt", true, "Encrypt"},
+            new object[] {"Encrypt", false, "Encrypt"},
             new object[] {"ColumnEncryptionSetting", "Enabled", "Column Encryption Setting=Enabled"},
             new object[] {"ColumnEncryptionSetting", "Disabled", "Column Encryption Setting=Disabled"},
             new object[] {"ColumnEncryptionSetting", "enabled", "Column Encryption Setting=Enabled"},
@@ -614,6 +613,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"ColumnEncryptionSetting", "NotAValidColumnEncryptionSetting" },
             new object[] {"EnclaveAttestationProtocol", "NotAValidEnclaveAttestationProtocol" },
         };
+
         /// <summary>
         /// Build connection string with an invalid property type
         /// </summary>
@@ -647,6 +647,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
                 }
         };
+
+        private static readonly object[] EncryptionCombinations =
+        {
+            new object[] {true, true, SqlConnectionEncryptOption.Strict },
+            new object[] {true, false, SqlConnectionEncryptOption.Mandatory },
+            new object[] {false, true, SqlConnectionEncryptOption.Optional },
+            new object[] {false, false, SqlConnectionEncryptOption.Optional },
+        };
+        
+        /// <summary>
+        /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
+        /// </summary>
+        [Test, TestCaseSource(nameof(EncryptionCombinations))]
+        public void ConnectingWithStrictEncryptionBuildsConnectionString(bool encryptValue, bool strictEncryptionValue, SqlConnectionEncryptOption expected)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            details.Encrypt = encryptValue;
+            details.StrictEncryption = strictEncryptionValue;
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+
+            Assert.That(connectionString, Contains.Substring("Encrypt=" + expected.ToString()), "Verify that the parameter is in the connection string");
+        }
 
         /// <summary>
         /// Build connection string with an invalid property combinations
@@ -1647,14 +1672,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
-
             Assert.AreEqual("tcp:{servername},1433", details.ServerName);
             Assert.AreEqual("{databasename}", details.DatabaseName);
             Assert.AreEqual("{your_username}", details.UserName);
             Assert.AreEqual("{your_password}", details.Password);
             Assert.AreEqual(false, details.PersistSecurityInfo);
             Assert.AreEqual(false, details.MultipleActiveResultSets);
-            Assert.AreEqual(SqlConnectionEncryptOption.Mandatory, details.Encrypt);
+            Assert.AreEqual(true, details.Encrypt);
+            Assert.AreEqual(false, details.StrictEncryption);
+            Assert.AreEqual(false, details.TrustServerCertificate);
+            Assert.AreEqual("{servername}", details.HostNameInCertificate);
+            Assert.AreEqual(30, details.ConnectTimeout);
+        }
+
+        /// <summary>
+        /// Test ParseConnectionString
+        /// </summary>
+        [Test]
+        public void ParseConnectionStringTest_StrictEncryption()
+        {
+            // If we make a connection to a live database
+            ConnectionService service = ConnectionService.Instance;
+
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=Strict;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
+
+            var details = service.ParseConnectionString(connectionString);
+            Assert.AreEqual("tcp:{servername},1433", details.ServerName);
+            Assert.AreEqual("{databasename}", details.DatabaseName);
+            Assert.AreEqual("{your_username}", details.UserName);
+            Assert.AreEqual("{your_password}", details.Password);
+            Assert.AreEqual(false, details.PersistSecurityInfo);
+            Assert.AreEqual(false, details.MultipleActiveResultSets);
+            Assert.AreEqual(true, details.Encrypt);
+            Assert.AreEqual(true, details.StrictEncryption);
             Assert.AreEqual(false, details.TrustServerCertificate);
             Assert.AreEqual("{servername}", details.HostNameInCertificate);
             Assert.AreEqual(30, details.ConnectTimeout);

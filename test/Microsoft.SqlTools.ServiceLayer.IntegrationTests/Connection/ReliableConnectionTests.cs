@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.Utility;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy;
 using static Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.RetryPolicy.TimeBasedRetryPolicy;
@@ -242,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 csb.Password = connectParams.Connection.Password;
             }
             csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
-            csb.Encrypt = connectParams.Connection.Encrypt != null ? connectParams.Connection.Encrypt : false;
+            csb.Encrypt = connectParams.Connection.StrictEncryption.HasTrue() ? SqlConnectionEncryptOption.Strict : connectParams.Connection.Encrypt.HasTrue();
             csb.TrustServerCertificate = connectParams.Connection.TrustServerCertificate.HasValue ? connectParams.Connection.TrustServerCertificate.Value : false;
             if (connectParams.Connection.HostNameInCertificate != null)
             {
