@@ -1165,6 +1165,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
+        public void testPasswordChangeHandlerTask(ChangePasswordParams changePasswordParams){
+            this.RunChangePasswordRequestHandlerTask(changePasswordParams);
+        }
+
         private void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
         {
             // create a task to connect asynchronously so that other requests are not blocked in the meantime
@@ -1186,6 +1190,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                             OwnerUri = changePasswordParams.OwnerUri,
                             ErrorMessage = "New password is empty!"
                         };
+                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+                        return;
                     }
 
                     // open connection based on request details

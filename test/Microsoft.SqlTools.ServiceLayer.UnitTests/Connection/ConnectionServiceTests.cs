@@ -1698,10 +1698,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
 
         /// <summary>
-        /// Verify that a connection changed event is fired when the database context changes.
+        /// Verify that providing an empty password to change password will fire an error. 
         /// </summary>
         [Test]
-        public async Task ConnectionPasswordChange()
+        public async Task ConnectionEmptyPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
@@ -1710,19 +1710,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Set up an initial connection
             const string ownerUri = "file://my/sample/file.sql";
-            var connectionResult = await
-                connectionService
-                .Connect(new ChangePasswordParams()
-                {
-                    OwnerUri = ownerUri,
-                    Connection = TestObjects.GetTestConnectionDetails(),
-                    NewPassword = "blah"
-                });
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                NewPassword = ""
+            };
 
-            Assert.That(connectionResult.ConnectionId, Is.Not.Empty, "verify that a valid connection id was returned");
-
-            ConnectionInfo info;
-            Assert.True(connectionService.TryFindConnection(ownerUri, out info));
+            connectionService.testPasswordChangeHandlerTask(testConnectionParams);
+            serviceHostMock.Verify(ServiceHost => ServiceHost.SendEvent(ConnectionCompleteNotification.Type, It.IsAny<ConnectionCompleteParams>()), Times.Once);
         }
     }
 }
