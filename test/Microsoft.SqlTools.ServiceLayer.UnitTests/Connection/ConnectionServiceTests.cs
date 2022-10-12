@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task CanConnectWithEmptyDatabaseName([Values(null, "")]string databaseName)
+        public async Task CanConnectWithEmptyDatabaseName([Values(null, "")] string databaseName)
         {
             // Connect
             var connectionDetails = TestObjects.GetTestConnectionDetails();
@@ -294,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName([Values("master", "nonMasterDb")]string expectedDbName)
+        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName([Values("master", "nonMasterDb")] string expectedDbName)
         {
             // Given connecting with empty database name will return the expected DB name
             var connectionMock = new Mock<DbConnection> { CallBase = true };
@@ -440,11 +440,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456"},
             new object[] {"Integrated", "", "my-server", "test", "sa", "123456"},
             new object[] {"Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456"}
-	    };
+        };
         /// <summary>
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
-        [Test, TestCaseSource(nameof(invalidParameters))]        
+        [Test, TestCaseSource(nameof(invalidParameters))]
         public async Task ConnectingWithInvalidParametersYieldsErrorMessage(string authType, string ownerUri, string server, string database, string userName, string password)
         {
             // Connect with invalid parameters
@@ -603,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .SetValue(details, propertyValue);
 
             // Test that a connection string can be created without exceptions
-            string connectionString = ConnectionService.BuildConnectionString(details);            
+            string connectionString = ConnectionService.BuildConnectionString(details);
             Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameter is in the connection string");
         }
 
@@ -625,7 +625,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Throws<ArgumentException>(() => ConnectionService.BuildConnectionString(details));
         }
 
-        private static readonly Tuple<string,object>[][] optionCombos =
+        private static readonly Tuple<string, object>[][] optionCombos =
         {
             new []
                 {
@@ -1137,10 +1137,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Test that the connection summary comparer creates a hash code correctly
         /// </summary>
         [Test]
-        public void TestConnectionSummaryComparerHashCode([Values]bool objectNull, 
-                                                          [Values(null, "server")]string serverName, 
-                                                          [Values(null, "test")]string databaseName, 
-                                                          [Values(null, "sa")]string userName)
+        public void TestConnectionSummaryComparerHashCode([Values] bool objectNull,
+                                                          [Values(null, "server")] string serverName,
+                                                          [Values(null, "test")] string databaseName,
+                                                          [Values(null, "sa")] string userName)
         {
             // Given a connection summary and comparer object
             ConnectionSummary summary = null;
@@ -1341,13 +1341,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullOwnerUri([Values(null, "")]string ownerUri)
+        public async Task GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
         {
             // If: I have a connection service and I ask for a connection with an invalid ownerUri
             // Then: An exception should be thrown
             var service = TestObjects.GetTestConnectionService();
-             Assert.ThrowsAsync<ArgumentException>(
-                () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
+            Assert.ThrowsAsync<ArgumentException>(
+               () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
         }
 
         [Test]
@@ -1694,6 +1694,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.IsTrue(ConnectionService.IsDbPool("db@pool"));
             Assert.IsFalse(ConnectionService.IsDbPool("db"));
             Assert.IsFalse(ConnectionService.IsDbPool(null));
+        }
+
+
+        /// <summary>
+        /// Verify that a connection changed event is fired when the database context changes.
+        /// </summary>
+        [Test]
+        public async Task ConnectionPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = TestObjects.GetTestConnectionService();
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            var connectionResult = await
+                connectionService
+                .Connect(new ChangePasswordParams()
+                {
+                    OwnerUri = ownerUri,
+                    Connection = TestObjects.GetTestConnectionDetails(),
+                    NewPassword = "blah"
+                });
+
+            Assert.That(connectionResult.ConnectionId, Is.Not.Empty, "verify that a valid connection id was returned");
+
+            ConnectionInfo info;
+            Assert.True(connectionService.TryFindConnection(ownerUri, out info));
         }
     }
 }

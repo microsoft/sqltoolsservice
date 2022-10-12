@@ -314,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns>A ConnectionCompleteParams object upon validation error,
         /// null upon validation success</returns>
         public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
-         {
+        {
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -374,9 +374,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
                 // Do something with passwordChange.
+                ChangePasswordParams passwordChange = (connectionParams as ChangePasswordParams);
                 ServerConnection serverConnection = ConnectionService.OpenServerConnection(connectionInfo);
-                ConnectionService.ChangePassword(serverConnection, (connectionParams as ChangePasswordParams).NewPassword);
+                ConnectionService.ChangePassword(serverConnection, passwordChange.NewPassword);
                 serverConnection.Disconnect();
+                connectionParams.Connection.Password = passwordChange.NewPassword;
             }
 
             // Try to open a connection with the given ConnectParams
