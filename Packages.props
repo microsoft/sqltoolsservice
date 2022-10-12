@@ -19,9 +19,8 @@
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.0" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.1" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.7.0-preview" />
-		<!-- TODO: Update SmoMetadataProvider to a later version that provides binary for .NET Standard 2.1-->
 		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.7.0-preview" />
 		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="161.6304.0-preview" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
