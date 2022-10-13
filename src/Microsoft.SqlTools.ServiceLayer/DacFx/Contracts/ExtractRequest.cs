@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the target for extraction
         /// </summary>
         public DacExtractTarget ExtractTarget { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether permissions should be included in the extract
+        /// </summary>
+        public bool? IncludePermissions { get; set; }
     }
 
     /// <summary>
