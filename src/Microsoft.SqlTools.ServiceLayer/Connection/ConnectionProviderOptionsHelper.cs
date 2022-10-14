@@ -92,14 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "asynchronousProcessing",
-                        DisplayName = "Asynchronous processing enabled",
-                        Description = "When true, enables usage of the Asynchronous functionality in the .Net Framework Data Provider",
-                        ValueType = ConnectionOption.ValueTypeBoolean,
-                        GroupName = "Initialization"
-                    },
-                    new ConnectionOption
-                    {
                         Name = "connectTimeout",
                         DisplayName = "Connect timeout",
                         Description =
