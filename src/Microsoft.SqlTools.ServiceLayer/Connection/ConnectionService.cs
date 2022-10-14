@@ -372,12 +372,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
 
-            if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
-                // Do something with passwordChange.
-                ChangePasswordParams passwordChange = (connectionParams as ChangePasswordParams);
-                ServerConnection serverConnection = new ServerConnection(passwordChange.Connection.ServerName, passwordChange.Connection.UserName, passwordChange.Connection.Password);
-                serverConnection.ChangePassword(passwordChange.NewPassword);
-                connectionParams.Connection.Password = passwordChange.NewPassword;
+            try {
+                if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
+                    // Do something with passwordChange.
+                    ChangePasswordParams passwordChange = (connectionParams as ChangePasswordParams);
+                    ServerConnection serverConnection = new ServerConnection(passwordChange.Connection.ServerName, passwordChange.Connection.UserName, passwordChange.Connection.Password);
+                    serverConnection.ChangePassword(passwordChange.NewPassword);
+                    connectionParams.Connection.Password = passwordChange.NewPassword;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Error, "Change password error: " + ex.Message);
             }
 
             // Try to open a connection with the given ConnectParams
