@@ -376,8 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // Do something with passwordChange.
                 ChangePasswordParams passwordChange = (connectionParams as ChangePasswordParams);
                 ServerConnection serverConnection = new ServerConnection(passwordChange.Connection.ServerName, passwordChange.Connection.UserName, passwordChange.Connection.Password);
-                ConnectionService.ChangePassword(serverConnection, passwordChange.NewPassword);
-                serverConnection.Disconnect();
+                serverConnection.ChangePassword(passwordChange.NewPassword);
                 connectionParams.Connection.Password = passwordChange.NewPassword;
             }
 
@@ -1066,7 +1065,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleCancelConnectRequest);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
@@ -1782,16 +1781,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             return serverConnection;
-        }
-
-        /// <summary>
-        /// Reset Server Connection password to a new value.
-        /// </summary>
-        /// <param name="serverConnection">The Server Connection to change the password</param>
-        /// <param name="newPassword">The new password to be set for the connection</param>
-        public static void ChangePassword(ServerConnection serverConnection, string newPassword)
-        {
-            serverConnection.ChangePassword(newPassword);
         }
 
         public static void EnsureConnectionIsOpen(DbConnection conn, bool forceReopen = false)
