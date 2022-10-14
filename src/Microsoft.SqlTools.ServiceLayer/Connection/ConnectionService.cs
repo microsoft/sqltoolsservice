@@ -375,7 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
                 // Do something with passwordChange.
                 ChangePasswordParams passwordChange = (connectionParams as ChangePasswordParams);
-                ServerConnection serverConnection = ConnectionService.OpenServerConnection(connectionInfo);
+                ServerConnection serverConnection = new ServerConnection(passwordChange.Connection.ServerName, passwordChange.Connection.UserName, passwordChange.Connection.Password);
                 ConnectionService.ChangePassword(serverConnection, passwordChange.NewPassword);
                 serverConnection.Disconnect();
                 connectionParams.Connection.Password = passwordChange.NewPassword;
@@ -1066,7 +1066,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleCancelConnectRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
