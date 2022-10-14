@@ -187,6 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 connectParams.Connection.ConnectTimeout = 30;
                 connectParams.Connection.Encrypt = true;
+                connectParams.Connection.StrictEncryption = false;
                 connectParams.Connection.TrustServerCertificate = false;
                 connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
             }

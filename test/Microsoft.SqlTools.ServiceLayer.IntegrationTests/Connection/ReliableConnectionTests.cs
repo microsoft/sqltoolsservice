@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
             csb.Encrypt = connectParams.Connection.StrictEncryption.HasTrue() ? SqlConnectionEncryptOption.Strict : connectParams.Connection.Encrypt.HasTrue();
             csb.TrustServerCertificate = connectParams.Connection.TrustServerCertificate.HasValue ? connectParams.Connection.TrustServerCertificate.Value : false;
-            if (connectParams.Connection.HostNameInCertificate != null)
+            if (!string.IsNullOrEmpty(connectParams.Connection.HostNameInCertificate))
             {
                 csb.HostNameInCertificate = connectParams.Connection.HostNameInCertificate;
             }

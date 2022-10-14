@@ -169,7 +169,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
         //    connectionStringBuilder.ConnectTimeout = 123;
         //    connectionStringBuilder.Encrypt = true;
         //    connectionStringBuilder.ApplicationIntent = ApplicationIntent.ReadWrite;
-        //    connectionStringBuilder.AsynchronousProcessing = true;
         //    connectionStringBuilder.MaxPoolSize = 45;
         //    connectionStringBuilder.MinPoolSize = 3;
         //    connectionStringBuilder.PacketSize = 600;
