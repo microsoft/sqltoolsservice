@@ -1066,6 +1066,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
