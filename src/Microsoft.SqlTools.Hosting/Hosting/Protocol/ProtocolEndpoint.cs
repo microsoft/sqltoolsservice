@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
-            bool isParallelProcessingSupported = true)
+            bool isParallelProcessingSupported = false)
         {
             this.MessageDispatcher.SetRequestHandler(
                 requestType,

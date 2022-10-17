@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
             bool overrideExisting,
-            bool isParallelProcessingSupported = true)
+            bool isParallelProcessingSupported = false)
         {
             if (overrideExisting)
             {
@@ -126,34 +126,36 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             this.requestHandlerParallelismMap.Add(requestType.MethodName, isParallelProcessingSupported);
             this.requestHandlers.Add(
                 requestType.MethodName,
-                async (requestMessage, messageWriter) =>
+                (requestMessage, messageWriter) =>
                 {
-                    var requestContext =
-                        new RequestContext<TResult>(
-                            requestMessage,
-                            messageWriter);
-                    try
-                    {                        
-                        TParams typedParams = default(TParams);
-                        if (requestMessage.Contents != null)
-                        {
-                            try
+                    return Task.Run(async () => {
+                        var requestContext =
+                            new RequestContext<TResult>(
+                                requestMessage,
+                                messageWriter);
+                        try
+                        {                        
+                            TParams typedParams = default(TParams);
+                            if (requestMessage.Contents != null)
                             {
-                                typedParams = requestMessage.Contents.ToObject<TParams>();
+                                try
+                                {
+                                    typedParams = requestMessage.Contents.ToObject<TParams>();
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception($"Error parsing message contents {requestMessage.Contents}", ex);
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                throw new Exception($"Error parsing message contents {requestMessage.Contents}", ex);
-                            }
-                        }
 
-                        await requestHandler(typedParams, requestContext);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error($"{requestType.MethodName} : {ex}");
-                        await requestContext.SendError(ex.Message);
-                    }
+                            await requestHandler(typedParams, requestContext);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error($"{requestType.MethodName} : {ex}");
+                            await requestContext.SendError(ex.Message);
+                        }
+                    });
                 });
         }
 
@@ -180,30 +182,33 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             this.eventHandlers.Add(
                 eventType.MethodName,
-                async (eventMessage, messageWriter) =>
+                (eventMessage, messageWriter) =>
                 {
-                    var eventContext = new EventContext(messageWriter);
-                    TParams typedParams = default(TParams);
-                    try
-                    {                
-                        if (eventMessage.Contents != null)
-                        {
-                            try
-                            {
-                                typedParams = eventMessage.Contents.ToObject<TParams>();
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
-                            }
-                        }
-                        await eventHandler(typedParams, eventContext);
-                    }
-                    catch (Exception ex)
+                    return Task.Run(async () =>
                     {
-                        // There's nothing on the client side to send an error back to so just log the error and move on
-                        Logger.Error($"{eventType.MethodName} : {ex}");
-                    }
+                        var eventContext = new EventContext(messageWriter);
+                        TParams typedParams = default(TParams);
+                        try
+                        {                
+                            if (eventMessage.Contents != null)
+                            {
+                                try
+                                {
+                                    typedParams = eventMessage.Contents.ToObject<TParams>();
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
+                                }
+                            }
+                            await eventHandler(typedParams, eventContext);
+                        }
+                        catch (Exception ex)
+                        {
+                            // There's nothing on the client side to send an error back to so just log the error and move on
+                            Logger.Error($"{eventType.MethodName} : {ex}");
+                        }
+                    });
                 });
         }
 
@@ -289,7 +294,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             MessageWriter messageWriter)
         {
             Task handlerToAwait = null;
-            bool isParallelProcessingSupported = true;
+            bool isParallelProcessingSupported = false;
 
             if (messageToDispatch.MessageType == MessageType.Request)
             {
