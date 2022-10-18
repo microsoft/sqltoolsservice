@@ -166,12 +166,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
             connectParams.Connection.UserName = connectionProfile.User;
             connectParams.Connection.Password = connectionProfile.Password;
-            connectParams.Connection.MaxPoolSize = 200;
             connectParams.Connection.AuthenticationType = connectionProfile.AuthenticationType.ToString();
+            connectParams.Connection.MaxPoolSize = 200;
 
-            if (connectParams.Connection.Encrypt == Data.SqlClient.SqlConnectionEncryptOption.Strict)
+            connectParams.Connection.Encrypt = !connectionProfile.Encrypt?.Equals("Optional", StringComparison.OrdinalIgnoreCase);
+            connectParams.Connection.StrictEncryption = connectionProfile.Encrypt?.Equals("Strict", StringComparison.OrdinalIgnoreCase);
+
+            if (connectParams.Connection.StrictEncryption == true)
             {
-                connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
+                if (!string.IsNullOrEmpty(connectionProfile.HostNameInCertificate))
+                {
+                    connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
+                }
             }
             else
             {
@@ -189,7 +195,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 connectParams.Connection.Encrypt = true;
                 connectParams.Connection.StrictEncryption = false;
                 connectParams.Connection.TrustServerCertificate = false;
-                connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
             }
 
             return connectParams;

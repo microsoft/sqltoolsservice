@@ -59,6 +59,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public string ProfileName { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Encrypt { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string HostNameInCertificate { get; set; }
 
         public TestServerType ServerType { get; set; }
