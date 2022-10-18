@@ -114,43 +114,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
             this.IsLastBatch = isLast;
         }
 
-        internal bool IncludeHeaders
+        public bool IncludeHeaders
         {
             get { return this.GetOptionValue<bool>(SerializationOptionsHelper.IncludeHeaders); }
             set { this.SetOptionValue<bool>(SerializationOptionsHelper.IncludeHeaders, value); }
         }
 
-        internal string Delimiter
+        public string Delimiter
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.Delimiter); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.Delimiter, value); }
         }
 
-        internal string LineSeparator
+        public string LineSeparator
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.LineSeparator); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.LineSeparator, value); }
         }
 
-        internal string TextIdentifier
+        public string TextIdentifier
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.TextIdentifier); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.TextIdentifier, value); }
         }
 
-        internal string Encoding
+        public string Encoding
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.Encoding); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.Encoding, value); }
         }
 
-        internal bool Formatted
+        public bool Formatted
         {
             get { return this.GetOptionValue<bool>(SerializationOptionsHelper.Formatted); }
             set { this.SetOptionValue<bool>(SerializationOptionsHelper.Formatted, value); }
         }
 
-        internal int MaxCharsToStore
+        public int MaxCharsToStore
         {
             get { return this.GetOptionValue<int>(SerializationOptionsHelper.MaxCharsToStore); }
             set { this.SetOptionValue<int>(SerializationOptionsHelper.Formatted, value); }
