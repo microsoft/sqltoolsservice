@@ -209,6 +209,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             const string ACTUAL_EXECUTIONS_COLUMN_KEY = "ActualExecutions";
             const string ESTIMATED_EXECUTIONS_COLUMN_KEY = "EstimateExecutions";
             const string ESTIMATED_CPU_COLUMN_KEY = "EstimateCPU";
+            const string ACTUAL_TIME_STATS_KEY = "ActualTimeStatistics";
+            const string ACTUAL_CPU_COLUMN_KEY = "ActualCPUms";
             const string ESTIMATED_IO_COLUMN_KEY = "EstimateIO";
             const string PARALLEL_COLUMN_KEY = "Parallel";
             const string ORDERED_COLUMN_KEY = "Ordered";
@@ -310,6 +312,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                     DataType = PropertyValueDataType.Number,
                     DisplayValue = currentNode[ESTIMATED_CPU_COLUMN_KEY]
                 });
+            }
+
+            if (currentNode[ACTUAL_TIME_STATS_KEY] != null)
+            {
+                var actualStatsWrapper = currentNode[ACTUAL_TIME_STATS_KEY] as ExpandableObjectWrapper;
+                if (actualStatsWrapper != null)
+                {
+                    var counters = actualStatsWrapper[ACTUAL_CPU_COLUMN_KEY] as RunTimeCounters;
+                    if (counters != null)
+                    {
+                        var elapsedTime = counters.MaxCounter;
+                        long ticks = (long)elapsedTime * TimeSpan.TicksPerMillisecond;
+                        long time = new DateTime(ticks).Millisecond;
+                        result.Add(new TopOperationsDataItem
+                        {
+                            ColumnName = SR.ActualCpu,
+                            DataType = PropertyValueDataType.Number,
+                            DisplayValue = time.ToString()
+                        });
+                    }
+                }
+
             }
 
             if (currentNode[ESTIMATED_IO_COLUMN_KEY] != null)

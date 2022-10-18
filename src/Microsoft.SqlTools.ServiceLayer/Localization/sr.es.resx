@@ -3964,4 +3964,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>No se encontró la conexión</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Costo real de CPU</value>
+  </data>
 </root>

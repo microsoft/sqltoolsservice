@@ -3964,4 +3964,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Die Verbindung konnte nicht gefunden werden</value>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Tatsächliche CPU-Kosten</value>
+  </data>
 </root>

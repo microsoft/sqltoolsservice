@@ -6494,6 +6494,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Nous n’avons pas pu établir la connexion.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Coût réel du processeur</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
