@@ -37,6 +37,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private CancellationTokenSource messageLoopCancellationToken =
             new CancellationTokenSource();
 
+        private SemaphoreSlim semaphore = new SemaphoreSlim(10); // Limit to 10 threads
+
         #endregion
 
         #region Properties
@@ -339,9 +341,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     // Run the task in a separate thread so that the main
                     // thread is not blocked.
+                    await semaphore.WaitAsync();
                     _ = Task.Run(() =>
                     {
                         _ = RunTask(handlerToAwait);
+                        semaphore.Release();
                     });
                 }
                 else
