@@ -113,6 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 this.Differences = new List<DiffEntry>();
                 if (this.ComparisonResult.Differences != null)
                 {
+                    // filter out not included and not excludeable differences
+                    (this.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included && !d.IsExcludable);
+
                     foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                     {
                         DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
