@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task CanConnectWithEmptyDatabaseName([Values(null, "")]string databaseName)
+        public async Task CanConnectWithEmptyDatabaseName([Values(null, "")] string databaseName)
         {
             // Connect
             var connectionDetails = TestObjects.GetTestConnectionDetails();
@@ -294,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName([Values("master", "nonMasterDb")]string expectedDbName)
+        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName([Values("master", "nonMasterDb")] string expectedDbName)
         {
             // Given connecting with empty database name will return the expected DB name
             var connectionMock = new Mock<DbConnection> { CallBase = true };
@@ -440,11 +440,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456"},
             new object[] {"Integrated", "", "my-server", "test", "sa", "123456"},
             new object[] {"Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456"}
-	    };
+        };
         /// <summary>
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
-        [Test, TestCaseSource(nameof(invalidParameters))]        
+        [Test, TestCaseSource(nameof(invalidParameters))]
         public async Task ConnectingWithInvalidParametersYieldsErrorMessage(string authType, string ownerUri, string server, string database, string userName, string password)
         {
             // Connect with invalid parameters
@@ -603,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .SetValue(details, propertyValue);
 
             // Test that a connection string can be created without exceptions
-            string connectionString = ConnectionService.BuildConnectionString(details);            
+            string connectionString = ConnectionService.BuildConnectionString(details);
             Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameter is in the connection string");
         }
 
@@ -626,7 +626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Throws<ArgumentException>(() => ConnectionService.BuildConnectionString(details));
         }
 
-        private static readonly Tuple<string,object>[][] optionCombos =
+        private static readonly Tuple<string, object>[][] optionCombos =
         {
             new []
                 {
@@ -655,11 +655,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {false, true, SqlConnectionEncryptOption.Optional },
             new object[] {false, false, SqlConnectionEncryptOption.Optional },
         };
-        
+
         /// <summary>
         /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
         /// </summary>
-        [Test, TestCaseSource(nameof(EncryptionCombinations))]
+        [Test, TestCase(nameof(EncryptionCombinations))]
         public void ConnectingWithStrictEncryptionBuildsConnectionString(bool encryptValue, bool strictEncryptionValue, SqlConnectionEncryptOption expected)
         {
             // Create a test connection details object and set the property to a specific value
@@ -1163,10 +1163,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Test that the connection summary comparer creates a hash code correctly
         /// </summary>
         [Test]
-        public void TestConnectionSummaryComparerHashCode([Values]bool objectNull, 
-                                                          [Values(null, "server")]string serverName, 
-                                                          [Values(null, "test")]string databaseName, 
-                                                          [Values(null, "sa")]string userName)
+        public void TestConnectionSummaryComparerHashCode([Values] bool objectNull,
+                                                          [Values(null, "server")] string serverName,
+                                                          [Values(null, "test")] string databaseName,
+                                                          [Values(null, "sa")] string userName)
         {
             // Given a connection summary and comparer object
             ConnectionSummary summary = null;
@@ -1367,13 +1367,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullOwnerUri([Values(null, "")]string ownerUri)
+        public async Task GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
         {
             // If: I have a connection service and I ask for a connection with an invalid ownerUri
             // Then: An exception should be thrown
             var service = TestObjects.GetTestConnectionService();
-             Assert.ThrowsAsync<ArgumentException>(
-                () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
+            Assert.ThrowsAsync<ArgumentException>(
+               () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
         }
 
         [Test]
@@ -1672,17 +1672,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
-            Assert.AreEqual("tcp:{servername},1433", details.ServerName);
-            Assert.AreEqual("{databasename}", details.DatabaseName);
-            Assert.AreEqual("{your_username}", details.UserName);
-            Assert.AreEqual("{your_password}", details.Password);
-            Assert.AreEqual(false, details.PersistSecurityInfo);
-            Assert.AreEqual(false, details.MultipleActiveResultSets);
-            Assert.AreEqual(true, details.Encrypt);
-            Assert.AreEqual(false, details.StrictEncryption);
-            Assert.AreEqual(false, details.TrustServerCertificate);
-            Assert.AreEqual("{servername}", details.HostNameInCertificate);
-            Assert.AreEqual(30, details.ConnectTimeout);
+            Assert.That(details.ServerName, Is.EqualTo("tcp:{servername},1433"), "Unexpected server name");
+            Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
+            Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
+            Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
+            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.Encrypt, Is.True, "Unexpected Encrypt value");
+            Assert.That(details.StrictEncryption, Is.False, "Unexpected Strict Encryption value");
+            Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
+            Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
+            Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
         }
 
         /// <summary>
@@ -1697,17 +1697,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=Strict;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
-            Assert.AreEqual("tcp:{servername},1433", details.ServerName);
-            Assert.AreEqual("{databasename}", details.DatabaseName);
-            Assert.AreEqual("{your_username}", details.UserName);
-            Assert.AreEqual("{your_password}", details.Password);
-            Assert.AreEqual(false, details.PersistSecurityInfo);
-            Assert.AreEqual(false, details.MultipleActiveResultSets);
-            Assert.AreEqual(true, details.Encrypt);
-            Assert.AreEqual(true, details.StrictEncryption);
-            Assert.AreEqual(false, details.TrustServerCertificate);
-            Assert.AreEqual("{servername}", details.HostNameInCertificate);
-            Assert.AreEqual(30, details.ConnectTimeout);
+            Assert.That(details.ServerName, Is.EqualTo("tcp:{servername},1433"), "Unexpected server name");
+            Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
+            Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
+            Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
+            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.Encrypt, Is.True, "Unexpected Encrypt value");
+            Assert.That(details.StrictEncryption, Is.True, "Unexpected Strict Encryption value");
+            Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
+            Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
+            Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
         }
 
         [Test]

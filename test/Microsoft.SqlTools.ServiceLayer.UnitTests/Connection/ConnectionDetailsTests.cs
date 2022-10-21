@@ -239,10 +239,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             ConnectionDetails details = new ConnectionDetails();
             details.Options["Encrypt"] = true.ToString();
-            Assert.AreEqual(details.Encrypt, true);
-            
+            Assert.IsTrue(details.Encrypt, "Encrypt should be true.");
+
             details.Options["StrictEncryption"] = true.ToString();
-            Assert.AreEqual(details.StrictEncryption, true);
+            Assert.IsTrue(details.StrictEncryption, "StrictEncryption should be true.");
         }
 
         [Test]
@@ -250,10 +250,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             ConnectionDetails details = new ConnectionDetails();
             details.Options["encrypt"] = true.ToString();
-            Assert.AreEqual(details.Encrypt, true);
+            Assert.IsTrue(details.Encrypt, "Encrypt should be true.");
 
             details.Options["strictEncryption"] = false.ToString();
-            Assert.AreEqual(details.StrictEncryption, false);
+            Assert.IsFalse(details.StrictEncryption, "StrictEncryption should be false.");
         }
 
         [Test]
