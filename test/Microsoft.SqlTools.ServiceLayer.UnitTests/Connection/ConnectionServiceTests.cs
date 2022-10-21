@@ -659,7 +659,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// <summary>
         /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
         /// </summary>
-        [Test, TestCase(nameof(EncryptionCombinations))]
+        [Test, TestCaseSource(nameof(EncryptionCombinations))]
         public void ConnectingWithStrictEncryptionBuildsConnectionString(bool encryptValue, bool strictEncryptionValue, SqlConnectionEncryptOption expected)
         {
             // Create a test connection details object and set the property to a specific value
