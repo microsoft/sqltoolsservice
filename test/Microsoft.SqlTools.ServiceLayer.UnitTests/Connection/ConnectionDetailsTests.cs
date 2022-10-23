@@ -8,7 +8,6 @@ using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 {
@@ -26,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var expectedForStrings = default(string);
             var expectedForInt = default(int?);
             var expectedForBoolean = default(bool?);
-            var expectedEncryptOption = default(SqlConnectionEncryptOption?);
+            var expectedEncryptOption = default(string?);
 
             Assert.AreEqual(details.ApplicationIntent, expectedForStrings);
             Assert.AreEqual(details.ApplicationName, expectedForStrings);
@@ -91,8 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.ColumnEncryptionSetting = expectedForStrings + index++;
             details.EnclaveAttestationProtocol = expectedForStrings + index++;
             details.EnclaveAttestationUrl = expectedForStrings + index++;
-            details.Encrypt = (index++ % 2 == 0);
-            details.StrictEncryption = (index++ % 2 == 0);
+            details.Encrypt = expectedForStrings + index++;
             details.MultipleActiveResultSets = (index++ % 2 == 0);
             details.MultiSubnetFailover = (index++ % 2 == 0);
             details.PersistSecurityInfo = (index++ % 2 == 0);
@@ -125,8 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.ColumnEncryptionSetting, expectedForStrings + index++);
             Assert.AreEqual(details.EnclaveAttestationProtocol, expectedForStrings + index++);
             Assert.AreEqual(details.EnclaveAttestationUrl, expectedForStrings + index++);
-            Assert.AreEqual(details.Encrypt, (index++ % 2 == 0));
-            Assert.AreEqual(details.StrictEncryption, (index++ % 2 == 0));
+            Assert.AreEqual(details.Encrypt, expectedForStrings + index++);
             Assert.AreEqual(details.MultipleActiveResultSets, (index++ % 2 == 0));
             Assert.AreEqual(details.MultiSubnetFailover, (index++ % 2 == 0));
             Assert.AreEqual(details.PersistSecurityInfo, (index++ % 2 == 0));
@@ -168,8 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.ColumnEncryptionSetting = expectedForStrings + index++;
             details.EnclaveAttestationProtocol = expectedForStrings + index++;
             details.EnclaveAttestationUrl = expectedForStrings + index++;
-            details.Encrypt = (index++ % 2 == 0);
-            details.StrictEncryption = (index++ % 2 == 0);
+            details.Encrypt = expectedForStrings + index++;
             details.MultipleActiveResultSets = (index++ % 2 == 0);
             details.MultiSubnetFailover = (index++ % 2 == 0);
             details.PersistSecurityInfo = (index++ % 2 == 0);
@@ -235,46 +231,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public void SettingEncryptToStringShouldStillReturnEncryptOption()
+        public void SettingEncrypShouldReturnExpectedEncryptOption()
         {
             ConnectionDetails details = new ConnectionDetails();
             details.Options["Encrypt"] = true.ToString();
-            Assert.IsTrue(details.Encrypt, "Encrypt should be true.");
+            Assert.That(details.Encrypt, Is.EqualTo(true.ToString()), "Encrypt should be Mandatory.");
 
-            details.Options["StrictEncryption"] = true.ToString();
-            Assert.IsTrue(details.StrictEncryption, "StrictEncryption should be true.");
+            details.Options["Encrypt"] = "Strict";
+            Assert.That(details.Encrypt, Is.EqualTo("Strict"), "Encrypt should be Strict.");
         }
 
         [Test]
-        public void SettingEncryptToLowecaseStringShouldStillReturnEncryptOption()
+        public void EncryptShouldReturnMandatoryIfNotSet()
         {
             ConnectionDetails details = new ConnectionDetails();
-            details.Options["encrypt"] = true.ToString();
-            Assert.IsTrue(details.Encrypt, "Encrypt should be true.");
-
-            details.Options["strictEncryption"] = false.ToString();
-            Assert.IsFalse(details.StrictEncryption, "StrictEncryption should be false.");
-        }
-
-        [Test]
-        public void EncryptShouldReturnNullIfNotSet()
-        {
-            ConnectionDetails details = new ConnectionDetails();
-            bool? expectedValue = null;
-            Assert.AreEqual(details.Encrypt, expectedValue);
-            Assert.AreEqual(details.StrictEncryption, expectedValue);
-        }
-
-        [Test]
-        public void EncryptShouldReturnNullIfSetToNull()
-        {
-            ConnectionDetails details = new ConnectionDetails();
-            details.Options["encrypt"] = null;
-            details.Options["strictEncryption"] = null;
-            
-            int? expectedValue = null;
-            Assert.AreEqual(details.Encrypt, expectedValue);
-            Assert.AreEqual(details.StrictEncryption, expectedValue);
+            Assert.That(details.Encrypt, Is.Null, "Encrypt should be null when set to null");
         }
 
         [Test]
@@ -284,12 +255,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             long timeout = long.MaxValue;
             int? expectedValue = null;
-            bool? expectedEncryptValue = true;
+            string? expectedEncryptValue = "Mandatory";
             details.Options["connectTimeout"] = timeout;
             details.Options["encrypt"] = expectedEncryptValue;
 
-            Assert.AreEqual(details.ConnectTimeout, expectedValue);
-            Assert.AreEqual(expectedEncryptValue, details.Encrypt);
+            Assert.That(details.ConnectTimeout, Is.EqualTo(expectedValue), "Connect Timeout not as expected");
+            Assert.That(details.Encrypt, Is.EqualTo("Mandatory"), "Encrypt should be mandatory.");
         }
     }
 }

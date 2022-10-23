@@ -26,7 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 EnclaveAttestationProtocol = details.EnclaveAttestationProtocol,
                 EnclaveAttestationUrl = details.EnclaveAttestationUrl,
                 Encrypt = details.Encrypt,
-                StrictEncryption = details.StrictEncryption,
                 TrustServerCertificate = details.TrustServerCertificate,
                 HostNameInCertificate = details.HostNameInCertificate,
                 PersistSecurityInfo = details.PersistSecurityInfo,

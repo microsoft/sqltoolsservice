@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
@@ -16,9 +17,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public class ConnectionSetting
     {
         [JsonProperty("mssql.connections")]
-        public List<InstanceInfo> Connections { get; set; }
+        public List<InstanceInfo>? Connections { get; set; }
 
-        public InstanceInfo GetConnectionProfile(string profileName, string serverName)
+        public InstanceInfo? GetConnectionProfile(string profileName, string serverName)
         {
             if (!string.IsNullOrEmpty(profileName) && Connections != null)
             {
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     return byProfileName;
                 }
             }
-            return Connections.FirstOrDefault(x => x.ServerName == serverName);
+            return Connections?.FirstOrDefault(x => x.ServerName == serverName);
         }
     }
 
@@ -47,29 +48,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public string ServerName { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Database { get; set; }
+        public string? Database { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string User { get; set; }
+        public string? User { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string ProfileName { get; set; }
+        public string? ProfileName { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Encrypt { get; set; }
+        public SqlConnectionEncryptOption? Encrypt { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string HostNameInCertificate { get; set; }
+        public string? HostNameInCertificate { get; set; }
 
         public TestServerType ServerType { get; set; }
 
         public AuthenticationType AuthenticationType { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string RemoteSharePath { get; set; }
+        public string? RemoteSharePath { get; set; }
 
         public int ConnectTimeout { get; set; }
 

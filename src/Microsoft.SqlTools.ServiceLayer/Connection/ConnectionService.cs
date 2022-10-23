@@ -410,7 +410,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 if (response?.ErrorNumber == 40613)
                 {
                     counter++;
-                    if(counter != MaxServerlessReconnectTries) {
+                    if (counter != MaxServerlessReconnectTries)
+                    {
                         Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
                     }
                 }
@@ -1299,21 +1300,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
             }
-            if(connectionDetails.Encrypt.HasTrue())
+
+            if (!string.IsNullOrEmpty(connectionDetails.Encrypt))
             {
-                if (connectionDetails.StrictEncryption.HasTrue())
+                connectionBuilder.Encrypt = connectionDetails.Encrypt.ToLower() switch
                 {
-                    connectionBuilder.Encrypt = SqlConnectionEncryptOption.Strict;
-                }
-                else
-                {
-                    connectionBuilder.Encrypt = SqlConnectionEncryptOption.Mandatory;
-                }
+                    "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                    "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                    "strict" => SqlConnectionEncryptOption.Strict,
+                    _ => throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEncryptOption(connectionDetails.Encrypt))
+                };
             }
-            else
-            {
-                connectionBuilder.Encrypt = SqlConnectionEncryptOption.Optional;
-            }
+
             if (connectionDetails.TrustServerCertificate.HasValue)
             {
                 connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
@@ -1486,7 +1484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
                 EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
                 EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
-                Encrypt = builder.Encrypt != SqlConnectionEncryptOption.Optional,
+                Encrypt = builder.Encrypt.ToString(),
                 FailoverPartner = builder.FailoverPartner,
                 HostNameInCertificate = builder.HostNameInCertificate,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,
@@ -1500,7 +1498,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Pooling = builder.Pooling,
                 Replication = builder.Replication,
                 ServerName = builder.DataSource,
-                StrictEncryption = builder.Encrypt == SqlConnectionEncryptOption.Strict,
                 TrustServerCertificate = builder.TrustServerCertificate,
                 TypeSystemVersion = builder.TypeSystemVersion,
                 UserName = builder.UserID,

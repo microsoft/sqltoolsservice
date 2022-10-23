@@ -35,6 +35,8 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
 
+ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
+
 ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.
 
 ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.

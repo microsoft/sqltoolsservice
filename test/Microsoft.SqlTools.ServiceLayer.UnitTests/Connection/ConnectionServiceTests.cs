@@ -521,8 +521,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
-            new object[] {"Encrypt", true, "Encrypt"},
-            new object[] {"Encrypt", false, "Encrypt"},
+            new object[] {"Encrypt", "Mandatory", "Encrypt"},
+            new object[] {"Encrypt", "Optional", "Encrypt"},
+            new object[] {"Encrypt", "Strict", "Encrypt"},
             new object[] {"ColumnEncryptionSetting", "Enabled", "Column Encryption Setting=Enabled"},
             new object[] {"ColumnEncryptionSetting", "Disabled", "Column Encryption Setting=Disabled"},
             new object[] {"ColumnEncryptionSetting", "enabled", "Column Encryption Setting=Enabled"},
@@ -533,6 +534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"ColumnEncryptionSetting", "DiSaBlEd", "Column Encryption Setting=Disabled"},
             new object[] {"TrustServerCertificate", true, "Trust Server Certificate"},
             new object[] {"TrustServerCertificate", false, "Trust Server Certificate"},
+            new object[] {"HostNameInCertificate", "hostname", "Host Name In Certificate"},
             new object[] {"PersistSecurityInfo", true, "Persist Security Info"},
             new object[] {"PersistSecurityInfo", false, "Persist Security Info"},
             new object[] {"ConnectTimeout", 15, "Connect Timeout"},
@@ -650,27 +652,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
         private static readonly object[] EncryptionCombinations =
         {
-            new object[] {true, true, SqlConnectionEncryptOption.Strict },
-            new object[] {true, false, SqlConnectionEncryptOption.Mandatory },
-            new object[] {false, true, SqlConnectionEncryptOption.Optional },
-            new object[] {false, false, SqlConnectionEncryptOption.Optional },
+            new object[] { SqlConnectionEncryptOption.Optional, SqlConnectionEncryptOption.Optional },
+            new object[] { SqlConnectionEncryptOption.Mandatory, SqlConnectionEncryptOption.Mandatory },
+            new object[] { SqlConnectionEncryptOption.Strict, SqlConnectionEncryptOption.Strict },
         };
 
         /// <summary>
         /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
         /// </summary>
         [Test, TestCaseSource(nameof(EncryptionCombinations))]
-        public void ConnectingWithStrictEncryptionBuildsConnectionString(bool encryptValue, bool strictEncryptionValue, SqlConnectionEncryptOption expected)
+        public void ConnectingWithStrictEncryptionBuildsConnectionString(SqlConnectionEncryptOption encryptValue, SqlConnectionEncryptOption expected)
         {
             // Create a test connection details object and set the property to a specific value
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
-            details.Encrypt = encryptValue;
-            details.StrictEncryption = strictEncryptionValue;
+            details.Encrypt = encryptValue.ToString();
 
             // Test that a connection string can be created without exceptions
             string connectionString = ConnectionService.BuildConnectionString(details);
 
-            Assert.That(connectionString, Contains.Substring("Encrypt=" + expected.ToString()), "Verify that the parameter is in the connection string");
+            Assert.That(connectionString, Contains.Substring("Encrypt=" + expected.ToString()), "Encrypt not as expected.");
         }
 
         /// <summary>
@@ -1678,8 +1678,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
             Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
             Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
-            Assert.That(details.Encrypt, Is.True, "Unexpected Encrypt value");
-            Assert.That(details.StrictEncryption, Is.False, "Unexpected Strict Encryption value");
+            Assert.That(details.Encrypt, Is.EqualTo("True"), "Unexpected Encrypt value");
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
@@ -1703,8 +1702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
             Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
             Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
-            Assert.That(details.Encrypt, Is.True, "Unexpected Encrypt value");
-            Assert.That(details.StrictEncryption, Is.True, "Unexpected Strict Encryption value");
+            Assert.That(details.Encrypt, Is.EqualTo(SqlConnectionEncryptOption.Strict.ToString()), "Unexpected Encrypt value");
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
