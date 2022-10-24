@@ -3871,6 +3871,9 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Vistas de libro de contabilidad descartadas</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Columnas de libro de contabilidad descartadas</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>No se ha podido encontrar el modelo SQL del proyecto: {0}.</value>
   </data>
@@ -3904,14 +3907,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Número de cubos</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Índice hash</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>Nombre</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Nombre del índice del almacén de columnas</value>
+    <value>Nombre del índice de almacén de columnas</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
     <value>Descripción</value>
@@ -3920,7 +3920,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>Descripción del índice del almacén de columnas</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Indica si el índice del almacén de columnas está agrupado.</value>
+    <value>Si el índice de almacén de columnas está agrupado.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
     <value>En clúster</value>
@@ -3947,10 +3947,10 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>La columna con el nombre '{0}' ya se ha agregado al índice de almacén de columnas no agrupado '{1}'. Número de fila: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Índices de almacenamiento de columnas</value>
+    <value>Índices de almacén de columnas</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Índice de almacenamiento de columnas</value>
+    <value>Índice de almacén de columnas</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
     <value>Nuevo índice de almacén de columnas</value>
@@ -3960,5 +3960,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>He leído el resumen y entiendo los posibles riesgos.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>No se encontró la conexión</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Costo real de CPU</value>
   </data>
 </root>

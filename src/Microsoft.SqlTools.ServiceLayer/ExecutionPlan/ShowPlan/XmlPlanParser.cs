@@ -155,10 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// <param name="node">Node being parsed.</param>
         protected virtual void SetNodeSpecialProperties(Node node)
         {
-            if (node.Operation == null)
-            {
-                node.Operation = GetNodeOperation(node);
-            }
+            node.Operation ??= GetNodeOperation(node);
 
             // Retrieve Subtree cost for this node
             node.SubtreeCost = GetNodeSubtreeCost(node);
@@ -242,9 +239,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                         continue;
                     }
 
-                    if (value is IEnumerable)
+                    if (value is IEnumerable enumerable)
                     {
-                        foreach (object item in (IEnumerable)value)
+                        foreach (object item in enumerable)
                         {
                             if (XmlPlanParserFactory.GetParser(item.GetType()) != null)
                             {

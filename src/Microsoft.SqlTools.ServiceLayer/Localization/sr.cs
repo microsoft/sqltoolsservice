@@ -8605,6 +8605,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ActualCpu
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualCpu);
+            }
+        }
+
         public static string EstimatedIO
         {
             get
@@ -8898,14 +8906,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.IndexBucketCountPropertyTitle);
-            }
-        }
-
-        public static string HashIndexGroupTitle
-        {
-            get
-            {
-                return Keys.GetString(Keys.HashIndexGroupTitle);
             }
         }
 
@@ -9610,6 +9610,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.GetUserDefinedObjectsFromModelFailed);
+            }
+        }
+
+        public static string ErrorConnectionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorConnectionNotFound);
             }
         }
 
@@ -13429,6 +13437,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string EstimatedCpu = "EstimatedCpu";
 
 
+            public const string ActualCpu = "ActualCpu";
+
+
             public const string EstimatedIO = "EstimatedIO";
 
 
@@ -13547,9 +13558,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string IndexBucketCountPropertyTitle = "IndexBucketCountPropertyTitle";
-
-
-            public const string HashIndexGroupTitle = "HashIndexGroupTitle";
 
 
             public const string TableDesignerColumnsDisplayValueTitle = "TableDesignerColumnsDisplayValueTitle";
@@ -13877,6 +13885,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string GetUserDefinedObjectsFromModelFailed = "GetUserDefinedObjectsFromModelFailed";
+
+
+            public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
 
 
             private Keys()

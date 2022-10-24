@@ -55,6 +55,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ActualCpu" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Actual CPU Cost]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[實際 CPU 成本]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ActualDataSize" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Actual Data Size]]></Val>
@@ -507,10 +516,13 @@
       </Item>
       <Item ItemId=";AddNewColumnStoreIndexLabel" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[New Column Store Index]]></Val>
+          <Val><![CDATA[New Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[新增資料行存放區索引]]></Val>
+            <Val><![CDATA[新的資料行存放區索引]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[New Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1299,10 +1311,13 @@
       </Item>
       <Item ItemId=";ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[名稱為 '{0}' 的資料行已新增至非叢集的資料行存放區索引 '{1}'。列號: {2}。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1362,19 +1377,25 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexColumnsPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Columns in this column store index]]></Val>
+          <Val><![CDATA[Columns in this columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[此資料行存放區索引中的資料行]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Columns in this column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";ColumnStoreIndexDescriptionPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Description of the column store index]]></Val>
+          <Val><![CDATA[Description of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[資料行存放區索引的描述]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Description of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1389,10 +1410,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexFilterPredicatePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          <Val><![CDATA[Filter predicate of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[資料行存放區索引的篩選述詞。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1407,10 +1431,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexIsClusteredPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          <Val><![CDATA[Whether the columnstore index is clustered.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[資料行存放區索引是否為叢集。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1425,10 +1452,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexNamePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Name of the column store index]]></Val>
+          <Val><![CDATA[Name of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[資料行存放區索引的名稱]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Name of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2602,6 +2632,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ErrorConnectionNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The connection could not be found]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[找不到該連接]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ErrorEmptyStringReplacement" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Replacement of an empty string by an empty string.]]></Val>
@@ -3444,15 +3483,6 @@
           <Val><![CDATA[The group sets list. Each Value is a reverse bit map for the grouping columns in Group By property.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[群組集合清單。每個值都是 Group By 屬性中群組資料行的反向點陣圖。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";HashIndexGroupTitle" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Hash Index]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[雜湊索引]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5520,10 +5550,13 @@
       </Item>
       <Item ItemId=";NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          <Val><![CDATA[Non-clustered columnstore index '{0}' does not have any columns associated with it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[非叢集資料行存放區索引 '{0}' 沒有任何與其相關的資料行。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8011,6 +8044,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SchemaHierarchy_DroppedLedgerColumns" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Dropped Ledger Columns]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已卸除的總帳資料行]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SchemaHierarchy_DroppedLedgerTables" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Dropped Ledger Tables]]></Val>
@@ -10437,19 +10479,25 @@
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexObjectType" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Index]]></Val>
+          <Val><![CDATA[Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[資料行存放區索引]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexesTableTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Indexes]]></Val>
+          <Val><![CDATA[Columnstore Indexes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[資料行存放區索引]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Indexes]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

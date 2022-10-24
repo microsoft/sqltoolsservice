@@ -13,6 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 {
     class Program
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0210:Convert to top-level statements", Justification = "Structure retained for readability.")]
         static void Main(string[] args)
         {
             if (args.Length == 1)
@@ -66,23 +67,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
         The following is an example of a setting_file: 
 
 <Configuration>
-    <Instance Name=""defaultSql2005"">
-        <DataSource>SQL2005 servername</DataSource>
+    <Instance Name=""sqlOnPrem"">
+       <DataSource>SQL On-Prem servername</DataSource>
         <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 2005 remote share</RemoteShare>
+        <RemoteShare>SQL remote share</RemoteShare>
     </Instance>
-    <Instance Name=""defaultSql2008"">
-       <DataSource>SQL2008 servername</DataSource>
-        <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 2008 remote share</RemoteShare>
-    </Instance>
-    <Instance Name=""defaultSql2011"">
-       <DataSource>SQL2011 servername</DataSource>
-        <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 20011 remote share</RemoteShare>
-    </Instance>
-    <Instance Name=""defaultSqlAzureV12"">
-        <DataSource>SQLAzure servername</DataSource>
+    <Instance Name=""sqlAzure"">
+        <DataSource>SQL Azure servername</DataSource>
         <BackupMethod>RemoteShare</BackupMethod>
         <RemoteShare>SQLAzure remote share</RemoteShare>
         <UserId>user id</UserId>

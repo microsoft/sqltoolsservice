@@ -6331,6 +6331,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Visualizzazioni del libro mastro eliminate</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Colonne del libro mastro eliminate</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">Non è stato possibile trovare il modello SQL dal progetto: {0}.</target>
@@ -6392,19 +6397,14 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Numero di bucket</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Indice hash</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Nome</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyDescription">
-        <source>Name of the column store index</source>
-        <target state="translated">Nome dell'indice dell'archivio colonne</target>
+        <source>Name of the columnstore index</source>
+        <target state="translated">Nome dell'indice columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
@@ -6413,13 +6413,13 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
-        <source>Description of the column store index</source>
-        <target state="translated">Descrizione dell'indice dell'archivio colonne</target>
+        <source>Description of the columnstore index</source>
+        <target state="translated">Descrizione dell'indice columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyDescription">
-        <source>Whether the column store index is clustered.</source>
-        <target state="translated">Indica se l'indice dell'archivio colonne è cluster.</target>
+        <source>Whether the columnstore index is clustered.</source>
+        <target state="translated">Indica se l'indice columnstore è cluster.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
@@ -6428,8 +6428,8 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
-        <source>Filter predicate of the column store index</source>
-        <target state="translated">Predicato di filtro dell'indice dell'archivio colonne</target>
+        <source>Filter predicate of the columnstore index</source>
+        <target state="translated">Predicato di filtro dell'indice columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
@@ -6438,8 +6438,8 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
-        <source>Columns in this column store index</source>
-        <target state="translated">Colonne in questo indice dell'archivio colonne</target>
+        <source>Columns in this columnstore index</source>
+        <target state="translated">Colonne in questo indice columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
@@ -6458,35 +6458,45 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
-        <source>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</source>
-        <target state="translated">La colonna denominata '{0}' è già stata aggiunta all'indice dell'archivio colonne non cluster '{1}'. Numero di riga: {2}.</target>
+        <source>Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.</source>
+        <target state="translated">La colonna denominata '{0}' è già stata aggiunta all'indice columnstore non cluster '{1}'. Numero di riga: {2}.</target>
         <note>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
-        <source>Column Store Indexes</source>
-        <target state="translated">Indici dell'archivio colonne</target>
+        <source>Columnstore Indexes</source>
+        <target state="translated">Indici columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexObjectType">
-        <source>Column Store Index</source>
-        <target state="translated">Indice archivio colonne</target>
+        <source>Columnstore Index</source>
+        <target state="translated">Indice columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AddNewColumnStoreIndexLabel">
-        <source>New Column Store Index</source>
-        <target state="translated">Aggiungi nuovo indice archivio colonne</target>
+        <source>New Columnstore Index</source>
+        <target state="translated">Nuovo indice columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription">
-        <source>Non-clustered column store index '{0}' does not have any columns associated with it.</source>
-        <target state="translated">All'indice dell'archivio colonne non cluster '{0}' non sono associate colonne.</target>
+        <source>Non-clustered columnstore index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">All'indice columnstore non cluster '{0}' non sono associate colonne.</target>
         <note>.
  Parameters: 0 - indexName (string) </note>
       </trans-unit>
       <trans-unit id="TableDesignerConfirmationText">
         <source>I have read the summary and understand the potential risks.</source>
         <target state="translated">Ho letto il riepilogo e ho compreso i potenziali rischi.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorConnectionNotFound">
+        <source>The connection could not be found</source>
+        <target state="translated">La connessione non è stata trovata</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Costo CPU effettivo</target>
         <note></note>
       </trans-unit>
     </body>

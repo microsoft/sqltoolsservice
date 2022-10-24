@@ -282,6 +282,41 @@ WITH VALUES
         }
 
         /// <summary>
+        /// Verify the schema compare request comparing empty project to a database
+        /// </summary>
+        [Test]
+        public async Task SchemaCompareEmptyProjectToDatabase()
+        {
+            TestConnectionResult result = SchemaCompareTestUtils.GetLiveAutoCompleteTestObjects();
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareSource");
+
+            try
+            {
+                string targetProjectPath = SchemaCompareTestUtils.CreateSqlProj("TargetProject");
+                string[] targetScripts = new string[0];
+
+                SchemaCompareEndpointInfo sourceInfo = CreateTestEndpoint(SchemaCompareEndpointType.Database, sourceDb.DatabaseName);
+                SchemaCompareEndpointInfo targetInfo = CreateTestEndpoint(SchemaCompareEndpointType.Project, targetProjectPath, targetScripts);
+
+                var schemaCompareParams = new SchemaCompareParams
+                {
+                    SourceEndpointInfo = sourceInfo,
+                    TargetEndpointInfo = targetInfo
+                };
+
+                SchemaCompareOperation schemaCompareOperation = new(schemaCompareParams, result.ConnectionInfo, null);
+                ValidateSchemaCompareWithExcludeIncludeResults(schemaCompareOperation, expectedDifferencesCount: 2);
+
+                // cleanup
+                SchemaCompareTestUtils.VerifyAndCleanup(targetProjectPath);
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+            }
+        }
+
+        /// <summary>
         /// Verify the schema compare request comparing a dacpac and a project
         /// </summary>
         [Test]
@@ -1554,7 +1589,7 @@ WITH VALUES
             }
         }
 
-        private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation)
+        private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation, int? expectedDifferencesCount = null)
         {
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
 
@@ -1562,6 +1597,11 @@ WITH VALUES
             Assert.False(schemaCompareOperation.ComparisonResult.IsEqual);
             Assert.NotNull(schemaCompareOperation.ComparisonResult.Differences);
             Assert.IsNull(schemaCompareOperation.ErrorMessage);
+
+            if (expectedDifferencesCount != null)
+            {
+                Assert.That(expectedDifferencesCount, Is.EqualTo(schemaCompareOperation.ComparisonResult.Differences.Count()), "The actual number of differences did not match the expected number");
+            }
 
             // create Diff Entry from Difference
             DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
@@ -1716,8 +1756,8 @@ WITH VALUES
                     Assert.AreEqual(targetDb.DatabaseName, schemaCompareOpenScmpOperation.Result.OriginalTargetName);
                 }
 
-                ValidateResultEndpointInfo(sourceEndpoint, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo, sourceDb.ConnectionString);
-                ValidateResultEndpointInfo(targetEndpoint, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo, targetDb.ConnectionString);
+                ValidateResultEndpointInfo(sourceEndpoint, schemaCompareOpenScmpOperation.Result.SourceEndpointInfo);
+                ValidateResultEndpointInfo(targetEndpoint, schemaCompareOpenScmpOperation.Result.TargetEndpointInfo);
 
                 SchemaCompareTestUtils.VerifyAndCleanup(filePath);
 
@@ -1757,7 +1797,7 @@ WITH VALUES
             }
         }
 
-        private void ValidateResultEndpointInfo(SchemaCompareEndpoint originalEndpoint, SchemaCompareEndpointInfo resultEndpoint, string connectionString)
+        private void ValidateResultEndpointInfo(SchemaCompareEndpoint originalEndpoint, SchemaCompareEndpointInfo resultEndpoint)
         {
             if (resultEndpoint.EndpointType == SchemaCompareEndpointType.Dacpac)
             {
@@ -1773,7 +1813,6 @@ WITH VALUES
             {
                 SchemaCompareDatabaseEndpoint databaseEndpoint = originalEndpoint as SchemaCompareDatabaseEndpoint;
                 Assert.AreEqual(databaseEndpoint.DatabaseName, resultEndpoint.DatabaseName);
-                Assert.That(connectionString, Does.Contain(resultEndpoint.ConnectionDetails.ConnectionString), "connectionString has password but resultEndpoint doesn't");
             }
         }
 

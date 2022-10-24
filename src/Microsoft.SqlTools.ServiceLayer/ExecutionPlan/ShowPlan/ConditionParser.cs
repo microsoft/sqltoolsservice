@@ -43,10 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (conditionParser == null)
-                {
-                    conditionParser = new ConditionParser();
-                }
+                conditionParser ??= new ConditionParser();
                 return conditionParser;
             }
         }

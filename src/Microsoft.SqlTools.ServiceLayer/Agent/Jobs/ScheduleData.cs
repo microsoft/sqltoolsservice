@@ -8,6 +8,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.Common;
@@ -677,7 +678,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(this);
 
-                foreach (Match match in matches)
+                foreach (Match match in matches.Cast<Match>())
                 {
                     string propertyName = match.Groups["property"].Value;
                     PropertyDescriptor property = properties[propertyName];                 

@@ -55,6 +55,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ActualCpu" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Actual CPU Cost]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[실제 CPU 비용]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ActualDataSize" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Actual Data Size]]></Val>
@@ -507,10 +516,13 @@
       </Item>
       <Item ItemId=";AddNewColumnStoreIndexLabel" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[New Column Store Index]]></Val>
+          <Val><![CDATA[New Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[새 열 저장 인덱스]]></Val>
+            <Val><![CDATA[새 Columnstore 인덱스]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[New Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1299,10 +1311,13 @@
       </Item>
       <Item ItemId=";ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[이름이 '{0}'인 열이 클러스터형이 아닌 '{1}' 열 저장소 인덱스에 이미 추가되었습니다. 행 번호: {2}.]]></Val>
+            <Val><![CDATA[이름이 '{0}'인 열이 클러스터되지 않은 columnstore 인덱스 '{1}'에 이미 추가되었습니다. 행 번호: {2}.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1362,19 +1377,25 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexColumnsPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Columns in this column store index]]></Val>
+          <Val><![CDATA[Columns in this columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[이 열 저장소 인덱스에 있는 열]]></Val>
+            <Val><![CDATA[이 columnstore 인덱스에 있는 열]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Columns in this column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";ColumnStoreIndexDescriptionPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Description of the column store index]]></Val>
+          <Val><![CDATA[Description of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[열 저장소 인덱스 설명]]></Val>
+            <Val><![CDATA[columnstore 인덱스 설명]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Description of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1389,10 +1410,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexFilterPredicatePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          <Val><![CDATA[Filter predicate of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[열 저장소 인덱스의 필터 조건자]]></Val>
+            <Val><![CDATA[columnstore 인덱스의 조건자 필터링]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1407,10 +1431,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexIsClusteredPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          <Val><![CDATA[Whether the columnstore index is clustered.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[열 저장소 인덱스가 클러스터형인지 여부입니다.]]></Val>
+            <Val><![CDATA[columnstore 인덱스가 클러스터되는지 여부입니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1425,10 +1452,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexNamePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Name of the column store index]]></Val>
+          <Val><![CDATA[Name of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[열 저장소 인덱스의 이름]]></Val>
+            <Val><![CDATA[columnstore 인덱스의 이름]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Name of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2602,6 +2632,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ErrorConnectionNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The connection could not be found]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[연결을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ErrorEmptyStringReplacement" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Replacement of an empty string by an empty string.]]></Val>
@@ -3444,15 +3483,6 @@
           <Val><![CDATA[The group sets list. Each Value is a reverse bit map for the grouping columns in Group By property.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[그룹 세트 목록입니다. 각각의 값은 Group By 속성의 그룹화 열에 대한 역방향 비트맵입니다.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";HashIndexGroupTitle" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Hash Index]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[해시 인덱스]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5520,10 +5550,13 @@
       </Item>
       <Item ItemId=";NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          <Val><![CDATA[Non-clustered columnstore index '{0}' does not have any columns associated with it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[클러스터형이 아닌 '{0}' 열 저장소 인덱스에 연결된 열이 없습니다.]]></Val>
+            <Val><![CDATA[비클러스터형 columnstore 인덱스 '{0}'에 연결된 열이 없습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8011,6 +8044,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SchemaHierarchy_DroppedLedgerColumns" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Dropped Ledger Columns]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[삭제된 원장 열]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SchemaHierarchy_DroppedLedgerTables" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Dropped Ledger Tables]]></Val>
@@ -10437,19 +10479,25 @@
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexObjectType" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Index]]></Val>
+          <Val><![CDATA[Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[열 저장소 인덱스]]></Val>
+            <Val><![CDATA[ColumnStore 인덱스]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexesTableTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Indexes]]></Val>
+          <Val><![CDATA[Columnstore Indexes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[열 저장소 인덱스]]></Val>
+            <Val><![CDATA[Columnstore 인덱스]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Indexes]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

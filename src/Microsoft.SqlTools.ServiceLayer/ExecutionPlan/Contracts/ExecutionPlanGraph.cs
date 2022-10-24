@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// </summary>
         public double RelativeCost { get; set; }
         /// <summary>
-        /// Time take by the node operation in milliseconds
+        /// Time taken by the node operation in milliseconds
         /// </summary>
         public long? ElapsedTimeInMs { get; set; }
         /// <summary>
@@ -92,6 +92,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
         /// Top operations table data for the node
         /// </summary>
         public List<TopOperationsDataItem> TopOperationsData { get; set; }
+        /// <summary>
+        /// The cost metrics for the node.
+        /// </summary>
+        public List<CostMetric> CostMetrics { get; set; }
+    }
+
+    public class CostMetric
+    {
+        /// <summary>
+        /// Name of the cost metric
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// The value for the cost metric
+        /// </summary>
+        public string Value { get; set; }
     }
 
     public class ExecutionPlanGraphPropertyBase

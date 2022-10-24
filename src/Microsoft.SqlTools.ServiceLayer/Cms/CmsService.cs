@@ -356,10 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set

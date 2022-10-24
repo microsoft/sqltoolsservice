@@ -28,10 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (indexOpTypeParser == null)
-                {
-                    indexOpTypeParser = new IndexOpTypeParser();
-                }
+                indexOpTypeParser ??= new IndexOpTypeParser();
                 return indexOpTypeParser;
             }
         }

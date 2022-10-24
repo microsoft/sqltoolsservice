@@ -3871,6 +3871,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>드롭된 원장 보기</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>삭제된 원장 열</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>프로젝트에서 SQL 모델을 찾을 수 없습니다. {0}.</value>
   </data>
@@ -3904,35 +3907,32 @@
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>버킷 수</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>해시 인덱스</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>이름</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>열 저장소 인덱스의 이름</value>
+    <value>columnstore 인덱스의 이름</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
     <value>설명</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>열 저장소 인덱스 설명</value>
+    <value>columnstore 인덱스 설명</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>열 저장소 인덱스가 클러스터형인지 여부입니다.</value>
+    <value>columnstore 인덱스가 클러스터되는지 여부입니다.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
     <value>클러스터형 여부</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>열 저장소 인덱스의 필터 조건자</value>
+    <value>columnstore 인덱스의 조건자 필터링</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
     <value>필터 조건자</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>이 열 저장소 인덱스에 있는 열</value>
+    <value>이 columnstore 인덱스에 있는 열</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
     <value>열</value>
@@ -3944,21 +3944,27 @@
     <value>열</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>이름이 '{0}'인 열이 클러스터형이 아닌 '{1}' 열 저장소 인덱스에 이미 추가되었습니다. 행 번호: {2}.</value>
+    <value>이름이 '{0}'인 열이 클러스터되지 않은 columnstore 인덱스 '{1}'에 이미 추가되었습니다. 행 번호: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>열 저장소 인덱스</value>
+    <value>Columnstore 인덱스</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>열 저장소 인덱스</value>
+    <value>ColumnStore 인덱스</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>새 열 저장 인덱스</value>
+    <value>새 Columnstore 인덱스</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>클러스터형이 아닌 '{0}' 열 저장소 인덱스에 연결된 열이 없습니다.</value>
+    <value>비클러스터형 columnstore 인덱스 '{0}'에 연결된 열이 없습니다.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>요약을 읽고 잠재적인 위험을 이해했습니다.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>연결을 찾을 수 없습니다.</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>실제 CPU 비용</value>
   </data>
 </root>

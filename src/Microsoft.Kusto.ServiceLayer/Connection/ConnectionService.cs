@@ -60,10 +60,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         {
             get
             {
-                if (lockedDatabaseManager == null)
-                {
-                    lockedDatabaseManager = DatabaseLocksManager.Instance;
-                }
+                lockedDatabaseManager ??= DatabaseLocksManager.Instance;
                 return lockedDatabaseManager;
             }
             set

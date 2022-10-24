@@ -65,10 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             get
             {
-                if (pendingVerifications == null)
-                {
-                    pendingVerifications = new List<Action>();
-                }
+                pendingVerifications ??= new List<Action>();
                 return pendingVerifications;
             }
             set => pendingVerifications = value;

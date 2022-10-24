@@ -3871,6 +3871,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>ドロップされた台帳ビュー</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>削除された台帳列</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>プロジェクトから SQL モデルが見つかりませんでした: {0}。</value>
   </data>
@@ -3903,9 +3906,6 @@
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>バケット数</value>
-  </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>ハッシュ インデックス</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>名前</value>
@@ -3956,9 +3956,15 @@
     <value>新しい列ストア インデックス</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>クラスター化されていない列ストア インデックス '{0}' には、列が関連付けされていません。</value>
+    <value>非クラスター化列ストア インデックス '{0}' には、列が関連付けされていません。</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>概要を読み、潜在的なリスクを理解しました。</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>接続が見つかりませんでした</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>実際の CPU コスト</value>
   </data>
 </root>

@@ -67,10 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (cursorOperationParser == null)
-                {
-                    cursorOperationParser = new CursorOperationParser();
-                }
+                cursorOperationParser ??= new CursorOperationParser();
                 return cursorOperationParser;
             }
         }

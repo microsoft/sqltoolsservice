@@ -279,10 +279,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
         {
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
-            if (foundNodes == null)
-            {
-                foundNodes = new List<TreeNode>();
-            }
+            foundNodes ??= new List<TreeNode>();
+            
             await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
         }
 
