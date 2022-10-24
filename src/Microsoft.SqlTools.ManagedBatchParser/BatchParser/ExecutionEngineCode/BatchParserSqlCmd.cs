@@ -155,8 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                     }
 
                 }
-                fullFileName ??= Path.GetFullPath(fileName);
-                return fullFileName;
+                return fullFileName ??= Path.GetFullPath(fileName);
             }
             catch (ArgumentException)
             {

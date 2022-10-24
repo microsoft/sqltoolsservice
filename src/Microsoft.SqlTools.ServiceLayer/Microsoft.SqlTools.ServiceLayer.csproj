@@ -49,7 +49,7 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
-		<PackageReference Include="Microsoft.SqlServer.DACFx" />
+		<PackageReference Include="Microsoft.SqlServer.DacFx" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />

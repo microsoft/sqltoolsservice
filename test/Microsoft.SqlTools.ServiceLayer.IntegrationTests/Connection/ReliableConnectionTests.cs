@@ -243,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             }
             csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
             
-            csb.Encrypt = connectParams.Connection.Encrypt?.ToLower() switch {
+            csb.Encrypt = connectParams.Connection.Encrypt?.ToLowerInvariant() switch {
                 "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
                 "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
                 "strict" => SqlConnectionEncryptOption.Strict,

@@ -1303,7 +1303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             if (!string.IsNullOrEmpty(connectionDetails.Encrypt))
             {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.ToLower() switch
+                connectionBuilder.Encrypt = connectionDetails.Encrypt.ToLowerInvariant() switch
                 {
                     "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
                     "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,

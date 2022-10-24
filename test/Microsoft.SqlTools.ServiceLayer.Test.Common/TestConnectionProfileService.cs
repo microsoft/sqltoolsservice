@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using NUnit.Framework;
@@ -94,11 +93,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     Console.WriteLine("DBTestInstance not configured. Run 'dotnet run Microsoft.SqlTools.ServiceLayer.TestEnvConfig' from the command line to configure");
                 }
 
-                if (testServers != null && settings != null)
+                if (testServers != null)
                 {
                     foreach (var serverIdentity in testServers)
                     {
-                        var instance = settings != null ? settings.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
+                        var instance = settings?.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName);
                         if (instance?.ServerType == TestServerType.None)
                         {
                             instance.ServerType = serverIdentity.ServerType;
@@ -106,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         }
                     }
                 }
-                if (settings != null && settings.Connections != null)
+                if (settings?.Connections != null)
                 {
                     foreach (var instance in settings.Connections)
                     {
