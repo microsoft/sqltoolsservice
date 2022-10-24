@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using NUnit.Framework;
@@ -162,18 +163,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             connectParams.Connection = new ConnectionDetails();
             connectParams.Connection.ServerName = connectionProfile.ServerName;
 
-            if (connectionProfile.Database != null)
+            if (!string.IsNullOrEmpty(connectionProfile.Database))
             {
                 connectParams.Connection.DatabaseName = connectionProfile.Database;
                 connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
             }
+            if (!string.IsNullOrEmpty(connectionProfile.User))
+            {
+                connectParams.Connection.UserName = connectionProfile.User;
+            }
+            if (!string.IsNullOrEmpty(connectionProfile.Password))
+            {
+                connectParams.Connection.Password = connectionProfile.Password;
+            }
 
-            connectParams.Connection.UserName = connectionProfile.User;
-            connectParams.Connection.Password = connectionProfile.Password;
             connectParams.Connection.AuthenticationType = connectionProfile.AuthenticationType.ToString();
             connectParams.Connection.MaxPoolSize = 200;
 
-            connectParams.Connection.Encrypt = connectionProfile.Encrypt.ToString();
+            if (!string.IsNullOrEmpty(connectionProfile.Encrypt))
+            {
+                connectParams.Connection.Encrypt = connectionProfile.Encrypt;
+            }
 
             if (!string.IsNullOrEmpty(connectionProfile.HostNameInCertificate))
             {
@@ -188,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (key == SqlAzureInstanceKey || key == SqlAzureInstanceKey)
             {
                 connectParams.Connection.ConnectTimeout = 30;
-                connectParams.Connection.Encrypt = Data.SqlClient.SqlConnectionEncryptOption.Mandatory.ToString();
+                connectParams.Connection.Encrypt = SqlConnectionEncryptOption.Mandatory.ToString();
                 connectParams.Connection.TrustServerCertificate = false;
             }
 

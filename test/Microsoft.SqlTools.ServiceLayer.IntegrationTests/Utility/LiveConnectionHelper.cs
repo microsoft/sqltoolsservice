@@ -46,11 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
         }
 
         public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null, string ownerUri = null)
-        {
-            var task = InitLiveConnectionInfoAsync(databaseName, ownerUri, ServiceLayer.Connection.ConnectionType.Default);
-            task.Wait();
-            return task.Result;
-        }
+            => InitLiveConnectionInfoAsync(databaseName, ownerUri, ServiceLayer.Connection.ConnectionType.Default).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = "master", string ownerUri = null, 
             string connectionType = ServiceLayer.Connection.ConnectionType.Default, TestServerType serverType = TestServerType.OnPrem)

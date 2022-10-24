@@ -611,7 +611,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             => RaiseError(errorCode, LookaheadToken, message);
 
         internal static void RaiseError(ErrorCode errorCode, Token token, string message = null)
-            => throw new BatchParserException(errorCode, token, message ??= string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text));
+            => throw new BatchParserException(errorCode, token, message ?? string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text));
 
         internal string ResolveVariables(Token inputToken, int offset, List<VariableReference> variableRefs)
         {

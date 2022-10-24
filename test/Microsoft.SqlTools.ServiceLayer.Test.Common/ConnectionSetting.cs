@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
@@ -60,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public string? ProfileName { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public SqlConnectionEncryptOption? Encrypt { get; set; }
+        public string? Encrypt { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? HostNameInCertificate { get; set; }
