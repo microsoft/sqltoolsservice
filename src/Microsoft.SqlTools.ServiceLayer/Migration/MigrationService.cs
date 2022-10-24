@@ -24,6 +24,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Migration.Logins;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Aggregation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
@@ -39,6 +40,9 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlMa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
+using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -122,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
+            this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration);
         }
 
         /// <summary>
@@ -301,6 +306,60 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             catch (FailedToQueryCountersException e)
             {
                 await requestContext.SendError($"Unable to read collected performance data from {parameters.DataFolder}. Please specify another folder or start data collection instead.");
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        internal async Task HandleStartLoginMigration(
+            StartLoginMigrationParams parameters,
+            RequestContext<StartLoginMigrationResults> requestContext)
+        {
+            try
+            {
+                // TODO AKMA: do we need aad domain name and sql cred. if so, i'll need to set up login options as a param
+                //LoginOptions options;
+
+                //Console.WriteLine("Starting Logins migration...");
+                LoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList);
+
+                await loginMigration.StartLoginMigrationProcess(CancellationToken.None);
+                await loginMigration.MigrateLogins(CancellationToken.None);
+
+                //Console.WriteLine("Starting server roles migration...");
+                loginMigration.MigrateServerRoles(CancellationToken.None);
+
+                //Console.WriteLine("Starting user-login mappings...");
+                loginMigration.EstablishUserMapping(CancellationToken.None);
+
+                //Console.WriteLine("Starting server role mappings...");
+                await loginMigration.EstablishServerRoleMapping(CancellationToken.None);
+
+                //Console.WriteLine("Restoring permissions for logins...");
+                loginMigration.SetLoginPermissions(CancellationToken.None);
+
+                //Console.WriteLine("Restoring permissions for server roles...");
+                loginMigration.SetServerRolePermissions(CancellationToken.None);
+
+                //Console.WriteLine("Login migration process complete.");
+                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                List<ReportableException> exceptions = new List<ReportableException>() { new InsufficientSqlSysAdminPermissionsException("connectionInfo") };
+
+
+                foreach (string loginName in parameters.LoginList)
+                {
+                    exceptionMap.Add(loginName, exceptions);
+                }
+
+                StartLoginMigrationResults results = new StartLoginMigrationResults()
+                {
+                    ExceptionMap = exceptionMap
+                };
+
+                await requestContext.SendResult(results);
             }
             catch (Exception e)
             {
