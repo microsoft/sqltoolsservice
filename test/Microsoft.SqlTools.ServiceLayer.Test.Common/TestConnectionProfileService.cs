@@ -184,6 +184,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 connectParams.Connection.Encrypt = connectionProfile.Encrypt;
             }
+            else
+            {
+                connectParams.Connection.Encrypt = SqlConnectionEncryptOption.Optional.ToString();
+            }
 
             if (!string.IsNullOrEmpty(connectionProfile.HostNameInCertificate))
             {
