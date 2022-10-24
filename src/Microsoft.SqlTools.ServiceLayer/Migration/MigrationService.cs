@@ -41,8 +41,9 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDa
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
 using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
-using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
 using System.Threading;
+using Microsoft.SqlServer.Migration.Logins.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Migration.Helper;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -311,45 +312,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         internal async Task HandleStartLoginMigration(
-            StartLoginMigrationParams parameters,
+            StartLoginMigrationParams parameters,   
             RequestContext<StartLoginMigrationResults> requestContext)
         {
             try
             {
-                // TODO AKMA: do we need aad domain name and sql cred. if so, i'll need to set up login options as a param
-                //LoginOptions options;
+                // TODO AKMA: Do we need aad domain name and sql cred? If so, i'll need to set up login options as a param
 
-                //Console.WriteLine("Starting Logins migration...");
-                LoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList);
-
-                await loginMigration.StartLoginMigrationProcess(CancellationToken.None);
-                await loginMigration.MigrateLogins(CancellationToken.None);
-
-                //Console.WriteLine("Starting server roles migration...");
-                loginMigration.MigrateServerRoles(CancellationToken.None);
-
-                //Console.WriteLine("Starting user-login mappings...");
-                loginMigration.EstablishUserMapping(CancellationToken.None);
-
-                //Console.WriteLine("Starting server role mappings...");
-                await loginMigration.EstablishServerRoleMapping(CancellationToken.None);
-
-                //Console.WriteLine("Restoring permissions for logins...");
-                loginMigration.SetLoginPermissions(CancellationToken.None);
-
-                //Console.WriteLine("Restoring permissions for server roles...");
-                loginMigration.SetServerRolePermissions(CancellationToken.None);
-
-                //Console.WriteLine("Login migration process complete.");
+                
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
-                List<ReportableException> exceptions = new List<ReportableException>() { new InsufficientSqlSysAdminPermissionsException("connectionInfo") };
 
-
-                foreach (string loginName in parameters.LoginList)
-                {
-                    exceptionMap.Add(loginName, exceptions);
-                }
+                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
+                exceptionMap.AddExceptions( await loginMigration.MigrateLogins(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.MigrateServerRoles(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.EstablishUserMapping(CancellationToken.None) );
+                exceptionMap.AddExceptions( await loginMigration.EstablishServerRoleMapping(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.SetLoginPermissions(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.SetServerRolePermissions(CancellationToken.None) );
 
                 StartLoginMigrationResults results = new StartLoginMigrationResults()
                 {
