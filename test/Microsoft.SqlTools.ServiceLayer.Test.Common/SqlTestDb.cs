@@ -49,6 +49,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     builder.PersistSecurityInfo = true;
                 }
 
+                if (!string.IsNullOrEmpty(connectParams.Connection.Encrypt))
+                {
+                    builder.Encrypt = connectParams.Connection.Encrypt switch
+                    {
+                        "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                        "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                        "strict" => SqlConnectionEncryptOption.Strict,
+                        _ => SqlConnectionEncryptOption.Optional
+                    };
+                }
+
+                if (!string.IsNullOrEmpty(connectParams.Connection.HostNameInCertificate))
+                {
+                    builder.HostNameInCertificate = connectParams.Connection.HostNameInCertificate;
+                }
+
                 return builder.ToString();
             }
         }

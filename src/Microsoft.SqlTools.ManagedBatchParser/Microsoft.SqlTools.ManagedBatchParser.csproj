@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<!-- Targeting both net6.0 and net472 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
 		<TargetFrameworks>net6.0;net472</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
