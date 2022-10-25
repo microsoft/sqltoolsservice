@@ -276,10 +276,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 Debug.Assert(conn.State == ConnectionState.Open, "connection passed to ExecuteNonQuery should be open.");
 
                 cmd = conn.CreateCommand();
-                if (initializeCommand == null)
-                {
-                    initializeCommand = SetCommandTimeout;
-                }
+
+                initializeCommand ??= SetCommandTimeout;
                 initializeCommand(cmd);
 
                 cmd.CommandText = commandText;
@@ -331,10 +329,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 Debug.Assert(conn.State == ConnectionState.Open, "connection passed to ExecuteScalar should be open.");
 
                 cmd = conn.CreateCommand();
-                if (initializeCommand == null)
-                {
-                    initializeCommand = SetCommandTimeout;
-                }
+
+                initializeCommand ??= SetCommandTimeout;
                 initializeCommand(cmd);
 
                 cmd.CommandText = commandText;
@@ -384,11 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             {
                 cmd = conn.CreateCommand();
 
-                if (initializeCommand == null)
-                {
-                    initializeCommand = SetCommandTimeout;
-                }
-
+                initializeCommand ??= SetCommandTimeout;
                 initializeCommand(cmd);
 
                 cmd.CommandText = commandText;

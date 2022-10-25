@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using NUnit.Framework;
@@ -37,12 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public static InstanceInfo SqlAzure
+        public static InstanceInfo? SqlAzure
         {
             get { return GetInstance(SqlAzureInstanceKey); }
         }
 
-        public static InstanceInfo SqlOnPrem
+        public static InstanceInfo? SqlOnPrem
         {
             get { return GetInstance(SqlOnPremInstanceKey); }
         }
@@ -50,30 +51,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         /// <summary>
         /// Returns the SQL connection info for given version key
         /// </summary>
-        public static InstanceInfo GetInstance(string key)
+        public static InstanceInfo? GetInstance(string key)
         {
-            InstanceInfo instanceInfo;
-            connectionProfilesCache.TryGetValue(key, out instanceInfo);
+            connectionProfilesCache.TryGetValue(key, out InstanceInfo? instanceInfo);
             Assert.True(instanceInfo != null, string.Format(CultureInfo.InvariantCulture, "Cannot find any instance for version key: {0}", key));
             return instanceInfo;
         }
 
-        public ConnectParams GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
+        public ConnectParams? GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
         {
-            InstanceInfo instanceInfo = GetInstance(key);
-            if (instanceInfo != null)
-            {
-                ConnectParams connectParam = CreateConnectParams(instanceInfo, key, databaseName);
-
-                return connectParam;
-            }
-            return null;
+            InstanceInfo? instanceInfo = GetInstance(key);
+            return instanceInfo != null ? CreateConnectParams(instanceInfo, key, databaseName) : null;
         }
 
         /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        public ConnectParams GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
+        public ConnectParams? GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
         {
             string key = ConvertServerTypeToVersionKey(serverType);
             return GetConnectionParameters(key, databaseName);
@@ -94,11 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     Console.WriteLine("DBTestInstance not configured. Run 'dotnet run Microsoft.SqlTools.ServiceLayer.TestEnvConfig' from the command line to configure");
                 }
 
-                if (testServers != null && settings != null)
+                if (testServers != null)
                 {
                     foreach (var serverIdentity in testServers)
                     {
-                        var instance = settings != null ? settings.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
+                        var instance = settings?.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName);
                         if (instance?.ServerType == TestServerType.None)
                         {
                             instance.ServerType = serverIdentity.ServerType;
@@ -106,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         }
                     }
                 }
-                if (settings != null)
+                if (settings?.Connections != null)
                 {
                     foreach (var instance in settings.Connections)
                     {
@@ -162,12 +156,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             ConnectParams connectParams = new ConnectParams();
             connectParams.Connection = new ConnectionDetails();
             connectParams.Connection.ServerName = connectionProfile.ServerName;
-            connectParams.Connection.DatabaseName = connectionProfile.Database;
-            connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
-            connectParams.Connection.UserName = connectionProfile.User;
-            connectParams.Connection.Password = connectionProfile.Password;
-            connectParams.Connection.MaxPoolSize = 200;
+
+            if (!string.IsNullOrEmpty(connectionProfile.Database))
+            {
+                connectParams.Connection.DatabaseName = connectionProfile.Database;
+                connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
+            }
+            if (!string.IsNullOrEmpty(connectionProfile.User))
+            {
+                connectParams.Connection.UserName = connectionProfile.User;
+            }
+            if (!string.IsNullOrEmpty(connectionProfile.Password))
+            {
+                connectParams.Connection.Password = connectionProfile.Password;
+            }
+
             connectParams.Connection.AuthenticationType = connectionProfile.AuthenticationType.ToString();
+            connectParams.Connection.MaxPoolSize = 200;
+
+            if (!string.IsNullOrEmpty(connectionProfile.Encrypt))
+            {
+                connectParams.Connection.Encrypt = connectionProfile.Encrypt;
+            }
+            else
+            {
+                connectParams.Connection.Encrypt = SqlConnectionEncryptOption.Optional.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(connectionProfile.HostNameInCertificate))
+            {
+                connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
+            }
+            
             if (!string.IsNullOrEmpty(databaseName))
             {
                 connectParams.Connection.DatabaseName = databaseName;
@@ -176,9 +196,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             if (key == SqlAzureInstanceKey || key == SqlAzureInstanceKey)
             {
                 connectParams.Connection.ConnectTimeout = 30;
-                connectParams.Connection.Encrypt = true;
+                connectParams.Connection.Encrypt = SqlConnectionEncryptOption.Mandatory.ToString();
                 connectParams.Connection.TrustServerCertificate = false;
             }
+
             return connectParams;
         }
     }

@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<!-- Targeting netstandard2.0 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<!-- Targeting both net6.0 and net472 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
+		<TargetFrameworks>net6.0;net472</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>

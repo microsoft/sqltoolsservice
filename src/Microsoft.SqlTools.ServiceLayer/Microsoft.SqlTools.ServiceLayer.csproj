@@ -49,11 +49,12 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
-		<PackageReference Include="Microsoft.SqlServer.DACFx" />
+		<PackageReference Include="Microsoft.SqlServer.DacFx" />
+		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
-		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
+		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
