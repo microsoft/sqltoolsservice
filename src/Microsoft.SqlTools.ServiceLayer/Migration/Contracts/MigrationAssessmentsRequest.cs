@@ -12,6 +12,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
     {
         public string OwnerUri { get; set; }
         public string[] Databases { get; set; }
+        public string InstanceName { get; set; }
+        public string XEventsFilesFolderPath { get; set; }
     }
 
     public class MigrationAssessmentResult
