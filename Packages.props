@@ -45,9 +45,6 @@
 		<PackageReference Update="coverlet.collector" Version="3.1.2" />
 		<PackageReference Update="coverlet.msbuild" Version="3.1.2" />
 
-		<PackageReference Update="Azure.ResourceManager" Version="1.3.1" />
-		<PackageReference Update="Azure.Identity" Version="1.7.0" />
-		<PackageReference Update="Azure.ResourceManager.Sql" Version="1.0.0" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20221024.787"  />
 	</ItemGroup>
 </Project>
