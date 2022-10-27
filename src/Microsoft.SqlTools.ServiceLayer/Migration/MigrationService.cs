@@ -39,6 +39,8 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlMa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.Migration.Tde;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -119,6 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest);
+            this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleCertificateMigrationRequest);
         }
 
         /// <summary>
@@ -286,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     ElasticSqlDbRecommendationDurationInMs = elasticResults.sqlDbDurationInMs,
                     ElasticSqlMiRecommendationResults = elasticResults.sqlMiResults,
                     ElasticSqlMiRecommendationDurationInMs = elasticResults.sqlMiDurationInMs,
-                    ElasticSqlVmRecommendationResults = elasticResults.sqlVmResults,                
+                    ElasticSqlVmRecommendationResults = elasticResults.sqlVmResults,
                     ElasticSqlVmRecommendationDurationInMs = elasticResults.sqlVmDurationInMs,
                     InstanceRequirements = req,
                     SkuRecommendationReportPaths = new List<string> { baselineResults.sqlDbReportPath, baselineResults.sqlMiReportPath, baselineResults.sqlVmReportPath },
@@ -305,73 +308,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
-                RecommendationResultSet resultSet = new RecommendationResultSet();
+        internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
+        {
+            RecommendationResultSet resultSet = new RecommendationResultSet();
 
-                SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
-                AzurePreferences prefs = new AzurePreferences() {
-                    EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
-                    ScalingFactor = parameters.ScalingFactor / 100.0,
-                    TargetEnvironment = TargetEnvironmentType.Production
-                };
-    
-                // generate SQL DB recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+            SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
+            AzurePreferences prefs = new AzurePreferences()
+            {
+                EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
+                ScalingFactor = parameters.ScalingFactor / 100.0,
+                TargetEnvironment = TargetEnvironmentType.Production
+            };
+
+            // generate SQL DB recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+            {
+                Stopwatch sqlDbStopwatch = new Stopwatch();
+                sqlDbStopwatch.Start();
+
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
+                resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
+
+                if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
                 {
-                    Stopwatch sqlDbStopwatch = new Stopwatch();
-                    sqlDbStopwatch.Start();
-
-                    prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
-                    resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
-
-                    if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
+                    // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
+                    List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
+                    foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
                     {
-                        // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                        List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
-                        foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
+                        resultSet.sqlDbResults.Add(new SkuRecommendationResult()
                         {
-                            resultSet.sqlDbResults.Add(new SkuRecommendationResult()
-                            {
-                                //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
-                                SqlInstanceName = parameters.TargetSqlInstance,
-                                DatabaseName = databaseWithoutRecommendation,
-                                TargetSku = null,
-                                MonthlyCost = null,
-                                Ranking = -1,
-                                PositiveJustifications = null,
-                                NegativeJustifications = null,
-                            });
-                        }
-                    }
-
-                    sqlDbStopwatch.Stop();
-                    resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
-
-                    SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } }, 
-                        AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
-                    var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                    var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
-                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
-                    resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
-                }
-
-                // generate SQL MI recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
-                {
-                    Stopwatch sqlMiStopwatch = new Stopwatch();
-                    sqlMiStopwatch.Start();
-
-                    prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
-                    resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
-
-                    // if no result was generated, create a result with a null SKU
-                    if (!resultSet.sqlMiResults.Any())
-                    {
-                        resultSet.sqlMiResults.Add(new SkuRecommendationResult()
-                        {
+                            //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
                             SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = null,
+                            DatabaseName = databaseWithoutRecommendation,
                             TargetSku = null,
                             MonthlyCost = null,
                             Ranking = -1,
@@ -379,66 +347,104 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                             NegativeJustifications = null,
                         });
                     }
-
-                    sqlMiStopwatch.Stop();
-                    resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
-
-                    SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
-                        AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
-                    var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                    var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
-                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
-                    resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
                 }
 
-                // generate SQL VM recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+                sqlDbStopwatch.Stop();
+                resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
+                    AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+                var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+                resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
+            }
+
+            // generate SQL MI recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+            {
+                Stopwatch sqlMiStopwatch = new Stopwatch();
+                sqlMiStopwatch.Start();
+
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
+                resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
+
+                // if no result was generated, create a result with a null SKU
+                if (!resultSet.sqlMiResults.Any())
                 {
-                    Stopwatch sqlVmStopwatch = new Stopwatch();
-                    sqlVmStopwatch.Start();
-
-                    prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
-                    resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
-
-                    // if no result was generated, create a result with a null SKU
-                    if (!resultSet.sqlVmResults.Any())
+                    resultSet.sqlMiResults.Add(new SkuRecommendationResult()
                     {
-                        resultSet.sqlVmResults.Add(new SkuRecommendationResult()
-                        {
-                            SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = null,
-                            TargetSku = null,
-                            MonthlyCost = null,
-                            Ranking = -1,
-                            PositiveJustifications = null,
-                            NegativeJustifications = null,
-                        });
-                    }
-
-                    sqlVmStopwatch.Stop();
-                    resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
-
-                    SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
-                        AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
-                    var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                    var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
-                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
-                    resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
+                        SqlInstanceName = parameters.TargetSqlInstance,
+                        DatabaseName = null,
+                        TargetSku = null,
+                        MonthlyCost = null,
+                        Ranking = -1,
+                        PositiveJustifications = null,
+                        NegativeJustifications = null,
+                    });
                 }
 
-                return resultSet;
+                sqlMiStopwatch.Stop();
+                resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
+                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+                resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
+            }
+
+            // generate SQL VM recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+            {
+                Stopwatch sqlVmStopwatch = new Stopwatch();
+                sqlVmStopwatch.Start();
+
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
+                resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+
+                // if no result was generated, create a result with a null SKU
+                if (!resultSet.sqlVmResults.Any())
+                {
+                    resultSet.sqlVmResults.Add(new SkuRecommendationResult()
+                    {
+                        SqlInstanceName = parameters.TargetSqlInstance,
+                        DatabaseName = null,
+                        TargetSku = null,
+                        MonthlyCost = null,
+                        Ranking = -1,
+                        PositiveJustifications = null,
+                        NegativeJustifications = null,
+                    });
+                }
+
+                sqlVmStopwatch.Stop();
+                resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
+                    AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
+                var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
+                resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
+            }
+
+            return resultSet;
         }
 
-        internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
+        internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
+        {
             RecommendationResultSet resultSet = new RecommendationResultSet();
 
             CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
                 instanceId: parameters.TargetSqlInstance,
-                directory: parameters.DataFolder, 
-                queryInterval: parameters.PerfQueryIntervalInSec, 
-                logger: null, 
+                directory: parameters.DataFolder,
+                queryInterval: parameters.PerfQueryIntervalInSec,
+                logger: null,
                 dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
 
             // generate SQL DB recommendations, if applicable
@@ -483,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
 
                 SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } }, 
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
                     AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
                 var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                 var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
@@ -762,7 +768,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
 
                     if (includePreviewSkus)
-                    {                       
+                    {
                         // Premium Memory Optimized BC/GP
                         eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                         AzureSqlTargetPlatform.AzureSqlManagedInstance,
@@ -825,6 +831,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             {
                 this.DataCollectionController.Dispose();
                 disposed = true;
+            }
+        }
+
+        internal async Task HandleCertificateMigrationRequest(
+            CertificateMigrationParams parameters,
+            RequestContext<CertificateMigrationResult> requestContext)
+        {
+            var result = new CertificateMigrationResult();
+
+            var tdeMigrationRequest = new TdeMigration(
+                 parameters.SourceSqlConnectionString,
+                 parameters.TargetSubscriptionId,
+                 parameters.TargetResourceGroupName,
+                 parameters.TargetManagedInstanceName);
+
+            foreach (var dbName in parameters.EncryptedDatabases)
+            {
+                var migrationResult = await MigrateCertificate(tdeMigrationRequest, dbName);
+                result.MigrationStatuses.Add(migrationResult);
+            }
+
+            await requestContext.SendResult(result);
+        }
+
+        async Task<CertificateMigrationEntryResult> MigrateCertificate(
+            TdeMigration tdeMigration,
+            string dbName)
+        {
+            try
+            {
+                await tdeMigration.MigrateTdeCertificate(dbName, CancellationToken.None);
+
+                return new CertificateMigrationEntryResult { DbName = dbName, Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new CertificateMigrationEntryResult { DbName = dbName, Success = false, ErrorMessage = ex.Message };
             }
         }
     }
