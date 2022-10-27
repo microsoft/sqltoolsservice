@@ -153,7 +153,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         {
             get
             {
-                return GetOptionValue<string>("encrypt");
+                string value = GetOptionValue<string>("encrypt");
+                if(string.IsNullOrEmpty(value))
+                {
+                    // Accept boolean values for backwards compatibility.
+                    value = GetOptionValue<bool>("encrypt").ToString();
+                }
+                return value;
             }
 
             set

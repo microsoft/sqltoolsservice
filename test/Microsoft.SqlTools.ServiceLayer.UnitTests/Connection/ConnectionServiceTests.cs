@@ -674,6 +674,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
+        /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
+        /// </summary>
+        [Test]
+        [TestCase(true, "True")]
+        [TestCase(false, "False")]
+        public void ConnectingWithBoolEncryptBuildsConnectionString(bool encryptValue, string expected)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            details.Options["encrypt"] = encryptValue;
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+
+            Assert.That(connectionString, Contains.Substring("Encrypt=" + expected), "Encrypt not as expected.");
+        }
+
+        /// <summary>
         /// Build connection string with an invalid property combinations
         /// </summary>
         [Test]
