@@ -147,13 +147,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
-        /// Gets or sets a <see cref="string"/> value that indicates encryption mode that SQL Server should use to perform SSL encryption for all the data sent between the client and server. Supported values are: Optional, Mandatory, Strict.
+        /// Gets or sets a <see cref="string"/> value that indicates encryption mode that SQL Server should use to perform SSL encryption for all the data sent between the client and server. Supported values are: Optional, Mandatory, Strict, True, False, Yes and No.
+        /// Boolean 'true' and 'false' will also continue to be supported for backwards compatibility.
         /// </summary>
         public string Encrypt
         {
             get
             {
-                return GetOptionValue<string>("encrypt");
+                string value = GetOptionValue<string>("encrypt");
+                if(string.IsNullOrEmpty(value))
+                {
+                    // Accept boolean values for backwards compatibility.
+                    value = GetOptionValue<bool>("encrypt").ToString();
+                }
+                return value;
             }
 
             set
