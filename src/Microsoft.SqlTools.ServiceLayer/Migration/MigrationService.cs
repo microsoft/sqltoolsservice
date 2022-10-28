@@ -273,8 +273,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList),
                     hostRequirements: new SqlServerHostRequirements() { NICCount = 1 });
 
-                RecommendationResultSet baselineResults = GenerateBaselineRecommendations(req, parameters);
-                RecommendationResultSet elasticResults = GenerateElasticRecommendations(req, parameters);
+                RecommendationResultSet baselineResults;
+                RecommendationResultSet elasticResults;
+
+                try
+                {
+                    baselineResults = GenerateBaselineRecommendations(req, parameters);
+                }
+                catch (Exception e)
+                {
+                    baselineResults = new RecommendationResultSet();
+                }
+
+                try
+                {
+                    elasticResults = GenerateElasticRecommendations(req, parameters);
+                }
+                catch (Exception e)
+                {
+                    elasticResults = new RecommendationResultSet();
+                }
 
                 GetSkuRecommendationsResult results = new GetSkuRecommendationsResult
                 {
