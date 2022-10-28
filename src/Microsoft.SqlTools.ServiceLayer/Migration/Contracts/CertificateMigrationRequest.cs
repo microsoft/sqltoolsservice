@@ -15,7 +15,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// </summary>
         public List<string> EncryptedDatabases { get; set; } = new List<string>();
 
-
         /// <summary>
         /// Source connection string to the server
         /// </summary>
@@ -37,22 +36,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string TargetManagedInstanceName { get; set; }
     }
 
-    public class SourceSqlConnectionEntry
-    {
-        public string Name { get; set; }
-        public string ConnectionString { get; set; }
-    }
-
     public class CertificateMigrationResult
     {
+        /// <summary>
+        /// List of the status of each certificate migration result attempted.
+        /// </summary>
         public List<CertificateMigrationEntryResult> MigrationStatuses { get; set; } = new List<CertificateMigrationEntryResult>();
     }
 
     public class CertificateMigrationEntryResult
     {
+        /// <summary>
+        /// The name of the database this result represent
+        /// </summary>
         public string DbName { get; set; }
+
+        /// <summary>
+        /// The result of the migration.
+        /// </summary>
         public bool Success { get; set; }
 
+        /// <summary>
+        /// Description of the error message encounter when the migratio was not successful
+        /// </summary>
         public string ErrorMessage { get; set; }
     }
 
