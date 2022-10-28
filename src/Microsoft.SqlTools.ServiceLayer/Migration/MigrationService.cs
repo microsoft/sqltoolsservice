@@ -39,8 +39,8 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlMa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
-using Microsoft.SqlServer.Migration.Assessment.Common.ExtnededEvents;
-using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Migration.Assessment.Common.Models;
+using Microsoft.SqlServer.Migration.Assessment.Common.Utils;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                         connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                     }
                     string[] assessmentConnectionStrings = connectionStrings.ToArray();
-                    var results = await GetAssessmentItems(assessmentConnectionStrings, parameters.InstanceName, parameters.XEventsFilesFolderPath);
+                    var results = await GetAssessmentItems(assessmentConnectionStrings, parameters.XEventsFilesFolderPath);
                     await requestContext.SendResult(results);
                 }
             }
@@ -588,28 +588,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string instanceName = "", string xEventsFilesFolderPath = "")
+        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string xEventsFilesFolderPath)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
-            DmaEngine engine;
-            if (instanceName.Length > 0 && xEventsFilesFolderPath.Length > 0) {
-                SqlObjectLocator objectLocator = new SqlObjectLocator()
-                {
-                    Connection = new SqlConnection(connectionStrings.FirstOrDefault())
-                };
-
-                ExtendedEventsLocator xEventsLocator = new ExtendedEventsLocator()
-                {
-                    ServerInstanceName = instanceName,
-                    XeventsFilesFolderPath = xEventsFilesFolderPath
-                };
-                
-                engine = new DmaEngine(objectLocator, xEventsLocator);
-            } else {
-                engine = new DmaEngine(connectionStrings);
-            }
+            SqlConnectionLocator locator = new SqlConnectionLocator();
+            locator.ConnectionStrings.AddRange(connectionStrings);
+            locator.XeventsFilesFolderPath = xEventsFilesFolderPath;
+            DmaEngine engine = new DmaEngine(locator);
 
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
             var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
