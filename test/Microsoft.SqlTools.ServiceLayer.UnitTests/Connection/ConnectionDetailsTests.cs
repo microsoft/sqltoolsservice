@@ -25,7 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var expectedForStrings = default(string);
             var expectedForInt = default(int?);
             var expectedForBoolean = default(bool?);
-            var expectedEncryptOption = default(string?);
+            // Encrypt should be true by default
+            var expectedEncryptOption = true.ToString();
 
             Assert.AreEqual(details.ApplicationIntent, expectedForStrings);
             Assert.AreEqual(details.ApplicationName, expectedForStrings);
@@ -245,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public void EncryptShouldReturnMandatoryIfNotSet()
         {
             ConnectionDetails details = new ConnectionDetails();
-            Assert.That(details.Encrypt, Is.Null, "Encrypt should be null when set to null");
+            Assert.That(details.Encrypt, Is.EqualTo(true.ToString()), "Encrypt should be Mandatory by default");
         }
 
         [Test]

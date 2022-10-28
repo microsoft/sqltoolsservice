@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 if(string.IsNullOrEmpty(value))
                 {
                     // Accept boolean values for backwards compatibility.
-                    value = GetOptionValue<bool>("encrypt").ToString();
+                    value = GetOptionValue<bool>("encrypt", true).ToString();
                 }
                 return value;
             }
