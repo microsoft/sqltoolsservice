@@ -740,7 +740,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             switch (targetPlatform)
             {
                 case "AzureSqlDatabase":
-                    // Gen5 BC/GP DB
+                    // Gen5 BC/GP/HS DB
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlDatabase,
                                                     AzureSqlPurchasingModel.vCore,
@@ -754,16 +754,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.HyperScale,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
                     break;
 
                 case "AzureSqlManagedInstance":
                     // Gen5 BC/GP MI
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                AzureSqlPurchasingModel.vCore,
-                                                AzureSqlPaaSServiceTier.BusinessCritical,
-                                                ComputeTier.Provisioned,
-                                                AzureSqlPaaSHardwareType.Gen5));
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
 
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,
