@@ -633,6 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 AssessmentReportPath = assessmentReportFullPath
             };
         }
+
         internal ServerAssessmentProperties ParseServerAssessmentInfo(IServerAssessmentInfo server, DmaEngine engine)
         {
             return new ServerAssessmentProperties()

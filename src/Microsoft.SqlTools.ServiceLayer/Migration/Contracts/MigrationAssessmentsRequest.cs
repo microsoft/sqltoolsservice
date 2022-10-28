@@ -10,8 +10,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
 {
     public class MigrationAssessmentsParams 
     {
+        /// <summary>
+        /// Owner URI
+        /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// List of databases to assess
+        /// </summary>
         public string[] Databases { get; set; }
+
+        /// <summary>
+        /// Folder path to XEvents files to be assessed, if applicable. Empty string to disable XEvents assessment.
+        /// </summary>
         public string XEventsFilesFolderPath { get; set; }
     }
 
