@@ -337,7 +337,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     {
                         resultSet.sqlDbResults.Add(new SkuRecommendationResult()
                         {
-                            //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
                             SqlInstanceName = parameters.TargetSqlInstance,
                             DatabaseName = databaseWithoutRecommendation,
                             TargetSku = null,
