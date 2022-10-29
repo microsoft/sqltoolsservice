@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection password
         /// </summary>
-        public string Password 
+        public string Password
         {
             get
             {
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             get
             {
                 string? value = GetOptionValue<string?>("encrypt");
-                if(string.IsNullOrEmpty(value))
+                if (string.IsNullOrEmpty(value))
                 {
                     // Accept boolean values for backwards compatibility.
                     value = GetOptionValue<bool?>("encrypt")?.ToString();
@@ -503,7 +503,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             {
                 SetOptionValue("port", value);
             }
-        }        
+        }
 
         /// <summary>
         /// Gets or sets a string value that indicates the type system the application expects.
@@ -540,7 +540,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the group ID
         /// </summary>
-        public string GroupId 
+        public string GroupId
         {
             get
             {
@@ -555,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the database display name
         /// </summary>
-        public string DatabaseDisplayName 
+        public string DatabaseDisplayName
         {
             get
             {
@@ -566,7 +566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 SetOptionValue("databaseDisplayName", value);
             }
         }
-        
+
         public string AzureAccountToken
         {
             get
@@ -592,31 +592,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         public bool IsComparableTo(ConnectionDetails other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (ServerName != other.ServerName
-                || AuthenticationType != other.AuthenticationType
-                || UserName != other.UserName
-                || AzureAccountToken != other.AzureAccountToken)
-            {
-                return false;
-            }
-
-            // For database name, only compare if neither is empty. This is important
-            // Since it allows for handling of connections to the default database, but is
-            // not a 100% accurate heuristic.
-            if (!string.IsNullOrEmpty(DatabaseName)
-                && !string.IsNullOrEmpty(other.DatabaseName)
-                && DatabaseName != other.DatabaseName)
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => other != null
+            && ApplicationIntent == other.ApplicationIntent
+            && ApplicationName == other.ApplicationName
+            && AttachDbFilename == other.AttachDbFilename
+            && AuthenticationType == other.AuthenticationType
+            && AzureAccountToken == other.AzureAccountToken
+            && ColumnEncryptionSetting == other.ColumnEncryptionSetting
+            && ConnectionString == other.ConnectionString
+            && ConnectRetryCount == other.ConnectRetryCount
+            && ConnectRetryInterval == other.ConnectRetryInterval
+            && ConnectTimeout == other.ConnectTimeout
+            && CurrentLanguage == other.CurrentLanguage
+            && DatabaseDisplayName == other.DatabaseDisplayName
+            && DatabaseName == other.DatabaseName
+            && EnclaveAttestationProtocol == other.EnclaveAttestationProtocol
+            && EnclaveAttestationUrl == other.EnclaveAttestationUrl
+            && Encrypt == other.Encrypt
+            && ExpiresOn == other.ExpiresOn
+            && FailoverPartner == other.FailoverPartner
+            && HostNameInCertificate == other.HostNameInCertificate
+            && LoadBalanceTimeout == other.LoadBalanceTimeout
+            && MaxPoolSize == other.MaxPoolSize
+            && MinPoolSize == other.MinPoolSize
+            && MultipleActiveResultSets == other.MultipleActiveResultSets
+            && MultiSubnetFailover == other.MultiSubnetFailover
+            && PacketSize == other.PacketSize
+            && Password == other.Password
+            && PersistSecurityInfo == other.PersistSecurityInfo
+            && Pooling == other.Pooling
+            && Port == other.Port
+            && Replication == other.Replication
+            && ServerName == other.ServerName
+            && TrustServerCertificate == other.TrustServerCertificate
+            && TypeSystemVersion == other.TypeSystemVersion
+            && UserName == other.UserName
+            && WorkstationId == other.WorkstationId;
     }
 }
