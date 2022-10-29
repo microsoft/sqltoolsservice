@@ -593,40 +593,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
         public bool IsComparableTo(ConnectionDetails other)
             => other != null
-            && ApplicationIntent == other.ApplicationIntent
-            && ApplicationName == other.ApplicationName
-            && AttachDbFilename == other.AttachDbFilename
-            && AuthenticationType == other.AuthenticationType
-            && AzureAccountToken == other.AzureAccountToken
-            && ColumnEncryptionSetting == other.ColumnEncryptionSetting
-            && ConnectionString == other.ConnectionString
+            && string.Equals(ApplicationIntent, other.ApplicationIntent, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(ApplicationName, other.ApplicationName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(AttachDbFilename, other.AttachDbFilename, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(AuthenticationType, other.AuthenticationType, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(AzureAccountToken, other.AzureAccountToken, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(ColumnEncryptionSetting, other.ColumnEncryptionSetting, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(ConnectionString, other.ConnectionString, System.StringComparison.InvariantCultureIgnoreCase)
             && ConnectRetryCount == other.ConnectRetryCount
             && ConnectRetryInterval == other.ConnectRetryInterval
             && ConnectTimeout == other.ConnectTimeout
-            && CurrentLanguage == other.CurrentLanguage
-            && DatabaseDisplayName == other.DatabaseDisplayName
-            && DatabaseName == other.DatabaseName
-            && EnclaveAttestationProtocol == other.EnclaveAttestationProtocol
-            && EnclaveAttestationUrl == other.EnclaveAttestationUrl
-            && Encrypt == other.Encrypt
+            && string.Equals(CurrentLanguage, other.CurrentLanguage, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(DatabaseDisplayName, other.DatabaseDisplayName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(DatabaseName, other.DatabaseName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(EnclaveAttestationProtocol, other.EnclaveAttestationProtocol, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(EnclaveAttestationUrl, other.EnclaveAttestationUrl, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(Encrypt, other.Encrypt, System.StringComparison.InvariantCultureIgnoreCase)
             && ExpiresOn == other.ExpiresOn
-            && FailoverPartner == other.FailoverPartner
-            && HostNameInCertificate == other.HostNameInCertificate
+            && string.Equals(FailoverPartner, other.FailoverPartner, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(HostNameInCertificate, other.HostNameInCertificate, System.StringComparison.InvariantCultureIgnoreCase)
             && LoadBalanceTimeout == other.LoadBalanceTimeout
             && MaxPoolSize == other.MaxPoolSize
             && MinPoolSize == other.MinPoolSize
             && MultipleActiveResultSets == other.MultipleActiveResultSets
             && MultiSubnetFailover == other.MultiSubnetFailover
             && PacketSize == other.PacketSize
-            && Password == other.Password
+            && string.Equals(Password, other.Password, System.StringComparison.InvariantCultureIgnoreCase)
             && PersistSecurityInfo == other.PersistSecurityInfo
             && Pooling == other.Pooling
             && Port == other.Port
             && Replication == other.Replication
-            && ServerName == other.ServerName
+            && string.Equals(ServerName, other.ServerName, System.StringComparison.InvariantCultureIgnoreCase)
             && TrustServerCertificate == other.TrustServerCertificate
-            && TypeSystemVersion == other.TypeSystemVersion
-            && UserName == other.UserName
-            && WorkstationId == other.WorkstationId;
+            && string.Equals(TypeSystemVersion, other.TypeSystemVersion, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(UserName, other.UserName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(WorkstationId, other.WorkstationId, System.StringComparison.InvariantCultureIgnoreCase);
     }
 }
