@@ -317,10 +317,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         {
             try
             {
-                // TODO AKMA: Do we need aad domain name and sql cred? If so, i'll need to set up login options as a param
-
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList);
+                null, parameters.LoginList, parameters.AADDomainName);
                 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
 

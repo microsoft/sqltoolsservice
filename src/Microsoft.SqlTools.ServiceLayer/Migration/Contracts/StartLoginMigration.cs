@@ -25,6 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         /// List of logins to migrate
         /// </summary>
         public List<string> LoginList { get; set; }
+
+        /// <summary>
+        /// List of logins to migrate
+        /// </summary>
+        public string AADDomainName{ get; set; }
     }
 
     public class StartLoginMigrationResults
@@ -40,5 +45,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public static readonly
             RequestType<StartLoginMigrationParams, StartLoginMigrationResults> Type =
                 RequestType<StartLoginMigrationParams, StartLoginMigrationResults>.Create("migration/startloginmigration");
-}
+    }
 }
