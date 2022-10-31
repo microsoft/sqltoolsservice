@@ -591,6 +591,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
+        /// <summary>
+        /// Compares all SQL Server Connection properties to be able to identify differences in current instance and provided instance appropriately.
+        /// </summary>
+        /// <param name="other">Instance to compare with.</param>
+        /// <returns>True if comparison yeilds no differences, otherwise false.</returns>
         public bool IsComparableTo(ConnectionDetails other)
             => other != null
             && string.Equals(ApplicationIntent, other.ApplicationIntent, System.StringComparison.InvariantCultureIgnoreCase)
