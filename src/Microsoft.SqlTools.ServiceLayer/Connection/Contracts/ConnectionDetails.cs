@@ -147,13 +147,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
-        /// Gets or sets a Boolean value that indicates whether SQL Server uses SSL encryption for all data sent between the client and server if the server has a certificate installed.
+        /// Gets or sets a <see cref="string"/> value that indicates encryption mode that SQL Server should use to perform SSL encryption for all the data sent between the client and server. Supported values are: Optional, Mandatory, Strict, True, False, Yes and No.
+        /// Boolean 'true' and 'false' will also continue to be supported for backwards compatibility.
         /// </summary>
-        public bool? Encrypt
+        public string? Encrypt
         {
             get
             {
-                return GetOptionValue<bool?>("encrypt");
+                string? value = GetOptionValue<string?>("encrypt");
+                if(string.IsNullOrEmpty(value))
+                {
+                    // Accept boolean values for backwards compatibility.
+                    value = GetOptionValue<bool?>("encrypt")?.ToString();
+                }
+                return value;
             }
 
             set
@@ -175,6 +182,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             set
             {
                 SetOptionValue("trustServerCertificate", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value that indicates the host name in the certificate to be used for certificate validation when encryption is enabled.
+        /// </summary>
+        public string HostNameInCertificate
+        {
+            get
+            {
+                return GetOptionValue<string>("hostNameInCertificate");
+            }
+
+            set
+            {
+                SetOptionValue("hostNameInCertificate", value);
             }
         }
 

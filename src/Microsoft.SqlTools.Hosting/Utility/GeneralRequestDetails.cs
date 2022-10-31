@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.Utility
                 enumValue = Enum.Parse(t, value);
                 return true;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 enumValue = default(T);
                 return false;

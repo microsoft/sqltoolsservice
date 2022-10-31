@@ -92,14 +92,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
-                        Name = "asynchronousProcessing",
-                        DisplayName = "Asynchronous processing enabled",
-                        Description = "When true, enables usage of the Asynchronous functionality in the .Net Framework Data Provider",
-                        ValueType = ConnectionOption.ValueTypeBoolean,
-                        GroupName = "Initialization"
-                    },
-                    new ConnectionOption
-                    {
                         Name = "connectTimeout",
                         DisplayName = "Connect timeout",
                         Description =
@@ -152,10 +144,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         Name = "encrypt",
                         DisplayName = "Encrypt",
-                        Description =
-                        "When true, SQL Server uses SSL encryption for all data sent between the client and server if the servers has a certificate installed",
+                        Description = "When set, SQL Server uses provided setting for SSL encryption for all data sent between the client and server.",
+                        ValueType = ConnectionOption.ValueTypeCategory,
                         GroupName = "Security",
-                        ValueType = ConnectionOption.ValueTypeBoolean
+                        CategoryValues = new CategoryValue[] {
+                            new CategoryValue { DisplayName = "Optional", Name = "Optional" },
+                            new CategoryValue { DisplayName = "Mandatory", Name = "Mandatory" },
+                            new CategoryValue { DisplayName = "Strict", Name = "Strict" }
+                        }
                     },
                     new ConnectionOption
                     {
@@ -172,6 +168,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         Description = "When true (and encrypt=true), SQL Server uses SSL encryption for all data sent between the client and server without validating the server certificate",
                         GroupName = "Security",
                         ValueType = ConnectionOption.ValueTypeBoolean
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "hostNameInCertificate",
+                        DisplayName = "HostNameInCertificate",
+                        Description = "Specifies host name in certificate to be used for certificate validation, when encryption is enabled.",
+                        GroupName = "Security",
+                        ValueType = ConnectionOption.ValueTypeString,
                     },
                     new ConnectionOption
                     {

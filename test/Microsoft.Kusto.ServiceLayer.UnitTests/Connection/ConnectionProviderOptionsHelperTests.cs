@@ -11,10 +11,10 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.Connection
     public class ConnectionProviderOptionsHelperTests
     {
         [Test]
-        public void BuildConnectionProviderOptions_Returns_31_Options()
+        public void BuildConnectionProviderOptions_Returns_30_Options()
         {
             var providerOptions = ConnectionProviderOptionsHelper.BuildConnectionProviderOptions();
-            Assert.AreEqual(31, providerOptions.Options.Length);
+            Assert.AreEqual(30, providerOptions.Options.Length);
         }
     }
 }

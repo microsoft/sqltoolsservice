@@ -1217,25 +1217,6 @@ WITH VALUES
                 };
 
                 await SchemaCompareService.Instance.HandleSchemaCompareRequest(schemaCompareParams, schemaCompareRequestContext.Object);
-
-                // Schema compare Cancel call
-                var schemaCompareCancelRequestContext = new Mock<RequestContext<ResultStatus>>();
-                schemaCompareCancelRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) =>
-                result.Success == true))).Returns(Task.FromResult(new object()));
-
-                var schemaCompareCancelParams = new SchemaCompareCancelParams
-                {
-                    OperationId = operationId
-                };
-
-                cancelled = true;
-                await SchemaCompareService.Instance.HandleSchemaCompareCancelRequest(schemaCompareCancelParams, schemaCompareCancelRequestContext.Object);
-                await SchemaCompareService.Instance.CurrentSchemaCompareTask;
-
-
-                // complete schema compare call for further testing
-                cancelled = false;
-                await SchemaCompareService.Instance.HandleSchemaCompareRequest(schemaCompareParams, schemaCompareRequestContext.Object);
                 await SchemaCompareService.Instance.CurrentSchemaCompareTask;
 
                 // Generate script Service call
@@ -1933,14 +1914,6 @@ WITH VALUES
 
         private bool ValidateScResult(SchemaCompareResult diffResult, out DiffEntry diffEntry, string operationId, ref bool cancelled)
         {
-            if (cancelled)
-            {
-                Assert.True(diffResult.Differences == null, "Differences should be null after cancel");
-                Assert.True(diffResult.Success == false, "Result success for schema compare should be false after cancel");
-                diffEntry = null;
-                return true;
-            }
-
             diffEntry = diffResult.Differences.ElementAt(0);
             Assert.True(diffResult.Success == true, "Result success is false for schema compare");
             Assert.True(diffResult.Differences != null, "Schema compare Differences should not be null");
