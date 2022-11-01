@@ -42,8 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "TSqlFormatter initialized");
-            serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
-            serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
+            serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest, true);
+            serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest, true);
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 

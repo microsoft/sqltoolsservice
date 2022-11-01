@@ -170,21 +170,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
-            serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest);
-            serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest);
-            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest);
-            serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest);
-            serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest);
+            serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest, true);
+            serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest, true);
+            serviceHost.SetRequestHandler(ExecuteStringRequest.Type, HandleExecuteRequest, true);
+            serviceHost.SetRequestHandler(SubsetRequest.Type, HandleResultSubsetRequest, true);
+            serviceHost.SetRequestHandler(QueryDisposeRequest.Type, HandleDisposeRequest, true);
+            serviceHost.SetRequestHandler(QueryCancelRequest.Type, HandleCancelRequest, true);
             serviceHost.SetEventHandler(ConnectionUriChangedNotification.Type, HandleConnectionUriChangedNotification);
-            serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest);
-            serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest);
-            serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest);
-            serviceHost.SetRequestHandler(SaveResultsAsMarkdownRequest.Type, this.HandleSaveResultsAsMarkdownRequest);
-            serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest);
-            serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest);
-            serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest);
-            serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest);
+            serviceHost.SetRequestHandler(SaveResultsAsCsvRequest.Type, HandleSaveResultsAsCsvRequest, true);
+            serviceHost.SetRequestHandler(SaveResultsAsExcelRequest.Type, HandleSaveResultsAsExcelRequest, true);
+            serviceHost.SetRequestHandler(SaveResultsAsJsonRequest.Type, HandleSaveResultsAsJsonRequest, true);
+            serviceHost.SetRequestHandler(SaveResultsAsMarkdownRequest.Type, this.HandleSaveResultsAsMarkdownRequest, true);
+            serviceHost.SetRequestHandler(SaveResultsAsXmlRequest.Type, HandleSaveResultsAsXmlRequest, true);
+            serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest, true);
+            serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
+            serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);

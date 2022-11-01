@@ -79,56 +79,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             this.ServiceHost = serviceHost;
 
             // Jobs request handlers
-            this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest);
-            this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest);
-            this.ServiceHost.SetRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest);
+            this.ServiceHost.SetRequestHandler(AgentJobsRequest.Type, HandleAgentJobsRequest, true);
+            this.ServiceHost.SetRequestHandler(AgentJobHistoryRequest.Type, HandleJobHistoryRequest, true);
+            this.ServiceHost.SetRequestHandler(AgentJobActionRequest.Type, HandleJobActionRequest, true);
 
-            this.ServiceHost.SetRequestHandler(CreateAgentJobRequest.Type, HandleCreateAgentJobRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentJobRequest.Type, HandleCreateAgentJobRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentJobRequest.Type, HandleUpdateAgentJobRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentJobRequest.Type, HandleDeleteAgentJobRequest, true);
 
-            this.ServiceHost.SetRequestHandler(AgentJobDefaultsRequest.Type, HandleAgentJobDefaultsRequest);
+            this.ServiceHost.SetRequestHandler(AgentJobDefaultsRequest.Type, HandleAgentJobDefaultsRequest, true);
 
             // Job Steps request handlers
-            this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentJobStepRequest.Type, HandleDeleteAgentJobStepRequest);
+            this.ServiceHost.SetRequestHandler(CreateAgentJobStepRequest.Type, HandleCreateAgentJobStepRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentJobStepRequest.Type, HandleUpdateAgentJobStepRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentJobStepRequest.Type, HandleDeleteAgentJobStepRequest, true);
 
             // Alerts request handlers
-            this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest);
-            this.ServiceHost.SetRequestHandler(CreateAgentAlertRequest.Type, HandleCreateAgentAlertRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentAlertRequest.Type, HandleUpdateAgentAlertRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentAlertRequest.Type, HandleDeleteAgentAlertRequest);
+            this.ServiceHost.SetRequestHandler(AgentAlertsRequest.Type, HandleAgentAlertsRequest, true);
+            this.ServiceHost.SetRequestHandler(CreateAgentAlertRequest.Type, HandleCreateAgentAlertRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentAlertRequest.Type, HandleUpdateAgentAlertRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentAlertRequest.Type, HandleDeleteAgentAlertRequest, true);
 
             // Operators request handlers
-            this.ServiceHost.SetRequestHandler(AgentOperatorsRequest.Type, HandleAgentOperatorsRequest);
-            this.ServiceHost.SetRequestHandler(CreateAgentOperatorRequest.Type, HandleCreateAgentOperatorRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentOperatorRequest.Type, HandleUpdateAgentOperatorRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentOperatorRequest.Type, HandleDeleteAgentOperatorRequest);
+            this.ServiceHost.SetRequestHandler(AgentOperatorsRequest.Type, HandleAgentOperatorsRequest, true);
+            this.ServiceHost.SetRequestHandler(CreateAgentOperatorRequest.Type, HandleCreateAgentOperatorRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentOperatorRequest.Type, HandleUpdateAgentOperatorRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentOperatorRequest.Type, HandleDeleteAgentOperatorRequest, true);
 
             // Proxy Accounts request handlers
-            this.ServiceHost.SetRequestHandler(AgentProxiesRequest.Type, HandleAgentProxiesRequest);
-            this.ServiceHost.SetRequestHandler(CreateAgentProxyRequest.Type, HandleCreateAgentProxyRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentProxyRequest.Type, HandleUpdateAgentProxyRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentProxyRequest.Type, HandleDeleteAgentProxyRequest);
+            this.ServiceHost.SetRequestHandler(AgentProxiesRequest.Type, HandleAgentProxiesRequest, true);
+            this.ServiceHost.SetRequestHandler(CreateAgentProxyRequest.Type, HandleCreateAgentProxyRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentProxyRequest.Type, HandleUpdateAgentProxyRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentProxyRequest.Type, HandleDeleteAgentProxyRequest, true);
 
             // Schedule request handlers
-            this.ServiceHost.SetRequestHandler(AgentSchedulesRequest.Type, HandleAgentSchedulesRequest);
-            this.ServiceHost.SetRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest);
+            this.ServiceHost.SetRequestHandler(AgentSchedulesRequest.Type, HandleAgentSchedulesRequest, true);
+            this.ServiceHost.SetRequestHandler(CreateAgentScheduleRequest.Type, HandleCreateAgentScheduleRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentScheduleRequest.Type, HandleUpdateAgentScheduleRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentScheduleRequest.Type, HandleDeleteAgentScheduleRequest, true);
 
             // Notebook request handlers
-            this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest);
-            this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest);
-            this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest);
-            this.ServiceHost.SetRequestHandler(AgentNotebookTemplateRequest.Type, HandleAgentNotebookTemplateRequest);
-            this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest);
-            this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest);
-            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest);
-            this.ServiceHost.SetRequestHandler(DeleteNotebookMaterializedRequest.Type, HandleDeleteNotebookMaterializedRequest);
+            this.ServiceHost.SetRequestHandler(AgentNotebooksRequest.Type, HandleAgentNotebooksRequest, true);
+            this.ServiceHost.SetRequestHandler(AgentNotebookHistoryRequest.Type, HandleAgentNotebookHistoryRequest, true);
+            this.ServiceHost.SetRequestHandler(AgentNotebookMaterializedRequest.Type, HandleAgentNotebookMaterializedRequest, true);
+            this.ServiceHost.SetRequestHandler(AgentNotebookTemplateRequest.Type, HandleAgentNotebookTemplateRequest, true);
+            this.ServiceHost.SetRequestHandler(CreateAgentNotebookRequest.Type, HandleCreateAgentNotebookRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteAgentNotebookRequest.Type, HandleDeleteAgentNotebooksRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRequest.Type, HandleUpdateAgentNotebookRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunPinRequest.Type, HandleUpdateAgentNotebookRunPinRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateAgentNotebookRunNameRequest.Type, HandleUpdateAgentNotebookRunNameRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteNotebookMaterializedRequest.Type, HandleDeleteNotebookMaterializedRequest, true);
 
             serviceHost.RegisterShutdownTask((_, _) =>
             {

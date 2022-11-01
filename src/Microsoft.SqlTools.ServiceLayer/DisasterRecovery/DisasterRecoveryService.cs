@@ -96,22 +96,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Get database info
-            serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest);
+            serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest, true);
 
             // Create backup
-            serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
+            serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest, true);
 
             // Create restore task
-            serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest);
+            serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest, true);
 
             // Create restore plan
-            serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
+            serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest, true);
 
             // Cancel restore plan
-            serviceHost.SetRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest);
+            serviceHost.SetRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest, true);
 
             // Create restore config
-            serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
+            serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest, true);
 
             // Register file path validation callbacks
             FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);

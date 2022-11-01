@@ -102,9 +102,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(InvokeRequest.Type, HandleInvokeRequest);
-            serviceHost.SetRequestHandler(GetAssessmentItemsRequest.Type, HandleGetAssessmentItemsRequest);
-            serviceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
+            serviceHost.SetRequestHandler(InvokeRequest.Type, HandleInvokeRequest, true);
+            serviceHost.SetRequestHandler(GetAssessmentItemsRequest.Type, HandleGetAssessmentItemsRequest, true);
+            serviceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest, true);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>

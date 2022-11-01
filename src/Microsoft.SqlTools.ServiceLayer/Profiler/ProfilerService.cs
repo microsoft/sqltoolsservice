@@ -97,12 +97,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public void InitializeService(ServiceHost serviceHost)
         {
             this.ServiceHost = serviceHost;
-            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest);
-            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest);
-            this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest);
-            this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest);
-            this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
-            this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
+            this.ServiceHost.SetRequestHandler(CreateXEventSessionRequest.Type, HandleCreateXEventSessionRequest, true);
+            this.ServiceHost.SetRequestHandler(StartProfilingRequest.Type, HandleStartProfilingRequest, true);
+            this.ServiceHost.SetRequestHandler(StopProfilingRequest.Type, HandleStopProfilingRequest, true);
+            this.ServiceHost.SetRequestHandler(PauseProfilingRequest.Type, HandlePauseProfilingRequest, true);
+            this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest, true);
+            this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest, true);
 
             this.SessionMonitor.AddSessionListener(this);
         }

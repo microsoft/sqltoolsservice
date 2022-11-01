@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.InsightsGenerator
         public void InitializeService(ServiceHost serviceHost)
         {
             // Insights Generatoe request handlers
-            serviceHost.SetRequestHandler(QueryInsightsGeneratorRequest.Type, HandleQueryInsightGeneratorRequest);
+            serviceHost.SetRequestHandler(QueryInsightsGeneratorRequest.Type, HandleQueryInsightGeneratorRequest, true);
         }
 
         internal async Task HandleQueryInsightGeneratorRequest(QueryInsightsGeneratorParams parameters, RequestContext<InsightsGeneratorResult> requestContext)

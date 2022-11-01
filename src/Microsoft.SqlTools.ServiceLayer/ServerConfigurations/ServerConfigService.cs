@@ -49,9 +49,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ServerConfigViewRequest.Type, this.HandleServerConfigViewRequest);
-            serviceHost.SetRequestHandler(ServerConfigUpdateRequest.Type, this.HandleServerConfigUpdateRequest);
-            serviceHost.SetRequestHandler(ServerConfigListRequest.Type, this.HandleServerConfigListRequest);
+            serviceHost.SetRequestHandler(ServerConfigViewRequest.Type, this.HandleServerConfigViewRequest, true);
+            serviceHost.SetRequestHandler(ServerConfigUpdateRequest.Type, this.HandleServerConfigUpdateRequest, true);
+            serviceHost.SetRequestHandler(ServerConfigListRequest.Type, this.HandleServerConfigListRequest, true);
         }
 
         /// <summary>
