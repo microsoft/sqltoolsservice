@@ -156,6 +156,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         internal string sqlDbReportPath;
         internal string sqlMiReportPath;
         internal string sqlVmReportPath;
+
+        // Create a new empty RecommendationResultSet
+        internal RecommendationResultSet()
+        {
+            this.sqlDbResults = new List<SkuRecommendationResult>();
+            this.sqlMiResults = new List<SkuRecommendationResult>();
+            this.sqlVmResults = new List<SkuRecommendationResult>();
+            this.sqlDbDurationInMs = -1;
+            this.sqlMiDurationInMs = -1;
+            this.sqlVmDurationInMs = -1;
+            this.sqlDbReportPath = "";
+            this.sqlMiReportPath = "";
+            this.sqlVmReportPath = "";
+        }
     }
 
     public class GetSkuRecommendationsRequest
