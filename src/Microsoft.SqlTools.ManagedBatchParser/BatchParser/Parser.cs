@@ -608,18 +608,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         }
 
         internal void RaiseError(ErrorCode errorCode, string message = null)
-        {
-            RaiseError(errorCode, LookaheadToken, message);
-        }
+            => RaiseError(errorCode, LookaheadToken, message);
 
         internal static void RaiseError(ErrorCode errorCode, Token token, string message = null)
-        {
-            if (message == null)
-            {
-                message = string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text);
-            }
-            throw new BatchParserException(errorCode, token, message);
-        }
+            => throw new BatchParserException(errorCode, token, message ?? string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text));
 
         internal string ResolveVariables(Token inputToken, int offset, List<VariableReference> variableRefs)
         {

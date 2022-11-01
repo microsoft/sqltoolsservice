@@ -242,8 +242,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 csb.Password = connectParams.Connection.Password;
             }
             csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
-            csb.Encrypt = connectParams.Connection.Encrypt.HasValue ? connectParams.Connection.Encrypt.Value : false;
+            
+            csb.Encrypt = connectParams.Connection.Encrypt?.ToLowerInvariant() switch {
+                "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                "strict" => SqlConnectionEncryptOption.Strict,
+                _ => default
+            };
+
             csb.TrustServerCertificate = connectParams.Connection.TrustServerCertificate.HasValue ? connectParams.Connection.TrustServerCertificate.Value : false;
+            if (!string.IsNullOrEmpty(connectParams.Connection.HostNameInCertificate))
+            {
+                csb.HostNameInCertificate = connectParams.Connection.HostNameInCertificate;
+            }
 
             return csb;
         }

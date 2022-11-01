@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">Недопустимое значение "{0}" для параметра Encrypt. Допустимые значения: "Optional" (необязательно), "Mandatory" (обязательно), "Strict" (строго), "True" (истина), "False" (ложь), "Yes" (да) и "No" (нет).</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">Недопустимое значение "{0}" для EnclaveAttestationProtocol. Допустимые значения: "AAS" и "HGS".</target>
