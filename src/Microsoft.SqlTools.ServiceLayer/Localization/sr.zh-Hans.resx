@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>ComlumEncryption 的值“{0}”无效。有效值为 "Enabled" 和 "Disabled"。</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>加密的值“{0}”无效。有效值为 “Optional”、“Mandatory”、“Strict”、“True”、“False”、“Yes”和“No”。</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS" 和 "HGS"。</value>
   </data>
@@ -3963,5 +3966,8 @@
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>无法找到连接</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>实际 CPU 成本</value>
   </data>
 </root>

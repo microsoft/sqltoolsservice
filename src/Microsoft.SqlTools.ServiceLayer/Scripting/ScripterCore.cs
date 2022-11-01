@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private Dictionary<string, string> objectScriptMap = new Dictionary<string, string>();
 
-        internal Scripter() {}
+        internal Scripter() { }
 
         /// <summary>
         /// Initialize a Peek Definition helper object
@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             this.tempPath = FileUtilities.GetPeekDefinitionTempFolder();
             Initialize();
         }
-        
+
         internal Database Database
         {
             get
@@ -351,12 +351,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 tempFileName = new Uri(tempFileName).AbsoluteUri;
             }
             // Create a location array containing the tempFile Uri, as expected by VSCode.
-            Location[] locations = new[] 
+            Location[] locations = new[]
             {
-                    new Location 
+                    new Location
                     {
                         Uri = tempFileName,
-                        Range = new Range 
+                        Range = new Range
                         {
                             Start = new Position { Line = lineNumber, Character = 0},
                             End = new Position { Line = lineNumber + 1, Character = 0}
@@ -461,9 +461,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="tempFileName"></param>
         /// <returns></returns>
         internal SmoScriptingOperation InitScriptOperation(string objectName, string schemaName, string objectType)
-        {            
+        {
             // object that has to be scripted
-            ScriptingObject scriptingObject = new ScriptingObject 
+            ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = objectName,
                 Schema = schemaName,
@@ -471,7 +471,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             };
 
             // scripting options
-            ScriptOptions options = new ScriptOptions 
+            ScriptOptions options = new ScriptOptions
             {
                 ScriptCreateDrop = "ScriptCreate",
                 TypeOfDataToScript = "SchemaOnly",
@@ -501,7 +501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // create parameters for the scripting operation
 
-            ScriptingParams parameters = new ScriptingParams 
+            ScriptingParams parameters = new ScriptingParams
             {
                 ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
                 ScriptingObjects = objectList,
@@ -512,7 +512,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return new ScriptAsScriptingOperation(parameters, serverConnection);
         }
 
-        internal string GetTargetDatabaseEngineEdition() 
+        internal string GetTargetDatabaseEngineEdition()
         {
             DatabaseEngineEdition dbEngineEdition = this.serverConnection.DatabaseEngineEdition;
             string dbEngineEditionString;
@@ -529,13 +529,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         internal string GetTargetDatabaseEngineType()
         {
-           return connectionInfo.IsCloud ? "SqlAzure" : "SingleInstance";
+            return connectionInfo.IsCloud ? "SqlAzure" : "SingleInstance";
         }
 
         internal bool LineContainsObject(string line, string objectName, string createSyntax)
         {
             if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
+                line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return true;
             }
@@ -693,7 +693,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // Check if we're called for EDIT for SQL2016+/Sterling+.
             // We need to omit temporal columns if such are present on this table.
-            if (server.Version.Major >= 13 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12))
+            if (server.Version.Major >= 13 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12 && !isDw))
             {
                 // We're called in order to generate a list of columns for EDIT TOP N rows.
                 // Don't return auto-generated, auto-populated, read-only temporal columns.
@@ -702,7 +702,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // Check if we're called for EDIT for SQL2022+/Sterling+.
             // We need to omit dropped ledger columns if such are present
-            if (server.Version.Major >= 16 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12))
+            if (server.Version.Major >= 16 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12 && !isDw))
             {
                 filterExpressions.Add("@IsDroppedLedgerColumn=0");
             }
@@ -725,7 +725,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // We only want to show types 0, 2, 5, and 8:
                 filterExpressions.Add("(@GraphType=0 or @GraphType=2 or @GraphType=5 or @GraphType=8)");
             }
-            
+
             Request request = new Request();
             // If we have any filters on the columns, add them.
             if (filterExpressions.Count > 0)
@@ -759,7 +759,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 dt = ((DataSet)result).Tables[0];
             }
-            return dt;    
+            return dt;
         }
 
         internal string SelectFromTableOrView(Server server, Urn urn, bool isDw)
@@ -787,7 +787,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                                              ScriptingGlobals.RightDelimiter);
                 }
             }
-            else 
+            else
             {
                 selectQuery.Append("SELECT TOP (1000) * ");
             }
@@ -795,8 +795,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // from clause
             selectQuery.Append("  FROM ");
 
-            if(server.ServerType != DatabaseEngineType.SqlAzureDatabase)
-            {   
+            if (server.ServerType != DatabaseEngineType.SqlAzureDatabase)
+            {
                 // Azure doesn't allow qualifying object names with the DB, so only add it on if we're not in Azure database URN
                 Urn dbUrn = urn.Parent;
                 selectQuery.AppendFormat("{0}{1}{2}.",

@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">加密的值“{0}”无效。有效值为 “Optional”、“Mandatory”、“Strict”、“True”、“False”、“Yes”和“No”。</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS" 和 "HGS"。</target>
@@ -6492,6 +6498,11 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ErrorConnectionNotFound">
         <source>The connection could not be found</source>
         <target state="translated">无法找到连接</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">实际 CPU 成本</target>
         <note></note>
       </trans-unit>
     </body>

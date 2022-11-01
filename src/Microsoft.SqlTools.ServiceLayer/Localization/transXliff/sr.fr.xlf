@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">Valeur non valide '{0}' pour Chiffrer. Les valeurs valides sont 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' et 'No'.</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">Valeur « {0} » non valide pour EnclaveAttestationProtocol. Les valeurs valides sont « AAS » et « HGS ».</target>
@@ -6492,6 +6498,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       <trans-unit id="ErrorConnectionNotFound">
         <source>The connection could not be found</source>
         <target state="translated">Nous n’avons pas pu établir la connexion.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Coût réel du processeur</target>
         <note></note>
       </trans-unit>
     </body>

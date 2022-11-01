@@ -39,6 +39,8 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlMa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.Migration.Assessment.Common.Models;
+using Microsoft.SqlServer.Migration.Assessment.Common.Utils;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -157,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                         connectionStrings.Add(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails));
                     }
                     string[] assessmentConnectionStrings = connectionStrings.ToArray();
-                    var results = await GetAssessmentItems(assessmentConnectionStrings);
+                    var results = await GetAssessmentItems(assessmentConnectionStrings, parameters.XEventsFilesFolderPath);
                     await requestContext.SendResult(results);
                 }
             }
@@ -271,8 +273,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList),
                     hostRequirements: new SqlServerHostRequirements() { NICCount = 1 });
 
-                RecommendationResultSet baselineResults = GenerateBaselineRecommendations(req, parameters);
-                RecommendationResultSet elasticResults = GenerateElasticRecommendations(req, parameters);
+                RecommendationResultSet baselineResults;
+                RecommendationResultSet elasticResults;
+
+                try
+                {
+                    baselineResults = GenerateBaselineRecommendations(req, parameters);
+                }
+                catch (Exception e)
+                {
+                    baselineResults = new RecommendationResultSet();
+                }
+
+                try
+                {
+                    elasticResults = GenerateElasticRecommendations(req, parameters);
+                }
+                catch (Exception e)
+                {
+                    elasticResults = new RecommendationResultSet();
+                }
 
                 GetSkuRecommendationsResult results = new GetSkuRecommendationsResult
                 {
@@ -586,11 +606,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings)
+        internal async Task<MigrationAssessmentResult> GetAssessmentItems(string[] connectionStrings, string xEventsFilesFolderPath)
         {
             SqlAssessmentConfiguration.EnableLocalLogging = true;
             SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-            DmaEngine engine = new DmaEngine(connectionStrings);
+
+            SqlConnectionLocator locator = new SqlConnectionLocator();
+            locator.ConnectionStrings.AddRange(connectionStrings);
+            locator.XeventsFilesFolderPath = xEventsFilesFolderPath;
+            DmaEngine engine = new DmaEngine(locator);
+
             ISqlMigrationAssessmentModel contextualizedAssessmentResult = await engine.GetTargetAssessmentResultsListWithCheck(System.Threading.CancellationToken.None);
             var assessmentReportFileName = String.Format("SqlAssessmentReport-{0}.json", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
             var assessmentReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, assessmentReportFileName);
@@ -715,7 +740,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             switch (targetPlatform)
             {
                 case "AzureSqlDatabase":
-                    // Gen5 BC/GP DB
+                    // Gen5 BC/GP/HS DB
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlDatabase,
                                                     AzureSqlPurchasingModel.vCore,
@@ -729,16 +754,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlDatabase,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.HyperScale,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
                     break;
 
                 case "AzureSqlManagedInstance":
                     // Gen5 BC/GP MI
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                AzureSqlPurchasingModel.vCore,
-                                                AzureSqlPaaSServiceTier.BusinessCritical,
-                                                ComputeTier.Provisioned,
-                                                AzureSqlPaaSHardwareType.Gen5));
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.Gen5));
 
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlManagedInstance,

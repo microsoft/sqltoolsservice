@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Il valore '{0}' non è valido per ComlumEncryption. I valori validi sono 'Enabled' e 'Disabled'.</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Valore '{0}' non valido per la crittografia. I valori validi sono: 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' e 'No'.</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Il valore '{0}' non è valido per EnclaveAttestationProtocol. I valori validi sono 'AAS' e 'HGS'.</value>
   </data>
@@ -3963,5 +3966,8 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>La connessione non è stata trovata</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Costo CPU effettivo</value>
   </data>
 </root>

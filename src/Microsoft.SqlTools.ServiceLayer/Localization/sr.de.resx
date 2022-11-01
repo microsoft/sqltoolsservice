@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Ungültiger Wert "{0}" für ColumnEncryption. Gültige Werte sind "Enabled" und "Disabled".</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Ungültiger Wert „{0}“ für das Verschlüsseln. Gültige Werte sind „Optional“, „Obligatorisch“, „Streng", „WAHR“, „FALSCH“, „Ja“ oder „Nein“.</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".</value>
   </data>
@@ -3963,5 +3966,8 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Die Verbindung konnte nicht gefunden werden</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Tatsächliche CPU-Kosten</value>
   </data>
 </root>
