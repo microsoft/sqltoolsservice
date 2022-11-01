@@ -26,11 +26,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         internal Dictionary<string, Func<Message, MessageWriter, Task>> requestHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
+
         internal Dictionary<string, bool> requestHandlerParallelismMap =
             new Dictionary<string, bool>();
 
         internal Dictionary<string, Func<Message, MessageWriter, Task>> eventHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
+
+        internal Dictionary<string, bool> eventHandlerParallelismMap =
+            new Dictionary<string, bool>();
 
         private Action<Message> responseHandler;
 
@@ -130,7 +134,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 (requestMessage, messageWriter) =>
                 {
-                    return Task.Run(async () => {
+                    Func<Task> func = async () => {
                         var requestContext =
                             new RequestContext<TResult>(
                                 requestMessage,
@@ -157,7 +161,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             Logger.Error($"{requestType.MethodName} : {ex}");
                             await requestContext.SendError(ex.Message);
                         }
-                    });
+                    };
+
+                    if (!this.ParallelMessageProcessing) {
+                        return func();
+                    }
+                    return Task.Run(func);
                 });
         }
 
@@ -186,7 +195,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventType.MethodName,
                 (eventMessage, messageWriter) =>
                 {
-                    return Task.Run(async () =>
+                    Func<Task> func = async () =>
                     {
                         var eventContext = new EventContext(messageWriter);
                         TParams typedParams = default(TParams);
@@ -210,7 +219,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             // There's nothing on the client side to send an error back to so just log the error and move on
                             Logger.Error($"{eventType.MethodName} : {ex}");
                         }
-                    });
+                    };
+
+                    if (!this.ParallelMessageProcessing) {
+                        return func();
+                    }
+                    return Task.Run(func);
                 });
         }
 
