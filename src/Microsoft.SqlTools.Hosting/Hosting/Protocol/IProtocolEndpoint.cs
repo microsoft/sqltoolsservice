@@ -23,11 +23,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler);
+            Func<TParams, EventContext, Task> eventHandler,
+            bool isParallelProcessingSupported = false);
 
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool overrideExisting);
+            bool overrideExisting,
+            bool isParallelProcessingSupported = false);
     }
 }

@@ -183,7 +183,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool overrideExisting)
+            bool overrideExisting,
+            bool isParallelProcessingSupported = false)
         {
             if (overrideExisting)
             {
@@ -191,6 +192,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 this.eventHandlers.Remove(eventType.MethodName);
             }
 
+            this.eventHandlerParallelismMap.Add(eventType.MethodName, isParallelProcessingSupported);
             this.eventHandlers.Add(
                 eventType.MethodName,
                 (eventMessage, messageWriter) =>
@@ -338,6 +340,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 if (this.eventHandlers.TryGetValue(messageToDispatch.Method, out eventHandler))
                 {
                     handlerToAwait = eventHandler(messageToDispatch, messageWriter);
+                    this.eventHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
                 }
                 else
                 {
