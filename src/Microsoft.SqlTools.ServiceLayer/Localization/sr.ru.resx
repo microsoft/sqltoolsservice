@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Недопустимое значение "{0}" для ColumnEncryption. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Недопустимое значение "{0}" для параметра Encrypt. Допустимые значения: "Optional" (необязательно), "Mandatory" (обязательно), "Strict" (строго), "True" (истина), "False" (ложь), "Yes" (да) и "No" (нет).</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Недопустимое значение "{0}" для EnclaveAttestationProtocol. Допустимые значения: "AAS" и "HGS".</value>
   </data>

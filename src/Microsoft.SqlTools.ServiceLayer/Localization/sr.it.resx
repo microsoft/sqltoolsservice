@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Il valore '{0}' non è valido per ComlumEncryption. I valori validi sono 'Enabled' e 'Disabled'.</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Valore '{0}' non valido per la crittografia. I valori validi sono: 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' e 'No'.</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Il valore '{0}' non è valido per EnclaveAttestationProtocol. I valori validi sono 'AAS' e 'HGS'.</value>
   </data>
