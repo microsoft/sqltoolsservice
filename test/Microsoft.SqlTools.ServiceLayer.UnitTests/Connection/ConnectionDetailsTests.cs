@@ -261,5 +261,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.ConnectTimeout, Is.EqualTo(expectedValue), "Connect Timeout not as expected");
             Assert.That(details.Encrypt, Is.EqualTo("Mandatory"), "Encrypt should be mandatory.");
         }
+
+        [Test]
+        public void ConnectionSettingsComparableShouldConsiderAdvancedOptions()
+        {
+            ConnectionDetails details1 = new ConnectionDetails()
+            {
+                ServerName = "Server1",
+                DatabaseName = "Database",
+                AuthenticationType = "Integrated",
+                Encrypt = "Mandatory",
+                TrustServerCertificate = true
+            };
+
+            ConnectionDetails details2 = details1.Clone();
+            details2.ConnectTimeout = 60;
+            Assert.That(details1.IsComparableTo(details2), Is.False, "Different Connection Settings must not be comparable.");
+
+            details1 = details2.Clone();
+            Assert.That(details1.IsComparableTo(details2), Is.True, "Same Connection Settings must be comparable.");
+        }
     }
 }
