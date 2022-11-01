@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Ungültiger Wert "{0}" für ColumnEncryption. Gültige Werte sind "Enabled" und "Disabled".</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Ungültiger Wert „{0}“ für das Verschlüsseln. Gültige Werte sind „Optional“, „Obligatorisch“, „Streng", „WAHR“, „FALSCH“, „Ja“ oder „Nein“.</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".</value>
   </data>

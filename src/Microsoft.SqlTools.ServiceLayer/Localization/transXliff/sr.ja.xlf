@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">Encrypt の値 '{0}' が無効です。有効な値は、'Optional'、'Mandatory'、'Strict'、'True'、'False'、'Yes'、および 'No' です。</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS' と 'HGS' です。</target>

@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">Ungültiger Wert „{0}“ für das Verschlüsseln. Gültige Werte sind „Optional“, „Obligatorisch“, „Streng", „WAHR“, „FALSCH“, „Ja“ oder „Nein“.</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".</target>
