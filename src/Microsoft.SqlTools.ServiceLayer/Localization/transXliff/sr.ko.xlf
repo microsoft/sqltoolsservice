@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">암호화에 대한 잘못된 값 '{0}'. 유효한 값은 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' 및 'No'.입니다.</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">EnclaveAttestationProtocol에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS' 및 'HGS'입니다.</target>

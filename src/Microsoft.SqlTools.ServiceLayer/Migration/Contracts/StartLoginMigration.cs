@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public List<string> LoginList { get; set; }
 
         /// <summary>
-        /// List of logins to migrate
+        /// Azure active directory domain name (required for Windows Auth)
         /// </summary>
         public string AADDomainName{ get; set; }
     }
