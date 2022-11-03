@@ -344,26 +344,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
                     resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
-                    if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
-                    {
-                        // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                        List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
-                        foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
-                        {
-                            resultSet.sqlDbResults.Add(new SkuRecommendationResult()
-                            {
-                                //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
-                                SqlInstanceName = parameters.TargetSqlInstance,
-                                DatabaseName = databaseWithoutRecommendation,
-                                TargetSku = null,
-                                MonthlyCost = null,
-                                Ranking = -1,
-                                PositiveJustifications = null,
-                                NegativeJustifications = null,
-                            });
-                        }
-                    }
-
                     sqlDbStopwatch.Stop();
                     resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
 
@@ -478,26 +458,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
-                {
-                    // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                    List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
-                    foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
-                    {
-                        resultSet.sqlDbResults.Add(new SkuRecommendationResult()
-                        {
-                            //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
-                            SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = databaseWithoutRecommendation,
-                            TargetSku = null,
-                            MonthlyCost = null,
-                            Ranking = -1,
-                            PositiveJustifications = null,
-                            NegativeJustifications = null,
-                        });
-                    }
-                }
 
                 sqlDbStopwatch.Stop();
                 resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
@@ -754,6 +714,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlDatabase,
                                                     AzureSqlPurchasingModel.vCore,
