@@ -384,6 +384,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Change password error: " + ex.Message);
+                ConnectionCompleteParams passwordChangeFail = new ConnectionCompleteParams();
+                passwordChangeFail.OwnerUri = connectionParams.OwnerUri;
+                passwordChangeFail.ErrorMessage = ex.Message;
+                passwordChangeFail.Messages = ex.StackTrace;
+                passwordChangeFail.ErrorNumber = 1111;
+                return passwordChangeFail;
             }
 
             // Try to open a connection with the given ConnectParams
