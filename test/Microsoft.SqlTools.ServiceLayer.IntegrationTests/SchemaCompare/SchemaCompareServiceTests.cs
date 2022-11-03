@@ -1980,7 +1980,7 @@ WITH VALUES
                 case SchemaCompareEndpointType.Project:
                     result.ProjectFilePath = comparisonObjectPath;
                     result.TargetScripts = targetScripts;
-                    result.DataSchemaProvider = "150";
+                    result.DataSchemaProvider = "160";
                     break;
                 default:
                     throw new ArgumentException($"Unexpected endpoint type: {type}");
