@@ -29,12 +29,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets or sets the bind operation callback method
         /// </summary>
-        public Func<IBindingContext, CancellationToken, object> BindOperation { get; set; }
+        public Func<IBindingContext, CancellationToken, object?> BindOperation { get; set; }
 
         /// <summary>
         /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
         /// </summary>
-        public Func<IBindingContext, object> TimeoutOperation { get; set; }
+        public Func<IBindingContext, object>? TimeoutOperation { get; set; }
 
         /// <summary>
         /// Gets or sets the operation to call if the bind operation encounters an unexpected exception.
@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Converts the result of the execution to type T
         /// </summary>
-        public T GetResultAsT<T>() where T : class
+        public T? GetResultAsT<T>() where T : class
         {
             //var task = this.ResultsTask;
             return (this.Result != null)

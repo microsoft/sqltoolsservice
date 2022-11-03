@@ -74,10 +74,9 @@ namespace Microsoft.InsightsGenerator.UnitTests
             string expectedOutput2 = "The top 5 lowest total fruits were as follows:\\n Apple: 30%" + Environment.NewLine + "Oragne: 28%" + Environment.NewLine + "Strawberry: 17%" + Environment.NewLine + "Pear: 13%" + Environment.NewLine + "Peach: 8%" + Environment.NewLine + Environment.NewLine + Environment.NewLine;
             string expectedOutput3 = "For the 4 animals, the volume of each is: Cow: 60%" + Environment.NewLine + "Dog: 28%" + Environment.NewLine + "Cat: 17%" + Environment.NewLine + "Mouse: 8%" + Environment.NewLine + Environment.NewLine + Environment.NewLine;
 
-            Assert.True(string.Equals(returnedStr1, returnedStr1));
-            Assert.True(string.Equals(returnedStr2, expectedOutput2));
-            Assert.True(string.Equals(returnedStr3, expectedOutput3));
-
+            Assert.Equal(expectedOutput1, returnedStr1);
+            Assert.Equal(expectedOutput2, returnedStr2);
+            Assert.Equal(expectedOutput3, returnedStr3);
         }
     }
 }

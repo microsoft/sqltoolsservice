@@ -38,7 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 bool anyDroppedFolders = this.Any(
                         node => node is FolderNode &&
                         (node.NodeTypeId == NodeTypes.DroppedLedgerTables ||
-                         node.NodeTypeId == NodeTypes.DroppedLedgerViews));
+                         node.NodeTypeId == NodeTypes.DroppedLedgerViews ||
+                         node.NodeTypeId == NodeTypes.DroppedLedgerColumns));
                 return this.FirstOrDefault() is SmoTreeNode && !anyDroppedFolders;
             }
         }

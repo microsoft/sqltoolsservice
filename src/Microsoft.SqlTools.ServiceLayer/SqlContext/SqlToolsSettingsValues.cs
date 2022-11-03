@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 IntelliSense = new IntelliSenseSettings();
                 QueryExecutionSettings = new QueryExecutionSettings();
                 Format = new FormatterSettings();
+                TableDesigner = new TableDesignerSettings();
             }
         }
 
@@ -48,5 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         [JsonProperty("objectExplorer")]
         public ObjectExplorerSettings ObjectExplorer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the table designer settings
+        /// </summary>
+        [JsonProperty("tableDesigner")]
+        public TableDesignerSettings TableDesigner { get; set; }
     }
 }

@@ -76,10 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             lock (this.sessionsLock)
             {
                 // start the monitoring thread
-                if (this.processorThread == null)
-                {
-                    this.processorThread = Task.Factory.StartNew(ProcessSessions);
-                }
+                this.processorThread ??= Task.Factory.StartNew(ProcessSessions);
 
                 // create new profiling session if needed
                 if (!this.monitoredSessions.ContainsKey(session.Id))

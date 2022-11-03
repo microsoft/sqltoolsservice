@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             this.requestHandlers.Add(
                 requestType.MethodName,
-                (requestMessage, messageWriter) =>
+                async (requestMessage, messageWriter) =>
                 {
                     var requestContext =
                         new RequestContext<TResult>(
@@ -139,16 +139,16 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             }
                             catch (Exception ex)
                             {
-                                throw new Exception($"{requestType.MethodName} : Error parsing message contents {requestMessage.Contents}", ex);
+                                throw new Exception($"Error parsing message contents {requestMessage.Contents}", ex);
                             }
                         }
 
-                        return requestHandler(typedParams, requestContext);
+                        await requestHandler(typedParams, requestContext);
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error(ex);
-                        return requestContext.SendError(ex.Message);
+                        Logger.Error($"{requestType.MethodName} : {ex}");
+                        await requestContext.SendError(ex.Message);
                     }
                 });
         }
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             this.eventHandlers.Add(
                 eventType.MethodName,
-                (eventMessage, messageWriter) =>
+                async (eventMessage, messageWriter) =>
                 {
                     var eventContext = new EventContext(messageWriter);
                     TParams typedParams = default(TParams);
@@ -190,17 +190,16 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             }
                             catch (Exception ex)
                             {
-                                Logger.Write(TraceEventType.Verbose, ex.ToString());
+                                throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
                             }
-                        }                        
+                        }
+                        await eventHandler(typedParams, eventContext);
                     }
                     catch (Exception ex)
                     {
                         // There's nothing on the client side to send an error back to so just log the error and move on
-                        Logger.Error(ex);
+                        Logger.Error($"{eventType.MethodName} : {ex}");
                     }
-
-                    return eventHandler(typedParams, eventContext);
                 });
         }
 

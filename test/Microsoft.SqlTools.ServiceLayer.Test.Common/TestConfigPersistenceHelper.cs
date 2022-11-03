@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     ///             "user": "sa",
     ///             "password": "[putvaluehere]",
     ///             "serverType":"OnPrem", 
-    ///             "VersionKey": "defaultSql2016"
+    ///             "VersionKey": "sqlOnPrem"
     ///         }
     ///     ]
     /// }

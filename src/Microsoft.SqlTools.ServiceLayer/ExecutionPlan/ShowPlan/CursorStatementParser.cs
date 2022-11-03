@@ -19,10 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             object cursorType = node["CursorActualType"];
 
-            if (cursorType == null)
-            {
-                cursorType = node["StatementType"];
-            }
+            cursorType ??= node["StatementType"];
 
             Operation cursor = cursorType != null
                 ? OperationTable.GetCursorType(cursorType.ToString())
@@ -46,10 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (cursorStatementParser == null)
-                {
-                    cursorStatementParser = new CursorStatementParser();
-                }
+                cursorStatementParser ??= new CursorStatementParser();
                 return cursorStatementParser;
             }
         }

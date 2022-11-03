@@ -133,10 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         {
             get
             {
-                if (statementParser == null)
-                {
-                    statementParser = new StatementParser();
-                }
+                statementParser ??= new StatementParser();
                 return statementParser;
             }
         }

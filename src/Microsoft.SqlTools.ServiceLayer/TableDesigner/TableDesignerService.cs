@@ -14,6 +14,7 @@ using Microsoft.Data.Tools.Sql.DesignServices;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -31,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         public TableDesignerService()
         {
         }
+
+        public TableDesignerSettings Settings { get; private set; } = new TableDesignerSettings();
 
         /// <summary>
         /// Gets the singleton instance object
@@ -61,7 +64,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.ServiceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
             this.ServiceHost.SetRequestHandler(GeneratePreviewReportRequest.Type, HandleGeneratePreviewReportRequest);
             this.ServiceHost.SetRequestHandler(DisposeTableDesignerRequest.Type, HandleDisposeTableDesignerRequest);
+            Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
+
         }
+
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        {
+            Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel;
+            return Task.FromResult(0);
+        }
+
         private Task HandleRequest<T>(RequestContext<T> requestContext, Func<Task> action)
         {
             // The request handling will take some time to return, we need to use a separate task to run the request handler so that it won't block the main thread.
@@ -824,6 +836,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     case TablePropertyNames.Columns:
                         table.Columns.Move(fromIndex, toIndex);
                         break;
+                    case TablePropertyNames.PrimaryKeyColumns:
+                        table.PrimaryKey.MoveColumn(fromIndex, toIndex);
+                        break;
                     default:
                         break;
                 }
@@ -1045,7 +1060,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.Columns.CanAddRows = !index.IsClustered;
                 indexVM.ColumnsDisplayValue.Enabled = false;
 
-                // avoid populating columns for CLUSTERED column store index
+                // avoid populating columns for CLUSTERED columnstore index
                 if (!index.IsClustered)
                 {
                     indexVM.ColumnsDisplayValue.Value = index.ColumnsDisplayValue;
@@ -1096,7 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.SetColumnsViewInfo(view);
             this.SetForeignKeysViewInfo(view);
             this.SetCheckConstraintsViewInfo(view);
-            this.SetIndexesViewInfo(view);
+            this.SetIndexesViewInfo(view, tableDesigner);
             this.SetColumnStoreIndexesViewInfo(view);
             this.SetGraphTableViewInfo(view, tableDesigner);
             this.SetEdgeConstraintsViewInfo(view, tableDesigner);
@@ -1130,6 +1145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             });
             view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Column);
             view.PrimaryKeyColumnSpecificationTableOptions.PropertiesToDisplay.Add(IndexColumnSpecificationPropertyNames.Ascending);
+            view.PrimaryKeyColumnSpecificationTableOptions.CanMoveRows = true;
         }
 
         private void SetColumnsViewInfo(TableDesignerView view)
@@ -1282,7 +1298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             view.CheckConstraintTableOptions.CanInsertRows = false;
         }
 
-        private void SetIndexesViewInfo(TableDesignerView view)
+        private void SetIndexesViewInfo(TableDesignerView view, Dac.TableDesigner tableDesigner)
         {
             view.IndexTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
                 new DesignerDataPropertyInfo()
@@ -1339,29 +1355,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 },
                 new DesignerDataPropertyInfo()
                 {
-                    PropertyName = IndexPropertyNames.IsHash,
-                    Description = SR.IndexIsHashPropertyDescription,
-                    ComponentType = DesignerComponentType.Checkbox,
-                    Group = SR.HashIndexGroupTitle,
-                    ComponentProperties = new CheckBoxProperties()
-                    {
-                        Title = SR.IndexIsHashPropertyTitle
-                    }
-                },
-                new DesignerDataPropertyInfo()
-                {
-                    PropertyName = IndexPropertyNames.BucketCount,
-                    Description = SR.IndexBucketCountPropertyDescription,
-                    ComponentType = DesignerComponentType.Input,
-                    Group = SR.HashIndexGroupTitle,
-                    ComponentProperties = new InputBoxProperties()
-                    {
-                        Title = SR.IndexBucketCountPropertyTitle,
-                        Width = 200
-                    }
-                },
-                new DesignerDataPropertyInfo()
-                {
                     PropertyName = IndexPropertyNames.IncludedColumns,
                     Description = SR.IndexIncludedColumnsPropertyDescription,
                     ComponentType = DesignerComponentType.Table,
@@ -1387,6 +1380,34 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     }
                 }
             });
+
+            if (tableDesigner.TableViewModel.IsMemoryOptimized || tableDesigner.TableViewModel.Indexes.Items.Any(idx => idx.IsHash))
+            {
+                view.IndexTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
+                    new DesignerDataPropertyInfo()
+                    {
+                        PropertyName = IndexPropertyNames.IsHash,
+                        Description = SR.IndexIsHashPropertyDescription,
+                        ComponentType = DesignerComponentType.Checkbox,
+                        ComponentProperties = new CheckBoxProperties()
+                        {
+                            Title = SR.IndexIsHashPropertyTitle
+                        }
+                    },
+                    new DesignerDataPropertyInfo()
+                    {
+                        PropertyName = IndexPropertyNames.BucketCount,
+                        Description = SR.IndexBucketCountPropertyDescription,
+                        ComponentType = DesignerComponentType.Input,
+                        ComponentProperties = new InputBoxProperties()
+                        {
+                            Title = SR.IndexBucketCountPropertyTitle,
+                            Width = 200
+                        }
+                    },
+                });
+            }
+
             view.IndexTableOptions.PropertiesToDisplay = new List<string>() { IndexPropertyNames.Name, IndexPropertyNames.ColumnsDisplayValue, IndexPropertyNames.IsClustered, IndexPropertyNames.IsUnique };
             view.IndexTableOptions.CanAddRows = true;
             view.IndexTableOptions.CanRemoveRows = true;
@@ -1416,6 +1437,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             var columnStoreIndexesTableProperties = new TableComponentProperties<ColumnStoreIndexViewModel>()
             {
                 Title = SR.TableDesignerColumnStoreIndexesTableTitle,
+                AriaLabel = SR.TableDesignerColumnStoreIndexesTableTitle,
                 ObjectTypeDisplayName = SR.TableDesignerColumnStoreIndexObjectType,
                 LabelForAddNewButton = SR.AddNewColumnStoreIndexLabel
             };

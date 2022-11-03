@@ -27,10 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             get
             {
-                if (lockedDatabaseManager == null)
-                {
-                    lockedDatabaseManager = ConnectionService.Instance.LockedDatabaseManager;
-                }
+                lockedDatabaseManager ??= ConnectionService.Instance.LockedDatabaseManager;
                 return lockedDatabaseManager;
             }
             set

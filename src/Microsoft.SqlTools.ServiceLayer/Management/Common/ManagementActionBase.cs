@@ -94,19 +94,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
 
             // allow to be sited only once
-            if (this.serviceProvider == null)
-            {                             
-                // cache the service provider
-                this.serviceProvider = sp;             
+            // cache the service provider
+            this.serviceProvider ??= sp;
 
-                // call protected virtual method to enable derived classes to do initialization
-                // OnHosted();
-            }
+            // call protected virtual method to enable derived classes to do initialization
+            // OnHosted();
         }
 
-#endregion
+        #endregion
 
-#region IExecutionAwareManagementAction implementation
+        #region IExecutionAwareManagementAction implementation
 
         /// <summary>
         /// called before management action executes onRun method.
@@ -502,10 +499,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             get
             {
-                if (this.cachedExecutionHandlerDelegate == null)
-                {                   
-                    this.cachedExecutionHandlerDelegate = new ExecutionHandlerDelegate(this);
-                }
+                this.cachedExecutionHandlerDelegate ??= new ExecutionHandlerDelegate(this);
                 return this.cachedExecutionHandlerDelegate;
             }
         }

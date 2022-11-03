@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>ComlumEncryption 的值“{0}”无效。有效值为 "Enabled" 和 "Disabled"。</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>加密的值“{0}”无效。有效值为 “Optional”、“Mandatory”、“Strict”、“True”、“False”、“Yes”和“No”。</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS" 和 "HGS"。</value>
   </data>
@@ -3871,6 +3874,9 @@
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>已删除账本视图</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>已删除账本列</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>无法从项目中找到 SQL 模型: {0}。</value>
   </data>
@@ -3904,9 +3910,6 @@
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>桶计数</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>哈希索引</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>名称</value>
   </data>
@@ -3926,7 +3929,7 @@
     <value>为聚集</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>列存储索引的筛选器谓词</value>
+    <value>列存储索引的筛选谓词</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
     <value>筛选器谓词</value>
@@ -3944,7 +3947,7 @@
     <value>列</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>已将名为“{0}”的列添加到非聚集列存储索引“{1}”。行号: {2}。</value>
+    <value>已将名为 "{0}" 的列添加到非聚集列存储索引 "{1}"。行号: {2}。</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
     <value>列存储索引</value>
@@ -3953,12 +3956,18 @@
     <value>列存储索引</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>新的列存储区索引</value>
+    <value>新建列存储索引</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>非聚集列存储索引“{0}”没有任何与其关联的列。</value>
+    <value>非聚集列存储索引 "{0}" 没有任何与其关联的列。</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>我已阅读摘要并了解潜在风险。</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>无法找到连接</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>实际 CPU 成本</value>
   </data>
 </root>

@@ -31,11 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
         {
             get
             {
-                if (_executionParameters == null)
-                {
-                    _executionParameters = new Dictionary<string, int>();
-                }
-
+                _executionParameters ??= new Dictionary<string, int>();
                 return _executionParameters;
             }
         }

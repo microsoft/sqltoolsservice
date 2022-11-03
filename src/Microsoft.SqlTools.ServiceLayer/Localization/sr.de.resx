@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Ungültiger Wert "{0}" für ColumnEncryption. Gültige Werte sind "Enabled" und "Disabled".</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Ungültiger Wert „{0}“ für das Verschlüsseln. Gültige Werte sind „Optional“, „Obligatorisch“, „Streng", „WAHR“, „FALSCH“, „Ja“ oder „Nein“.</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".</value>
   </data>
@@ -3871,6 +3874,9 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Verworfene Ledgeransichten</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Verworfene Ledgerspalten</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Das SQL-Modell wurde im Projekt {0} nicht gefunden.</value>
   </data>
@@ -3904,20 +3910,17 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Bucketanzahl</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hashindex</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name des Columnstore-Index</value>
+    <value>Name des Columnstore-Indexes</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
     <value>Beschreibung</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Beschreibung des Columnstore-Index</value>
+    <value>Beschreibung des Columnstore-Indexes</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
     <value>Gibt an, ob der Columnstore-Index gruppiert ist.</value>
@@ -3926,7 +3929,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Ist Gruppiert</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Das Filterprädikat des Columnstore-Index.</value>
+    <value>Filterprädikat des Columnstore-Indexes</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
     <value>Filterprädikat</value>
@@ -3944,7 +3947,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Spalte</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index {1} bereits hinzugefügt. Zeilennummer: {2}.</value>
+    <value>Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index "{1}" bereits hinzugefügt. Zeilennummer: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
     <value>Columnstore-Indizes</value>
@@ -3953,12 +3956,18 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Columnstore-Index</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>Neuer ColumnStore-Index</value>
+    <value>Neuer Columnstore-Index</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
     <value>Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Ich habe die Zusammenfassung gelesen und bin mir der potenziellen Risiken bewusst.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>Die Verbindung konnte nicht gefunden werden</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Tatsächliche CPU-Kosten</value>
   </data>
 </root>

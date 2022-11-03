@@ -37,10 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             get
             {
-                if(this.sqlParserWrapper == null)
-                {
-                    this.sqlParserWrapper = new SqlParserWrapper();
-                }
+                this.sqlParserWrapper ??= new SqlParserWrapper();
                 return this.sqlParserWrapper;
             }
             set

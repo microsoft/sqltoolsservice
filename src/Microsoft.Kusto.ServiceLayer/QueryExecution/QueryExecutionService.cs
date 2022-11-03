@@ -68,13 +68,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         {
             get
             {
-                if (BufferFileStreamFactory == null)
+                BufferFileStreamFactory ??= new ServiceBufferFileStreamFactory
                 {
-                    BufferFileStreamFactory = new ServiceBufferFileStreamFactory
-                    {
-                        ExecutionSettings = Settings.QueryExecutionSettings
-                    };
-                }
+                    ExecutionSettings = Settings.QueryExecutionSettings
+                };
                 return BufferFileStreamFactory;
             }
         }

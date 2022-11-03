@@ -8,6 +8,7 @@ using System.Data;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent 
 {
@@ -261,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries)
+                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries.Cast<LogSourceJobHistory.LogEntryJobHistory>())
                 {
                     if (steps.Contains(subEntry.StepName))
                     {                                              
@@ -303,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries)
+                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries.Cast<LogSourceJobHistory.LogEntryJobHistory>())
                 {
                     if (steps.Contains(subEntry.StepName))
                     {                                              

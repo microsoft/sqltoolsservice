@@ -6,7 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 {
@@ -129,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 new Operation("Parallelism",            SR.Keys.Parallelism,            SR.Keys.ParallelismDescription,             "parallelism"),
                 new Operation("ParameterTableScan",     SR.Keys.ParameterTableScan,     SR.Keys.ParameterTableScanDescription,      "parameterTableScan"),
                 new Operation("Print",                  SR.Keys.Print,                  SR.Keys.PrintDescription,                   "print"),
-                new Operation("Put",                    SR.Keys.Put,                    SR.Keys.PutDescription,                     "Put_32x.ico"),
+                new Operation("Put",                    SR.Keys.Put,                    SR.Keys.PutDescription,                     "put"),
                 new Operation("Rank",                   SR.Keys.Rank,                   SR.Keys.RankDescription,                    "rank"),
                 // using the temporary icon as of now. Once the new icon is available, it will be updated.
                 new Operation("ForeignKeyReferencesCheck",  SR.Keys.ForeignKeyReferencesCheck,   SR.Keys.ForeignKeyReferencesCheckDescription, "foreignKeyReferencesCheck"),
@@ -257,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 new Operation("DeletedScan",            SR.Keys.LogicalOpDeletedScan),
                 new Operation("DistinctSort",           SR.Keys.LogicalOpDistinctSort),
                 new Operation("Distinct",               SR.Keys.LogicalOpDistinct),
-                new Operation("DistributeStreams",      SR.Keys.LogicalOpDistributeStreams, SR.Keys.DistributeStreamsDescription, "Parallelism_distribute.ico"),
+                new Operation("DistributeStreams",      SR.Keys.LogicalOpDistributeStreams, SR.Keys.DistributeStreamsDescription, "parallelismDistribute"),
                 new Operation("EagerSpool",             SR.Keys.LogicalOpEagerSpool),
                 new Operation("Filter",                 SR.Keys.LogicalOpFilter),
                 new Operation("FlowDistinct",           SR.Keys.LogicalOpFlowDistinct),
@@ -296,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 new Operation("RemoteQuery",            SR.Keys.LogicalOpRemoteQuery),
                 new Operation("RemoteScan",             SR.Keys.LogicalOpRemoteScan),
                 new Operation("RemoteUpdate",           SR.Keys.LogicalOpRemoteUpdate),
-                new Operation("RepartitionStreams",     SR.Keys.LogicalOpRepartitionStreams, SR.Keys.RepartitionStreamsDescription, "Parallelism_repartition.ico"),
+                new Operation("RepartitionStreams",     SR.Keys.LogicalOpRepartitionStreams, SR.Keys.RepartitionStreamsDescription, "parallelismRepartition"),
                 new Operation("RIDLookup",              SR.Keys.LogicalOpRIDLookup),
                 new Operation("RightAntiSemiJoin",      SR.Keys.LogicalOpRightAntiSemiJoin),
                 new Operation("RightDiffAll",           SR.Keys.LogicalOpRightDiffAll),
@@ -372,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 if (member.Name == enumMemberName)
                 {
                     object[] attributes = member.GetCustomAttributes(typeof(System.Xml.Serialization.XmlEnumAttribute), true);
-                    foreach (System.Xml.Serialization.XmlEnumAttribute attribute in attributes)
+                    foreach (System.Xml.Serialization.XmlEnumAttribute attribute in attributes.Cast<XmlEnumAttribute>())
                     {
                         return attribute.Name;
                     }

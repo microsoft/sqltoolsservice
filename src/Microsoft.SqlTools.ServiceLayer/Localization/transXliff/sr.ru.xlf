@@ -2035,6 +2035,12 @@
         <note>.
  Parameters: 0 - columnEncryptionSetting (string) </note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidEncryptOption">
+        <source>Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.</source>
+        <target state="translated">Недопустимое значение "{0}" для параметра Encrypt. Допустимые значения: "Optional" (необязательно), "Mandatory" (обязательно), "Strict" (строго), "True" (истина), "False" (ложь), "Yes" (да) и "No" (нет).</target>
+        <note>.
+ Parameters: 0 - encrypt (string) </note>
+      </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
         <target state="translated">Недопустимое значение "{0}" для EnclaveAttestationProtocol. Допустимые значения: "AAS" и "HGS".</target>
@@ -6331,6 +6337,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Удаленные представления реестра</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_DroppedLedgerColumns">
+        <source>Dropped Ledger Columns</source>
+        <target state="translated">Удаленные столбцы реестра</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="SqlProjectModelNotFound">
         <source>Could not find SQL model from project: {0}.</source>
         <target state="translated">Не удалось найти модель SQL из проекта: {0}.</target>
@@ -6392,19 +6403,14 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Число контейнеров</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="HashIndexGroupTitle">
-        <source>Hash Index</source>
-        <target state="translated">Хэш-индекс</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyTitle">
         <source>Name</source>
         <target state="translated">Имя</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexNamePropertyDescription">
-        <source>Name of the column store index</source>
-        <target state="translated">Имя индекса хранилища столбцов</target>
+        <source>Name of the columnstore index</source>
+        <target state="translated">Имя индекса columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyTitle">
@@ -6413,13 +6419,13 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexDescriptionPropertyDescription">
-        <source>Description of the column store index</source>
-        <target state="translated">Описание индекса хранения столбцов</target>
+        <source>Description of the columnstore index</source>
+        <target state="translated">Описание индекса columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyDescription">
-        <source>Whether the column store index is clustered.</source>
-        <target state="translated">Является ли индекс хранилища столбцов кластеризованным.</target>
+        <source>Whether the columnstore index is clustered.</source>
+        <target state="translated">Является ли индекс columnstore кластерированным.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexIsClusteredPropertyTitle">
@@ -6428,8 +6434,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyDescription">
-        <source>Filter predicate of the column store index</source>
-        <target state="translated">Предикат фильтра индекса хранилища столбцов</target>
+        <source>Filter predicate of the columnstore index</source>
+        <target state="translated">Предикат фильтра индекса columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexFilterPredicatePropertyTitle">
@@ -6438,8 +6444,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsPropertyDescription">
-        <source>Columns in this column store index</source>
-        <target state="translated">Столбцы в индексе хранения столбцов</target>
+        <source>Columns in this columnstore index</source>
+        <target state="translated">Столбцы в этом индексе columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnStoreIndexColumnsGroupTitle">
@@ -6458,35 +6464,45 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription">
-        <source>Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.</source>
-        <target state="translated">Столбец с именем "{0}" уже добавлен в некластеризованный индекс хранилища столбцов "{1}". Номер строки: {2}.</target>
+        <source>Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.</source>
+        <target state="translated">Столбец с именем "{0}" уже добавлен в некластеризованный индекс columnstore "{1}". Номер строки: {2}.</target>
         <note>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexesTableTitle">
-        <source>Column Store Indexes</source>
-        <target state="translated">Индексы хранилища столбцов</target>
+        <source>Columnstore Indexes</source>
+        <target state="translated">Индексы columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="TableDesignerColumnStoreIndexObjectType">
-        <source>Column Store Index</source>
-        <target state="translated">Индекс хранилища столбцов</target>
+        <source>Columnstore Index</source>
+        <target state="translated">Индекс columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="AddNewColumnStoreIndexLabel">
-        <source>New Column Store Index</source>
-        <target state="translated">Добавить новый индекс хранилища столбцов</target>
+        <source>New Columnstore Index</source>
+        <target state="translated">Новый индекс columnstore</target>
         <note></note>
       </trans-unit>
       <trans-unit id="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription">
-        <source>Non-clustered column store index '{0}' does not have any columns associated with it.</source>
-        <target state="translated">Некластеризованный индекс хранения столбцов "{0}" не имеет связанных с ним столбцов.</target>
+        <source>Non-clustered columnstore index '{0}' does not have any columns associated with it.</source>
+        <target state="translated">У некластеризованного индекса columnstore "{0}" нет связанных с ним столбцов.</target>
         <note>.
  Parameters: 0 - indexName (string) </note>
       </trans-unit>
       <trans-unit id="TableDesignerConfirmationText">
         <source>I have read the summary and understand the potential risks.</source>
         <target state="translated">Я прочел сводку и понимаю возможные риски.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorConnectionNotFound">
+        <source>The connection could not be found</source>
+        <target state="translated">Не удалось найти соединение.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ActualCpu">
+        <source>Actual CPU Cost</source>
+        <target state="translated">Фактическая стоимость ЦП</target>
         <note></note>
       </trans-unit>
     </body>

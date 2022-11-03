@@ -55,6 +55,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ActualCpu" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Actual CPU Cost]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Tatsächliche CPU-Kosten]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ActualDataSize" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Actual Data Size]]></Val>
@@ -507,10 +516,13 @@
       </Item>
       <Item ItemId=";AddNewColumnStoreIndexLabel" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[New Column Store Index]]></Val>
+          <Val><![CDATA[New Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Neuer ColumnStore-Index]]></Val>
+            <Val><![CDATA[Neuer Columnstore-Index]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[New Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1299,10 +1311,13 @@
       </Item>
       <Item ItemId=";ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index {1} bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
+            <Val><![CDATA[Die Spalte mit dem Namen "{0}" wurde dem nicht gruppierten Columnstore-Index "{1}" bereits hinzugefügt. Zeilennummer: {2}.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1362,19 +1377,25 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexColumnsPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Columns in this column store index]]></Val>
+          <Val><![CDATA[Columns in this columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Spalten in diesem Columnstore-Index]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Columns in this column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";ColumnStoreIndexDescriptionPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Description of the column store index]]></Val>
+          <Val><![CDATA[Description of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Beschreibung des Columnstore-Index]]></Val>
+            <Val><![CDATA[Beschreibung des Columnstore-Indexes]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Description of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1389,10 +1410,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexFilterPredicatePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          <Val><![CDATA[Filter predicate of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Das Filterprädikat des Columnstore-Index.]]></Val>
+            <Val><![CDATA[Filterprädikat des Columnstore-Indexes]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Filter predicate of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1407,10 +1431,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexIsClusteredPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          <Val><![CDATA[Whether the columnstore index is clustered.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Gibt an, ob der Columnstore-Index gruppiert ist.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Whether the column store index is clustered.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1425,10 +1452,13 @@
       </Item>
       <Item ItemId=";ColumnStoreIndexNamePropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Name of the column store index]]></Val>
+          <Val><![CDATA[Name of the columnstore index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Name des Columnstore-Index]]></Val>
+            <Val><![CDATA[Name des Columnstore-Indexes]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Name of the column store index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1716,6 +1746,15 @@
           <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringInvalidEncryptOption" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ungültiger Wert „{0}“ für das Verschlüsseln. Gültige Werte sind „Optional“, „Obligatorisch“, „Streng", „WAHR“, „FALSCH“, „Ja“ oder „Nein“.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2602,6 +2641,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ErrorConnectionNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The connection could not be found]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Verbindung konnte nicht gefunden werden]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ErrorEmptyStringReplacement" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Replacement of an empty string by an empty string.]]></Val>
@@ -3444,15 +3492,6 @@
           <Val><![CDATA[The group sets list. Each Value is a reverse bit map for the grouping columns in Group By property.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Die Liste der Gruppensätze. Jeder Wert ist eine umgekehrte Bitzuordnung der Gruppierungsspalten in der Eigenschaft "Gruppieren nach".]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";HashIndexGroupTitle" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Hash Index]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hashindex]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5520,10 +5559,13 @@
       </Item>
       <Item ItemId=";NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          <Val><![CDATA[Non-clustered columnstore index '{0}' does not have any columns associated with it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Dem nicht gruppierten Columnstore-Index "{0}" sind keine Spalten zugeordnet.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Non-clustered column store index '{0}' does not have any columns associated with it.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8011,6 +8053,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";SchemaHierarchy_DroppedLedgerColumns" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Dropped Ledger Columns]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Verworfene Ledgerspalten]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SchemaHierarchy_DroppedLedgerTables" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Dropped Ledger Tables]]></Val>
@@ -10437,19 +10488,25 @@
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexObjectType" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Index]]></Val>
+          <Val><![CDATA[Columnstore Index]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Columnstore-Index]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Index]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";TableDesignerColumnStoreIndexesTableTitle" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Column Store Indexes]]></Val>
+          <Val><![CDATA[Columnstore Indexes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Columnstore-Indizes]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Column Store Indexes]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -478,10 +478,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         {
             // Verify whether or not the connection is valid and is open. This code may be retried therefore
             // it is important to ensure that a connection is re-established should it have previously failed.
-            if (command.Connection == null)
-            {
-                command.Connection = this;
-            }
+            command.Connection ??= this;
 
             if (command.Connection.State != ConnectionState.Open)
             {

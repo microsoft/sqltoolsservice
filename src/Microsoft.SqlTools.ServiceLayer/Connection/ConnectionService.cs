@@ -84,10 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
-                if (lockedDatabaseManager == null)
-                {
-                    lockedDatabaseManager = DatabaseLocksManager.Instance;
-                }
+                lockedDatabaseManager ??= DatabaseLocksManager.Instance;
                 return lockedDatabaseManager;
             }
             set
@@ -216,10 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
-                if (this.connectionFactory == null)
-                {
-                    this.connectionFactory = new SqlConnectionFactory();
-                }
+                this.connectionFactory ??= new SqlConnectionFactory();
                 return this.connectionFactory;
             }
 
@@ -416,7 +410,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 if (response?.ErrorNumber == 40613)
                 {
                     counter++;
-                    if(counter != MaxServerlessReconnectTries) {
+                    if (counter != MaxServerlessReconnectTries)
+                    {
                         Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
                     }
                 }
@@ -1305,13 +1300,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
             }
-            if (connectionDetails.Encrypt.HasValue)
+
+            if (!string.IsNullOrEmpty(connectionDetails.Encrypt))
             {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
+                connectionBuilder.Encrypt = connectionDetails.Encrypt.ToLowerInvariant() switch
+                {
+                    "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                    "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                    "strict" => SqlConnectionEncryptOption.Strict,
+                    _ => throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEncryptOption(connectionDetails.Encrypt))
+                };
             }
+
             if (connectionDetails.TrustServerCertificate.HasValue)
             {
                 connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.HostNameInCertificate))
+            {
+                connectionBuilder.HostNameInCertificate = connectionDetails.HostNameInCertificate;
             }
             if (connectionDetails.PersistSecurityInfo.HasValue)
             {
@@ -1477,8 +1484,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
                 EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
                 EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
-                Encrypt = builder.Encrypt,
+                Encrypt = builder.Encrypt.ToString(),
                 FailoverPartner = builder.FailoverPartner,
+                HostNameInCertificate = builder.HostNameInCertificate,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,
                 MaxPoolSize = builder.MaxPoolSize,
                 MinPoolSize = builder.MinPoolSize,

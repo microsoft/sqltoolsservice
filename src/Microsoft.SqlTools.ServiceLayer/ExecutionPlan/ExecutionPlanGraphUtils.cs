@@ -33,8 +33,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             }).ToList();
         }
 
+        private static void ParseCostMetricProperty(List<CostMetric> costMetrics, string name, PropertyValue? property)
+        {
+            if (property != null)
+            {
+                var costMetric = new CostMetric()
+                {
+                    Name = name,
+                    Value = ExecutionPlanGraphUtils.GetPropertyDisplayValue(property)
+                };
+
+                costMetrics.Add(costMetric);
+            }
+        }
+
         public static ExecutionPlanNode ConvertShowPlanTreeToExecutionPlanTree(Node currentNode)
         {
+            var costMetrics = new List<CostMetric>();
+
+            var elapsedCpuTimeInMs = currentNode.ElapsedCpuTimeInMs;
+            if (elapsedCpuTimeInMs.HasValue)
+            {
+                var costMetric = new CostMetric()
+                {
+                    Name = "ElapsedCpuTime",
+                    Value = $"{elapsedCpuTimeInMs.Value}"
+                };
+                costMetrics.Add(costMetric);
+            }
+
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "EstimateRowsAllExecs", currentNode.Properties["EstimateRowsAllExecs"] as PropertyValue);
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "EstimatedRowsRead", currentNode.Properties["EstimatedRowsRead"] as PropertyValue);
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "ActualRows", currentNode.Properties["ActualRows"] as PropertyValue);
+            ExecutionPlanGraphUtils.ParseCostMetricProperty(costMetrics, "ActualRowsRead", currentNode.Properties["ActualRowsRead"] as PropertyValue);
+
             return new ExecutionPlanNode
             {
                 ID = currentNode.ID,
@@ -52,7 +84,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 Badges = GenerateNodeOverlay(currentNode),
                 Name = currentNode.DisplayName,
                 ElapsedTimeInMs = currentNode.ElapsedTimeInMs,
-                TopOperationsData = ParseTopOperationsData(currentNode)
+                TopOperationsData = ParseTopOperationsData(currentNode),
+                CostMetrics = costMetrics
             };
         }
 
@@ -134,6 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                             propertyDataType = PropertyValueDataType.String;
                             break;
                     }
+
                     propsList.Add(new ExecutionPlanGraphProperty()
                     {
                         Name = prop.DisplayName,
@@ -175,6 +209,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
             const string ACTUAL_EXECUTIONS_COLUMN_KEY = "ActualExecutions";
             const string ESTIMATED_EXECUTIONS_COLUMN_KEY = "EstimateExecutions";
             const string ESTIMATED_CPU_COLUMN_KEY = "EstimateCPU";
+            const string ACTUAL_TIME_STATS_KEY = "ActualTimeStatistics";
+            const string ACTUAL_CPU_COLUMN_KEY = "ActualCPUms";
             const string ESTIMATED_IO_COLUMN_KEY = "EstimateIO";
             const string PARALLEL_COLUMN_KEY = "Parallel";
             const string ORDERED_COLUMN_KEY = "Ordered";
@@ -276,6 +312,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                     DataType = PropertyValueDataType.Number,
                     DisplayValue = currentNode[ESTIMATED_CPU_COLUMN_KEY]
                 });
+            }
+
+            if (currentNode[ACTUAL_TIME_STATS_KEY] != null)
+            {
+                var actualStatsWrapper = currentNode[ACTUAL_TIME_STATS_KEY] as ExpandableObjectWrapper;
+                if (actualStatsWrapper != null)
+                {
+                    var counters = actualStatsWrapper[ACTUAL_CPU_COLUMN_KEY] as RunTimeCounters;
+                    if (counters != null)
+                    {
+                        var elapsedTime = counters.MaxCounter;
+                        long ticks = (long)elapsedTime * TimeSpan.TicksPerMillisecond;
+                        long time = new DateTime(ticks).Millisecond;
+                        result.Add(new TopOperationsDataItem
+                        {
+                            ColumnName = SR.ActualCpu,
+                            DataType = PropertyValueDataType.Number,
+                            DisplayValue = time.ToString()
+                        });
+                    }
+                }
+
             }
 
             if (currentNode[ESTIMATED_IO_COLUMN_KEY] != null)
@@ -412,8 +470,13 @@ GO
 ";
         }
 
-        private static string GetPropertyDisplayValue(PropertyValue property)
+        private static string GetPropertyDisplayValue(PropertyValue? property)
         {
+            if (property == null)
+            {
+                return string.Empty;
+            }
+
             try
             {
                 // Get the property value.
@@ -421,7 +484,7 @@ GO
 
                 if (propertyValue == null)
                 {
-                    return String.Empty;
+                    return string.Empty;
                 }
 
                 // Convert the property value to the text.
@@ -430,7 +493,7 @@ GO
             catch (Exception e)
             {
                 Logger.Write(TraceEventType.Error, e.ToString());
-                return String.Empty;
+                return string.Empty;
             }
         }
 

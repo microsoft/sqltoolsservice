@@ -101,10 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             get
             {
                 object propertyValue = this["EstimateRows"];
-                if (propertyValue == null)
-                {
-                    propertyValue = this["StatementEstRows"];
-                }
+                propertyValue ??= this["StatementEstRows"];
 
                 return propertyValue != null ? Convert.ToDouble(propertyValue, CultureInfo.CurrentCulture) : 0;
             }

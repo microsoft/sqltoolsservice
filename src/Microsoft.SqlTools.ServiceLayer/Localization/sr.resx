@@ -145,6 +145,11 @@
     <comment>.
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for Encrypt. Valid values are &apos;Optional&apos;, &apos;Mandatory&apos;, &apos;Strict&apos;, &apos;True&apos;, &apos;False&apos;, &apos;Yes&apos; and &apos;No&apos;.</value>
+    <comment>.
+ Parameters: 0 - encrypt (string) </comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos; and &apos;HGS&apos;.</value>
     <comment>.
@@ -1278,6 +1283,10 @@
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
     <value>External Tables</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Dropped Ledger Columns</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
@@ -4700,6 +4709,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>Estimated CPU Cost</value>
     <comment></comment>
   </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Actual CPU Cost</value>
+    <comment></comment>
+  </data>
   <data name="EstimatedIO" xml:space="preserve">
     <value>Estimated IO Cost</value>
     <comment></comment>
@@ -4863,10 +4876,6 @@ The Query Processor estimates that implementing the following index could improv
     <value>Bucket Count</value>
     <comment></comment>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Hash Index</value>
-    <comment></comment>
-  </data>
   <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
     <value>Columns</value>
     <comment></comment>
@@ -4876,7 +4885,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Name of the column store index</value>
+    <value>Name of the columnstore index</value>
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
@@ -4884,11 +4893,11 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Description of the column store index</value>
+    <value>Description of the columnstore index</value>
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Whether the column store index is clustered.</value>
+    <value>Whether the columnstore index is clustered.</value>
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
@@ -4896,7 +4905,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Filter predicate of the column store index</value>
+    <value>Filter predicate of the columnstore index</value>
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
@@ -4904,7 +4913,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Columns in this column store index</value>
+    <value>Columns in this columnstore index</value>
     <comment></comment>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
@@ -4948,15 +4957,15 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Columnstore Indexes</value>
     <comment></comment>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Column Store Index</value>
+    <value>Columnstore Index</value>
     <comment></comment>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>New Column Store Index</value>
+    <value>New Columnstore Index</value>
     <comment></comment>
   </data>
   <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
@@ -5297,12 +5306,12 @@ The Query Processor estimates that implementing the following index could improv
  Parameters: 0 - indexName (string) </comment>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>Column with name &apos;{0}&apos; has already been added to the non-clustered column store index &apos;{1}&apos;. Row number: {2}.</value>
+    <value>Column with name &apos;{0}&apos; has already been added to the non-clustered columnstore index &apos;{1}&apos;. Row number: {2}.</value>
     <comment>.
  Parameters: 0 - columnName (string), 1 - indexName (string), 2 - rowNumber (int) </comment>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>Non-clustered column store index &apos;{0}&apos; does not have any columns associated with it.</value>
+    <value>Non-clustered columnstore index &apos;{0}&apos; does not have any columns associated with it.</value>
     <comment>.
  Parameters: 0 - indexName (string) </comment>
   </data>
@@ -5322,6 +5331,10 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
     <value>Failed to get user defined objects from model.</value>
+    <comment></comment>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>The connection could not be found</value>
     <comment></comment>
   </data>
 </root>

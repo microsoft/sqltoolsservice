@@ -33,10 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
 

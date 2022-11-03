@@ -36,10 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             this.LogicalOpUnlocName = null;
             this.PhysicalOpUnlocName = null;
             this.root = context.Graph.Root;
-            if (this.root == null)
-            {
-                this.root = this;
-            }
+            this.root ??= this;
             this.Graph = context.Graph;
         }
 
@@ -493,6 +490,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 if (actualStatsWrapper != null)
                 {
                     var counters = actualStatsWrapper["ActualElapsedms"] as RunTimeCounters;
+                    if (counters != null)
+                    {
+                        var elapsedTime = counters.MaxCounter;
+                        long ticks = (long)elapsedTime * TimeSpan.TicksPerMillisecond;
+                        time = new DateTime(ticks).Millisecond;
+                    }
+                }
+                return time;
+            }
+        }
+
+        public long? ElapsedCpuTimeInMs
+        {
+            get
+            {
+                long? time = null;
+                var actualStatsWrapper = this["ActualTimeStatistics"] as ExpandableObjectWrapper;
+                if (actualStatsWrapper != null)
+                {
+                    var counters = actualStatsWrapper["ActualCPUms"] as RunTimeCounters;
                     if (counters != null)
                     {
                         var elapsedTime = counters.MaxCounter;

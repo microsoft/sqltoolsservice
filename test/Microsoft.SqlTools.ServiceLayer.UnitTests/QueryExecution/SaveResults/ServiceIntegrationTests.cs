@@ -247,6 +247,129 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
         #endregion
 
+        #region Markdown Tests
+
+        [Test]
+        public async Task SaveResultsMarkdown_NonExistentQuery()
+        {
+            // Given: A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(null);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(null, false, false, false, ws);
+
+            // If: I attempt to save a result set from a query that doesn't exist
+            var saveParams = new SaveResultsAsMarkdownRequestParams
+            {
+                OwnerUri = Constants.OwnerUri,  // Won't exist because nothing has executed
+            };
+            var evf = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+            await qes.HandleSaveResultsAsMarkdownRequest(saveParams, evf.Object);
+
+            // Then:
+            // ... An error event should have been fired
+            // ... No success event should have been fired
+            evf.Validate();
+        }
+
+        [Test]
+        public async Task SaveResultAsMarkdown_Failure()
+        {
+            // Given:
+            // ... A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.ExecutionPlanTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
+
+            // ... The query execution service has executed a query with results
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            // If: I attempt to save a result set and get it to throw because of invalid column selection
+            var saveParams = new SaveResultsAsMarkdownRequestParams
+            {
+                BatchIndex = 0,
+                FilePath = "qqq",
+                OwnerUri = Constants.OwnerUri,
+                ResultSetIndex = 0,
+                ColumnStartIndex = -1,
+                ColumnEndIndex = 100,
+                RowStartIndex = 0,
+                RowEndIndex = 5
+            };
+            qes.MarkdownFileFactory = GetMarkdownStreamFactory(storage, saveParams);
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardErrorValidation()
+                .Complete();
+
+            await qes.HandleSaveResultsAsMarkdownRequest(saveParams, efv.Object);
+            await qes.ActiveQueries[saveParams.OwnerUri]
+                .Batches[saveParams.BatchIndex]
+                .ResultSets[saveParams.ResultSetIndex]
+                .SaveTasks[saveParams.FilePath];
+
+            // Then:
+            // ... An error event should have been fired
+            // ... No success event should have been fired
+            efv.Validate();
+        }
+
+        [Test]
+        public async Task SaveResultsAsMarkdown_Success()
+        {
+            // Given:
+            // ... A working query and workspace service
+            WorkspaceService<SqlToolsSettings> ws = Common.GetPrimedWorkspaceService(Constants.StandardQuery);
+            QueryExecutionService qes = Common.GetPrimedExecutionService(
+                Common.ExecutionPlanTestDataSet,
+                true,
+                false,
+                false,
+                ws,
+                out ConcurrentDictionary<string, byte[]> storage);
+
+            // ... The query execution service has executed a query with results
+            var executeParams = new ExecuteDocumentSelectionParams { QuerySelection = null, OwnerUri = Constants.OwnerUri };
+            var executeRequest = RequestContextMocks.Create<ExecuteRequestResult>(null);
+            await qes.HandleExecuteRequest(executeParams, executeRequest.Object);
+            await qes.WorkTask;
+            await qes.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            // If: I attempt to save a result set from a query
+            var saveParams = new SaveResultsAsMarkdownRequestParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                FilePath = "qqq",
+                BatchIndex = 0,
+                ResultSetIndex = 0
+            };
+            qes.MarkdownFileFactory = GetMarkdownStreamFactory(storage, saveParams);
+            var efv = new EventFlowValidator<SaveResultRequestResult>()
+                .AddStandardResultValidator()
+                .Complete();
+
+            await qes.HandleSaveResultsAsMarkdownRequest(saveParams, efv.Object);
+            await qes.ActiveQueries[saveParams.OwnerUri]
+                .Batches[saveParams.BatchIndex]
+                .ResultSets[saveParams.ResultSetIndex]
+                .SaveTasks[saveParams.FilePath];
+
+            // Then:
+            // ... I should have a successful result
+            // ... There should not have been an error
+            efv.Validate();
+        }
+
+        #endregion
+
         #region XML tests
 
         [Test]
@@ -502,6 +625,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 {
                     storage.Add(output, new byte[8192]);
                     return new SaveAsJsonFileStreamWriter(new MemoryStream(storage[output]), saveParams, columns);
+                });
+
+            return mock.Object;
+        }
+
+        private static IFileStreamFactory GetMarkdownStreamFactory(
+            IDictionary<string, byte[]> storage,
+            SaveResultsAsMarkdownRequestParams saveParams)
+        {
+            var mock = new Mock<IFileStreamFactory>();
+            mock.Setup(fsf => fsf.GetReader(It.IsAny<string>()))
+                .Returns<string>(output => new ServiceBufferFileStreamReader(new MemoryStream(storage[output]), new QueryExecutionSettings()));
+            mock.Setup(fsf => fsf.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
+                .Returns<string, IReadOnlyList<DbColumnWrapper>>((output, columns) =>
+                {
+                    storage.Add(output, new byte[8192]);
+                    return new SaveAsMarkdownFileStreamWriter(new MemoryStream(storage[output]), saveParams, columns);
                 });
 
             return mock.Object;

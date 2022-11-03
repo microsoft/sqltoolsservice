@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>Il valore '{0}' non è valido per ComlumEncryption. I valori validi sono 'Enabled' e 'Disabled'.</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Valore '{0}' non valido per la crittografia. I valori validi sono: 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' e 'No'.</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Il valore '{0}' non è valido per EnclaveAttestationProtocol. I valori validi sono 'AAS' e 'HGS'.</value>
   </data>
@@ -3871,6 +3874,9 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
     <value>Visualizzazioni del libro mastro eliminate</value>
   </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>Colonne del libro mastro eliminate</value>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Non è stato possibile trovare il modello SQL dal progetto: {0}.</value>
   </data>
@@ -3904,35 +3910,32 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Numero di bucket</value>
   </data>
-  <data name="HashIndexGroupTitle" xml:space="preserve">
-    <value>Indice hash</value>
-  </data>
   <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
     <value>Nome</value>
   </data>
   <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
-    <value>Nome dell'indice dell'archivio colonne</value>
+    <value>Nome dell'indice columnstore</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
     <value>Descrizione</value>
   </data>
   <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
-    <value>Descrizione dell'indice dell'archivio colonne</value>
+    <value>Descrizione dell'indice columnstore</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
-    <value>Indica se l'indice dell'archivio colonne è cluster.</value>
+    <value>Indica se l'indice columnstore è cluster.</value>
   </data>
   <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
     <value>In cluster</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
-    <value>Predicato di filtro dell'indice dell'archivio colonne</value>
+    <value>Predicato di filtro dell'indice columnstore</value>
   </data>
   <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
     <value>Predicato del filtro</value>
   </data>
   <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
-    <value>Colonne in questo indice dell'archivio colonne</value>
+    <value>Colonne in questo indice columnstore</value>
   </data>
   <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
     <value>Colonne</value>
@@ -3944,21 +3947,27 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
     <value>Colonna</value>
   </data>
   <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
-    <value>La colonna denominata '{0}' è già stata aggiunta all'indice dell'archivio colonne non cluster '{1}'. Numero di riga: {2}.</value>
+    <value>La colonna denominata '{0}' è già stata aggiunta all'indice columnstore non cluster '{1}'. Numero di riga: {2}.</value>
   </data>
   <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
-    <value>Indici dell'archivio colonne</value>
+    <value>Indici columnstore</value>
   </data>
   <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
-    <value>Indice archivio colonne</value>
+    <value>Indice columnstore</value>
   </data>
   <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
-    <value>Aggiungi nuovo indice archivio colonne</value>
+    <value>Nuovo indice columnstore</value>
   </data>
   <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
-    <value>All'indice dell'archivio colonne non cluster '{0}' non sono associate colonne.</value>
+    <value>All'indice columnstore non cluster '{0}' non sono associate colonne.</value>
   </data>
   <data name="TableDesignerConfirmationText" xml:space="preserve">
     <value>Ho letto il riepilogo e ho compreso i potenziali rischi.</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>La connessione non è stata trovata</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Costo CPU effettivo</value>
   </data>
 </root>

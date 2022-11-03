@@ -35,6 +35,8 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
 
+ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
+
 ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.
 
 ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.
@@ -629,6 +631,8 @@ SchemaHierarchy_ExternalFileFormats = External File Formats
 SchemaHierarchy_ExternalResources = External Resources
 
 SchemaHierarchy_ExternalTables = External Tables
+
+SchemaHierarchy_DroppedLedgerColumns = Dropped Ledger Columns
 
 SchemaHierarchy_DroppedLedgerTables = Dropped Ledger Tables
 
@@ -2256,6 +2260,7 @@ EstimatedRows = Estimated Rows
 ActualExecutions = Actual Executions
 EstimatedExecutions = Estimated Executions
 EstimatedCpu = Estimated CPU Cost
+ActualCpu = Actual CPU Cost
 EstimatedIO = Estimated IO Cost
 AverageRowSize = Average Row Size
 ActualDataSize = Actual Data Size
@@ -2300,17 +2305,16 @@ IndexIsHashPropertyDescription = Whether the index is a hash index
 IndexIsHashPropertyTitle = Is Hash
 IndexBucketCountPropertyDescription = Bucket count of the hash index, note the value will always automatically round up to the next power of 2. 
 IndexBucketCountPropertyTitle = Bucket Count
-HashIndexGroupTitle = Hash Index
 TableDesignerColumnsDisplayValueTitle = Columns
 ColumnStoreIndexNamePropertyTitle = Name
-ColumnStoreIndexNamePropertyDescription = Name of the column store index
+ColumnStoreIndexNamePropertyDescription = Name of the columnstore index
 ColumnStoreIndexDescriptionPropertyTitle = Description
-ColumnStoreIndexDescriptionPropertyDescription = Description of the column store index
-ColumnStoreIndexIsClusteredPropertyDescription = Whether the column store index is clustered.
+ColumnStoreIndexDescriptionPropertyDescription = Description of the columnstore index
+ColumnStoreIndexIsClusteredPropertyDescription = Whether the columnstore index is clustered.
 ColumnStoreIndexIsClusteredPropertyTitle = Is Clustered
-ColumnStoreIndexFilterPredicatePropertyDescription = Filter predicate of the column store index
+ColumnStoreIndexFilterPredicatePropertyDescription = Filter predicate of the columnstore index
 ColumnStoreIndexFilterPredicatePropertyTitle = Filter Predicate
-ColumnStoreIndexColumnsPropertyDescription = Columns in this column store index
+ColumnStoreIndexColumnsPropertyDescription = Columns in this columnstore index
 ColumnStoreIndexColumnsGroupTitle = Columns
 ColumnStoreIndexAddColumn = Add Column
 ColumnStoreIndexColumnPropertyName = Column
@@ -2321,9 +2325,9 @@ TableDesignerGraphTableTypeDescription = Specifies the table type.
 TableDesignerGraphTableTypeEdge = Edge
 TableDesignerGraphTableTypeNode = Node
 TableDesignerGraphTableTypeNone = None
-TableDesignerColumnStoreIndexesTableTitle = Column Store Indexes
-TableDesignerColumnStoreIndexObjectType = Column Store Index
-AddNewColumnStoreIndexLabel = New Column Store Index
+TableDesignerColumnStoreIndexesTableTitle = Columnstore Indexes
+TableDesignerColumnStoreIndexObjectType = Columnstore Index
+AddNewColumnStoreIndexLabel = New Columnstore Index
 TableDesignerEdgeConstraintsTabTitle = Edge Constraints
 TableDesignerEdgeConstraintObjectType = Edge Constraint
 TableDesignerEdgeConstraintNamePropertyDescription = Name of the constraint.
@@ -2404,8 +2408,8 @@ ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription(string colu
 ComputedColumnNeedToBePersistedInForeignKeyRuleDescription(string columnName, string foreignKeyName) = The computed column with name '{0}' has to be persisted to be part of the foreign key '{1}'.
 HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription(string indexName) = Hash index with name '{0}' is not supported on a non memory-optimized table.
 HashIndexMustHaveBucketCountRuleDescription(string indexName) = Hash index '{0}' does not have a bucket count.
-ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been added to the non-clustered column store index '{1}'. Row number: {2}.
-NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName) = Non-clustered column store index '{0}' does not have any columns associated with it.
+ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.
+NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName) = Non-clustered columnstore index '{0}' does not have any columns associated with it.
 TableDesignerConfirmationText = I have read the summary and understand the potential risks.
 
 ############################################################################
@@ -2414,3 +2418,6 @@ TableDesignerConfirmationText = I have read the summary and understand the poten
 SqlProjectModelNotFound(string projectUri) = Could not find SQL model from project: {0}.
 UnsupportedModelType(string type) = Unsupported model type: {0}.
 GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from model.
+
+#ObjectManagement Service
+ErrorConnectionNotFound = The connection could not be found
