@@ -4,7 +4,6 @@
 //
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -15,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Microsoft.SqlTools.ManagedBatchParser")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright © 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,11 +33,13 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.UnitTests")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
-[assembly: InternalsVisibleTo("MicrosoftSqlToolsServiceLayer")]
-[assembly: InternalsVisibleTo("MicrosoftKustoServiceLayer")]
-[assembly: InternalsVisibleTo("Microsoft.SqlTools.ManagedBatchParser.IntegrationTests")]
+[assembly: AssemblyVersion("3.0.0.0")]
+[assembly: AssemblyFileVersion("3.0.0.0")]
+#if NET6_0_OR_GREATER
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.UnitTests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.IntegrationTests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.SqlTools.ServiceLayer.Test.Common")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("MicrosoftSqlToolsServiceLayer")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("MicrosoftKustoServiceLayer")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.SqlTools.ManagedBatchParser.IntegrationTests")]
+#endif

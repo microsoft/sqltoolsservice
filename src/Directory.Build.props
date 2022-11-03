@@ -2,17 +2,15 @@
 	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 	<PropertyGroup>
 		<Company>Microsoft Corporation</Company>
-		<Product>Microsoft SQL Server</Product>
-	</PropertyGroup>
-	<PropertyGroup>
-		<VersionPrefix>1.1.2</VersionPrefix>
-		<VersionSuffix></VersionSuffix>
+		<Product>Microsoft Sql Tools</Product>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Authors>Microsoft</Authors>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-		<PackageLicenseUrl>https://github.com/Microsoft/sqltoolsservice/blob/master/license.txt</PackageLicenseUrl>
+		<PackageLicense>https://github.com/Microsoft/sqltoolsservice/blob/master/license.txt</PackageLicense>
 		<PackageIconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice/</PackageProjectUrl>
 		<PackageTags>SQL XPLAT</PackageTags>

@@ -7,6 +7,7 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+		<Product>Microsoft SqlTools Managed batch parser</Product>
 	</PropertyGroup>
 	<ItemGroup>
 		<Folder Include="Localization\transXliff\" />
@@ -14,6 +15,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub"/>
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>

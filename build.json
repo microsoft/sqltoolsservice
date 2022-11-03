@@ -24,11 +24,19 @@
   "Frameworks": [
     "net6.0"
   ],
+  "FxFrameworks":[
+    "net472",
+    "net6.0"
+  ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
     "Microsoft.Kusto.ServiceLayer",
-    "Microsoft.SqlTools.ServiceLayer"
+    "Microsoft.SqlTools.ServiceLayer",
+    "Microsoft.SqlTools.ManagedBatchParser"
+  ],
+  "FxBuildProjects": [
+    "Microsoft.SqlTools.ManagedBatchParser"
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.Hosting"

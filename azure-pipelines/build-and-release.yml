@@ -3,6 +3,9 @@ pr: none
 
 stages:
 - stage: Build
+  variables:
+  - name: buildConfiguration
+    value: 'Release'
   jobs:
   - job: Build
     pool: 

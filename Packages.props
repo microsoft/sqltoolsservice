@@ -33,6 +33,7 @@
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.10.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.10.0" />
+		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
 
 		<PackageReference Update="Moq" Version="4.8.2" />
 		<PackageReference Update="nunit" Version="3.12.0" />
