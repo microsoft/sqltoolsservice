@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         /// <returns>Full path to the .sqlproj</returns>
         internal static string CreateSqlProj(string projectName)
         {
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", projectName);
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", TestContext.CurrentContext?.Test?.Name + DateTime.Now.Ticks.ToString(), projectName);
             Directory.CreateDirectory(folderPath);
             string sqlprojFilePath = Path.Combine(folderPath, projectName + ".sqlproj");
             File.Copy(Path.Combine(sqlProjectsFolder, "emptyTemplate.sqlproj"), sqlprojFilePath);
