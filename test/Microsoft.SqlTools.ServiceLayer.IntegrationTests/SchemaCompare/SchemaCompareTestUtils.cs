@@ -24,8 +24,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
     {
         private static string sqlProjectsFolder = Path.Combine("..", "..", "..", "SchemaCompare", "SqlProjects");
 
-        internal static void VerifyAndCleanup(string path)
+        internal static void VerifyAndCleanup(string? path)
         {
+            if (path == null)
+            {
+                return;
+            }
+
             // verify it was created...
             Assert.True(File.Exists(path) || Directory.Exists(path), $"File or directory {path} was expected to exist but did not");
 
