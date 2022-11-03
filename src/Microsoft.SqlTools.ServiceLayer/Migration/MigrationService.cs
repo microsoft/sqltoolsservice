@@ -344,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
                     resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
 
-                sqlDbStopwatch.Stop();
+                    sqlDbStopwatch.Stop();
                     resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
 
                     SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
