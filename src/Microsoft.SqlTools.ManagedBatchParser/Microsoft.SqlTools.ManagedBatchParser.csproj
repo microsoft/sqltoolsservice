@@ -4,7 +4,12 @@
 		<TargetFrameworks>net6.0;net472</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
+		<Guid>82dd9738-2ad3-4eb3-9f80-18b594e03621</Guid>
+		<DelaySign>True</DelaySign>
+		<!-- Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in tests with internalsVisibleTo attribute.-->
+		<SignAssembly Condition="$(TargetFramework) == 'net472'">True</SignAssembly>
+		<AssemblyOriginatorKeyFile>$(RootDir)\SqlToolsKeyPair.snk</AssemblyOriginatorKeyFile>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<Product>Microsoft SqlTools Managed batch parser</Product>
@@ -22,5 +27,13 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
+	</ItemGroup>
+	<ItemGroup Condition="$(TargetFramework) == 'net6.0'">
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<InternalsVisibleTo Include="MicrosoftSqlToolsServiceLayer" />
+		<InternalsVisibleTo Include="MicrosoftKustoServiceLayer" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.IntegrationTests" />
 	</ItemGroup>
 </Project>

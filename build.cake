@@ -18,10 +18,6 @@ using XliffParser;
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
-// .NET Framework Assembly strong name key signing
-var signAssembly = Argument("signAssembly", "false");
-var signAssemblyKeyFile = Argument("signAssemblyKeyFile", "sqlToolsKeyPair.snk");
-
 // Optional arguments
 var testConfiguration = Argument("test-configuration", "Debug");
 var installFolder = Argument("install-path",  System.IO.Path.Combine(Environment.GetEnvironmentVariable(IsRunningOnWindows() ? "USERPROFILE" : "HOME"),
@@ -260,16 +256,10 @@ Task("BuildFx")
     {
         foreach (var framework in buildPlan.FxFrameworks)
         {
-            if(framework == "net6.0")
-            {
-                // Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in tests with internalsVisibleTo attribute.
-                // We still want to built for .NET 6.0 target here to be able to generate binaries in same location as .NET Framework 4.7.2.
-                signAssembly = "false";
-            }
             var projectFolder = System.IO.Path.Combine(sourceFolder, project);
             var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
-                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\" /p:SignAssembly={signAssembly} /p:AssemblyOriginatorKeyFile={signAssemblyKeyFile}",
+                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
                     new RunOptions
                     {
                         StandardOutputWriter = logWriter,

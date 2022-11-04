@@ -127,6 +127,20 @@ steps:
              ],
          "toolName": "signtool.exe",
          "toolVersion": "6.2.9304.0"
+       },
+       {
+        "KeyCode" : "CP-235847-SN",
+        "operationSetCode" : "StrongNameSign",
+        "Parameters" : [],
+        "ToolName" : "sign",
+        "ToolVersion" : "1.0"
+       },
+       {
+        "KeyCode" : "CP-235847-SN",
+        "operationSetCode" : "StrongNameVerify",
+        "Parameters" : [],
+        "ToolName" : "sign",
+        "ToolVersion" : "1.0"
        }
      ]
     SessionTimeout: 600

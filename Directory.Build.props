@@ -3,6 +3,7 @@
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TargetFramework>net6.0</TargetFramework>
+    <RootDir>$(MSBuildThisFileDirectory)</RootDir>
     
     <Build_BuildNumber Condition="'$(Build_BuildNumber)' == ''">1.dev</Build_BuildNumber>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
