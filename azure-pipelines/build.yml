@@ -4,18 +4,11 @@ steps:
   inputs:
     useGlobalJson: true
 
-- task: DownloadSecureFile@1
-  displayName: 'Download Key Pair'
-  name: sqltoolssigningkey
-  inputs:
-    secureFile: sqlToolsKeyPair.snk
-    retryCount: 5
-
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
     filename: build.cmd
-    arguments: '-target=all -mono -signAssembly=true -signAssemblyKeyFile="$(sqltoolssigningkey.secureFilePath)"'
+    arguments: '-target=all -mono'
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
