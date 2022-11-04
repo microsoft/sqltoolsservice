@@ -14,8 +14,8 @@
     <!-- For preview releases, sample Version = 3.0.20221104.1-preview -->
     <!-- For stable releases, sample Version = 3.0.0 -->
     <VersionPrefix>$(Major).$(Minor).$(Build_BuildNumber)</VersionPrefix>
-    <VersionPrefix Condition="$(StableRelease)">$(Major).$(Minor).0</VersionPrefix>
-    <VersionSuffix Condition="!$(StableRelease)">preview</VersionSuffix>
+    <VersionPrefix Condition="$(StableRelease.Equals('true'))">$(Major).$(Minor).0</VersionPrefix>
+    <VersionSuffix Condition="!$(StableRelease.Equals('true'))">preview</VersionSuffix>
     <AssemblyFileVersion>$(VersionPrefix)-$(VersionSuffix)</AssemblyFileVersion>
     <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
 
