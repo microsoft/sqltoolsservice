@@ -4,8 +4,12 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TargetFramework>net6.0</TargetFramework>
     <RootDir>$(MSBuildThisFileDirectory)</RootDir>
-    
+
+    <!-- Defaults-->
+    <Major Condition="$(Major) == ''">1</Major>
+    <Minor Condition="$(Minor) == ''">0</Minor>
     <Build_BuildNumber Condition="'$(Build_BuildNumber)' == ''">0.0</Build_BuildNumber>
+    <StableRelease Condition="$(StableRelease) == ''">false</StableRelease>
 
     <!-- AssemblyVersion should not change for non-major releases. -->
     <AssemblyVersion>$(Major).0.0.0</AssemblyVersion>
