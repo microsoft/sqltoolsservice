@@ -21,7 +21,7 @@ var configuration = Argument("configuration", "Release");
 // Defaults for local builds
 var Major = Argument("Major", "1");
 var Minor = Argument("Minor", "0");
-var StableRelease = Argument("StableRelease", false);;
+var StableRelease = Argument("StableRelease", "false");;
 
 Environment.SetEnvironmentVariable("Major", Major.ToString());
 Environment.SetEnvironmentVariable("Minor", Minor.ToString());
