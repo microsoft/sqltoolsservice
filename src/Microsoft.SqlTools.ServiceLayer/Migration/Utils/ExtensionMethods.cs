@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
 
-namespace Microsoft.SqlTools.ServiceLayer.Migration.Helper
+namespace Microsoft.SqlTools.ServiceLayer.Migration.Utils
 {
     internal static class ExtensionMethods
     {
