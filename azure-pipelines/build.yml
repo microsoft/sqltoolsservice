@@ -58,7 +58,12 @@ steps:
       $props = New-Object XML
       $props.Load($propsFile)
       $propGroup = $props.Project.PropertyGroup;
-      $version = $propGroup.VersionPrefix + '-' + 'preview' + $(Build.BuildNumber)
+      $versionPre = $env:Major + '.' + $env:Minor + '.'
+      if($env:StableRelease.Equals('true')) {
+          $version = $versionPre + '0';
+      } else {
+          $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
+      }
       $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
       $nuspec = New-Object XML
       $nuspec.Load($nuspecFile)

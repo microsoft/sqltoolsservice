@@ -18,6 +18,15 @@ using XliffParser;
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
+// Defaults for local builds
+var Major = Argument("Major", "1");
+var Minor = Argument("Minor", "0");
+var StableRelease = Argument("StableRelease", false);;
+
+Environment.SetEnvironmentVariable("Major", Major.ToString());
+Environment.SetEnvironmentVariable("Minor", Minor.ToString());
+Environment.SetEnvironmentVariable("StableRelease", StableRelease.ToString());
+
 // Optional arguments
 var testConfiguration = Argument("test-configuration", "Debug");
 var installFolder = Argument("install-path",  System.IO.Path.Combine(Environment.GetEnvironmentVariable(IsRunningOnWindows() ? "USERPROFILE" : "HOME"),

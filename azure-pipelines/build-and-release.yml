@@ -6,6 +6,15 @@ stages:
   variables:
   - name: buildConfiguration
     value: 'Release'
+    # Major version number for the release
+  - name: Major
+    value: '3'
+    # Minor version number for the release (should be incremented post a stable release)
+  - name: Minor
+    value: '0'
+    # Set to true to build a stable release.
+  - name: StableRelease
+    value: 'false'
   jobs:
   - job: Build
     pool: 
