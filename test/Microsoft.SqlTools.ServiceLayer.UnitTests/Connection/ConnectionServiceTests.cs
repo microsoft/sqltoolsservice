@@ -1773,7 +1773,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
-            var connectionService = TestObjects.GetTestConnectionService();
+            var connectionService = ConnectionService.Instance;
             connectionService.ServiceHost = serviceHostMock.Object;
 
             // Set up an initial connection

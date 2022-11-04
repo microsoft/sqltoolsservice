@@ -372,24 +372,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
 
-            try {
-                if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
-                    // Do something with passwordChange.
-                    ChangePasswordParams passwordChange = (connectionParams as ChangePasswordParams);
-                    ServerConnection serverConnection = new ServerConnection(passwordChange.Connection.ServerName, passwordChange.Connection.UserName, passwordChange.Connection.Password);
-                    serverConnection.ChangePassword(passwordChange.NewPassword);
-                    connectionParams.Connection.Password = passwordChange.NewPassword;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Write(TraceEventType.Error, "Change password error: " + ex.Message);
-                ConnectionCompleteParams passwordChangeFail = new ConnectionCompleteParams();
-                passwordChangeFail.OwnerUri = connectionParams.OwnerUri;
-                passwordChangeFail.ErrorMessage = ex.Message;
-                passwordChangeFail.Messages = ex.StackTrace;
-                passwordChangeFail.ErrorNumber = 1111;
-                return passwordChangeFail;
+            if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
+                this.changePassword(connectionParams);
             }
 
             // Try to open a connection with the given ConnectParams
@@ -414,6 +398,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
 
             return completeParams;
+        }
+
+        private void changePassword(ConnectParams connectionParams){
+            ServerConnection serverConnection = new ServerConnection(connectionParams.Connection.ServerName, connectionParams.Connection.UserName, connectionParams.Connection.Password);
+            serverConnection.ChangePassword((connectionParams as ChangePasswordParams)?.NewPassword);
+            connectionParams.Connection.Password = (connectionParams as ChangePasswordParams).NewPassword;
         }
 
         private async Task<ConnectionCompleteParams?> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
