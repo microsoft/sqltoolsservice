@@ -25,15 +25,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         MigrateLogins,
 
         /// <summary>
+        /// Step to establish users and logins from source to target
+        /// </summary>
+        EstablishUserMapping,
+
+
+        /// <summary>
         /// Step to migrate server roles
         /// </summary>
         MigrateServerRoles,
 
-        /// <summary>
-        /// Step to establish users and logins from source to target
-        /// </summary>
-        EstablishUserMapping,
-        
         /// <summary>
         /// Step to establish roles
         /// </summary>
