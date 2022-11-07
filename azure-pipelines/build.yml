@@ -82,7 +82,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'net472/Microsoft.SqlTools.ManagedBatchParser.dll'
+    Pattern: '**/net472/Microsoft.SqlTools.ManagedBatchParser.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
