@@ -10,7 +10,7 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - uses: mshick/add-pr-comment@v1
+      - uses: mshick/add-pr-comment@v2
         with:
           message: |
             As part of updating the dependencies in Packages.props we require that any PRs opened also verify that
