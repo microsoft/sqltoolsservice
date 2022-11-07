@@ -17,6 +17,7 @@ using XliffParser;
 // Basic arguments
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
+
 // Optional arguments
 var testConfiguration = Argument("test-configuration", "Debug");
 var installFolder = Argument("install-path",  System.IO.Path.Combine(Environment.GetEnvironmentVariable(IsRunningOnWindows() ? "USERPROFILE" : "HOME"),
@@ -36,6 +37,8 @@ var shellExtension = IsRunningOnWindows() ? "ps1" : "sh";
 /// </summary>
 public class BuildPlan
 {
+    public string[] FxBuildProjects { get; set; }
+    public string[] FxFrameworks { get; set; }
     public IDictionary<string, string[]> TestProjects { get; set; }
     public string BuildToolsFolder { get; set; }
     public string ArtifactsFolder { get; set; }
@@ -62,6 +65,7 @@ var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
 var dotnetFolder = System.IO.Path.Combine(workingDirectory, buildPlan.DotNetFolder);
 var dotnetcli = buildPlan.UseSystemDotNetPath ? "dotnet" : System.IO.Path.Combine(System.IO.Path.GetFullPath(dotnetFolder), "dotnet");
 var toolsFolder = System.IO.Path.Combine(workingDirectory, buildPlan.BuildToolsFolder);
+var nugetcli = System.IO.Path.Combine(toolsFolder, "nuget.exe");
 
 var sourceFolder = System.IO.Path.Combine(workingDirectory, "src");
 var testFolder = System.IO.Path.Combine(workingDirectory, "test");
@@ -216,6 +220,7 @@ Task("Restore")
 Task("BuildTest")
     .IsDependentOn("Setup")
     .IsDependentOn("Restore")
+    .IsDependentOn("BuildFx")
     .Does(() =>
 {
     foreach (var pair in buildPlan.TestProjects)
@@ -235,6 +240,33 @@ Task("BuildTest")
                 .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
             }
 
+        }
+    }
+});
+
+/// <summary>
+///  Build .NET Framework projects.
+/// </summary>
+Task("BuildFx")
+    .IsDependentOn("Setup")
+    .IsDependentOn("Restore")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.FxBuildProjects)
+    {
+        foreach (var framework in buildPlan.FxFrameworks)
+        {
+            var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            using (var logWriter = new StreamWriter(logPath)) {
+                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                    new RunOptions
+                    {
+                        StandardOutputWriter = logWriter,
+                        StandardErrorWriter = logWriter
+                    })
+                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
+            }
         }
     }
 });
@@ -263,6 +295,7 @@ Task("DotnetPack")
 ///  currently.
 /// </summary>
 Task("DotnetPackPublished")
+    .IsDependentOn("DotnetPackNuspec")
     .Does(() =>
 {
     foreach (var project in buildPlan.PackagePublishedProjects)
@@ -271,6 +304,23 @@ Task("DotnetPackPublished")
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(packagesFolder, project);
         DotnetPack(outputFolder, projectFolder, project);
+    }
+});
+
+/// <summary>
+///  Packages projects specified in FxBuildProjects using available Nupecs, these projects require that publishing be done first. Note that we
+///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
+///  currently.
+/// </summary>
+Task("DotnetPackNuspec")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.FxBuildProjects)
+    {
+        // For now, putting all nugets in the 1 directory
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(packagesFolder, project);
+        DotnetPackNuspec(outputFolder, projectFolder, project);
     }
 });
 
@@ -407,6 +457,19 @@ Task("OnlyPublish")
             }
         }
 
+        if (buildPlan.FxBuildProjects.Contains(project))
+        {
+            foreach(var framework in buildPlan.FxFrameworks)
+            {
+                var outputFolder = System.IO.Path.Combine(publishFolder, packageName, "default", framework);
+                var publishArguments = "publish";
+                publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
+                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                Run(dotnetcli, publishArguments)
+                    .ExceptionOnError($"Failed to publish {project} / {framework}");
+            }
+        }
+        
         if (requireArchive)
         {
                 foreach (var framework in buildPlan.Frameworks)
