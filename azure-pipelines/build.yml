@@ -81,8 +81,8 @@ steps:
   displayName: 'ESRP CodeSigning - SNK only'
   inputs:
     ConnectedServiceName: 'Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: '**/net472/Microsoft.SqlTools.ManagedBatchParser.dll'
+    FolderPath: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net472/'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
