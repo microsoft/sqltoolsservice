@@ -232,5 +232,19 @@ public void DotnetPack(string outputFolder, string projectFolder, string project
             })
         .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
     }
+}
+
+public void DotnetPackNuspec(string outputFolder, string projectFolder, string project) {
+    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    using (var logWriter = new StreamWriter(logPath)) {
+        Information($"Packaging {projectFolder}");
+        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder}",
+            new RunOptions
+            {
+                StandardOutputWriter = logWriter,
+                StandardErrorWriter = logWriter
+            })
+        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
+    }
 
 }
