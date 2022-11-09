@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         /// <param name="parameterName">The name of the parameter being validated.</param>
         /// <param name="valueToCheck">The value of the parameter being validated.</param>
-        public static void IsNotNull(string parameterName, object valueToCheck)
+        public static void IsNotNull(string parameterName, object? valueToCheck)
         {
             if (valueToCheck == null)
             {
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         /// <param name="parameterName">The name of the parameter being validated.</param>
         /// <param name="valueToCheck">The value of the parameter being validated.</param>
-        public static void IsNotNullOrEmptyString(string parameterName, string valueToCheck)
+        public static void IsNotNullOrEmptyString(string parameterName, string? valueToCheck)
         {
             if (string.IsNullOrEmpty(valueToCheck))
             {
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         /// <param name="parameterName">The name of the parameter being validated.</param>
         /// <param name="valueToCheck">The value of the parameter being validated.</param>
-        public static void IsNotNullOrWhitespaceString(string parameterName, string valueToCheck)
+        public static void IsNotNullOrWhitespaceString(string parameterName, string? valueToCheck)
         {
             if (string.IsNullOrWhiteSpace(valueToCheck))
             {

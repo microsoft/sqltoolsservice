@@ -1,4 +1,4 @@
-﻿//
+//
 // Code originally from http://credentialmanagement.codeplex.com/, 
 // Licensed under the Apache License 2.0 
 //
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         {
         }
 
-        public CredentialSet(string target)
+        public CredentialSet(string? target)
             : this()
         {
             if (string.IsNullOrEmpty(target))
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             Target = target;
         }
 
-        public string Target { get; set; }
+        public string? Target { get; set; }
 
 
         public void Dispose()

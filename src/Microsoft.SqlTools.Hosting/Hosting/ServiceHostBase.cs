@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.Hosting
 {
     public abstract class ServiceHostBase : ProtocolEndpoint
     {
-        private TaskCompletionSource<bool> serverExitedTask;
+        private TaskCompletionSource<bool>? serverExitedTask;
 
         protected ServiceHostBase(ChannelBase serverChannel) : 
             base(serverChannel, MessageProtocolType.LanguageServer)
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.Hosting
         }
 
         private async Task HandleExitNotification(
-            object exitParams,
+            object? exitParams,
             EventContext eventContext)
         {
             // Stop the server channel

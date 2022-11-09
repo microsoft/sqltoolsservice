@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.Utility
         {
             using (await queueLock.LockAsync())
             {
-                TaskCompletionSource<T> requestTaskSource = null;
+                TaskCompletionSource<T>? requestTaskSource = null;
 
                 // Are any requests waiting?
                 while (this.requestQueue.Count > 0)

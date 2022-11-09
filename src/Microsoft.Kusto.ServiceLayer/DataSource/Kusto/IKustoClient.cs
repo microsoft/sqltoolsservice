@@ -28,7 +28,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null);
+        Task<IEnumerable<T>> ExecuteQueryAsync<T>(string query, CancellationToken cancellationToken, string? databaseName = null);
 
         /// <summary>
         /// Executes a Kusto control command.

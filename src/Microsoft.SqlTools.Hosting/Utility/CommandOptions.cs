@@ -135,9 +135,9 @@ namespace Microsoft.SqlTools.Hosting.Utility
             }
         }
 
-        public string TracingLevel { get; private set; }
+        public string? TracingLevel { get; private set; }
 
-        public string LogFilePath { get; private set; }
+        public string? LogFilePath { get; private set; }
 
         public bool AutoFlushLog { get; private set; } = false;
 

@@ -12,10 +12,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 {
     public class RequestContext<TResult> : IEventSender
     {
-        private readonly Message requestMessage;
-        private readonly MessageWriter messageWriter;
+        private readonly Message? requestMessage;
+        private readonly MessageWriter? messageWriter;
 
-        public RequestContext(Message requestMessage, MessageWriter messageWriter)
+        public RequestContext(Message? requestMessage, MessageWriter messageWriter)
         {
             this.requestMessage = requestMessage;
             this.messageWriter = messageWriter;
@@ -23,40 +23,51 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public RequestContext() { }
 
-        public virtual async Task SendResult(TResult resultDetails)
+        public virtual async Task SendResult(TResult? resultDetails)
         {
-            await this.messageWriter.WriteResponse(
-                resultDetails,
-                requestMessage.Method,
-                requestMessage.Id);
+            if (this.requestMessage != null && this.messageWriter != null)
+            {
+                await this.messageWriter.WriteResponse(
+                    resultDetails,
+                    requestMessage.Method,
+                    requestMessage.Id);
+            }
         }
 
         public virtual async Task SendEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
         {
-            await this.messageWriter.WriteEvent(
-                eventType,
-                eventParams);
-        }
-
-        public virtual Task SendError(string errorMessage, int errorCode = 0, string data = null)
-        {
-            // Build the error message
-            Error error = new Error
+            if (this.messageWriter != null)
             {
-                Message = errorMessage,
-                Code = errorCode,
-                Data = data
-            };
-            return this.messageWriter.WriteError(
-                    requestMessage.Method,
-                    requestMessage.Id,
-                    error);
+                await this.messageWriter.WriteEvent(
+                    eventType,
+                    eventParams);
+            }
         }
 
-        public virtual Task SendError(Exception e)
+        public virtual async Task SendError(string? errorMessage, int errorCode = 0, string? data = null)
         {
-            // Overload to use the parameterized error handler
-            return SendError(e.Message, e.HResult, e.StackTrace);
+            if (this.requestMessage != null && this.messageWriter != null)
+            {
+                // Build and send the error message
+                await this.messageWriter.WriteError(
+                        requestMessage.Method,
+                        requestMessage.Id,
+                        new Error
+                        {
+                            Message = errorMessage,
+                            Code = errorCode,
+                            Data = data
+                        });
+            }
+        }
+
+        public virtual async Task SendError(Exception? e)
+        {
+            if (e != null)
+            {
+                // Overload to use the parameterized error handler
+                await SendError(e.Message, e.HResult, e.StackTrace);
+            }
         }
     }
 }

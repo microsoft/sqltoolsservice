@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// <summary>
         /// The message of the error
         /// </summary>
-        public string Message { get; set; }
+        public string? Message { get; set; }
     }
 
     public class HostingErrorEvent

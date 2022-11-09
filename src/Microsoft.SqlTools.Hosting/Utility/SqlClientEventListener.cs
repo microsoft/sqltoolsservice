@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 return;
             }
-            foreach (object payload in eventData.Payload)
+            foreach (object? payload in eventData.Payload)
             {
                 if (payload != null)
                 {

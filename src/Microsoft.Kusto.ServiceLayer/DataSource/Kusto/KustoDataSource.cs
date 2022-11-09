@@ -39,7 +39,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// <summary>
         /// List of databases.
         /// </summary>
-        private IEnumerable<DataSourceObjectMetadata> _databaseMetadata;
+        private IEnumerable<DataSourceObjectMetadata>? _databaseMetadata;
 
         /// <summary>
         /// List of tables per database. Key - Parent Folder or Database Urn

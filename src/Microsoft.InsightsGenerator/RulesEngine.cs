@@ -14,7 +14,7 @@ namespace Microsoft.InsightsGenerator
 {
     public class RulesEngine
     {
-        public static List<Template> Templates;
+        public static List<Template>? Templates;
 
         public static List<string> TopListHashHeaders = new List<string>{ "#top", "#averageSlice", "#topPerslice" , "#bottom"};
 
@@ -58,7 +58,7 @@ namespace Microsoft.InsightsGenerator
         /// </summary>
         /// <param name="singleHashHeaders"></param>
         /// <returns></returns>
-        public static string FindMatchedTemplate(List<List<string>> singleHashHeaders, DataArray columnInfo)
+        public static string FindMatchedTemplate(List<List<string?>> singleHashHeaders, DataArray columnInfo)
         {
             var resultTemplate = new StringBuilder();
             Templates ??= GetTemplates();
@@ -91,7 +91,7 @@ namespace Microsoft.InsightsGenerator
             return resultTemplate.ToString();
         }
 
-        private static string ReplaceHashesInTemplate(List<List<string>>singleHashList, DataArray columnInfo, Template template)
+        private static string ReplaceHashesInTemplate(List<List<string?>>singleHashList, DataArray columnInfo, Template template)
         {
             StringBuilder modifiedTemp = new StringBuilder(template.Content);
 
@@ -127,23 +127,23 @@ namespace Microsoft.InsightsGenerator
             }
 
             // Replace double hash values
-            var transformedColumnArray = columnInfo.TransformedColumnNames.ToArray();
-            var columnArray = columnInfo.ColumnNames.ToArray();
+            var transformedColumnArray = columnInfo.TransformedColumnNames?.ToArray();
+            var columnArray = columnInfo.ColumnNames?.ToArray();
 
-            for (int p = 0; p < columnInfo.TransformedColumnNames.Length; p++)
+            for (int p = 0; p < columnInfo.TransformedColumnNames?.Length; p++)
             {
-                modifiedTemp.Replace("##" + transformedColumnArray[p], columnArray[p]);
+                modifiedTemp.Replace("##" + transformedColumnArray?[p], columnArray?[p]);
             }
 
             return modifiedTemp.ToString();
         }
 
-        private static List<string> GetTopHeadersWithHash(List<List<string>> singleHashHeaders)
+        private static List<string?> GetTopHeadersWithHash(List<List<string?>> singleHashHeaders)
         {
-            var topHeaderList = new List<string>();
+            var topHeaderList = new List<string?>();
             foreach (var list in singleHashHeaders)
             {
-                topHeaderList.Add("#" + list.First().ToLower());
+                topHeaderList.Add("#" + list.First()?.ToLower());
             }
             return topHeaderList;
         }
@@ -156,8 +156,8 @@ namespace Microsoft.InsightsGenerator
         {
             var templateHolder = new List<Template>();
             string assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string assemblyDirectoryPath = System.IO.Path.GetDirectoryName(assemblyPath);
-            string templateFilePath = Path.Combine(assemblyDirectoryPath, "Templates", "templates.txt");
+            string? assemblyDirectoryPath = System.IO.Path.GetDirectoryName(assemblyPath);
+            string? templateFilePath = Path.Combine(assemblyDirectoryPath ?? string.Empty, "Templates", "templates.txt");
 
             using (StreamReader streamReader = new StreamReader(templateFilePath, Encoding.UTF8))
             {
@@ -204,6 +204,6 @@ namespace Microsoft.InsightsGenerator
 
         public List<string> SingleHashValues { get; set; }
         public List<string> DoubleHashValues { get; set; }
-        public string Template { get; set; }
+        public string? Template { get; set; }
     }
 }

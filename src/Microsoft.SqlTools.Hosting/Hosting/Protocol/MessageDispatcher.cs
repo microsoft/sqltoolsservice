@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private ChannelBase protocolChannel;
 
-        private AsyncContextThread messageLoopThread;
+        private AsyncContextThread? messageLoopThread;
 
         internal Dictionary<string, Func<Message, MessageWriter, Task>> requestHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         internal Dictionary<string, Func<Message, MessageWriter, Task>> eventHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
 
-        private Action<Message> responseHandler;
+        private Action<Message>? responseHandler;
 
         private CancellationTokenSource messageLoopCancellationToken =
             new CancellationTokenSource();
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Properties
 
-        public SynchronizationContext SynchronizationContext { get; private set; }
+        public SynchronizationContext? SynchronizationContext { get; private set; }
 
         public bool InMessageLoopThread
         {
@@ -52,9 +52,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
         }
 
-        protected MessageReader MessageReader { get; private set; }
+        protected MessageReader? MessageReader { get; private set; }
 
-        protected MessageWriter MessageWriter { get; private set; }
+        protected MessageWriter? MessageWriter { get; private set; }
 
 
         /// <summary>
@@ -70,8 +70,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public MessageDispatcher(ChannelBase protocolChannel)
         {
             this.protocolChannel = protocolChannel;
-            this.MessageReader = protocolChannel.MessageReader;
-            this.MessageWriter = protocolChannel.MessageWriter;
+            this.MessageReader = protocolChannel?.MessageReader;
+            this.MessageWriter = protocolChannel?.MessageWriter;
         }
 
         #endregion
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
-            Func<TParams, RequestContext<TResult>, Task> requestHandler)
+            Func<TParams?, RequestContext<TResult>, Task> requestHandler)
         {
             this.SetRequestHandler(
                 requestType,
@@ -111,9 +111,18 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
-            Func<TParams, RequestContext<TResult>, Task> requestHandler,
+            Func<TParams?, RequestContext<TResult>, Task> requestHandler,
             bool overrideExisting)
         {
+            if(requestType == null)
+            {
+                throw new ArgumentNullException(nameof(requestType));
+            }
+            if (requestHandler == null)
+            {
+                throw new ArgumentNullException(nameof(requestType));
+            }
+
             if (overrideExisting)
             {
                 // Remove the existing handler so a new one can be set
@@ -130,7 +139,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             messageWriter);
                     try
                     {                        
-                        TParams typedParams = default(TParams);
+                        TParams? typedParams = default(TParams);
                         if (requestMessage.Contents != null)
                         {
                             try
@@ -155,7 +164,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
          public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler)
+            Func<TParams?, EventContext, Task> eventHandler)
         {
             this.SetEventHandler(
                 eventType,
@@ -165,7 +174,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler,
+            Func<TParams?, EventContext, Task> eventHandler,
             bool overrideExisting)
         {
             if (overrideExisting)
@@ -179,7 +188,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 async (eventMessage, messageWriter) =>
                 {
                     var eventContext = new EventContext(messageWriter);
-                    TParams typedParams = default(TParams);
+                    TParams? typedParams = default(TParams);
                     try
                     {                
                         if (eventMessage.Contents != null)
@@ -212,9 +221,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Events
 
-        public event EventHandler<Exception> UnhandledException;
+        public event EventHandler<Exception?>? UnhandledException;
 
-        protected void OnUnhandledException(Exception unhandledException)
+        protected void OnUnhandledException(Exception? unhandledException)
         {
             if (this.UnhandledException != null)
             {
@@ -233,19 +242,24 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             // Run the message loop
             while (!cancellationToken.IsCancellationRequested)
             {
-                Message newMessage;
+                Message? newMessage = null;
 
                 try
                 {
-                    // Read a message from the channel
-                    newMessage = await this.MessageReader.ReadMessage();
+                    if (this.MessageReader != null)
+                    {
+                        // Read a message from the channel
+                        newMessage = await this.MessageReader.ReadMessage();
+                    }
                 }
                 catch (MessageParseException e)
                 {
                     string message = string.Format("Exception occurred while parsing message: {0}", e.Message);
-                    Logger.Write(TraceEventType.Error, message);
-                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
-
+                    if (this.MessageWriter != null)
+                    {
+                        Logger.Write(TraceEventType.Error, message);
+                        await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
+                    }
                     // Continue the loop
                     continue;
                 }
@@ -258,9 +272,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     // Log the error and send an error event to the client
                     string message = string.Format("Exception occurred while receiving message: {0}", e.Message);
-                    Logger.Write(TraceEventType.Error, message);
-                    await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
-
+                    if (this.MessageWriter != null)
+                    {
+                        Logger.Write(TraceEventType.Error, message);
+                        await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
+                    }
                     // Continue the loop
                     continue;
                 }
@@ -275,7 +291,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     Logger.Write(TraceEventType.Verbose, logMessage);
 
                     // Process the message
-                    await this.DispatchMessage(newMessage, this.MessageWriter);
+                    if (this.MessageWriter != null)
+                    {
+                        await this.DispatchMessage(newMessage, this.MessageWriter);
+                    }
                 }
             }
         }
@@ -284,12 +303,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             Message messageToDispatch,
             MessageWriter messageWriter)
         {
-            Task handlerToAwait = null;
+            Task? handlerToAwait = null;
 
             if (messageToDispatch.MessageType == MessageType.Request)
             {
-                Func<Message, MessageWriter, Task> requestHandler = null;
-                if (this.requestHandlers.TryGetValue(messageToDispatch.Method, out requestHandler))
+                Func<Message, MessageWriter, Task>? requestHandler = null;
+                if (messageToDispatch.Method != null && this.requestHandlers.TryGetValue(messageToDispatch.Method, out requestHandler))
                 {
                     handlerToAwait = requestHandler(messageToDispatch, messageWriter);
                 }
@@ -307,8 +326,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
             else if (messageToDispatch.MessageType == MessageType.Event)
             {
-                Func<Message, MessageWriter, Task> eventHandler = null;
-                if (this.eventHandlers.TryGetValue(messageToDispatch.Method, out eventHandler))
+                Func<Message, MessageWriter, Task>? eventHandler = null;
+                if (messageToDispatch.Method != null && this.eventHandlers.TryGetValue(messageToDispatch.Method, out eventHandler))
                 {
                     handlerToAwait = eventHandler(messageToDispatch, messageWriter);
                 }
@@ -353,7 +372,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
             catch (Exception e)
             {
-                if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
+                if (!(e is AggregateException exception && exception.InnerExceptions[0] is TaskCanceledException))
                 {
                     // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
                     Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));

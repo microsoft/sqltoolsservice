@@ -26,8 +26,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private int currentMessageId;
         private ChannelBase protocolChannel;
         private MessageProtocolType messageProtocolType;
-        private TaskCompletionSource<bool> endpointExitedTask;
-        private SynchronizationContext originalSynchronizationContext;
+        private TaskCompletionSource<bool>? endpointExitedTask;
+        private SynchronizationContext? originalSynchronizationContext;
 
         private Dictionary<string, TaskCompletionSource<Message>> pendingRequests =
             new Dictionary<string, TaskCompletionSource<Message>>();
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// handlers for requests, responses, and events that are
         /// transmitted through the channel.
         /// </summary>
-        internal MessageDispatcher MessageDispatcher { get; set; }
+        internal MessageDispatcher? MessageDispatcher { get; set; }
 
         /// <summary>
         /// Initializes an instance of the protocol server using the
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <summary>
         /// Initializes
         /// </summary>
-        public void Initialize(Stream inputStream = null, Stream outputStream = null)
+        public void Initialize(Stream? inputStream = null, Stream? outputStream = null)
         {
             if (!this.isInitialized)
             {
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             async (t) =>
                             {
                                 // Start the MessageDispatcher
-                                this.MessageDispatcher.Start();
+                                this.MessageDispatcher?.Start();
                                 await this.OnConnect();
                             });
 
@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 await this.OnStop();
 
                 // Stop the dispatcher and channel
-                this.MessageDispatcher.Stop();
+                this.MessageDispatcher?.Stop();
                 this.protocolChannel.Stop();
 
                 // Notify anyone waiting for exit
@@ -157,14 +157,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="requestType"></param>
         /// <param name="requestParams"></param>
         /// <returns></returns>
-        public Task<TResult> SendRequest<TParams, TResult>(
+        public Task<TResult?> SendRequest<TParams, TResult>(
             RequestType<TParams, TResult> requestType, 
             TParams requestParams)
         {
             return this.SendRequest(requestType, requestParams, true);
         }
 
-        public async Task<TResult> SendRequest<TParams, TResult>(
+        public async Task<TResult?> SendRequest<TParams, TResult>(
             RequestType<TParams, TResult> requestType, 
             TParams requestParams,
             bool waitForResponse)
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             this.currentMessageId++;
 
-            TaskCompletionSource<Message> responseTask = null;
+            TaskCompletionSource<Message>? responseTask = null;
 
             if (waitForResponse)
             {
@@ -186,10 +186,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     responseTask);
             }
 
-            await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
-                requestType, 
-                requestParams, 
-                this.currentMessageId);
+            if (this.protocolChannel.MessageWriter != null)
+            {
+                await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
+                    requestType,
+                    requestParams,
+                    this.currentMessageId);
+            }
 
             if (responseTask != null)
             {
@@ -198,12 +201,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 return
                     responseMessage.Contents != null ?
                         responseMessage.Contents.ToObject<TResult>() :
-                        default(TResult);
+                        default(TResult?);
             }
             else
             {
                 // TODO: Better default value here?
-                return default(TResult);
+                return default(TResult?);
             }
         }
 
@@ -215,8 +218,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="eventParams">The event parameters being sent.</param>
         /// <returns>A Task that tracks completion of the send operation.</returns>
         public Task SendEvent<TParams>(
-            EventType<TParams> eventType,
-            TParams eventParams)
+            EventType<TParams>? eventType,
+            TParams? eventParams)
         {
             try
             {
@@ -229,17 +232,19 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 // To ensure that messages are written serially, dispatch
                 // dispatch the SendEvent call to the message loop thread.
 
-                if (!this.MessageDispatcher.InMessageLoopThread)
+                if (this.MessageDispatcher != null && !this.MessageDispatcher.InMessageLoopThread)
                 {
                     TaskCompletionSource<bool> writeTask = new TaskCompletionSource<bool>();
 
-                    this.MessageDispatcher.SynchronizationContext.Post(
+                    this.MessageDispatcher.SynchronizationContext?.Post(
                         async (obj) =>
                         {
-                            await this.protocolChannel.MessageWriter.WriteEvent(
-                                eventType,
-                                eventParams);
-
+                            if (this.protocolChannel.MessageWriter != null)
+                            {
+                                await this.protocolChannel.MessageWriter.WriteEvent(
+                                    eventType,
+                                    eventParams);
+                            }
                             writeTask.SetResult(true);
                         }, null);
 
@@ -247,9 +252,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 }
                 else
                 {
-                    return this.protocolChannel.MessageWriter.WriteEvent(
-                        eventType,
-                        eventParams);
+                    if (this.protocolChannel.MessageWriter != null)
+                    {
+                        return this.protocolChannel.MessageWriter.WriteEvent(
+                            eventType,
+                            eventParams);
+                    }
                 }
             }
             catch (Exception ex)
@@ -272,18 +280,18 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
-            Func<TParams, RequestContext<TResult>, Task> requestHandler)
+            Func<TParams?, RequestContext<TResult>, Task> requestHandler)
         {
-            this.MessageDispatcher.SetRequestHandler(
+            this.MessageDispatcher?.SetRequestHandler(
                 requestType,
                 requestHandler);
         }
 
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler)
+            Func<TParams?, EventContext, Task> eventHandler)
         {
-            this.MessageDispatcher.SetEventHandler(
+            this.MessageDispatcher?.SetEventHandler(
                 eventType,
                 eventHandler,
                 false);
@@ -291,10 +299,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler,
+            Func<TParams?, EventContext, Task> eventHandler,
             bool overrideExisting)
         {
-            this.MessageDispatcher.SetEventHandler(
+            this.MessageDispatcher?.SetEventHandler(
                 eventType,
                 eventHandler,
                 overrideExisting);
@@ -302,7 +310,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private void HandleResponse(Message responseMessage)
         {
-            TaskCompletionSource<Message> pendingRequestTask = null;
+            TaskCompletionSource<Message>? pendingRequestTask = null;
 
             if (this.pendingRequests.TryGetValue(responseMessage.Id, out pendingRequestTask))
             {
@@ -334,16 +342,19 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Event Handlers
 
-        private void MessageDispatcher_UnhandledException(object sender, Exception e)
+        private void MessageDispatcher_UnhandledException(object? sender, Exception? e)
         {
-            if (this.endpointExitedTask != null)
+            if (e != null)
             {
-                this.endpointExitedTask.SetException(e);
-            }
+                if (this.endpointExitedTask != null)
+                {
+                    this.endpointExitedTask.SetException(e);
+                }
 
-            else if (this.originalSynchronizationContext != null)
-            {
-                this.originalSynchronizationContext.Post(o => { throw e; }, null);
+                else if (this.originalSynchronizationContext != null)
+                {
+                    this.originalSynchronizationContext.Post(o => { throw e; }, null);
+                }
             }
         }
 

@@ -11,9 +11,9 @@ namespace Microsoft.SqlTools.Hosting.Contracts
 
         public bool? HoverProvider { get; set; }
 
-        public CompletionOptions CompletionProvider { get; set; }
+        public CompletionOptions? CompletionProvider { get; set; }
 
-        public SignatureHelpOptions SignatureHelpProvider { get; set; }
+        public SignatureHelpOptions? SignatureHelpProvider { get; set; }
 
         public bool? DefinitionProvider { get; set; }
 
@@ -56,12 +56,12 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     {
         public bool? ResolveProvider { get; set; }
 
-        public string[] TriggerCharacters { get; set; }
+        public string[]? TriggerCharacters { get; set; }
     }
 
     public class SignatureHelpOptions
     {
-        public string[] TriggerCharacters { get; set; }
+        public string[]? TriggerCharacters { get; set; }
     }
 }
 

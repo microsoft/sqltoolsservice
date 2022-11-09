@@ -57,7 +57,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public abstract Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null);
 
         /// <inheritdoc/>
-        public async Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null)
+        public async Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string? databaseName = null)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 

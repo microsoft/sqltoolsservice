@@ -117,7 +117,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             return clientRequestProperties;
         }
 
-        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string databaseName = null, int retryCount = 1)
+        public IDataReader ExecuteQuery(string query, CancellationToken cancellationToken, string? databaseName = null, int retryCount = 1)
         {
             ValidationUtils.IsArgumentNotNullOrWhiteSpace(query, nameof(query));
 

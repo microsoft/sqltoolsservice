@@ -38,25 +38,30 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
         /// <summary>
         /// Gets or sets the message's method/command name.
         /// </summary>
-        public string Method { get; set; }
+        public string? Method { get; set; }
 
         /// <summary>
         /// Gets or sets a JToken containing the contents of the message.
         /// </summary>
-        public JToken Contents { get; set; }
+        public JToken? Contents { get; set; }
 
         /// <summary>
         /// Gets or sets a JToken containing error details.
         /// </summary>
-        public JToken Error { get; set; }
+        public JToken? Error { get; set; }
         
+        public Message(string? id = null)
+        {
+            Id = id ?? string.Empty;
+        }
+
         /// <summary>
         /// Creates a message with an Unknown type.
         /// </summary>
         /// <returns>A message with Unknown type.</returns>
         public static Message Unknown()
         {
-            return new Message
+            return new Message()
             {
                 MessageType = MessageType.Unknown
             };
@@ -69,12 +74,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
         /// <param name="method">The method name of the request.</param>
         /// <param name="contents">The contents of the request.</param>
         /// <returns>A message with a Request type.</returns>
-        public static Message Request(string id, string method, JToken contents)
+        public static Message Request(string id, string? method, JToken? contents)
         {
-            return new Message
+            return new Message(id)
             {
                 MessageType = MessageType.Request,
-                Id = id,
                 Method = method,
                 Contents = contents
             };
@@ -87,12 +91,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
         /// <param name="method">The method name of the original request.</param>
         /// <param name="contents">The contents of the response.</param>
         /// <returns>A message with a Response type.</returns>
-        public static Message Response(string id, string method, JToken contents)
+        public static Message Response(string id, string? method, JToken? contents)
         {
-            return new Message
+            return new Message(id)
             {
                 MessageType = MessageType.Response,
-                Id = id,
                 Method = method,
                 Contents = contents
             };
@@ -105,12 +108,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
         /// <param name="method">The method name of the original request.</param>
         /// <param name="error">The error details of the response.</param>
         /// <returns>A message with a Response type and error details.</returns>
-        public static Message ResponseError(string id, string method, JToken error)
+        public static Message ResponseError(string id, string? method, JToken? error)
         {
-            return new Message
+            return new Message(id)
             {
                 MessageType = MessageType.Response,
-                Id = id,
                 Method = method,
                 Error = error
             };
@@ -122,9 +124,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
         /// <param name="method">The method name of the event.</param>
         /// <param name="contents">The contents of the event.</param>
         /// <returns>A message with an Event type.</returns>
-        public static Message Event(string method, JToken contents)
+        public static Message Event(string? method, JToken? contents)
         {
-            return new Message
+            return new Message(string.Empty)
             {
                 MessageType = MessageType.Event,
                 Method = method,

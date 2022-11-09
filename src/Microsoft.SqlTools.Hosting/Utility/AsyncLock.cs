@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.Utility
     {
         #region Fields
 
-        private Task<IDisposable> lockReleaseTask;
+        private Task<IDisposable?> lockReleaseTask;
         private SemaphoreSlim lockSemaphore = new SemaphoreSlim(1, 1);
 
         #endregion
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Utility
         {
             this.lockReleaseTask =
                 Task.FromResult(
-                    (IDisposable)new LockReleaser(this));
+                    (IDisposable?)new LockReleaser(this));
         }
 
         #endregion
@@ -43,10 +43,8 @@ namespace Microsoft.SqlTools.Utility
         /// Locks
         /// </summary>
         /// <returns>A task which has an IDisposable</returns>
-        public Task<IDisposable> LockAsync()
-        {
-            return this.LockAsync(CancellationToken.None);
-        }
+        public Task<IDisposable?> LockAsync()
+            => this.LockAsync(CancellationToken.None);
 
         /// <summary>
         /// Obtains or waits for a lock which can be used to synchronize
@@ -57,7 +55,7 @@ namespace Microsoft.SqlTools.Utility
         /// A CancellationToken which can be used to cancel the lock.
         /// </param>
         /// <returns></returns>
-        public Task<IDisposable> LockAsync(CancellationToken cancellationToken)
+        public Task<IDisposable?> LockAsync(CancellationToken cancellationToken)
         {
             Task waitTask = lockSemaphore.WaitAsync(cancellationToken);
 
@@ -66,7 +64,7 @@ namespace Microsoft.SqlTools.Utility
                 waitTask.ContinueWith(
                     (t, releaser) =>
                     {
-                        return (IDisposable)releaser;
+                        return (IDisposable?)releaser;
                     },
                     this.lockReleaseTask.Result,
                     cancellationToken,

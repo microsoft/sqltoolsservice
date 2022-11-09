@@ -43,7 +43,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns>The results.</returns>
-        Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string databaseName = null);
+        Task<IDataReader> ExecuteQueryAsync(string query, CancellationToken cancellationToken, string? databaseName = null);
 
         /// <summary>
         /// Executes a Kusto query that returns a scalar value.
@@ -51,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <typeparam name="T">The type of the result.</typeparam>
         /// <param name="query">The query.</param>
         /// <returns>The result.</returns>
-        Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string databaseName = null);
+        Task<T> ExecuteScalarQueryAsync<T>(string query, CancellationToken cancellationToken, string? databaseName = null);
 
         /// <summary>
         /// Executes a Kusto query that returns a scalar value.

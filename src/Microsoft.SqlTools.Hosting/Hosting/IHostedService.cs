@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.Hosting
     public abstract class HostedService<T> : IHostedService, IComposableService
     {
 
-        protected IMultiServiceProvider ServiceProvider { get; private set; }
+        protected IMultiServiceProvider? ServiceProvider { get; private set; }
 
         public virtual void SetServiceProvider(IMultiServiceProvider provider)
         {
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.Hosting
             }
         }
 
-        protected async Task<THandler> HandleRequestAsync<THandler>(Func<Task<THandler>> handler, RequestContext<THandler> requestContext, string requestType)
+        protected async Task<THandler?> HandleRequestAsync<THandler>(Func<Task<THandler>> handler, RequestContext<THandler> requestContext, string requestType)
         {
             Logger.Verbose($"Handling request type {requestType}");
 

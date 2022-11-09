@@ -11,18 +11,18 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
     public class PublishDiagnosticsNotification
     {
         public static readonly
-            EventType<PublishDiagnosticsNotification> Type = 
-            EventType<PublishDiagnosticsNotification>.Create("textDocument/publishDiagnostics");
+            EventType<PublishDiagnosticsNotification?> Type = 
+            EventType<PublishDiagnosticsNotification?>.Create("textDocument/publishDiagnostics");
 
         /// <summary>
         /// Gets or sets the URI for which diagnostic information is reported.
         /// </summary>
-        public string Uri { get; set; }
+        public string? Uri { get; set; }
 
         /// <summary>
         /// Gets or sets the array of diagnostic information items.
         /// </summary>
-        public Diagnostic[] Diagnostics { get; set; }
+        public Diagnostic[]? Diagnostics { get; set; }
     }
 
     public enum DiagnosticSeverity 
@@ -61,12 +61,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts
         /// <summary>
         /// Gets or sets the diagnostic's code (optional).
         /// </summary>
-        public string Code { get; set; }
+        public string? Code { get; set; }
 
         /// <summary>
         /// Gets or sets the diagnostic message.
         /// </summary>
-        public string Message { get; set; }
+        public string? Message { get; set; }
     }
 }
 

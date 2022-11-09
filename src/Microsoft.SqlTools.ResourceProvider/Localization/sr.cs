@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ResourceProvider
         protected SR()
         { }
 
-        public static CultureInfo Culture
+        public static CultureInfo? Culture
         {
             get
             {
@@ -34,13 +34,13 @@ namespace Microsoft.SqlTools.ResourceProvider
         {
             static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ResourceProvider.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
-            static CultureInfo _culture = null;
+            static CultureInfo? _culture = null;
 
 
             private Keys()
             { }
 
-            public static CultureInfo Culture
+            public static CultureInfo? Culture
             {
                 get
                 {
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ResourceProvider
 
             public static string GetString(string key)
             {
-                return resourceManager.GetString(key, _culture);
+                return resourceManager.GetString(key, _culture) ?? string.Empty;
             }
 
         }

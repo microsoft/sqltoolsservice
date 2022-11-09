@@ -14,15 +14,15 @@ namespace Microsoft.SqlTools.Utility
     {
         public GeneralRequestDetails()
         {
-            Options = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            Options = new Dictionary<string, object?>(StringComparer.InvariantCultureIgnoreCase);
         }
 
-        public T GetOptionValue<T>(string name, T defaultValue = default(T))
+        public T? GetOptionValue<T>(string name, T? defaultValue = default(T))
         {
-            T result = defaultValue;
+            T? result = defaultValue;
             if (Options != null && Options.ContainsKey(name))
             {
-                object value = Options[name];
+                object? value = Options[name];
                 try
                 {
                     result = GetValueAs<T>(value);
@@ -37,9 +37,9 @@ namespace Microsoft.SqlTools.Utility
             return result;
         }
 
-        public static T GetValueAs<T>(object value)
+        public static T? GetValueAs<T>(object? value)
         {
-            T result = default(T);
+            T? result = default(T);
 
             if (value != null && (typeof(T) != value.GetType()))
             {
@@ -53,16 +53,19 @@ namespace Microsoft.SqlTools.Utility
                 }
                 else if (typeof(T).IsEnum)
                 {
-                    object enumValue;
+                    object? enumValue;
                     if (TryParseEnum<T>(typeof(T), value.ToString(), out enumValue))
                     {
-                        value = (T)enumValue;
+                        if (enumValue != null)
+                        {
+                            value = (T)enumValue;
+                        }
                     }
                 }
             }
             else if (value != null && (typeof(T).IsEnum))
             {
-                object enumValue;
+                object? enumValue;
                 if (TryParseEnum<T>(typeof(T), value.ToString(), out enumValue))
                 {
                     value = enumValue;
@@ -79,23 +82,25 @@ namespace Microsoft.SqlTools.Utility
         /// is hard to check. This is different to the NetCore definition for some reason.
         /// It seems easier to implement our own than work around this.
         /// </summary>
-        private static bool TryParseEnum<T>(Type t, string value, out object enumValue)
+        private static bool TryParseEnum<T>(Type t, string? value, out object? enumValue)
         {
             try
             {
-                enumValue = Enum.Parse(t, value);
-                return true;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    enumValue = Enum.Parse(t, value);
+                    return true;
+                }
             }
-            catch (Exception)
-            {
-                enumValue = default(T);
-                return false;
-            }
+            catch (Exception) { }
+
+            enumValue = default(T);
+            return false;
         }
 
-        protected void SetOptionValue<T>(string name, T value)
+        protected void SetOptionValue<T>(string name, T? value)
         {
-            Options = Options ?? new Dictionary<string, object>();
+            Options = Options ?? new Dictionary<string, object?>();
             if (Options.ContainsKey(name))
             {
                 Options[name] = value;
@@ -109,7 +114,7 @@ namespace Microsoft.SqlTools.Utility
         /// <summary>
         /// Gets or Sets the options
         /// </summary>
-        public Dictionary<string, object> Options { get; set; }
+        public Dictionary<string, object?> Options { get; set; }
     }
 }
 

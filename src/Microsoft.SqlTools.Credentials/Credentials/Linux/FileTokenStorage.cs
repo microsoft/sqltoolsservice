@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -38,14 +38,14 @@ namespace Microsoft.SqlTools.Credentials.Linux
 
         public void Clear()
         {
-            this.SaveEntries(new List<Credential>());
+            this.SaveEntries(new List<Credential?>());
         }
 
-        public IEnumerable<Credential> LoadEntries()
+        public IEnumerable<Credential?> LoadEntries()
         {            
             if(!File.Exists(this.fileName))
             {
-                return Enumerable.Empty<Credential>();
+                return Enumerable.Empty<Credential?>();
             }
 
             string serializedCreds;
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.Credentials.Linux
                 serializedCreds = File.ReadAllText(this.fileName);
             }
 
-            CredentialsWrapper creds = JsonConvert.DeserializeObject<CredentialsWrapper>(serializedCreds, Constants.JsonSerializerSettings);
+            CredentialsWrapper? creds = JsonConvert.DeserializeObject<CredentialsWrapper>(serializedCreds, Constants.JsonSerializerSettings);
             if(creds != null)
             {
                 return creds.Credentials;
@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.Credentials.Linux
             return Enumerable.Empty<Credential>();
         }
 
-        public void SaveEntries(IEnumerable<Credential> entries)
+        public void SaveEntries(IEnumerable<Credential?> entries)
         {
             CredentialsWrapper credentials = new CredentialsWrapper() { Credentials = entries.ToList() };
             string serializedCreds = JsonConvert.SerializeObject(credentials, Constants.JsonSerializerSettings);
@@ -75,8 +75,8 @@ namespace Microsoft.SqlTools.Credentials.Linux
 
         private static void WriteToFile(string filePath, string fileContents)
         {
-            string dir = Path.GetDirectoryName(filePath);
-            if(!Directory.Exists(dir))
+            string? dir = Path.GetDirectoryName(filePath);
+            if(dir != null && !Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }

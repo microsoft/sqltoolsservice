@@ -18,8 +18,8 @@ namespace Microsoft.SqlTools.Utility
     {
         #region Private Fields
 
-        private BlockingCollection<Tuple<SendOrPostCallback, object>> requestQueue =
-            new BlockingCollection<Tuple<SendOrPostCallback, object>>();
+        private BlockingCollection<Tuple<SendOrPostCallback, object?>> requestQueue =
+            new BlockingCollection<Tuple<SendOrPostCallback, object?>>();
 
         #endregion
 
@@ -36,11 +36,11 @@ namespace Microsoft.SqlTools.Utility
         /// A state object to pass along to the callback when executed through
         /// the SynchronizationContext.
         /// </param>
-        public override void Post(SendOrPostCallback callback, object state)
+        public override void Post(SendOrPostCallback callback, object? state)
         {
             // Add the request to the queue
             this.requestQueue.Add(
-                new Tuple<SendOrPostCallback, object>(
+                new Tuple<SendOrPostCallback, object?>(
                     callback, state));
         }
 
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         public void RunLoopOnCurrentThread()
         {
-            Tuple<SendOrPostCallback, object> request;
+            Tuple<SendOrPostCallback, object?>? request;
 
             while (this.requestQueue.TryTake(out request, Timeout.Infinite))
             {

@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// <typeparam name="T">Type of service to be found</typeparam>
         /// <returns>Instance of T or null if not found</returns>
         /// <exception cref="InvalidOperationException">The input sequence contains more than one element.-or-The input sequence is empty.</exception>
-        T GetService<T>();
+        T? GetService<T>();
 
         /// <summary>
         /// Gets a service of a specific type. The first service matching the specified filter will be returned
@@ -29,14 +29,14 @@ namespace Microsoft.SqlTools.Extensibility
         /// <param name="filter">Filter to use in </param>
         /// <returns>Instance of T or null if not found</returns>
         /// <exception cref="InvalidOperationException">The input sequence contains more than one element.-or-The input sequence is empty.</exception>
-        T GetService<T>(Predicate<T> filter);
+        T? GetService<T>(Predicate<T> filter);
 
         /// <summary>
         /// Gets multiple services of a given type
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns>An enumerable of matching services</returns>
-        IEnumerable<T> GetServices<T>();
+        IEnumerable<T>? GetServices<T>();
 
         /// <summary>
         /// Gets multiple services of a given type, where they match a filter
@@ -44,25 +44,25 @@ namespace Microsoft.SqlTools.Extensibility
         /// <typeparam name="T"></typeparam>
         /// <param name="filter"></param>
         /// <returns></returns>
-        IEnumerable<T> GetServices<T>(Predicate<T> filter);
+        IEnumerable<T>? GetServices<T>(Predicate<T> filter);
     }
     
     
     public abstract class ServiceProviderBase : IMultiServiceProvider
     {
 
-        public T GetService<T>()
+        public T? GetService<T>()
         {
             return GetServices<T>().SingleOrDefault();
         }
 
-        public T GetService<T>(Predicate<T> filter)
+        public T? GetService<T>(Predicate<T> filter)
         {
             Validate.IsNotNull(nameof(filter), filter);
             return GetServices<T>().Where(t => filter(t)).SingleOrDefault();
         }
 
-        public IEnumerable<T> GetServices<T>(Predicate<T> filter)
+        public IEnumerable<T>? GetServices<T>(Predicate<T> filter)
         {
             Validate.IsNotNull(nameof(filter), filter);
             return GetServices<T>().Where(t => filter(t));
@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.Extensibility
 
         private void InitComposableService<T>(T t)
         {
-            IComposableService c = t as IComposableService;
+            IComposableService? c = t as IComposableService;
             if (c != null)
             {
                 c.SetServiceProvider(this);

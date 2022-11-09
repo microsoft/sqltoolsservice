@@ -19,27 +19,26 @@ namespace Microsoft.InsightsGenerator
             public DataArray.DataType DataType { get; set; }
         }
 
-        public DataArray Transform(DataArray array)
+        public DataArray? Transform(DataArray array)
         {
             if (array == null || array.Cells == null || array.Cells.Length == 0)
             {
                 return array;
             }
 
-            DataArray.DataType[] columnDataType;
-            array.TransformedColumnNames = GetColumnLabels(array , out columnDataType);
+            array.TransformedColumnNames = GetColumnLabels(array, out DataArray.DataType[]? columnDataType);
             array.ColumnDataType = columnDataType;
             return array;
         }
 
-        private string[] GetColumnLabels(DataArray array, out DataArray.DataType[] columnDataType)
+        private string[]? GetColumnLabels(DataArray array, out DataArray.DataType[]? columnDataType)
         {
-            columnDataType = new DataArray.DataType[array.ColumnNames.Length];
-            int columnCount = array.Cells[0].Length;
+            columnDataType = new DataArray.DataType[array.ColumnNames?.Length ?? 0];
+            int columnCount = array.Cells?[0]?.Length ?? 0;
             Dictionary<DataArray.DataType, List<ColumnInfo>> columnInfo = new Dictionary<DataArray.DataType, List<ColumnInfo>>();
             for (int column = 0; column < columnCount; ++column)
             {
-                int distinctValues;     
+                int distinctValues;
                 DataArray.DataType dataType = GetColumnType(array, column, out distinctValues);
                 columnDataType[column] = dataType;
 
@@ -73,7 +72,7 @@ namespace Microsoft.InsightsGenerator
                         labels[stringColumns[i].ColumnIndex] = "slicer_" + i;
                     }
                 }
-            } 
+            }
             else
             {
                 if (columnInfo.ContainsKey(DataArray.DataType.String))
@@ -91,7 +90,7 @@ namespace Microsoft.InsightsGenerator
                             maxColumnLabelIndex = stringColumns[i].ColumnIndex;
                         }
                     }
-                    
+
                     labels[maxColumnLabelIndex] = "input_g_0";
                     int adjustIndex = 0;
                     for (int i = 0; i < stringColumns.Count; ++i)
@@ -124,7 +123,7 @@ namespace Microsoft.InsightsGenerator
         {
             // count number of distinct values
             HashSet<object> values = new HashSet<object>();
-            for (int row = 0; row < array.Cells.Length; ++row)
+            for (int row = 0; row < array.Cells?.Length; ++row)
             {
                 if (!values.Contains(array.Cells[row][column]))
                 {
@@ -141,8 +140,8 @@ namespace Microsoft.InsightsGenerator
             else
             {
                 // determine the type from the first value in array
-                object firstValue = array.Cells[0][column];
-                string firstValueString = firstValue.ToString();
+                object? firstValue = array.Cells?[0]?[column];
+                string? firstValueString = firstValue?.ToString();
 
                 long longValue;
                 double doubleValue;

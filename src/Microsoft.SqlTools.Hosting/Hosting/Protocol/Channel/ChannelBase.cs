@@ -23,12 +23,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// <summary>
         /// Gets the MessageReader for reading messages from the channel.
         /// </summary>
-        public MessageReader MessageReader { get; protected set; }
+        public MessageReader? MessageReader { get; protected set; }
 
         /// <summary>
         /// Gets the MessageWriter for writing messages to the channel.
         /// </summary>
-        public MessageWriter MessageWriter { get; protected set; }
+        public MessageWriter? MessageWriter { get; protected set; }
 
         /// <summary>
         /// Starts the channel and initializes the MessageDispatcher.
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// <param name="outputStream">Optional stream to use for the output stream</param>
         public void Start(MessageProtocolType messageProtocolType, Stream? inputStream = null, Stream? outputStream = null)
         {
-            IMessageSerializer messageSerializer = null;
+            IMessageSerializer? messageSerializer = null;
             if (messageProtocolType == MessageProtocolType.LanguageServer)
             {
                 messageSerializer = new JsonRpcMessageSerializer();

@@ -17,8 +17,8 @@ namespace Microsoft.SqlTools.Utility
     {
         #region Private Fields
 
-        private Task threadTask;
-        private string threadName;
+        private Task? threadTask;
+        private string? threadName;
         private CancellationTokenSource threadCancellationToken =
             new CancellationTokenSource();
 

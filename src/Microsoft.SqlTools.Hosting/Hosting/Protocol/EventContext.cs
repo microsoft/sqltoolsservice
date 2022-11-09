@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
     /// </summary>
     public class EventContext
     {
-        private readonly MessageWriter messageWriter;
+        private readonly MessageWriter? messageWriter;
 
         /// <summary>
         /// Parameterless constructor required for mocking
@@ -27,12 +27,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         }
 
         public virtual async Task SendEvent<TParams>(
-            EventType<TParams> eventType,
-            TParams eventParams)
+            EventType<TParams?>? eventType,
+            TParams? eventParams)
         {
-            await this.messageWriter.WriteEvent(
-                eventType,
-                eventParams);
+            if (this.messageWriter != null)
+            {
+                await this.messageWriter.WriteEvent(
+                    eventType,
+                    eventParams);
+            }
         }
     }
 }

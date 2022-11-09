@@ -88,12 +88,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         }
 
         public async Task WriteRequest<TParams, TResult>(
-            RequestType<TParams, TResult> requestType, 
-            TParams requestParams,
+            RequestType<TParams, TResult>? requestType, 
+            TParams? requestParams,
             int requestId)
         {
             // Allow null content
-            JToken contentObject =
+            JToken? contentObject =
                 requestParams != null ?
                     JToken.FromObject(requestParams, contentSerializer) :
                     null;
@@ -101,14 +101,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             await this.WriteMessage(
                 Message.Request(
                     requestId.ToString(), 
-                    requestType.MethodName,
+                    requestType?.MethodName,
                     contentObject));
         }
 
-        public async Task WriteResponse<TResult>(TResult resultContent, string method, string requestId)
+        public async Task WriteResponse<TResult>(TResult resultContent, string? method, string requestId)
         {
             // Allow null content
-            JToken contentObject =
+            JToken? contentObject =
                 resultContent != null ?
                     JToken.FromObject(resultContent, contentSerializer) :
                     null;
@@ -120,24 +120,27 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     contentObject));
         }
 
-        public async Task WriteEvent<TParams>(EventType<TParams> eventType, TParams eventParams)
+        public async Task WriteEvent<TParams>(EventType<TParams>? eventType, TParams? eventParams)
         {
             // Allow null content
-            JToken contentObject =
+            JToken? contentObject =
                 eventParams != null ?
                     JToken.FromObject(eventParams, contentSerializer) :
                     null;
 
             await this.WriteMessage(
                 Message.Event(
-                    eventType.MethodName,
+                    eventType?.MethodName,
                     contentObject));
         }
 
-        public async Task WriteError(string method, string requestId, Error error)
+        public async Task WriteError(string? method, string requestId, Error? error)
         {
-            JToken contentObject = JToken.FromObject(error, contentSerializer);
-            await this.WriteMessage(Message.ResponseError(requestId, method, contentObject));
+            if (error != null)
+            {
+                JToken contentObject = JToken.FromObject(error, contentSerializer);
+                await this.WriteMessage(Message.ResponseError(requestId, method, contentObject));
+            }
         }
         
         #endregion

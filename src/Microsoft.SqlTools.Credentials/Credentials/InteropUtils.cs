@@ -15,13 +15,13 @@ namespace Microsoft.SqlTools.Credentials
         /// <summary>
         /// Gets the length in bytes for a Unicode string, for use in interop where length must be defined
         /// </summary>
-        public static UInt32 GetLengthInBytes(string value)
+        public static UInt32 GetLengthInBytes(string? value)
         {
             
             return Convert.ToUInt32( (value != null ? Encoding.Unicode.GetByteCount(value) : 0) );
         }
 
-        public static string CopyToString(IntPtr ptr, int length)
+        public static string? CopyToString(IntPtr ptr, int length)
         {
             if (ptr == IntPtr.Zero || length == 0)
             {

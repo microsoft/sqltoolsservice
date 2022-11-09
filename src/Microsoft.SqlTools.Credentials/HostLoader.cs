@@ -45,19 +45,23 @@ namespace  Microsoft.SqlTools.Credentials.Utility
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
+            ExtensionServiceProvider? serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
                 "microsofsqltoolscredentials.dll",
                 "microsoft.sqltools.hosting.dll"
             });
-            serviceProvider.RegisterSingleService(sqlToolsContext);
-            serviceProvider.RegisterSingleService(serviceHost);
 
-            CredentialService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(CredentialService.Instance);
+            if (serviceProvider != null)
+            {
+                serviceProvider.RegisterSingleService(sqlToolsContext);
+                serviceProvider.RegisterSingleService(serviceHost);
 
-            InitializeHostedServices(serviceProvider, serviceHost);
+                CredentialService.Instance.InitializeService(serviceHost);
+                serviceProvider.RegisterSingleService(CredentialService.Instance);
 
-            serviceHost.InitializeRequestHandlers();
+                InitializeHostedServices(serviceProvider, serviceHost);
+
+                serviceHost.InitializeRequestHandlers();
+            }
         }
 
         /// <summary>

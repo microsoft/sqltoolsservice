@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.Credentials
             }
         }
 
-        private ICredentialStore credStore;
+        private ICredentialStore? credStore;
 
         /// <summary>
         /// Default constructor is private since it's a singleton class
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.Credentials
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal CredentialService(ICredentialStore store, StoreConfig config)
+        internal CredentialService(ICredentialStore? store, StoreConfig config)
         {
             credStore = store != null ? store : GetStoreForOS(config);
         }
@@ -92,7 +92,7 @@ namespace Microsoft.SqlTools.Credentials
             serviceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
         }
 
-        public async Task HandleReadCredentialRequest(Credential credential, RequestContext<Credential> requestContext)
+        public async Task HandleReadCredentialRequest(Credential? credential, RequestContext<Credential> requestContext)
         {
             Func<Task<Credential>> doRead = () =>
             {
@@ -102,25 +102,25 @@ namespace Microsoft.SqlTools.Credentials
         }
 
 
-        public Task<Credential> ReadCredentialAsync(Credential credential)
+        public Task<Credential> ReadCredentialAsync(Credential? credential)
         {
             return Task.Run(() => ReadCredential(credential));
         }
 
-        public Credential ReadCredential(Credential credential)
+        public Credential ReadCredential(Credential? credential)
         {
             Credential.ValidateForLookup(credential);
 
             Credential result = Credential.Copy(credential);
-            string password;
-            if (credStore.TryGetPassword(credential.CredentialId, out password))
+
+            if (credStore != null && credStore.TryGetPassword(credential?.CredentialId, out string? password))
             {
                 result.Password = password;
             }
             return result;
         }
 
-        public async Task HandleSaveCredentialRequest(Credential credential, RequestContext<bool> requestContext)
+        public async Task HandleSaveCredentialRequest(Credential? credential, RequestContext<bool> requestContext)
         {
             Func<Task<bool>> doSave = () =>
             {
@@ -129,18 +129,18 @@ namespace Microsoft.SqlTools.Credentials
             await HandleRequest(doSave, requestContext, "HandleSaveCredentialRequest");
         }
 
-        public Task<bool> SaveCredentialAsync(Credential credential)
+        public Task<bool> SaveCredentialAsync(Credential? credential)
         {
             return Task.Run(() => SaveCredential(credential));
         }
 
-        public bool SaveCredential(Credential credential)
+        public bool SaveCredential(Credential? credential)
         {
             Credential.ValidateForSave(credential);
-            return credStore.Save(credential);
+            return credStore != null && credStore.Save(credential);
         }
 
-        public async Task HandleDeleteCredentialRequest(Credential credential, RequestContext<bool> requestContext)
+        public async Task HandleDeleteCredentialRequest(Credential? credential, RequestContext<bool> requestContext)
         {
             Func<Task<bool>> doDelete = () =>
             {
@@ -149,12 +149,12 @@ namespace Microsoft.SqlTools.Credentials
             await HandleRequest(doDelete, requestContext, "HandleDeleteCredentialRequest");
         }
 
-        private Task<bool> DeletePasswordAsync(Credential credential)
+        private Task<bool> DeletePasswordAsync(Credential? credential)
         {
             return Task.Run(() =>
             {
                 Credential.ValidateForLookup(credential);
-                return credStore.DeletePassword(credential.CredentialId);
+                return credStore != null && credStore.DeletePassword(credential?.CredentialId);
             });
         }
 

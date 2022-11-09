@@ -14,13 +14,13 @@ namespace Microsoft.InsightsGenerator
             DateTime
         }
 
-        public string[] ColumnNames { get; set; }
+        public string[]? ColumnNames { get; set; }
 
-        public string[] TransformedColumnNames { get; set; }
+        public string[]? TransformedColumnNames { get; set; }
 
-        public DataType[] ColumnDataType { get; set; }
+        public DataType[]? ColumnDataType { get; set; }
 
-        public object[][] Cells { get; set; }
+        public object[][]? Cells { get; set; }
     }
 }
 

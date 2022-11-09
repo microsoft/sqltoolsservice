@@ -75,20 +75,20 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         /// <param name="shutdownParams"></param>
         /// <param name="shutdownRequestContext"></param>
-        public delegate Task ShutdownCallback(object shutdownParams, RequestContext<object> shutdownRequestContext);
+        public delegate Task ShutdownCallback(object? shutdownParams, RequestContext<object> shutdownRequestContext);
 
         /// <summary>
         /// Delegate definition for the host initialization event
         /// </summary>
         /// <param name="startupParams"></param>
         /// <param name="requestContext"></param>
-        public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
+        public delegate Task InitializeCallback(InitializeRequest? startupParams, RequestContext<InitializeResult> requestContext);
 
         private readonly List<ShutdownCallback> shutdownCallbacks;
 
         private readonly List<InitializeCallback> initializeCallbacks;
 
-        private static readonly Version serviceVersion = Assembly.GetEntryAssembly().GetName().Version;
+        private static readonly Version? serviceVersion = Assembly.GetEntryAssembly()?.GetName()?.Version;
 
         #endregion
 
@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.Utility
         /// <summary>
         /// Handles the shutdown event for the Language Server
         /// </summary>
-        private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
+        private async Task HandleShutdownRequest(object? shutdownParams, RequestContext<object> requestContext)
         {
             Logger.Write(TraceEventType.Information, "Service host is shutting down...");
 
@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="initializeParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        internal async Task HandleInitializeRequest(InitializeRequest initializeParams, RequestContext<InitializeResult> requestContext)
+        internal async Task HandleInitializeRequest(InitializeRequest? initializeParams, RequestContext<InitializeResult> requestContext)
         {
             // Call all tasks that registered on the initialize request
             var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
@@ -164,10 +164,10 @@ namespace Microsoft.SqlTools.Utility
         /// Handles the version request. Sends back the server version as result.
         /// </summary>
         private static async Task HandleVersionRequest(
-          object versionRequestParams,
+          object? versionRequestParams,
           RequestContext<string> requestContext)
         {
-            await requestContext.SendResult(serviceVersion.ToString());
+            await requestContext.SendResult(serviceVersion?.ToString());
         }
 
         #endregion

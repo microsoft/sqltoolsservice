@@ -49,7 +49,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 key += "_" + details.GroupId;
             }
 
-            return Uri.EscapeUriString(key);
+            return Uri.EscapeDataString(key);
         }
 
         public void RemoveBindingContext(ConnectionInfo connInfo)
@@ -68,7 +68,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="needMetadata"></param>
         /// <param name="featureName"></param>
         /// <param name="overwrite">Overwrite existing context</param>
-        public string AddConnectionContext(ConnectionInfo connInfo, bool needMetadata, string featureName = null, bool overwrite = false)
+        public string AddConnectionContext(ConnectionInfo connInfo, bool needMetadata, string? featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {

@@ -56,17 +56,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
 
         public Message DeserializeMessage(JObject messageJson)
         {
-            JToken token = null;
-
-            if (messageJson.TryGetValue("type", out token))
+            if (messageJson.TryGetValue("type", out JToken? token))
             {
                 string messageType = token.ToString();
 
                 if (string.Equals("request", messageType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return Message.Request(
-                        messageJson.GetValue("seq").ToString(),
-                        messageJson.GetValue("command").ToString(),
+                        messageJson.GetValue("seq")?.ToString() ?? string.Empty,
+                        messageJson.GetValue("command")?.ToString(),
                         messageJson.GetValue("arguments"));
                 }
                 else if (string.Equals("response", messageType, StringComparison.CurrentCultureIgnoreCase))
@@ -77,15 +75,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                         if (token.ToObject<bool>() == true)
                         {
                             return Message.Response(
-                                messageJson.GetValue("request_seq").ToString(),
-                                messageJson.GetValue("command").ToString(),
+                                messageJson.GetValue("request_seq")?.ToString() ?? string.Empty,
+                                messageJson.GetValue("command")?.ToString(),
                                 messageJson.GetValue("body"));
                         }
                         else
                         {
                             return Message.ResponseError(
-                                messageJson.GetValue("request_seq").ToString(),
-                                messageJson.GetValue("command").ToString(),
+                                messageJson.GetValue("request_seq")?.ToString() ?? string.Empty,
+                                messageJson.GetValue("command")?.ToString(),
                                 messageJson.GetValue("message"));
                         }
                     }
@@ -98,7 +96,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                 else if (string.Equals("event", messageType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return Message.Event(
-                        messageJson.GetValue("event").ToString(),
+                        messageJson.GetValue("event")?.ToString(),
                         messageJson.GetValue("body"));
                 }
                 else
