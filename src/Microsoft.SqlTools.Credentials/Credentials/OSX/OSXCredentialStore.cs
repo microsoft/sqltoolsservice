@@ -18,19 +18,19 @@ namespace Microsoft.SqlTools.Credentials.OSX
     /// </summary>
     internal class OSXCredentialStore : ICredentialStore
     {
-        public bool DeletePassword(string credentialId)
+        public bool DeletePassword(string? credentialId)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             return DeletePasswordImpl(credentialId);
         }
 
-        public bool TryGetPassword(string credentialId, out string password)
+        public bool TryGetPassword(string? credentialId, out string? password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             return FindPassword(credentialId, out password);
         }
 
-        public bool Save(Credential credential)
+        public bool Save(Credential? credential)
         {
             Credential.ValidateForSave(credential);
             bool result = false;
@@ -38,23 +38,23 @@ namespace Microsoft.SqlTools.Credentials.OSX
             // Note: OSX blocks AddPassword if the credential 
             // already exists, so for now we delete the password if already present since we're updating
             // the value. In the future, we could consider updating but it's low value to solve this
-            DeletePasswordImpl(credential.CredentialId);
+            DeletePasswordImpl(credential?.CredentialId);
 
             // Now add the password
             result = AddGenericPassword(credential);
             return result;
         }
 
-        private bool AddGenericPassword(Credential credential)
+        private bool AddGenericPassword(Credential? credential)
         {            
-            IntPtr passwordPtr = Marshal.StringToCoTaskMemUni(credential.Password);
+            IntPtr passwordPtr = Marshal.StringToCoTaskMemUni(credential?.Password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero, 
-              InteropUtils.GetLengthInBytes(credential.CredentialId), 
-              credential.CredentialId,
+              InteropUtils.GetLengthInBytes(credential?.CredentialId), 
+              credential?.CredentialId,
               0, 
               null,
-              InteropUtils.GetLengthInBytes(credential.Password),
+              InteropUtils.GetLengthInBytes(credential?.Password),
               passwordPtr,
               IntPtr.Zero);
 
@@ -64,10 +64,10 @@ namespace Microsoft.SqlTools.Credentials.OSX
         /// <summary>
         /// Finds the first password matching this credential
         /// </summary>
-        private bool FindPassword(string credentialId, out string password)
+        private bool FindPassword(string? credentialId, out string? password)
         {
             password = null;
-            using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
+            using (KeyChainItemHandle? handle = LookupKeyChainItem(credentialId))
             {
                 if( handle == null)
                 {
@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             return true;
         }
 
-        private KeyChainItemHandle LookupKeyChainItem(string credentialId)
+        private KeyChainItemHandle? LookupKeyChainItem(string? credentialId)
         {
             UInt32 passwordLength;
             IntPtr passwordPtr;
@@ -101,10 +101,10 @@ namespace Microsoft.SqlTools.Credentials.OSX
             return null;
         }
 
-        private bool DeletePasswordImpl(string credentialId)
+        private bool DeletePasswordImpl(string? credentialId)
         {
             // Find password, then Delete, then cleanup
-            using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
+            using (KeyChainItemHandle? handle = LookupKeyChainItem(credentialId))
             {
                 if (handle == null)
                 {
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
                 this.passwordLength = (int) passwordLength;
             }
             
-            public string Password 
+            public string? Password 
             { 
                 get {
                     if (IsInvalid)

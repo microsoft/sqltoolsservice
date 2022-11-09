@@ -19,12 +19,12 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// <summary>
         /// Error message
         /// </summary>
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         /// <summary>
         /// Additional data.
         /// </summary>
-        public string Data { get; set; }
+        public string? Data { get; set; }
 
         public override string ToString()
         {

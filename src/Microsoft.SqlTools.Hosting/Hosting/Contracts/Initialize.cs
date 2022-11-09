@@ -18,12 +18,12 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// If null it is assumed that a file was opened without having
         /// a workspace open.
         /// </summary>
-        public string RootPath { get; set; }
+        public string? RootPath { get; set; }
 
         /// <summary>
         /// Gets or sets the capabilities provided by the client (editor).
         /// </summary>
-        public ClientCapabilities Capabilities { get; set; }
+        public ClientCapabilities? Capabilities { get; set; }
     }
 
     public class InitializeResult
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// <summary>
         /// Gets or sets the capabilities provided by the language server.
         /// </summary>
-        public ServerCapabilities Capabilities { get; set; }
+        public ServerCapabilities? Capabilities { get; set; }
     }
 
     public class InitializeError

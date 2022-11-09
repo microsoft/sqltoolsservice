@@ -18,18 +18,17 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Base class for DAC extensibility exports
         /// </summary>
-        protected ExportStandardMetadataAttribute(Type contractType, string id, string displayName = null)
+        protected ExportStandardMetadataAttribute(Type contractType, string id, string? displayName = null)
             : base(contractType)
         {
             Id = id;
             DisplayName = displayName; 
         }
-        
 
         /// <summary>
         /// The version of this extension
         /// </summary>
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         /// <summary>
         /// The id of the extension
@@ -39,6 +38,6 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// The display name for the extension
         /// </summary>
-        public virtual string DisplayName { get; private set; }
+        public virtual string? DisplayName { get; private set; }
     }
 }

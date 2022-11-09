@@ -12,7 +12,7 @@ namespace Microsoft.InsightsGenerator
     public class Workflow
     {
 
-        public Task<string> ProcessInputData(DataArray rulesData,
+        public Task<string?> ProcessInputData(DataArray rulesData,
             CancellationToken cancellationToken = new CancellationToken())
         {
             // added cancellationToken just in case for future
@@ -30,7 +30,7 @@ namespace Microsoft.InsightsGenerator
                     SignatureGeneratorResult result = siggen.Learn();
                         // call the rules engine processor
 
-                    string insights = null;
+                    string? insights = null;
                     if (result?.Insights == null)
                     {
                         // Console.WriteLine("Failure in generating insights, Input not recognized!");

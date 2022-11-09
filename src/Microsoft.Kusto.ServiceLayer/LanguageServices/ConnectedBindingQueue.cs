@@ -49,7 +49,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 key += "_" + details.GroupId;
             }
 
-            return Uri.EscapeUriString(key);
+            return Uri.EscapeDataString(key);
         }
 
         public void RemoveBindingContext(ConnectionInfo connInfo)

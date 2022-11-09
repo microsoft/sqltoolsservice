@@ -12,6 +12,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
     {
         public string MethodName { get; private set; }
 
+        // Added default ctor to make 'MethodName' non-nullable
+        public RequestType(string methodName = "")
+        {
+            MethodName = methodName;
+        }
+
         public static RequestType<TParams, TResult> Create(string typeName)
         {
             return new RequestType<TParams, TResult>()

@@ -237,10 +237,10 @@ Category5
         }
 
 
-        public void CompareInsightWithExpectedOutcome(List<List<string>> insights, string expectedOutcome)
+        public void CompareInsightWithExpectedOutcome(List<List<string?>> insights, string expectedOutcome)
         {
             List<string> stringedInsights = new List<string>();
-            foreach (List<string> insight in insights)
+            foreach (List<string?> insight in insights)
             {
                 stringedInsights.Add(string.Join(Environment.NewLine, insight));
             }
@@ -252,9 +252,9 @@ Category5
         {
             SignatureGenerator sigGen = new SignatureGenerator(sampleDataArray(false));
             sigGen.Learn();
-            foreach (List<string> list in sigGen.Result.Insights)
+            foreach (List<string?> list in sigGen.Result.Insights)
             {
-                foreach (string str in list)
+                foreach (string? str in list)
                 {
                     Console.WriteLine(str);
                 }

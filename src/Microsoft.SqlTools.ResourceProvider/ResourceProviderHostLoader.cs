@@ -47,14 +47,17 @@ namespace Microsoft.SqlTools.ResourceProvider
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory(GetResourceProviderExtensionDlls());
+            ExtensionServiceProvider? serviceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory(GetResourceProviderExtensionDlls());
 
-            serviceProvider.RegisterSingleService(sqlToolsContext);
-            serviceProvider.RegisterSingleService(serviceHost);
-            
-            InitializeHostedServices(serviceProvider, serviceHost);
+            if (serviceProvider != null)
+            {
+                serviceProvider.RegisterSingleService(sqlToolsContext);
+                serviceProvider.RegisterSingleService(serviceHost);
 
-            serviceHost.InitializeRequestHandlers();
+                InitializeHostedServices(serviceProvider, serviceHost);
+
+                serviceHost.InitializeRequestHandlers();
+            }
         }
 
         public static IEnumerable<string> GetResourceProviderExtensionDlls()

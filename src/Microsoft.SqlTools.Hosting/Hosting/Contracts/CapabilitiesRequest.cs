@@ -17,13 +17,13 @@ namespace Microsoft.SqlTools.Hosting.Contracts
            RequestType<CapabilitiesRequest, CapabilitiesResult> Type =
             RequestType<CapabilitiesRequest, CapabilitiesResult>.Create("capabilities/list");
 
-        public string HostName { get; set; }
+        public string? HostName { get; set; }
 
-        public string HostVersion { get; set; }
+        public string? HostVersion { get; set; }
     }
 
     public class CapabilitiesResult
     {
-        public DmpServerCapabilities Capabilities { get; set; }
+        public DmpServerCapabilities? Capabilities { get; set; }
     }    
 }

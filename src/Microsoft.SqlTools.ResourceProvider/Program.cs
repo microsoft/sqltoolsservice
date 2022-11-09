@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ResourceProvider
                     return;
                 }
 
-                string logFilePath = commandOptions.LogFilePath;
+                string? logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
                     logFilePath = Logger.GenerateLogFilePath("SqlToolsResourceProviderService");

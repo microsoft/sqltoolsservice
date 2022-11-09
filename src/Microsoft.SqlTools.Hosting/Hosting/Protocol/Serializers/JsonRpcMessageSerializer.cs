@@ -54,8 +54,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
         {
             // TODO: Check for jsonrpc version
 
-            JToken token = null;
-            if (messageJson.TryGetValue("id", out token))
+            if (messageJson.TryGetValue("id", out JToken? token))
             {
                 // Message is a Request or Response
                 string messageId = token.ToString();
@@ -70,21 +69,20 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                 }
                 else
                 {
-                    JToken messageParams = null;
-                    messageJson.TryGetValue("params", out messageParams);
+                    messageJson.TryGetValue("params", out JToken? messageParams);
 
                     if (!messageJson.TryGetValue("method", out token))
                     {
                         // TODO: Throw parse error
                     }
 
-                    return Message.Request(messageId, token.ToString(), messageParams);
+                    return Message.Request(messageId, token?.ToString(), messageParams);
                 }
             }
             else
             {
                 // Messages without an id are events
-                JToken messageParams = token;
+                JToken? messageParams = token;
                 messageJson.TryGetValue("params", out messageParams);
 
                 if (!messageJson.TryGetValue("method", out token))
@@ -92,7 +90,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Serializers
                     // TODO: Throw parse error
                 }
 
-                return Message.Event(token.ToString(), messageParams);
+                return Message.Event(token?.ToString(), messageParams);
             }
         }
     }

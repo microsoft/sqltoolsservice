@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private readonly Stream inputStream;
         private readonly IMessageSerializer messageSerializer;
-        private readonly Encoding messageEncoding;
+        private readonly Encoding? messageEncoding;
 
         private ReadState readState;
         private bool needsMoreData = true;
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private byte[] messageBuffer;
 
         private int expectedContentLength;
-        private Dictionary<string, string> messageHeaders;
+        private Dictionary<string, string>? messageHeaders;
 
         private enum ReadState
         {
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public MessageReader(
             Stream inputStream,
             IMessageSerializer messageSerializer,
-            Encoding messageEncoding = null)
+            Encoding? messageEncoding = null)
         {
             Validate.IsNotNull("streamReader", inputStream);
             Validate.IsNotNull("messageSerializer", messageSerializer);
@@ -74,9 +74,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Public Methods
 
-        public async Task<Message> ReadMessage()
+        public async Task<Message?> ReadMessage()
         {
-            string messageContent = null;
+            string? messageContent = null;
 
             // Do we need to read more data or can we process the existing buffer?
             while (!this.needsMoreData || await this.ReadNextChunk())
@@ -109,13 +109,17 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             // Now that we have a message, reset the buffer's state
             ShiftBufferBytesAndShrink(readOffset);
 
-            // Get the JObject for the JSON content
-            JsonReader messageReader = new JsonTextReader(new StringReader(messageContent));
-            messageReader.DateParseHandling = DateParseHandling.None;
-            JObject messageObject = JObject.Load(messageReader);
+            if (messageContent != null)
+            {
+                // Get the JObject for the JSON content
+                JsonReader messageReader = new JsonTextReader(new StringReader(messageContent));
+                messageReader.DateParseHandling = DateParseHandling.None;
+                JObject messageObject = JObject.Load(messageReader);
 
-            // Return the parsed message
-            return this.messageSerializer.DeserializeMessage(messageObject);
+                // Return the parsed message
+                return this.messageSerializer.DeserializeMessage(messageObject);
+            }
+            return null;
         }
 
         #endregion
@@ -197,7 +201,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 }
 
                 // Parse out the content length as an int
-                string contentLengthString;
+                string? contentLengthString;
                 if (!this.messageHeaders.TryGetValue("Content-Length", out contentLengthString))
                 {
                     throw new MessageParseException("", SR.HostingHeaderMissingContentLengthHeader);
@@ -225,7 +229,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             return true;
         }
 
-        private bool TryReadMessageContent(out string messageContent)
+        private bool TryReadMessageContent(out string? messageContent)
         {
             messageContent = null;
 
@@ -236,7 +240,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
 
             // Convert the message contents to a string using the specified encoding
-            messageContent = this.messageEncoding.GetString(
+            messageContent = this.messageEncoding?.GetString(
                 this.messageBuffer,
                 this.readOffset,
                 this.expectedContentLength);

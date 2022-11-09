@@ -17,8 +17,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
     /// </summary>
     public class StdioServerChannel : ChannelBase
     {
-        private Stream inputStream;
-        private Stream outputStream;
+        private Stream? inputStream;
+        private Stream? outputStream;
 
         protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
         {

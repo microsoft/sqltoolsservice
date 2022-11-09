@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<Company>Microsoft Corporation</Company>
 		<Product>Microsoft Sql Tools</Product>
+		<LangVersion>9.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Authors>Microsoft</Authors>

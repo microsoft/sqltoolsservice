@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.Credentials
         protected SR()
         { }
 
-        public static CultureInfo Culture
+        public static CultureInfo? Culture
         {
             get
             {
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Credentials
         }
 
 
-        public static string CredentialsServiceInvalidCriticalHandle
+        public static string? CredentialsServiceInvalidCriticalHandle
         {
             get
             {
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.Credentials
             }
         }
 
-        public static string CredentialsServicePasswordLengthExceeded
+        public static string? CredentialsServicePasswordLengthExceeded
         {
             get
             {
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.Credentials
             }
         }
 
-        public static string CredentialsServiceTargetForDelete
+        public static string? CredentialsServiceTargetForDelete
         {
             get
             {
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.Credentials
             }
         }
 
-        public static string CredentialsServiceTargetForLookup
+        public static string? CredentialsServiceTargetForLookup
         {
             get
             {
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.Credentials
             }
         }
 
-        public static string CredentialServiceWin32CredentialDisposed
+        public static string? CredentialServiceWin32CredentialDisposed
         {
             get
             {
@@ -74,7 +74,7 @@ namespace Microsoft.SqlTools.Credentials
         {
             static ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.Credentials.Localization.SR", typeof(SR).GetTypeInfo().Assembly);
 
-            static CultureInfo _culture = null;
+            static CultureInfo? _culture = null;
 
 
             public const string CredentialsServiceInvalidCriticalHandle = "CredentialsServiceInvalidCriticalHandle";
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.Credentials
             private Keys()
             { }
 
-            public static CultureInfo Culture
+            public static CultureInfo? Culture
             {
                 get
                 {
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.Credentials
                 }
             }
 
-            public static string GetString(string key)
+            public static string? GetString(string key)
             {
                 return resourceManager.GetString(key, _culture);
             }

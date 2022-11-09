@@ -17,7 +17,6 @@ namespace Microsoft.SqlTools.Utility
 
         public void ClearCache(IEnumerable<string> keys)
         {
-            Exception exception;
             new AutoLock(_readerWriterLock, true, _timeout, () =>
             {
                 {
@@ -29,24 +28,23 @@ namespace Microsoft.SqlTools.Utility
                         }
                     }
                 }
-            }, out exception);
+            }, out Exception? exception);
             if (exception != null)
             {
                 throw exception;
             }
         }
         
-        public T Get(string key)
+        public T? Get(string key)
         {
-            T result = default(T);
-            Exception exception;
+            T? result = default(T);
             new AutoLock(_readerWriterLock, false, _timeout, () =>
             {
                 if (_cache.ContainsKey(key))
                 {
                     result = _cache[key];
                 }
-            }, out exception);
+            }, out Exception? exception);
             if (exception != null)
             {
                 throw exception;
@@ -59,7 +57,6 @@ namespace Microsoft.SqlTools.Utility
         {
             T result = newValue;
 
-            Exception exception;
             new AutoLock(_readerWriterLock, true, _timeout, () =>
             {
                 bool isDefined = _cache.ContainsKey(key);
@@ -71,7 +68,7 @@ namespace Microsoft.SqlTools.Utility
                 {
                     result = _cache[key];
                 }
-            }, out exception);
+            }, out Exception? exception);
             if (exception != null)
             {
                 throw exception;

@@ -37,9 +37,9 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void RulesEngineEndToEndTest()
         {
             // Create test input objects for test #1
-            var singleHashList1 = new List<List<string>>();
-            var list1_1 = new List<string>() { "uniqueinputs", "15" };
-            var list1_2 = new List<string>() { "top", "3", "China: 55%", "United States: 49%", "Japan: 37%" };
+            var singleHashList1 = new List<List<string?>>();
+            var list1_1 = new List<string?>() { "uniqueinputs", "15" };
+            var list1_2 = new List<string?>() { "top", "3", "China: 55%", "United States: 49%", "Japan: 37%" };
             singleHashList1.Add(list1_1);
             singleHashList1.Add(list1_2);
 
@@ -48,8 +48,8 @@ namespace Microsoft.InsightsGenerator.UnitTests
             testArray1.TransformedColumnNames = new string[] { "input_g_0", "output_0" };
 
             // Create test input objects for test #2
-            var singleHashList2 = new List<List<string>>();
-            var list2_1 = new List<string>() { "bottom", "5", "Apple: 30%", "Oragne: 28%", "Strawberry: 17%", "Pear: 13%", "Peach: 8%" };
+            var singleHashList2 = new List<List<string?>>();
+            var list2_1 = new List<string?>() { "bottom", "5", "Apple: 30%", "Oragne: 28%", "Strawberry: 17%", "Pear: 13%", "Peach: 8%" };
             singleHashList2.Add(list2_1);
 
             DataArray testArray2 = new DataArray();
@@ -57,8 +57,8 @@ namespace Microsoft.InsightsGenerator.UnitTests
             testArray2.TransformedColumnNames = new string[] { "output_0" };
 
             // Create test input objects for test#3
-            var singleHashList3 = new List<List<string>>();
-            var list3_1 = new List<string>() { "averageSlice", "4", "Cow: 60%", "Dog: 28%", "Cat: 17%", "Mouse: 8%"};
+            var singleHashList3 = new List<List<string?>>();
+            var list3_1 = new List<string?>() { "averageSlice", "4", "Cow: 60%", "Dog: 28%", "Cat: 17%", "Mouse: 8%"};
             singleHashList3.Add(list3_1);
 
             DataArray testArray3 = new DataArray();

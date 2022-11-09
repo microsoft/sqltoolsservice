@@ -15,13 +15,13 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         /// <param name="obj">The object on which to call ToString()</param>
         /// <returns>The ToString() return value or a suitable error message is that throws.</returns>
-        public static string SafeToString(this object obj)
+        public static string? SafeToString(this object obj)
         {
-            string str;
+            string? str;
 
             try
             {
-                str = obj.ToString();
+                str = obj?.ToString();
             }
             catch (Exception ex)
             {
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.Utility
         /// </summary>
         public static bool IsOperationCanceledException(this Exception e)
         {
-            Exception current = e;
+            Exception? current = e;
             while (current != null)
             {
                 if (current is OperationCanceledException)

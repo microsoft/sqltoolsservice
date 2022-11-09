@@ -18,15 +18,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol
     {
         void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
-            Func<TParams, RequestContext<TResult>, Task> requestHandler);
+            Func<TParams?, RequestContext<TResult>, Task> requestHandler);
 
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler);
+            Func<TParams?, EventContext, Task> eventHandler);
 
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler,
+            Func<TParams?, EventContext, Task> eventHandler,
             bool overrideExisting);
     }
 }

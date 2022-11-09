@@ -15,7 +15,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public async void mainWorkFlowTest()
         {
             Workflow instance = new Workflow();
-            string insight = await instance.ProcessInputData(getSampleDataArray());
+            string? insight = await instance.ProcessInputData(getSampleDataArray());
             Assert.NotNull(insight);
         }
 

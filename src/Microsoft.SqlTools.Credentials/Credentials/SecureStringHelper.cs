@@ -1,4 +1,4 @@
-﻿//
+//
 // Code originally from http://credentialmanagement.codeplex.com/, 
 // Licensed under the Apache License 2.0 
 //
@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.Credentials
             return str;
         }
 
-        internal static string CreateString(SecureString value)
+        internal static string? CreateString(SecureString value)
         {
             IntPtr ptr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(value);
             try

@@ -141,7 +141,7 @@ namespace Microsoft.SqlTools.Credentials
                 get { return _rawErrno == -1 ? (_rawErrno = Interop.Sys.ConvertErrorPalToPlatform(_error)) : _rawErrno; }
             }
 
-            internal string GetErrorMessage()
+            internal string? GetErrorMessage()
             {
                 return Interop.Sys.StrError(RawErrno);
             }
@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.Credentials
                 return new ErrorInfo(Marshal.GetLastWin32Error());
             }
 
-            internal static string StrError(int platformErrno)
+            internal static string? StrError(int platformErrno)
             {
                 int maxBufferLength = 1024; // should be long enough for most any UNIX error
                 IntPtr buffer = Marshal.AllocHGlobal(maxBufferLength);
@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.Credentials
                     message = buffer;
                 }
                 
-                string returnMsg = Marshal.PtrToStringAnsi(message);
+                string? returnMsg = Marshal.PtrToStringAnsi(message);
                 return returnMsg;
                 }
                 finally

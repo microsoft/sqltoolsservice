@@ -1,4 +1,4 @@
-﻿//
+//
 // Code originally from http://credentialmanagement.codeplex.com/, 
 // Licensed under the Apache License 2.0 
 //
@@ -10,39 +10,39 @@ using System.Text;
 
 namespace Microsoft.SqlTools.Credentials.Win32
 {
-    public class Win32Credential: IDisposable
+    public class Win32Credential : IDisposable
     {
         bool disposed;
 
         CredentialType type;
-        string target;
-        SecureString password;
-        string username;
-        string description;
+        string? target;
+        SecureString? password;
+        string? username;
+        string? description;
         DateTime lastWriteTime;
         PersistanceType persistanceType;
-        
+
         public Win32Credential()
             : this(null)
         {
         }
 
-        public Win32Credential(string username)
+        public Win32Credential(string? username)
             : this(username, null)
         {
         }
 
-        public Win32Credential(string username, string password)
+        public Win32Credential(string? username, string? password)
             : this(username, password, null)
         {
         }
 
-        public Win32Credential(string username, string password, string target)
+        public Win32Credential(string? username, string? password, string? target)
             : this(username, password, target, CredentialType.Generic)
         {
         }
 
-        public Win32Credential(string username, string password, string target, CredentialType type)
+        public Win32Credential(string? username, string? password, string? target, CredentialType type)
         {
             Username = username;
             Password = password;
@@ -83,7 +83,8 @@ namespace Microsoft.SqlTools.Credentials.Win32
         }
 
 
-        public string Username {
+        public string? Username
+        {
             get
             {
                 CheckNotDisposed();
@@ -95,7 +96,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 username = value;
             }
         }
-        public string Password
+        public string? Password
         {
             get
             {
@@ -125,7 +126,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 password = null == value ? new SecureString() : value.Copy();
             }
         }
-        public string Target
+        public string? Target
         {
             get
             {
@@ -139,7 +140,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
         }
 
-        public string Description
+        public string? Description
         {
             get
             {
@@ -160,8 +161,8 @@ namespace Microsoft.SqlTools.Credentials.Win32
                 return LastWriteTimeUtc.ToLocalTime();
             }
         }
-        public DateTime LastWriteTimeUtc 
-        { 
+        public DateTime LastWriteTimeUtc
+        {
             get
             {
                 CheckNotDisposed();
@@ -202,28 +203,30 @@ namespace Microsoft.SqlTools.Credentials.Win32
         {
             CheckNotDisposed();
 
-            byte[] passwordBytes = Encoding.Unicode.GetBytes(Password);
-            if (Password.Length > (512))
+            if (Password != null)
             {
-                throw new ArgumentOutOfRangeException(SR.CredentialsServicePasswordLengthExceeded);
-            }
+                byte[] passwordBytes = Encoding.Unicode.GetBytes(Password);
+                if (Password.Length > (512))
+                {
+                    throw new ArgumentOutOfRangeException(SR.CredentialsServicePasswordLengthExceeded);
+                }
+                NativeMethods.CREDENTIAL credential = new NativeMethods.CREDENTIAL();
+                credential.TargetName = Target;
+                credential.UserName = Username;
+                credential.CredentialBlob = Marshal.StringToCoTaskMemUni(Password);
+                credential.CredentialBlobSize = passwordBytes.Length;
+                credential.Comment = Description;
+                credential.Type = (int)Type;
+                credential.Persist = (int)PersistanceType;
 
-            NativeMethods.CREDENTIAL credential = new NativeMethods.CREDENTIAL();
-            credential.TargetName = Target;
-            credential.UserName = Username;
-            credential.CredentialBlob = Marshal.StringToCoTaskMemUni(Password);
-            credential.CredentialBlobSize = passwordBytes.Length;
-            credential.Comment = Description;
-            credential.Type = (int)Type;
-            credential.Persist = (int) PersistanceType;
-
-            bool result = NativeMethods.CredWrite(ref credential, 0);
-            if (!result)
-            {
-                return false;
+                bool result = NativeMethods.CredWrite(ref credential, 0);
+                if (result)
+                {
+                    LastWriteTimeUtc = DateTime.UtcNow;
+                    return true;
+                }
             }
-            LastWriteTimeUtc = DateTime.UtcNow;
-            return true;
+            return false;
         }
 
         public bool Delete()
@@ -246,16 +249,19 @@ namespace Microsoft.SqlTools.Credentials.Win32
 
             IntPtr credPointer;
 
-            bool result = NativeMethods.CredRead(Target, Type, 0, out credPointer);
-            if (!result)
+            if (Target != null)
             {
-                return false;
+                bool result = NativeMethods.CredRead(Target, Type, 0, out credPointer);
+                if (result)
+                {
+                    using (NativeMethods.CriticalCredentialHandle credentialHandle = new NativeMethods.CriticalCredentialHandle(credPointer))
+                    {
+                        LoadInternal(credentialHandle.GetCredential());
+                    }
+                    return true;
+                }
             }
-            using (NativeMethods.CriticalCredentialHandle credentialHandle = new NativeMethods.CriticalCredentialHandle(credPointer))
-            {
-                LoadInternal(credentialHandle.GetCredential());
-            }
-            return true;
+            return false;
         }
 
         public bool Exists()

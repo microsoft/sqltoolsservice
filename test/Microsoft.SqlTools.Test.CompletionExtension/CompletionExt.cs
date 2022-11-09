@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
     {
         public string Name => "CompletionExt";
 
-        private string modelPath;
+        private string? modelPath;
 
         public CompletionExt()
         {
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
         {
         }
 
-        async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+        async Task<CompletionItem[]?> ICompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[]? completions, CancellationToken token)
         {
             if (completions == null || completions == null || completions.Length == 0)
             {
@@ -56,26 +56,29 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
             Console.WriteLine("Model loaded from: " + modelPath);
         }
 
-        private async Task<CompletionItem[]> Run(CompletionItem[] completions, CancellationToken token)
+        private async Task<CompletionItem[]?> Run(CompletionItem[]? completions, CancellationToken token)
         {
             Console.WriteLine("Enter ExecuteAsync");
-
-            var sortedItems = completions.OrderBy(item => item.SortText);
-            sortedItems.First().Preselect = true;
-            foreach(var item in sortedItems)
+            if (completions != null)
             {
-                item.Command = new Command
+                var sortedItems = completions.OrderBy(item => item.SortText);
+                sortedItems.First().Preselect = true;
+                foreach (var item in sortedItems)
                 {
-                    command = "vsintellicode.completionItemSelected",
-                    Arguments = new object[] { new Dictionary<string, string> { { "IsCommit", "True" } } }
-                };
-            }
+                    item.Command = new Command
+                    {
+                        command = "vsintellicode.completionItemSelected",
+                        Arguments = new object[] { new Dictionary<string, string> { { "IsCommit", "True" } } }
+                    };
+                }
 
-            //code to augment the default completion list
-            await Task.Delay(20); // for testing
-            token.ThrowIfCancellationRequested();
-            Console.WriteLine("Exit ExecuteAsync");
-            return sortedItems.ToArray();
+                //code to augment the default completion list
+                await Task.Delay(20); // for testing
+                token.ThrowIfCancellationRequested();
+                Console.WriteLine("Exit ExecuteAsync");
+                return sortedItems.ToArray();
+            }
+            return null;
         }
     }
 }

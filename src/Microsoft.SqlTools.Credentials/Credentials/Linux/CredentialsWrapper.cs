@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -13,6 +13,11 @@ namespace Microsoft.SqlTools.Credentials.Linux
     /// </summary>
     public class CredentialsWrapper
     {
-        public List<Credential> Credentials { get; set; }
+        public List<Credential?> Credentials { get; set; }
+
+        public CredentialsWrapper()
+        {
+            this.Credentials = new List<Credential?>();
+        }
     }
 }

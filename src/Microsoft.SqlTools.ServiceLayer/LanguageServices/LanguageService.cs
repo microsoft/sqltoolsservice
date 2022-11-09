@@ -1651,7 +1651,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="resultCompletionItems"></param>
         /// <param name="scriptDocumentInfo"></param>
         /// <returns></returns>
-        private async Task<CompletionItem[]> ApplyCompletionExtensions(ConnectionInfo connInfo, CompletionItem[] resultCompletionItems, ScriptDocumentInfo scriptDocumentInfo)
+        private async Task<CompletionItem[]?> ApplyCompletionExtensions(ConnectionInfo connInfo, CompletionItem[]? resultCompletionItems, ScriptDocumentInfo scriptDocumentInfo)
         {
             //invoke the completion extensions
             foreach (var completionExt in completionExtensions.Values)

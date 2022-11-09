@@ -801,7 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region SubSet Tests
 
         [Test]
-        public async Task SubsetNotInitialized()
+        public void SubsetNotInitialized()
         {
             // Setup:
             // ... Create a session without initializing

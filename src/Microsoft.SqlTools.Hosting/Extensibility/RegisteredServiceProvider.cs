@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.Extensibility
 
         protected override IEnumerable<T> GetServicesImpl<T>()
         {
-            ServiceLookup serviceLookup;
+            ServiceLookup? serviceLookup;
             if (services.TryGetValue(typeof(T), out serviceLookup))
             {
                 return serviceLookup().Cast<T>();

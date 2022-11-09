@@ -78,9 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </param>
         /// <param name="version">The host application's version.</param>
         public HostDetails(
-            string name = null,
-            string profileId = null,
-            Version version = null)
+            string? name = null,
+            string? profileId = null,
+            Version? version = null)
         {
             this.Name = name ?? DefaultHostName;
             this.ProfileId = profileId ?? DefaultHostProfileId;

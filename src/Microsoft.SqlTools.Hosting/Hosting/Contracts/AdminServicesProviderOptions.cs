@@ -10,11 +10,11 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     /// </summary>
     public class AdminServicesProviderOptions
     {
-        public ServiceOption[] DatabaseInfoOptions { get; set; }
+        public ServiceOption[]? DatabaseInfoOptions { get; set; }
 
-        public ServiceOption[] DatabaseFileInfoOptions { get; set; }
+        public ServiceOption[]? DatabaseFileInfoOptions { get; set; }
 
-        public ServiceOption[] FileGroupInfoOptions { get; set; }
+        public ServiceOption[]? FileGroupInfoOptions { get; set; }
     }
 }
 

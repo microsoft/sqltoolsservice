@@ -35,6 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
         /// <param name="completions">Current completion list</param>
         /// <param name="cancelToken">Token used to indicate that the completion request should be cancelled</param>
         /// <returns></returns>
-        Task<CompletionItem[]> HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancelToken);
+        Task<CompletionItem[]?> HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[]? completions, CancellationToken cancelToken);
     }
 }

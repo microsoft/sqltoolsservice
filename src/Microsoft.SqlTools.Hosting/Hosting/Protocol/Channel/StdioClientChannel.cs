@@ -19,11 +19,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
     public class StdioClientChannel : ChannelBase
     {
         private string serviceProcessPath;
-        private string serviceProcessArguments;
+        private string? serviceProcessArguments;
 
-        private Stream inputStream;
-        private Stream outputStream;
-        private Process serviceProcess;
+        private Stream? inputStream;
+        private Stream? outputStream;
+        private Process? serviceProcess;
 
         /// <summary>
         /// Gets the process ID of the server process.
@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
                 this.MessageWriter = null;
             }
 
-            this.serviceProcess.Kill();
+            this.serviceProcess?.Kill();
         }
     }
 }

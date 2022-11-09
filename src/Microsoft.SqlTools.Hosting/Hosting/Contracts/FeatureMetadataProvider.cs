@@ -20,12 +20,12 @@ namespace Microsoft.SqlTools.Hosting.Hosting.Contracts
         /// <summary>
         /// Feature name
         /// </summary>
-        public string FeatureName { get; set; }
+        public string? FeatureName { get; set; }
 
         /// <summary>
         /// The options metadata avaialble for this feature
         /// </summary>
-        public ServiceOption[] OptionsMetadata { get; set; }
+        public ServiceOption[]? OptionsMetadata { get; set; }
 
     }
 }

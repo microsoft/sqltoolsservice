@@ -2,7 +2,6 @@
 	<PropertyGroup>
 		<!-- Targeting both net6.0 and net472 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
 		<TargetFrameworks>net6.0;net472</TargetFrameworks>
-		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
 		<Guid>82dd9738-2ad3-4eb3-9f80-18b594e03621</Guid>

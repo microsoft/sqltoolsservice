@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
     {
         private const string AnyUsername = "*";
 
-        public bool DeletePassword(string credentialId)
+        public bool DeletePassword(string? credentialId)
         {
             using (Win32Credential cred = new Win32Credential() { Target = credentialId, Username = AnyUsername })
             {
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
         }
 
-        public bool TryGetPassword(string credentialId, out string password)
+        public bool TryGetPassword(string? credentialId, out string? password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             password = null;
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             using (CredentialSet set = new CredentialSet(credentialId).Load())
             {
                 // Note: Credentials are disposed on disposal of the set
-                Win32Credential foundCred = null;
+                Win32Credential? foundCred = null;
                 if (set.Count > 0)
                 {
                     foundCred = set[0];
@@ -46,12 +46,12 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
         }
 
-        public bool Save(Credential credential)
+        public bool Save(Credential? credential)
         {
             Credential.ValidateForSave(credential);
 
             using (Win32Credential cred = 
-                new Win32Credential(AnyUsername, credential.Password, credential.CredentialId, CredentialType.Generic)
+                new Win32Credential(AnyUsername, credential?.Password, credential?.CredentialId, CredentialType.Generic)
                 { PersistanceType = PersistanceType.LocalComputer })
             {
                 return cred.Save();

@@ -1,4 +1,4 @@
-﻿//
+//
 // Code originally from http://credentialmanagement.codeplex.com/, 
 // Licensed under the Apache License 2.0 
 //
@@ -18,9 +18,9 @@ namespace Microsoft.SqlTools.Credentials.Win32
             public int Flags;
             public int Type;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string TargetName;
+            public string? TargetName;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string Comment;
+            public string? Comment;
             public long LastWritten;
             public int CredentialBlobSize;
             public IntPtr CredentialBlob;
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             [MarshalAs(UnmanagedType.LPWStr)]
             public string TargetAlias;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string UserName;
+            public string? UserName;
         }
         
         [DllImport("Advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
         internal static extern bool CredDelete(StringBuilder target, CredentialType type, int flags);
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        internal static extern bool CredEnumerateW(string filter, int flag, out uint count, out IntPtr pCredentials);
+        internal static extern bool CredEnumerateW(string? filter, int flag, out uint count, out IntPtr pCredentials);
         
         [DllImport("ole32.dll")]
         internal static extern void CoTaskMemFree(IntPtr ptr);

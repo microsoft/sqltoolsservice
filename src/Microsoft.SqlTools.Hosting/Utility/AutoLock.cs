@@ -13,13 +13,13 @@ namespace Microsoft.SqlTools.Utility
     /// </summary>
     public class AutoLock
     {
-        private readonly ReaderWriterLock _lock;
+        private readonly ReaderWriterLock? _lock;
         private readonly bool _isWriteLocked;
 
         /// <summary>
         /// Creates new lock given type of lock and timeout
         /// </summary>
-        public AutoLock(ReaderWriterLock lockObj, bool isWriteLock, TimeSpan timeOut, Action action, out Exception exception)
+        public AutoLock(ReaderWriterLock? lockObj, bool isWriteLock, TimeSpan timeOut, Action action, out Exception? exception)
         {
             exception = null;
             try
@@ -28,11 +28,11 @@ namespace Microsoft.SqlTools.Utility
                 _isWriteLocked = isWriteLock;
                 if (_isWriteLocked)
                 {
-                    _lock.AcquireWriterLock(timeOut);
+                    _lock?.AcquireWriterLock(timeOut);
                 }
                 else
                 {
-                    _lock.AcquireReaderLock(timeOut);
+                    _lock?.AcquireReaderLock(timeOut);
                 }
                 action();
             }
@@ -42,11 +42,11 @@ namespace Microsoft.SqlTools.Utility
             }
             finally
             {
-                if (_isWriteLocked && _lock.IsWriterLockHeld)
+                if (_isWriteLocked && _lock != null && _lock.IsWriterLockHeld)
                 {
                     _lock.ReleaseWriterLock();
                 }
-                else if (!_isWriteLocked && _lock.IsReaderLockHeld)
+                else if (!_isWriteLocked && _lock != null && _lock.IsReaderLockHeld)
                 {
                     _lock.ReleaseReaderLock();
                 }

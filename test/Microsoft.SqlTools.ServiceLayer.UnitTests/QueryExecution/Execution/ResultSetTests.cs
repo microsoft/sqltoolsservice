@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task ReadToEndNullReader()
+        public void ReadToEndNullReader()
         {
             // If: I create a new result set with a null db data reader
             // Then: I should get an exception

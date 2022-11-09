@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -14,8 +14,8 @@ namespace Microsoft.SqlTools.Credentials
         {
 
             [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
-            internal static extern OSStatus SecKeychainAddGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName, 
-                UInt32 accountNameLength, string accountName, UInt32 passwordLength, IntPtr password, [Out] IntPtr itemRef);
+            internal static extern OSStatus SecKeychainAddGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string? serviceName, 
+                UInt32 accountNameLength, string? accountName, UInt32 passwordLength, IntPtr password, [Out] IntPtr itemRef);
             
             /// <summary>
             /// Find a generic password based on the attributes passed            
@@ -42,8 +42,8 @@ namespace Microsoft.SqlTools.Credentials
             /// SecKeychainFindGenericPassword optionally returns a reference to the found item.
             /// </remarks>
             [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
-            internal static extern OSStatus SecKeychainFindGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName, 
-                UInt32 accountNameLength, string accountName, out UInt32 passwordLength, out IntPtr password, out IntPtr itemRef);
+            internal static extern OSStatus SecKeychainFindGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string? serviceName, 
+                UInt32 accountNameLength, string? accountName, out UInt32 passwordLength, out IntPtr password, out IntPtr itemRef);
             
             /// <summary>
             /// Releases the memory used by the keychain attribute list and the keychain data retrieved in a previous call to SecKeychainItemCopyContent.

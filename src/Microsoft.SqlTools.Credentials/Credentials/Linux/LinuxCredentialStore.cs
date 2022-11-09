@@ -19,8 +19,8 @@ namespace Microsoft.SqlTools.Credentials.Linux
     /// </summary>
     internal struct StoreConfig
     {
-        public string CredentialFolder { get; set; }
-        public string CredentialFile { get; set; }
+        public string? CredentialFolder { get; set; }
+        public string? CredentialFile { get; set; }
         public bool IsRelativeToUserHomeDir { get; set; }
     }
     
@@ -36,8 +36,8 @@ namespace Microsoft.SqlTools.Credentials.Linux
     /// </summary>
     internal class LinuxCredentialStore : ICredentialStore
     {
-        private string credentialFolderPath;
-        private string credentialFileName;
+        private string? credentialFolderPath;
+        private string? credentialFileName;
         private FileTokenStorage storage;
 
         public LinuxCredentialStore(StoreConfig config)
@@ -50,15 +50,14 @@ namespace Microsoft.SqlTools.Credentials.Linux
             this.credentialFileName = config.CredentialFile;
 
 
-            string combinedPath = Path.Combine(this.credentialFolderPath, this.credentialFileName);
+            string? combinedPath = Path.Combine(this.credentialFolderPath ?? string.Empty, this.credentialFileName ?? string.Empty);
             storage = new FileTokenStorage(combinedPath);
         }
         
-        public bool DeletePassword(string credentialId)
+        public bool DeletePassword(string? credentialId)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
-            IEnumerable<Credential> creds;
-            if (LoadCredentialsAndFilterById(credentialId, out creds))
+            if (LoadCredentialsAndFilterById(credentialId, out IEnumerable<Credential?> creds))
             {
                 storage.SaveEntries(creds);
                 return true;
@@ -71,7 +70,7 @@ namespace Microsoft.SqlTools.Credentials.Linux
         /// Gets filtered credentials with a specific ID filtered out
         /// </summary>
         /// <returns>True if the credential to filter was removed, false if it was not found</returns>
-        private bool LoadCredentialsAndFilterById(string idToFilter, out IEnumerable<Credential> creds)
+        private bool LoadCredentialsAndFilterById(string? idToFilter, out IEnumerable<Credential?> creds)
         {
             bool didRemove = false;
             creds = storage.LoadEntries().Where(cred =>
@@ -87,19 +86,19 @@ namespace Microsoft.SqlTools.Credentials.Linux
             return didRemove;
         }
 
-        private static bool IsCredentialMatch(string credentialId, Credential cred)
+        private static bool IsCredentialMatch(string? credentialId, Credential? cred)
         {
-            return string.Equals(credentialId, cred.CredentialId, StringComparison.Ordinal);
+            return credentialId != null && string.Equals(credentialId, cred?.CredentialId, StringComparison.Ordinal);
         }
 
-        public bool TryGetPassword(string credentialId, out string password)
+        public bool TryGetPassword(string? credentialId, out string? password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
-            Credential cred = storage.LoadEntries().FirstOrDefault(c => IsCredentialMatch(credentialId, c));
+            Credential? cred = storage.LoadEntries().FirstOrDefault(c => IsCredentialMatch(credentialId, c));
             if (cred != null)
             {
                 password = cred.Password;
-                return true;
+                return password != null;
             }
 
             // Else this was not found in the list
@@ -107,13 +106,13 @@ namespace Microsoft.SqlTools.Credentials.Linux
             return false;
         }
 
-        public bool Save(Credential credential)
+        public bool Save(Credential? credential)
         {
             Credential.ValidateForSave(credential);
 
             // Load the credentials, removing the existing Cred for this 
-            IEnumerable<Credential> creds;
-            LoadCredentialsAndFilterById(credential.CredentialId, out creds);
+            IEnumerable<Credential?> creds;
+            LoadCredentialsAndFilterById(credential?.CredentialId, out creds);
             storage.SaveEntries(creds.Append(credential));
             
             return true;
@@ -123,28 +122,25 @@ namespace Microsoft.SqlTools.Credentials.Linux
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
-        internal string CredentialFolderPath
-        {
-            get { return this.credentialFolderPath; }
-        }
+        internal string? CredentialFolderPath => this.credentialFolderPath;
 
         /// <summary>
         /// Concatenates a directory to the user home directory's path
         /// </summary>
-        internal static string GetUserScopedDirectory(string userPath)
+        internal static string GetUserScopedDirectory(string? userPath)
         {
             string homeDir = GetHomeDirectory() ?? string.Empty;
-            return Path.Combine(homeDir, userPath);
+            return Path.Combine(homeDir, userPath ?? string.Empty);
         }
 
 
         /// <summary>Gets the current user's home directory.</summary>
         /// <returns>The path to the home directory, or null if it could not be determined.</returns>
-        internal static string GetHomeDirectory()
+        internal static string? GetHomeDirectory()
         {
             // First try to get the user's home directory from the HOME environment variable.
             // This should work in most cases.
-            string userHomeDirectory = Environment.GetEnvironmentVariable("HOME");
+            string? userHomeDirectory = Environment.GetEnvironmentVariable("HOME");
             if (!string.IsNullOrEmpty(userHomeDirectory))
             {
                 return userHomeDirectory;
@@ -161,11 +157,10 @@ namespace Microsoft.SqlTools.Credentials.Linux
             return GetHomeDirectoryFromPw();
         }
 
-        internal static string GetHomeDirectoryFromPw()
+        internal static string? GetHomeDirectoryFromPw()
         {
-            string userHomeDirectory = null;
             const int BufLen = 1024;
-            if (TryGetHomeDirectoryFromPasswd(BufLen, out userHomeDirectory))
+            if (TryGetHomeDirectoryFromPasswd(BufLen, out string? userHomeDirectory))
             {
                 return userHomeDirectory;
             }
@@ -186,7 +181,7 @@ namespace Microsoft.SqlTools.Credentials.Linux
         /// <param name="bufLen">The length of the buffer to use when storing the password result.</param>
         /// <param name="path">The resulting path; null if the user didn't have an entry.</param>
         /// <returns>true if the call was successful (path may still be null); false is a larger buffer is needed.</returns>
-        private static bool TryGetHomeDirectoryFromPasswd(int bufLen, out string path)
+        private static bool TryGetHomeDirectoryFromPasswd(int bufLen, out string? path)
         {
             // Call getpwuid_r to get the passwd struct
             Interop.Sys.Passwd passwd;

@@ -16,7 +16,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
         public void Tranform_NullInput()
         {
             DataTransformer transformer = new DataTransformer();
-            DataArray array = null;
+            DataArray? array = null;
             array = transformer.Transform(array);
             Assert.Null(array);
         }
@@ -29,16 +29,16 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[0] = new object[3] { "1/15/2020", "Redmond", 50 };
             cells[1] = new object[3] { "1/25/2020", "Bellevue", 75 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Date", "City", "Count" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "input_t_0");
-            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[2], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[0], "input_t_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "output_0");
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[0] = new object[3] { "1/15/2020", "Redmond", 50 };
             cells[1] = new object[3] { "1/25/2020", "Bellevue", 75 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Date", "City", "Count" },
                 ColumnDataType = new DataArray.DataType[] {
@@ -60,9 +60,9 @@ namespace Microsoft.InsightsGenerator.UnitTests
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[1], "input_t_0");
-            Assert.Equal(array.TransformedColumnNames[2], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[0], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "input_t_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "output_0");
         }
 
         [Fact]
@@ -76,17 +76,17 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[3] = new object[4] { "1/13/2020", "Bellevue", "4th Street", 55 };
             cells[4] = new object[4] { "1/20/2020", "Bellevue", "5th Street", 95 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Date", "City", "Address", "Count" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "input_t_0");
-            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[2], "slicer_1");
-            Assert.Equal(array.TransformedColumnNames[3], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[0], "input_t_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "slicer_1");
+            Assert.Equal(array?.TransformedColumnNames?[3], "output_0");
         }
 
         [Fact]
@@ -100,17 +100,17 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[3] = new object[4] { "1/13/2020", "4th Street", 55, "Bellevue" };
             cells[4] = new object[4] { "1/20/2020", "5th Street", 95, "Bellevue" };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Date", "Address", "Count", "City" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "input_t_0");
-            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[2], "output_0");
-            Assert.Equal(array.TransformedColumnNames[3], "slicer_1");
+            Assert.Equal(array?.TransformedColumnNames?[0], "input_t_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[3], "slicer_1");
         }
 
         [Fact]
@@ -121,17 +121,17 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[0] = new object[4] { "1/15/2020", "1st Street", 50, 110 };
             cells[1] = new object[4] { "1/25/2020", "2nd Street", 75, 160 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Date", "Adress", "Count1", "Count2" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "input_t_0");
-            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[2], "output_0");
-            Assert.Equal(array.TransformedColumnNames[3], "output_1");
+            Assert.Equal(array?.TransformedColumnNames?[0], "input_t_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[3], "output_1");
         }
 
         [Fact]
@@ -142,16 +142,16 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[0] = new object[3] { "1st Street", "Redmond", 110 };
             cells[1] = new object[3] { "2nd Street", "Bellevue", 160 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Address", "City", "Count" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "input_g_0");
-            Assert.Equal(array.TransformedColumnNames[1], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[2], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[0], "input_g_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "output_0");
         }
 
         [Fact]
@@ -162,17 +162,17 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[0] = new object[4] { "1st Street", "Redmond", "North", 110 };
             cells[1] = new object[4] { "2nd Street", "Redmond", "East", 160 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Address", "City", "Direction", "Count" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[1], "input_g_0");
-            Assert.Equal(array.TransformedColumnNames[2], "slicer_1");
-            Assert.Equal(array.TransformedColumnNames[3], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[0], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "input_g_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "slicer_1");
+            Assert.Equal(array?.TransformedColumnNames?[3], "output_0");
         }
 
          [Fact]
@@ -183,16 +183,16 @@ namespace Microsoft.InsightsGenerator.UnitTests
             cells[0] = new object[3] { "1st Street", "Redmond", 110 };
             cells[1] = new object[3] { "2nd Street", "Redmond", 160 };
 
-            DataArray array = new DataArray()
+            DataArray? array = new DataArray()
             {
                 ColumnNames = new string[] { "Address", "City", "Count" },
                 Cells = cells
             };
 
             array = transformer.Transform(array);
-            Assert.Equal(array.TransformedColumnNames[0], "slicer_0");
-            Assert.Equal(array.TransformedColumnNames[1], "input_g_0");
-            Assert.Equal(array.TransformedColumnNames[2], "output_0");
+            Assert.Equal(array?.TransformedColumnNames?[0], "slicer_0");
+            Assert.Equal(array?.TransformedColumnNames?[1], "input_g_0");
+            Assert.Equal(array?.TransformedColumnNames?[2], "output_0");
         }
     }
 }

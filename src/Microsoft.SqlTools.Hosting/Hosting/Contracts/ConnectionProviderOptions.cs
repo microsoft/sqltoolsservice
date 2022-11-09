@@ -12,14 +12,14 @@ namespace Microsoft.SqlTools.Hosting.Contracts
     /// </summary>
     public class ConnectionProviderOptions
     {
-        public ConnectionOption[] Options { get; set; }
+        public ConnectionOption[]? Options { get; set; }
     }
 
     public class CategoryValue
     {
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public class ConnectionOption : ServiceOption
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.Hosting.Contracts
         /// Can be either Server Name, Database Name, Authentication Type,
         /// User Name, or Password
         /// </summary>
-        public string SpecialValueType { get; set; }
+        public string? SpecialValueType { get; set; }
 
         /// <summary>
         /// Flag to indicate that this option is part of the connection identity

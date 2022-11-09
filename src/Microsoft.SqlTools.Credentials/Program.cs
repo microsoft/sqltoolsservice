@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Credentials
                     return;
                 }
 
-                string logFilePath = commandOptions.LogFilePath;
+                string? logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
                     logFilePath = Logger.GenerateLogFilePath("credentials");

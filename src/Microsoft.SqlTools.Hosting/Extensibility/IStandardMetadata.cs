@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Extension version. Should be in the format "1.0.0.0" or similar
         /// </summary>
-        string Version { get; }
+        string? Version { get; }
 
         /// <summary>
         /// Unique Id used to identify the export.
@@ -23,6 +23,6 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Optional Display name describing the export type 
         /// </summary>
-        string DisplayName { get; }
+        string? DisplayName { get; }
     }
 }

@@ -16,6 +16,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Contracts
         /// </summary>
         public string MethodName { get; private set; }
 
+        // Added default ctor to make 'MethodName' non-nullable
+        public EventType(string methodName = "")
+        {
+            MethodName = methodName;
+        }
+
         /// <summary>
         /// Creates an EventType instance with the given parameter type and method name.
         /// </summary>

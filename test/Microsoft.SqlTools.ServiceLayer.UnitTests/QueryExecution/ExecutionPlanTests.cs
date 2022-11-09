@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task ExecutionPlanInvalid()
+        public void ExecutionPlanInvalid()
         {
             // Setup:
             // ... I have a batch that has been executed
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task BatchExecutionPlanInvalidTest()
+        public void BatchExecutionPlanInvalidTest()
         {
             // Setup:
             // ... I have a batch that has been executed without an execution plan 
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task BatchExecutionPlanInvalidParamsTest([Values(-1,2)] int resultSetIndex)
+        public void BatchExecutionPlanInvalidParamsTest([Values(-1,2)] int resultSetIndex)
         {
             // If I have an executed batch which has an execution plan 
             Batch b = Common.GetExecutedBatchWithExecutionPlan();
@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         #region Query Class Tests
 
         [Test]
-        public async Task QueryExecutionPlanInvalidParamsTest([Values(-1,2)]int batchIndex)
+        public void QueryExecutionPlanInvalidParamsTest([Values(-1,2)]int batchIndex)
         {
             // Setup query settings
             QueryExecutionSettings querySettings = new QueryExecutionSettings

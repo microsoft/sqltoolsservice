@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.Extensibility
             this.config = config;
         }
 
-        public static ExtensionServiceProvider CreateDefaultServiceProvider(string[] inclusionList = null)
+        public static ExtensionServiceProvider? CreateDefaultServiceProvider(string[]? inclusionList = null)
         {
             // only allow loading MEF dependencies from our assemblies until we can
             // better seperate out framework assemblies and extension assemblies
@@ -47,46 +47,50 @@ namespace Microsoft.SqlTools.Extensibility
         /// </summary>
         /// <param name="inclusionList">full DLL names, as a string enumerable</param>
         /// <returns><see cref="ExtensionServiceProvider"/> instance</returns>
-        public static ExtensionServiceProvider CreateFromAssembliesInDirectory(IEnumerable<string> inclusionList)
+        public static ExtensionServiceProvider? CreateFromAssembliesInDirectory(IEnumerable<string> inclusionList)
         {
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
-            string directory = Path.GetDirectoryName(assemblyPath);
+            string? directory = Path.GetDirectoryName(assemblyPath);
 
-            AssemblyLoadContext context = new AssemblyLoader(directory);
-            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
-
-            List<Assembly> assemblies = new List<Assembly>();
-            foreach (var path in assemblyPaths)
+            if (directory != null)
             {
-                // skip DLL files not in inclusion list
-                bool isInList = false;
-                foreach (var item in inclusionList)
+                AssemblyLoadContext context = new AssemblyLoader(directory);
+                var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
+
+                List<Assembly> assemblies = new List<Assembly>();
+                foreach (var path in assemblyPaths)
                 {
-                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
+                    // skip DLL files not in inclusion list
+                    bool isInList = false;
+                    foreach (var item in inclusionList)
                     {
-                        isInList = true;
-                        break;
+                        if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isInList = true;
+                            break;
+                        }
+                    }
+
+                    if (!isInList)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        assemblies.Add(
+                            context.LoadFromAssemblyName(
+                                AssemblyLoadContext.GetAssemblyName(path)));
+                    }
+                    catch (Exception)
+                    {
+                        // we expect exceptions trying to scan all DLLs since directory contains native libraries
                     }
                 }
 
-                if (!isInList)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    assemblies.Add(
-                        context.LoadFromAssemblyName(
-                            AssemblyLoadContext.GetAssemblyName(path)));
-                }
-                catch (Exception)
-                {
-                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
-                }
+                return Create(assemblies);
             }
-
-            return Create(assemblies);
+            return null;
         }
 
         public static ExtensionServiceProvider Create(IEnumerable<Assembly> assemblies)
@@ -140,7 +144,7 @@ namespace Microsoft.SqlTools.Extensibility
     public class ExtensionStore
     {
         private CompositionHost host;
-        private IList exports;
+        private IList? exports;
         private Type contractType;
 
         /// <summary>
@@ -178,7 +182,7 @@ namespace Microsoft.SqlTools.Extensibility
         public static ExtensionStore CreateStoreForCurrentDirectory<T>()
         {
             string assemblyPath = typeof(ExtensionStore).GetTypeInfo().Assembly.Location;
-            string directory = Path.GetDirectoryName(assemblyPath);
+            string? directory = Path.GetDirectoryName(assemblyPath);
             return new ExtensionStore(typeof(T), (conventions) =>
                 new ContainerConfiguration().WithAssembliesInPath(directory, conventions));
         }
@@ -200,13 +204,19 @@ namespace Microsoft.SqlTools.Extensibility
 
     public static class ContainerConfigurationExtensions
     {
-        public static ContainerConfiguration WithAssembliesInPath(this ContainerConfiguration configuration, string path, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public static ContainerConfiguration WithAssembliesInPath(this ContainerConfiguration configuration, string? path, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return WithAssembliesInPath(configuration, path, null, searchOption);
         }
 
-        public static ContainerConfiguration WithAssembliesInPath(this ContainerConfiguration configuration, string path, AttributedModelProvider conventions, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public static ContainerConfiguration WithAssembliesInPath(this ContainerConfiguration configuration, string? path, AttributedModelProvider? conventions, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
+            if(path == null)
+            {
+                // If we don't have path, we cannot fetch any assemblies.
+                return configuration.WithAssemblies(null);
+            }
+
             AssemblyLoadContext context = new AssemblyLoader(path);
             var assemblyNames = Directory
                 .GetFiles(path, "*.dll", searchOption)
