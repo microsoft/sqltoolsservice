@@ -372,10 +372,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo = new ConnectionInfo(ConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
 
-            if ((connectionParams as ChangePasswordParams)?.NewPassword != null) {
-                this.changePassword(connectionParams);
-            }
-
             // Try to open a connection with the given ConnectParams
             ConnectionCompleteParams? response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
             if (response != null)
@@ -398,12 +394,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
 
             return completeParams;
-        }
-
-        private void changePassword(ConnectParams connectionParams){
-            ServerConnection serverConnection = new ServerConnection(connectionParams.Connection.ServerName, connectionParams.Connection.UserName, connectionParams.Connection.Password);
-            serverConnection.ChangePassword((connectionParams as ChangePasswordParams)?.NewPassword);
-            connectionParams.Connection.Password = (connectionParams as ChangePasswordParams).NewPassword;
         }
 
         private async Task<ConnectionCompleteParams?> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
@@ -1162,9 +1152,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 RunChangePasswordRequestHandlerTask(changePasswordParams);
                 await requestContext.SendResult(true);
             }
-            catch
+            catch (Exception ex)
             {
-                await requestContext.SendResult(false);
+                await requestContext.SendError(ex.ToString());
             }
         }
 
@@ -1174,42 +1164,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         private void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
         {
-            // create a task to connect asynchronously so that other requests are not blocked in the meantime
-            Task.Run(async () =>
+            // result is null if the ConnectParams was successfully validated
+            ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
+            Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
+            if (result != null)
             {
-                try
-                {
-                    // result is null if the ConnectParams was successfully validated
-                    ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
-                    Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
-                    if (result != null)
-                    {
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                        return;
-                    }
-                    else if(isPasswordEmpty) {
-                        result =  new ConnectionCompleteParams
-                        {
-                            OwnerUri = changePasswordParams.OwnerUri,
-                            ErrorMessage = "New password is empty!"
-                        };
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                        return;
-                    }
+                throw new Exception(result.ErrorMessage);
+            }
+            else if(isPasswordEmpty) {
+                throw new Exception("New password is empty!")
+            }
 
-                    // open connection based on request details
-                    result = await Connect(changePasswordParams);
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                }
-                catch (Exception ex)
-                {
-                    ConnectionCompleteParams result = new ConnectionCompleteParams()
-                    {
-                        Messages = ex.ToString()
-                    };
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                }
-            }).ContinueWithOnFaulted(null);
+            // Change the password of the connection
+            ServerConnection serverConnection = new ServerConnection(connectionParams.Connection.ServerName, connectionParams.Connection.UserName, connectionParams.Connection.Password);
+            serverConnection.ChangePassword((connectionParams as ChangePasswordParams)?.NewPassword);
         }
 
         /// <summary>
