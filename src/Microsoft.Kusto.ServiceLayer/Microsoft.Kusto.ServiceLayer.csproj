@@ -37,6 +37,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" />
+    <PackageReference Include="System.Data.SqlClient" />
     <PackageReference Include="System.Net.Http" />
     <PackageReference Include="Microsoft.Azure.Kusto.Language" />
   </ItemGroup>
