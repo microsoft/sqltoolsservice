@@ -1154,7 +1154,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex);
                 newResponse.result = false;
                 newResponse.ErrorMessage = ex.Message;
                 newResponse.Messages = ex.ToString();
