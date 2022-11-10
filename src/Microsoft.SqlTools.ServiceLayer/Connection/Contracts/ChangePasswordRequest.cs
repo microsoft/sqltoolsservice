@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     public class ChangePasswordRequest
     {
         public static readonly
-            RequestType<ChangePasswordParams, bool> Type =
-            RequestType<ChangePasswordParams, bool>.Create("connection/changepassword");
+            RequestType<ChangePasswordParams, PasswordChangeResponse> Type =
+            RequestType<ChangePasswordParams, PasswordChangeResponse>.Create("connection/changepassword");
     }
 }

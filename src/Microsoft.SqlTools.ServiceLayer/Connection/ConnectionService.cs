@@ -1143,19 +1143,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns></returns>
         protected async Task HandleChangePasswordRequest(
             ChangePasswordParams changePasswordParams,
-            RequestContext<bool> requestContext)
+            RequestContext<PasswordChangeResponse> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
-
+            PasswordChangeResponse newResponse = new PasswordChangeResponse();
             try
             {
                 RunChangePasswordRequestHandlerTask(changePasswordParams);
-                await requestContext.SendResult(true);
+                newResponse.result = true;
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                await requestContext.SendError(ex);
+                newResponse.result = false;
+                newResponse.ErrorMessage = ex.Message;
+                newResponse.Messages = ex.ToString();
             }
+            await requestContext.SendResult(newResponse);
         }
 
         public void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
