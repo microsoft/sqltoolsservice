@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (SqlCommand sqlQueryCommand = new SqlCommand(sqlQuery, connection))
                 {
                     if (queryParameters != null)
