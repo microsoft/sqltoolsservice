@@ -1158,11 +1158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        public void testPasswordChangeHandlerTask(ChangePasswordParams changePasswordParams){
-            this.RunChangePasswordRequestHandlerTask(changePasswordParams);
-        }
-
-        private void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
+        public void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
         {
             // result is null if the ConnectParams was successfully validated
             ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
@@ -1172,12 +1168,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 throw new Exception(result.ErrorMessage);
             }
             else if(isPasswordEmpty) {
-                throw new Exception("New password is empty!")
+                throw new Exception("New password is empty!");
             }
 
             // Change the password of the connection
-            ServerConnection serverConnection = new ServerConnection(connectionParams.Connection.ServerName, connectionParams.Connection.UserName, connectionParams.Connection.Password);
-            serverConnection.ChangePassword((connectionParams as ChangePasswordParams)?.NewPassword);
+            ServerConnection serverConnection = new ServerConnection(changePasswordParams.Connection.ServerName, changePasswordParams.Connection.UserName, changePasswordParams.Connection.Password);
+            serverConnection.ChangePassword(changePasswordParams.NewPassword);
         }
 
         /// <summary>

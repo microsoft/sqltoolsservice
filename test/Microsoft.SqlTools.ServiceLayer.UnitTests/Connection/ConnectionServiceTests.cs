@@ -1784,9 +1784,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 Connection = TestObjects.GetTestConnectionDetails(),
                 NewPassword = ""
             };
-
-            connectionService.testPasswordChangeHandlerTask(testConnectionParams);
-            serviceHostMock.Verify(ServiceHost => ServiceHost.SendEvent(ConnectionCompleteNotification.Type, It.IsAny<ConnectionCompleteParams>()), Times.Once);
+            Assert.Throws<Exception>(() => connectionService.RunChangePasswordRequestHandlerTask(testConnectionParams));
         }
     }
 }
