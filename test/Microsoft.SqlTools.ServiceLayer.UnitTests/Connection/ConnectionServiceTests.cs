@@ -1786,5 +1786,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             };
             Assert.Throws<Exception>(() => connectionService.RunChangePasswordRequestHandlerTask(testConnectionParams));
         }
+
+        /// <summary>
+        /// Verify that providing an invalid connection value to change password will fire an error. 
+        /// </summary>
+        [Test]
+        public async Task ConnectionInvalidPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = {},
+                NewPassword = "TestPassword"
+            };
+            Assert.Throws<Exception>(() => connectionService.RunChangePasswordRequestHandlerTask(testConnectionParams));
+        }
     }
 }
