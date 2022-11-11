@@ -13,7 +13,7 @@
 
 # The script need to run from the repo root
 
-net6projectArray=(
+net7projectArray=(
     "./src/Microsoft.InsightsGenerator"
     "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
@@ -40,7 +40,7 @@ netStandard2ProjectArray=(
 )
 
 # Please update the framework vars when updating target framework for the projects
-framework6="/bin/Debug/net6.0/"
+framework7="/bin/Debug/net7.0/"
 framework2="/bin/Debug/netstandard2.1/"
 
 requiredLocDirectories=(
@@ -75,7 +75,7 @@ requiredLocDirectories=(
     "zh-hant"
 )
 
-for i in "${net6projectArray[@]}"
+for i in "${net7projectArray[@]}"
 do
    : 
    for k in "${requiredLocDirectories[@]}"
