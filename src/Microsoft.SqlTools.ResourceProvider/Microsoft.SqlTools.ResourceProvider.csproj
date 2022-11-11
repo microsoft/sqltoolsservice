@@ -12,6 +12,7 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+    <NoWarn>$(NoWarn);CA1852</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_0;NETCOREAPP2_0</DefineConstants>

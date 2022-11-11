@@ -13,6 +13,7 @@
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<Product>Microsoft SqlTools Managed batch parser</Product>
+		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<Folder Include="Localization\transXliff\" />
