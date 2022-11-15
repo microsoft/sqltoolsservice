@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 {
-    sealed class Program
+    class Program
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0210:Convert to top-level statements", Justification = "Structure retained for readability.")]
         static void Main(string[] args)

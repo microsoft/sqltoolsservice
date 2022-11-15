@@ -5,8 +5,8 @@ IF [%_BuildConfiguration%] NEQ []  GOTO Start
 SET _BuildConfiguration=Debug
 
 :Start
-SET _PerfTestSourceLocation="%WORKINGDIR%\test\Microsoft.SqlTools.ServiceLayer.PerfTests\bin\%_BuildConfiguration%\net7.0\win-x64\publish"
-SET _ServiceSourceLocation="%WORKINGDIR%\src\Microsoft.SqlTools.ServiceLayer\bin\%_BuildConfiguration%\net7.0\win-x64\publish"
+SET _PerfTestSourceLocation="%WORKINGDIR%\test\Microsoft.SqlTools.ServiceLayer.PerfTests\bin\%_BuildConfiguration%\net6.0\win-x64\publish"
+SET _ServiceSourceLocation="%WORKINGDIR%\src\Microsoft.SqlTools.ServiceLayer\bin\%_BuildConfiguration%\net6.0\win-x64\publish"
 
 
 
