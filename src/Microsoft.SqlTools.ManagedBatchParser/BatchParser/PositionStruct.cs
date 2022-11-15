@@ -8,7 +8,7 @@ using System;
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 {
     [Serializable]
-    public readonly struct PositionStruct
+    public struct PositionStruct
     {
         private readonly int line;
         private readonly int column;

@@ -1,11 +1,4 @@
 steps:
-
-- task: UseDotNet@2
-  displayName: 'Use .NET Core 2 sdk'
-  inputs:
-    useGlobalJson: false
-    version: 2.x
-
 - task: UseDotNet@2
   displayName: 'Use defined .NET Core sdk'
   inputs:
@@ -209,54 +202,54 @@ steps:
 - task: ArchiveFiles@1
   displayName: 'Archive osx build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net7.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net7.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive osx arm build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-arm64/net7.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-arm64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-arm64-net7.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-arm64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive rhel build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net7.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net6.0'
     includeRootFolder: false
     archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net7.0.tar.gz'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net6.0.tar.gz'
 
 - task: ArchiveFiles@1
   displayName: 'Archive windows 64 bit build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x64/net7.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x64/net6.0'
     includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net7.0.zip'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net6.0.zip'
 
 - task: ArchiveFiles@1
   displayName: 'Archive windows 32 bit build'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x86/net7.0'
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x86/net6.0'
     includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net7.0.zip'
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows10 arm 32 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net7.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net7.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net6.0.zip'
 
 # - task: ArchiveFiles@1
 #   displayName: 'Archive windows10 arm 64 bit build'
 #   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net7.0'
+#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net6.0'
 #     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net7.0.zip'
+#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net6.0.zip'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'

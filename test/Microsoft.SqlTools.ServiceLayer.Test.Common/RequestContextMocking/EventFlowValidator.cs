@@ -178,14 +178,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             Event
         }
 
-        private sealed class ExpectedEvent
+        private class ExpectedEvent
         {
             public EventTypes EventType { get; set; }
             public Type ParamType { get; set; }
             public Delegate Validator { get; set; }
         }
 
-        private sealed class ReceivedEvent
+        private class ReceivedEvent
         {
             public object EventObject { get; set; }
             public EventTypes EventType { get; set; }

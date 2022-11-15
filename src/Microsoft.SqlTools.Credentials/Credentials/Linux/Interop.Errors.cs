@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.Credentials
             // which obtains the raw errno that varies between unixes. The strong typing as an enum is meant to
             // prevent confusing the two. Casting to or from int is suspect. Use GetLastErrorInfo() if you need to
             // correlate these to the underlying platform values or obtain the corresponding error message.
-            //
+            // 
 
             SUCCESS          = 0,
 
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.Credentials
                     // so here in the future if necessary.
                     message = buffer;
                 }
-
+                
                 string returnMsg = Marshal.PtrToStringAnsi(message);
                 return returnMsg;
                 }

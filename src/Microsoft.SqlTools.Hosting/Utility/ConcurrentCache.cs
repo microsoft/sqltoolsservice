@@ -23,7 +23,10 @@ namespace Microsoft.SqlTools.Utility
                 {
                     foreach (var key in keys)
                     {
-                        _cache.Remove(key);                        
+                        if (_cache.ContainsKey(key))
+                        {
+                            _cache.Remove(key);
+                        }
                     }
                 }
             }, out exception);
