@@ -441,7 +441,7 @@ Task("OnlyPublish")
                 var publishArguments = "publish";
                 if (!runtime.Equals("default"))
                 {
-                    publishArguments = $"{publishArguments} --runtime {runtime}";
+                    publishArguments = $"{publishArguments} --runtime {runtime} --self-contained";
                 }
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
                 publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
