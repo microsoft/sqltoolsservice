@@ -13,6 +13,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+		<SelfContained>true</SelfContained>
 		<NoWarn>$(NoWarn);SYSLIB1045</NoWarn>
 		<NoWarn>$(NoWarn);CA1311</NoWarn>
 		<NoWarn>$(NoWarn);CA1854</NoWarn>
