@@ -9,21 +9,20 @@ using System.Text.RegularExpressions;
 
 namespace ScriptGenerator
 {
-
-    class Program
+    public partial class Program
     {
         internal const string DefaultFileExtension = "Sql";
-        static readonly Regex ExtractDbName = new Regex(@"CREATE\s+DATABASE\s+\[(?<dbName>\w+)\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static readonly Regex CreateTableRegex = new Regex(@"(?<begin>CREATE\s+TABLE\s+.*)(?<middle>\](?![\.])[\s\S]*?CONSTRAINT\s+\[\w+?)(?<end>\](?![\.]))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static readonly Regex AlterTableConstraintRegex = new Regex(@"(?<begin>ALTER\s+TABLE\s+.*?)(?<middle>\](?![\.])\s*\b(?:ADD|WITH|CHECK)\b[\s\S]*?CONSTRAINT\s+\[\w+?)(?<end>\](?![\.]))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static readonly Regex CreateViewRegex = new Regex(@"(?<begin>CREATE\s+VIEW\s+.*?)(?<end>\](?![\.])[\s\S]*?\bAS\b)", RegexOptions.Compiled | RegexOptions.IgnoreCase );
-        static readonly Regex CreateProcedureRegex = new Regex(@"(?<begin>CREATE\s+PROCEDURE\s+.*?)(?<end>\](?![\.])[\s\S]*?(?:@|WITH|AS))", RegexOptions.Compiled | RegexOptions.IgnoreCase); 
+        static readonly Regex ExtractDbName = CreateDbRegex();
+        static readonly Regex CreateTableRegex = CreateTableSyntaxRegex();
+        static readonly Regex AlterTableConstraintRegex = AlterTableSyntaxRegex();
+        static readonly Regex CreateViewRegex = CreateViewSyntaxRegex();
+        static readonly Regex CreateProcedureRegex = CreateProcedureSyntaxRegex(); 
         static void Main(string[] args)
         {
-            CommandOptions options = new CommandOptions(args);
+            var options = new CommandOptions(args);
             for (int d = 1; d <= options.Databases; d++)
             {
-                using (StreamWriter writer = new StreamWriter(Path.ChangeExtension($@"{options.FilePathPrefix}{d}", DefaultFileExtension)))
+                using (var writer = new StreamWriter(Path.ChangeExtension($@"{options.FilePathPrefix}{d}", DefaultFileExtension)))
                 {
                     string oldDbName = ExtractDbName.Match(Resources.AdventureWorks).Groups["dbName"].Value;
                     string newDbName = $@"{oldDbName}{d}";
@@ -57,5 +56,16 @@ namespace ScriptGenerator
                 }
             }
         }
+
+        [GeneratedRegex("CREATE\\s+DATABASE\\s+\\[(?<dbName>\\w+)\\]", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-CA")]
+        private static partial Regex CreateDbRegex();
+        [GeneratedRegex("(?<begin>CREATE\\s+TABLE\\s+.*)(?<middle>\\](?![\\.])[\\s\\S]*?CONSTRAINT\\s+\\[\\w+?)(?<end>\\](?![\\.]))", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-CA")]
+        private static partial Regex CreateTableSyntaxRegex();
+        [GeneratedRegex("(?<begin>ALTER\\s+TABLE\\s+.*?)(?<middle>\\](?![\\.])\\s*\\b(?:ADD|WITH|CHECK)\\b[\\s\\S]*?CONSTRAINT\\s+\\[\\w+?)(?<end>\\](?![\\.]))", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-CA")]
+        private static partial Regex AlterTableSyntaxRegex();
+        [GeneratedRegex("(?<begin>CREATE\\s+VIEW\\s+.*?)(?<end>\\](?![\\.])[\\s\\S]*?\\bAS\\b)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-CA")]
+        private static partial Regex CreateViewSyntaxRegex();
+        [GeneratedRegex("(?<begin>CREATE\\s+PROCEDURE\\s+.*?)(?<end>\\](?![\\.])[\\s\\S]*?(?:@|WITH|AS))", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-CA")]
+        private static partial Regex CreateProcedureSyntaxRegex();
     }
 }

@@ -12,7 +12,6 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-	<SelfContained>true</SelfContained>
     <NoWarn>$(NoWarn);CA1852</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

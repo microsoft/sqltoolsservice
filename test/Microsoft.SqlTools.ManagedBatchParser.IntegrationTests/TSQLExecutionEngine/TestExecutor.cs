@@ -12,7 +12,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
-    internal class TestExecutor : IDisposable
+    public class TestExecutor : IDisposable
     {
         #region Private variables
 

@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
-    internal class BatchEventHandler : IBatchEventsHandler
+    public class BatchEventHandler : IBatchEventsHandler
     {
         private List<int> resultCounts = new List<int>();
         private List<string> sqlMessages = new List<string>();
