@@ -81,7 +81,7 @@ do
    for k in "${requiredLocDirectories[@]}"
     do
         : 
-        output=`mkdir -v -p $i$framework6$k`
+        output=`mkdir -v -p $i$framework7$k`
         echo $output
     done
 done
