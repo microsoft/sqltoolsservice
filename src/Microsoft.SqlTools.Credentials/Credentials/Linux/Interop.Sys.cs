@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.Credentials
         {
             [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_ChMod", SetLastError = true)]
             internal static extern int ChMod(string path, int mode);
-
+            
             internal struct Passwd
             {
                 internal IntPtr Name;           // char*

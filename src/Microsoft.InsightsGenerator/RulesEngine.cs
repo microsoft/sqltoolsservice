@@ -26,10 +26,8 @@ namespace Microsoft.InsightsGenerator
         public static ColumnHeaders TemplateParser(string templateContent)
         {
 
-            ColumnHeaders ch = new ColumnHeaders();                        
-            #pragma warning disable SYSLIB1045
+            ColumnHeaders ch = new ColumnHeaders();
             var processedText = Regex.Replace(templateContent, @",|\\n", "");
-            #pragma warning restore SYSLIB1045            
             ch.Template = templateContent;
 
             List<string> keyvalue = processedText.Split(' ').Select(s => s.Trim()).ToList();
@@ -76,7 +74,7 @@ namespace Microsoft.InsightsGenerator
                 // all the values from template needs to be found in the input from SigGen
                 foreach (var hashFromTemplate in singleHashFromTemplate)
                 {
-                    if (!headersWithSingleHash.Contains(hashFromTemplate.ToLowerInvariant()))
+                    if (!headersWithSingleHash.Contains(hashFromTemplate.ToLower()))
                     {
                         isMatched = false;
                         break;
@@ -145,7 +143,7 @@ namespace Microsoft.InsightsGenerator
             var topHeaderList = new List<string>();
             foreach (var list in singleHashHeaders)
             {
-                topHeaderList.Add("#" + list.First().ToLowerInvariant());
+                topHeaderList.Add("#" + list.First().ToLower());
             }
             return topHeaderList;
         }

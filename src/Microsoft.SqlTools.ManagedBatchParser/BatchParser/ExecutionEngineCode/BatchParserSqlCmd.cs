@@ -89,7 +89,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             if (value == null)
             {
-                internalVariables.Remove(name);                
+                if (internalVariables.ContainsKey(name))
+                {
+                    internalVariables.Remove(name);
+                }
             }
             else
             {

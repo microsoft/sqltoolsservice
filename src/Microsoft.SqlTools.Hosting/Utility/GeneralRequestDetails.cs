@@ -19,7 +19,6 @@ namespace Microsoft.SqlTools.Utility
 
         public T GetOptionValue<T>(string name, T defaultValue = default(T))
         {
-            #pragma warning disable CA1854
             T result = defaultValue;
             if (Options != null && Options.ContainsKey(name))
             {
@@ -35,7 +34,6 @@ namespace Microsoft.SqlTools.Utility
                         "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
                 }
             }
-            #pragma warning restore CA1854
             return result;
         }
 

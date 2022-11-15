@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 return;
             }
 
-            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
+            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))

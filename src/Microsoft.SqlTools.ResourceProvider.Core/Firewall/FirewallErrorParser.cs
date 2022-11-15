@@ -69,12 +69,10 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
             clientIp = null;
             try
             {
-                #pragma warning disable SYSLIB1045
                 Regex regex =
                     new Regex(
                         @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
                         RegexOptions.IgnoreCase);
-                #pragma warning restore SYSLIB1045
                 Match match = regex.Match(message);
 
                 if (match.Success)

@@ -34,8 +34,6 @@ namespace Microsoft.InsightsGenerator
 
         private string[] GetColumnLabels(DataArray array, out DataArray.DataType[] columnDataType)
         {
-            // turn off warning for using ContainsKey/Add vs. TryAdd with Dictionaries
-            #pragma warning disable CA1854
             columnDataType = new DataArray.DataType[array.ColumnNames.Length];
             int columnCount = array.Cells[0].Length;
             Dictionary<DataArray.DataType, List<ColumnInfo>> columnInfo = new Dictionary<DataArray.DataType, List<ColumnInfo>>();
@@ -118,7 +116,6 @@ namespace Microsoft.InsightsGenerator
                     labels[numberColumns[i].ColumnIndex] = "output_" + i;
                 }
             }
-            #pragma warning restore CA1854
 
             return labels;
         }
