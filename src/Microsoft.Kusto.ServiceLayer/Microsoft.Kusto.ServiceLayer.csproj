@@ -15,8 +15,8 @@
     <DebugType>portable</DebugType>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
     <NoWarn>$(NoWarn);SYSLIB1045</NoWarn>
-		<NoWarn>$(NoWarn);CA1311</NoWarn>
-		<NoWarn>$(NoWarn);CA1854</NoWarn>
+	<NoWarn>$(NoWarn);CA1311</NoWarn>
+	<NoWarn>$(NoWarn);CA1854</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
