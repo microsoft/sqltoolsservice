@@ -179,6 +179,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
             if (BindingContextExists(connectionKey))
             {
+                IBindingContext context = this.GetOrCreateBindingContext(connectionKey);
+                if (context.ServerConnection.AccessToken != null)
+                {
+                    // Rely on ADS if it provides a newer access token and clear binding context to allow refreshing connection.
+                    if(connInfo.ConnectionDetails.AzureAccountToken != null && 
+                        connInfo.ConnectionDetails.AzureAccountToken != context.ServerConnection.AccessToken.GetAccessToken())
+                    {
+                        overwrite = true;
+                    }
+                }
+
                 if (overwrite)
                 {
                     RemoveBindingContext(connectionKey);
