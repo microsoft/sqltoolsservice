@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.Extensibility
             if (!services.ContainsKey(typeof(T)))
             {
                 ExtensionStore store = new ExtensionStore(typeof(T), config);
-                base.Register<T>(() => store.GetExports<T>());
+                base.Register<T>(store.GetExports<T>);
             }
         }
 

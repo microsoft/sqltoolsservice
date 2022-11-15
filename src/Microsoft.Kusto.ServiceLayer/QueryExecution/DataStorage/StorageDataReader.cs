@@ -73,7 +73,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage
         /// <returns></returns>
         public Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
-            return Task.Run(() => DataReader.Read());
+            return Task.Run(DataReader.Read);
         }
 
         /// <summary>

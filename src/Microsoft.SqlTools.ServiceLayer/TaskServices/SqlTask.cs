@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         //Run Task synchronously 
         public void Run()
         {
-            Task.Run(() => RunAsync());
+            Task.Run(RunAsync);
         }
 
         /// <summary>
