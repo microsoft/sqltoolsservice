@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public ConnectedBindingQueue()
             : this(true)
-        {            
+        {
         }
 
         public ConnectedBindingQueue(bool needsMetadata)
@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="connInfo"></param>
         internal static string GetConnectionContextKey(ConnectionDetails details)
-        {            
+        {
             string key = string.Format("{0}_{1}_{2}_{3}",
                 details.ServerName ?? "NULL",
                 details.DatabaseName ?? "NULL",
@@ -118,7 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return string.Format("{0}_{1}",
                 serverName ?? "NULL",
                 databaseName ?? "NULL");
-            
+
         }
 
         public void CloseConnections(string serverName, string databaseName, int millisecondsTimeout)
@@ -180,14 +180,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (BindingContextExists(connectionKey))
             {
                 IBindingContext context = this.GetOrCreateBindingContext(connectionKey);
-                if (context.ServerConnection.AccessToken != null)
+
+                // Rely on ADS if it provides a newer access token and clear binding context to allow refreshing connection.
+                if (context.ServerConnection.AccessToken != null && connInfo.ConnectionDetails.AzureAccountToken != null
+                    && connInfo.ConnectionDetails.AzureAccountToken != context.ServerConnection.AccessToken.GetAccessToken())
                 {
-                    // Rely on ADS if it provides a newer access token and clear binding context to allow refreshing connection.
-                    if(connInfo.ConnectionDetails.AzureAccountToken != null && 
-                        connInfo.ConnectionDetails.AzureAccountToken != context.ServerConnection.AccessToken.GetAccessToken())
-                    {
-                        overwrite = true;
-                    }
+                    overwrite = true;
                 }
 
                 if (overwrite)
@@ -207,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                   
+
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
 
@@ -219,19 +217,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
                                 ? CasingStyle.Lowercase : CasingStyle.Uppercase;
                         bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
-                    }         
-            
+                    }
+
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }
                 catch (Exception)
                 {
                     bindingContext.IsConnected = false;
-                }       
+                }
                 finally
                 {
                     bindingContext.BindingLock.Set();
-                }         
+                }
             }
 
             return connectionKey;
