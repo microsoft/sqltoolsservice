@@ -6,6 +6,8 @@
     <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <NoWarn>$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8620;CS8622;CS8625;CS8629;CS8632;CS8769;CS8765</NoWarn>
+   	<NoWarn>$(NoWarn);CS1998;CS8597;CS8612;CS8767;CS0168;CS0169;SYSLIB0012;SYSLIB0013;NETSDK1187;IDE0074;MSB3270</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
