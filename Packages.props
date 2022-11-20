@@ -18,7 +18,7 @@
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="17500.0.0" />
+		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="17200.0.0" />
 		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="161.6373.0-preview" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
@@ -49,7 +49,7 @@
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
 	<ItemGroup>
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.1" />
-		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="17500.0.0" />
+		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="17200.0.0" />
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
