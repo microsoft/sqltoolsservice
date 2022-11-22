@@ -18,7 +18,7 @@
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.8.0" />
+		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.9.0" />
 		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="161.6373.0-preview" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
@@ -44,12 +44,12 @@
 		<PackageReference Update="coverlet.collector" Version="3.1.2" />
 		<PackageReference Update="coverlet.msbuild" Version="3.1.2" />
 	</ItemGroup>
-	
+
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
 	<ItemGroup>
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.1" />
-		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.8.0" />
+		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.9.0" />
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
