@@ -61,6 +61,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceEmptyPassword
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceEmptyPassword);
+            }
+        }
+
         public static string ConnectionParamsValidateNullOwnerUri
         {
             get
@@ -10080,6 +10088,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
+
+
+            public const string ConnectionServiceEmptyPassword = "ConnectionServiceEmptyPassword";
 
 
             public const string ConnectionParamsValidateNullOwnerUri = "ConnectionParamsValidateNullOwnerUri";

@@ -168,6 +168,10 @@
     <value>Connection canceled</value>
     <comment></comment>
   </data>
+  <data name="ConnectionServiceEmptyPassword" xml:space="preserve">
+    <value>New password cannot be empty</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
     <comment></comment>

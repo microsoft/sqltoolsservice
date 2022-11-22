@@ -45,6 +45,8 @@ ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' fo
 
 ConnectionServiceConnectionCanceled = Connection canceled
 
+ConnectionServiceEmptyPassword = New password cannot be empty
+
 ### Connection Params Validation Errors
 
 ConnectionParamsValidateNullOwnerUri = OwnerUri cannot be null or empty

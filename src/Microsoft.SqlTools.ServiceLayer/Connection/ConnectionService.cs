@@ -1105,6 +1105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 await requestContext.SendResult(false);
             }
         }
+
         private void RunConnectRequestHandlerTask(ConnectParams connectParams)
         {
             // create a task to connect asynchronously so that other requests are not blocked in the meantime
@@ -1171,7 +1172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 throw new Exception(result.ErrorMessage);
             }
             else if(isPasswordEmpty) {
-                throw new Exception("New password is empty!");
+                throw new Exception(SR.ConnectionServiceEmptyPassword);
             }
 
             // Change the password of the connection

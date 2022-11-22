@@ -6505,6 +6505,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Actual CPU Cost</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ConnectionServiceEmptyPassword">
+        <source>New password cannot be empty</source>
+        <target state="new">New password cannot be empty</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
