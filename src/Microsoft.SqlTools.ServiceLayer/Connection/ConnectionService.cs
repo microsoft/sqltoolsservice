@@ -1157,7 +1157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 newResponse.result = false;
                 newResponse.ErrorMessage = ex.Message;
-                newResponse.Messages = ex.ToString();
+                newResponse.Messages = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
             }
             await requestContext.SendResult(newResponse);
         }
@@ -1169,7 +1169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
             if (result != null)
             {
-                throw new Exception(result.ErrorMessage);
+                throw new Exception(result.ErrorMessage, new Exception(result.Messages));
             }
             else if(isPasswordEmpty) {
                 throw new Exception(SR.ConnectionServiceEmptyPassword);
