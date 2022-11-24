@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public virtual void UpdateAccessToken(SmoObjectBase smoObj, string accessToken)
         {
             SqlSmoObject sqlObj = smoObj as SqlSmoObject;
-            if(sqlObj != null && accessToken != null
+            if(sqlObj != null && !string.IsNullOrEmpty(accessToken)
                 && sqlObj.ExecutionManager != null
                 && sqlObj.ExecutionManager.ConnectionContext != null)
             {

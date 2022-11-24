@@ -431,17 +431,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               node.GetContextAs<SmoQueryContext>().UpdateAccessToken(accessToken);
-
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken, accessToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
-                                   nodes = node.Expand(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Expand(cancelToken, accessToken).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
