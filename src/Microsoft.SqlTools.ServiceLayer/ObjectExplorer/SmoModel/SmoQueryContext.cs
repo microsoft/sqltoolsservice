@@ -170,6 +170,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
+        /// Updates access token on parent connection context.
+        /// </summary>
+        /// <param name="accessToken">Acquired access token</param>
+        public void UpdateAccessToken(string accessToken)
+        {
+            var smoObj = Parent;
+            if (smoObj != null && !string.IsNullOrEmpty(accessToken) && smoWrapper.IsConnectionOpen(smoObj))
+            {
+                smoWrapper.UpdateAccessToken(smoObj, accessToken);
+            }
+        }
+
+        /// <summary>
         /// Ensures the server objects connection context is open. This is used by all child objects, and 
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties

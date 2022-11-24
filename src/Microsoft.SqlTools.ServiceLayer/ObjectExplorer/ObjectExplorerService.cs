@@ -211,7 +211,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    RunExpandTask(session, expandParams);
+                    bool refreshNeeded = session.ConnectionInfo.TryUpdateAccessToken(expandParams.Token, expandParams.ExpiresOn);
+                    RunExpandTask(session, expandParams, refreshNeeded);
                     return true;
                 }
             };
@@ -238,6 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             else
             {
+                session.ConnectionInfo.TryUpdateAccessToken(refreshParams.Token, refreshParams.ExpiresOn);
                 RunExpandTask(session, refreshParams, true);
             }
             await context.SendResult(true);
@@ -370,12 +372,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, string accessToken, bool forceRefresh = false)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh));
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, accessToken, forceRefresh));
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, string accessToken, bool forceRefresh = false)
         {
             NodeInfo[] nodes = null;
             TreeNode node = session.Root.FindNodeByPath(nodePath);
@@ -429,6 +431,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
+                               node.GetContextAs<SmoQueryContext>().UpdateAccessToken(accessToken);
+
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
@@ -629,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
             ExpandResponse response = null;
-            response = await ExpandNode(session, expandParams.NodePath, forceRefresh);
+            response = await ExpandNode(session, expandParams.NodePath, expandParams.Token, forceRefresh);
             if (cancellationToken.IsCancellationRequested)
             {
                 Logger.Write(TraceEventType.Verbose, "OE expand canceled");

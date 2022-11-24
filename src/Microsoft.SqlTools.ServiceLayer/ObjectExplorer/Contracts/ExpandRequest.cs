@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     /// <summary>
     /// Parameters to the <see cref="ExpandRequest"/>.
     /// </summary>
-    public class ExpandParams
+    public class ExpandParams: TokenRefreshedParams
     {
         /// <summary>
         /// The Id returned from a <see cref="CreateSessionRequest"/>. This

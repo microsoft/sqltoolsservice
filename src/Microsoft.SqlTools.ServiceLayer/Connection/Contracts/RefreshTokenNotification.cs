@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
-    class RefreshTokenParams 
+    public class RefreshTokenParams 
     {
         /// <summary>
         /// ID of the tenant
@@ -39,14 +39,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     /// <summary>
     /// Refresh token request mapping entry 
     /// </summary>
-    class RefreshTokenNotification
+    public class RefreshTokenNotification
     {
         public static readonly
             EventType<RefreshTokenParams> Type =
             EventType<RefreshTokenParams>.Create("account/refreshToken");
     }
 
-    class TokenRefreshedParams
+    public class TokenRefreshedParams
     {
         /// <summary>
         /// Gets or sets the refresh token.
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Uri { get; set; }
     }
 
-    class TokenRefreshedNotification
+    public class TokenRefreshedNotification
     {
         public static readonly
         EventType<TokenRefreshedParams> Type =
