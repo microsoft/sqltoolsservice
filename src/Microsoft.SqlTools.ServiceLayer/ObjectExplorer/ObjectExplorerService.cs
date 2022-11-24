@@ -372,12 +372,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, string accessToken, bool forceRefresh = false)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, string? accessToken = null)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, accessToken, forceRefresh));
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, accessToken));
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, string accessToken, bool forceRefresh = false)
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, string? accessToken = null)
         {
             NodeInfo[] nodes = null;
             TreeNode node = session.Root.FindNodeByPath(nodePath);
@@ -633,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
             ExpandResponse response = null;
-            response = await ExpandNode(session, expandParams.NodePath, expandParams.Token, forceRefresh);
+            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.Token);
             if (cancellationToken.IsCancellationRequested)
             {
                 Logger.Write(TraceEventType.Verbose, "OE expand canceled");

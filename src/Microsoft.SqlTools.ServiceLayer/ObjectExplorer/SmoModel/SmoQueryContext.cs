@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// Updates access token on parent connection context.
         /// </summary>
         /// <param name="accessToken">Acquired access token</param>
-        public void UpdateAccessToken(string accessToken)
+        public void UpdateAccessToken(string? accessToken)
         {
             var smoObj = Parent;
             if (smoObj != null && !string.IsNullOrEmpty(accessToken) && smoWrapper.IsConnectionOpen(smoObj))
