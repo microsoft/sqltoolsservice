@@ -173,19 +173,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// Updates access token on parent connection context.
         /// </summary>
         /// <param name="accessToken">Acquired access token</param>
-        public void UpdateAccessToken(NodeTypes nodeTypeId, string? accessToken)
+        public void UpdateAccessToken(string? accessToken)
         {
             if (!string.IsNullOrEmpty(accessToken))
             {
-                SmoObjectBase smoObj;
-                // Set smoObject based on node type, need not be an open connection.
-                switch (nodeTypeId)
+                // Update all applicable nodes that could contain access token
+                // to prevent stale token from being re-used.
+                if(server != null)
                 {
-                    case NodeTypes.Server: smoObj = server as SmoObjectBase; break;
-                    case NodeTypes.Database: smoObj = database as SmoObjectBase; break;
-                    default: smoObj = parent as SmoObjectBase; break;
+                    smoWrapper.UpdateAccessToken(server as SmoObjectBase, accessToken);
                 }
-                smoWrapper.UpdateAccessToken(smoObj, accessToken);
+                if (database != null)
+                {
+                    smoWrapper.UpdateAccessToken(database as SmoObjectBase, accessToken);
+                }
+                if (parent != null)
+                {
+                    smoWrapper.UpdateAccessToken(parent as SmoObjectBase, accessToken);
+                }
             }
         }
 

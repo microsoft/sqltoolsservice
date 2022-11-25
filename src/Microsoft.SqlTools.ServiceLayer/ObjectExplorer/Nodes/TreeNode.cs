@@ -336,7 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             BeginChildrenInit();
 
             // Update access token for future queries
-            context.UpdateAccessToken(NodeTypeId, accessToken);
+            context.UpdateAccessToken(accessToken);
 
             try
             {
