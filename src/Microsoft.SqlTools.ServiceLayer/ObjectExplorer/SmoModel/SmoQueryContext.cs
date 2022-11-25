@@ -178,11 +178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             if (!string.IsNullOrEmpty(accessToken))
             {
                 SmoObjectBase smoObj;
+                // Set smoObject based on node type, need not be an open connection.
                 switch (nodeTypeId)
                 {
-                    case NodeTypes.Server: smoObj = Server as SmoObjectBase; break;
-                    case NodeTypes.Database: smoObj = Database as SmoObjectBase; break;
-                    default: smoObj = Parent as SmoObjectBase; break;
+                    case NodeTypes.Server: smoObj = server as SmoObjectBase; break;
+                    case NodeTypes.Database: smoObj = database as SmoObjectBase; break;
+                    default: smoObj = parent as SmoObjectBase; break;
                 }
                 smoWrapper.UpdateAccessToken(smoObj, accessToken);
             }

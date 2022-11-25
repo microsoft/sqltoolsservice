@@ -431,6 +431,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
+                               if (!session.ConnectionInfo.IsAzureAuth)
+                               {
+                                   // explicitly set null here to prevent setting access token for non-Azure auth modes.
+                                   accessToken = null;
+                               }
+
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
