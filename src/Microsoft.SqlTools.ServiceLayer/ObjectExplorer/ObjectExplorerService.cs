@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
@@ -324,6 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         {
                             Success = false,
                             SessionId = uri,
+                            ErrorNumber = result.Exception != null && result.Exception is SqlException sqlEx ? sqlEx.ErrorCode : null,
                             ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
 
                         };
@@ -361,6 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     Success = true,
                     RootNode = session.Root.ToNodeInfo(),
                     SessionId = uri,
+                    ErrorNumber = session.ErrorNumber,
                     ErrorMessage = session.ErrorMessage
                 };
                 await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
@@ -524,7 +527,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception ex)
             {
-                await SendSessionFailedNotification(uri, ex.Message);
+                int? errorCode = ex is SqlException sqlEx ? sqlEx.ErrorCode : null;
+                await SendSessionFailedNotification(uri, ex.Message, errorCode);
                 return null;
             }
         }
@@ -543,25 +547,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    await SendSessionFailedNotification(uri, result.ErrorMessage);
+                    await SendSessionFailedNotification(uri, result.ErrorMessage, result.ErrorNumber);
                     return null;
                 }
 
             }
             catch (Exception ex)
             {
-                await SendSessionFailedNotification(uri, ex.ToString());
+                int? errorNum = ex is SqlException sqlEx ? sqlEx.Number : null;
+                await SendSessionFailedNotification(uri, ex.ToString(), errorNum);
                 return null;
             }
         }
 
-        private async Task SendSessionFailedNotification(string uri, string errorMessage)
+        private async Task SendSessionFailedNotification(string uri, string errorMessage, int? errorCode = null)
         {
             Logger.Write(TraceEventType.Warning, $"Failed To create OE session: {errorMessage}");
             SessionCreatedParameters result = new SessionCreatedParameters()
             {
                 Success = false,
                 ErrorMessage = errorMessage,
+                ErrorNumber = errorCode,
                 SessionId = uri
             };
             await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
@@ -809,6 +815,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public ConnectionInfo ConnectionInfo { get; set; }
 
+            public int? ErrorNumber { get; set; }
+
             public string ErrorMessage { get; set; }
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
@@ -822,6 +830,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     session.Root = databaseNode;
                 }
 
+                if(response?.ErrorMessage != null)
+                {
+                    session.ErrorMessage = response.ErrorMessage;
+                    session.ErrorNumber = response.ErrorNumber;
+                }
                 return session;
             }
 
