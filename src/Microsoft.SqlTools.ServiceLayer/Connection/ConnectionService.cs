@@ -1164,15 +1164,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
         {
+            // Empty passwords are not valid.
+            Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
+            if (isPasswordEmpty)
+            {
+                throw new Exception(SR.ConnectionServiceEmptyPassword);
+            }
+
             // result is null if the ConnectParams was successfully validated
             ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
-            Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
             if (result != null)
             {
                 throw new Exception(result.ErrorMessage, new Exception(result.Messages));
-            }
-            else if(isPasswordEmpty) {
-                throw new Exception(SR.ConnectionServiceEmptyPassword);
             }
 
             // Change the password of the connection
