@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
             foundNodes ??= new List<TreeNode>();
-            
+
             await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
         }
 
@@ -560,7 +560,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
         }
 
-        private async Task SendSessionFailedNotification(string uri, string errorMessage, int? errorCode = null)
+        private async Task SendSessionFailedNotification(string uri, string errorMessage, int? errorCode)
         {
             Logger.Write(TraceEventType.Warning, $"Failed To create OE session: {errorMessage}");
             SessionCreatedParameters result = new SessionCreatedParameters()
@@ -830,7 +830,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     session.Root = databaseNode;
                 }
 
-                if(response?.ErrorMessage != null)
+                if (response?.ErrorMessage != null)
                 {
                     session.ErrorMessage = response.ErrorMessage;
                     session.ErrorNumber = response.ErrorNumber;
