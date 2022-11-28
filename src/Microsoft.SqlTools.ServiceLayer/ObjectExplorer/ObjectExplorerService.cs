@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    bool refreshNeeded = session.ConnectionInfo.TryUpdateAccessToken(expandParams.Token, expandParams.ExpiresOn);
+                    bool refreshNeeded = session.ConnectionInfo.TryUpdateAccessToken(expandParams.SecurityToken);
                     RunExpandTask(session, expandParams, refreshNeeded);
                     return true;
                 }
@@ -239,7 +239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             else
             {
-                session.ConnectionInfo.TryUpdateAccessToken(refreshParams.Token, refreshParams.ExpiresOn);
+                session.ConnectionInfo.TryUpdateAccessToken(refreshParams.SecurityToken);
                 RunExpandTask(session, refreshParams, true);
             }
             await context.SendResult(true);
@@ -372,12 +372,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, string? accessToken = null)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, accessToken));
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken));
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, string? accessToken = null)
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null)
         {
             NodeInfo[] nodes = null;
             TreeNode node = session.Root.FindNodeByPath(nodePath);
@@ -434,18 +434,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                if (!session.ConnectionInfo.IsAzureAuth)
                                {
                                    // explicitly set null here to prevent setting access token for non-Azure auth modes.
-                                   accessToken = null;
+                                   securityToken = null;
                                }
 
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken, accessToken).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken, securityToken?.Token).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
-                                   nodes = node.Expand(cancelToken, accessToken).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Expand(cancelToken, securityToken?.Token).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
@@ -637,7 +637,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
             ExpandResponse response = null;
-            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.Token);
+            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken);
             if (cancellationToken.IsCancellationRequested)
             {
                 Logger.Write(TraceEventType.Verbose, "OE expand canceled");

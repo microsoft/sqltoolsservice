@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     /// <summary>
     /// Parameters to the <see cref="ExpandRequest"/>.
     /// </summary>
-    public class ExpandParams: TokenRefreshedParams
+    public class ExpandParams
     {
         /// <summary>
         /// The Id returned from a <see cref="CreateSessionRequest"/>. This
@@ -50,6 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Path identifying the node to expand. See <see cref="NodeInfo.NodePath"/> for details
         /// </summary>
         public string NodePath { get; set; }
+
+        /// <summary>
+        /// Security token for AzureMFA authentication for refresing access token on connection.
+        /// </summary>
+        public SecurityToken SecurityToken {get; set;}
     }
 
     /// <summary>

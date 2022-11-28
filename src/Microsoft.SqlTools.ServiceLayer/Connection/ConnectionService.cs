@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return;
             }
             this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
-            connection.TryUpdateAccessToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
+            connection.TryUpdateAccessToken(new SecurityToken() { Token = tokenRefreshedParams.Token, ExpiresOn = tokenRefreshedParams.ExpiresOn });
         }
 
         /// <summary>

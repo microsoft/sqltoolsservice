@@ -181,12 +181,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Updates the Auth Token and Expires On fields
         /// </summary>
-        public bool TryUpdateAccessToken(string? token, int? expiresOn)
+        public bool TryUpdateAccessToken(SecurityToken securityToken)
         {
-            if (!string.IsNullOrEmpty(token) && expiresOn != null && IsAzureAuth && IsAccessTokenExpired)
+            if (securityToken != null && !string.IsNullOrEmpty(securityToken.Token) && IsAzureAuth && IsAccessTokenExpired)
             {
-                ConnectionDetails.AzureAccountToken = token;
-                ConnectionDetails.ExpiresOn = expiresOn;
+                ConnectionDetails.AzureAccountToken = securityToken.Token;
+                ConnectionDetails.ExpiresOn = securityToken.ExpiresOn;
                 return true;
             }
             return false;
