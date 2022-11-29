@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return;
             }
             this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
-            connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
+            connection.TryUpdateAccessToken(new SecurityToken() { Token = tokenRefreshedParams.Token, ExpiresOn = tokenRefreshedParams.ExpiresOn });
         }
 
         /// <summary>
@@ -585,6 +585,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
+                // Determines that access token is used for creating connection.
+                connectionInfo.IsAzureAuth = connectionInfo.ConnectionDetails.AuthenticationType == "AzureMFA";
                 connectionInfo.EngineEdition = (DatabaseEngineEdition)serverInfo.EngineEditionId;
                 // Azure Data Studio supports SQL Server 2014 and later releases.
                 response.IsSupportedVersion = serverInfo.IsCloud || serverInfo.ServerMajorVersion >= 12;
