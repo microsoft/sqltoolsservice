@@ -18,6 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionInfo
     {
+        private static readonly DateTime UnixEpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -181,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Updates the Auth Token and Expires On fields
         /// </summary>
-        public bool TryUpdateAccessToken(SecurityToken securityToken)
+        public bool TryUpdateAccessToken(SecurityToken? securityToken)
         {
             if (securityToken != null && !string.IsNullOrEmpty(securityToken.Token) && IsAzureAuth && IsAccessTokenExpired)
             {
@@ -201,11 +203,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 if (IsAzureAuth && ConnectionDetails.ExpiresOn != null && double.TryParse(ConnectionDetails.ExpiresOn.ToString(), out var expiresOn))
                 {
-                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                    dateTime = dateTime.AddSeconds(expiresOn);
-                    
+                    DateTime dateTime = UnixEpochUtc.AddSeconds(expiresOn);
+
                     // Check if access token is already expired or shall expire in 2 minutes.
-                    if(dateTime <=  DateTime.UtcNow.AddMinutes(2))
+                    if (dateTime <= DateTime.UtcNow.AddMinutes(2))
                     {
                         Logger.Verbose("Access token found expired.");
                         return true;

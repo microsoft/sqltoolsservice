@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
-    class RequestSecurityTokenParams 
+    class RequestSecurityTokenParams
     {
         /// <summary>
         /// Gets or sets the address of the authority to issue token.

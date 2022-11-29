@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// <summary>
         /// Security token for AzureMFA authentication for refresing access token on connection.
         /// </summary>
-        public SecurityToken SecurityToken {get; set;}
+        public SecurityToken? SecurityToken { get; set; }
     }
 
     /// <summary>

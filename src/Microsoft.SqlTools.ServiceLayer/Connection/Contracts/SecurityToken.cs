@@ -15,11 +15,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summmary>
         /// Gets or sets the token expiration, a Unix epoch 
         /// </summary>
-        public int ExpiresOn { get; set; }
+        public int? ExpiresOn { get; set; }
 
         /// <summmary>
         /// Gets or sets the token type, e.g. 'Bearer'
         /// </summary>
-        public string TokenType { get; set; }
+        public string? TokenType { get; set; }
     }
 }

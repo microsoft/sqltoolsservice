@@ -5,7 +5,6 @@
 
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -51,22 +50,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 && sqlObj.ExecutionManager.ConnectionContext != null)
             {
                 sqlObj.ExecutionManager.ConnectionContext.Connect();
-            }
-        }
-
-        /// <summary>
-        /// Updates access token on the connection context of <paramref name="smoObj"/> instance.
-        /// </summary>
-        /// <param name="smoObj">SMO Object containing connection context.</param>
-        /// <param name="accessToken">Access token</param>
-        public virtual void UpdateAccessToken(SmoObjectBase smoObj, string accessToken)
-        {
-            SqlSmoObject sqlObj = smoObj as SqlSmoObject;
-            if(sqlObj != null && !string.IsNullOrEmpty(accessToken)
-                && sqlObj.ExecutionManager != null
-                && sqlObj.ExecutionManager.ConnectionContext != null)
-            {
-                sqlObj.ExecutionManager.ConnectionContext.AccessToken = new AzureAccessToken(accessToken);
             }
         }
     }

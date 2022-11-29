@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
-    public class RefreshTokenParams 
+    public class RefreshTokenParams
     {
         /// <summary>
         /// ID of the tenant

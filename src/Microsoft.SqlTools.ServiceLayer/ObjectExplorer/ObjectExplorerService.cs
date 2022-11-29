@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
             foundNodes ??= new List<TreeNode>();
-            
+
             await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
         }
 

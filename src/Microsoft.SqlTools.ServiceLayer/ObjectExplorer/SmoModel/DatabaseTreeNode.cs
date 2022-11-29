@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     internal partial class DatabaseTreeNode
     {
-        public DatabaseTreeNode(ServerNode serverNode, string databaseName): this()
+        public DatabaseTreeNode(ServerNode serverNode, string databaseName) : this()
         {
             Parent = serverNode;
             NodeValue = databaseName;
