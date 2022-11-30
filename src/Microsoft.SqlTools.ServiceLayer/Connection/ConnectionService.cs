@@ -1150,22 +1150,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             PasswordChangeResponse newResponse = new PasswordChangeResponse();
             try
             {
-                RunChangePasswordRequestHandlerTask(changePasswordParams);
-                newResponse.result = true;
+                ChangePassword(changePasswordParams);
+                newResponse.Result = true;
             }
             catch (Exception ex)
             {
-                newResponse.result = false;
+                newResponse.Result = false;
                 newResponse.ErrorMessage = ex.Message;
                 newResponse.Messages = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
             }
             await requestContext.SendResult(newResponse);
         }
 
-        public void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
+        public void ChangePassword(ChangePasswordParams changePasswordParams)
         {
             // Empty passwords are not valid.
-            Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
+            bool isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
             if (isPasswordEmpty)
             {
                 throw new Exception(SR.ConnectionServiceEmptyPassword);

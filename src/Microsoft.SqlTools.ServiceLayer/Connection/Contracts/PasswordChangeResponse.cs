@@ -6,15 +6,14 @@
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
-    /// Parameters to be sent back with a connection complete event
+    /// Parameters to be sent back after a password change attempt.
     /// </summary>
     public class PasswordChangeResponse
     {
         /// <summary>
-        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// Status indicating if connection was successful or not.     
         /// </summary>
-        public bool result { get; set;  }
+        public bool Result { get; set;  }
 
         /// <summary>
         /// Additional optional detailed error messages, if an error occurred.
