@@ -1783,7 +1783,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 Connection = TestObjects.GetTestConnectionDetails(),
                 NewPassword = ""
             };
-            Assert.Throws<Exception>(() => connectionService.RunChangePasswordRequestHandlerTask(testConnectionParams));
+            Assert.Throws<Exception>(() => connectionService.ChangePassword(testConnectionParams));
         }
 
         /// <summary>
@@ -1805,7 +1805,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 Connection = { },
                 NewPassword = "TestPassword"
             };
-            Assert.Throws<Exception>(() => connectionService.RunChangePasswordRequestHandlerTask(testConnectionParams));
+            Assert.Throws<Exception>(() => connectionService.ChangePassword(testConnectionParams));
         }
 
         /// <summary>
@@ -1828,7 +1828,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 NewPassword = "TestPassword"
             };
             Assert.Throws<Microsoft.SqlServer.Management.Common.ChangePasswordFailureException>(
-                () => connectionService.RunChangePasswordRequestHandlerTask(testConnectionParams));
+                () => connectionService.ChangePassword(testConnectionParams));
         }
     }
 }

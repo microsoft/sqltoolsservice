@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return;
             }
             this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
-            connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
+            connection.TryUpdateAccessToken(new SecurityToken() { Token = tokenRefreshedParams.Token, ExpiresOn = tokenRefreshedParams.ExpiresOn });
         }
 
         /// <summary>
@@ -585,6 +585,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
+                // Determines that access token is used for creating connection.
+                connectionInfo.IsAzureAuth = connectionInfo.ConnectionDetails.AuthenticationType == "AzureMFA";
                 connectionInfo.EngineEdition = (DatabaseEngineEdition)serverInfo.EngineEditionId;
                 // Azure Data Studio supports SQL Server 2014 and later releases.
                 response.IsSupportedVersion = serverInfo.IsCloud || serverInfo.ServerMajorVersion >= 12;
@@ -1150,29 +1152,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             PasswordChangeResponse newResponse = new PasswordChangeResponse();
             try
             {
-                RunChangePasswordRequestHandlerTask(changePasswordParams);
-                newResponse.result = true;
+                ChangePassword(changePasswordParams);
+                newResponse.Result = true;
             }
             catch (Exception ex)
             {
-                newResponse.result = false;
+                newResponse.Result = false;
                 newResponse.ErrorMessage = ex.Message;
                 newResponse.ErrorDetails = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
             }
             await requestContext.SendResult(newResponse);
         }
 
-        public void RunChangePasswordRequestHandlerTask(ChangePasswordParams changePasswordParams)
+        public void ChangePassword(ChangePasswordParams changePasswordParams)
         {
+            // Empty passwords are not valid.
+            if (string.IsNullOrEmpty(changePasswordParams.NewPassword))
+            {
+                throw new Exception(SR.ConnectionServiceEmptyPassword);
+            }
+
             // result is null if the ConnectParams was successfully validated
             ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
-            Boolean isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
             if (result != null)
             {
                 throw new Exception(result.ErrorMessage, new Exception(result.Messages));
-            }
-            else if(isPasswordEmpty) {
-                throw new Exception(SR.ConnectionServiceEmptyPassword);
             }
 
             // Change the password of the connection
