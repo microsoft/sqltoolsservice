@@ -19,10 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Additional optional detailed error messages, if an error occurred.
         /// </summary>
-        public string? Messages { get; set; }
+        public string? ErrorDetails { get; set; }
 
         /// <summary>
-        /// Error message for the connection failure, if an error occured.
+        /// Brief error description for the connection failure, if an error occured.
         /// </summary>
         public string? ErrorMessage { get; set; }
     }
