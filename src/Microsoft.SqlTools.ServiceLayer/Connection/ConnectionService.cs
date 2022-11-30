@@ -1167,8 +1167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public void ChangePassword(ChangePasswordParams changePasswordParams)
         {
             // Empty passwords are not valid.
-            bool isPasswordEmpty = string.IsNullOrEmpty(changePasswordParams.NewPassword);
-            if (isPasswordEmpty)
+            if (string.IsNullOrEmpty(changePasswordParams.NewPassword))
             {
                 throw new Exception(SR.ConnectionServiceEmptyPassword);
             }
