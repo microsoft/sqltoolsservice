@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     internal partial class DatabaseTreeNode
     {
-        public DatabaseTreeNode(ServerNode serverNode, string databaseName): this()
+        public DatabaseTreeNode(ServerNode serverNode, string databaseName) : this()
         {
             Parent = serverNode;
             NodeValue = databaseName;
@@ -52,12 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
+        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null)
         {
             var smoQueryContext = this.GetContextAs<SmoQueryContext>();
             if (IsAccessible(smoQueryContext))
             {
-                base.PopulateChildren(refresh, name, cancellationToken);
+                base.PopulateChildren(refresh, name, cancellationToken, accessToken);
             }
             else
             {
