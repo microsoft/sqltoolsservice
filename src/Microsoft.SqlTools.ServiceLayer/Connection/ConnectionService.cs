@@ -1158,7 +1158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 newResponse.Result = false;
-                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + "\n\n" + ex.InnerException.Message) : ex.Message;
+                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
             }
             await requestContext.SendResult(newResponse);
         }
