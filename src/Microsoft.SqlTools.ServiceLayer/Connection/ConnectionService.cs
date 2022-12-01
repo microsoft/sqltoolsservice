@@ -1159,6 +1159,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 newResponse.Result = false;
                 newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
+                if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
+                }
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangeDNMReqs))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeDNMReqsRetry;
+                }
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangePWCannotBeUsed))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
+                }
             }
             await requestContext.SendResult(newResponse);
         }
@@ -1168,7 +1180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Empty passwords are not valid.
             if (string.IsNullOrEmpty(changePasswordParams.NewPassword))
             {
-                throw new Exception(SR.ConnectionServiceEmptyPassword);
+                throw new Exception(SR.PasswordChangeEmptyPassword);
             }
 
             // result is null if the ConnectParams was successfully validated
