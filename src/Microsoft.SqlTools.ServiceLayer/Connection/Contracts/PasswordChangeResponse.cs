@@ -16,12 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public bool Result { get; set;  }
 
         /// <summary>
-        /// Additional optional detailed error messages, if an error occurred.
-        /// </summary>
-        public string? ErrorDetails { get; set; }
-
-        /// <summary>
-        /// Brief error description for the connection failure, if an error occured.
+        /// Error message for the connection failure, if an error occured.
         /// </summary>
         public string? ErrorMessage { get; set; }
     }
