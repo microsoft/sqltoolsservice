@@ -11,12 +11,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     public class PasswordChangeResponse
     {
         /// <summary>
-        /// Status indicating if connection was successful or not.     
+        /// Status indicating if password change was successful or not.     
         /// </summary>
         public bool Result { get; set;  }
 
         /// <summary>
-        /// Error message for the connection failure, if an error occured.
+        /// Error message for the password change, if an error occured.
         /// </summary>
         public string? ErrorMessage { get; set; }
     }
