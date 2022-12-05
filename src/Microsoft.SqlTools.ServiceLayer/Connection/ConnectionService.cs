@@ -22,6 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -1159,6 +1160,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 newResponse.Result = false;
                 newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"Changed database context to '\w+'\.", "");
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"Changed language setting to \w+\.", "");
                 if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
