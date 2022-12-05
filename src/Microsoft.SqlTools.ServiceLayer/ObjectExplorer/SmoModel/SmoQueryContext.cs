@@ -46,17 +46,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// The server SMO will query against
         /// </summary>
-        public Server Server { 
+        public Server Server
+        {
             get
             {
                 return GetObjectWithOpenedConnection(server);
-            } 
+            }
         }
 
         /// <summary>
         /// Optional Database context object to query against
         /// </summary>
-        public Database Database { 
+        public Database Database
+        {
             get
             {
                 return GetObjectWithOpenedConnection(database);
@@ -70,7 +72,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public SmoObjectBase Parent { 
+        public SmoObjectBase Parent
+        {
             get
             {
                 return GetObjectWithOpenedConnection(parent);
@@ -86,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// for specific SMO types
         /// </summary>
         public IMultiServiceProvider ServiceProvider { get; private set; }
-        
+
         /// <summary>
         /// Helper method to cast a parent to a specific type
         /// </summary>
@@ -116,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ObjectExplorerService service = ServiceProvider.GetService<ObjectExplorerService>();
             if (service == null)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, 
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
                     SqlTools.Hosting.SR.ServiceNotFound, nameof(ObjectExplorerService)));
             }
 
@@ -147,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             get
             {
-                if(validFor == 0)
+                if (validFor == 0)
                 {
                     validFor = ServerVersionHelper.GetValidForFlag(SqlServerType, Database);
                 }
@@ -167,6 +170,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 EnsureConnectionOpen(smoObj);
             }
             return smoObj;
+        }
+
+        /// <summary>
+        /// Updates access token on parent connection context.
+        /// </summary>
+        /// <param name="accessToken">Acquired access token</param>
+        public void UpdateAccessToken(string? accessToken)
+        {
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                // Update all applicable nodes that could contain access token
+                // to prevent stale token from being re-used.
+                if (server != null)
+                {
+                    (server as SqlSmoObject).UpdateAccessToken(accessToken);
+                }
+                if (database != null)
+                {
+                    (database as SqlSmoObject).UpdateAccessToken(accessToken);
+                }
+                if (parent != null)
+                {
+                    (parent as SqlSmoObject).UpdateAccessToken(accessToken);
+                }
+            }
         }
 
         /// <summary>

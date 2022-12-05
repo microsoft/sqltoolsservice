@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
     internal partial class DatabaseTreeNode
     {
-        public DatabaseTreeNode(ServerNode serverNode, string databaseName): this()
+        public DatabaseTreeNode(ServerNode serverNode, string databaseName) : this()
         {
             Parent = serverNode;
             NodeValue = databaseName;
@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             // We detect that here and fall back to master
             if (db.State == SqlSmoState.Creating && !IsDWGen3(db))
             {
+                Logger.Information($"Database {databaseName} is in Creating state after initialization, defaulting to master for Object Explorer connections. This is expected when connecting to an Availability Group readable secondary");
                 db = new Database(serverNode.GetContextAs<SmoQueryContext>().Server, "master");
                 db.Refresh();
             }
@@ -35,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// Initializes the context and sets its ValidFor property 
+        /// Initializes the context and sets its ValidFor property
         /// </summary>
         protected override void EnsureContextInitialized()
         {
@@ -51,12 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
+        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null)
         {
             var smoQueryContext = this.GetContextAs<SmoQueryContext>();
             if (IsAccessible(smoQueryContext))
             {
-                base.PopulateChildren(refresh, name, cancellationToken);
+                base.PopulateChildren(refresh, name, cancellationToken, accessToken);
             }
             else
             {
@@ -78,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 // IsAccessible is not set of DW Gen3 so exception is expected in this case
                 if (IsDWGen3(context?.Database))
-                {                    
+                {
                     return true;
                 }
                 else
@@ -89,14 +90,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     ErrorMessage = ex.Message;
                     return false;
                 }
-                
+
             }
         }
 
         private bool IsDWGen3(Database db)
         {
-            return db != null 
-                && db.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse 
+            return db != null
+                && db.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse
                 && db.ServerVersion.Major == 12;
         }
     }
