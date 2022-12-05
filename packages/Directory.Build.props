@@ -9,12 +9,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <OUTPUT_DIR>$(MSBuildThisFileDirectory)</OUTPUT_DIR>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <!-- Currently we hardcode this because the build pipelines don't version the assemblies,
-    it's only the release pipeline that generates the tag to use for the Github release. This
-    is a workaround to get releases out until the pipelines can be refactored to pass in
-    the correct version -->
-    <PackageVersion>3.0.0-release.200</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>images\sqlserver.png</PackageIcon>
     <PackageIconFullPath></PackageIconFullPath>

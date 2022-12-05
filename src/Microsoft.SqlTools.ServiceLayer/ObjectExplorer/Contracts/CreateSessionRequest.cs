@@ -46,6 +46,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// </summary>
         public NodeInfo RootNode { get; set; }
 
+        /// <summary>
+        /// Error number returned from the engine, if any.
+        /// </summary>
+        public int? ErrorNumber { get; set; }
 
         /// <summary>
         /// Error message returned from the engine for a object explorer session failure reason, if any.

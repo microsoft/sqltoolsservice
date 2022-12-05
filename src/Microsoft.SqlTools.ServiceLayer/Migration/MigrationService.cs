@@ -24,6 +24,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Migration.Contracts;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlServer.Migration.Logins;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Aggregation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
@@ -39,8 +40,12 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlMa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
+using System.Threading;
+using Microsoft.SqlServer.Migration.Logins.Contracts;
 using Microsoft.SqlServer.Migration.Assessment.Common.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Utils;
+using Microsoft.SqlTools.ServiceLayer.Migration.Utils;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -121,6 +126,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest, true);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest, true);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest, true);
+            this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration);
+            this.ServiceHost.SetRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration);
+            this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins);
+            this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping);
+            this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions);
         }
 
         /// <summary>
@@ -325,6 +335,231 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
+        internal async Task HandleStartLoginMigration(
+            StartLoginMigrationParams parameters,   
+            RequestContext<LoginMigrationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName);
+                
+                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+
+                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
+                exceptionMap.AddExceptions( await loginMigration.MigrateLogins(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.MigrateServerRoles(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.EstablishUserMapping(CancellationToken.None) );
+                exceptionMap.AddExceptions( await loginMigration.EstablishServerRoleMapping(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.SetLoginPermissions(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.SetServerRolePermissions(CancellationToken.None) );
+
+                LoginMigrationResult results = new LoginMigrationResult()
+                {
+                    ExceptionMap = exceptionMap
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        internal async Task HandleValidateLoginMigration(
+            StartLoginMigrationParams parameters,
+            RequestContext<LoginMigrationResult> requestContext)
+        { 
+            try
+            {
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName);
+
+                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationResult results = new LoginMigrationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationStep.StartValidations,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        internal async Task HandleMigrateLogins(
+            StartLoginMigrationParams parameters,
+            RequestContext<LoginMigrationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName);
+
+                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
+                exceptionMap.AddExceptions( await loginMigration.MigrateLogins(CancellationToken.None) );
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationResult results = new LoginMigrationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationStep.MigrateLogins,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        internal async Task HandleEstablishUserMapping(
+            StartLoginMigrationParams parameters,
+            RequestContext<LoginMigrationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName);
+
+                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
+                exceptionMap.AddExceptions( loginMigration.EstablishUserMapping(CancellationToken.None) );
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                LoginMigrationResult results = new LoginMigrationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationStep.EstablishUserMapping,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
+        internal async Task HandleMigrateServerRolesAndSetPermissions(
+            StartLoginMigrationParams parameters,
+            RequestContext<LoginMigrationResult> requestContext)
+        {
+            try
+            {
+                ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
+                null, parameters.LoginList, parameters.AADDomainName);
+
+                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                stopWatch.Stop();
+                TimeSpan elapsedTime = stopWatch.Elapsed;
+
+                await this.ServiceHost.SendEvent(
+                    LoginMigrationNotification.Type,
+                    new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.StartValidations,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                    });
+
+                stopWatch.Restart();
+                exceptionMap.AddExceptions(loginMigration.MigrateServerRoles(CancellationToken.None));
+                stopWatch.Stop();
+                elapsedTime = stopWatch.Elapsed;
+
+                await this.ServiceHost.SendEvent(
+                    LoginMigrationNotification.Type,
+                    new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.MigrateServerRoles,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                });
+
+                stopWatch.Restart();
+                exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
+                stopWatch.Stop();
+                elapsedTime = stopWatch.Elapsed;
+
+                await this.ServiceHost.SendEvent(
+                    LoginMigrationNotification.Type,
+                    new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.EstablishServerRoleMapping,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                    });
+
+                stopWatch.Restart();
+                exceptionMap.AddExceptions(loginMigration.SetLoginPermissions(CancellationToken.None));
+                stopWatch.Stop();
+                elapsedTime = stopWatch.Elapsed;
+
+                await this.ServiceHost.SendEvent(
+                    LoginMigrationNotification.Type,
+                    new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.SetLoginPermissions,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                    });
+
+                stopWatch.Restart();
+                exceptionMap.AddExceptions(loginMigration.SetServerRolePermissions(CancellationToken.None));
+                stopWatch.Stop();
+                elapsedTime = stopWatch.Elapsed;
+
+                await this.ServiceHost.SendEvent(
+                    LoginMigrationNotification.Type,
+                    new LoginMigrationResult()
+                    {
+                        ExceptionMap = exceptionMap,
+                        CompletedStep = LoginMigrationStep.SetServerRolePermissions,
+                        ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                    });
+
+                LoginMigrationResult results = new LoginMigrationResult()
+                {
+                    ExceptionMap = exceptionMap,
+                    CompletedStep = LoginMigrationStep.SetServerRolePermissions,
+                    ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
+                };
+
+                await requestContext.SendResult(results);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
         internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
                 RecommendationResultSet resultSet = new RecommendationResultSet();
 
@@ -343,26 +578,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                     prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
                     resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
-
-                    if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
-                    {
-                        // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                        List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
-                        foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
-                        {
-                            resultSet.sqlDbResults.Add(new SkuRecommendationResult()
-                            {
-                                //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
-                                SqlInstanceName = parameters.TargetSqlInstance,
-                                DatabaseName = databaseWithoutRecommendation,
-                                TargetSku = null,
-                                MonthlyCost = null,
-                                Ranking = -1,
-                                PositiveJustifications = null,
-                                NegativeJustifications = null,
-                            });
-                        }
-                    }
 
                     sqlDbStopwatch.Stop();
                     resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
@@ -478,26 +693,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                if (resultSet.sqlDbResults.Count < parameters.DatabaseAllowList.Count)
-                {
-                    // if there are fewer recommendations than expected, find which databases didn't have a result generated and create a result with a null SKU
-                    List<string> databasesWithRecommendation = resultSet.sqlDbResults.Select(db => db.DatabaseName).ToList();
-                    foreach (var databaseWithoutRecommendation in parameters.DatabaseAllowList.Where(db => !databasesWithRecommendation.Contains(db)))
-                    {
-                        resultSet.sqlDbResults.Add(new SkuRecommendationResult()
-                        {
-                            //SqlInstanceName = sqlDbResults.FirstOrDefault().SqlInstanceName,
-                            SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = databaseWithoutRecommendation,
-                            TargetSku = null,
-                            MonthlyCost = null,
-                            Ranking = -1,
-                            PositiveJustifications = null,
-                            NegativeJustifications = null,
-                        });
-                    }
-                }
 
                 sqlDbStopwatch.Stop();
                 resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
@@ -754,6 +949,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.Gen5));
+
                     eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                     AzureSqlTargetPlatform.AzureSqlDatabase,
                                                     AzureSqlPurchasingModel.vCore,
