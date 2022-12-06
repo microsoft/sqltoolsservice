@@ -126,11 +126,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest, true);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest, true);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest, true);
-            this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration);
-            this.ServiceHost.SetRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration);
-            this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins);
-            this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping);
-            this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions);
+            this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration, true);
+            this.ServiceHost.SetRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration, true);
+            this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
+            this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
+            this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
         }
 
         /// <summary>

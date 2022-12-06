@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             this.requestHandlerParallelismMap.Add(requestType.MethodName, isParallelProcessingSupported);
             this.requestHandlers.Add(
                 requestType.MethodName,
-                (requestMessage, messageWriter) =>
+                async (requestMessage, messageWriter) =>
                 {
                     Func<Task> func = async () => {
                         var requestContext =
@@ -163,10 +163,11 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         }
                     };
 
-                    if (!this.ParallelMessageProcessing) {
-                        return func();
+                    if (!this.ParallelMessageProcessing || !isParallelProcessingSupported) {
+                        await func();
+                    } else {
+                        await Task.Run(func);
                     }
-                    return Task.Run(func);
                 });
         }
 
@@ -195,7 +196,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             this.eventHandlerParallelismMap.Add(eventType.MethodName, isParallelProcessingSupported);
             this.eventHandlers.Add(
                 eventType.MethodName,
-                (eventMessage, messageWriter) =>
+                async (eventMessage, messageWriter) =>
                 {
                     Func<Task> func = async () =>
                     {
@@ -223,10 +224,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         }
                     };
 
-                    if (!this.ParallelMessageProcessing) {
-                        return func();
+                    if (!this.ParallelMessageProcessing || !isParallelProcessingSupported) {
+                        await func();
                     }
-                    return Task.Run(func);
+                    await Task.Run(func);
                 });
         }
 
