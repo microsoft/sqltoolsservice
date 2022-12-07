@@ -165,7 +165,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
                     if (!this.ParallelMessageProcessing || !isParallelProcessingSupported) {
                         await func();
-                    } else {
+                    }
+                    else
+                    {
                         await Task.Run(func);
                     }
                 });
@@ -227,7 +229,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     if (!this.ParallelMessageProcessing || !isParallelProcessingSupported) {
                         await func();
                     }
-                    await Task.Run(func);
+                    else
+                    {
+                        await Task.Run(func);
+                    }
                 });
         }
 
