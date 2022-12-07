@@ -61,6 +61,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PasswordChangeEmptyPassword
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeEmptyPassword);
+            }
+        }
+
+        public static string PasswordChangeEmptyPasswordRetry
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeEmptyPasswordRetry);
+            }
+        }
+
+        public static string PasswordChangeDNMReqs
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeDNMReqs);
+            }
+        }
+
+        public static string PasswordChangeDNMReqsRetry
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeDNMReqsRetry);
+            }
+        }
+
+        public static string PasswordChangePWCannotBeUsed
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangePWCannotBeUsed);
+            }
+        }
+
+        public static string PasswordChangePWCannotBeUsedRetry
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangePWCannotBeUsedRetry);
+            }
+        }
+
         public static string ConnectionParamsValidateNullOwnerUri
         {
             get
@@ -10080,6 +10128,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
+
+
+            public const string PasswordChangeEmptyPassword = "PasswordChangeEmptyPassword";
+
+
+            public const string PasswordChangeEmptyPasswordRetry = "PasswordChangeEmptyPasswordRetry";
+
+
+            public const string PasswordChangeDNMReqs = "PasswordChangeDNMReqs";
+
+
+            public const string PasswordChangeDNMReqsRetry = "PasswordChangeDNMReqsRetry";
+
+
+            public const string PasswordChangePWCannotBeUsed = "PasswordChangePWCannotBeUsed";
+
+
+            public const string PasswordChangePWCannotBeUsedRetry = "PasswordChangePWCannotBeUsedRetry";
 
 
             public const string ConnectionParamsValidateNullOwnerUri = "ConnectionParamsValidateNullOwnerUri";
