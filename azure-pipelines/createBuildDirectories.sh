@@ -14,7 +14,6 @@
 # The script need to run from the repo root
 
 net6projectArray=(
-    "./src/Microsoft.InsightsGenerator"
     "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
     "./src/Microsoft.SqlTools.Hosting"
@@ -22,7 +21,6 @@ net6projectArray=(
     "./src/Microsoft.SqlTools.ResourceProvider.Core"
     "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl"
     "./src/Microsoft.SqlTools.ServiceLayer"
-    "./test/Microsoft.InsightsGenerator.UnitTests"
     "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
     "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
