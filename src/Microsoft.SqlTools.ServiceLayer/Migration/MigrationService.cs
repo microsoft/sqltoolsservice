@@ -843,7 +843,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                  parameters.SourceSqlConnectionString,
                  parameters.TargetSubscriptionId,
                  parameters.TargetResourceGroupName,
-                 parameters.TargetManagedInstanceName);
+                 parameters.TargetManagedInstanceName,
+                 "","","","");
 
             foreach (var dbName in parameters.EncryptedDatabases)
             {
