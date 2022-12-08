@@ -50,7 +50,7 @@
 	<ItemGroup>
 		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.0.1" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.9.0" />
-		<PackageReference Update="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
 </Project>
