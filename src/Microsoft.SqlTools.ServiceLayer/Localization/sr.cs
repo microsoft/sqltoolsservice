@@ -61,6 +61,54 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string PasswordChangeEmptyPassword
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeEmptyPassword);
+            }
+        }
+
+        public static string PasswordChangeEmptyPasswordRetry
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeEmptyPasswordRetry);
+            }
+        }
+
+        public static string PasswordChangeDNMReqs
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeDNMReqs);
+            }
+        }
+
+        public static string PasswordChangeDNMReqsRetry
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangeDNMReqsRetry);
+            }
+        }
+
+        public static string PasswordChangePWCannotBeUsed
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangePWCannotBeUsed);
+            }
+        }
+
+        public static string PasswordChangePWCannotBeUsedRetry
+        {
+            get
+            {
+                return Keys.GetString(Keys.PasswordChangePWCannotBeUsedRetry);
+            }
+        }
+
         public static string ConnectionParamsValidateNullOwnerUri
         {
             get
@@ -8605,6 +8653,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ActualCpu
+        {
+            get
+            {
+                return Keys.GetString(Keys.ActualCpu);
+            }
+        }
+
         public static string EstimatedIO
         {
             get
@@ -9633,6 +9689,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
         }
 
+        public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEncryptOption, encrypt);
+        }
+
         public static string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
@@ -10054,6 +10115,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
 
 
+            public const string ConnectionServiceConnStringInvalidEncryptOption = "ConnectionServiceConnStringInvalidEncryptOption";
+
+
             public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
 
 
@@ -10064,6 +10128,24 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
+
+
+            public const string PasswordChangeEmptyPassword = "PasswordChangeEmptyPassword";
+
+
+            public const string PasswordChangeEmptyPasswordRetry = "PasswordChangeEmptyPasswordRetry";
+
+
+            public const string PasswordChangeDNMReqs = "PasswordChangeDNMReqs";
+
+
+            public const string PasswordChangeDNMReqsRetry = "PasswordChangeDNMReqsRetry";
+
+
+            public const string PasswordChangePWCannotBeUsed = "PasswordChangePWCannotBeUsed";
+
+
+            public const string PasswordChangePWCannotBeUsedRetry = "PasswordChangePWCannotBeUsedRetry";
 
 
             public const string ConnectionParamsValidateNullOwnerUri = "ConnectionParamsValidateNullOwnerUri";
@@ -13427,6 +13509,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string EstimatedCpu = "EstimatedCpu";
+
+
+            public const string ActualCpu = "ActualCpu";
 
 
             public const string EstimatedIO = "EstimatedIO";

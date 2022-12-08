@@ -22,6 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -304,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 return;
             }
             this.TokenUpdateUris.Remove(tokenRefreshedParams.Uri, out var result);
-            connection.UpdateAuthToken(tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
+            connection.TryUpdateAccessToken(new SecurityToken() { Token = tokenRefreshedParams.Token, ExpiresOn = tokenRefreshedParams.ExpiresOn });
         }
 
         /// <summary>
@@ -410,7 +411,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 if (response?.ErrorNumber == 40613)
                 {
                     counter++;
-                    if(counter != MaxServerlessReconnectTries) {
+                    if (counter != MaxServerlessReconnectTries)
+                    {
                         Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
                     }
                 }
@@ -584,6 +586,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
                 connectionInfo.IsSqlDW = (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse);
+                // Determines that access token is used for creating connection.
+                connectionInfo.IsAzureAuth = connectionInfo.ConnectionDetails.AuthenticationType == "AzureMFA";
                 connectionInfo.EngineEdition = (DatabaseEngineEdition)serverInfo.EngineEditionId;
                 // Azure Data Studio supports SQL Server 2014 and later releases.
                 response.IsSupportedVersion = serverInfo.IsCloud || serverInfo.ServerMajorVersion >= 12;
@@ -1057,6 +1061,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
@@ -1132,6 +1137,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
             }).ContinueWithOnFaulted(null);
+        }
+
+        /// <summary>
+        /// Handle new change password requests
+        /// </summary>
+        /// <param name="connectParams"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleChangePasswordRequest(
+            ChangePasswordParams changePasswordParams,
+            RequestContext<PasswordChangeResponse> requestContext)
+        {
+            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
+            PasswordChangeResponse newResponse = new PasswordChangeResponse();
+            try
+            {
+                ChangePassword(changePasswordParams);
+                newResponse.Result = true;
+            }
+            catch (Exception ex)
+            {
+                newResponse.Result = false;
+                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged database context to '\w+'\.", "");
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged language setting to \w+\.", "");
+                if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
+                }
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangeDNMReqs))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeDNMReqsRetry;
+                }
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangePWCannotBeUsed))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
+                }
+            }
+            await requestContext.SendResult(newResponse);
+        }
+
+        public void ChangePassword(ChangePasswordParams changePasswordParams)
+        {
+            // Empty passwords are not valid.
+            if (string.IsNullOrEmpty(changePasswordParams.NewPassword))
+            {
+                throw new Exception(SR.PasswordChangeEmptyPassword);
+            }
+
+            // result is null if the ConnectParams was successfully validated
+            ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
+            if (result != null)
+            {
+                throw new Exception(result.ErrorMessage, new Exception(result.Messages));
+            }
+
+            // Change the password of the connection
+            ServerConnection serverConnection = new ServerConnection(changePasswordParams.Connection.ServerName, changePasswordParams.Connection.UserName, changePasswordParams.Connection.Password);
+            serverConnection.ChangePassword(changePasswordParams.NewPassword);
         }
 
         /// <summary>
@@ -1299,13 +1363,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
             }
-            if (connectionDetails.Encrypt.HasValue)
+
+            if (!string.IsNullOrEmpty(connectionDetails.Encrypt))
             {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
+                connectionBuilder.Encrypt = connectionDetails.Encrypt.ToLowerInvariant() switch
+                {
+                    "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                    "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                    "strict" => SqlConnectionEncryptOption.Strict,
+                    _ => throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEncryptOption(connectionDetails.Encrypt))
+                };
             }
+
             if (connectionDetails.TrustServerCertificate.HasValue)
             {
                 connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
+            }
+            if (!string.IsNullOrEmpty(connectionDetails.HostNameInCertificate))
+            {
+                connectionBuilder.HostNameInCertificate = connectionDetails.HostNameInCertificate;
             }
             if (connectionDetails.PersistSecurityInfo.HasValue)
             {
@@ -1471,8 +1547,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
                 EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
                 EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
-                Encrypt = builder.Encrypt,
+                Encrypt = builder.Encrypt.ToString(),
                 FailoverPartner = builder.FailoverPartner,
+                HostNameInCertificate = builder.HostNameInCertificate,
                 LoadBalanceTimeout = builder.LoadBalanceTimeout,
                 MaxPoolSize = builder.MaxPoolSize,
                 MinPoolSize = builder.MinPoolSize,

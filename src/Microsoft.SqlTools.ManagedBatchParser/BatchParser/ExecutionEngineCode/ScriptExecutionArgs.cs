@@ -128,15 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
         internal Dictionary<string, string> Variables
         {
-            get
-            {
-                if (cmdVariables == null)
-                {
-                    cmdVariables = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-                }
-
-                return cmdVariables;
-            }
+            get => cmdVariables ??= new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
         #endregion
     }

@@ -35,6 +35,8 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
 
+ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
+
 ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.
 
 ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.
@@ -42,6 +44,20 @@ ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attesta
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
 ConnectionServiceConnectionCanceled = Connection canceled
+
+### Password Change
+
+PasswordChangeEmptyPassword = New password cannot be empty
+
+PasswordChangeEmptyPasswordRetry = Press OK to input a new password that is not empty.
+
+PasswordChangeDNMReqs = password does not meet operating system policy requirements
+
+PasswordChangeDNMReqsRetry = Press OK to input a new password that meets operating system policy requirements.
+
+PasswordChangePWCannotBeUsed = password cannot be used at this time
+
+PasswordChangePWCannotBeUsedRetry = Press OK to input a different password.
 
 ### Connection Params Validation Errors
 
@@ -2258,6 +2274,7 @@ EstimatedRows = Estimated Rows
 ActualExecutions = Actual Executions
 EstimatedExecutions = Estimated Executions
 EstimatedCpu = Estimated CPU Cost
+ActualCpu = Actual CPU Cost
 EstimatedIO = Estimated IO Cost
 AverageRowSize = Average Row Size
 ActualDataSize = Actual Data Size

@@ -22,8 +22,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
     internal static class SchemaCompareTestUtils
     {
-        internal static void VerifyAndCleanup(string path)
+        private static string sqlProjectsFolder = Path.Combine("..", "..", "..", "SchemaCompare", "SqlProjects");
+
+        internal static void VerifyAndCleanup(string? path)
         {
+            if (path == null)
+            {
+                return;
+            }
+
             // verify it was created...
             Assert.True(File.Exists(path) || Directory.Exists(path), $"File or directory {path} was expected to exist but did not");
 
@@ -61,12 +68,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             return extractParams.PackageFilePath;
         }
 
+        /// <summary>
+        /// Creates an SDK-style .sqlproj from the database
+        /// </summary>
+        /// <param name="testdb">Database to create the sql project from</param>
+        /// <param name="projectName">Name of the project</param>
+        /// <returns>Full path to the project folder</returns>
         internal static string CreateProject(SqlTestDb testdb, string projectName)
         {
             var result = GetLiveAutoCompleteTestObjects();
-            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", projectName);
-            Directory.CreateDirectory(folderPath);
-            File.Create(Path.Combine(folderPath, projectName + ".sqlproj")).Close();
+            string sqlprojFilePath = CreateSqlProj(projectName);
+            string folderPath = Path.GetDirectoryName(sqlprojFilePath);
 
             var extractParams = new ExtractParams
             {
@@ -82,6 +94,21 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
             service.PerformOperation(operation, TaskExecutionMode.Execute);
 
             return folderPath;
+        }
+
+        /// <summary>
+        /// Creates an empty SDK-style .sqlproj
+        /// </summary>
+        /// <param name="projectName">name for the .sqlproj</param>
+        /// <returns>Full path to the .sqlproj</returns>
+        internal static string CreateSqlProj(string projectName)
+        {
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", $"{TestContext.CurrentContext?.Test?.Name}_{projectName}_{DateTime.Now.Ticks.ToString()}");
+            Directory.CreateDirectory(folderPath);
+            string sqlprojFilePath = Path.Combine(folderPath, projectName + ".sqlproj");
+            File.Copy(Path.Combine(sqlProjectsFolder, "emptyTemplate.sqlproj"), sqlprojFilePath);
+
+            return sqlprojFilePath;
         }
 
         internal static string[] GetProjectScripts(string projectPath)

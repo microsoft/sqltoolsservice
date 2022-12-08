@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -49,6 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Path identifying the node to expand. See <see cref="NodeInfo.NodePath"/> for details
         /// </summary>
         public string NodePath { get; set; }
+
+        /// <summary>
+        /// Security token for AzureMFA authentication for refresing access token on connection.
+        /// </summary>
+        public SecurityToken? SecurityToken { get; set; }
     }
 
     /// <summary>

@@ -145,6 +145,11 @@
     <comment>.
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for Encrypt. Valid values are &apos;Optional&apos;, &apos;Mandatory&apos;, &apos;Strict&apos;, &apos;True&apos;, &apos;False&apos;, &apos;Yes&apos; and &apos;No&apos;.</value>
+    <comment>.
+ Parameters: 0 - encrypt (string) </comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos; and &apos;HGS&apos;.</value>
     <comment>.
@@ -161,6 +166,30 @@
   </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>Connection canceled</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>New password cannot be empty</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Press OK to input a new password that is not empty.</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangeDNMReqs" xml:space="preserve">
+    <value>password does not meet operating system policy requirements</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Press OK to input a new password that meets operating system policy requirements.</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
+    <value>password cannot be used at this time</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Press OK to input a different password.</value>
     <comment></comment>
   </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
@@ -4702,6 +4731,10 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="EstimatedCpu" xml:space="preserve">
     <value>Estimated CPU Cost</value>
+    <comment></comment>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>Actual CPU Cost</value>
     <comment></comment>
   </data>
   <data name="EstimatedIO" xml:space="preserve">

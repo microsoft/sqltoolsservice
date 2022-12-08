@@ -1317,6 +1317,9 @@
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
     <value>ComlumEncryption の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</value>
   </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>Encrypt の値 '{0}' が無効です。有効な値は、'Optional'、'Mandatory'、'Strict'、'True'、'False'、'Yes'、および 'No' です。</value>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
     <value>EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS' と 'HGS' です。</value>
   </data>
@@ -3963,5 +3966,8 @@
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>接続が見つかりませんでした</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>実際の CPU コスト</value>
   </data>
 </root>
