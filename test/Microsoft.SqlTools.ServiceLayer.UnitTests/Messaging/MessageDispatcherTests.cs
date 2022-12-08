@@ -143,6 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 Thread.Sleep(1000);
             }
 
+            dispatcher.Stop();
             return stopwatch.ElapsedMilliseconds;
         }
 
