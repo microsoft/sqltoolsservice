@@ -22,6 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -1060,6 +1061,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
             serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, true);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, true);
             serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, true);
             serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, true);
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
@@ -1135,6 +1137,65 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
                 }
             }).ContinueWithOnFaulted(null);
+        }
+
+        /// <summary>
+        /// Handle new change password requests
+        /// </summary>
+        /// <param name="connectParams"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        protected async Task HandleChangePasswordRequest(
+            ChangePasswordParams changePasswordParams,
+            RequestContext<PasswordChangeResponse> requestContext)
+        {
+            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
+            PasswordChangeResponse newResponse = new PasswordChangeResponse();
+            try
+            {
+                ChangePassword(changePasswordParams);
+                newResponse.Result = true;
+            }
+            catch (Exception ex)
+            {
+                newResponse.Result = false;
+                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged database context to '\w+'\.", "");
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged language setting to \w+\.", "");
+                if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
+                }
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangeDNMReqs))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeDNMReqsRetry;
+                }
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangePWCannotBeUsed))
+                {
+                    newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
+                }
+            }
+            await requestContext.SendResult(newResponse);
+        }
+
+        public void ChangePassword(ChangePasswordParams changePasswordParams)
+        {
+            // Empty passwords are not valid.
+            if (string.IsNullOrEmpty(changePasswordParams.NewPassword))
+            {
+                throw new Exception(SR.PasswordChangeEmptyPassword);
+            }
+
+            // result is null if the ConnectParams was successfully validated
+            ConnectionCompleteParams result = ValidateConnectParams(changePasswordParams);
+            if (result != null)
+            {
+                throw new Exception(result.ErrorMessage, new Exception(result.Messages));
+            }
+
+            // Change the password of the connection
+            ServerConnection serverConnection = new ServerConnection(changePasswordParams.Connection.ServerName, changePasswordParams.Connection.UserName, changePasswordParams.Connection.Password);
+            serverConnection.ChangePassword(changePasswordParams.NewPassword);
         }
 
         /// <summary>
