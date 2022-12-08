@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private CancellationTokenSource messageLoopCancellationToken =
             new CancellationTokenSource();
 
-        private SemaphoreSlim semaphore = new SemaphoreSlim(10); // Limit to 10 threads
+        private SemaphoreSlim semaphore = new SemaphoreSlim(10); // Limit to 10 threads to begin with, ideally there shouldn't be any limitation
 
         #endregion
 
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 if (this.ParallelMessageProcessing && isParallelProcessingSupported)
                 {
                     // Run the task in a separate thread so that the main
-                    // thread is not blocked.
+                    // thread is not blocked. Use semaphore to limit the degree of parallelism.
                     await semaphore.WaitAsync();
                     _ = Task.Run(() =>
                     {
