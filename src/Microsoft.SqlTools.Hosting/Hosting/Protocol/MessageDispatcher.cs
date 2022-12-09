@@ -365,9 +365,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // Run the task in a separate thread so that the main
                     // thread is not blocked. Use semaphore to limit the degree of parallelism.
                     await semaphore.WaitAsync();
-                    _ = Task.Run(() =>
+                    _ = Task.Run(async () =>
                     {
-                        RunTask(handlerToAwait, messageToDispatch).ContinueWith(_ => semaphore.Release());
+                        await RunTask(handlerToAwait, messageToDispatch);
+                        semaphore.Release();
                     });
                 }
                 else
