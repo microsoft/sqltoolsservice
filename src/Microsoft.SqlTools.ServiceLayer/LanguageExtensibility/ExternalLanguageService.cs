@@ -60,10 +60,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ExternalLanguageStatusRequest.Type, this.HandleExternalLanguageStatusRequest);
-            serviceHost.SetRequestHandler(ExternalLanguageListRequest.Type, this.HandleExternalLanguageListRequest);
-            serviceHost.SetRequestHandler(ExternalLanguageDeleteRequest.Type, this.HandleExternalLanguageDeleteRequest);
-            serviceHost.SetRequestHandler(ExternalLanguageUpdateRequest.Type, this.HandleExternalLanguageUpdateRequest);
+            serviceHost.SetRequestHandler(ExternalLanguageStatusRequest.Type, this.HandleExternalLanguageStatusRequest, true);
+            serviceHost.SetRequestHandler(ExternalLanguageListRequest.Type, this.HandleExternalLanguageListRequest, true);
+            serviceHost.SetRequestHandler(ExternalLanguageDeleteRequest.Type, this.HandleExternalLanguageDeleteRequest, true);
+            serviceHost.SetRequestHandler(ExternalLanguageUpdateRequest.Type, this.HandleExternalLanguageUpdateRequest, true);
         }
 
         /// <summary>
