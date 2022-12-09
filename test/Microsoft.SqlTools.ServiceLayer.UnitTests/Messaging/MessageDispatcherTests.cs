@@ -119,7 +119,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             Stopwatch stopwatch = Stopwatch.StartNew();
             var handler = async (int _, RequestContext<int> _) =>
             {
+                // simulate a slow sync call
                 Thread.Sleep(msForEachRequest / 2);
+                // simulate a delay async call
                 await Task.Delay(msForEachRequest / 2);
                 await unfinishedRequestCount.WaitAsync();
                 if (unfinishedRequestCount.CurrentCount == 0)
@@ -147,7 +149,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             dispatcher.Stop();
             return stopwatch.ElapsedMilliseconds;
         }
-
-
     }
 }

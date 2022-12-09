@@ -134,6 +134,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
                 {
+                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     var requestContext =
                         new RequestContext<TResult>(
                             requestMessage,
@@ -154,6 +155,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         }
 
                         await requestHandler(typedParams, requestContext);
+                        Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     }
                     catch (Exception ex)
                     {
@@ -190,6 +192,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventType.MethodName,
                 async (eventMessage, messageWriter) =>
                 {
+                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     var eventContext = new EventContext(messageWriter);
                     TParams typedParams = default(TParams);
                     try
@@ -206,6 +209,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             }
                         }
                         await eventHandler(typedParams, eventContext);
+                        Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     }
                     catch (Exception ex)
                     {
@@ -323,43 +327,39 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
-                if (this.ParallelMessageProcessing && isParallelProcessingSupported)
+                try
                 {
-                    // Run the task in a separate thread so that the main
-                    // thread is not blocked. Use semaphore to limit the degree of parallelism.
-                    await semaphore.WaitAsync();
-                    _ = Task.Run(async () =>
+                    if (this.ParallelMessageProcessing && isParallelProcessingSupported)
                     {
-                        await RunTask(handlerToAwait(messageToDispatch, messageWriter), messageToDispatch);
-                        semaphore.Release();
-                    });
+                        // Run the task in a separate thread so that the main
+                        // thread is not blocked. Use semaphore to limit the degree of parallelism.
+                        await semaphore.WaitAsync();
+                        _ = Task.Run(async () =>
+                        {
+                            await handlerToAwait(messageToDispatch, messageWriter);
+                            semaphore.Release();
+                        });
+                    }
+                    else
+                    {
+                        await handlerToAwait(messageToDispatch, messageWriter);
+                    }
                 }
-                else
+                catch (TaskCanceledException e)
                 {
-                    await RunTask(handlerToAwait(messageToDispatch, messageWriter), messageToDispatch);
+                    // Some tasks may be cancelled due to legitimate
+                    // timeouts so don't let those exceptions go higher.
+                    Logger.Write(TraceEventType.Verbose, string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
                 }
-            }
-        }
+                catch (Exception e)
+                {
+                    if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
+                    {
+                        // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
+                        Logger.Write(TraceEventType.Error, string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
+                    }
+                }
 
-        private async Task RunTask(Task task, Message message)
-        {
-            try
-            {
-                Logger.Write(TraceEventType.Verbose, $"Processing message with id[{message.Id}], of type[{message.MessageType}] and method[{message.Method}]");
-                await task;
-                Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{message.Id}], of type[{message.MessageType}] and method[{message.Method}]");            }
-            catch (TaskCanceledException)
-            {
-                // Some tasks may be cancelled due to legitimate
-                // timeouts so don't let those exceptions go higher.
-            }
-            catch (Exception e)
-            {
-                if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
-                {
-                    // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
-                    Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
-                }
             }
         }
 
