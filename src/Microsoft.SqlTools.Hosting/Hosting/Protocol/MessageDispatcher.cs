@@ -367,8 +367,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     await semaphore.WaitAsync();
                     _ = Task.Run(() =>
                     {
-                        _ = RunTask(handlerToAwait, messageToDispatch);
-                        semaphore.Release();
+                        RunTask(handlerToAwait, messageToDispatch).ContinueWith(_ => semaphore.Release());
                     });
                 }
                 else
