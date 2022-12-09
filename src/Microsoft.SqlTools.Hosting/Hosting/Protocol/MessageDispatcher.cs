@@ -134,41 +134,31 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
                 {
-                    Func<Task> func = async () => {
-                        var requestContext =
-                            new RequestContext<TResult>(
-                                requestMessage,
-                                messageWriter);
-                        try
-                        {                        
-                            TParams typedParams = default(TParams);
-                            if (requestMessage.Contents != null)
-                            {
-                                try
-                                {
-                                    typedParams = requestMessage.Contents.ToObject<TParams>();
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new Exception($"Error parsing message contents {requestMessage.Contents}", ex);
-                                }
-                            }
-
-                            await requestHandler(typedParams, requestContext);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error($"{requestType.MethodName} : {ex}");
-                            await requestContext.SendError(ex.Message);
-                        }
-                    };
-
-                    if (!this.ParallelMessageProcessing || !isParallelProcessingSupported) {
-                        await func();
-                    }
-                    else
+                    var requestContext =
+                        new RequestContext<TResult>(
+                            requestMessage,
+                            messageWriter);
+                    try
                     {
-                        await Task.Run(func);
+                        TParams typedParams = default(TParams);
+                        if (requestMessage.Contents != null)
+                        {
+                            try
+                            {
+                                typedParams = requestMessage.Contents.ToObject<TParams>();
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Error parsing message contents {requestMessage.Contents}", ex);
+                            }
+                        }
+
+                        await requestHandler(typedParams, requestContext);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"{requestType.MethodName} : {ex}");
+                        await requestContext.SendError(ex.Message);
                     }
                 });
         }
@@ -200,38 +190,27 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventType.MethodName,
                 async (eventMessage, messageWriter) =>
                 {
-                    Func<Task> func = async () =>
+                    var eventContext = new EventContext(messageWriter);
+                    TParams typedParams = default(TParams);
+                    try
                     {
-                        var eventContext = new EventContext(messageWriter);
-                        TParams typedParams = default(TParams);
-                        try
-                        {                
-                            if (eventMessage.Contents != null)
-                            {
-                                try
-                                {
-                                    typedParams = eventMessage.Contents.ToObject<TParams>();
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
-                                }
-                            }
-                            await eventHandler(typedParams, eventContext);
-                        }
-                        catch (Exception ex)
+                        if (eventMessage.Contents != null)
                         {
-                            // There's nothing on the client side to send an error back to so just log the error and move on
-                            Logger.Error($"{eventType.MethodName} : {ex}");
+                            try
+                            {
+                                typedParams = eventMessage.Contents.ToObject<TParams>();
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
+                            }
                         }
-                    };
-
-                    if (!this.ParallelMessageProcessing || !isParallelProcessingSupported) {
-                        await func();
+                        await eventHandler(typedParams, eventContext);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        await Task.Run(func);
+                        // There's nothing on the client side to send an error back to so just log the error and move on
+                        Logger.Error($"{eventType.MethodName} : {ex}");
                     }
                 });
         }
@@ -317,20 +296,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             Message messageToDispatch,
             MessageWriter messageWriter)
         {
-            Task handlerToAwait = null;
+            Func<Message, MessageWriter, Task> handlerToAwait = null;
             bool isParallelProcessingSupported = false;
 
             if (messageToDispatch.MessageType == MessageType.Request)
             {
-                Func<Message, MessageWriter, Task> requestHandler = null;
-                if (this.requestHandlers.TryGetValue(messageToDispatch.Method, out requestHandler))
-                {
-                    handlerToAwait = requestHandler(messageToDispatch, messageWriter);
-                }
-                // else
-                // {
-                //     // TODO: Message not supported error
-                // }
+                this.requestHandlers.TryGetValue(messageToDispatch.Method, out handlerToAwait);
                 this.requestHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
             }
             else if (messageToDispatch.MessageType == MessageType.Response)
@@ -342,16 +313,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
             else if (messageToDispatch.MessageType == MessageType.Event)
             {
-                Func<Message, MessageWriter, Task> eventHandler = null;
-                if (this.eventHandlers.TryGetValue(messageToDispatch.Method, out eventHandler))
-                {
-                    handlerToAwait = eventHandler(messageToDispatch, messageWriter);
-                    this.eventHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
-                }
-                else
-                {
-                    // TODO: Message not supported error
-                }
+                this.eventHandlers.TryGetValue(messageToDispatch.Method, out handlerToAwait);
+                this.eventHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
             }
             // else
             // {
@@ -367,13 +330,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     await semaphore.WaitAsync();
                     _ = Task.Run(async () =>
                     {
-                        await RunTask(handlerToAwait, messageToDispatch);
+                        await RunTask(handlerToAwait(messageToDispatch, messageWriter), messageToDispatch);
                         semaphore.Release();
                     });
                 }
                 else
                 {
-                    await RunTask(handlerToAwait, messageToDispatch);
+                    await RunTask(handlerToAwait(messageToDispatch, messageWriter), messageToDispatch);
                 }
             }
         }

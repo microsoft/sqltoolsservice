@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
         [Test]
         public void ParallelMessageProcessingTest()
         {
-            int numOfRequests = 11;
+            int numOfRequests = 10;
             int msForEachRequest = 1000;
             // Without parallel processing, this should take around numOfRequests * msForEachRequest ms to finish.
             // With parallel process, this should take around 1 * msForEachRequest ms to finish.
@@ -119,8 +119,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             Stopwatch stopwatch = Stopwatch.StartNew();
             var handler = async (int _, RequestContext<int> _) =>
             {
-                Thread.Sleep(msForEachRequest);
-                unfinishedRequestCount.Wait();
+                Thread.Sleep(msForEachRequest / 2);
+                await Task.Delay(msForEachRequest / 2);
+                await unfinishedRequestCount.WaitAsync();
                 if (unfinishedRequestCount.CurrentCount == 0)
                 {
                     // cut off when we reach numOfRequests
