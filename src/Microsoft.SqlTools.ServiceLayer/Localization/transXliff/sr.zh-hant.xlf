@@ -6505,6 +6505,36 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">實際 CPU 成本</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPassword">
+        <source>New password cannot be empty</source>
+        <target state="translated">新密碼不能空白。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPasswordRetry">
+        <source>Press OK to input a new password that is not empty.</source>
+        <target state="translated">請按 [確定] 輸入不是空白的新密碼。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeDNMReqs">
+        <source>password does not meet operating system policy requirements</source>
+        <target state="translated">密碼不符合作業系統原則需求</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeDNMReqsRetry">
+        <source>Press OK to input a new password that meets operating system policy requirements.</source>
+        <target state="translated">請按 [確定] 輸入符合作業系統原則需求的新密碼。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangePWCannotBeUsed">
+        <source>password cannot be used at this time</source>
+        <target state="translated">目前無法使用密碼</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangePWCannotBeUsedRetry">
+        <source>Press OK to input a different password.</source>
+        <target state="translated">請按 [確定] 輸入其他密碼。</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

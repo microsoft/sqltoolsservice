@@ -3970,4 +3970,22 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="ActualCpu" xml:space="preserve">
     <value>Costo real de CPU</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>La nueva contraseña no puede estar vacía</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Presione Aceptar para escribir una nueva contraseña que no esté vacía.</value>
+  </data>
+  <data name="PasswordChangeDNMReqs" xml:space="preserve">
+    <value>la contraseña no cumple los requisitos de la directiva del sistema operativo</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Presione Aceptar para escribir una nueva contraseña que cumpla los requisitos de la directiva del sistema operativo.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
+    <value>la contraseña no se puede usar en este momento</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Presione Aceptar para escribir una contraseña diferente.</value>
+  </data>
 </root>

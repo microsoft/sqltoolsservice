@@ -3970,4 +3970,22 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="ActualCpu" xml:space="preserve">
     <value>Custo Real da CPU</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>A nova senha não pode estar em branco</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Pressione OK para inserir uma nova senha que não esteja vazia.</value>
+  </data>
+  <data name="PasswordChangeDNMReqs" xml:space="preserve">
+    <value>a senha não atende aos requisitos da política do sistema operacional</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Pressione OK para inserir uma nova senha que atenda aos requisitos da política do sistema operacional.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
+    <value>a senha não pode ser usada neste momento</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Pressione OK para inserir uma senha diferente.</value>
+  </data>
 </root>

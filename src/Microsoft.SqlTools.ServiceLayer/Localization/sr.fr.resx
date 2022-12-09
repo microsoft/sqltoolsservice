@@ -3970,4 +3970,22 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="ActualCpu" xml:space="preserve">
     <value>Coût réel du processeur</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>Le nouveau mot de passe ne peut pas être vide</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Appuyez sur OK pour entrer un nouveau mot de passe qui n’est pas vide.</value>
+  </data>
+  <data name="PasswordChangeDNMReqs" xml:space="preserve">
+    <value>le mot de passe ne répond pas aux exigences de stratégie du système d’exploitation</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Appuyez sur OK pour entrer un nouveau mot de passe qui répond aux exigences de la stratégie du système d’exploitation.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
+    <value>impossible d'utiliser le mot de passe pour l'instant</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Appuyez sur OK pour entrer un autre mot de passe.</value>
+  </data>
 </root>
