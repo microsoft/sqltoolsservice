@@ -367,23 +367,24 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     await semaphore.WaitAsync();
                     _ = Task.Run(() =>
                     {
-                        _ = RunTask(handlerToAwait);
+                        _ = RunTask(handlerToAwait, messageToDispatch);
                         semaphore.Release();
                     });
                 }
                 else
                 {
-                    await RunTask(handlerToAwait);
+                    await RunTask(handlerToAwait, messageToDispatch);
                 }
             }
         }
 
-        private async Task RunTask(Task task)
+        private async Task RunTask(Task task, Message message)
         {
             try
             {
+                Logger.Write(TraceEventType.Verbose, $"Processing message with id[{message.Id}], of type[{message.MessageType}] and method[{message.Method}]");
                 await task;
-            }
+                Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{message.Id}], of type[{message.MessageType}] and method[{message.Method}]");            }
             catch (TaskCanceledException)
             {
                 // Some tasks may be cancelled due to legitimate
