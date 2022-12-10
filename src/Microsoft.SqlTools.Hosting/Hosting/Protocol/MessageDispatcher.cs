@@ -359,7 +359,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         Logger.Write(TraceEventType.Error, string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
                     }
                 }
-
             }
         }
 
