@@ -252,6 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
+            // Not enabling parallel processing for LanguageService as message order might matter.
             serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);

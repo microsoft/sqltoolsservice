@@ -49,6 +49,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         #endregion
 
         #region Constructors
+        public MessageReader() {} // added for mocking MessageReader in UT
 
         public MessageReader(
             Stream inputStream,
@@ -74,7 +75,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Public Methods
 
-        public async Task<Message> ReadMessage()
+        public virtual async Task<Message> ReadMessage() // mark as virtual for mocking MessageReader in UT
         {
             string messageContent = null;
 

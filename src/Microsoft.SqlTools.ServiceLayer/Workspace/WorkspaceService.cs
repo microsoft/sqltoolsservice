@@ -127,6 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             // Create a workspace that will handle state for the session
             Workspace = new Workspace();
 
+            // Not enabling parallel processing for WorkspaceService as it might cause doc out of sync.
             // Register the handlers for when changes to the workspae occur
             serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
             serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);

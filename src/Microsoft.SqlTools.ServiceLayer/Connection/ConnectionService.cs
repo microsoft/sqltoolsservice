@@ -1059,14 +1059,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.ServiceHost = serviceHost;
 
             // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
-            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
-            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
-            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
-            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
-            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
-            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
+            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
+            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, true);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, true);
+            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, true);
+            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, true);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
+            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, true);
+            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
         }
 
         /// <summary>

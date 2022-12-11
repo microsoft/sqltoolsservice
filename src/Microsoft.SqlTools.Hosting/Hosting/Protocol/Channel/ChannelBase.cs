@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// <summary>
         /// Gets the MessageReader for reading messages from the channel.
         /// </summary>
-        public MessageReader MessageReader { get; protected set; }
+        public virtual MessageReader MessageReader { get; protected set; } // mark as virtual for mocking ChannelBase in UT
 
         /// <summary>
         /// Gets the MessageWriter for writing messages to the channel.

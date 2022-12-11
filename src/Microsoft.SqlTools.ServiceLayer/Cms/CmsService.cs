@@ -43,12 +43,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(CreateCentralManagementServerRequest.Type, this.HandleCreateCentralManagementServerRequest);
-            serviceHost.SetRequestHandler(ListRegisteredServersRequest.Type, this.HandleListRegisteredServersRequest);
-            serviceHost.SetRequestHandler(AddRegisteredServerRequest.Type, this.HandleAddRegisteredServerRequest);
-            serviceHost.SetRequestHandler(RemoveRegisteredServerRequest.Type, this.HandleRemoveRegisteredServerRequest);
-            serviceHost.SetRequestHandler(AddServerGroupRequest.Type, this.HandleAddServerGroupRequest);
-            serviceHost.SetRequestHandler(RemoveServerGroupRequest.Type, this.HandleRemoveServerGroupRequest);
+            serviceHost.SetRequestHandler(CreateCentralManagementServerRequest.Type, this.HandleCreateCentralManagementServerRequest, true);
+            serviceHost.SetRequestHandler(ListRegisteredServersRequest.Type, this.HandleListRegisteredServersRequest, true);
+            serviceHost.SetRequestHandler(AddRegisteredServerRequest.Type, this.HandleAddRegisteredServerRequest, true);
+            serviceHost.SetRequestHandler(RemoveRegisteredServerRequest.Type, this.HandleRemoveRegisteredServerRequest, true);
+            serviceHost.SetRequestHandler(AddServerGroupRequest.Type, this.HandleAddServerGroupRequest, true);
+            serviceHost.SetRequestHandler(RemoveServerGroupRequest.Type, this.HandleRemoveServerGroupRequest, true);
         }
 
         public async Task HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams, RequestContext<ListRegisteredServersResult> requestContext)

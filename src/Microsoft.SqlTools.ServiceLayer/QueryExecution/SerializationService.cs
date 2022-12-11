@@ -34,8 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "SerializationService initialized");
-            serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest);
-            serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest);
+            serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest, true);
+            serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest, true);
         }
 
         /// <summary>
