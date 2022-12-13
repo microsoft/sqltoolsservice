@@ -77,27 +77,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string PasswordChangeDNMReqs
-        {
-            get
-            {
-                return Keys.GetString(Keys.PasswordChangeDNMReqs);
-            }
-        }
-
         public static string PasswordChangeDNMReqsRetry
         {
             get
             {
                 return Keys.GetString(Keys.PasswordChangeDNMReqsRetry);
-            }
-        }
-
-        public static string PasswordChangePWCannotBeUsed
-        {
-            get
-            {
-                return Keys.GetString(Keys.PasswordChangePWCannotBeUsed);
             }
         }
 
@@ -10136,13 +10120,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string PasswordChangeEmptyPasswordRetry = "PasswordChangeEmptyPasswordRetry";
 
 
-            public const string PasswordChangeDNMReqs = "PasswordChangeDNMReqs";
-
-
             public const string PasswordChangeDNMReqsRetry = "PasswordChangeDNMReqsRetry";
-
-
-            public const string PasswordChangePWCannotBeUsed = "PasswordChangePWCannotBeUsed";
 
 
             public const string PasswordChangePWCannotBeUsedRetry = "PasswordChangePWCannotBeUsedRetry";

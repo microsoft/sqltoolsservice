@@ -22,7 +22,6 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -37,6 +36,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
         public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
+
+        // SQL Error Code Constants
+        private const int DoesNotMeetPWReqs = 18466;
+        private const int PWCannotBeUsed = 18463;
+
 
         /// <summary>
         /// Singleton service instance
@@ -1159,18 +1163,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 newResponse.Result = false;
-                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
-                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged database context to '\w+'\.", "");
-                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged language setting to \w+\.", "");
-                if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
+                SqlError endError = ((ex.InnerException as SqlException)?.Errors[0] as SqlError);
+                newResponse.ErrorMessage = endError != null ? (ex.Message + Environment.NewLine + Environment.NewLine + endError.Message) : ex.Message;
+                int errorCode = endError != null ? endError.Number : 0;
+                if (errorCode == 0 && newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
                 }
-                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangeDNMReqs))
+                else if (errorCode == DoesNotMeetPWReqs)
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeDNMReqsRetry;
                 }
-                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangePWCannotBeUsed))
+                else if (errorCode == PWCannotBeUsed)
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
                 }
