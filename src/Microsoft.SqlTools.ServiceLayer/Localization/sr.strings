@@ -51,7 +51,11 @@ PasswordChangeEmptyPassword = New password cannot be empty
 
 PasswordChangeEmptyPasswordRetry = Press OK to input a new password that is not empty.
 
+PasswordChangeDNMReqs = password does not meet operating system policy requirements
+
 PasswordChangeDNMReqsRetry = Press OK to input a new password that meets operating system policy requirements.
+
+PasswordChangePWCannotBeUsed = password cannot be used at this time
 
 PasswordChangePWCannotBeUsedRetry = Press OK to input a different password.
 
