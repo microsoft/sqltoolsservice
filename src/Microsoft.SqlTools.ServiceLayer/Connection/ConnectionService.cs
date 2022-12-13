@@ -38,8 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
 
         // SQL Error Code Constants
-        private const int DoesNotMeetPWReqs = 18466;
-        private const int PWCannotBeUsed = 18463;
+        // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
+        private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
+        private const int PWCannotBeUsed = 18463; // Password cannot be used at this time.
 
 
         /// <summary>
@@ -1165,9 +1166,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 newResponse.Result = false;
                 newResponse.ErrorMessage = ex.Message;
                 int errorCode = 0;
-                SqlError endError = (ex.InnerException as SqlException)?.Errors[0];
-                if (endError != null)
+
+                if ((ex.InnerException as SqlException) != null && (ex.InnerException as SqlException)?.Errors.Count != 0)
                 {
+                    SqlError endError = (ex.InnerException as SqlException).Errors[0];
                     newResponse.ErrorMessage = endError.Message;
                     errorCode = endError.Number;
                 }
