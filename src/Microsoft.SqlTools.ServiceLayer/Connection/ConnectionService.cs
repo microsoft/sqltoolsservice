@@ -22,6 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -36,12 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
         public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
-
-        // SQL Error Code Constants
-        // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
-        private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
-        private const int PWCannotBeUsed = 18463; // Password cannot be used at this time.
-
 
         /// <summary>
         /// Singleton service instance
@@ -1164,25 +1159,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 newResponse.Result = false;
-                newResponse.ErrorMessage = ex.Message;
-                int errorCode = 0;
-
-                if ((ex.InnerException as SqlException) != null && (ex.InnerException as SqlException)?.Errors.Count != 0)
-                {
-                    SqlError endError = (ex.InnerException as SqlException).Errors[0];
-                    newResponse.ErrorMessage = endError.Message;
-                    errorCode = endError.Number;
-                }
-
-                if (errorCode == 0 && newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
+                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged database context to '\w+'\.", "");
+                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged language setting to \w+\.", "");
+                if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
                 }
-                else if (errorCode == DoesNotMeetPWReqs)
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangeDNMReqs))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeDNMReqsRetry;
                 }
-                else if (errorCode == PWCannotBeUsed)
+                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangePWCannotBeUsed))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
                 }
