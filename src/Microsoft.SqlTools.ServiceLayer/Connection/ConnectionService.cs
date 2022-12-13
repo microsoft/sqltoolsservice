@@ -1163,9 +1163,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 newResponse.Result = false;
-                SqlError endError = ((ex.InnerException as SqlException)?.Errors[0] as SqlError);
-                newResponse.ErrorMessage = endError != null ? (ex.Message + Environment.NewLine + Environment.NewLine + endError.Message) : ex.Message;
-                int errorCode = endError != null ? endError.Number : 0;
+                newResponse.ErrorMessage = ex.Message;
+                int errorCode = 0;
+                SqlError endError = (ex.InnerException as SqlException)?.Errors[0];
+                if (endError != null)
+                {
+                    newResponse.ErrorMessage = endError.Message;
+                    errorCode = endError.Number;
+                }
+
                 if (errorCode == 0 && newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
