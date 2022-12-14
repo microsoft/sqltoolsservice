@@ -6515,19 +6515,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">請按 [確定] 輸入不是空白的新密碼。</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="translated">密碼不符合作業系統原則需求</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="translated">請按 [確定] 輸入符合作業系統原則需求的新密碼。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="translated">目前無法使用密碼</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">

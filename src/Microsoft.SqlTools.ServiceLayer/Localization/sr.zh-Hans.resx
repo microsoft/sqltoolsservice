@@ -3971,21 +3971,15 @@
     <value>实际 CPU 成本</value>
   </data>
   <data name="PasswordChangeEmptyPassword" xml:space="preserve">
-    <value>New password cannot be empty</value>
+    <value>新密码不能为空</value>
   </data>
   <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
-    <value>Press OK to input a new password that is not empty.</value>
-  </data>
-  <data name="PasswordChangeDNMReqs" xml:space="preserve">
-    <value>password does not meet operating system policy requirements</value>
+    <value>请按“确定”，输入不为空的新密码。</value>
   </data>
   <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
-    <value>Press OK to input a new password that meets operating system policy requirements.</value>
-  </data>
-  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
-    <value>password cannot be used at this time</value>
+    <value>请按“确定”，输入满足操作系统策略要求的新密码。</value>
   </data>
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
-    <value>Press OK to input a different password.</value>
+    <value>请按“确定”，输入其他密码。</value>
   </data>
 </root>

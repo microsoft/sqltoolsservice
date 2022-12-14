@@ -6515,19 +6515,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Нажмите "ОК", чтобы ввести новый непустой пароль.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="translated">пароль не соответствует требованиям политики операционной системы</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="translated">Нажмите "ОК", чтобы ввести новый пароль, соответствующий требованиям политики операционной системы.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="translated">в настоящее время нельзя использовать пароль</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">

@@ -6515,19 +6515,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">비어 있지 않은 새 암호를 입력하려면 [확인]을 누르세요.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="translated">암호가 운영 체제 정책 요구 사항을 충족하지 않습니다.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="translated">운영 체제 정책 요구 사항을 충족하는 새 암호를 입력하려면 [확인]을 누르세요.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="translated">현재 암호를 사용할 수 없습니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">

@@ -6515,19 +6515,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">[OK] を押して、空ではない新しいパスワードを入力します。</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="translated">パスワードがオペレーティング システム ポリシーの要件を満たしていません</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="translated">オペレーティング システム ポリシーの要件を満たす新しいパスワードを入力するには、[OK] をクリックします。</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="translated">現時点ではパスワードを使用できません</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">
