@@ -3971,21 +3971,15 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Tatsächliche CPU-Kosten</value>
   </data>
   <data name="PasswordChangeEmptyPassword" xml:space="preserve">
-    <value>New password cannot be empty</value>
+    <value>Das neue Kennwort darf nicht leer sein.</value>
   </data>
   <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
-    <value>Press OK to input a new password that is not empty.</value>
-  </data>
-  <data name="PasswordChangeDNMReqs" xml:space="preserve">
-    <value>password does not meet operating system policy requirements</value>
+    <value>Drücken Sie OK, um ein neues Kennwort einzugeben, das nicht leer ist.</value>
   </data>
   <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
-    <value>Press OK to input a new password that meets operating system policy requirements.</value>
-  </data>
-  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
-    <value>password cannot be used at this time</value>
+    <value>Drücken Sie OK, um ein neues Kennwort einzugeben, das die Anforderungen der Betriebssystemrichtlinie erfüllt.</value>
   </data>
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
-    <value>Press OK to input a different password.</value>
+    <value>Drücken Sie OK, um ein anderes Kennwort einzugeben.</value>
   </data>
 </root>

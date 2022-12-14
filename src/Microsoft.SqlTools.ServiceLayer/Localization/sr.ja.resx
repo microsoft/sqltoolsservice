@@ -3976,14 +3976,8 @@
   <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
     <value>[OK] を押して、空ではない新しいパスワードを入力します。</value>
   </data>
-  <data name="PasswordChangeDNMReqs" xml:space="preserve">
-    <value>パスワードがオペレーティング システム ポリシーの要件を満たしていません</value>
-  </data>
   <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
     <value>オペレーティング システム ポリシーの要件を満たす新しいパスワードを入力するには、[OK] をクリックします。</value>
-  </data>
-  <data name="PasswordChangePWCannotBeUsed" xml:space="preserve">
-    <value>現時点ではパスワードを使用できません</value>
   </data>
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>[OK] を押して別のパスワードを入力します。</value>

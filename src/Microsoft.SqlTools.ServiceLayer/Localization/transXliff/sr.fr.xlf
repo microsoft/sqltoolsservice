@@ -6515,19 +6515,9 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Appuyez sur OK pour entrer un nouveau mot de passe qui n’est pas vide.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="translated">le mot de passe ne répond pas aux exigences de stratégie du système d’exploitation</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="translated">Appuyez sur OK pour entrer un nouveau mot de passe qui répond aux exigences de la stratégie du système d’exploitation.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="translated">impossible d'utiliser le mot de passe pour l'instant</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">

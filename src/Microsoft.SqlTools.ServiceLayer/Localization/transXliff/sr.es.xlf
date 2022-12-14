@@ -6515,19 +6515,9 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Presione Aceptar para escribir una nueva contraseña que no esté vacía.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="translated">la contraseña no cumple los requisitos de la directiva del sistema operativo</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="translated">Presione Aceptar para escribir una nueva contraseña que cumpla los requisitos de la directiva del sistema operativo.</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="translated">la contraseña no se puede usar en este momento</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">
