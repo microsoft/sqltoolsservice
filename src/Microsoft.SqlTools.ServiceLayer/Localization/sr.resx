@@ -5056,6 +5056,22 @@ The Query Processor estimates that implementing the following index could improv
     <value>Row End</value>
     <comment></comment>
   </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Transaction Id Start</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Transaction Id End</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Sequence Number Start</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Sequence Number End</value>
+    <comment></comment>
+  </data>
   <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
     <value>System Versioning Enabled</value>
     <comment></comment>
