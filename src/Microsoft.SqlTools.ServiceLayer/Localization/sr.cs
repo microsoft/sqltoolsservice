@@ -9269,6 +9269,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string GeneratedAlwaysColumnType_TransactionIdStart
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_TransactionIdStart);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_TransactionIdEnd
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_TransactionIdEnd);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_SequenceNumberStart
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_SequenceNumberStart);
+            }
+        }
+
+        public static string GeneratedAlwaysColumnType_SequenceNumberEnd
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneratedAlwaysColumnType_SequenceNumberEnd);
+            }
+        }
+
         public static string TableDesignerIsSystemVersioningEnabledTitle
         {
             get
@@ -13733,6 +13765,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string GeneratedAlwaysColumnType_RowEnd = "GeneratedAlwaysColumnType_RowEnd";
+
+
+            public const string GeneratedAlwaysColumnType_TransactionIdStart = "GeneratedAlwaysColumnType_TransactionIdStart";
+
+
+            public const string GeneratedAlwaysColumnType_TransactionIdEnd = "GeneratedAlwaysColumnType_TransactionIdEnd";
+
+
+            public const string GeneratedAlwaysColumnType_SequenceNumberStart = "GeneratedAlwaysColumnType_SequenceNumberStart";
+
+
+            public const string GeneratedAlwaysColumnType_SequenceNumberEnd = "GeneratedAlwaysColumnType_SequenceNumberEnd";
 
 
             public const string TableDesignerIsSystemVersioningEnabledTitle = "TableDesignerIsSystemVersioningEnabledTitle";
