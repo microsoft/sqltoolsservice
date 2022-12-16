@@ -3970,4 +3970,16 @@
   <data name="ActualCpu" xml:space="preserve">
     <value>実際の CPU コスト</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>新しいパスワードを空にすることはできません</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>[OK] を押して、空ではない新しいパスワードを入力します。</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>オペレーティング システム ポリシーの要件を満たす新しいパスワードを入力するには、[OK] をクリックします。</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>[OK] を押して別のパスワードを入力します。</value>
+  </data>
 </root>

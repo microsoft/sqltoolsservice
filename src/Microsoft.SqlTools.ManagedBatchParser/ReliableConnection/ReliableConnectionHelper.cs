@@ -652,8 +652,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public class ServerInfo
         {
-            internal const string OptionIsBigDataCluster = "isBigDataCluster";
-            internal const string OptionClusterEndpoints = "clusterEndpoints";
             public int ServerMajorVersion;
             public int ServerMinorVersion;
             public int ServerReleaseVersion;
@@ -674,16 +672,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public Nullable<int> CpuCount;
             public Nullable<int> PhysicalMemoryInMB;
             public Dictionary<string, object> Options { get; set; }
-        }
-
-        public class ClusterEndpoint
-        {
-            public string ServiceName;
-            public string Description;
-            public string Endpoint;
-            public string Protocol;
-            public string IpAddress;
-            public int Port;
         }
 
         public class ServerHostInfo
@@ -899,28 +887,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
                 serverInfo.Options = new Dictionary<string, object>();
 
-                // Get BDC endpoints
-                if (!serverInfo.IsCloud && serverInfo.ServerMajorVersion >= 15)
-                {
-                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
-                    serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
-
-                    try
-                    {
-                        LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
-                    }
-                    catch (SqlException)
-                    {
-                        // Failed to find cluster endpoints DMV, this must not be a cluster
-                        // or user does not have permissions to see cluster info
-                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
-                    }
-                }
-                else
-                {
-                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
-                }
-
                 return serverInfo;
             };
 
@@ -937,28 +903,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
 
             return result;
-        }
-
-        private static void LookupClusterEndpoints(IDbConnection connection, ServerInfo serverInfo, List<ClusterEndpoint> clusterEndpoints)
-        {
-            ExecuteReader(
-                connection,
-                SqlConnectionHelperScripts.GetClusterEndpoints,
-                delegate (IDataReader reader)
-                {
-                    while (reader.Read())
-                    {
-                        clusterEndpoints.Add(new ClusterEndpoint
-                        {
-                            ServiceName = reader.GetString(0),
-                            Description = reader.GetString(1),
-                            Endpoint = reader.GetString(2),
-                            Protocol = reader.GetString(3)
-                        });
-                    }
-                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
-                }
-            );
         }
 
         public static string GetServerName(IDbConnection connection)

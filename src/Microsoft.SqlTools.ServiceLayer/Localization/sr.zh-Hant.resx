@@ -3970,4 +3970,16 @@
   <data name="ActualCpu" xml:space="preserve">
     <value>實際 CPU 成本</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>新密碼不能空白。</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>請按 [確定] 輸入不是空白的新密碼。</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>請按 [確定] 輸入符合作業系統原則需求的新密碼。</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>請按 [確定] 輸入其他密碼。</value>
+  </data>
 </root>

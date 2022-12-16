@@ -6505,6 +6505,26 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">실제 CPU 비용</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPassword">
+        <source>New password cannot be empty</source>
+        <target state="translated">새 암호는 비워둘 수 없습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPasswordRetry">
+        <source>Press OK to input a new password that is not empty.</source>
+        <target state="translated">비어 있지 않은 새 암호를 입력하려면 [확인]을 누르세요.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeDNMReqsRetry">
+        <source>Press OK to input a new password that meets operating system policy requirements.</source>
+        <target state="translated">운영 체제 정책 요구 사항을 충족하는 새 암호를 입력하려면 [확인]을 누르세요.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangePWCannotBeUsedRetry">
+        <source>Press OK to input a different password.</source>
+        <target state="translated">다른 암호를 입력하려면 [확인]을 누르세요.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1763,5 +1763,72 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.IsFalse(ConnectionService.IsDbPool("db"));
             Assert.IsFalse(ConnectionService.IsDbPool(null));
         }
+
+        /// <summary>
+        /// Verify that providing an empty password to change password will fire an error. 
+        /// </summary>
+        [Test]
+        public async Task ConnectionEmptyPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                NewPassword = ""
+            };
+            Assert.Throws<Exception>(() => connectionService.ChangePassword(testConnectionParams));
+        }
+
+        /// <summary>
+        /// Verify that providing an invalid connection parameter value to change password will fire an error. 
+        /// </summary>
+        [Test]
+        public async Task ConnectionInvalidParamPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = { },
+                NewPassword = "TestPassword"
+            };
+            Assert.Throws<Exception>(() => connectionService.ChangePassword(testConnectionParams));
+        }
+
+        /// <summary>
+        /// Verify that providing a non actual connection and a fake password to change password will throw an error. 
+        /// </summary>
+        [Test]
+        public async Task InvalidConnectionPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                NewPassword = "TestPassword"
+            };
+            Assert.Throws<Microsoft.SqlServer.Management.Common.ChangePasswordFailureException>(
+                () => connectionService.ChangePassword(testConnectionParams));
+        }
     }
 }

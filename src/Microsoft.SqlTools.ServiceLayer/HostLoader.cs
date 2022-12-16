@@ -19,7 +19,6 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.InsightsGenerator;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
@@ -159,9 +158,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
-
-            InsightsGeneratorService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(InsightsGeneratorService.Instance);
 
 #if INCLUDE_MIGRATION
             MigrationService.Instance.InitializeService(serviceHost);

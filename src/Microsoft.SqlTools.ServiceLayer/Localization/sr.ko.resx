@@ -3970,4 +3970,16 @@
   <data name="ActualCpu" xml:space="preserve">
     <value>실제 CPU 비용</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>새 암호는 비워둘 수 없습니다.</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>비어 있지 않은 새 암호를 입력하려면 [확인]을 누르세요.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>운영 체제 정책 요구 사항을 충족하는 새 암호를 입력하려면 [확인]을 누르세요.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>다른 암호를 입력하려면 [확인]을 누르세요.</value>
+  </data>
 </root>

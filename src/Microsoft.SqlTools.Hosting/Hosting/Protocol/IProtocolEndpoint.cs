@@ -16,17 +16,43 @@ namespace Microsoft.SqlTools.Hosting.Protocol
     /// </summary>
     public interface IProtocolEndpoint : IEventSender, IRequestSender
     {
+        /// <summary>
+        /// Set a request handler
+        /// </summary>
+        /// <typeparam name="TParams">type of parameter</typeparam>
+        /// <typeparam name="TResult">type of result</typeparam>
+        /// <param name="requestType">request type</param>
+        /// <param name="requestHandler">request handler</param>
+        /// <param name="isParallelProcessingSupported">whether this handler supports parallel processing</param>
         void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
-            Func<TParams, RequestContext<TResult>, Task> requestHandler);
+            Func<TParams, RequestContext<TResult>, Task> requestHandler,
+            bool isParallelProcessingSupported = false);
 
-        void SetEventHandler<TParams>(
-            EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler);
-
+        /// <summary>
+        /// Set an request handler
+        /// </summary>
+        /// <typeparam name="TParams">type of parameter</typeparam>
+        /// <param name="eventType">type of event</param>
+        /// <param name="eventHandler">event handler</param>
+        /// <param name="isParallelProcessingSupported">whether this handler supports parallel processing</param>
         void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool overrideExisting);
+            bool isParallelProcessingSupported = false);
+
+        /// <summary>
+        /// Set an request handler
+        /// </summary>
+        /// <typeparam name="TParams">type of parameter</typeparam>
+        /// <param name="eventType">type of event</param>
+        /// <param name="eventHandler">event handler</param>
+        /// <param name="overrideExisting">whether to override the existing handler for the same event type</param>
+        /// <param name="isParallelProcessingSupported">whether this handler supports parallel processing</param>
+        void SetEventHandler<TParams>(
+            EventType<TParams> eventType,
+            Func<TParams, EventContext, Task> eventHandler,
+            bool overrideExisting,
+            bool isParallelProcessingSupported = false);
     }
 }

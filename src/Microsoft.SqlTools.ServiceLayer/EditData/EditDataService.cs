@@ -75,15 +75,15 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest);
-            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest);
-            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest);
-            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest);
-            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest);
-            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest);
-            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest);
-            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest);
-            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest);
+            serviceHost.SetRequestHandler(EditCreateRowRequest.Type, HandleCreateRowRequest, true);
+            serviceHost.SetRequestHandler(EditDeleteRowRequest.Type, HandleDeleteRowRequest, true);
+            serviceHost.SetRequestHandler(EditDisposeRequest.Type, HandleDisposeRequest, true);
+            serviceHost.SetRequestHandler(EditInitializeRequest.Type, HandleInitializeRequest, true);
+            serviceHost.SetRequestHandler(EditRevertCellRequest.Type, HandleRevertCellRequest, true);
+            serviceHost.SetRequestHandler(EditRevertRowRequest.Type, HandleRevertRowRequest, true);
+            serviceHost.SetRequestHandler(EditSubsetRequest.Type, HandleSubsetRequest, true);
+            serviceHost.SetRequestHandler(EditUpdateCellRequest.Type, HandleUpdateCellRequest, true);
+            serviceHost.SetRequestHandler(EditCommitRequest.Type, HandleCommitRequest, true);
         }
 
         #region Request Handlers

@@ -168,6 +168,22 @@
     <value>Connection canceled</value>
     <comment></comment>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>New password cannot be empty</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Press OK to input a new password that is not empty.</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Press OK to input a new password that meets operating system policy requirements.</value>
+    <comment></comment>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Press OK to input a different password.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
     <value>OwnerUri cannot be null or empty</value>
     <comment></comment>
@@ -5038,6 +5054,22 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
     <value>Row End</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Transaction Id Start</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Transaction Id End</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Sequence Number Start</value>
+    <comment></comment>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Sequence Number End</value>
     <comment></comment>
   </data>
   <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">

@@ -3970,4 +3970,16 @@
   <data name="ActualCpu" xml:space="preserve">
     <value>Фактическая стоимость ЦП</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>Новый пароль не может быть пустым</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Нажмите "ОК", чтобы ввести новый непустой пароль.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Нажмите "ОК", чтобы ввести новый пароль, соответствующий требованиям политики операционной системы.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Нажмите "ОК", чтобы ввести другой пароль.</value>
+  </data>
 </root>

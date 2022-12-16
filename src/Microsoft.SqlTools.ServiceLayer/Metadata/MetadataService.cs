@@ -50,9 +50,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
-            serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest);
-            serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest);
+            serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
+            serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
+            serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
         }
 
         /// <summary>

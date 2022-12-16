@@ -45,6 +45,16 @@ ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' fo
 
 ConnectionServiceConnectionCanceled = Connection canceled
 
+### Password Change
+
+PasswordChangeEmptyPassword = New password cannot be empty
+
+PasswordChangeEmptyPasswordRetry = Press OK to input a new password that is not empty.
+
+PasswordChangeDNMReqsRetry = Press OK to input a new password that meets operating system policy requirements.
+
+PasswordChangePWCannotBeUsedRetry = Press OK to input a different password.
+
 ### Connection Params Validation Errors
 
 ConnectionParamsValidateNullOwnerUri = OwnerUri cannot be null or empty
@@ -2346,6 +2356,10 @@ SqlTableDurability_SchemaOnly = Schema Only
 GeneratedAlwaysColumnType_None = None
 GeneratedAlwaysColumnType_RowStart = Row Start
 GeneratedAlwaysColumnType_RowEnd = Row End
+GeneratedAlwaysColumnType_TransactionIdStart = Transaction Id Start
+GeneratedAlwaysColumnType_TransactionIdEnd = Transaction Id End
+GeneratedAlwaysColumnType_SequenceNumberStart = Sequence Number Start
+GeneratedAlwaysColumnType_SequenceNumberEnd = Sequence Number End
 TableDesignerIsSystemVersioningEnabledTitle = System Versioning Enabled
 TableDesignerIsSystemVersioningEnabledDescription = Specifies whether the table is system versioning enabled.
 TableDesignerSystemVersioningGroupTitle = System Versioning

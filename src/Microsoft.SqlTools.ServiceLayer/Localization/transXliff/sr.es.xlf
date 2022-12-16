@@ -6505,6 +6505,26 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Costo real de CPU</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPassword">
+        <source>New password cannot be empty</source>
+        <target state="translated">La nueva contraseña no puede estar vacía</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPasswordRetry">
+        <source>Press OK to input a new password that is not empty.</source>
+        <target state="translated">Presione Aceptar para escribir una nueva contraseña que no esté vacía.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeDNMReqsRetry">
+        <source>Press OK to input a new password that meets operating system policy requirements.</source>
+        <target state="translated">Presione Aceptar para escribir una nueva contraseña que cumpla los requisitos de la directiva del sistema operativo.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangePWCannotBeUsedRetry">
+        <source>Press OK to input a different password.</source>
+        <target state="translated">Presione Aceptar para escribir una contraseña diferente.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
