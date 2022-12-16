@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 }
 
                 // Get true type of the object
-                Type tVal = values[i].GetType();
+                Type tVal = values[i] == null ? typeof(DBNull) : values[i].GetType();
 
                 // Write the object to a file
                 if (tVal == typeof(DBNull))
