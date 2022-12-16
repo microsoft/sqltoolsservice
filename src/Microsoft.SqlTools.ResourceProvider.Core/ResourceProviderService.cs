@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             await HandleRequest(requestHandler, tokenExpiredHandler, requestContext, "HandleCreateFirewallRuleRequest");
         }
 
-        private async Task<CreateFirewallRuleResponse> DoHandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRule)
+        private async Task<CreateFirewallRuleResponse> DoHandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRuleParams)
         {
             var result = new CreateFirewallRuleResponse();
             // Note: currently not catching the exception. Expect the caller to this message to handle error cases by
@@ -77,11 +77,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             try
             {
                 AuthenticationService authService = ServiceProvider.GetService<AuthenticationService>();
-                IUserAccount account = await authService.SetCurrentAccountAsync(firewallRule.Account, firewallRule.SecurityTokenMappings);
-                FirewallRuleResponse response = await firewallRuleService.CreateFirewallRuleAsync(firewallRule.ServerName, firewallRule.StartIpAddress, firewallRule.EndIpAddress);
+                IUserAccount account = await authService.SetCurrentAccountAsync(firewallRuleParams.Account, firewallRuleParams.SecurityTokenMappings);
+                FirewallRuleResponse response = await firewallRuleService.CreateFirewallRuleAsync(firewallRuleParams);
                 result.Result = true;
             }
-            catch(FirewallRuleException ex)
+            catch (FirewallRuleException ex)
             {
                 result.Result = false;
                 result.ErrorMessage = ex.Message;
@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 T result = await handler();
                 await requestContext.SendResult(result);
             }
-            catch(ExpiredTokenException ex)
+            catch (ExpiredTokenException ex)
             {
                 if (expiredTokenHandler != null)
                 {
