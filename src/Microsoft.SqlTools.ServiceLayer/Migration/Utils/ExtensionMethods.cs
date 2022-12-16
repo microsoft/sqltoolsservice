@@ -13,6 +13,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Utils
     {
         public static void AddExceptions(this IDictionary<string, IEnumerable<ReportableException>> exceptionMap1, IDictionary<string, IEnumerable<ReportableException>> exceptionMap2)
         {
+            if (exceptionMap1 is null || exceptionMap2 is null)
+            {
+                return;
+            }
+
             foreach (var keyValuePair2 in exceptionMap2)
             {
                 // If the dictionary already contains the key then merge them
