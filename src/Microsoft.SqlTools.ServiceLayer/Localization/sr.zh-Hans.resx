@@ -3982,4 +3982,16 @@
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>请按“确定”，输入其他密码。</value>
   </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>事务 ID 开始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>事务 ID 结束</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>序列号开始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>序列号结束</value>
+  </data>
 </root>

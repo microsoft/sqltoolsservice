@@ -6525,6 +6525,26 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Premiere OK per immettere una password diversa.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">ID transazione Inizio</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">ID transazione Fine</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">Numero sequenza Inizio</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">Numero sequenza Fine</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

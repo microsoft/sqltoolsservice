@@ -6525,6 +6525,26 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">다른 암호를 입력하려면 [확인]을 누르세요.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">트랜잭션 ID 시작</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">트랜잭션 ID 끝</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">시퀀스 번호 시작</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">시퀀스 번호 끝</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

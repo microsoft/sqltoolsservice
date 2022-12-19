@@ -3982,4 +3982,16 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>Appuyez sur OK pour entrer un autre mot de passe.</value>
   </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Début de l’ID de transaction</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Fin de l’ID de transaction</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Début du numéro de séquence</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Fin du numéro de séquence</value>
+  </data>
 </root>

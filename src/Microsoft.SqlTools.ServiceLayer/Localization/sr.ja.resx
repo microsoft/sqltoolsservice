@@ -3982,4 +3982,16 @@
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>[OK] を押して別のパスワードを入力します。</value>
   </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>トランザクション ID の開始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>トランザクション ID の終了</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>シーケンス番号の開始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>シーケンス番号の終了</value>
+  </data>
 </root>
