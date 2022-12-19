@@ -3982,4 +3982,16 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>Presione Aceptar para escribir una contraseña diferente.</value>
   </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Inicio del id. de transacción</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Fin del id. de transacción</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Inicio del número de secuencia</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Fin del número de secuencia</value>
+  </data>
 </root>

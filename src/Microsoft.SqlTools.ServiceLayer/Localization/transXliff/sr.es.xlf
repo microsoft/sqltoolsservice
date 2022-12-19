@@ -6525,6 +6525,26 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Presione Aceptar para escribir una contraseña diferente.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">Inicio del id. de transacción</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">Fin del id. de transacción</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">Inicio del número de secuencia</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">Fin del número de secuencia</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

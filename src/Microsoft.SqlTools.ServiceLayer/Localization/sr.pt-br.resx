@@ -3982,4 +3982,16 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
     <value>Pressione OK para inserir uma senha diferente.</value>
   </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Início da ID da Transação</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Fim da ID da Transação</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Início do Número de Sequência</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Fim do Número de Sequência</value>
+  </data>
 </root>

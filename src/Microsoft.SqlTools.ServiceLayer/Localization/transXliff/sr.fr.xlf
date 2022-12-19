@@ -6525,6 +6525,26 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Appuyez sur OK pour entrer un autre mot de passe.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">Début de l’ID de transaction</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">Fin de l’ID de transaction</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">Début du numéro de séquence</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">Fin du numéro de séquence</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
