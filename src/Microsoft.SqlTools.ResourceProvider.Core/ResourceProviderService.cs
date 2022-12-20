@@ -21,8 +21,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     [Export(typeof(IHostedService))]
     public class ResourceProviderService : HostedService<ResourceProviderService>, IComposableService
     {
-        private const string MssqlProviderId = "MSSQL";
-
         private FirewallRuleService firewallRuleService;
         /// <summary>
         /// The default constructor is required for MEF-based composable services
@@ -36,6 +34,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             Logger.Write(TraceEventType.Verbose, "ResourceProvider initialized");
             serviceHost.SetRequestHandler(CreateFirewallRuleRequest.Type, HandleCreateFirewallRuleRequest);
             serviceHost.SetRequestHandler(CanHandleFirewallRuleRequest.Type, ProcessHandleFirewallRuleRequest);
+            serviceHost.SetRequestHandler(CanHandleOtherErrorRequest.Type, ProcessHandleOtherErrorRequest);
 
             firewallRuleService = new FirewallRuleService()
             {
@@ -94,7 +93,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             Func<Task<HandleFirewallRuleResponse>> requestHandler = () =>
             {
                 HandleFirewallRuleResponse response = new HandleFirewallRuleResponse();
-                if (!MssqlProviderId.Equals(canHandleRuleParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase))
+                if (!ErrorHandlerConstants.MssqlProviderId.Equals(canHandleRuleParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase))
                 {
                     response.Result = false;
                     response.ErrorMessage = SR.FirewallRuleUnsupportedConnectionType;
@@ -109,6 +108,20 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 return Task.FromResult(response);
             };
             await HandleRequest(requestHandler, null, requestContext, "HandleCreateFirewallRuleRequest");
+        }
+
+        public async Task ProcessHandleOtherErrorRequest(HandleOtherErrorParams handleOtherErrorParams, RequestContext<ProviderErrorCode> requestContext)
+        {
+            Func<Task<ProviderErrorCode>> requestHandler = () =>
+            {
+                ProviderErrorCode response = ProviderErrorCode.noErrorOrUnsupported;
+                if (ErrorHandlerConstants.MssqlProviderId.Equals(handleOtherErrorParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase) && ErrorHandlerConstants.MssqlPasswordResetCode.Equals(handleOtherErrorParams.ErrorCode))
+                {
+                    response = ProviderErrorCode.passwordReset;
+                }
+                return Task.FromResult(response);
+            };
+            await HandleRequest(requestHandler, null, requestContext, "HandleOtherErrorRequest");
         }
 
         private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
