@@ -114,8 +114,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         {
             Func<Task<ProviderErrorCode>> requestHandler = () =>
             {
+                // Check if provider is MSSQL
                 bool isMssql = ErrorHandlerConstants.MssqlProviderId.Equals(handleOtherErrorParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase);
+                
+                // Check if error is for MSSQL Password Reset
                 bool isMssqlPWReset = ErrorHandlerConstants.MssqlPasswordResetCode.Equals(handleOtherErrorParams.ErrorCode);
+                
                 ProviderErrorCode response = ProviderErrorCode.noErrorOrUnsupported;
                 if (isMssql)
                 {
