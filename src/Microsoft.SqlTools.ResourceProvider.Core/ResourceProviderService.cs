@@ -114,10 +114,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         {
             Func<Task<ProviderErrorCode>> requestHandler = () =>
             {
+                bool isMssql = ErrorHandlerConstants.MssqlProviderId.Equals(handleOtherErrorParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase);
+                bool isMssqlPWReset = ErrorHandlerConstants.MssqlPasswordResetCode.Equals(handleOtherErrorParams.ErrorCode);
                 ProviderErrorCode response = ProviderErrorCode.noErrorOrUnsupported;
-                if (ErrorHandlerConstants.MssqlProviderId.Equals(handleOtherErrorParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase) && ErrorHandlerConstants.MssqlPasswordResetCode.Equals(handleOtherErrorParams.ErrorCode))
+                if (isMssql)
                 {
-                    response = ProviderErrorCode.passwordReset;
+                    if(isMssqlPWReset) {
+                        response = ProviderErrorCode.passwordReset;
+                    }
                 }
                 return Task.FromResult(response);
             };
