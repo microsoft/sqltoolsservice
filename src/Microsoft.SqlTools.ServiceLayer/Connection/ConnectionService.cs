@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectionParams">The params to validate</param>
         /// <returns>A ConnectionCompleteParams object upon validation error,
         /// null upon validation success</returns>
-        public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
+        public static ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
             if (connectionParams == null)
             {

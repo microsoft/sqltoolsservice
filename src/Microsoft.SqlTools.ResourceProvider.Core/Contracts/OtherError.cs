@@ -7,6 +7,9 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
 {
+    /// <summary>
+    /// A request to check if an error can be handled by the code or not.
+    /// </summary>
     public class CanHandleOtherErrorRequest
     {
         public static readonly
