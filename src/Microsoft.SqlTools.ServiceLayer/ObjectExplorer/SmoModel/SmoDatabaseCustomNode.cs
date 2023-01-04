@@ -32,21 +32,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            // IsLedger property check is disabled to avoid making connection to databases individually when listing databases in OE
-            // since it's value is not available from 'master' DB for all databases > v12.
+            // IsLedger property check is disabled on Azure databases to avoid making connections to databases 
+            // individually when listing databases in Object Explorer since it's value is not available from 'master' DB for all databases..
 
-            // try
-            // {
-            //     Database? db = smoObject as Database;
-            //     if (db != null && IsPropertySupported("IsLedger", smoContext, db, CachedSmoProperties) && db.IsLedger)
-            //     {
-            //         return "Ledger";
-            //     }
-            // }
-            // catch
-            // {
-            //     //Ignore the exception and just not change create custom name
-            // }
+            try
+            {
+                Database? db = smoObject as Database;
+                if (db != null && IsPropertySupported("IsLedger", smoContext, db, CachedSmoProperties) && db.IsLedger)
+                {
+                    return "Ledger";
+                }
+            }
+            catch
+            {
+                //Ignore the exception and just not change create custom name
+            }
 
             return string.Empty;
         }
