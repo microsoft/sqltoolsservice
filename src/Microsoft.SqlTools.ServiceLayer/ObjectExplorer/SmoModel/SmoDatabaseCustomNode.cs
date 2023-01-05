@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using System.Diagnostics;
 using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -46,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             catch (Exception e)
             {
                 //Ignore the exception and just not change create custom name
-                Logger.Write(TraceEventType.Verbose, $"Error ignored when reading node subtype: {e.Message}");
+                Logger.Warning($"Error ignored when reading databases node subtype: {e.Message}");
             }
 
             return string.Empty;
