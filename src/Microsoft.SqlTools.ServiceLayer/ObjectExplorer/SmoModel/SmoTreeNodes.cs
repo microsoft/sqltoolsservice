@@ -213,6 +213,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                    Name = "Status",
                    ValidFor = ValidForFlag.All
                 });
+                properties.Add(new NodeSmoProperty
+                {
+                   Name = "IsLedger",
+                   ValidFor = ValidForFlag.AllOnPrem
+                });
                 return properties;
             }
         }
