@@ -4,8 +4,11 @@
 //
 
 using System.Collections.Generic;
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using System.Diagnostics;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -35,14 +38,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             try
             {
                 Database? db = smoObject as Database;
-                if (db != null && IsPropertySupported("IsLedger", smoContext, db, CachedSmoProperties) && db.IsLedger)
+                if (db != null && IsPropertySupported(nameof(db.IsLedger), smoContext, db, CachedSmoProperties) && db.IsLedger)
                 {
                     return "Ledger";
                 }
             }
-            catch
+            catch (Exception e)
             {
                 //Ignore the exception and just not change create custom name
+                Logger.Write(TraceEventType.Verbose, $"Error ignored when reading node subtype: {e.Message}");
             }
 
             return string.Empty;
