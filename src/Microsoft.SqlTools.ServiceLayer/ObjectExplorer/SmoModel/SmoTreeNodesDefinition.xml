@@ -11,6 +11,8 @@
     </Filters>
     <Properties>
       <Property Name="Status" ValidFor="All"/>
+      <!--IsLedger property check is disabled on Azure databases to avoid making connections to databases individually
+       when listing databases in Object Explorer since it's value is not available from 'master' DB for all databases.-->
       <Property Name="IsLedger" ValidFor="AllOnPrem"/>
     </Properties>
     <Child Name="SystemDatabases" IsSystemObject="1"/>

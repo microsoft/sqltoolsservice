@@ -32,9 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
         {
-            // IsLedger property check is disabled on Azure databases to avoid making connections to databases 
-            // individually when listing databases in Object Explorer since it's value is not available from 'master' DB for all databases..
-
             try
             {
                 Database? db = smoObject as Database;
