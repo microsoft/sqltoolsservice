@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using System.Diagnostics;
 using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
