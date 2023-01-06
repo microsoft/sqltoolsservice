@@ -106,6 +106,9 @@
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
       <Filter Property="IsDroppedLedgerView" Value="0" Type="bool" ValidFor="Sql2022|AzureV12"/>
     </Filters>
+    <Properties>
+      <Property Name="LedgerViewType" ValidFor="Sql2022|AzureV12"/>
+    </Properties>
     <Child Name="SystemViews" IsSystemObject="1"/>
     <Child Name="DroppedLedgerViews"/>
   </Node>
