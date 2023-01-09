@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     [Export(typeof(IHostedService))]
     public class ResourceProviderService : HostedService<ResourceProviderService>, IComposableService
     {
+        private const string MssqlProviderId = "MSSQL";
+        
         private FirewallRuleService firewallRuleService;
         /// <summary>
         /// The default constructor is required for MEF-based composable services
@@ -92,7 +94,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             Func<Task<HandleFirewallRuleResponse>> requestHandler = () =>
             {
                 HandleFirewallRuleResponse response = new HandleFirewallRuleResponse();
-                if (!ErrorHandlerConstants.MssqlProviderId.Equals(canHandleRuleParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase))
+                if (!MssqlProviderId.Equals(canHandleRuleParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase))
                 {
                     response.Result = false;
                     response.ErrorMessage = SR.FirewallRuleUnsupportedConnectionType;
