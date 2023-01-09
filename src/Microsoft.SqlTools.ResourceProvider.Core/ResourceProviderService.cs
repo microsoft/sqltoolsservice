@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
     public class ResourceProviderService : HostedService<ResourceProviderService>, IComposableService
     {
         private const string MssqlProviderId = "MSSQL";
-        
+
         private FirewallRuleService firewallRuleService;
         /// <summary>
         /// The default constructor is required for MEF-based composable services
