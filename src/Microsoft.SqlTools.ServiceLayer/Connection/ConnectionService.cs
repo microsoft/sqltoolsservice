@@ -1403,6 +1403,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
             }
+            if (connectionDetails.CommandTimeout.HasValue)
+            {
+                connectionBuilder.CommandTimeout = connectionDetails.CommandTimeout.Value;
+            }
             if (connectionDetails.ConnectRetryCount.HasValue)
             {
                 connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
@@ -1554,6 +1558,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ConnectRetryCount = builder.ConnectRetryCount,
                 ConnectRetryInterval = builder.ConnectRetryInterval,
                 ConnectTimeout = builder.ConnectTimeout,
+                CommandTimeout = builder.CommandTimeout,
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
@@ -1731,11 +1736,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 // capture original values
                 int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                int? originalCommandTimeout = connInfo.ConnectionDetails.CommandTimeout;
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
-                // increase the connection timeout to at least 30 seconds and and build connection string
+                // increase the connection and command timeout to at least 30 seconds and and build connection string
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, originalCommandTimeout ?? 0);
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
@@ -1747,6 +1754,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // restore original values
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.CommandTimeout = originalCommandTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
