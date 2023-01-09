@@ -20,7 +20,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
-		<ProjectReference Include="..\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />

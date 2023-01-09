@@ -14,7 +14,6 @@ using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
 using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
@@ -35,7 +34,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             Logger.Write(TraceEventType.Verbose, "ResourceProvider initialized");
             serviceHost.SetRequestHandler(CreateFirewallRuleRequest.Type, HandleCreateFirewallRuleRequest);
             serviceHost.SetRequestHandler(CanHandleFirewallRuleRequest.Type, ProcessHandleFirewallRuleRequest);
-            serviceHost.SetRequestHandler(CanHandleOtherErrorRequest.Type, ProcessHandleOtherErrorRequest);
 
             firewallRuleService = new FirewallRuleService()
             {
@@ -110,45 +108,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             };
             await HandleRequest(requestHandler, null, requestContext, "HandleCreateFirewallRuleRequest");
         }
-
-        public async Task ProcessHandleOtherErrorRequest(HandleOtherErrorParams handleOtherErrorParams, RequestContext<ProviderErrorCode> requestContext)
-        {
-            Func<Task<ProviderErrorCode>> requestHandler = () =>
-            {
-                // Check if provider is MSSQL
-                bool isMssql = ErrorHandlerConstants.MssqlProviderId.Equals(handleOtherErrorParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase);
-                
-                // Check if error is for MSSQL Password Reset
-                bool isMssqlPWReset = ErrorHandlerConstants.MssqlPasswordResetCode.Equals(handleOtherErrorParams.ErrorCode);
-                
-                ProviderErrorCode response = ProviderErrorCode.noErrorOrUnsupported;
-                if (isMssql)
-                {
-                    if(isMssqlPWReset) {
-                        response = ProviderErrorCode.passwordReset;
-                    }
-                }
-                return Task.FromResult(response);
-            };
-            await HandleRequest(requestHandler, null, requestContext, "HandleOtherErrorRequest");
-        }
-
-         public async Task ProcessPasswordChangeRequest(ChangePasswordParams changePasswordParams, RequestContext<PasswordChangeResponse> requestContext)
-        {
-            Func<Task<PasswordChangeResponse>> requestHandler = () =>
-            {
-                // Check if provider is MSSQL
-                bool isMssql = ErrorHandlerConstants.MssqlProviderId.Equals(changePasswordParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase);
-
-                // TODO need to get connection service to change password and validate.
-                // ConnectionService.ChangePassword(changePasswordParams);
-                PasswordChangeResponse response = new PasswordChangeResponse();
-                response.Result = true;
-                return Task.FromResult(response);
-            };
-            await HandleRequest(requestHandler, null, requestContext, "HandleChangePasswordRequest");
-        }
-        
 
         private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
         {

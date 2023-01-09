@@ -4,11 +4,8 @@
 //
 
 using System;
-using System.Composition;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -45,23 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
             };
             await HandleRequest(requestHandler, requestContext, "DiagnosticsRequest");
         }
-
-         public async Task ProcessPasswordChangeRequest(ChangePasswordParams changePasswordParams, RequestContext<PasswordChangeResponse> requestContext)
-        {
-            Func<Task<PasswordChangeResponse>> requestHandler = () =>
-            {
-                // Check if provider is MSSQL
-                bool isMssql = DiagnosticsConstants.MssqlProviderId.Equals(changePasswordParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase);
-
-                // TODO need to get connection service to change password and validate.
-                // ConnectionService.ChangePassword(changePasswordParams);
-                PasswordChangeResponse response = new PasswordChangeResponse();
-                response.Result = true;
-                return Task.FromResult(response);
-            };
-            await HandleRequest(requestHandler, requestContext, "HandleChangePasswordRequest");
-        }
-        
 
         private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
