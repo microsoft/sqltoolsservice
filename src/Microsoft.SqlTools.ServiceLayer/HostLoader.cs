@@ -40,6 +40,7 @@ using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
+using Microsoft.SqlTools.ServiceLayer.Diagnostics;
 using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer
@@ -178,6 +179,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ObjectManagementService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ObjectManagementService.Instance);
+
+            DiagnosticsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(DiagnosticsService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }

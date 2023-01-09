@@ -14,6 +14,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
 {
     public class DiagnosticsService
     {
+         #region Singleton Instance Implementation
+
+        private static readonly Lazy<DiagnosticsService> LazyInstance = new Lazy<DiagnosticsService>(() => new DiagnosticsService());
+
+        public static DiagnosticsService Instance => LazyInstance.Value;
+
+        #endregion
+
+         /// <summary>
+        /// Default, parameterless constructor.
+        /// </summary>
+        internal DiagnosticsService()
+        {
+        }
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
