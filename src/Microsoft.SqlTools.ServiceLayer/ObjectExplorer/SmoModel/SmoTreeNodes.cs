@@ -216,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsLedger",
-                   ValidFor = ValidForFlag.AllOnPrem
+                   ValidFor = ValidForFlag.Sql2022
                 });
                 return properties;
             }
