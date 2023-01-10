@@ -700,7 +700,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Synonyms,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -716,7 +716,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ExternalResources,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -783,7 +783,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "TemporalType",
                     Type = typeof(Enum),
-                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                    ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                     Values = new List<object>
                     {
                         { TableTemporalType.None },
@@ -821,17 +821,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsFileTable",
-                   ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher
+                   ValidFor = ValidForFlag.Sql2012OrHigher
                 });
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsSystemVersioned",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12
+                   ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12
                 });
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "TemporalType",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12
+                   ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12
                 });
                 properties.Add(new NodeSmoProperty
                 {
@@ -841,17 +841,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsExternal",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand
+                   ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand
                 });
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsEdge",
-                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12
+                   ValidFor = ValidForFlag.Sql2017OrHigher|ValidForFlag.AzureV12
                 });
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "IsNode",
-                   ValidFor = ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12
+                   ValidFor = ValidForFlag.Sql2017OrHigher|ValidForFlag.AzureV12
                 });
                 return properties;
             }
@@ -1010,7 +1010,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseTriggers,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1034,7 +1034,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Sequences,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2012OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1061,7 +1061,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ExternalDataSources,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12|ValidForFlag.SqlOnDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1069,7 +1069,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ExternalFileFormats,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.SqlOnDemand,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.SqlOnDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1131,7 +1131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.BrokerPriorities,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher,
+                ValidFor = ValidForFlag.Sql2008OrHigher,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1172,7 +1172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.FullTextStopLists,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2008OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1201,7 +1201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SearchPropertyLists,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2012OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1273,7 +1273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseScopedCredentials,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1281,7 +1281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseEncryptionKeys,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher,
+                ValidFor = ValidForFlag.Sql2008OrHigher,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1297,7 +1297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.DatabaseAuditSpecifications,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher,
+                ValidFor = ValidForFlag.Sql2008OrHigher,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1305,7 +1305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SecurityPolicies,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1313,7 +1313,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.AlwaysEncryptedKeys,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -1434,7 +1434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                             Property = "TemporalType",
                             Type = typeof(Enum),
                             TypeToReverse = typeof(SqlHistoryTableQuerier),
-                            ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                            ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                             Values = new List<object>
                             {
                                 { TableTemporalType.HistoryTable }
@@ -1470,7 +1470,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 properties.Add(new NodeSmoProperty
                 {
                    Name = "TemporalType",
-                   ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12
+                   ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12
                 });
                 return properties;
             }
@@ -1505,7 +1505,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Triggers,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -1994,7 +1994,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.Triggers,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -2192,7 +2192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedDataTypes,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2005|ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -2200,7 +2200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.UserDefinedTableTypes,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2008OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -2324,7 +2324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.SystemSpatialDataTypes,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2008|ValidForFlag.Sql2012|ValidForFlag.Sql2014|ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2008OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
@@ -2522,7 +2522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IndexKeyType",
                     Type = typeof(Enum),
                     TypeToReverse = typeof(SqlIndexQuerier),
-                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                    ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                     Values = new List<object>
                     {
                         { IndexKeyType.DriPrimaryKey },
@@ -3926,7 +3926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ColumnMasterKeys,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {
@@ -3934,7 +3934,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeType = "Folder",
                 NodeTypeId = NodeTypes.ColumnEncryptionKeys,
                 IsSystemObject = false,
-                ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
+                ValidFor = ValidForFlag.Sql2016OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
         }
