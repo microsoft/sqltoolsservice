@@ -51,7 +51,7 @@ For example, to get the table node, we also need to get three properties IsSyste
         <Value>TableTemporalType.None</Value>
         <Value>TableTemporalType.SystemVersioned</Value>
       </Filter>
-      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2022OrHigher|AzureV12">
         <Value>LedgerTableType.None</Value>
         <Value>LedgerTableType.UpdatableLedgerTable</Value>
         <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
@@ -60,7 +60,7 @@ For example, to get the table node, we also need to get three properties IsSyste
     <Properties>
       <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|AzureV12"/>
       <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|AzureV12"/>
-      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
+      <Property Name="LedgerType" ValidFor="Sql2022OrHigher|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
 </Node>
@@ -72,10 +72,10 @@ For example, to get the table node, we also need to get three properties IsSyste
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Or>
-        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022OrHigher|AzureV12">
           <Value>TableTemporalType.HistoryTable</Value>
         </Filter>
-        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022OrHigher|AzureV12">
           <Value>LedgerTableType.HistoryTable</Value>
         </Filter>
       </Or>

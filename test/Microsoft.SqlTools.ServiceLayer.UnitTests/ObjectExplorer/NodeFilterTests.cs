@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     Property = "TemporalType",
                     Type = typeof(Enum),
                     TypeToReverse = typeof(SqlHistoryTableQuerier),
-                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    ValidFor = ValidForFlag.Sql2016|ValidForFlag.Sql2017|ValidForFlag.Sql2019|ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
                     Values = new List<object>
                     {
                         { TableTemporalType.HistoryTable }
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     Property = "LedgerType",
                     Type = typeof(Enum),
                     TypeToReverse = typeof(SqlHistoryTableQuerier),
-                    ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12,
+                    ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
                     Values = new List<object>
                     {
                         { LedgerTableType.HistoryTable }
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
 
-            string allFiltersValid = orNode.ToPropertyFilterString(typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = orNode.ToPropertyFilterString(typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedAllFilters = "((@TemporalType = 1) or (@LedgerType = 1))";
             Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "ToPropertyFilterString did not construct the URN filter string as expected for NodeOrFilter");
 
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             string expectedSql2016Filters = "((@TemporalType = 1))";
             Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "ToPropertyFilterString did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = orNode.ToPropertyFilterString(typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            string invalidQuerierType = orNode.ToPropertyFilterString(typeof(SqlTableQuerier), ValidForFlag.Sql2022OrHigher);
             Assert.That(invalidQuerierType, Is.Empty, "ToPropertyFilterString should return empty string, because no given filters match the querier type provided.");
         }
 
@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
 
-            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedAllFilters = "[((@TemporalType = 1) or (@LedgerType = 1))]";
             Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
         }
@@ -107,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 LedgerHistoryFilter
             };
 
-            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedAllFilters = "[(@TemporalType = 1) and (@LedgerType = 1)]";
             Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             string expectedSql2016Filters = "[(@TemporalType = 1)]";
             Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022OrHigher);
             Assert.That(invalidQuerierType, Is.Empty, "GetPropertyFilter should return empty string, because no given filters match the querier type provided.");
         }
 
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 SystemObjectFilter
             };
 
-            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedAllFilters = "[((@TemporalType = 1) or (@LedgerType = 1)) and (@IsSystemObject = 1)]";
             Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             string expectedSql2016Filters = "[((@TemporalType = 1)) and (@IsSystemObject = 1)]";
             Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters),  "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedTableQuerierFilters = "[(@IsSystemObject = 1)]";
             Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
         }
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 orNode2
             };
 
-            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022);
+            string allFiltersValid = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedAllFilters = "[((@TemporalType = 1) or (@LedgerType = 1)) and (@IsSystemObject = 1) and ((@IsSystemObject = 1) or (@LedgerType = 1) or (@TemporalType = 1))]";
             Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             string expectedSql2016Filters = "[((@TemporalType = 1)) and (@IsSystemObject = 1) and ((@IsSystemObject = 1) or (@TemporalType = 1))]";
             Assert.That(sql2016ServerVersion, Is.EqualTo(expectedSql2016Filters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that aren't valid for the given server type.");
 
-            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022);
+            string invalidQuerierType = INodeFilter.GetPropertyFilter(nodeList, typeof(SqlTableQuerier), ValidForFlag.Sql2022OrHigher);
             string expectedTableQuerierFilters = "[(@IsSystemObject = 1) and ((@IsSystemObject = 1))]";
             Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
         }

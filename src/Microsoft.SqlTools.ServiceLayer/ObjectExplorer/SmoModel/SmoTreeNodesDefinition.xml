@@ -13,7 +13,7 @@
       <Property Name="Status" ValidFor="All"/>
       <!--IsLedger property check is disabled on Azure databases to avoid making connections to databases individually
        when listing databases in Object Explorer since it's value is not available from 'master' DB for all databases.-->
-      <Property Name="IsLedger" ValidFor="AllOnPrem"/>
+      <Property Name="IsLedger" ValidFor="Sql2022OrHigher"/>
     </Properties>
     <Child Name="SystemDatabases" IsSystemObject="1"/>
   </Node>
@@ -45,7 +45,7 @@
     </Filters>
   </Node>
   <!-- TODO Support XEvents in .Net Core SMO
-  <Node Name="ServerLevelEventSessions" LocLabel="SR.SchemaHierarchy_EventSessions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlEventSession" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
+  <Node Name="ServerLevelEventSessions" LocLabel="SR.SchemaHierarchy_EventSessions" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlEventSession" ValidFor="Sql2008OrHigher"/>
   <Node Name="ServerLevelEventNotifications" LocLabel="SR.SchemaHierarchy_ServerEventNotifications" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlServerEventNotification"/>
   -->
 
@@ -76,25 +76,25 @@
   <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode">
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
-      <Filter Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+      <Filter Property="TemporalType" Type="Enum" ValidFor="Sql2016OrHigher|AzureV12">
         <Value>TableTemporalType.None</Value>
         <Value>TableTemporalType.SystemVersioned</Value>
       </Filter>
-      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+      <Filter Property="LedgerType" Type="Enum" ValidFor="Sql2022OrHigher|AzureV12">
         <Value>LedgerTableType.None</Value>
         <Value>LedgerTableType.AppendOnlyLedgerTable</Value>
         <Value>LedgerTableType.UpdatableLedgerTable</Value>
       </Filter>
-      <Filter Property="IsDroppedLedgerTable" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
+      <Filter Property="IsDroppedLedgerTable" Value="0" Type="bool" ValidFor="Sql2022OrHigher|AzureV12" />
     </Filters>
     <Properties>
-      <Property Name="IsFileTable" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
-      <Property Name="IsSystemVersioned" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-      <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
-      <Property Name="IsExternal" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand"/>
-      <Property Name="IsEdge" ValidFor="Sql2017|Sql2019|Sql2022|AzureV12"/>
-      <Property Name="IsNode" ValidFor="Sql2017|Sql2019|Sql2022|AzureV12"/>
+      <Property Name="IsFileTable" ValidFor="Sql2012OrHigher"/>
+      <Property Name="IsSystemVersioned" ValidFor="Sql2016OrHigher|AzureV12"/>
+      <Property Name="TemporalType" ValidFor="Sql2016OrHigher|AzureV12"/>
+      <Property Name="LedgerType" ValidFor="Sql2022OrHigher|AzureV12"/>
+      <Property Name="IsExternal" ValidFor="Sql2016OrHigher|AzureV12|SqlOnDemand"/>
+      <Property Name="IsEdge" ValidFor="Sql2017OrHigher|AzureV12"/>
+      <Property Name="IsNode" ValidFor="Sql2017OrHigher|AzureV12"/>
     </Properties>
     <Child Name="SystemTables" IsSystemObject="1"/>
     <Child Name="ExternalTables"/>
@@ -104,7 +104,7 @@
   <Node Name="Views" LocLabel="SR.SchemaHierarchy_Views" BaseClass="ModelBased"  Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode">
     <Filters>
       <Filter Property="IsSystemObject" Value="0" Type="bool" />
-      <Filter Property="IsDroppedLedgerView" Value="0" Type="bool" ValidFor="Sql2022|AzureV12"/>
+      <Filter Property="IsDroppedLedgerView" Value="0" Type="bool" ValidFor="Sql2022OrHigher|AzureV12"/>
     </Filters>
     <Properties>
       <Property Name="LedgerViewType" ValidFor="Sql2022|AzureV12"/>
@@ -113,7 +113,7 @@
     <Child Name="DroppedLedgerViews"/>
   </Node>
 
-  <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
     <Child Name="StoredProcedures"/>
     <Child Name="Functions"/>
@@ -126,7 +126,7 @@
     -->
     <Child Name="Sequences"/>
   </Node>
-  <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand">
+  <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016OrHigher|AzureV12|SqlOnDemand">
     <Child Name="ExternalDataSources"/>
     <Child Name="ExternalFileFormats"/>
   </Node>
@@ -173,21 +173,21 @@
       <Filter Property="IsSystemObject" Value="1" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="DroppedLedgerTables" LocLabel="SR.SchemaHierarchy_DroppedLedgerTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
+  <Node Name="DroppedLedgerTables" LocLabel="SR.SchemaHierarchy_DroppedLedgerTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2022OrHigher|AzureV12" SortPriority="Int32.MaxValue">
     <Filters >
       <Filter Property="IsDroppedLedgerTable" Value="1" Type="bool" />
     </Filters>
     <Properties>
-      <Property Name="IsDroppedLedgerTable" ValidFor="Sql2022|AzureV12"/>
+      <Property Name="IsDroppedLedgerTable" ValidFor="Sql2022OrHigher|AzureV12"/>
     </Properties>
   </Node>
   <!--
-  <Node Name="FileTables" LocLabel="SR.SchemaHierarchy_FileTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022">
+  <Node Name="FileTables" LocLabel="SR.SchemaHierarchy_FileTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode" ValidFor="Sql2012OrHigher">
     <Filters >
       <Filter Property="IsFileTable" Value="1" Type="bool" />
     </Filters>
   </Node>
-  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+  <Node Name="ExternalTables" LocLabel="SR.SchemaHierarchy_ExternalTables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="ExternalTableTreeNode" ValidFor="Sql2016OrHigher|AzureV12">
     <Filters >
       <Filter Property="IsExternal" Value="1" Type="bool" />
     </Filters>
@@ -196,17 +196,17 @@
   <Node Name="Table" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable;SqlHistoryTable" TreeNode="HistoryTableTreeNode">
     <Filters>
       <Or>
-        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+        <Filter TypeToReverse="SqlHistoryTable"  Property="TemporalType" Type="Enum" ValidFor="Sql2016OrHigher|AzureV12">
           <Value>TableTemporalType.HistoryTable</Value>
         </Filter>
-        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022|AzureV12">
+        <Filter TypeToReverse="SqlHistoryTable"  Property="LedgerType" Type="Enum" ValidFor="Sql2022OrHigher|AzureV12">
           <Value>LedgerTableType.HistoryTable</Value>
         </Filter>
       </Or>
     </Filters>
     <Properties>
-      <Property Name="LedgerType" ValidFor="Sql2022|AzureV12"/>
-      <Property Name="TemporalType" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+      <Property Name="LedgerType" ValidFor="Sql2022OrHigher|AzureV12"/>
+      <Property Name="TemporalType" ValidFor="Sql2016OrHigher|AzureV12"/>
     </Properties>
     <Child Name="Columns"/>
     <Child Name="Keys"/>
@@ -218,28 +218,28 @@
 
   <!-- TODO This should use display item not ChildQuerierTypes -->
   
-  <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+  <Node Name="HistoryTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ValidFor="Sql2016OrHigher|AzureV12">
     <Child Name="Columns"/>
     <Child Name="Constraints"/>
     <Child Name="Indexes"/>
     <Child Name="Statistics"/>
   </Node>
 
-  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand">
+  <Node Name="ExternalTable" LocLabel="string.Empty" BaseClass="ModelBased" IsAsyncLoad="" Strategy="PopulateDetails" NodeType="Table" ChildQuerierTypes="SqlTable" ValidFor="Sql2016OrHigher|AzureV12|SqlOnDemand">
     <Child Name="Columns"/>
     <Child Name="Statistics"/>
   </Node>
 
   <Node Name="Columns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" DisableSort="">
     <Filters>
-      <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022|AzureV12" />
+      <Filter Property="IsDroppedLedgerColumn" Value="0" Type="bool" ValidFor="Sql2022OrHigher|AzureV12" />
     </Filters>
     <Child Name="DroppedLedgerColumns"/>
   </Node>
 
-  <Node Name="DroppedLedgerColumns" LocLabel="SR.SchemaHierarchy_DroppedLedgerColumns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
+  <Node Name="DroppedLedgerColumns" LocLabel="SR.SchemaHierarchy_DroppedLedgerColumns" BaseClass="ModelBased" Strategy="PopulateParentDetails" NodeType="Column" ChildQuerierTypes="SqlColumn" ValidFor="Sql2022OrHigher|AzureV12" SortPriority="Int32.MaxValue">
     <Filters>
-      <Filter Property="IsDroppedLedgerColumn" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
+      <Filter Property="IsDroppedLedgerColumn" Value="1" Type="bool" ValidFor="Sql2022OrHigher|AzureV12" />
     </Filters>
   </Node>
 
@@ -253,7 +253,7 @@
 	 
   </Node>
   <Node Name="Constraints" LocLabel="SR.SchemaHierarchy_Constraints" BaseClass="ModelBased" NodeType="Constraint" Strategy="ElementsInRelationship" ChildQuerierTypes="SqlDefaultConstraint;SqlCheck"/>
-  <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="Triggers" LocLabel="SR.SchemaHierarchy_Triggers" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Trigger" ChildQuerierTypes="SqlDmlTrigger" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Indexes" LocLabel="SR.SchemaHierarchy_Indexes" BaseClass="ModelBased" Strategy="ElementsInRelationship" NodeType="Index" ChildQuerierTypes="SqlIndex;SqlFullTextIndex" ValidFor="NotSqlDemand">
     <Filters>
       <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="AllOnPrem|AzureV12">
@@ -271,9 +271,9 @@
     </Filters>
   </Node>
 
-  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode" ValidFor="Sql2022|AzureV12" SortPriority="Int32.MaxValue">
+  <Node Name="DroppedLedgerViews" LocLabel="SR.SchemaHierarchy_DroppedLedgerViews" BaseClass="ModelBased" IsMsShippedOwned="true" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlView" TreeNode="ViewTreeNode" ValidFor="Sql2022OrHigher|AzureV12" SortPriority="Int32.MaxValue">
     <Filters>
-      <Filter Property="IsDroppedLedgerView" Value="1" Type="bool" ValidFor="Sql2022|AzureV12" />
+      <Filter Property="IsDroppedLedgerView" Value="1" Type="bool" ValidFor="Sql2022OrHigher|AzureV12" />
     </Filters>
   </Node>
 
@@ -296,7 +296,7 @@
     <Child Name="SystemScalarValuedFunctions" IsSystemObject="1"/>
   </Node>
 
-  <Node Name="DatabaseTriggers" LocLabel="SR.SchemaHierarchy_DatabaseTriggers" BaseClass="ModelBased" NodeType="DatabaseTrigger" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseDdlTrigger" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="DatabaseTriggers" LocLabel="SR.SchemaHierarchy_DatabaseTriggers" BaseClass="ModelBased" NodeType="DatabaseTrigger" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseDdlTrigger" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Assemblies" LocLabel="SR.SchemaHierarchy_Assemblies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Assembly" ChildQuerierTypes="SqlAssembly" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Types" LocLabel="SR.SchemaHierarchy_Types" BaseClass="ModelBased" ValidFor="NotSqlDemand">
     <Child Name="SystemDataTypes" IsSystemObject="1"/>
@@ -309,7 +309,7 @@
   <Node Name="Rules" LocLabel="SR.SchemaHierarchy_Rules" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Rule" ChildQuerierTypes="SqlRule" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Defaults" LocLabel="SR.SchemaHierarchy_Defaults" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Default" ChildQuerierTypes="SqlDefault" ValidFor="AllOnPrem|AzureV12"/>
   -->
-  <Node Name="Sequences" LocLabel="SR.SchemaHierarchy_Sequences" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Sequence" ChildQuerierTypes="SqlSequence" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="Sequences" LocLabel="SR.SchemaHierarchy_Sequences" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Sequence" ChildQuerierTypes="SqlSequence" ValidFor="Sql2012OrHigher|AzureV12"/>
 
   <Node Name="SystemDataTypes" LocLabel="SR.SchemaHierarchy_SystemDataTypes" BaseClass="ModelBased" >
     <Child Name="SystemExactNumerics"/>
@@ -322,8 +322,8 @@
     <Child Name="SystemClrDataTypes"/>
     <Child Name="SystemSpatialDataTypes"/>
   </Node>
-  <Node Name="UserDefinedDataTypes" LocLabel="SR.SchemaHierarchy_UserDefinedDataTypes" BaseClass="ModelBased" NodeType="UserDefinedDataType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedDataType" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-  <Node Name="UserDefinedTableTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTableTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedTableType" TreeNode="UserDefinedTableTypeTreeNode" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="UserDefinedDataTypes" LocLabel="SR.SchemaHierarchy_UserDefinedDataTypes" BaseClass="ModelBased" NodeType="UserDefinedDataType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedDataType" ValidFor="AllOnPrem|AzureV12"/>
+  <Node Name="UserDefinedTableTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTableTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlUserDefinedTableType" TreeNode="UserDefinedTableTypeTreeNode" ValidFor="Sql2008OrHigher|AzureV12"/>
   <Node Name="UserDefinedTypes" LocLabel="SR.SchemaHierarchy_UserDefinedTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="UserDefinedType" ChildQuerierTypes="SqlUserDefinedType" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="XmlSchemaCollections" LocLabel="SR.SchemaHierarchy_XMLSchemaCollections" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="XmlSchemaCollection" ChildQuerierTypes="SqlXmlSchemaCollection" ValidFor="AllOnPrem|AzureV12"/>
 
@@ -335,7 +335,7 @@
   <Node Name="UserDefinedTableTypeColumns" LocLabel="SR.SchemaHierarchy_Columns" BaseClass="ModelBased" NodeType="UserDefinedTableTypeColumn" Strategy="PopulateParentDetails" ChildQuerierTypes="SqlColumn" DisableSort=""/>
   <Node Name="UserDefinedTableTypeKeys" LocLabel="SR.SchemaHierarchy_Keys" BaseClass="ModelBased" NodeType="UserDefinedTableTypeKey" Strategy="PopulateParentDetails" ChildQuerierTypes="SqlIndex">
     <Filters>
-      <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+      <Filter TypeToReverse="SqlIndex" Property="IndexKeyType" Type="Enum" ValidFor="Sql2016OrHigher|AzureV12">
         <Value>IndexKeyType.DriPrimaryKey</Value>
         <Value>IndexKeyType.DriUniqueKey</Value>
       </Filter>
@@ -351,11 +351,11 @@
   <Node Name="SystemBinaryStrings" LocLabel="SR.SchemaHierarchy_SystemBinaryStrings" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemBinaryString" ChildQuerierTypes="SqlBuiltInType"/>
   <Node Name="SystemOtherDataTypes" LocLabel="SR.SchemaHierarchy_SystemOtherDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemOtherDataType" ChildQuerierTypes="SqlBuiltInType"/>
   <Node Name="SystemClrDataTypes" LocLabel="SR.SchemaHierarchy_SystemCLRDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemClrDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="All"/>
-  <Node Name="SystemSpatialDataTypes" LocLabel="SR.SchemaHierarchy_SystemSpatialDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemSpatialDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="SystemSpatialDataTypes" LocLabel="SR.SchemaHierarchy_SystemSpatialDataTypes" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SystemSpatialDataType" ChildQuerierTypes="SqlBuiltInType" ValidFor="Sql2008OrHigher|AzureV12"/>
 
   <!-- Childs of ExternalResources -->
-  <Node Name="ExternalDataSources" LocLabel="SR.SchemaHierarchy_ExternalDataSources" BaseClass="ModelBased" NodeType="ExternalDataSource" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalDataSource" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12|SqlOnDemand"/>
-  <Node Name="ExternalFileFormats" LocLabel="SR.SchemaHierarchy_ExternalFileFormats" BaseClass="ModelBased" NodeType="ExternalFileFormat" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalFileFormat" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|SqlOnDemand"/>
+  <Node Name="ExternalDataSources" LocLabel="SR.SchemaHierarchy_ExternalDataSources" BaseClass="ModelBased" NodeType="ExternalDataSource" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalDataSource" ValidFor="Sql2016OrHigher|AzureV12|SqlOnDemand"/>
+  <Node Name="ExternalFileFormats" LocLabel="SR.SchemaHierarchy_ExternalFileFormats" BaseClass="ModelBased" NodeType="ExternalFileFormat" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlExternalFileFormat" ValidFor="Sql2016OrHigher|SqlOnDemand"/>
   
   <Node Name="StoredProcedures" LocLabel="SR.SchemaHierarchy_StoredProcedures" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlProcedure" TreeNode="StoredProcedureTreeNode">
     <Filters >
@@ -433,15 +433,15 @@
   -->
   
   <Node Name="RemoteServiceBindings" LocLabel="SR.SchemaHierarchy_RemoteServiceBindings" BaseClass="ModelBased" NodeType="RemoteServiceBinding" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlRemoteServiceBinding"/>
-  <Node Name="BrokerPriorities" LocLabel="SR.SchemaHierarchy_BrokerPriorities" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="BrokerPriority" ChildQuerierTypes="SqlBrokerPriority" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
+  <Node Name="BrokerPriorities" LocLabel="SR.SchemaHierarchy_BrokerPriorities" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="BrokerPriority" ChildQuerierTypes="SqlBrokerPriority" ValidFor="Sql2008OrHigher"/>
 
   <Node Name="FileGroups" LocLabel="SR.SchemaHierarchy_FileGroups" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFileGroup" TreeNode="FileGroupTreeNode"/>
   <Node Name="FullTextCatalogs" LocLabel="SR.SchemaHierarchy_FullTextCatalogs" BaseClass="ModelBased" NodeType="FullTextCatalog" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFullTextCatalog"/>
-  <Node Name="FullTextStopLists" LocLabel="SR.SchemaHierarchy_FullTextStopLists" BaseClass="ModelBased" NodeType="FullTextStopList" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFullTextStopList" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="FullTextStopLists" LocLabel="SR.SchemaHierarchy_FullTextStopLists" BaseClass="ModelBased" NodeType="FullTextStopList" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlFullTextStopList" ValidFor="Sql2008OrHigher|AzureV12"/>
   <Node Name="SqlLogFiles" LocLabel="SR.SchemaHierarchy_LogFiles" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SqlLogFile" ChildQuerierTypes="SqlFile"/>
   <Node Name="PartitionFunctions" LocLabel="SR.SchemaHierarchy_PartitionFunctions" BaseClass="ModelBased" NodeType="PartitionFunction" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlPartitionFunction"/>
   <Node Name="PartitionSchemes" LocLabel="SR.SchemaHierarchy_PartitionSchemes" BaseClass="ModelBased" NodeType="PartitionScheme" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlPartitionScheme"/>
-  <Node Name="SearchPropertyLists" LocLabel="SR.SchemaHierarchy_SearchPropertyLists" BaseClass="ModelBased" NodeType="SearchPropertyList" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSearchPropertyList" ValidFor="Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="SearchPropertyLists" LocLabel="SR.SchemaHierarchy_SearchPropertyLists" BaseClass="ModelBased" NodeType="SearchPropertyList" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSearchPropertyList" ValidFor="Sql2012OrHigher|AzureV12"/>
 
   <Node Name="FileGroup" LocLabel="string.Empty" BaseClass="ModelBased" ChildQuerierTypes="">
     <Child Name="FileGroupFiles"/>
@@ -459,24 +459,24 @@
   <Node Name="AsymmetricKeys" LocLabel="SR.SchemaHierarchy_AsymmetricKeys" BaseClass="ModelBased" NodeType="AsymmetricKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlAsymmetricKey" ValidFor="AllOnPrem"/>
   <Node Name="Certificates" LocLabel="SR.SchemaHierarchy_Certificates" BaseClass="ModelBased" NodeType="Certificate" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlCertificate" ValidFor="AllOnPrem"/>
   <Node Name="SymmetricKeys" LocLabel="SR.SchemaHierarchy_SymmetricKeys" BaseClass="ModelBased" NodeType="SymmetricKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSymmetricKey" ValidFor="AllOnPrem"/>
-  <Node Name="DatabaseEncryptionKeys" LocLabel="SR.SchemaHierarchy_DatabaseEncryptionKeys" BaseClass="ModelBased" NodeType="DatabaseEncryptionKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseEncryptionKey" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
+  <Node Name="DatabaseEncryptionKeys" LocLabel="SR.SchemaHierarchy_DatabaseEncryptionKeys" BaseClass="ModelBased" NodeType="DatabaseEncryptionKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseEncryptionKey" ValidFor="Sql2008OrHigher"/>
   <Node Name="MasterKeys" LocLabel="SR.SchemaHierarchy_MasterKeys" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="MasterKey" ChildQuerierTypes="SqlMasterKey" ValidFor="AllOnPrem"/>
   
   <!-- TODO Support signatures
-  <Node Name="Signatures" LocLabel="SR.SchemaHierarchy_Signatures" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSignature" ValidFor="Sql2005|Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
+  <Node Name="Signatures" LocLabel="SR.SchemaHierarchy_Signatures" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSignature" ValidFor="AllOnPrem"/>
   -->
-  <Node Name="DatabaseAuditSpecifications" LocLabel="SR.SchemaHierarchy_DatabaseAuditSpecifications" BaseClass="ModelBased" NodeType="DatabaseAuditSpecification" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseAuditSpecification" ValidFor="Sql2008|Sql2012|Sql2014|Sql2016|Sql2017|Sql2019|Sql2022"/>
-  <Node Name="SecurityPolicies" LocLabel="SR.SchemaHierarchy_SecurityPolicies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SecurityPolicy" ChildQuerierTypes="SqlSecurityPolicy" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-  <Node Name="DatabaseScopedCredentials" LocLabel="SR.SchemaHierarchy_DatabaseScopedCredentials" BaseClass="ModelBased" NodeType="DatabaseScopedCredential" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseCredential" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-  <Node Name="AlwaysEncryptedKeys" LocLabel="SR.SchemaHierarchy_AlwaysEncryptedKeys" BaseClass="ModelBased" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12">
+  <Node Name="DatabaseAuditSpecifications" LocLabel="SR.SchemaHierarchy_DatabaseAuditSpecifications" BaseClass="ModelBased" NodeType="DatabaseAuditSpecification" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseAuditSpecification" ValidFor="Sql2008OrHigher"/>
+  <Node Name="SecurityPolicies" LocLabel="SR.SchemaHierarchy_SecurityPolicies" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="SecurityPolicy" ChildQuerierTypes="SqlSecurityPolicy" ValidFor="Sql2016OrHigher|AzureV12"/>
+  <Node Name="DatabaseScopedCredentials" LocLabel="SR.SchemaHierarchy_DatabaseScopedCredentials" BaseClass="ModelBased" NodeType="DatabaseScopedCredential" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlDatabaseCredential" ValidFor="Sql2016OrHigher|AzureV12"/>
+  <Node Name="AlwaysEncryptedKeys" LocLabel="SR.SchemaHierarchy_AlwaysEncryptedKeys" BaseClass="ModelBased" ValidFor="Sql2016OrHigher|AzureV12">
     <Child Name="ColumnMasterKeys"/>
     <Child Name="ColumnEncryptionKeys"/>
   </Node>
 
   <Node Name="DatabaseRoles" LocLabel="SR.SchemaHierarchy_DatabaseRoles" BaseClass="ModelBased" NodeType="DatabaseRole" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlRole"/>
   <Node Name="ApplicationRoles" LocLabel="SR.SchemaHierarchy_ApplicationRoles" BaseClass="ModelBased" NodeType="ApplicationRole" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlApplicationRole" ValidFor="AllOnPrem|AzureV12"/>
-  <Node Name="ColumnMasterKeys" LocLabel="SR.SchemaHierarchy_ColumnMasterKeys" BaseClass="ModelBased" NodeType="ColumnMasterKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnMasterKey" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
-  <Node Name="ColumnEncryptionKeys" LocLabel="SR.SchemaHierarchy_ColumnEncryptionKeys" BaseClass="ModelBased" NodeType="ColumnEncryptionKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnEncryptionKey" ValidFor="Sql2016|Sql2017|Sql2019|Sql2022|AzureV12"/>
+  <Node Name="ColumnMasterKeys" LocLabel="SR.SchemaHierarchy_ColumnMasterKeys" BaseClass="ModelBased" NodeType="ColumnMasterKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnMasterKey" ValidFor="Sql2016OrHigher|AzureV12"/>
+  <Node Name="ColumnEncryptionKeys" LocLabel="SR.SchemaHierarchy_ColumnEncryptionKeys" BaseClass="ModelBased" NodeType="ColumnEncryptionKey" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlColumnEncryptionKey" ValidFor="Sql2016OrHigher|AzureV12"/>
 
   <Node Name="MessageTypes" LocLabel="SR.SchemaHierarchy_MessageTypes" BaseClass="ModelBased" NodeType="MessageType" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlMessageType">
     <Child Name="SystemMessageTypes" IsSystemObject="1"/>
