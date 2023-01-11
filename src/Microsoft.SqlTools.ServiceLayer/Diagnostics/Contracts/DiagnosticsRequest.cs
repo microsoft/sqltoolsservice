@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts
         /// <summary>
         /// The connection type, for example MSSQL
         /// </summary>
-        public string ConnectionTypeId { get; set; }
+        public string ProviderId { get; set; }
     }
 
     public enum ProviderErrorCode {

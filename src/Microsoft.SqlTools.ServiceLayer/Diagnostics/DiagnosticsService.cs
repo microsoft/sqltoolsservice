@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
             Func<Task<ProviderErrorCode>> requestHandler = () =>
             {
                 // Check if provider is MSSQL
-                bool isMssql = DiagnosticsConstants.MssqlProviderId.Equals(diagnosticsParams.ConnectionTypeId, StringComparison.OrdinalIgnoreCase);
+                bool isMssql = DiagnosticsConstants.MssqlProviderId.Equals(diagnosticsParams.ProviderId, StringComparison.OrdinalIgnoreCase);
                 
                 // Check if error is for MSSQL Password Reset
                 bool isMssqlPWReset = DiagnosticsConstants.MssqlPasswordResetCode.Equals(diagnosticsParams.ErrorCode);
