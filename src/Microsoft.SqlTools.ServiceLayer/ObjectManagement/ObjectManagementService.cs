@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             this.serviceHost = serviceHost;
-            this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest);
+            this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
         }
 
         /// <summary>

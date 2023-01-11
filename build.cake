@@ -1,4 +1,4 @@
-#addin "nuget:?package=Newtonsoft.Json&version=13.0.1"
+#addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
 #addin "mssql.ResX"
 #addin "mssql.XliffParser"
 

@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// Per-tenant token mappings. Ideally would be set independently of this call, but for
         /// now this allows us to get the tokens necessary to find a server and open a firewall rule
         /// </summary>
-        public Dictionary<string,AccountSecurityToken> SecurityTokenMappings { get; set; }
+        public Dictionary<string, AccountSecurityToken> SecurityTokenMappings { get; set; }
 
         /// <summary>
         /// Fully qualified name of the server to create a new firewall rule on
@@ -47,6 +47,11 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
         /// End of the IP address range
         /// </summary>
         public string EndIpAddress { get; set; }
+
+        /// <summary>
+        /// Firewall rule name to set
+        /// </summary>
+        public string FirewallRuleName { get; set; }
 
     }
 
@@ -86,16 +91,15 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
     public class HandleFirewallRuleResponse
     {
         /// <summary>
-        /// Can this be handled?
+        /// Whether or not request can be handled.
         /// </summary>
         public bool Result { get; set; }
         /// <summary>
-        /// If not, why?
+        /// Contains error message, if request could not be handled.
         /// </summary>
         public string ErrorMessage { get; set; }
         /// <summary>
-        /// If it can be handled, is there a default IP address to send back so users
-        /// can tell what their blocked IP is?
+        /// If handled, the default IP address to send back; so users can tell what their blocked IP is.
         /// </summary>
         public string IpAddress { get; set; }
     }

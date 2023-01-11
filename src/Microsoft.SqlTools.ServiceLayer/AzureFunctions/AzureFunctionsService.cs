@@ -32,8 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(AddSqlBindingRequest.Type, this.HandleAddSqlBindingRequest);
-            serviceHost.SetRequestHandler(GetAzureFunctionsRequest.Type, this.HandleGetAzureFunctionsRequest);
+            serviceHost.SetRequestHandler(AddSqlBindingRequest.Type, this.HandleAddSqlBindingRequest, true);
+            serviceHost.SetRequestHandler(GetAzureFunctionsRequest.Type, this.HandleGetAzureFunctionsRequest, true);
         }
 
         /// <summary>

@@ -6505,6 +6505,46 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Custo Real da CPU</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPassword">
+        <source>New password cannot be empty</source>
+        <target state="translated">A nova senha não pode estar em branco</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeEmptyPasswordRetry">
+        <source>Press OK to input a new password that is not empty.</source>
+        <target state="translated">Pressione OK para inserir uma nova senha que não esteja vazia.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangeDNMReqsRetry">
+        <source>Press OK to input a new password that meets operating system policy requirements.</source>
+        <target state="translated">Pressione OK para inserir uma nova senha que atenda aos requisitos da política do sistema operacional.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PasswordChangePWCannotBeUsedRetry">
+        <source>Press OK to input a different password.</source>
+        <target state="translated">Pressione OK para inserir uma senha diferente.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">Início da ID da Transação</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">Fim da ID da Transação</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">Início do Número de Sequência</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">Fim do Número de Sequência</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

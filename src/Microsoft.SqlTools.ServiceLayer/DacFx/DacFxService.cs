@@ -46,18 +46,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ExportRequest.Type, this.HandleExportRequest);
-            serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest);
-            serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest);
-            serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest);
-            serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest);
-            serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest);
-            serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest);
-            serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest);
-            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest);
-            serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest);
-            serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest);
-            serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest);
+            serviceHost.SetRequestHandler(ExportRequest.Type, this.HandleExportRequest, true);
+            serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest, true);
+            serviceHost.SetRequestHandler(ExtractRequest.Type, this.HandleExtractRequest, true);
+            serviceHost.SetRequestHandler(DeployRequest.Type, this.HandleDeployRequest, true);
+            serviceHost.SetRequestHandler(GenerateDeployScriptRequest.Type, this.HandleGenerateDeployScriptRequest, true);
+            serviceHost.SetRequestHandler(GenerateDeployPlanRequest.Type, this.HandleGenerateDeployPlanRequest, true);
+            serviceHost.SetRequestHandler(GetOptionsFromProfileRequest.Type, this.HandleGetOptionsFromProfileRequest, true);
+            serviceHost.SetRequestHandler(ValidateStreamingJobRequest.Type, this.HandleValidateStreamingJobRequest, true);
+            serviceHost.SetRequestHandler(GetDefaultPublishOptionsRequest.Type, this.HandleGetDefaultPublishOptionsRequest, true);
+            serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest, true);
+            serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
+            serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureBlob
 
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
-            serviceHost.SetRequestHandler(CreateSasRequest.Type, HandleCreateSasRequest);
+            serviceHost.SetRequestHandler(CreateSasRequest.Type, HandleCreateSasRequest, true);
         }
 
         internal async Task HandleCreateSasRequest(

@@ -102,6 +102,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     },
                     new ConnectionOption
                     {
+                        Name = "commandTimeout",
+                        DisplayName = "Command timeout",
+                        Description =
+                        "The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error",
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        DefaultValue = "30",
+                        GroupName = "Initialization"
+                    },
+                    new ConnectionOption
+                    {
                         Name = "currentLanguage",
                         DisplayName = "Current language",
                         Description = "The SQL Server language record name",

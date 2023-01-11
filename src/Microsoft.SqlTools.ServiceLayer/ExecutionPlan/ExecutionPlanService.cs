@@ -49,8 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         public void InitializeService(ServiceHost serviceHost)
         {
             ServiceHost = serviceHost;
-            ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan);
-            ServiceHost.SetRequestHandler(ExecutionPlanComparisonRequest.Type, HandleExecutionPlanComparisonRequest);
+            ServiceHost.SetRequestHandler(GetExecutionPlanRequest.Type, HandleGetExecutionPlan, true);
+            ServiceHost.SetRequestHandler(ExecutionPlanComparisonRequest.Type, HandleExecutionPlanComparisonRequest, true);
         }
 
         private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
+using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Moq;
 using NUnit.Framework;
@@ -309,9 +310,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             try
             {
                 FirewallRuleService service = new FirewallRuleService();
+                CreateFirewallRuleParams createFirewallRuleParams = new CreateFirewallRuleParams()
+                {
+                    ServerName = serverName,
+                    StartIpAddress = testContext.StartIpAddress,
+                    EndIpAddress = testContext.EndIpAddress
+                };
                 service.AuthenticationManager = testContext.ApplicationAuthenticationManager;
                 service.ResourceManager = testContext.AzureResourceManager;
-                FirewallRuleResponse response = await service.CreateFirewallRuleAsync(serverName, testContext.StartIpAddress, testContext.EndIpAddress);
+                FirewallRuleResponse response = await service.CreateFirewallRuleAsync(createFirewallRuleParams);
                 if (verifyFirewallRuleCreated)
                 {
                     testContext.AzureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
