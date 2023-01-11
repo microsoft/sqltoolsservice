@@ -65,10 +65,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// </summary>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest);
-            serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest);
-            serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest);
-            serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest);
+            serviceHost.SetRequestHandler(CreateDatabaseRequest.Type, HandleCreateDatabaseRequest, true);
+            serviceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
+            serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest, true);
+            serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest, true);
         }
 
         /// <summary>

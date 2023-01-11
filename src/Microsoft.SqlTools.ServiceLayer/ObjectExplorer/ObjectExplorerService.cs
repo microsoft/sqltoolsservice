@@ -128,6 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             this.ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
+            // Not enabling parallel processing for OEService as it might cause OE to hang.
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);

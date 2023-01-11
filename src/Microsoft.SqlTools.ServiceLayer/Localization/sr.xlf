@@ -6515,24 +6515,34 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Press OK to input a new password that is not empty.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangeDNMReqs">
-        <source>password does not meet operating system policy requirements</source>
-        <target state="new">password does not meet operating system policy requirements</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangeDNMReqsRetry">
         <source>Press OK to input a new password that meets operating system policy requirements.</source>
         <target state="new">Press OK to input a new password that meets operating system policy requirements.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="PasswordChangePWCannotBeUsed">
-        <source>password cannot be used at this time</source>
-        <target state="new">password cannot be used at this time</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="PasswordChangePWCannotBeUsedRetry">
         <source>Press OK to input a different password.</source>
         <target state="new">Press OK to input a different password.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="new">Transaction Id Start</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="new">Transaction Id End</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="new">Sequence Number Start</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="new">Sequence Number End</target>
         <note></note>
       </trans-unit>
     </body>

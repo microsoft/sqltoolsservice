@@ -88,6 +88,10 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             this.Mapping.Add(SR.GeneratedAlwaysColumnType_None, ColumnGeneratedAlwaysAsType.None);
             this.Mapping.Add(SR.GeneratedAlwaysColumnType_RowStart, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowStart);
             this.Mapping.Add(SR.GeneratedAlwaysColumnType_RowEnd, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsRowEnd);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_TransactionIdStart, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsTransactionIdStart);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_TransactionIdEnd, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsTransactionIdEnd);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_SequenceNumberStart, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsSequenceNumberStart);
+            this.Mapping.Add(SR.GeneratedAlwaysColumnType_SequenceNumberEnd, ColumnGeneratedAlwaysAsType.GeneratedAlwaysAsSequenceNumberEnd);
         }
     }
 }

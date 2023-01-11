@@ -3970,4 +3970,28 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="ActualCpu" xml:space="preserve">
     <value>Tatsächliche CPU-Kosten</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>Das neue Kennwort darf nicht leer sein.</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Drücken Sie OK, um ein neues Kennwort einzugeben, das nicht leer ist.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Drücken Sie OK, um ein neues Kennwort einzugeben, das die Anforderungen der Betriebssystemrichtlinie erfüllt.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Drücken Sie OK, um ein anderes Kennwort einzugeben.</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Transaktions-ID Start</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Transaktions-ID Ende</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Sequenznummern Start</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Sequenznummern Ende</value>
+  </data>
 </root>

@@ -234,6 +234,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
+        /// Gets or sets the length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error.
+        /// </summary>
+        public int? CommandTimeout
+        {
+            get
+            {
+                return GetOptionValue<int?>("commandTimeout");
+            }
+
+            set
+            {
+                SetOptionValue("commandTimeout", value);
+            }
+        }
+
+        /// <summary>
         /// The number of reconnections attempted after identifying that there was an idle connection failure.
         /// </summary>
         public int? ConnectRetryCount
@@ -608,6 +624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             && ConnectRetryCount == other.ConnectRetryCount
             && ConnectRetryInterval == other.ConnectRetryInterval
             && ConnectTimeout == other.ConnectTimeout
+            && CommandTimeout == other.CommandTimeout
             && string.Equals(CurrentLanguage, other.CurrentLanguage, System.StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(DatabaseDisplayName, other.DatabaseDisplayName, System.StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(DatabaseName, other.DatabaseName, System.StringComparison.InvariantCultureIgnoreCase)

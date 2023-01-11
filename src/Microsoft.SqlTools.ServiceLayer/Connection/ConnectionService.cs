@@ -22,7 +22,6 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -37,6 +36,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
         public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
+
+        // SQL Error Code Constants
+        // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
+        private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
+        private const int PWCannotBeUsed = 18463; // Password cannot be used at this time.
+
 
         /// <summary>
         /// Singleton service instance
@@ -1059,14 +1064,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.ServiceHost = serviceHost;
 
             // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest);
-            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest);
-            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest);
-            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest);
-            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest);
-            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest);
-            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest);
-            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest);
+            serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
+            serviceHost.SetRequestHandler(CancelConnectRequest.Type, HandleCancelConnectRequest, true);
+            serviceHost.SetRequestHandler(ChangePasswordRequest.Type, HandleChangePasswordRequest, true);
+            serviceHost.SetRequestHandler(DisconnectRequest.Type, HandleDisconnectRequest, true);
+            serviceHost.SetRequestHandler(ListDatabasesRequest.Type, HandleListDatabasesRequest, true);
+            serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
+            serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, true);
+            serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
         }
 
         /// <summary>
@@ -1159,18 +1164,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch (Exception ex)
             {
                 newResponse.Result = false;
-                newResponse.ErrorMessage = ex.InnerException != null ? (ex.Message + Environment.NewLine + Environment.NewLine + ex.InnerException.Message) : ex.Message;
-                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged database context to '\w+'\.", "");
-                newResponse.ErrorMessage = Regex.Replace(newResponse.ErrorMessage, @"\r?\nChanged language setting to \w+\.", "");
-                if (newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
+                newResponse.ErrorMessage = ex.Message;
+                int errorCode = 0;
+
+                if ((ex.InnerException as SqlException) != null && (ex.InnerException as SqlException)?.Errors.Count != 0)
+                {
+                    SqlError endError = (ex.InnerException as SqlException).Errors[0];
+                    newResponse.ErrorMessage = endError.Message;
+                    errorCode = endError.Number;
+                }
+
+                if (errorCode == 0 && newResponse.ErrorMessage.Equals(SR.PasswordChangeEmptyPassword))
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeEmptyPasswordRetry;
                 }
-                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangeDNMReqs))
+                else if (errorCode == DoesNotMeetPWReqs)
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangeDNMReqsRetry;
                 }
-                else if (newResponse.ErrorMessage.Contains(SR.PasswordChangePWCannotBeUsed))
+                else if (errorCode == PWCannotBeUsed)
                 {
                     newResponse.ErrorMessage += Environment.NewLine + Environment.NewLine + SR.PasswordChangePWCannotBeUsedRetry;
                 }
@@ -1391,6 +1403,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
             }
+            if (connectionDetails.CommandTimeout.HasValue)
+            {
+                connectionBuilder.CommandTimeout = connectionDetails.CommandTimeout.Value;
+            }
             if (connectionDetails.ConnectRetryCount.HasValue)
             {
                 connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
@@ -1542,6 +1558,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ConnectRetryCount = builder.ConnectRetryCount,
                 ConnectRetryInterval = builder.ConnectRetryInterval,
                 ConnectTimeout = builder.ConnectTimeout,
+                CommandTimeout = builder.CommandTimeout,
                 CurrentLanguage = builder.CurrentLanguage,
                 DatabaseName = builder.InitialCatalog,
                 ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
@@ -1719,11 +1736,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 // capture original values
                 int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
+                int? originalCommandTimeout = connInfo.ConnectionDetails.CommandTimeout;
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
-                // increase the connection timeout to at least 30 seconds and and build connection string
+                // increase the connection and command timeout to at least 30 seconds and and build connection string
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
+                connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, originalCommandTimeout ?? 0);
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
@@ -1735,6 +1754,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // restore original values
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
+                connInfo.ConnectionDetails.CommandTimeout = originalCommandTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 

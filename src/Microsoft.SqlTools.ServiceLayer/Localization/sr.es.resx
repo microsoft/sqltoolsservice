@@ -3970,4 +3970,28 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="ActualCpu" xml:space="preserve">
     <value>Costo real de CPU</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>La nueva contraseña no puede estar vacía</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Presione Aceptar para escribir una nueva contraseña que no esté vacía.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Presione Aceptar para escribir una nueva contraseña que cumpla los requisitos de la directiva del sistema operativo.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Presione Aceptar para escribir una contraseña diferente.</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>Inicio del id. de transacción</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>Fin del id. de transacción</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Inicio del número de secuencia</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Fin del número de secuencia</value>
+  </data>
 </root>

@@ -3970,4 +3970,28 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ActualCpu" xml:space="preserve">
     <value>Costo CPU effettivo</value>
   </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>La nuova password non può essere vuota.</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>Premere OK per immettere una nuova password non vuota.</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>Premere OK per immettere una nuova password che soddisfi i requisiti dei criteri del sistema operativo.</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>Premiere OK per immettere una password diversa.</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>ID transazione Inizio</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>ID transazione Fine</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>Numero sequenza Inizio</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>Numero sequenza Fine</value>
+  </data>
 </root>

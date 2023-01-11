@@ -62,13 +62,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ImportModelRequest.Type, this.HandleModelImportRequest);
-            serviceHost.SetRequestHandler(ConfigureModelTableRequest.Type, this.HandleConfigureModelTableRequest);
-            serviceHost.SetRequestHandler(DeleteModelRequest.Type, this.HandleDeleteModelRequest);
-            serviceHost.SetRequestHandler(DownloadModelRequest.Type, this.HandleDownloadModelRequest);
-            serviceHost.SetRequestHandler(GetModelsRequest.Type, this.HandleGetModelsRequest);
-            serviceHost.SetRequestHandler(UpdateModelRequest.Type, this.HandleUpdateModelRequest);
-            serviceHost.SetRequestHandler(VerifyModelTableRequest.Type, this.HandleVerifyModelTableRequest);
+            serviceHost.SetRequestHandler(ImportModelRequest.Type, this.HandleModelImportRequest, true);
+            serviceHost.SetRequestHandler(ConfigureModelTableRequest.Type, this.HandleConfigureModelTableRequest, true);
+            serviceHost.SetRequestHandler(DeleteModelRequest.Type, this.HandleDeleteModelRequest, true);
+            serviceHost.SetRequestHandler(DownloadModelRequest.Type, this.HandleDownloadModelRequest, true);
+            serviceHost.SetRequestHandler(GetModelsRequest.Type, this.HandleGetModelsRequest, true);
+            serviceHost.SetRequestHandler(UpdateModelRequest.Type, this.HandleUpdateModelRequest, true);
+            serviceHost.SetRequestHandler(VerifyModelTableRequest.Type, this.HandleVerifyModelTableRequest, true);
         }
 
         /// <summary>

@@ -30,6 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 HostNameInCertificate = details.HostNameInCertificate,
                 PersistSecurityInfo = details.PersistSecurityInfo,
                 ConnectTimeout = details.ConnectTimeout,
+                CommandTimeout = details.CommandTimeout,
                 ConnectRetryCount = details.ConnectRetryCount,
                 ConnectRetryInterval = details.ConnectRetryInterval,
                 ApplicationName = details.ApplicationName,
