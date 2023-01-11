@@ -91,9 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public bool Success { get; set; }
 
         /// <summary>
-        /// Description of the error message encounter when the migratio was not successful
+        /// Description of the success status or the error message encountered when the migration was not successful
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
     }
 
     /// <summary>

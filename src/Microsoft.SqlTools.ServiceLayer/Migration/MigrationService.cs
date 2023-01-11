@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
             this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
             this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
-            this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleCertificateMigrationRequest);
+            this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
         }
 
         /// <summary>
@@ -1056,7 +1056,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <param name="parameters">Parameters for the operation, as register during the type definition</param>
         /// <param name="requestContext">Context provided by the framework</param>
         /// <returns></returns>
-        internal async Task HandleCertificateMigrationRequest(
+        internal async Task HandleTdeCertificateMigrationRequest(
           CertificateMigrationParams parameters,
           RequestContext<CertificateMigrationResult> requestContext)
         {
@@ -1085,7 +1085,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 {
                     Name = dbName,
                     Success = migrationResult.Success,
-                    Error = migrationResult.ErrorMessage
+                    Message = migrationResult.Message
                 };
                 await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
 
@@ -1101,7 +1101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         /// <param name="tdeMigrationClient">Instance of the migration client</param>
         /// <param name="dbName">Name of the database to migrate</param>
         /// <returns></returns>
-        private async Task<CertificateMigrationEntryResult> MigrateCertificate(TdeMigration tdeMigrationClient,string dbName)
+        private async Task<CertificateMigrationEntryResult> MigrateCertificate(TdeMigration tdeMigrationClient, string dbName)
         {
             try
             {
@@ -1109,15 +1109,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                 if (result is TdeExceptionResult tdeExceptionResult)
                 {
-                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, ErrorMessage = tdeExceptionResult.Exception.Message };
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message };
                 }
-                else {
-                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, ErrorMessage = result.UserFriendlyMessage };
+                else 
+                {
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage };
                 }
             }
             catch (Exception ex)
             {
-                return new CertificateMigrationEntryResult { DbName = dbName, Success = false, ErrorMessage = ex.Message };
+                return new CertificateMigrationEntryResult { DbName = dbName, Success = false, Message = ex.Message };
             }
         }
 

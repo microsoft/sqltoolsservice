@@ -18,9 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts
         public string Name { get; set; }
 
         /// <summary>
-        /// Error
+        /// Message related to the success status. true should describe a positive outcome. false should have an error.
         /// </summary>
-        public string Error { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
         /// Result of migration
