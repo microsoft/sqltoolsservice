@@ -46,6 +46,9 @@ using Microsoft.SqlServer.Migration.Logins.Contracts;
 using Microsoft.SqlServer.Migration.Assessment.Common.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Utils;
 using Microsoft.SqlTools.ServiceLayer.Migration.Utils;
+using Microsoft.SqlServer.Migration.Tde;
+using Microsoft.SqlServer.Migration.Tde.Common;
+using Microsoft.SqlTools.ServiceLayer.Migration.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration
 {
@@ -131,6 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
             this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
             this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
+            this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
         }
 
         /// <summary>
@@ -316,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                     ElasticSqlDbRecommendationDurationInMs = elasticResults.sqlDbDurationInMs,
                     ElasticSqlMiRecommendationResults = elasticResults.sqlMiResults,
                     ElasticSqlMiRecommendationDurationInMs = elasticResults.sqlMiDurationInMs,
-                    ElasticSqlVmRecommendationResults = elasticResults.sqlVmResults,                
+                    ElasticSqlVmRecommendationResults = elasticResults.sqlVmResults,
                     ElasticSqlVmRecommendationDurationInMs = elasticResults.sqlVmDurationInMs,
                     InstanceRequirements = req,
                     SkuRecommendationReportPaths = new List<string> { baselineResults.sqlDbReportPath, baselineResults.sqlMiReportPath, baselineResults.sqlVmReportPath },
@@ -336,23 +340,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         }
 
         internal async Task HandleStartLoginMigration(
-            StartLoginMigrationParams parameters,   
+            StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
         {
             try
             {
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName);
-                
+
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
 
-                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
-                exceptionMap.AddExceptions( await loginMigration.MigrateLogins(CancellationToken.None) );
-                exceptionMap.AddExceptions( loginMigration.MigrateServerRoles(CancellationToken.None) );
-                exceptionMap.AddExceptions( loginMigration.EstablishUserMapping(CancellationToken.None) );
-                exceptionMap.AddExceptions( await loginMigration.EstablishServerRoleMapping(CancellationToken.None) );
-                exceptionMap.AddExceptions( loginMigration.SetLoginPermissions(CancellationToken.None) );
-                exceptionMap.AddExceptions( loginMigration.SetServerRolePermissions(CancellationToken.None) );
+                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                exceptionMap.AddExceptions(await loginMigration.MigrateLogins(CancellationToken.None));
+                exceptionMap.AddExceptions(loginMigration.MigrateServerRoles(CancellationToken.None));
+                exceptionMap.AddExceptions(loginMigration.EstablishUserMapping(CancellationToken.None));
+                exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
+                exceptionMap.AddExceptions(loginMigration.SetLoginPermissions(CancellationToken.None));
+                exceptionMap.AddExceptions(loginMigration.SetServerRolePermissions(CancellationToken.None));
 
                 LoginMigrationResult results = new LoginMigrationResult()
                 {
@@ -370,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
         internal async Task HandleValidateLoginMigration(
             StartLoginMigrationParams parameters,
             RequestContext<LoginMigrationResult> requestContext)
-        { 
+        {
             try
             {
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
@@ -379,7 +383,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
-                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
+                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
                 stopWatch.Stop();
                 TimeSpan elapsedTime = stopWatch.Elapsed;
 
@@ -411,8 +415,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
-                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
-                exceptionMap.AddExceptions( await loginMigration.MigrateLogins(CancellationToken.None) );
+                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                exceptionMap.AddExceptions(await loginMigration.MigrateLogins(CancellationToken.None));
                 stopWatch.Stop();
                 TimeSpan elapsedTime = stopWatch.Elapsed;
 
@@ -441,11 +445,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 null, parameters.LoginList, parameters.AADDomainName);
 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
-                
+
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
-                exceptionMap.AddExceptions( await loginMigration.StartValidations(CancellationToken.None) );
-                exceptionMap.AddExceptions( loginMigration.EstablishUserMapping(CancellationToken.None) );
+                exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
+                exceptionMap.AddExceptions(loginMigration.EstablishUserMapping(CancellationToken.None));
                 stopWatch.Stop();
                 TimeSpan elapsedTime = stopWatch.Elapsed;
 
@@ -501,7 +505,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                         ExceptionMap = exceptionMap,
                         CompletedStep = LoginMigrationStep.MigrateServerRoles,
                         ElapsedTime = MigrationServiceHelper.FormatTimeSpan(elapsedTime)
-                });
+                    });
 
                 stopWatch.Restart();
                 exceptionMap.AddExceptions(await loginMigration.EstablishServerRoleMapping(CancellationToken.None));
@@ -560,120 +564,123 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
         }
 
-        internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
-                RecommendationResultSet resultSet = new RecommendationResultSet();
+        internal RecommendationResultSet GenerateBaselineRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
+        {
+            RecommendationResultSet resultSet = new RecommendationResultSet();
 
-                SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
-                AzurePreferences prefs = new AzurePreferences() {
-                    EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
-                    ScalingFactor = parameters.ScalingFactor / 100.0,
-                    TargetEnvironment = TargetEnvironmentType.Production
-                };
-    
-                // generate SQL DB recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+            SkuRecommendationServiceProvider provider = new SkuRecommendationServiceProvider(new AzureSqlSkuBillingServiceProvider());
+            AzurePreferences prefs = new AzurePreferences()
+            {
+                EligibleSkuCategories = null,       // eligible SKU list will be adjusted with each recommendation type
+                ScalingFactor = parameters.ScalingFactor / 100.0,
+                TargetEnvironment = TargetEnvironmentType.Production
+            };
+
+            // generate SQL DB recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlDatabase"))
+            {
+                Stopwatch sqlDbStopwatch = new Stopwatch();
+                sqlDbStopwatch.Start();
+
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
+                resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
+
+                sqlDbStopwatch.Stop();
+                resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
+                    AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
+                var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
+                resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
+            }
+
+            // generate SQL MI recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
+            {
+                Stopwatch sqlMiStopwatch = new Stopwatch();
+                sqlMiStopwatch.Start();
+
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
+                resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
+
+                // if no result was generated, create a result with a null SKU
+                if (!resultSet.sqlMiResults.Any())
                 {
-                    Stopwatch sqlDbStopwatch = new Stopwatch();
-                    sqlDbStopwatch.Start();
-
-                    prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
-                    resultSet.sqlDbResults = provider.GetSkuRecommendation(prefs, req);
-
-                    sqlDbStopwatch.Stop();
-                    resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
-
-                    SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } }, 
-                        AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
-                    var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                    var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
-                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlDbReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlDbRecommendationReportFileName);
-                    resultSet.sqlDbReportPath = sqlDbRecommendationReportFullPath + ".html";
-                }
-
-                // generate SQL MI recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlManagedInstance"))
-                {
-                    Stopwatch sqlMiStopwatch = new Stopwatch();
-                    sqlMiStopwatch.Start();
-
-                    prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
-                    resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
-
-                    // if no result was generated, create a result with a null SKU
-                    if (!resultSet.sqlMiResults.Any())
+                    resultSet.sqlMiResults.Add(new SkuRecommendationResult()
                     {
-                        resultSet.sqlMiResults.Add(new SkuRecommendationResult()
-                        {
-                            SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = null,
-                            TargetSku = null,
-                            MonthlyCost = null,
-                            Ranking = -1,
-                            PositiveJustifications = null,
-                            NegativeJustifications = null,
-                        });
-                    }
-
-                    sqlMiStopwatch.Stop();
-                    resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
-
-                    SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
-                        AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
-                    var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                    var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
-                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
-                    resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
+                        SqlInstanceName = parameters.TargetSqlInstance,
+                        DatabaseName = null,
+                        TargetSku = null,
+                        MonthlyCost = null,
+                        Ranking = -1,
+                        PositiveJustifications = null,
+                        NegativeJustifications = null,
+                    });
                 }
 
-                // generate SQL VM recommendations, if applicable
-                if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+                sqlMiStopwatch.Stop();
+                resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlMiReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlMiResults } },
+                    AzureSqlTargetPlatform.AzureSqlManagedInstance.ToString());
+                var sqlMiRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlManagedInstance-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlMiRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlMiRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlMiReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlMiRecommendationReportFileName);
+                resultSet.sqlMiReportPath = sqlMiRecommendationReportFullPath + ".html";
+            }
+
+            // generate SQL VM recommendations, if applicable
+            if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
+            {
+                Stopwatch sqlVmStopwatch = new Stopwatch();
+                sqlVmStopwatch.Start();
+
+                prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
+                resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
+
+                // if no result was generated, create a result with a null SKU
+                if (!resultSet.sqlVmResults.Any())
                 {
-                    Stopwatch sqlVmStopwatch = new Stopwatch();
-                    sqlVmStopwatch.Start();
-
-                    prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
-                    resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
-
-                    // if no result was generated, create a result with a null SKU
-                    if (!resultSet.sqlVmResults.Any())
+                    resultSet.sqlVmResults.Add(new SkuRecommendationResult()
                     {
-                        resultSet.sqlVmResults.Add(new SkuRecommendationResult()
-                        {
-                            SqlInstanceName = parameters.TargetSqlInstance,
-                            DatabaseName = null,
-                            TargetSku = null,
-                            MonthlyCost = null,
-                            Ranking = -1,
-                            PositiveJustifications = null,
-                            NegativeJustifications = null,
-                        });
-                    }
-
-                    sqlVmStopwatch.Stop();
-                    resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
-
-                    SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
-                        new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
-                        AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
-                    var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
-                    var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
-                    ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
-                    resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
+                        SqlInstanceName = parameters.TargetSqlInstance,
+                        DatabaseName = null,
+                        TargetSku = null,
+                        MonthlyCost = null,
+                        Ranking = -1,
+                        PositiveJustifications = null,
+                        NegativeJustifications = null,
+                    });
                 }
 
-                return resultSet;
+                sqlVmStopwatch.Stop();
+                resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
+
+                SkuRecommendationReport sqlVmReport = new SkuRecommendationReport(
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlVmResults } },
+                    AzureSqlTargetPlatform.AzureSqlVirtualMachine.ToString());
+                var sqlVmRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlVirtualMachine-Baseline-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
+                var sqlVmRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlVmRecommendationReportFileName);
+                ExportRecommendationResultsAction.ExportRecommendationResults(sqlVmReport, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, false, sqlVmRecommendationReportFileName);
+                resultSet.sqlVmReportPath = sqlVmRecommendationReportFullPath + ".html";
+            }
+
+            return resultSet;
         }
 
-        internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters) {
+        internal RecommendationResultSet GenerateElasticRecommendations(SqlInstanceRequirements req, GetSkuRecommendationsParams parameters)
+        {
             RecommendationResultSet resultSet = new RecommendationResultSet();
 
             CsvAggregatorForElasticStrategy elasticaggregator = new CsvAggregatorForElasticStrategy(
                 instanceId: parameters.TargetSqlInstance,
-                directory: parameters.DataFolder, 
-                queryInterval: parameters.PerfQueryIntervalInSec, 
-                logger: null, 
+                directory: parameters.DataFolder,
+                queryInterval: parameters.PerfQueryIntervalInSec,
+                logger: null,
                 dbsToInclude: new HashSet<string>(parameters.DatabaseAllowList));
 
             // generate SQL DB recommendations, if applicable
@@ -698,7 +705,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 resultSet.sqlDbDurationInMs = sqlDbStopwatch.ElapsedMilliseconds;
 
                 SkuRecommendationReport sqlDbReport = new SkuRecommendationReport(
-                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } }, 
+                    new Dictionary<SqlInstanceRequirements, List<SkuRecommendationResult>> { { req, resultSet.sqlDbResults } },
                     AzureSqlTargetPlatform.AzureSqlDatabase.ToString());
                 var sqlDbRecommendationReportFileName = String.Format("SkuRecommendationReport-AzureSqlDatabase-Elastic-{0}", DateTime.UtcNow.ToString("yyyyMMddHH-mmss", CultureInfo.InvariantCulture));
                 var sqlDbRecommendationReportFullPath = Path.Combine(SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath, sqlDbRecommendationReportFileName);
@@ -989,7 +996,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
 
                     if (includePreviewSkus)
-                    {                       
+                    {
                         // Premium Memory Optimized BC/GP
                         eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                         AzureSqlTargetPlatform.AzureSqlManagedInstance,
@@ -1041,6 +1048,78 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             }
 
             return eligibleSkuCategories;
+        }
+
+        /// <summary>
+        /// Request handler for the certifica migration operation
+        /// </summary>
+        /// <param name="parameters">Parameters for the operation, as register during the type definition</param>
+        /// <param name="requestContext">Context provided by the framework</param>
+        /// <returns></returns>
+        internal async Task HandleTdeCertificateMigrationRequest(
+          CertificateMigrationParams parameters,
+          RequestContext<CertificateMigrationResult> requestContext)
+        {
+            var result = new CertificateMigrationResult();
+
+            var credentials = new StaticTokenCredential(parameters.AccessToken); //New token provided, will change to shared ADS cache later.
+
+            // Reuse the tde migration client
+            var tdeMigrationClient = new TdeMigration(
+                   parameters.SourceSqlConnectionString,
+                   parameters.TargetSubscriptionId,
+                   parameters.TargetResourceGroupName,
+                   parameters.TargetManagedInstanceName,
+                   parameters.NetworkSharePath,
+                   parameters.NetworkShareDomain,
+                   parameters.NetworkShareUserName,
+                   parameters.NetworkSharePassword,
+                   credentials
+                   );
+
+            foreach (var dbName in parameters.EncryptedDatabases)
+            {
+                var migrationResult = await MigrateCertificate(tdeMigrationClient, dbName);
+                
+                var eventData = new CertificateMigrationProgressParams
+                {
+                    Name = dbName,
+                    Success = migrationResult.Success,
+                    Message = migrationResult.Message
+                };
+                await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
+
+                result.MigrationStatuses.Add(migrationResult);
+            }
+
+            await requestContext.SendResult(result);
+        }
+
+        /// <summary>
+        /// Individual certificate migration operation
+        /// </summary>
+        /// <param name="tdeMigrationClient">Instance of the migration client</param>
+        /// <param name="dbName">Name of the database to migrate</param>
+        /// <returns></returns>
+        private async Task<CertificateMigrationEntryResult> MigrateCertificate(TdeMigration tdeMigrationClient, string dbName)
+        {
+            try
+            {
+                var result = await tdeMigrationClient.MigrateTdeCertificate(dbName, CancellationToken.None);
+
+                if (result is TdeExceptionResult tdeExceptionResult)
+                {
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message };
+                }
+                else 
+                {
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new CertificateMigrationEntryResult { DbName = dbName, Success = false, Message = ex.Message };
+            }
         }
 
         /// <summary>
