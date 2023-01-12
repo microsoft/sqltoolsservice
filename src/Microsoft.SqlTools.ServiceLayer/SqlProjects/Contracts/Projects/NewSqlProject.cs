@@ -8,11 +8,22 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Parameters for creating a new SQL Project
+    /// </summary>
     public class NewSqlProjectParams : SqlProjectParams
     {
+        /// <summary>
+        /// Type of SQL Project: SDK-style or Legacy
+        /// </summary>
         public ProjectType SqlProjectType { get; set; }
 
-        public string? DspVersion { get; set; }
+        /// <summary>
+        /// The database schema provider for the project, in the format
+        /// "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider".
+        /// Case sensitive.
+        /// </summary>
+        public string? DatabaseSchemaProvider { get; set; }
     }
 
     public class NewSqlProjectRequest

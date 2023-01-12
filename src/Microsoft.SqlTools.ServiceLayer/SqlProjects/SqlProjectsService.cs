@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(async () =>
             {
-                await SqlProject.CreateProjectAsync(requestParams.ProjectUri, requestParams.SqlProjectType, requestParams.DspVersion);
+                await SqlProject.CreateProjectAsync(requestParams.ProjectUri, requestParams.SqlProjectType, requestParams.DatabaseSchemaProvider);
                 GetProject(requestParams.ProjectUri); // load into the cache
 
             }, requestContext);
