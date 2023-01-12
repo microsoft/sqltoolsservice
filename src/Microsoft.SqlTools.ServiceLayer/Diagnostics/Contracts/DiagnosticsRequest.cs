@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts
     {
         public static readonly
             RequestType<DiagnosticsParams, ProviderErrorCode> Type =
-            RequestType<DiagnosticsParams, ProviderErrorCode>.Create("diagnostics/codeCheck");
+            RequestType<DiagnosticsParams, ProviderErrorCode>.Create("diagnostics/errorHandler");
     }
 
     public class DiagnosticsParams
