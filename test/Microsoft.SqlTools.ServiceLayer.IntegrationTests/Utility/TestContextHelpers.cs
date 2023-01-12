@@ -11,8 +11,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 {
     internal static class TestContextHelpers
     {
-        public static string GetTestWorkingFolder() => Path.Join(TestContext.CurrentContext.WorkDirectory, "TestRuns", TestContext.CurrentContext.Test.Name + DateTime.Now.ToString("yyyyMMdd-HHmmssffff"));
+        private static string TestName => TestContext.CurrentContext.Test.Name;
 
-        public static string GetTestProjectPath(string? projectName = null) => Path.Join(GetTestWorkingFolder(), $"{projectName ?? TestContext.CurrentContext.Test.Name}.sqlproj");
+        public static string GetTestWorkingFolder() => Path.Join(TestContext.CurrentContext.WorkDirectory, "TestRuns", TestName + DateTime.Now.ToString("yyyyMMdd-HHmmssffff"));
+
+        public static string GetTestProjectPath(string? projectName = null) => Path.Join(GetTestWorkingFolder(), $"{projectName ?? TestName}.sqlproj");
     }
 }

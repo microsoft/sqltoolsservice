@@ -13,7 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 {
     public static class RequestContextMocks
     {
-
         public static Mock<RequestContext<TResponse>> Create<TResponse>(Action<TResponse> resultCallback)
         {
             var requestContext = new Mock<RequestContext<TResponse>>();
@@ -59,6 +58,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             }
 
             return mock;
+        }
+    }
+
+    public class MockRequest<T>
+    {
+        private T? result;
+        public T Result => result ?? throw new InvalidOperationException("No result has been sent for the request");
+
+        public Mock<RequestContext<T>> Mock;
+        public RequestContext<T> Object => Mock.Object;
+
+        public MockRequest()
+        {
+            Mock = RequestContextMocks.Create<T>(actual => result = actual);
         }
     }
 }

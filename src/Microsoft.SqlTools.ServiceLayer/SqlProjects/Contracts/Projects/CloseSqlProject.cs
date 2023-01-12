@@ -9,6 +9,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     public class CloseSqlProjectRequest
     {
-        public static readonly RequestType<SqlProjectParams, SqlProjectResult> Type = RequestType<SqlProjectParams, SqlProjectResult>.Create("sqlprojects/close");
+        public static readonly RequestType<SqlProjectParams, SqlProjectResult> Type = RequestType<SqlProjectParams, SqlProjectResult>.Create("sqlprojects/closeProject");
     }
 }

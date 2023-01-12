@@ -17,6 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 
     public class NewSqlProjectRequest
     {
-        public static readonly RequestType<NewSqlProjectParams, SqlProjectResult> Type = RequestType<NewSqlProjectParams, SqlProjectResult>.Create("sqlprojects/new");
+        public static readonly RequestType<NewSqlProjectParams, SqlProjectResult> Type = RequestType<NewSqlProjectParams, SqlProjectResult>.Create("sqlprojects/newProject");
     }
 }

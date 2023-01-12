@@ -9,6 +9,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     public class OpenSqlProjectRequest
     {
-        public static readonly RequestType<SqlProjectParams, SqlProjectResult> Type = RequestType<SqlProjectParams, SqlProjectResult>.Create("sqlprojects/open");
+        public static readonly RequestType<SqlProjectParams, SqlProjectResult> Type = RequestType<SqlProjectParams, SqlProjectResult>.Create("sqlprojects/openProject");
     }
 }
