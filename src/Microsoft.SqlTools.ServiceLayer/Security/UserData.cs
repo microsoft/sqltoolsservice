@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlServer.Management.Smo;
 using System;
 using System.Collections.Generic;
 using System.Security;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -588,7 +588,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 System.Diagnostics.Debug.Assert(0 == String.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing user has changed");
                 if (result == null)
                 {
-                    throw new ObjectNoLongerExistsException();
+                    throw new Exception();
                 }
             }
             else

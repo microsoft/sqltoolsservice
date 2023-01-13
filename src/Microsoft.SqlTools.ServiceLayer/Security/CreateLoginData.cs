@@ -3,16 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
+
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Resources;
+//using System.Resources;
 using System.Data;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
 
-using Microsoft.SqlServer.Management.SqlMgmt;
+//using Microsoft.SqlServer.Management;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -428,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Determines status of the guest account in the database
         /// </summary>
         /// <param name="database"></param>
-        private void    GetGuestStatus(Smo.Database database)
+        private void    GetGuestStatus(Database database)
         {
             System.Diagnostics.Debug.Assert(database != null, "we need a valid database to determine guest access!");
             if (database != null)
@@ -1212,11 +1214,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             static LoginPrototypeData()
             {
-                ResourceManager resourceManager = new ResourceManager(
-                                                                     "Microsoft.SqlServer.Management.SqlManagerUI.CreateLoginStrings", 
-                                                                     typeof(LoginPrototype).Assembly);
+            //     ResourceManager resourceManager = new ResourceManager(
+            //                                                          "Microsoft.SqlServer.Management.SqlManagerUI.CreateLoginStrings", 
+            //                                                          typeof(LoginPrototype).Assembly);
 
-                defaultLanguageDisplay = resourceManager.GetString("prototype.defaultLanguage");
+            //     defaultLanguageDisplay = resourceManager.GetString("prototype.defaultLanguage");
             }
 
             /// <summary>
@@ -1993,7 +1995,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 login = server.Logins[this.LoginName];
                 if (login == null)
                 {
-                    throw new ApplicationException(CreateLoginSR.LoginMissing(this.LoginName));
+                    throw new ApplicationException("CreateLoginSR.LoginMissing(this.LoginName)");
                 }
             }
             else
@@ -2146,7 +2148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                         && (this.currentState.IsLockedOut != this.originalState.IsLockedOut)
                         )
                     {
-                        throw new ArgumentException(CreateLoginSR.ResetPasswordWhileUnlocking);
+                        throw new ArgumentException("CreateLoginSR.ResetPasswordWhileUnlocking");
                     }
                 }
             }            
@@ -2452,11 +2454,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
     }
 }
-
-
-
-
-
-
-
-

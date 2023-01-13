@@ -714,5 +714,61 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //         }
         //     }
         // }
+
+        #region "User memberships"
+        /// <summary>
+        /// implementation of OnPanelRunNow
+        /// </summary>
+        /// <param name="node"></param>
+        public void UserMemberships_OnRunNow(object sender)
+        {
+            UserPrototypeNew currentPrototype = UserPrototypeFactory.GetInstance(this.DataContainer).CurrentPrototype;
+
+            //In case the UserGeneral/OwnedSchemas pages are loaded,
+            //those will takes care of applying membership changes also.
+            //Hence, we only need to apply changes in this method when those are not loaded.
+            if (!currentPrototype.IsRoleMembershipChangesApplied)
+            {
+                //base.OnRunNow(sender);
+
+                User user = currentPrototype.ApplyChanges();
+
+                //this.ExecutionMode = ExecutionMode.Success;
+                this.DataContainer.ObjectName = currentPrototype.Name;
+                this.DataContainer.SqlDialogSubject = user;
+            }
+
+            //setting back to original after changes are applied
+            currentPrototype.IsRoleMembershipChangesApplied = false;
+        }
+
+        /// <summary>
+        /// implementation of OnPanelRunNow
+        /// </summary>
+        /// <param name="node"></param>
+        public void UserOwnedSchemas_OnRunNow(object sender)
+        {
+            UserPrototypeNew currentPrototype = UserPrototypeFactory.GetInstance(this.DataContainer).CurrentPrototype;
+
+            //In case the UserGeneral/Membership pages are loaded,
+            //those will takes care of applying schema ownership changes also.
+            //Hence, we only need to apply changes in this method when those are not loaded.
+            if (!currentPrototype.IsSchemaOwnershipChangesApplied)
+            {
+                //base.OnRunNow(sender);
+
+                User user = currentPrototype.ApplyChanges();
+
+                //this.ExecutionMode = ExecutionMode.Success;
+                this.DataContainer.ObjectName = currentPrototype.Name;
+                this.DataContainer.SqlDialogSubject = user;                
+            }
+
+            //setting back to original after changes are applied
+            currentPrototype.IsSchemaOwnershipChangesApplied = false;
+        }
+
+
+        #endregion
     }
 }
