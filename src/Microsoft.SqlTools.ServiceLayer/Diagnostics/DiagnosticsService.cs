@@ -35,9 +35,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
             serviceHost.SetRequestHandler(DiagnosticsRequest.Type, ProcessDiagnosticsRequest);
         }
 
-        public async Task ProcessDiagnosticsRequest(DiagnosticsParams diagnosticsParams, RequestContext<ProviderErrorCode> requestContext)
+        public async Task ProcessDiagnosticsRequest(DiagnosticsParams diagnosticsParams, RequestContext<DiagnosticsResponse> requestContext)
         {
-            Func<Task<ProviderErrorCode>> requestHandler = () =>
+            Func<Task<DiagnosticsResponse>> requestHandler = () =>
             {
                 // Check if provider is MSSQL
                 bool isMssql = DiagnosticsConstants.MssqlProviderId.Equals(diagnosticsParams.ProviderId, StringComparison.OrdinalIgnoreCase);
@@ -45,11 +45,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
                 // Check if error is for MSSQL Password Reset
                 bool isMssqlPWReset = DiagnosticsConstants.MssqlPasswordResetCode.Equals(diagnosticsParams.ErrorCode);
                 
-                ProviderErrorCode response = ProviderErrorCode.noErrorOrUnsupported;
+                DiagnosticsResponse response = new DiagnosticsResponse();
+                response.ErrorAction = null;
                 if (isMssql)
                 {
                     if(isMssqlPWReset) {
-                        response = ProviderErrorCode.passwordReset;
+                        response.ErrorAction = "PasswordReset";
                     }
                 }
                 return Task.FromResult(response);

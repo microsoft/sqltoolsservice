@@ -13,8 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts
     public class DiagnosticsRequest
     {
         public static readonly
-            RequestType<DiagnosticsParams, ProviderErrorCode> Type =
-            RequestType<DiagnosticsParams, ProviderErrorCode>.Create("diagnostics/errorHandler");
+            RequestType<DiagnosticsParams, DiagnosticsResponse> Type =
+            RequestType<DiagnosticsParams, DiagnosticsResponse>.Create("diagnostics/errorHandler");
     }
 
     public class DiagnosticsParams
@@ -33,8 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts
         public string ProviderId { get; set; }
     }
 
-    public enum ProviderErrorCode {
-        noErrorOrUnsupported = 0,
-		passwordReset = 1,
+    public class DiagnosticsResponse {
+         /// <summary>
+        /// The error message associated with the error.
+        /// </summary>
+        public string ErrorAction { get; set; }
     }
 }
