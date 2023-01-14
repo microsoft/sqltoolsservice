@@ -131,6 +131,49 @@ namespace Microsoft.SqlTools.Extensibility
             };
         }
 
+        /// <summary>
+        /// Creates a service provider by loading a set of named assemblies, expected to be <paramref name="directory"/>
+        /// </summary>
+        /// <param name="directory">Directory to search for included assemblies</param>
+        /// <param name="inclusionList">full DLL names, case insensitive, of assemblies to include</param>
+        /// <returns><see cref="ExtensionServiceProvider"/> instance</returns>
+        public static ExtensionServiceProvider CreateFromAssembliesInDirectory(string directory, IList<string> inclusionList)
+        {
+            //AssemblyLoadContext context = new AssemblyLoader(directory);
+            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
+
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (var path in assemblyPaths)
+            {
+                // skip DLL files not in inclusion list
+                bool isInList = false;
+                foreach (var item in inclusionList)
+                {
+                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isInList = true;
+                        break;
+                    }
+                }
+
+                if (!isInList)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
+                }
+                catch (Exception)
+                {
+                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
+                }
+            }
+
+            return Create(assemblies);
+        }
+
     }
 
     /// <summary>

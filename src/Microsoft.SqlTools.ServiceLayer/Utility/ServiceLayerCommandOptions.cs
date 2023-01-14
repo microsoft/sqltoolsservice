@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
