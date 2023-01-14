@@ -39,19 +39,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
         {
             Func<Task<DiagnosticsResponse>> requestHandler = () =>
             {
-                // Check if provider is MSSQL
-                bool isMssql = DiagnosticsConstants.MssqlProviderId.Equals(diagnosticsParams.ProviderId, StringComparison.OrdinalIgnoreCase);
-                
                 // Check if error is for MSSQL Password Reset
                 bool isMssqlPWReset = DiagnosticsConstants.MssqlPasswordResetCode.Equals(diagnosticsParams.ErrorCode);
-                
+                bool isMssqlFailedLogin = DiagnosticsConstants.MssqlFailedLogin.Equals(diagnosticsParams.ErrorCode);
+
                 DiagnosticsResponse response = new DiagnosticsResponse();
-                response.ErrorAction = null;
-                if (isMssql)
-                {
-                    if(isMssqlPWReset) {
-                        response.ErrorAction = "PasswordReset";
-                    }
+                response.ErrorAction = "";
+                if(isMssqlPWReset) {
+                    response.ErrorAction = "PasswordReset";
+                }
+                else if (isMssqlFailedLogin) {
+                    response.ErrorAction = "FailedLogin";
                 }
                 return Task.FromResult(response);
             };

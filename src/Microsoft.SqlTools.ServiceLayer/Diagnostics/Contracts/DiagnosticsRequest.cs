@@ -27,10 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts
         /// The error message associated with the error.
         /// </summary>
         public string ErrorMessage { get; set; }
-        /// <summary>
-        /// The connection type, for example MSSQL
-        /// </summary>
-        public string ProviderId { get; set; }
     }
 
     public class DiagnosticsResponse {

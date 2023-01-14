@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
     /// </summary>
     internal static class DiagnosticsConstants
     {
-        public static string MssqlProviderId = "MSSQL";
+        public static int MssqlFailedLogin = 233;
 
         public static int MssqlPasswordResetCode = 18488;
     }
