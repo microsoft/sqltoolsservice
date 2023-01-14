@@ -119,16 +119,28 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Merges in new assemblies to the existing container configuration.
         /// </summary>
-        public void AddAssembliesToConfiguration(IEnumerable<Assembly> assemblies)
+        public void AddAssembliesToConfiguration<T>(IEnumerable<Assembly> assemblies)
         {
             Validate.IsNotNull(nameof(assemblies), assemblies);
             var previousConfig = config;
-            this.config = conventions => {
+            this.config = conventions =>
+            {
                 // Chain in the existing configuration function's result, then include additional
                 // assemblies
                 ContainerConfiguration containerConfig = previousConfig(conventions);
                 return containerConfig.WithAssemblies(assemblies, conventions);
             };
+            ExtensionStore store = new ExtensionStore(typeof(T), config);
+
+            // If the service type is already registered, replace the existing registration with the new one
+            if (this.services.ContainsKey(typeof(T)))
+            {
+                this.services[typeof(T)] = () => store.GetExports<T>();
+            }
+            else
+            {
+                base.Register<T>(() => store.GetExports<T>());
+            }
         }
 
         /// <summary>
@@ -172,6 +184,42 @@ namespace Microsoft.SqlTools.Extensibility
             }
 
             return Create(assemblies);
+        }
+
+        public void AddAssemblies<T>(string directory, IList<string> inclusionList)
+        {
+            //AssemblyLoadContext context = new AssemblyLoader(directory);
+            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
+
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (var path in assemblyPaths)
+            {
+                // skip DLL files not in inclusion list
+                bool isInList = false;
+                foreach (var item in inclusionList)
+                {
+                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isInList = true;
+                        break;
+                    }
+                }
+
+                if (!isInList)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
+                }
+                catch (Exception)
+                {
+                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
+                }
+            }
+            this.AddAssembliesToConfiguration<T>(assemblies);
         }
 
     }
@@ -236,7 +284,7 @@ namespace Microsoft.SqlTools.Extensibility
         {
             // Define exports as matching a parent type, export as that parent type
             var builder = new ConventionBuilder();
-            builder.ForTypesDerivedFrom(contractType).Export(exportConventionBuilder  => exportConventionBuilder.AsContractType(contractType));
+            builder.ForTypesDerivedFrom(contractType).Export(exportConventionBuilder => exportConventionBuilder.AsContractType(contractType));
             return builder;
         }
     }

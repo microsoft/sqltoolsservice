@@ -25,6 +25,7 @@ namespace Microsoft.SqlTools.Extensibility
         private ExtensibleServiceHostOptions options;
         private static bool isLoaded;
         public ExtensionServiceProvider serviceProvider;
+        private List<IHostedService> initializedServices = new List<IHostedService>();
 
         public ExtensionServiceHost(
         ExtensibleServiceHostOptions options
@@ -75,18 +76,44 @@ namespace Microsoft.SqlTools.Extensibility
             // another one during initialization, it will be able to safely do so
             foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
             {
+                if(isServiceInitiazlied(service))
+                {
+                    continue;
+                }
+                if(service.ServiceType == null)
+                {
+                    Logger.Write(TraceEventType.Error, "Service type is null for service: " + service.GetType().Name);
+                    continue;
+                }
                 Logger.Verbose("Registering service: " + service.ServiceType.Name);
                 this.serviceProvider.RegisterSingleService(service.ServiceType, service);
             }
 
             foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
             {
+                if(isServiceInitiazlied(service))
+                {
+                    continue;
+                }
                 Logger.Verbose("Initializing service: " + service.ServiceType.Name);
                 // Initialize all hosted services, and register them in the service provider for their requested
                 // service type. This ensures that when searching for the ConnectionService you can get it without
                 // searching for an IHostedService of type ConnectionService
                 service.InitializeService(this);
+                initializedServices.Add(service);
             }
+        }
+
+        private bool isServiceInitiazlied(IHostedService service)
+        {
+            foreach(IHostedService s in this.initializedServices)
+            {
+                if(s.GetType() == service.GetType())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -171,6 +198,40 @@ namespace Microsoft.SqlTools.Extensibility
         private async Task HandleVersionRequest(object versionRequestParams, RequestContext<string> requestContext)
         {
             await requestContext.SendResult(serviceVersion.ToString());
+        }
+
+
+        /// <summary>
+        /// Loads and initializes the services from the given assemblies
+        /// </summary>
+        /// <param name="assemblyPaths">path of the dll files</param>
+        public void LoadAndIntializeServicesFromAssesmblies(string[] assemblyPaths)
+        {
+            this.serviceProvider.AddAssemblies<IHostedService>(options.ExtensionServiceAssemblyDirectory, assemblyPaths);
+            this.InitializeHostedServices();
+        }
+
+        /// <summary>
+        /// Registers and initializes the given service
+        /// </summary>
+        /// <param name="service">service to be initialized</param>
+        public void RegisterAndIntializeService(IHostedService service)
+        {
+            this.serviceProvider.RegisterSingleService(service.ServiceType, service);
+            this.initializedServices.Add(service);
+            service.InitializeService(this);
+        }
+
+        /// <summary>
+        /// Registers and initializes the given services
+        /// </summary>
+        /// <param name="services">services to be initalized</param>
+        public void RegisterAndInitializedServices(IEnumerable<IHostedService> services)
+        {
+            foreach (IHostedService service in services)
+            {
+                this.RegisterAndIntializeService(service);
+            }
         }
     }
 
