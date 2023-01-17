@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
                 DiagnosticsResponse response = new DiagnosticsResponse();
                 response.ErrorAction = "";
                 if(isMssqlExpiredPassword) {
-                    response.ErrorAction = DiagnosticsConstants.MssqlExpiredPassword;
+                    response.ErrorAction = DiagnosticsConstants.ExpiredPassword;
                 }
                 return Task.FromResult(response);
             };
