@@ -41,15 +41,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
             {
                 // Check if error is for MSSQL Password Reset
                 bool isMssqlExpiredPassword = DiagnosticsConstants.MssqlPasswordResetCode.Equals(diagnosticsParams.ErrorCode);
-                bool isMssqlWrongPassword = DiagnosticsConstants.MssqlFailedLogin.Equals(diagnosticsParams.ErrorCode);
 
                 DiagnosticsResponse response = new DiagnosticsResponse();
                 response.ErrorAction = "";
                 if(isMssqlExpiredPassword) {
                     response.ErrorAction = DiagnosticsConstants.MssqlExpiredPassword;
-                }
-                else if (isMssqlWrongPassword) {
-                    response.ErrorAction = DiagnosticsConstants.MssqlWrongPassword;
                 }
                 return Task.FromResult(response);
             };
