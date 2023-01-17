@@ -46,10 +46,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
                 DiagnosticsResponse response = new DiagnosticsResponse();
                 response.ErrorAction = "";
                 if(isMssqlExpiredPassword) {
-                    response.ErrorAction = "mssql/expiredPassword";
+                    response.ErrorAction = DiagnosticsConstants.MssqlExpiredPassword;
                 }
                 else if (isMssqlWrongPassword) {
-                    response.ErrorAction = "mssql/wrongPassword";
+                    response.ErrorAction = DiagnosticsConstants.MssqlWrongPassword;
                 }
                 return Task.FromResult(response);
             };

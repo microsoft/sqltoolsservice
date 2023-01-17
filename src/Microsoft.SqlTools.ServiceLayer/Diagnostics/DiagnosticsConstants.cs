@@ -13,6 +13,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
         public static int MssqlFailedLogin = 18456;
 
         public static int MssqlPasswordResetCode = 18488;
+
+        public static string MssqlExpiredPassword = "mssql/expiredPassword";
+
+        public static string MssqlWrongPassword = "mssql/wrongPassword";
     }
 
 }
