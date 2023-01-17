@@ -19,16 +19,16 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Extensibility
 {
-    public class ExtensionServiceHost : ServiceHostBase
+    public class ExtensionServiceHost<T> : ServiceHostBase
     {
 
-        private ExtensibleServiceHostOptions options;
+        private ExtensibleServiceHostOptions<T> options;
         private static bool isLoaded;
         public ExtensionServiceProvider serviceProvider;
-        private List<IHostedService> initializedServices = new List<IHostedService>();
+        private List<T> initializedServices = new List<T>();
 
         public ExtensionServiceHost(
-        ExtensibleServiceHostOptions options
+        ExtensibleServiceHostOptions<T> options
         ) : base(new StdioServerChannel())
         {
             // Initialize the shutdown activities
@@ -74,39 +74,33 @@ namespace Microsoft.SqlTools.Extensibility
         {
             // Pre-register all services before initializing. This ensures that if one service wishes to reference
             // another one during initialization, it will be able to safely do so
-            foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
+            foreach (T service in this.serviceProvider.GetServices<T>())
             {
                 if(isServiceInitiazlied(service))
                 {
                     continue;
                 }
-                if(service.ServiceType == null)
-                {
-                    Logger.Write(TraceEventType.Error, "Service type is null for service: " + service.GetType().Name);
-                    continue;
-                }
-                Logger.Verbose("Registering service: " + service.ServiceType.Name);
-                this.serviceProvider.RegisterSingleService(service.ServiceType, service);
+                Logger.Verbose("Registering service: " + service.GetType());
+                this.RegisterService(service);
             }
 
-            foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
+            foreach (T service in this.serviceProvider.GetServices<T>())
             {
                 if(isServiceInitiazlied(service))
                 {
                     continue;
                 }
-                Logger.Verbose("Initializing service: " + service.ServiceType.Name);
+                Logger.Verbose("Initializing service: " + service.GetType());
                 // Initialize all hosted services, and register them in the service provider for their requested
                 // service type. This ensures that when searching for the ConnectionService you can get it without
                 // searching for an IHostedService of type ConnectionService
-                service.InitializeService(this);
-                initializedServices.Add(service);
+                this.InitializeService(service);
             }
         }
 
-        private bool isServiceInitiazlied(IHostedService service)
+        private bool isServiceInitiazlied(T service)
         {
-            foreach(IHostedService s in this.initializedServices)
+            foreach(T s in this.initializedServices)
             {
                 if(s.GetType() == service.GetType())
                 {
@@ -215,22 +209,28 @@ namespace Microsoft.SqlTools.Extensibility
         /// Registers and initializes the given service
         /// </summary>
         /// <param name="service">service to be initialized</param>
-        public void RegisterAndIntializeService(IHostedService service)
+        public void RegisterService(T service)
         {
-            this.serviceProvider.RegisterSingleService(service.ServiceType, service);
+            this.serviceProvider.RegisterSingleService(service.GetType(), service);
+           
+        }
+
+        public void InitializeService(T service)
+        {
             this.initializedServices.Add(service);
-            service.InitializeService(this);
+            this.options.InitializeServiceCallback(this, service);
         }
 
         /// <summary>
         /// Registers and initializes the given services
         /// </summary>
         /// <param name="services">services to be initalized</param>
-        public void RegisterAndInitializedServices(IEnumerable<IHostedService> services)
+        public void RegisterAndInitializedServices(IEnumerable<T> services)
         {
-            foreach (IHostedService service in services)
+            foreach (T service in services)
             {
-                this.RegisterAndIntializeService(service);
+                this.RegisterService(service);
+                this.InitializeService(service);
             }
         }
     }
@@ -238,10 +238,11 @@ namespace Microsoft.SqlTools.Extensibility
 
 
 
-    public class ExtensibleServiceHostOptions
+    public class ExtensibleServiceHostOptions<T>
     {
         /// <summary>
-        /// The folder where the extension service assemblies are located. By default it is the folder where the current assembly is located.
+        /// The folder where the extension service assemblies are located. By default it is 
+        /// the folder where the current server assembly is located.
         /// </summary>
         public string ExtensionServiceAssemblyDirectory { get; set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -283,5 +284,13 @@ namespace Microsoft.SqlTools.Extensibility
         /// Timeout in seconds for the shutdown request. Default is 120 seconds.
         /// </summary>
         public int ShutdownTimeoutInSeconds { get; set; } = 120;
+
+        public delegate void InitializeService(ExtensionServiceHost<T> serviceHost, T service);
+        
+        /// <summary>
+        /// Service initialization callback. The caller must define this callback to initialize the service.
+        /// </summary>
+        /// <value></value>
+        public InitializeService InitializeServiceCallback { get; set; }
     }
 }
