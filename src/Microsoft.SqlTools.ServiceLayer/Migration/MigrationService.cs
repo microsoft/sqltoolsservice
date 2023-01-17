@@ -692,11 +692,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
                 ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
                 DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                if (!parameters.IncludePreviewSkus)
-                {
-                    SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
-                    p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
-                }
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
@@ -722,11 +717,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                 List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
                 ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
                 DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                if (!parameters.IncludePreviewSkus)
-                {
-                    SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
-                    p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
-                }
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
@@ -994,24 +984,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
                                                     AzureSqlPaaSServiceTier.GeneralPurpose,
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
+                    // Premium Memory Optimized BC/GP
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
 
-                    if (includePreviewSkus)
-                    {
-                        // Premium Memory Optimized BC/GP
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.BusinessCritical,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-                    }
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
                     break;
 
                 case "AzureSqlVirtualMachine":
@@ -1030,7 +1016,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
 
                         vmCapabilities.AddRange(vmPreviewCapabilities);
                     }
-
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
                         .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
