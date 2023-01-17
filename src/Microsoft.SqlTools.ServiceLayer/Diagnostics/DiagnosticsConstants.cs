@@ -16,5 +16,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
 
         public static string ExpiredPassword = "ExpiredPassword";
     }
-
 }
