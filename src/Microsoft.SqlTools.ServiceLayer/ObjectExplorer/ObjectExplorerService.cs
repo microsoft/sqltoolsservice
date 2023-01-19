@@ -384,11 +384,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null)
         {
             NodeInfo[] nodes = null;
-            TreeNode node = session.Root.FindNodeByPath(nodePath);
+            TreeNode? node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
 
             // Performance Optimization for table designer to load the database model earlier based on user configuration.
-            if (node.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
+            if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
             {
                 // The operation below are not blocking, but just in case, wrapping it with a task run to make sure it has no impact on the node expansion time.
                 var _ = Task.Run(() =>
