@@ -119,6 +119,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// <summary>
         /// Merges in new assemblies to the existing container configuration.
         /// </summary>
+        /// <typeparam name="T">Type of the service present in the assemblies</typeparam>
         public void AddAssembliesToConfiguration<T>(IEnumerable<Assembly> assemblies)
         {
             Validate.IsNotNull(nameof(assemblies), assemblies);

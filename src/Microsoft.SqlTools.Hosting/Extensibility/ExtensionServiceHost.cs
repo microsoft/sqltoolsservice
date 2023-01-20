@@ -233,6 +233,16 @@ namespace Microsoft.SqlTools.Extensibility
                 this.InitializeService(service);
             }
         }
+
+        /// <summary>
+        /// Register and initializes the given service
+        /// </summary>
+        /// <param name="service">service to be initialized</param>
+        public void RegisterAndInitializeService(T service)
+        {
+            this.RegisterService(service);
+            this.InitializeService(service);
+        }
     }
 
 
