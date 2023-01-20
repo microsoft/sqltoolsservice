@@ -55,8 +55,6 @@ namespace Microsoft.SqlTools.FlatFileImport.Services
 }
 ```
 
-Note: The base class for ExtensionServiceHost are also exposed for direct consumption and reimplementation if needed.
-
 ## Using the logger class
 
 This project also provides implmentation of logging class. It provides a simple way to log messages to a file. The logger class can be initialized with the following parameters:
