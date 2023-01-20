@@ -321,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                         settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
 
-                    if (result != null && !result.IsCompleted)
+                    if (result != null && !result.IsSuccessful)
                     {
                         cancellationTokenSource.Cancel();
                         SessionCreatedParameters response = new SessionCreatedParameters
@@ -384,11 +384,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null)
         {
             NodeInfo[] nodes = null;
-            TreeNode node = session.Root.FindNodeByPath(nodePath);
+            TreeNode? node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
 
             // Performance Optimization for table designer to load the database model earlier based on user configuration.
-            if (node.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
+            if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
             {
                 // The operation below are not blocking, but just in case, wrapping it with a task run to make sure it has no impact on the node expansion time.
                 var _ = Task.Run(() =>
@@ -604,7 +604,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
-                if (result != null && !result.IsCompleted)
+                if (result != null && !result.IsSuccessful)
                 {
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
@@ -620,9 +620,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerTaskResult result = new ObjectExplorerTaskResult();
             TimeSpan timeout = TimeSpan.FromSeconds(timeoutInSec);
             await Task.WhenAny(task, Task.Delay(timeout));
-            result.IsCompleted = task.IsCompleted;
+            result.IsSuccessful = task.IsCompleted;
             if (task.Exception != null)
             {
+                result.IsSuccessful = false;
                 result.Exception = task.Exception;
             }
             else if (!task.IsCompleted)
@@ -761,8 +762,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal class ObjectExplorerTaskResult
         {
-            public bool IsCompleted { get; set; }
-            public Exception Exception { get; set; }
+            /// <summary>
+            /// Whether the task was successfully completed. False if an error of any kind occurred during execution.
+            /// </summary>
+            public bool IsSuccessful { get; set; }
+            /// <summary>
+            /// The Exception that occurred during execution, if any. 
+            /// </summary>
+            public Exception? Exception { get; set; }
         }
 
         public void Dispose()
