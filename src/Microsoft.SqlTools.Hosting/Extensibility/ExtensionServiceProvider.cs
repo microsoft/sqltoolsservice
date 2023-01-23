@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// <returns><see cref="ExtensionServiceProvider"/> instance</returns>
         public static ExtensionServiceProvider CreateFromAssembliesInDirectory(string directory, IList<string> inclusionList)
         {
-            //AssemblyLoadContext context = new AssemblyLoader(directory);
+            Logger.Verbose("Loading service assemblies from ..."+ directory);
             var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
 
             List<Assembly> assemblies = new List<Assembly>();
@@ -176,11 +176,14 @@ namespace Microsoft.SqlTools.Extensibility
 
                 try
                 {
+                    Logger.Verbose("Loading service assembly: " + path);
                     assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
+                    Logger.Verbose("Loaded service assembly: " + path);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // we expect exceptions trying to scan all DLLs since directory contains native libraries
+                    Logger.Error(e);
                 }
             }
 
