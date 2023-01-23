@@ -155,6 +155,21 @@ namespace Microsoft.SqlTools.Extensibility
             Logger.Verbose("Loading service assemblies from ..."+ directory);
             var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
 
+            List<Assembly> assemblies = LoadAssemblies(directory, inclusionList);
+            return Create(assemblies);
+        }
+
+        public void AddAssemblies<T>(string directory, IList<string> inclusionList)
+        {
+            this.AddAssembliesToConfiguration<T>(LoadAssemblies(directory, inclusionList));
+        }
+
+        private static List<Assembly> LoadAssemblies(string directory, IList<string> inclusionList)
+        {
+            Logger.Verbose("Loading service assemblies from ..."+ directory);
+            //AssemblyLoadContext context = new AssemblyLoader(directory);
+            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
+
             List<Assembly> assemblies = new List<Assembly>();
             foreach (var path in assemblyPaths)
             {
@@ -180,50 +195,13 @@ namespace Microsoft.SqlTools.Extensibility
                     assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
                     Logger.Verbose("Loaded service assembly: " + path);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
                     // we expect exceptions trying to scan all DLLs since directory contains native libraries
-                    Logger.Error(e);
+                    Logger.Error(ex);
                 }
             }
-
-            return Create(assemblies);
-        }
-
-        public void AddAssemblies<T>(string directory, IList<string> inclusionList)
-        {
-            //AssemblyLoadContext context = new AssemblyLoader(directory);
-            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
-
-            List<Assembly> assemblies = new List<Assembly>();
-            foreach (var path in assemblyPaths)
-            {
-                // skip DLL files not in inclusion list
-                bool isInList = false;
-                foreach (var item in inclusionList)
-                {
-                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isInList = true;
-                        break;
-                    }
-                }
-
-                if (!isInList)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
-                }
-                catch (Exception)
-                {
-                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
-                }
-            }
-            this.AddAssembliesToConfiguration<T>(assemblies);
+            return assemblies;
         }
 
     }
