@@ -10,12 +10,12 @@
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Microsoft/sqltoolsservice</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>SQL XPLAT</PackageTags>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 	<PropertyGroup>
 		<DebugType>portable</DebugType>
