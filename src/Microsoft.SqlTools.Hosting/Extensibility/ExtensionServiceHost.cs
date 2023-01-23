@@ -31,9 +31,6 @@ namespace Microsoft.SqlTools.Extensibility
         ExtensibleServiceHostOptions<T> options
         ) : base(new StdioServerChannel())
         {
-            // Initialize the shutdown activities
-            shutdownCallbacks = new List<ShutdownCallback>();
-            initializeCallbacks = new List<InitializeCallback>();
             this.options = options;
 
             this.Initialize();
@@ -100,14 +97,7 @@ namespace Microsoft.SqlTools.Extensibility
 
         private bool IsServiceInitialized(T service)
         {
-            foreach(T s in this.initializedServices)
-            {
-                if(s.GetType() == service.GetType())
-                {
-                    return true;
-                }
-            }
-            return false;
+            return this.initializedServices.Any(s => s.GetType() == service.GetType());
         }
 
         /// <summary>
@@ -120,9 +110,9 @@ namespace Microsoft.SqlTools.Extensibility
         /// </summary>
         public delegate Task InitializeCallback(InitializeRequest startupParams, RequestContext<InitializeResult> requestContext);
 
-        private readonly List<ShutdownCallback> shutdownCallbacks;
+        private readonly List<ShutdownCallback> shutdownCallbacks = new List<ShutdownCallback>();
 
-        private readonly List<InitializeCallback> initializeCallbacks;
+        private readonly List<InitializeCallback> initializeCallbacks = new List<InitializeCallback>();
 
         private readonly Version serviceVersion = Assembly.GetEntryAssembly().GetName().Version;
 
