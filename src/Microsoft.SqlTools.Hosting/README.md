@@ -1,4 +1,4 @@
-Hosting project contains the necessary classes for implementing a JSON - RPC server. It also contains the Utility classes for Logging, Parsing command line arguments from the RPC client. 
+This library contains the necessary classes for implementing an Azure Data Studio [language server](https://code.visualstudio.com/api/language-extensions/language-server-extension-guide). It also contains the Utility classes for logging and parsing command line arguments.
 
 ## Example of using the Extension Service Host.
 Example of using extension service host to implement a JSON rpc server and registering a service with it.

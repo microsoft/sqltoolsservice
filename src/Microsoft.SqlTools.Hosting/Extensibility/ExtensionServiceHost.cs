@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.Extensibility
             shutdownCallbacks = new List<ShutdownCallback>();
             initializeCallbacks = new List<InitializeCallback>();
             this.options = options;
-            // Grab the instance of the service host
+
             this.Initialize();
 
             // Start the service only after all request handlers are setup. This is vital
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.Extensibility
             // another one during initialization, it will be able to safely do so
             foreach (T service in this.serviceProvider.GetServices<T>())
             {
-                if(isServiceInitiazlied(service))
+                if(IsServiceInitialized(service))
                 {
                     continue;
                 }
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.Extensibility
 
             foreach (T service in this.serviceProvider.GetServices<T>())
             {
-                if(isServiceInitiazlied(service))
+                if(IsServiceInitialized(service))
                 {
                     continue;
                 }
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.Extensibility
             }
         }
 
-        private bool isServiceInitiazlied(T service)
+        private bool IsServiceInitialized(T service)
         {
             foreach(T s in this.initializedServices)
             {
@@ -170,8 +170,6 @@ namespace Microsoft.SqlTools.Extensibility
                 var initializeTasks = initializeCallbacks.Select(t => t(initializeParams, requestContext));
                 await Task.WhenAll(initializeTasks);
 
-                // TODO: Figure out where this needs to go to be agnostic of the language
-
                 // Send back what this server can do
                 await requestContext.SendResult(
                     new InitializeResult
@@ -181,7 +179,6 @@ namespace Microsoft.SqlTools.Extensibility
             }
             catch (Exception e)
             {
-                Logger.Error(e);
                 await requestContext.SendError(e.Message);
             }
         }
@@ -209,13 +206,13 @@ namespace Microsoft.SqlTools.Extensibility
         /// Registers and initializes the given service
         /// </summary>
         /// <param name="service">service to be initialized</param>
-        public void RegisterService(T service)
+        protected void RegisterService(T service)
         {
             this.serviceProvider.RegisterSingleService(service.GetType(), service);
            
         }
 
-        public void InitializeService(T service)
+        protected void InitializeService(T service)
         {
             this.initializedServices.Add(service);
             this.options.InitializeServiceCallback(this, service);
