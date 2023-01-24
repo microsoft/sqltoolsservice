@@ -20,14 +20,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// TestHandleCreateCredentialRequest
         /// </summary>
         [Test]
-        public async Task TestHandleCreateCredentialRequest()
+        public async Task TestHandleCreateLoginRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 // setup
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var service = new SecurityService();
+                
+                
+                
+                
                 var credential = SecurityTestUtils.GetTestCredentialInfo();
+
                 await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
 
                 // test

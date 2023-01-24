@@ -23,6 +23,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
         }
 
+        internal static LoginInfo GetTestLoginInfo()
+        {
+            
+            return new LoginInfo()
+            {
+                LoginName = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                LoginType= AuthType.SqlLogin,
+                CertificateName = "Test Cert",        
+                AsymmetricKeyName = "Asymmetric Test Cert",
+                WindowsGrantAccess = true,
+                MustChange = false,
+                IsDisabled = false,
+                IsLockedOut = false,
+                EnforcePolicy = false,
+                EnforceExpiration = false,
+                WindowsAuthSupported = false,
+                Password = "{{TEST_PASSWORD_PLACEHOLDER}}",
+                OldPassword = "{{OLD_TEST_PASSWORD_PLACEHOLDER}}",
+            };
+        }
+
+
         internal static CredentialInfo GetTestCredentialInfo()
         {
             return new CredentialInfo()
