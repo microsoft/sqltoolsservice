@@ -9,10 +9,12 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<Copyright>Copyright © Microsoft Corporation. All rights reserved.</Copyright>
-		<PackageLicense>https://github.com/Microsoft/sqltoolsservice/blob/main/license.txt</PackageLicense>
+		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Microsoft/sqltoolsservice</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageTags>SQL XPLAT</PackageTags>
 		<NoWarn>$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8620;CS8622;CS8625;CS8629;CS8632;CS8769;CS8765</NoWarn>
    		<NoWarn>$(NoWarn);CS1998;CS8597;CS8612;CS8767;CS0168;CS0169;SYSLIB0012;SYSLIB0013;NETSDK1187;IDE0074</NoWarn>
