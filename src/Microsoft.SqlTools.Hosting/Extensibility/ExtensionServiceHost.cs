@@ -19,16 +19,16 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Extensibility
 {
-    public class ExtensionServiceHost<T> : ServiceHostBase
+    public class ExtensionServiceHost : ServiceHostBase
     {
 
-        private ExtensibleServiceHostOptions<T> options;
+        private ExtensibleServiceHostOptions options;
         private static bool isLoaded;
         public ExtensionServiceProvider serviceProvider;
-        private List<T> initializedServices = new List<T>();
+        private List<IHostedService> initializedServices = new List<IHostedService>();
 
         public ExtensionServiceHost(
-        ExtensibleServiceHostOptions<T> options
+        ExtensibleServiceHostOptions options
         ) : base(new StdioServerChannel())
         {
             this.options = options;
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.Extensibility
         {
             // Pre-register all services before initializing. This ensures that if one service wishes to reference
             // another one during initialization, it will be able to safely do so
-            foreach (T service in this.serviceProvider.GetServices<T>())
+            foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
             {
                 if(IsServiceInitialized(service))
                 {
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.Extensibility
                 this.RegisterService(service);
             }
 
-            foreach (T service in this.serviceProvider.GetServices<T>())
+            foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
             {
                 if(IsServiceInitialized(service))
                 {
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.Extensibility
             }
         }
 
-        private bool IsServiceInitialized(T service)
+        private bool IsServiceInitialized(IHostedService service)
         {
             return this.initializedServices.Any(s => s.GetType() == service.GetType());
         }
@@ -196,14 +196,15 @@ namespace Microsoft.SqlTools.Extensibility
         /// Registers and initializes the given service
         /// </summary>
         /// <param name="service">service to be initialized</param>
-        protected void RegisterService(T service)
+        protected void RegisterService(IHostedService service)
         {
             this.serviceProvider.RegisterSingleService(service.GetType(), service);
            
         }
 
-        protected void InitializeService(T service)
+        protected void InitializeService(IHostedService service)
         {
+            service.InitializeService(this);
             this.initializedServices.Add(service);
             this.options.InitializeServiceCallback(this, service);
         }
@@ -212,9 +213,9 @@ namespace Microsoft.SqlTools.Extensibility
         /// Registers and initializes the given services
         /// </summary>
         /// <param name="services">services to be initalized</param>
-        public void RegisterAndInitializedServices(IEnumerable<T> services)
+        public void RegisterAndInitializedServices(IEnumerable<IHostedService> services)
         {
-            foreach (T service in services)
+            foreach (IHostedService service in services)
             {
                 this.RegisterService(service);
                 this.InitializeService(service);
@@ -225,7 +226,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// Register and initializes the given service
         /// </summary>
         /// <param name="service">service to be initialized</param>
-        public void RegisterAndInitializeService(T service)
+        public void RegisterAndInitializeService(IHostedService service)
         {
             this.RegisterService(service);
             this.InitializeService(service);
@@ -235,7 +236,7 @@ namespace Microsoft.SqlTools.Extensibility
 
 
 
-    public class ExtensibleServiceHostOptions<T>
+    public class ExtensibleServiceHostOptions
     {
         /// <summary>
         /// The folder where the extension service assemblies are located. By default it is 
@@ -282,7 +283,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// </summary>
         public int ShutdownTimeoutInSeconds { get; set; } = 120;
 
-        public delegate void InitializeService(ExtensionServiceHost<T> serviceHost, T service);
+        public delegate void InitializeService(ExtensionServiceHost serviceHost, IHostedService service);
         
         /// <summary>
         /// Service initialization callback. The caller must define this callback to initialize the service.

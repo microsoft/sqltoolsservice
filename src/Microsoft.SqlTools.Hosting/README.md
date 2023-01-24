@@ -61,7 +61,7 @@ This project also provides implmentation of logging class. It provides a simple 
 
 ```cs
  Logger.Initialize(tracingLevel: SourceLevels.Verbose, logFilePath: "<path-to-log-file>", "<traceSource>", true);
- Logger.Write(TraceEventType.Verbose, "<verbose message>");
+ Logger.Verbose("<verbose message>");
 ```
 
 
