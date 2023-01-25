@@ -438,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             foreach (DateTimeOffset value in testValues)
             {
-                string displayValue = VerifyReadWrite(sizeof(long) * 2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
+                string displayValue = VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
                     (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
 
                 // Make sure the display value has a time string with 7 milliseconds and a time zone
@@ -450,7 +450,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         public void DateTimeOffsetZeroScaleTest()
         {
             // Setup: Create some test values
-            // NOTE: We are doing these here instead of InlineData because DateTimeOffset values can't be written as constant expressions
             DateTimeOffset[] testValues =
             {
                 DateTimeOffset.Now, DateTimeOffset.UtcNow, DateTimeOffset.MinValue, DateTimeOffset.MaxValue
