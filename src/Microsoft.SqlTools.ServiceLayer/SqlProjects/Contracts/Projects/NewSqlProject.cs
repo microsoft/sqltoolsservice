@@ -5,6 +5,7 @@
 
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
@@ -19,15 +20,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public ProjectType SqlProjectType { get; set; }
 
         /// <summary>
-        /// The database schema provider for the project, in the format
+        /// Database schema provider for the project, in the format
         /// "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider".
         /// Case sensitive.
         /// </summary>
         public string? DatabaseSchemaProvider { get; set; }
+
+        /// <summary>
+        /// Version of the Microsoft.Build.Sql SDK for the project, if overriding the default
+        /// </summary>
+        public string? BuildSdkVersion { get; set; }
     }
 
     public class NewSqlProjectRequest
     {
-        public static readonly RequestType<NewSqlProjectParams, SqlProjectResult> Type = RequestType<NewSqlProjectParams, SqlProjectResult>.Create("sqlprojects/newProject");
+        public static readonly RequestType<NewSqlProjectParams, ResultStatus> Type = RequestType<NewSqlProjectParams, ResultStatus>.Create("sqlprojects/newProject");
     }
 }

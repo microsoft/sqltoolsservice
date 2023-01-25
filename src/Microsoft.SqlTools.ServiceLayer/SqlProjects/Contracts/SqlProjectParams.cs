@@ -28,20 +28,4 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// </summary>
         public string Path { get; set; }
     }
-
-    /// <summary>
-    /// Result from a generic SQL Project operation
-    /// </summary>
-    public class SqlProjectResult
-    {
-        /// <summary>
-        /// Indicates whether the operation was successful
-        /// </summary>
-        public bool Success { get; set; }
-
-        /// <summary>
-        /// Error message from the exception that was thrown, if any.  Null if operation was successful.
-        /// </summary>
-        public string? ErrorMessage { get; set; }
-    }
 }

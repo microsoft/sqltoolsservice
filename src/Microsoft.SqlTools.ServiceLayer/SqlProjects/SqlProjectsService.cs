@@ -9,6 +9,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
@@ -52,17 +53,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region Project-level functions
 
-        internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<SqlProjectResult> requestContext)
+        internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
         }
 
-        internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<SqlProjectResult> requestContext)
+        internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => Projects.TryRemove(requestParams.ProjectUri, out _), requestContext);
         }
 
-        internal async Task HandleNewSqlProjectRequest(NewSqlProjectParams requestParams, RequestContext<SqlProjectResult> requestContext)
+        internal async Task HandleNewSqlProjectRequest(NewSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(async () =>
             {
@@ -76,17 +77,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region Sql object script calls
 
-        internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<SqlProjectResult> requestContext)
+        internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path)), requestContext);
         }
 
-        internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<SqlProjectResult> requestContext)
+        internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path), requestContext);
         }
 
-        internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<SqlProjectResult> requestContext)
+        internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path), requestContext);
         }
@@ -97,18 +98,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region Helper methods
 
-        private async Task RunWithErrorHandling(Action action, RequestContext<SqlProjectResult> requestContext)
+        private async Task RunWithErrorHandling(Action action, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(async () => await Task.Run(action), requestContext);
         }
 
-        private async Task RunWithErrorHandling(Func<Task> action, RequestContext<SqlProjectResult> requestContext)
+        private async Task RunWithErrorHandling(Func<Task> action, RequestContext<ResultStatus> requestContext)
         {
             try
             {
                 await action();
 
-                await requestContext.SendResult(new SqlProjectResult()
+                await requestContext.SendResult(new ResultStatus()
                 {
                     Success = true,
                     ErrorMessage = null
@@ -116,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }
             catch (Exception ex)
             {
-                await requestContext.SendResult(new SqlProjectResult()
+                await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
                     ErrorMessage = ex.Message
