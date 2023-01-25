@@ -432,14 +432,40 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             {
                 DateTimeOffset.Now, DateTimeOffset.UtcNow, DateTimeOffset.MinValue, DateTimeOffset.MaxValue
             };
+
+            // Setup: Create a DATETIMEOFFSET column
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn { DataTypeName = "datetimeoffset", NumericScale = 6 });
+
             foreach (DateTimeOffset value in testValues)
             {
-                string displayValue = VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
-                    (reader, rowId) => reader.ReadDateTimeOffset(0, rowId));
+                string displayValue = VerifyReadWrite(sizeof(long) * 2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
+                    (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
 
                 // Make sure the display value has a time string with 7 milliseconds and a time zone
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7} [+-][01][\d]:[\d]{2}$"));
+                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{6} [+-][01][\d]:[\d]{2}$"));
+            }
+        }
 
+        [Test]
+        public void DateTimeOffsetZeroScaleTest()
+        {
+            // Setup: Create some test values
+            // NOTE: We are doing these here instead of InlineData because DateTimeOffset values can't be written as constant expressions
+            DateTimeOffset[] testValues =
+            {
+                DateTimeOffset.Now, DateTimeOffset.UtcNow, DateTimeOffset.MinValue, DateTimeOffset.MaxValue
+            };
+
+            // Setup: Create a DATETIMEOFFSET column
+            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn { DataTypeName = "datetimeoffset", NumericScale = 0 });
+
+            foreach (DateTimeOffset value in testValues)
+            {
+                string displayValue = VerifyReadWrite(sizeof(long) * 2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
+                    (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
+
+                // Make sure the display value has a time string with 7 milliseconds and a time zone
+                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2} [+-][01][\d]:[\d]{2}$"));
             }
         }
 
