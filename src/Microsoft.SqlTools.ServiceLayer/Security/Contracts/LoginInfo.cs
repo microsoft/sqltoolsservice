@@ -41,5 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         public string Password { get; set; }
 
         public string OldPassword { get; set; }
+
+        public string DefaultLanguage { get; set; }
+
+        public string DefaultDatabase { get; set; }
     }
 }

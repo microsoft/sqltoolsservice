@@ -25,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
         internal static LoginInfo GetTestLoginInfo()
         {
-            
             return new LoginInfo()
             {
                 LoginName = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
@@ -39,11 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 EnforcePolicy = false,
                 EnforceExpiration = false,
                 WindowsAuthSupported = false,
-                Password = "{{TEST_PASSWORD_PLACEHOLDER}}",
+                Password = "{{TEST_PASSWORD_PLACEHOLDER}}",                
                 OldPassword = "{{OLD_TEST_PASSWORD_PLACEHOLDER}}",
+                DefaultLanguage = "us_english",
+                DefaultDatabase = "master"
             };
         }
-
 
         internal static CredentialInfo GetTestCredentialInfo()
         {

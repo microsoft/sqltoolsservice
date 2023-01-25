@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -1250,8 +1251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 this.server = server;
                 this.login  = login;
-            }
-
+            }          
 
             /// <summary>
             /// Create a clone of this LoginPrototypeData object
@@ -1951,6 +1951,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="server">The server on which we are creating a login</param>
+        public LoginPrototype(Microsoft.SqlServer.Management.Smo.Server server, LoginInfo login)
+        {
+            this.exists         = false;
+            this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
+            this.currentState   = new LoginPrototypeData(server);
+            this.originalState  = (LoginPrototypeData) this.currentState.Clone();
+            this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
+
+            this.LoginName = login.LoginName;
+            this.SqlPassword = login.Password;
+            this.OldPassword = login.OldPassword;
+            this.LoginType = LoginType.SqlLogin;
+            this.DefaultLanguage = login.DefaultLanguage;
+            this.DefaultDatabase = login.DefaultDatabase;
+        }
 
         /// <summary>
         /// Reset the prototype state to its initial state

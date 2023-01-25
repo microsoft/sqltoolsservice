@@ -5,6 +5,10 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Dmf;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -79,6 +83,78 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(UpdateCredentialRequest.Type, HandleUpdateCredentialRequest, true);
             this.ServiceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest, true);
             this.ServiceHost.SetRequestHandler(GetCredentialsRequest.Type, HandleGetCredentialsRequest, true);
+
+            // Login request handlers
+            this.ServiceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
+        }
+
+        /// <summary>
+        /// Handle request to create a login
+        /// </summary>
+        internal async Task HandleCreateLoginRequest(CreateLoginParams parameters, RequestContext<CreateLoginResult> requestContext)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+            // if (connInfo == null) 
+            // {
+            //     // raise an error
+            // }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, parameters.Login);
+
+            if (prototype.LoginType == LoginType.SqlLogin)
+            {
+                // check that there is a password
+                // this check is made if policy enforcement is off
+                // with policy turned on we do not display this message, instead we let server
+                // return the error associated with null password (coming from policy) - see bug 124377
+                if (prototype.SqlPassword.Length == 0 && prototype.EnforcePolicy == false)
+                {
+                    // raise error here                                                   
+                }
+
+                // check that password and confirm password controls' text matches
+                if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
+                {
+                    // raise error here
+                }                 
+            }
+
+            prototype.ApplyGeneralChanges(dataContainer.Server);
+
+            await requestContext.SendResult(new CreateLoginResult()
+            {
+                Login = parameters.Login,
+                Success = true,
+                ErrorMessage = string.Empty
+            });
+        }
+
+        /// <summary>
+        /// Handle request to delete a credential
+        /// </summary>
+        internal async Task HandleDeleteLoginRequest(DeleteLoginParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+            // if (connInfo == null) 
+            // {
+            //     // raise an error
+            // }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            Login login = dataContainer.Server.Logins[parameters.LoginName];
+     
+            dataContainer.SqlDialogSubject = login;
+            DoDropObject(dataContainer);
+           
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = true,
+                ErrorMessage = string.Empty
+            });
         }
 
         /// <summary>
@@ -212,6 +288,152 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
+        }
+
+        /// <summary>
+        /// this is the main method that is called by DropAllObjects for every object
+        /// in the grid
+        /// </summary>
+        /// <param name="objectRowNumber"></param>
+        private void DoDropObject(CDataContainer dataContainer)
+        {            
+            var executionMode = dataContainer.Server.ConnectionContext.SqlExecutionModes;
+            var subjectExecutionMode = executionMode;
+
+            //For Azure the ExecutionManager is different depending on which ExecutionManager
+            //used - one at the Server level and one at the Database level. So to ensure we
+            //don't use the wrong execution mode we need to set the mode for both (for on-prem
+            //this will essentially be a no-op)
+            SqlSmoObject sqlDialogSubject = null;
+            try
+            {
+                sqlDialogSubject = dataContainer.SqlDialogSubject;
+            }
+            catch (System.Exception)
+            {
+                //We may not have a valid dialog subject here (such as if the object hasn't been created yet)
+                //so in that case we'll just ignore it as that's a normal scenario. 
+            }
+            if (sqlDialogSubject != null)
+            {
+                subjectExecutionMode =
+                    sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes;
+            }
+
+            Urn objUrn = sqlDialogSubject.Urn;
+            System.Diagnostics.Debug.Assert(objUrn != null);
+
+            SfcObjectQuery objectQuery = new SfcObjectQuery(dataContainer.Server);
+           
+            IDroppable droppableObj = null;
+            string[] fields = null;
+
+            foreach( object obj in objectQuery.ExecuteIterator( new SfcQueryExpression( objUrn.ToString() ), fields, null ) )
+            {
+                System.Diagnostics.Debug.Assert(droppableObj == null, "there is only one object");
+                droppableObj = obj as IDroppable;
+            }
+
+            // For Azure databases, the SfcObjectQuery executions above may have overwritten our desired execution mode, so restore it
+            dataContainer.Server.ConnectionContext.SqlExecutionModes = executionMode;
+            if (sqlDialogSubject != null)
+            {
+                sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes = subjectExecutionMode;
+            }
+
+            if (droppableObj == null)
+            {
+                string objectName = objUrn.GetAttribute("Name");
+                if(objectName == null)
+                {
+                    objectName = string.Empty;
+                }
+                throw new Microsoft.SqlServer.Management.Smo.MissingObjectException("DropObjectsSR.ObjectDoesNotExist(objUrn.Type, objectName)");
+            }
+
+            //special case database drop - see if we need to delete backup and restore history
+            SpecialPreDropActionsForObject(dataContainer, droppableObj, 
+                deleteBackupRestoreOrDisableAuditSpecOrDisableAudit: false,
+                dropOpenConnections: false);
+
+            droppableObj.Drop();
+
+            //special case Resource Governor reconfigure - for pool, external pool, group  Drop(), we need to issue
+            SpecialPostDropActionsForObject(dataContainer, droppableObj);
+
+        }
+        
+        private void SpecialPreDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj, 
+            bool deleteBackupRestoreOrDisableAuditSpecOrDisableAudit, bool dropOpenConnections)
+        {
+            Database db = droppableObj as Database;
+
+            if (deleteBackupRestoreOrDisableAuditSpecOrDisableAudit)
+            {
+                if (db != null)
+                {
+                    dataContainer.Server.DeleteBackupHistory(db.Name);
+                }
+                else
+                {
+                    // else droppable object should be a server or database audit specification
+                    ServerAuditSpecification sas = droppableObj as ServerAuditSpecification;
+                    if (sas != null)
+                    {
+                        sas.Disable();
+                    }
+                    else
+                    {
+                        DatabaseAuditSpecification das = droppableObj as DatabaseAuditSpecification;
+                        if (das != null)
+                        {
+                            das.Disable();
+                        }
+                        else
+                        {
+                            Audit aud = droppableObj as Audit;
+                            if (aud != null)
+                            {
+                                aud.Disable();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // special case database drop - drop existing connections to the database other than this one
+            if (dropOpenConnections)
+            {
+                if (db.ActiveConnections > 0)
+                {
+                    // force the database to be single user
+                    db.DatabaseOptions.UserAccess = DatabaseUserAccess.Single;
+                    db.Alter(TerminationClause.RollbackTransactionsImmediately);
+                }
+            }
+        }
+
+        private void SpecialPostDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj)
+        {
+            if (droppableObj is Policy)
+            {
+                Policy policyToDrop = (Policy)droppableObj;
+                if (!string.IsNullOrEmpty(policyToDrop.ObjectSet))
+                {
+                    ObjectSet objectSet = policyToDrop.Parent.ObjectSets[policyToDrop.ObjectSet];
+                    objectSet.Drop();
+                }
+            }
+
+            ResourcePool rp = droppableObj as ResourcePool;
+            ExternalResourcePool erp = droppableObj as ExternalResourcePool;
+            WorkloadGroup wg = droppableObj as WorkloadGroup;
+
+            if (null != rp || null != erp || null != wg)
+            {
+                // Alter() Resource Governor to reconfigure
+                dataContainer.Server.ResourceGovernor.Alter();
+            }
         }
 
 #endregion // "Helpers"
