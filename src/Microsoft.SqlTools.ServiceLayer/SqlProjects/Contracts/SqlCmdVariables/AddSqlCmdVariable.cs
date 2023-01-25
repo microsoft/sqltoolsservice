@@ -8,13 +8,25 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Parameters for adding a SQLCMD variable to a project
+    /// </summary>
     public class AddSqlCmdVariableParams : SqlProjectParams
     {
+        /// <summary>
+        /// Name of the SQLCMD variable
+        /// </summary>
         public string Name { get; set; }
 
-        public string Value { get; set; }
-
+        /// <summary>
+        /// Default value of the SQLCMD variable
+        /// </summary>
         public string DefaultVault { get; set; }
+
+        /// <summary>
+        /// Value of the SQLCMD variable, with or without the $()
+        /// </summary>
+        public string Value { get; set; }
     }
 
     public class AddSqlCmdVariableRequest
