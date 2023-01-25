@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             string projectUri = await service.CreateSqlProject(); // validates result.Success == true
 
             // Validate that result indicates failure when there's an exception
-            MockRequest<SqlProjectResult> requestMock = new();
+            MockRequest<ResultStatus> requestMock = new();
             await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
             {
                 ProjectUri = projectUri,
@@ -50,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(0, service.Projects.Count);
 
             // Validate creating SDK-style project
-            MockRequest<SqlProjectResult> requestMock = new();
+            MockRequest<ResultStatus> requestMock = new();
             await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
             {
                 ProjectUri = sdkProjectUri,
@@ -102,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count);
 
             // Validate adding a SQL object script
-            MockRequest<SqlProjectResult> requestMock = new();
+            MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath =  "MyTable.sql";
             string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
             await File.WriteAllTextAsync(scriptFullPath, "CREATE TABLE [MyTable] ([Id] INT)");
@@ -165,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         {
             string projectUri = TestContextHelpers.GetTestProjectPath();
 
-            MockRequest<SqlProjectResult> requestMock = new();
+            MockRequest<ResultStatus> requestMock = new();
             await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
             {
                 ProjectUri = projectUri,
