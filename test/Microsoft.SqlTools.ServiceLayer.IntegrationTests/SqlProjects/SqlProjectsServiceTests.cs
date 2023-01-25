@@ -15,7 +15,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 {
-    public class SqlProjectsServiceTests
+    public class SqlProjectsServiceTests : TestBase
     {
         [Test]
         public async Task TestErrorDuringExecution()
@@ -40,8 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         public async Task TestOpenCloseProject()
         {
             // Setup
-            string sdkProjectUri = TestContextHelpers.GetTestProjectPath(nameof(TestOpenCloseProject) + "Sdk");
-            string legacyProjectUri = TestContextHelpers.GetTestProjectPath(nameof(TestOpenCloseProject) + "Legacy");
+            string sdkProjectUri = TestContext.CurrentContext.GetTestProjectPath(nameof(TestOpenCloseProject) + "Sdk");
+            string legacyProjectUri = TestContext.CurrentContext.GetTestProjectPath(nameof(TestOpenCloseProject) + "Legacy");
 
             if (File.Exists(sdkProjectUri)) File.Delete(sdkProjectUri);
             if (File.Exists(legacyProjectUri)) File.Delete(legacyProjectUri);
@@ -164,7 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         /// <returns></returns>
         public async static Task<string> CreateSqlProject(this SqlProjectsService service)
         {
-            string projectUri = TestContextHelpers.GetTestProjectPath();
+            string projectUri = TestContext.CurrentContext.GetTestProjectPath();
 
             MockRequest<ResultStatus> requestMock = new();
             await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
