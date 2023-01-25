@@ -314,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
             var assemblies = new Assembly[] { assembly };
-            serviceProvider.AddAssembliesToConfiguration(assemblies);
+            serviceProvider.AddAssembliesToConfiguration<ICompletionExtension>(assemblies);
             foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
             {
                 var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);
