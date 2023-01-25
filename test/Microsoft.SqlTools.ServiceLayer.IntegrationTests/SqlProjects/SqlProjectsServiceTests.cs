@@ -104,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate adding a SQL object script
             MockRequest<ResultStatus> requestMock = new();
-            string scriptRelativePath =  "MyTable.sql";
+            string scriptRelativePath = "MyTable.sql";
             string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
             await File.WriteAllTextAsync(scriptFullPath, "CREATE TABLE [MyTable] ([Id] INT)");
 
@@ -152,6 +152,43 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(requestMock.Result.Success);
             Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count);
             Assert.IsFalse(File.Exists(scriptFullPath));
+        }
+
+        [Test]
+        public async Task TestSqlCmdVariablesAddDelete()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+
+            Assert.AreEqual(0, service.Projects[projectUri].SqlCmdVariables.Count, "Baseline number of SQLCMD variables not as expected");
+
+            // Validate adding a SQLCMD variable
+            MockRequest<ResultStatus> requestMock = new();
+
+            const string variableName = "TestVarName";
+
+            await service.HandleAddSqlCmdVariableRequest(new AddSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = variableName,
+                DefaultVault = "TestVarDefaultValue",
+                Value = "TestVarValue"
+            }, requestMock.Object);
+
+            Assert.IsTrue(requestMock.Result.Success, "Successful add request result expected");
+            Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after addition not as expected");
+            Assert.IsTrue(service.Projects[projectUri].SqlCmdVariables.Contains(variableName), $"List of SQLCMD variables expected to contain {variableName}");
+
+            // Validate deleting a SQLCMD variable
+            requestMock = new();
+            await service.HandleDeleteSqlCmdVariableRequest(new DeleteSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = variableName,
+            }, requestMock.Object);
+
+            Assert.IsTrue(requestMock.Result.Success, "Successful delete request result expected");
+            Assert.AreEqual(0, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after deletion not as expected");
         }
     }
 
