@@ -202,9 +202,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             nodePath = path;
         }
 
-        public TreeNode FindNodeByPath(string path, bool expandIfNeeded = false)
+        public TreeNode? FindNodeByPath(string path, bool expandIfNeeded = false)
         {
-            TreeNode nodeForPath = ObjectExplorerUtils.FindNode(this, node =>
+            TreeNode? nodeForPath = ObjectExplorerUtils.FindNode(this, node =>
             {
                 return node.GetNodePath() == path;
             }, nodeToFilter =>

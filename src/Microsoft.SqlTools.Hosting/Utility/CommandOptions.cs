@@ -6,7 +6,7 @@
 using System;
 using System.Globalization;
 
-namespace Microsoft.SqlTools.Hosting.Utility
+namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
     /// The command-line options helper class.
