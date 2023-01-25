@@ -441,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 string displayValue = VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
                     (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
 
-                // Make sure the display value has a time string with 7 milliseconds and a time zone
+                // Make sure the display value has a time string with 6 milliseconds and a time zone
                 Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{6} [+-][01][\d]:[\d]{2}$"));
             }
         }
@@ -463,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 string displayValue = VerifyReadWrite(sizeof(long) * 2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
                     (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
 
-                // Make sure the display value has a time string with 7 milliseconds and a time zone
+                // Make sure the display value has a time string with no millisecond and a time zone
                 Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2} [+-][01][\d]:[\d]{2}$"));
             }
         }
