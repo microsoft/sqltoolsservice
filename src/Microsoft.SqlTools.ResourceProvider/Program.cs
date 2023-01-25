@@ -5,7 +5,6 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 

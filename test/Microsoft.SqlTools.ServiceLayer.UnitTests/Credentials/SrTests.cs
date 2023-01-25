@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Utility;
 using NUnit.Framework;
 
 using CredSR = Microsoft.SqlTools.Credentials.SR;
