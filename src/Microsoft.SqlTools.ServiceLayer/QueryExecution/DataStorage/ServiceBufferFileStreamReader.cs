@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(float),          (o, id, col) => ReadSingle(o, id)},
                 {typeof(decimal),        (o, id, col) => ReadDecimal(o, id)},
                 {typeof(DateTime),       ReadDateTime},
-                {typeof(DateTimeOffset), (o, id, col) => ReadDateTimeOffset(o, id)},
+                {typeof(DateTimeOffset), ReadDateTimeOffset},
                 {typeof(TimeSpan),       (o, id, col) => ReadTimeSpan(o, id)},
                 {typeof(byte[]),         (o, id, col) => ReadBytes(o, id)},
                 {typeof(Guid),           (o, id, col) => ReadGuid(o, id)},
@@ -454,8 +454,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="offset">Offset into the file to read the DateTimeOffset from</param>
         /// <param name="rowId">Internal ID of the row that will be stored in the cell</param>
+        /// <param name="col">Column metadata, used for determining what precision to output</param>
         /// <returns>A DateTimeOffset</returns>
-        internal FileStreamReadResult ReadDateTimeOffset(long offset, long rowId)
+        internal FileStreamReadResult ReadDateTimeOffset(long offset, long rowId, DbColumnWrapper col)
         {
             // DateTimeOffset is represented by DateTime.Ticks followed by TimeSpan.Ticks
             // both as Int64 values
@@ -466,8 +467,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return new DateTimeOffset(new DateTime(dtTicks), new TimeSpan(dtOffset));
             }, null, dt =>
             {
-                string formatString = $"{DateFormatString} {TimeFormatString}.fffffff zzz";
-
+                int scale = Math.Min(col.NumericScale ?? 7, 7);
+                string formatString = $"{DateFormatString} {TimeFormatString}";
+                if (scale > 0)
+                {
+                    string millisecondString = new string('f', scale);
+                    formatString += $".{millisecondString}";
+                }
+                formatString += " zzz";
                 return dt.ToString(formatString);
             });
         }
