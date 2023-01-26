@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.Utility
         private static string logFileFullPath;
 
         internal static TraceSource TraceSource { get; set; }
-        internal static string LogFileFullPath
+        public static string LogFileFullPath
         {
             get => logFileFullPath;
             private set
