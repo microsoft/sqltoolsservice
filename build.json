@@ -33,7 +33,8 @@
     "Microsoft.SqlTools.ResourceProvider",
     "Microsoft.Kusto.ServiceLayer",
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.SqlTools.ManagedBatchParser"
+    "Microsoft.SqlTools.ManagedBatchParser",
+    "Microsoft.SqlTools.Migration"
   ],
   "FxBuildProjects": [
     "Microsoft.SqlTools.ManagedBatchParser"

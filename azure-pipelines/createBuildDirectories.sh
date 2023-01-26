@@ -21,6 +21,7 @@ net6projectArray=(
     "./src/Microsoft.SqlTools.ResourceProvider.Core"
     "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl"
     "./src/Microsoft.SqlTools.ServiceLayer"
+    "./src/Microsoft.SqlTools.Migration"
     "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
     "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"

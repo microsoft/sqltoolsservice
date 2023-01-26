@@ -31,4 +31,8 @@
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
   </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Localization\*.resx" />
+		<None Include="Localization\sr.strings" />
+	</ItemGroup>
 </Project>
