@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         /// <param name="descriptor">Optional extra descriptor, parenthesized in the failure message</param>
         public void AssertSuccess(string handlerName, string? descriptor = null)
         {
-            Assert.IsTrue(this.Result.Success, $"{handlerName} {(descriptor != null ? $" (descriptor)" : String.Empty)} expected to succeed, but failed with error: '{this.Result.ErrorMessage}'");
+            Assert.IsTrue(this.Result.Success, $"{handlerName} {(descriptor != null ? $" ({descriptor})" : String.Empty)} expected to succeed, but failed with error: '{this.Result.ErrorMessage}'");
         }
     }
 }
