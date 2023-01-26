@@ -7,7 +7,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
 {
@@ -61,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         }
     }
 
-    public class MockRequest<T>
+    public class MockRequest<T> where T : ResultStatus
     {
         private T? result;
         public T Result => result ?? throw new InvalidOperationException("No result has been sent for the request");
@@ -72,6 +74,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
         public MockRequest()
         {
             Mock = RequestContextMocks.Create<T>(actual => result = actual);
+        }
+
+        /// <summary>
+        /// Asserts that this request was successful
+        /// </summary>
+        /// <param name="handlerName">Name of the handler, recommended to use nameof(service.MyHandler), used in the failure message</param>
+        /// <param name="descriptor">Optional extra descriptor, parenthesized in the failure message</param>
+        public void AssertSuccess(string handlerName, string? descriptor = null)
+        {
+            Assert.IsTrue(this.Result.Success, $"{handlerName} {(descriptor != null ? $"(descriptor) " : String.Empty)}expected to succeed, but failed with error: '{this.Result.ErrorMessage}'");
         }
     }
 }
