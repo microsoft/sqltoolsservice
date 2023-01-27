@@ -94,6 +94,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Resource
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Migration", "src\Microsoft.SqlTools.Migration\Microsoft.SqlTools.Migration.csproj", "{22DB0C12-6848-4503-AD1C-DAD6A1D631AE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Migration.IntegrationTests", "test\Microsoft.SqlTools.Migration.IntegrationTests\Microsoft.SqlTools.Migration.IntegrationTests.csproj", "{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -221,6 +223,12 @@ Global
 		{22DB0C12-6848-4503-AD1C-DAD6A1D631AE}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{22DB0C12-6848-4503-AD1C-DAD6A1D631AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22DB0C12-6848-4503-AD1C-DAD6A1D631AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -247,6 +255,7 @@ Global
 		{212F6FE0-4E73-438B-B4BE-7F3A3B3D7378} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{07296730-DAB7-4B0B-9D09-ABD9A5025D68} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{22DB0C12-6848-4503-AD1C-DAD6A1D631AE} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
+		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
