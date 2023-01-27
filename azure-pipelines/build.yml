@@ -28,11 +28,11 @@ parameters:
     # - name: 'win10-arm'
     #   displayName: 'Windows 10 ARM'
     #   archiveFileFormat: 'zip'
-    - name: projects
-      type: object
-      default:
-      - 'Microsoft.SqlTools.ServiceLayer'
-      - 'Microsoft.SqlTools.Migration'
+  - name: projects
+    type: object
+    default:
+    - 'Microsoft.SqlTools.ServiceLayer'
+    - 'Microsoft.SqlTools.Migration'
 
 steps:
 - task: UseDotNet@2
