@@ -1,3 +1,39 @@
+parameters:
+  - name: platforms
+    type: object
+    default:
+    - name: 'osx.10.11-x64'
+      displayName: 'osx'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'osx-arm64'
+      displayName: 'osx arm'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'rhel.7.2-x64'
+      displayName: 'rhel'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'win-x64'
+      displayName: 'Windows 64 bit'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'win-x86'
+      displayName: 'Windows 32 bit'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    # - name: 'win10-arm64'
+    #   displayName: 'Windows 10 ARM 64 bit'
+    #   archiveFileFormat: 'zip'
+    # - name: 'win10-arm'
+    #   displayName: 'Windows 10 ARM'
+    #   archiveFileFormat: 'zip'
+    - name: projects
+      type: object
+      default:
+      - 'Microsoft.SqlTools.ServiceLayer'
+      - 'Microsoft.SqlTools.Migration'
+
 steps:
 - task: UseDotNet@2
   displayName: 'Use defined .NET Core sdk'
@@ -250,41 +286,6 @@ steps:
 #     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net6.0'
 #     includeRootFolder: false
 #     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net6.0.zip'
-- parameters:
-  - name: platforms
-    type: object
-    default:
-    - name: 'osx.10.11-x64'
-      displayName: 'osx'
-      archiveFileFormat: 'tar.gz'
-      archiveType: 'tar'
-    - name: 'osx-arm64'
-      displayName: 'osx arm'
-      archiveFileFormat: 'tar.gz'
-      archiveType: 'tar'
-    - name: 'rhel.7.2-x64'
-      displayName: 'rhel'
-      archiveFileFormat: 'tar.gz'
-      archiveType: 'tar'
-    - name: 'win-x64'
-      displayName: 'Windows 64 bit'
-      archiveFileFormat: 'zip'
-      archiveType: 'zip'
-    - name: 'win-x86'
-      displayName: 'Windows 32 bit'
-      archiveFileFormat: 'zip'
-      archiveType: 'zip'
-    # - name: 'win10-arm64'
-    #   displayName: 'Windows 10 ARM 64 bit'
-    #   archiveFileFormat: 'zip'
-    # - name: 'win10-arm'
-    #   displayName: 'Windows 10 ARM'
-    #   archiveFileFormat: 'zip'
-    - name: projects
-      type: object
-      default:
-      - 'Microsoft.SqlTools.ServiceLayer'
-      - 'Microsoft.SqlTools.Migration'
 
 - ${{ each project in parameters.projects }}:
   - ${{ each platform in parameters.platforms }}:
