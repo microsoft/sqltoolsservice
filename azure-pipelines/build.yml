@@ -109,7 +109,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll,MicrosoftSqlToolsMigration.exe,MicrosoftSqlToolsMigration.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -250,6 +250,44 @@ steps:
 #     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net6.0'
 #     includeRootFolder: false
 #     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net6.0.zip'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive Migration osx build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.Migration/osx.10.11-x64/net6.0'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.Migration-osx-x64-net6.0.tar.gz'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive Migration osx arm build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.Migration/osx-arm64/net6.0'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.Migration-osx-arm64-net6.0.tar.gz'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive Migration rhel build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.Migration/rhel.7.2-x64/net6.0'
+    includeRootFolder: false
+    archiveType: tar
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.Migration-rhel-x64-net6.0.tar.gz'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive Migration windows 64 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.Migration/win-x64/net6.0'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.Migration-win-x64-net6.0.zip'
+
+- task: ArchiveFiles@1
+  displayName: 'Archive Migration windows 32 bit build'
+  inputs:
+    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.Migration/win-x86/net6.0'
+    includeRootFolder: false
+    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.Migration-win-x86-net6.0.zip'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'

@@ -58,6 +58,18 @@
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer"
+    "Microsoft.Kusto.ServiceLayer",
+    "Microsoft.SqlTools.Migration"
+  ],
+  "Projects": [
+    {
+      "Name": "Microsoft.SqlTools.Migration",
+      "PackageProjects": [
+        "Microsoft.SqlTools.Migration"
+      ],
+      "TestProjects": [
+        "Microsoft.SqlTools.Migration.UnitTests"
+      ]
+    }
   ]
 }
