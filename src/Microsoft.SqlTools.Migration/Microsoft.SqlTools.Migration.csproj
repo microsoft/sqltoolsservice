@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.SqlServer.Assessment" />
     <PackageReference Include="Microsoft.SqlServer.Migration.Logins" />
     <PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
+    <PackageReference Include="Microsoft.SqlServer.Migration.Tde" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />

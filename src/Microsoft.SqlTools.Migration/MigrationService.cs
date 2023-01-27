@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,6 +13,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.DataCollection.Common;
 using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
 using Microsoft.SqlServer.Management.Assessment;
@@ -26,6 +26,7 @@ using Microsoft.SqlServer.Migration.Logins;
 using Microsoft.SqlServer.Migration.Logins.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Aggregation;
+using Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Constants;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
@@ -38,15 +39,16 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlMa
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
+using Microsoft.SqlServer.Migration.Tde;
+using Microsoft.SqlServer.Migration.Tde.Common;
+using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Migration.Contracts;
+using Microsoft.SqlTools.Migration.Models;
 using Microsoft.SqlTools.Migration.Utils;
 using Microsoft.SqlTools.Utility;
-using  Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
 
 using Newtonsoft.Json;
-using Microsoft.SqlTools.Hosting;
-using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.Migration
 {
@@ -105,6 +107,7 @@ namespace Microsoft.SqlTools.Migration
             this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
             this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
             this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
+            this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
             Logger.Verbose("Migration Service initialized");
         }
 
@@ -985,6 +988,78 @@ namespace Microsoft.SqlTools.Migration
             }
 
             return eligibleSkuCategories;
+        }
+
+        /// <summary>
+        /// Request handler for the certifica migration operation
+        /// </summary>
+        /// <param name="parameters">Parameters for the operation, as register during the type definition</param>
+        /// <param name="requestContext">Context provided by the framework</param>
+        /// <returns></returns>
+        internal async Task HandleTdeCertificateMigrationRequest(
+          CertificateMigrationParams parameters,
+          RequestContext<CertificateMigrationResult> requestContext)
+        {
+            var result = new CertificateMigrationResult();
+
+            var credentials = new StaticTokenCredential(parameters.AccessToken); //New token provided, will change to shared ADS cache later.
+
+            // Reuse the tde migration client
+            var tdeMigrationClient = new TdeMigration(
+                   parameters.SourceSqlConnectionString,
+                   parameters.TargetSubscriptionId,
+                   parameters.TargetResourceGroupName,
+                   parameters.TargetManagedInstanceName,
+                   parameters.NetworkSharePath,
+                   parameters.NetworkShareDomain,
+                   parameters.NetworkShareUserName,
+                   parameters.NetworkSharePassword,
+                   credentials
+                   );
+
+            foreach (var dbName in parameters.EncryptedDatabases)
+            {
+                var migrationResult = await MigrateCertificate(tdeMigrationClient, dbName);
+                
+                var eventData = new CertificateMigrationProgressParams
+                {
+                    Name = dbName,
+                    Success = migrationResult.Success,
+                    Message = migrationResult.Message
+                };
+                await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
+
+                result.MigrationStatuses.Add(migrationResult);
+            }
+
+            await requestContext.SendResult(result);
+        }
+
+        /// <summary>
+        /// Individual certificate migration operation
+        /// </summary>
+        /// <param name="tdeMigrationClient">Instance of the migration client</param>
+        /// <param name="dbName">Name of the database to migrate</param>
+        /// <returns></returns>
+        private async Task<CertificateMigrationEntryResult> MigrateCertificate(TdeMigration tdeMigrationClient, string dbName)
+        {
+            try
+            {
+                var result = await tdeMigrationClient.MigrateTdeCertificate(dbName, CancellationToken.None);
+
+                if (result is TdeExceptionResult tdeExceptionResult)
+                {
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message };
+                }
+                else 
+                {
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new CertificateMigrationEntryResult { DbName = dbName, Success = false, Message = ex.Message };
+            }
         }
 
         /// <summary>
