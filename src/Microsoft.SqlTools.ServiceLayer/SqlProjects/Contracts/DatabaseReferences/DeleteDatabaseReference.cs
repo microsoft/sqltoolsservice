@@ -3,15 +3,24 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts.DatabaseReferences
+namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
-    internal class DeleteDatabaseReference
+    /// <summary>
+    /// Parameters for deleting a database reference
+    /// </summary>
+    public class DeleteDatabaseReferenceParams : SqlProjectParams
     {
+        /// <summary>
+        /// Name of the reference to be deleted.  Name of the System DB, path of the sqlproj, or path of the dacpac
+        /// </summary>
+        public string Name { get; set; }
+    }
+
+    public class DeleteDatabaseReferenceRequest
+    {
+        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/deleteDatabaseReference");
     }
 }
