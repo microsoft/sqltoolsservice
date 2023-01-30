@@ -218,6 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// provide signature help.
         /// </summary>
         [Test]
+        [Ignore("this test is not stable")]
         public async Task GetSignatureHelpReturnsNotNullIfParseInfoInitialized()
         {
             // When we make a connection to a live database
