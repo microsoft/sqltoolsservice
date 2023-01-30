@@ -4,7 +4,7 @@
 //
 
 using System.Globalization;
-using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Utility
 {

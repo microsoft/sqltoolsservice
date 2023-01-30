@@ -41,6 +41,7 @@ using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using System.IO;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -178,6 +179,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ObjectManagementService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ObjectManagementService.Instance);
+
+            SqlProjectsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SqlProjectsService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }
