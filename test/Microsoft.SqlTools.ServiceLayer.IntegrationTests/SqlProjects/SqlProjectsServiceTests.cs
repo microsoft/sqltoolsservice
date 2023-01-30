@@ -33,8 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             }, requestMock.Object);
 
-            Assert.IsFalse(requestMock.Result.Success);
-            Assert.IsTrue(requestMock.Result.ErrorMessage!.Contains("Cannot create a new SQL project"));
+            Assert.IsFalse(requestMock.Result.Success, $"{nameof(service.HandleNewSqlProjectRequest)} when file already exists expected to fail");
+            Assert.IsTrue(requestMock.Result.ErrorMessage!.Contains("Cannot create a new SQL project")
+                       && requestMock.Result.ErrorMessage!.Contains("a file already exists at that location"),
+                       $"Error message expected to mention that a file already exists, but instead was: '{requestMock.Result.ErrorMessage}'");
         }
 
         [Test]
@@ -49,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             SqlProjectsService service = new();
 
-            Assert.AreEqual(0, service.Projects.Count);
+            Assert.AreEqual(0, service.Projects.Count, "Baseline number of loaded projects");
 
             // Validate creating SDK-style project
             MockRequest<ResultStatus> requestMock = new();
@@ -57,13 +59,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             {
                 ProjectUri = sdkProjectUri,
                 SqlProjectType = ProjectType.SdkStyle
-
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(1, service.Projects.Count);
-            Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri));
-            Assert.AreEqual(service.Projects[sdkProjectUri].SqlProjStyle, ProjectType.SdkStyle);
+            requestMock.AssertSuccess(nameof(service.HandleNewSqlProjectRequest), "SDK");
+            Assert.AreEqual(1, service.Projects.Count, "Number of loaded projects after creating SDK not as expected");
+            Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri), "Loaded project list expected to contain SDK project URI");
+            Assert.AreEqual(ProjectType.SdkStyle, service.Projects[sdkProjectUri].SqlProjStyle, "SqlProj style expected to be SDK");
 
             // Validate creating Legacy-style project
             requestMock = new();
@@ -73,26 +74,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 SqlProjectType = ProjectType.LegacyStyle
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(2, service.Projects.Count);
-            Assert.IsTrue(service.Projects.ContainsKey(legacyProjectUri));
-            Assert.AreEqual(service.Projects[legacyProjectUri].SqlProjStyle, ProjectType.LegacyStyle);
+            requestMock.AssertSuccess(nameof(service.HandleNewSqlProjectRequest), "Legacy");
+            Assert.AreEqual(2, service.Projects.Count, "Number of loaded projects after creating Legacy");
+            Assert.IsTrue(service.Projects.ContainsKey(legacyProjectUri), "Loaded project list expected to contain Legacy project URI");
+            Assert.AreEqual(service.Projects[legacyProjectUri].SqlProjStyle, ProjectType.LegacyStyle, "SqlProj style");
 
             // Validate closing a project
             requestMock = new();
             await service.HandleCloseSqlProjectRequest(new SqlProjectParams() { ProjectUri = sdkProjectUri }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(1, service.Projects.Count);
-            Assert.IsTrue(!service.Projects.ContainsKey(sdkProjectUri));
+            requestMock.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+            Assert.AreEqual(1, service.Projects.Count, "Number of loaded projects after closing SDK project");
+            Assert.IsTrue(!service.Projects.ContainsKey(sdkProjectUri), "Loaded project list should not contain SDK after closing");
 
             // Validate opening a project
             requestMock = new();
             await service.HandleOpenSqlProjectRequest(new SqlProjectParams() { ProjectUri = sdkProjectUri }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(2, service.Projects.Count);
-            Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri));
+            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+            Assert.AreEqual(2, service.Projects.Count, "Number of loaded projects after re-opening");
+            Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri), "Loaded project list expected to contain SDK project URI after re-opening");
         }
 
         [Test]
@@ -101,13 +102,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             // Setup
             SqlProjectsService service = new();
             string projectUri = await service.CreateSqlProject();
-            Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count);
+            Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "Baseline number of SqlObjectScripts");
 
             // Validate adding a SQL object script
             MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath = "MyTable.sql";
             string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
             await File.WriteAllTextAsync(scriptFullPath, "CREATE TABLE [MyTable] ([Id] INT)");
+            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
 
             await service.HandleAddSqlObjectScriptRequest(new SqlProjectScriptParams()
             {
@@ -115,9 +117,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 Path = scriptRelativePath
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count);
-            Assert.IsTrue(service.Projects[projectUri].SqlObjectScripts.Contains(scriptRelativePath));
+            requestMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after add");
+            Assert.IsTrue(service.Projects[projectUri].SqlObjectScripts.Contains(scriptRelativePath), $"SqlObjectScripts expected to contain {scriptRelativePath}");
 
             // Validate excluding a SQL object script
             requestMock = new();
@@ -127,9 +129,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 Path = scriptRelativePath
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count);
-            Assert.IsTrue(File.Exists(scriptFullPath));
+            requestMock.AssertSuccess(nameof(service.HandleExcludeSqlObjectScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after exclude");
+            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to still exist on disk");
 
             // Re-add to set up for Delete
             requestMock = new();
@@ -139,8 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 Path = scriptRelativePath
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count);
+            requestMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after re-add");
 
             // Validate deleting a SQL object script
             requestMock = new();
@@ -150,9 +152,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 Path = scriptRelativePath
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
-            Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count);
-            Assert.IsFalse(File.Exists(scriptFullPath));
+            requestMock.AssertSuccess(nameof(service.HandleDeleteSqlObjectScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after delete");
+            Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
         }
 
         [Test]
@@ -230,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success);
+            Assert.IsTrue(requestMock.Result.Success, $"Failed to create project: {requestMock.Result.ErrorMessage}");
 
             return projectUri;
         }
