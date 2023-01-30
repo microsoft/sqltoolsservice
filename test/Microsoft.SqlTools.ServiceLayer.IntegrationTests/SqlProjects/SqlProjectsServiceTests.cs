@@ -4,6 +4,7 @@
 //
 
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -105,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate adding a SQL object script
             MockRequest<ResultStatus> requestMock = new();
-            string scriptRelativePath =  "MyTable.sql";
+            string scriptRelativePath = "MyTable.sql";
             string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
             await File.WriteAllTextAsync(scriptFullPath, "CREATE TABLE [MyTable] ([Id] INT)");
             Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
@@ -154,6 +155,61 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleDeleteSqlObjectScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after delete");
             Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
+        }
+
+        [Test]
+        public async Task TestSqlCmdVariablesAddDelete()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+
+            Assert.AreEqual(0, service.Projects[projectUri].SqlCmdVariables.Count, "Baseline number of SQLCMD variables not as expected");
+
+            // Validate adding a SQLCMD variable
+            MockRequest<ResultStatus> requestMock = new();
+
+            const string variableName = "TestVarName";
+
+            await service.HandleAddSqlCmdVariableRequest(new AddSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = variableName,
+                DefaultValue = "$(TestVarDefaultValue)",
+                Value = "$(TestVarValue)"
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddSqlCmdVariableRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after addition not as expected");
+            Assert.IsTrue(service.Projects[projectUri].SqlCmdVariables.Contains(variableName), $"List of SQLCMD variables expected to contain {variableName}");
+
+            // Validate updating a SQLCMD variable
+            const string updatedDefaultValue = "$(UpdatedDefaultValue)";
+            const string updatedValue = "$(UpdatedValue)";
+
+            requestMock = new();
+            await service.HandleUpdateSqlCmdVariableRequest(new AddSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = variableName,
+                DefaultValue = updatedDefaultValue,
+                Value = updatedValue
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleUpdateSqlCmdVariableRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after update not as expected");
+            Assert.AreEqual(updatedDefaultValue, service.Projects[projectUri].SqlCmdVariables.First().DefaultValue, "Updated default value");
+            Assert.AreEqual(updatedValue, service.Projects[projectUri].SqlCmdVariables.First().Value, "Updated value");
+
+            // Validate deleting a SQLCMD variable
+            requestMock = new();
+            await service.HandleDeleteSqlCmdVariableRequest(new DeleteSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = variableName,
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeleteSqlCmdVariableRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after deletion not as expected");
         }
     }
 
