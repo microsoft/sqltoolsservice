@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// Default value of the SQLCMD variable
         /// </summary>
-        public string DefaultVault { get; set; }
+        public string DefaultValue { get; set; }
 
         /// <summary>
         /// Value of the SQLCMD variable, with or without the $()

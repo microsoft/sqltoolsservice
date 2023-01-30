@@ -4,6 +4,7 @@
 //
 
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -171,13 +172,31 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             {
                 ProjectUri = projectUri,
                 Name = variableName,
-                DefaultVault = "TestVarDefaultValue",
+                DefaultValue = "TestVarDefaultValue",
                 Value = "TestVarValue"
             }, requestMock.Object);
 
             Assert.IsTrue(requestMock.Result.Success, "Successful add request result expected");
             Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after addition not as expected");
             Assert.IsTrue(service.Projects[projectUri].SqlCmdVariables.Contains(variableName), $"List of SQLCMD variables expected to contain {variableName}");
+
+            // Validate updating a SQLCMD variable
+            const string updatedDefaultValue = "UpdatedDefaultValue";
+            const string updatedValue = "UpdatedValue";
+
+            requestMock = new();
+            await service.HandleUpdateSqlCmdVariableRequest(new AddSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = variableName,
+                DefaultValue = updatedDefaultValue,
+                Value = updatedValue
+            }, requestMock.Object);
+
+            Assert.IsTrue(requestMock.Result.Success, "Successful update request result expected");
+            Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after update not as expected");
+            Assert.AreEqual(updatedDefaultValue, service.Projects[projectUri].SqlCmdVariables.First().DefaultValue, "Updated default value");
+            Assert.AreEqual(updatedValue, service.Projects[projectUri].SqlCmdVariables.First().Value, "Updated value");
 
             // Validate deleting a SQLCMD variable
             requestMock = new();
