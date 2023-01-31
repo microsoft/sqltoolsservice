@@ -158,6 +158,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestFolderAddDelete()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.AreEqual(0, service.Projects[projectUri].Folders.Count, "Baseline number of folders");
+
+            // Validate adding a folder
+            MockRequest<ResultStatus> requestMock = new();
+            FolderParams folderParams = new FolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = "TestFolder"
+            };
+
+            await service.HandleAddFolderRequest(folderParams, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddFolderRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after add");
+            Assert.IsTrue(Directory.Exists(Path.Join(Path.GetDirectoryName(projectUri), folderParams.Path)), $"Subfolder '{folderParams.Path}' expected to exist on disk");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"SqlObjectScripts expected to contain {folderParams.Path}");
+            
+            // Validate deleting a folder
+            requestMock = new();
+            await service.HandleDeleteFolderRequest(folderParams, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeleteFolderRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].Folders.Count, "Folder count after delete");
+        }
+
+        [Test]
         public async Task TestSqlCmdVariablesAddDelete()
         {
             SqlProjectsService service = new();
