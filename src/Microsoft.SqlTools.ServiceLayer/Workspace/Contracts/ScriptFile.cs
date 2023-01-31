@@ -445,6 +445,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                     .ToList();
         }
 
+        public override string ToString()
+        {
+            return $"ScriptFile:{this.FilePath}";
+        }
+
         #endregion
     }
 }
