@@ -19,16 +19,15 @@
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.12.0" />
-		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="161.8055.0-preview" />
-		<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="161.8056.0-alpha" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="3.1.0" />
+		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="161.47021.0" />
+		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="161.47008.0" />
+		<PackageReference Update="Microsoft.SqlServer.DACFx" Version="160.6232.0-preview" GeneratePathProperty="true" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
-		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20221028.23" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20221215.33" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="160.22524.0" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230119.40" />
+		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.9]" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20220808.764" />
+		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="160.22506.0" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.10.0" />
@@ -47,6 +46,7 @@
 		<PackageReference Update="coverlet.collector" Version="3.1.2" />
 		<PackageReference Update="coverlet.msbuild" Version="3.1.2" />
 	</ItemGroup>
+<<<<<<< HEAD
 
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
@@ -56,4 +56,6 @@
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
+=======
+>>>>>>> t-rayfeng/target-provisioning
 </Project>
