@@ -7,10 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-//using System.Resources;
 using System.Data;
 
-//using Microsoft.SqlServer.Management;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -783,7 +781,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             #region data members
             private string              loginName = string.Empty;
-            private LoginType           loginType = LoginType.WindowsUser;
+            private SqlServer.Management.Smo.LoginType loginType = SqlServer.Management.Smo.LoginType.WindowsUser;
 
             // General data
             private string              defaultDatabase         = "master";
@@ -824,7 +822,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             // General properties
 
-            public LoginType        LoginType
+            public SqlServer.Management.Smo.LoginType LoginType
             {
                 get
                 {
@@ -1238,7 +1236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.server = server;
                 if (server.HostPlatform != HostPlatformNames.Windows)
                 {
-                    LoginType = LoginType.SqlLogin;
+                    LoginType = SqlServer.Management.Smo.LoginType.SqlLogin;
                 }
             }
 
@@ -1339,10 +1337,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.loginType  = login.LoginType;
             
                 bool useWindowsAuthentication   = 
-                    (login.LoginType == LoginType.WindowsUser) ||
-                    (login.LoginType == LoginType.WindowsGroup);
+                    (login.LoginType == SqlServer.Management.Smo.LoginType.WindowsUser) ||
+                    (login.LoginType == SqlServer.Management.Smo.LoginType.WindowsGroup);
 
-                bool useSqlAuthentication = (login.LoginType == LoginType.SqlLogin);
+                bool useSqlAuthentication = (login.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin);
 
                 this.windowsGrantAccess = !login.DenyWindowsLogin;
 
@@ -1365,7 +1363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
                 if (isYukon)
                 {
-                    if (login.LoginType == LoginType.SqlLogin)
+                    if (login.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
                     {
                         // these properties make sense only for Yukon+ with SQL Authentication
                         this.mustChange         = login.MustChangePassword;
@@ -1384,11 +1382,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     
                     this.isDisabled = login.IsDisabled;  
                  
-                    if (login.LoginType == LoginType.Certificate)
+                    if (login.LoginType == SqlServer.Management.Smo.LoginType.Certificate)
                     {
                         this.certificateName = login.Certificate;
                     }
-                    else if (login.LoginType == LoginType.AsymmetricKey)
+                    else if (login.LoginType == SqlServer.Management.Smo.LoginType.AsymmetricKey)
                     {
                         this.asymmetricKeyName = login.AsymmetricKey;
                     }
@@ -1414,7 +1412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 if (!WindowsAuthSupported)
                 {
-                    this.loginType = LoginType.SqlLogin;
+                    this.loginType = SqlServer.Management.Smo.LoginType.SqlLogin;
                 }
 
                 this.defaultLanguage            = LoginPrototypeData.DefaultLanguageDisplay;
@@ -1454,7 +1452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <summary>
         /// Whether to use NT Authentication.  (e.g. true == NT Authentication, false == SQL Authentication)
         /// </summary>
-        public  LoginType       LoginType
+        public SqlServer.Management.Smo.LoginType LoginType
         {
             get
             {
@@ -1966,7 +1964,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.LoginName = login.LoginName;
             this.SqlPassword = login.Password;
             this.OldPassword = login.OldPassword;
-            this.LoginType = LoginType.SqlLogin;
+            this.LoginType = SqlServer.Management.Smo.LoginType.SqlLogin;
             this.DefaultLanguage = login.DefaultLanguage;
             this.DefaultDatabase = login.DefaultDatabase;
         }
@@ -2067,7 +2065,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             // enforcing password policy, enforcing password expiration, and mapping a credential are supported only on Yukon+
-            if ((this.LoginType == LoginType.SqlLogin) && (server.Information.Version.Major >= 9))
+            if ((this.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin) && (server.Information.Version.Major >= 9))
             {
                 if (!this.Exists || (this.currentState.EnforcePolicy != this.originalState.EnforcePolicy))
                 {
@@ -2116,7 +2114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             else
             {
                 // if login is a SQL Login and the login is being created, specify the password
-                if (this.LoginType == LoginType.SqlLogin)
+                if (this.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
                 {
                     login.Create(this.SqlPassword, this.MustChange ? LoginCreateOptions.MustChange : LoginCreateOptions.None);
                 }
@@ -2131,7 +2129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // the password to match.  Note that this should be delayed until after
             // the "enforce policy" and "enforce expiration" options have been set
             // in the call to Login.Alter() above.
-            if ((this.LoginType == LoginType.SqlLogin) && this.Exists)
+            if ((this.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin) && this.Exists)
             {
                 if (this.currentState.SqlPassword != this.originalState.SqlPassword) //Password is changed
                 {
@@ -2433,7 +2431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                return ((this.LoginType == LoginType.WindowsUser) || (this.LoginType == LoginType.WindowsGroup));
+                return ((this.LoginType == SqlServer.Management.Smo.LoginType.WindowsUser) || (this.LoginType == SqlServer.Management.Smo.LoginType.WindowsGroup));
             }
         }
 
@@ -2441,7 +2439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                return ((this.LoginType == LoginType.ExternalUser) || (this.LoginType == LoginType.ExternalGroup));
+                return ((this.LoginType == SqlServer.Management.Smo.LoginType.ExternalUser) || (this.LoginType == SqlServer.Management.Smo.LoginType.ExternalGroup));
             }
         }
     }

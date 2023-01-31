@@ -89,6 +89,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
         }
 
+
+#region "Login Handlers"        
+
         /// <summary>
         /// Handle request to create a login
         /// </summary>
@@ -104,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginPrototype prototype = new LoginPrototype(dataContainer.Server, parameters.Login);
 
-            if (prototype.LoginType == LoginType.SqlLogin)
+            if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
             {
                 // check that there is a password
                 // this check is made if policy enforcement is off
@@ -156,6 +159,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 ErrorMessage = string.Empty
             });
         }
+
+#endregion
+
+#region "User Handlers"
+// ...
+#endregion
+
+#region "Credential Handlers"
 
         /// <summary>
         /// Handle request to create a credential
@@ -258,6 +269,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 disposed = true;
             }
         }
+
+#endregion        
 
 #region "Helpers"
 

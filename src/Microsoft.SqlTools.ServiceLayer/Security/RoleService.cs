@@ -6,11 +6,9 @@
 using System;
 //using System.Collections.Specialized;
 using System.Threading.Tasks;
-//using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-///using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security

@@ -3,22 +3,31 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 {
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum LoginType
+    {
+        [EnumMember(Value = "Windows")]
+        Windows,
+        [EnumMember(Value = "Sql")]
+        Sql,
+        [EnumMember(Value = "AAD")]
+        AzureActiveDirectory
+    }
+
     /// <summary>
     /// a class for storing various login properties
     /// </summary>
     public class LoginInfo
     {
-//             // General data
-//             private ServerRoles         serverRoles             = null;
-//             private HybridDictionary    databaseRolesCollection = null;
-//             private static string       defaultLanguageDisplay;
-//             private StringCollection credentials = null;
-
         public string LoginName { get; set; }
 
-        public AuthType LoginType { get; set; }
+        public LoginType LoginType { get; set; }
 
         public string CertificateName { get; set; }
             
