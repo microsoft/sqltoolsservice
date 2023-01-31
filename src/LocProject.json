@@ -50,12 +50,6 @@
           "LclFile": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
           "CopyOption": "LangIDOnName",
           "OutputPath": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\transXliff"
-        },
-        {
-          "SourceFile": "src\\Microsoft.SqlTools.Migration\\Localization\\sr.xlf",
-          "LclFile": "src\\Microsoft.SqlTools.Migration\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
-          "CopyOption": "LangIDOnName",
-          "OutputPath": "src\\Microsoft.SqlTools.Migration\\Localization\\transXliff"
         }
       ]
     }

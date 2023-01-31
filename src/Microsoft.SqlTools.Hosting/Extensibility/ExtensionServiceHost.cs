@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.Extensibility
             // another one during initialization, it will be able to safely do so
             foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
             {
-                if (IsServiceInitialized(service))
+                if(IsServiceInitialized(service))
                 {
                     continue;
                 }
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.Extensibility
 
             foreach (IHostedService service in this.serviceProvider.GetServices<IHostedService>())
             {
-                if (IsServiceInitialized(service))
+                if(IsServiceInitialized(service))
                 {
                     continue;
                 }
@@ -199,17 +199,14 @@ namespace Microsoft.SqlTools.Extensibility
         protected void RegisterService(IHostedService service)
         {
             this.serviceProvider.RegisterSingleService(service.GetType(), service);
-
+           
         }
 
         protected void InitializeService(IHostedService service)
         {
             service.InitializeService(this);
             this.initializedServices.Add(service);
-            if (this.options.InitializeServiceCallback != null)
-            {
-                this.options.InitializeServiceCallback(this, service);
-            }
+            this.options.InitializeServiceCallback(this, service);
         }
 
         /// <summary>
@@ -287,7 +284,7 @@ namespace Microsoft.SqlTools.Extensibility
         public int ShutdownTimeoutInSeconds { get; set; } = 120;
 
         public delegate void InitializeService(ExtensionServiceHost serviceHost, IHostedService service);
-
+        
         /// <summary>
         /// Service initialization callback. The caller must define this callback to initialize the service.
         /// </summary>

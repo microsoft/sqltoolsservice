@@ -1,5 +1,0 @@
-ServerName,DatabaseName,LogicalName,PhysicalFullName,FileType,SizeMB,IsMemoryOptimizedDataOptionEnabled,TimeDataCollected
-TEST,test,test,C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\test.mdf,Rows,3,False,2021-10-28 19:08:03
-TEST,test,test_log,C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\test_log.ldf,Log,1,False,2021-10-28 19:08:03
-TEST,test1,AdventureWorks2008R2_Data,C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\test1.mdf,Rows,195.9375,False,2021-10-28 19:08:03
-TEST,test1,AdventureWorks2008R2_Log,C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\test1_1.LDF,Log,3.75,False,2021-10-28 19:08:03

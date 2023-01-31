@@ -33,8 +33,7 @@
     "Microsoft.SqlTools.ResourceProvider",
     "Microsoft.Kusto.ServiceLayer",
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.SqlTools.ManagedBatchParser",
-    "Microsoft.SqlTools.Migration"
+    "Microsoft.SqlTools.ManagedBatchParser"
   ],
   "FxBuildProjects": [
     "Microsoft.SqlTools.ManagedBatchParser"
@@ -58,18 +57,6 @@
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer",
-    "Microsoft.SqlTools.Migration"
-  ],
-  "Projects": [
-    {
-      "Name": "Microsoft.SqlTools.Migration",
-      "PackageProjects": [
-        "Microsoft.SqlTools.Migration"
-      ],
-      "TestProjects": [
-        "Microsoft.SqlTools.Migration.UnitTests"
-      ]
-    }
+    "Microsoft.Kusto.ServiceLayer"
   ]
 }
