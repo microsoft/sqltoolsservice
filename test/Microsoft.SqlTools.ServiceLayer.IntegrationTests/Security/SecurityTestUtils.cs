@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return new LoginInfo()
             {
                 LoginName = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
-                LoginType= AuthType.SqlLogin,
+                LoginType= LoginType.Sql,
                 CertificateName = "Test Cert",        
                 AsymmetricKeyName = "Asymmetric Test Cert",
                 WindowsGrantAccess = true,
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 EnforcePolicy = false,
                 EnforceExpiration = false,
                 WindowsAuthSupported = false,
-                Password = "{{TEST_PASSWORD_PLACEHOLDER}}",                
+                Password = "!#!@#@#@dflksdjfksdlfjlksdFEEfjklsed9393",                
                 OldPassword = "{{OLD_TEST_PASSWORD_PLACEHOLDER}}",
                 DefaultLanguage = "us_english",
                 DefaultDatabase = "master"

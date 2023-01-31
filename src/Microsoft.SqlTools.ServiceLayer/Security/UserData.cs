@@ -1151,11 +1151,3 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		}
 	}
 }
-
-
-
-
-
-
-
-
