@@ -546,8 +546,6 @@ namespace Microsoft.SqlTools.Migration
                 prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
                 resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
 
-                // if no result was generated, create a result with a null SKU
-
                 sqlMiStopwatch.Stop();
                 resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
 
@@ -568,8 +566,6 @@ namespace Microsoft.SqlTools.Migration
 
                 prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
                 resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
-
-                // if no result was generated, create a result with a null SKU
 
                 sqlVmStopwatch.Stop();
                 resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
@@ -635,8 +631,6 @@ namespace Microsoft.SqlTools.Migration
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
 
-                // if no result was generated, create a result with a null SKU
-
                 sqlMiStopwatch.Stop();
                 resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
 
@@ -652,7 +646,7 @@ namespace Microsoft.SqlTools.Migration
             // generate SQL VM recommendations, if applicable
             if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
             {
-                // elastic model currently doesn't support VM recommendation, return null SKU for now                
+                // elastic model currently doesn't support VM recommendation, return empty list                
                 resultSet.sqlVmResults = new List<SkuRecommendationResult> { };
                 resultSet.sqlVmDurationInMs = -1;
                 resultSet.sqlVmReportPath = String.Empty;
@@ -907,7 +901,6 @@ namespace Microsoft.SqlTools.Migration
 
                         vmCapabilities.AddRange(vmPreviewCapabilities);
                     }
-
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
                         .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
