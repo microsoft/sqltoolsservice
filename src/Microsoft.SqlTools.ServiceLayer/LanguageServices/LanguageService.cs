@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private CancellationTokenSource existingRequestCancellation;
+        private CancellationTokenSource? existingRequestCancellation;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
