@@ -353,12 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 scriptFile.SetFileContents("koko wants a bananas");
                 File.WriteAllText(scriptFile.ClientUri, scriptFile.Contents);
 
-                // Create a workspace and add file to it so that its found for intellense building
-                var workspace = new ServiceLayer.Workspace.Workspace();
-                var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
-                var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService };
-                langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
-                langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+                var langService = CreateLanguageService(scriptFile);
 
                 // Add a connection to ensure the intellisense building works            
                 ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
