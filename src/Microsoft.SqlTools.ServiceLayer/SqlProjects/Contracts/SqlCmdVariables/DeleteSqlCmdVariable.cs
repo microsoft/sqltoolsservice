@@ -21,6 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 
     public class DeleteSqlCmdVariableRequest
     {
-        public static readonly RequestType<DeleteSqlCmdVariableParams, ResultStatus> Type = RequestType<DeleteSqlCmdVariableParams, ResultStatus>.Create("sqlprojects/deleteSqlCmdVariable");
+        public static readonly RequestType<DeleteSqlCmdVariableParams, ResultStatus> Type = RequestType<DeleteSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/deleteSqlCmdVariable");
     }
 }
