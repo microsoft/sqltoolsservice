@@ -38,8 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 EnforcePolicy = false,
                 EnforceExpiration = false,
                 WindowsAuthSupported = false,
-                Password = "!#!@#@#@dflksdjfksdlfjlksdFEEfjklsed9393",                
-                OldPassword = "{{OLD_TEST_PASSWORD_PLACEHOLDER}}",
+                Password = "placeholder",                
+                OldPassword = "placeholder",
                 DefaultLanguage = "us_english",
                 DefaultDatabase = "master"
             };
