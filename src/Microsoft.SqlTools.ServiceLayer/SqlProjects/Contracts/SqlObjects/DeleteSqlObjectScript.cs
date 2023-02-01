@@ -10,6 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     public class DeleteSqlObjectScriptRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/deleteSqlObjectScript");
+        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/deleteSqlObjectScript");
     }
 }

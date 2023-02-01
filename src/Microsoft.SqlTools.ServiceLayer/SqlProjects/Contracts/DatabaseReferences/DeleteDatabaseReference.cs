@@ -9,18 +9,18 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Parameters for deleting a SQLCMD variable from a project
+    /// Parameters for deleting a database reference
     /// </summary>
-    public class DeleteSqlCmdVariableParams : SqlProjectParams
+    public class DeleteDatabaseReferenceParams : SqlProjectParams
     {
         /// <summary>
-        /// Name of the SQLCMD variable to be deleted
+        /// Name of the reference to be deleted.  Name of the System DB, path of the sqlproj, or path of the dacpac
         /// </summary>
         public string Name { get; set; }
     }
 
-    public class DeleteSqlCmdVariableRequest
+    public class DeleteDatabaseReferenceRequest
     {
-        public static readonly RequestType<DeleteSqlCmdVariableParams, ResultStatus> Type = RequestType<DeleteSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/deleteSqlCmdVariable");
+        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/deleteDatabaseReference");
     }
 }
