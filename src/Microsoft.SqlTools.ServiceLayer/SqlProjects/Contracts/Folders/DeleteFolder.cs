@@ -4,8 +4,8 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-
 using Microsoft.SqlTools.ServiceLayer.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     public class DeleteFolderRequest
