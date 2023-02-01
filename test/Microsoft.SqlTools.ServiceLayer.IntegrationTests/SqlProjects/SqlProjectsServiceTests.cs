@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using NUnit.Framework;
@@ -207,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest));
             Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference");
             DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.First(x => x is DacpacReference);
-            Assert.AreEqual(mockReferencePath, dacpacRef.DacpacPath, "Referenced dacpac");
+            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable);
             Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable);
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
