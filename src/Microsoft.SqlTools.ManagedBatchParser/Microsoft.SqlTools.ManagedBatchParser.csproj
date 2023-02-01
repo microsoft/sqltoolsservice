@@ -15,9 +15,6 @@
 		<Product>Microsoft SqlTools Managed batch parser</Product>
 	</PropertyGroup>
 	<ItemGroup>
-		<Folder Include="Localization\transXliff\" />
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub"/>
