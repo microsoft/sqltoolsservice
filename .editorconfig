@@ -124,6 +124,7 @@ dotnet_diagnostic.IDE0011.severity = none
 dotnet_diagnostic.IDE0056.severity = none
 dotnet_diagnostic.IDE0082.severity = none
 dotnet_diagnostic.IDE0071.severity = none
+dotnet_diagnostic.IDE0072.severity = suggestion # Add missing cases to switch statement; defaults to error, and doesn't consider discards to "handle" cases
 dotnet_diagnostic.IDE0083.severity = none
 dotnet_diagnostic.IDE0041.severity = none
 dotnet_diagnostic.IDE0150.severity = none
