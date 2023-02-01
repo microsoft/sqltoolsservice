@@ -91,6 +91,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // Login request handlers
             this.ServiceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
             this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
+
+            // User request handlers
+            this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
         }
 
 
@@ -167,6 +170,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 #endregion
 
 #region "User Handlers"
+
+/// <summary>
+        /// Handle request to create a login
+        /// </summary>
+        internal async Task HandleCreateUserRequest(CreateUserParams parameters, RequestContext<CreateUserResult> requestContext)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+            // if (connInfo == null) 
+            // {
+            //     // raise an error
+            // }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            
+
+            // LoginPrototype prototype = new LoginPrototype(dataContainer.Server, parameters.Login);
+
+            // if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
+            // {
+            //     // check that there is a password
+            //     // this check is made if policy enforcement is off
+            //     // with policy turned on we do not display this message, instead we let server
+            //     // return the error associated with null password (coming from policy) - see bug 124377
+            //     if (prototype.SqlPassword.Length == 0 && prototype.EnforcePolicy == false)
+            //     {
+            //         // raise error here                                                   
+            //     }
+
+            //     // check that password and confirm password controls' text matches
+            //     if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
+            //     {
+            //         // raise error here
+            //     }                 
+            // }
+
+            // prototype.ApplyGeneralChanges(dataContainer.Server);
+
+            // await requestContext.SendResult(new CreateLoginResult()
+            // {
+            //     Login = parameters.Login,
+            //     Success = true,
+            //     ErrorMessage = string.Empty
+            // });
+        }
 
         private UserPrototypeNew InitUserNew(CDataContainer dataContainer)
         {
