@@ -626,10 +626,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             if (droppableObj == null)
             {
                 string objectName = objUrn.GetAttribute("Name");
-                if(objectName == null)
-                {
-                    objectName = string.Empty;
-                }
+                objectName ??= string.Empty;
                 throw new Microsoft.SqlServer.Management.Smo.MissingObjectException("DropObjectsSR.ObjectDoesNotExist(objUrn.Type, objectName)");
             }
 

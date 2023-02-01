@@ -952,13 +952,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                if (currentPrototype == null)
-                {
-                    currentPrototype = new UserPrototypeNew(this.context,
+                currentPrototype ??= new UserPrototypeNew(this.context,
                                                         this.currentData,
                                                         this.originalData);
-                }
-
                 return currentPrototype;
             }
         }
@@ -979,10 +975,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 singletonInstance = null;
             }
 
-            if (singletonInstance == null)
-            {
-                singletonInstance = new UserPrototypeFactory(context);
-            }            
+            singletonInstance ??= new UserPrototypeFactory(context);
 
             return singletonInstance;
         }
@@ -993,55 +986,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 case ExhaustiveUserTypes.AsymmetricKeyMappedUser:
                     currentData.userType = UserType.AsymmetricKey;
-                    if(this.asymmetricKeyMappedUser == null)
-                    {
-                        this.asymmetricKeyMappedUser = new UserPrototypeNew(this.context, this.currentData, this.originalData);
-                    }
+                    this.asymmetricKeyMappedUser ??= new UserPrototypeNew(this.context, this.currentData, this.originalData);
                     this.currentPrototype = asymmetricKeyMappedUser;
                     break;                    
 
                 case ExhaustiveUserTypes.CertificateMappedUser:
                     currentData.userType = UserType.Certificate;
-                    if (this.certificateMappedUser == null)
-                    {
-                        this.certificateMappedUser = new UserPrototypeNew(this.context, this.currentData, this.originalData);
-                    }
+                    this.certificateMappedUser ??= new UserPrototypeNew(this.context, this.currentData, this.originalData);
                     this.currentPrototype = certificateMappedUser; 
                     break;
 
                 case ExhaustiveUserTypes.LoginMappedUser:
                     currentData.userType = UserType.SqlUser;
-                    if (this.loginMappedUser == null)
-                    {
-                        this.loginMappedUser = new UserPrototypeForSqlUserWithLogin(this.context, this.currentData, this.originalData);
-                    }
+                    this.loginMappedUser ??= new UserPrototypeForSqlUserWithLogin(this.context, this.currentData, this.originalData);
                     this.currentPrototype = loginMappedUser;
                     break;
 
                 case ExhaustiveUserTypes.SqlUserWithoutLogin:
                     currentData.userType = UserType.NoLogin;
-                    if (this.noLoginUser == null)
-                    {
-                        this.noLoginUser = new UserPrototypeWithDefaultSchema(this.context, this.currentData, this.originalData);
-                    }
+                    this.noLoginUser ??= new UserPrototypeWithDefaultSchema(this.context, this.currentData, this.originalData);
                     this.currentPrototype = noLoginUser;
                     break;
 
                 case ExhaustiveUserTypes.SqlUserWithPassword:
                     currentData.userType = UserType.SqlUser;
-                    if (this.sqlUserWithPassword == null)
-                    {
-                        this.sqlUserWithPassword = new UserPrototypeForSqlUserWithPassword(this.context, this.currentData, this.originalData);
-                    }
+                    this.sqlUserWithPassword ??= new UserPrototypeForSqlUserWithPassword(this.context, this.currentData, this.originalData);
                     this.currentPrototype = sqlUserWithPassword;
                     break;
 
                 case ExhaustiveUserTypes.WindowsUser:
                     currentData.userType = UserType.SqlUser;
-                    if (this.windowsUser == null)
-                    {
-                        this.windowsUser = new UserPrototypeForWindowsUser(this.context, this.currentData, this.originalData);
-                    }
+                    this.windowsUser ??= new UserPrototypeForWindowsUser(this.context, this.currentData, this.originalData);
                     this.currentPrototype = windowsUser;
                     break;
                 
