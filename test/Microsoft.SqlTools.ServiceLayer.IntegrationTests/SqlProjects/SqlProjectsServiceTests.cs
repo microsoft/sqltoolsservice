@@ -18,6 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 {
     public class SqlProjectsServiceTests : TestBase
     {
+        internal const string TEST_GUID = "BA5EBA11-C0DE-5EA7-ACED-BABB1E70A575";
+
         [Test]
         public async Task TestErrorDuringExecution()
         {
@@ -158,6 +160,95 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestDatabaseReferenceAddDelete()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+
+            SqlCmdVariable databaseVar = new SqlCmdVariable("$(OtherDb)", "OtherDbDefaultValue", "OtherDbValue");
+            SqlCmdVariable serverVar = new SqlCmdVariable("$(OtherServer)", "OtherServerDefaultValue", "OtherServerValue");
+
+            service.Projects[projectUri].SqlCmdVariables.Add(databaseVar);
+            service.Projects[projectUri].SqlCmdVariables.Add(serverVar);
+
+            Assert.AreEqual(0, service.Projects[projectUri].DatabaseReferences.Count, "Baseline number of database references");
+
+            // Validate adding a system database reference
+            MockRequest<ResultStatus> requestMock = new();
+            await service.HandleAddSystemDatabaseReferenceRequest(new AddSystemDatabaseReferenceParams()
+            {
+                ProjectUri = projectUri,
+                SystemDatabase = SystemDatabase.MSDB,
+                DatabaseVariable = "$(EmEssDeeBee)",
+                SuppressMissingDependencies = false
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddSystemDatabaseReferenceRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding system db reference");
+            SystemDatabaseReference systemDbRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.First(x => x is SystemDatabaseReference);
+            Assert.AreEqual(SystemDatabase.MSDB, systemDbRef.SystemDb, "Referenced system DB");
+            Assert.AreEqual("$(EmEssDeeBee)", systemDbRef.DatabaseVariable);
+            Assert.IsFalse(systemDbRef.SuppressMissingDependencies, nameof(systemDbRef.SuppressMissingDependencies));
+
+            // Validate adding a dacpac reference
+            string mockReferencePath = Path.Join(Path.GetDirectoryName(projectUri), "OtherDatabase.dacpac");
+
+            requestMock = new();
+            await service.HandleAddDacpacReferenceRequest(new AddDacpacReferenceParams()
+            {
+                ProjectUri = projectUri,
+                DacpacPath = mockReferencePath,
+                SuppressMissingDependencies = false,
+                DatabaseVariable = databaseVar.Name,
+                ServerVariable = serverVar.Name
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest));
+            Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference");
+            DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.First(x => x is DacpacReference);
+            Assert.AreEqual(mockReferencePath, dacpacRef.DacpacPath, "Referenced dacpac");
+            Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable);
+            Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable);
+            Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
+
+            // Validate adding a project reference
+            mockReferencePath = Path.Join(Path.GetDirectoryName(projectUri), "..", "OtherDatabase", "OtherDatabase.sqlproj");
+
+            requestMock = new();
+            await service.HandleAddSqlProjectReferenceRequest(new AddSqlProjectReferenceParams()
+            {
+                ProjectUri = projectUri,
+                ProjectPath = mockReferencePath,
+                ProjectGuid = TEST_GUID,
+                SuppressMissingDependencies = false,
+                DatabaseVariable = databaseVar.Name,
+                ServerVariable = serverVar.Name
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
+            Assert.AreEqual(3, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding SQL project reference");
+            SqlProjectReference projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.First(x => x is SqlProjectReference);
+            Assert.AreEqual(mockReferencePath, projectRef.ProjectPath, "Referenced project");
+            Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
+            Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable);
+            Assert.AreEqual(serverVar.Name, projectRef.ServerVariable);
+            Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
+
+            // Validate deleting a reference
+            requestMock = new();
+            await service.HandleDeleteDatabaseReferenceRequest(new DeleteDatabaseReferenceParams()
+            {
+                ProjectUri = projectUri,
+                Name = mockReferencePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeleteDatabaseReferenceRequest));
+            Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after deleting SQL project reference");
+            Assert.IsFalse(service.Projects[projectUri].DatabaseReferences.Any(x => x is SqlProjectReference), "Database references list expected to not contain the SQL Project reference");
+        }
+
+        [Test]
         public async Task TestFolderAddDelete()
         {
             // Setup
@@ -179,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after add");
             Assert.IsTrue(Directory.Exists(Path.Join(Path.GetDirectoryName(projectUri), folderParams.Path)), $"Subfolder '{folderParams.Path}' expected to exist on disk");
             Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"SqlObjectScripts expected to contain {folderParams.Path}");
-            
+
             // Validate deleting a folder
             requestMock = new();
             await service.HandleDeleteFolderRequest(folderParams, requestMock.Object);
@@ -263,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             }, requestMock.Object);
 
-            Assert.IsTrue(requestMock.Result.Success, $"Failed to create project: {requestMock.Result.ErrorMessage}");
+            requestMock.AssertSuccess(nameof(CreateSqlProject));
 
             return projectUri;
         }

@@ -10,6 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     public class ExcludeSqlObjectScriptRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/excludeSqlObjectScript");
+        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/excludeSqlObjectScript");
     }
 }

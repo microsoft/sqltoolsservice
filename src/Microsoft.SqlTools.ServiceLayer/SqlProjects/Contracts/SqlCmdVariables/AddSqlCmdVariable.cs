@@ -31,6 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 
     public class AddSqlCmdVariableRequest
     {
-        public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlprojects/addSqlCmdVariable");
+        public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/addSqlCmdVariable");
     }
 }

@@ -103,6 +103,48 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #endregion
 
+        #region Database Reference calls
+
+        internal async Task HandleAddSystemDatabaseReferenceRequest(AddSystemDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Add(
+                new SystemDatabaseReference(
+                    requestParams.SystemDatabase,
+                    requestParams.SuppressMissingDependencies,
+                    requestParams.DatabaseVariable)),
+                requestContext);
+        }
+
+        internal async Task HandleAddDacpacReferenceRequest(AddDacpacReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Add(
+                new DacpacReference(
+                    requestParams.DacpacPath,
+                    requestParams.SuppressMissingDependencies,
+                    requestParams.DatabaseVariable,
+                    requestParams.ServerVariable)),
+                requestContext);
+        }
+
+        internal async Task HandleAddSqlProjectReferenceRequest(AddSqlProjectReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Add(
+                new SqlProjectReference(
+                    requestParams.ProjectPath,
+                    requestParams.ProjectGuid,
+                    requestParams.SuppressMissingDependencies,
+                    requestParams.DatabaseVariable,
+                    requestParams.ServerVariable)),
+                requestContext);
+        }
+
+        internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Delete(requestParams.Name), requestContext);
+        }
+
+        #endregion
+
         #region Folder functions
 
         internal async Task HandleAddFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)

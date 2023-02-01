@@ -546,21 +546,6 @@ namespace Microsoft.SqlTools.Migration
                 prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
                 resultSet.sqlMiResults = provider.GetSkuRecommendation(prefs, req);
 
-                // if no result was generated, create a result with a null SKU
-                if (!resultSet.sqlMiResults.Any())
-                {
-                    resultSet.sqlMiResults.Add(new SkuRecommendationResult()
-                    {
-                        SqlInstanceName = parameters.TargetSqlInstance,
-                        DatabaseName = null,
-                        TargetSku = null,
-                        MonthlyCost = null,
-                        Ranking = -1,
-                        PositiveJustifications = null,
-                        NegativeJustifications = null,
-                    });
-                }
-
                 sqlMiStopwatch.Stop();
                 resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
 
@@ -581,21 +566,6 @@ namespace Microsoft.SqlTools.Migration
 
                 prefs.EligibleSkuCategories = GetEligibleSkuCategories("AzureSqlVirtualMachine", parameters.IncludePreviewSkus);
                 resultSet.sqlVmResults = provider.GetSkuRecommendation(prefs, req);
-
-                // if no result was generated, create a result with a null SKU
-                if (!resultSet.sqlVmResults.Any())
-                {
-                    resultSet.sqlVmResults.Add(new SkuRecommendationResult()
-                    {
-                        SqlInstanceName = parameters.TargetSqlInstance,
-                        DatabaseName = null,
-                        TargetSku = null,
-                        MonthlyCost = null,
-                        Ranking = -1,
-                        PositiveJustifications = null,
-                        NegativeJustifications = null,
-                    });
-                }
 
                 sqlVmStopwatch.Stop();
                 resultSet.sqlVmDurationInMs = sqlVmStopwatch.ElapsedMilliseconds;
@@ -632,11 +602,6 @@ namespace Microsoft.SqlTools.Migration
                 List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlDatabase", parameters.IncludePreviewSkus);
                 ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
                 DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                if (!parameters.IncludePreviewSkus)
-                {
-                    SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
-                    p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
-                }
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlDbResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
@@ -662,29 +627,9 @@ namespace Microsoft.SqlTools.Migration
                 List<AzureSqlSkuCategory> eligibleSkuCategories = GetEligibleSkuCategories("AzureSqlManagedInstance", parameters.IncludePreviewSkus);
                 ElasticStrategySKURecommendationPipeline pi = new ElasticStrategySKURecommendationPipeline(eligibleSkuCategories);
                 DataTable SqlMISpec = pi.SqlMISpec.Copy();
-                if (!parameters.IncludePreviewSkus)
-                {
-                    SqlMISpec = pi.SqlMISpec.AsEnumerable().Where(
-                    p => !p.Field<string>("SLO").Contains("Premium")).CopyToDataTable();
-                }
                 MISkuRecParams MiSkuRecParams = new MISkuRecParams(pi.SqlGPMIFileSpec, SqlMISpec, elasticaggregator.FileLevelTs, elasticaggregator.InstanceTs, pi.MILookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 DbSkuRecParams DbSkuRecParams = new DbSkuRecParams(pi.SqlDbSpec, elasticaggregator.DatabaseTs, pi.DbLookupTable, Convert.ToDouble(parameters.ScalingFactor) / 100.0, parameters.TargetSqlInstance);
                 resultSet.sqlMiResults = pi.ElasticStrategyGetSkuRecommendation(MiSkuRecParams, DbSkuRecParams, req);
-
-                // if no result was generated, create a result with a null SKU
-                if (!resultSet.sqlMiResults.Any())
-                {
-                    resultSet.sqlMiResults.Add(new SkuRecommendationResult()
-                    {
-                        SqlInstanceName = parameters.TargetSqlInstance,
-                        DatabaseName = null,
-                        TargetSku = null,
-                        MonthlyCost = null,
-                        Ranking = -1,
-                        PositiveJustifications = null,
-                        NegativeJustifications = null,
-                    });
-                }
 
                 sqlMiStopwatch.Stop();
                 resultSet.sqlMiDurationInMs = sqlMiStopwatch.ElapsedMilliseconds;
@@ -701,19 +646,8 @@ namespace Microsoft.SqlTools.Migration
             // generate SQL VM recommendations, if applicable
             if (parameters.TargetPlatforms.Contains("AzureSqlVirtualMachine"))
             {
-                // elastic model currently doesn't support VM recommendation, return null SKU for now                
-                resultSet.sqlVmResults = new List<SkuRecommendationResult> {
-                    new SkuRecommendationResult()
-                    {
-                        SqlInstanceName = parameters.TargetSqlInstance,
-                        DatabaseName = null,
-                        TargetSku = null,
-                        MonthlyCost = null,
-                        Ranking = -1,
-                        PositiveJustifications = null,
-                        NegativeJustifications = null,
-                    }
-                };
+                // elastic model currently doesn't support VM recommendation, return empty list                
+                resultSet.sqlVmResults = new List<SkuRecommendationResult> { };
                 resultSet.sqlVmDurationInMs = -1;
                 resultSet.sqlVmReportPath = String.Empty;
             }
@@ -935,8 +869,6 @@ namespace Microsoft.SqlTools.Migration
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
 
-                    if (includePreviewSkus)
-                    {
                         // Premium Memory Optimized BC/GP
                         eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
                                                         AzureSqlTargetPlatform.AzureSqlManagedInstance,
@@ -951,7 +883,6 @@ namespace Microsoft.SqlTools.Migration
                                                         AzureSqlPaaSServiceTier.GeneralPurpose,
                                                         ComputeTier.Provisioned,
                                                         AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
-                    }
                     break;
 
                 case "AzureSqlVirtualMachine":
@@ -970,7 +901,6 @@ namespace Microsoft.SqlTools.Migration
 
                         vmCapabilities.AddRange(vmPreviewCapabilities);
                     }
-
 
                     foreach (VirtualMachineFamily family in AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.GeneralPurpose]
                         .Concat(AzureVirtualMachineFamilyGroup.FamilyGroups[VirtualMachineFamilyType.MemoryOptimized]))
