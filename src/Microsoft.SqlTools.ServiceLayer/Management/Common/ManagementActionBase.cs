@@ -205,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </returns>
         protected virtual bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
         {
-            //ask the framework to do normal execution by calling OnRunNOw methods
+            //ask the framework to do normal execution by calling OnRunNow methods
             //of the views one by one
             executionResult = ExecutionMode.Success;
             return true; 
