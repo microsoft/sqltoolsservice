@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using Microsoft.Azure.Management.Sql.Models;
 using Microsoft.SqlTools.ResourceProvider.Core;

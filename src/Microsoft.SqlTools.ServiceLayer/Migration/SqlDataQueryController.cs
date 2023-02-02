@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlServer.DataCollection.Common.Contracts.Advisor;
 using Microsoft.SqlServer.DataCollection.Common.Contracts.ErrorHandling;
 using Microsoft.SqlServer.DataCollection.Common.Contracts.SqlQueries;
