@@ -10,14 +10,22 @@ using Newtonsoft.Json.Converters;
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum LoginType
+    public enum LoginAuthenticationType
     {
         [EnumMember(Value = "Windows")]
         Windows,
         [EnumMember(Value = "Sql")]
         Sql,
         [EnumMember(Value = "AAD")]
-        AzureActiveDirectory
+        AAD
+    }
+
+    public class ServerLoginDatabaseUserMapping
+    {
+        public string Database { get; set; }
+        public string User { get; set; }
+        public string DefaultSchema { get; set; }
+        public string[] DatabaseRoles { get; set; }
     }
 
     /// <summary>
@@ -25,27 +33,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class LoginInfo
     {
-        public string LoginName { get; set; }
+        public string Name { get; set; }
+        public string IconType { get; set; }
 
-        public LoginType LoginType { get; set; }
-
-        public string CertificateName { get; set; }
-            
-        public string AsymmetricKeyName { get; set; }
+        public LoginAuthenticationType AuthenticationType { get; set; }
 
         public bool WindowsGrantAccess { get; set; }
 
-        public bool MustChange { get; set; }
+        public bool MustChangePassword { get; set; }
 
-        public bool IsDisabled { get; set; }
+        public bool IsEnabled { get; set; }
+        public bool ConnectPermission { get; set; }
 
         public bool IsLockedOut { get; set; }
 
-        public bool EnforcePolicy { get; set; }
+        public bool EnforcePasswordPolicy { get; set; }
 
-        public bool EnforceExpiration { get; set; }
-
-        public bool WindowsAuthSupported { get; set; }
+        public bool EnforcePasswordExpiration { get; set; }
 
         public string Password { get; set; }
 
@@ -54,5 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         public string DefaultLanguage { get; set; }
 
         public string DefaultDatabase { get; set; }
+
+        public string[] ServerRoles {get; set;}
+
+        public ServerLoginDatabaseUserMapping[] UserMapping;
     }
 }

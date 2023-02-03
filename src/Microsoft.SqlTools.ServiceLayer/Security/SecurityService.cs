@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Security;
@@ -32,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private ConnectionService connectionService = null;
 
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
+
+        private static Dictionary<string, string> contextIdToConnectionUriMap = new Dictionary<string, string>();
 
         /// <summary>
         /// Construct a new SecurityService instance with default parameters
@@ -90,7 +93,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             // Login request handlers
             this.ServiceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateLoginRequest.Type, HandleUpdateLoginRequest, true);
             this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
+            this.ServiceHost.SetRequestHandler(InitializeLoginViewRequest.Type, HandleInitializeLoginViewRequest, true);
+            this.ServiceHost.SetRequestHandler(DisposeLoginViewRequest.Type, HandleDisposeLoginViewRequest, true);
         }
 
 
@@ -119,14 +125,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 // return the error associated with null password (coming from policy) - see bug 124377
                 if (prototype.SqlPassword.Length == 0 && prototype.EnforcePolicy == false)
                 {
-                    // raise error here                                                   
+                    // raise error here
                 }
 
                 // check that password and confirm password controls' text matches
                 if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
                 {
                     // raise error here
-                }                 
+                }
             }
 
             prototype.ApplyGeneralChanges(dataContainer.Server);
@@ -164,6 +170,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
+        internal async Task HandleUpdateLoginRequest(UpdateLoginParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+        }
+
+        internal async Task HandleInitializeLoginViewRequest(InitializeLoginViewRequestParams parameters, RequestContext<LoginViewInfo> requestContext)
+        {
+            contextIdToConnectionUriMap.Add(parameters.ContextId, parameters.ConnectionUri);
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
+            // if (connInfo == null) 
+            // {
+            //     // raise an error
+            // }
+
+            LoginViewInfo loginViewInfo = new LoginViewInfo();
+
+            if (parameters.IsNewObject)
+            {
+                LoginInfo loginInfo = new LoginInfo();
+                await requestContext.SendResult(new LoginViewInfo()
+                {
+                    Login = loginInfo,
+                    SupportWindowsAuthentication = true,
+                    SupportAADAuthentication = true,
+                    SupportSQLAuthentication = true,
+                    CanEditLockedOutState = true,
+                    Databases = new string[0],
+                    Languages = new string[0],
+                    ServerRoles = new string[0]
+                });
+            }
+        }
+
+        internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+        }
 #endregion
 
 #region "User Handlers"

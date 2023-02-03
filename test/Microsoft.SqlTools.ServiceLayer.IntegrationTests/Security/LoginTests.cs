@@ -45,13 +45,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 // verify the result
                 createContext.Verify(x => x.SendResult(It.Is<CreateLoginResult>
-                    (p => p.Success && p.Login.LoginName != string.Empty)));
+                    (p => p.Success && p.Login.Name != string.Empty)));
 
                 // cleanup created login
                 var deleteParams = new DeleteLoginParams
                 {
                     OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    LoginName = loginParams.Login.LoginName
+                    LoginName = loginParams.Login.Name
                 };
 
                 var deleteContext = new Mock<RequestContext<ResultStatus>>();

@@ -1961,7 +1961,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
 
-            this.LoginName = login.LoginName;
+            this.LoginName = login.Name;
             this.SqlPassword = login.Password;
             this.OldPassword = login.OldPassword;
             this.LoginType = SqlServer.Management.Smo.LoginType.SqlLogin;
