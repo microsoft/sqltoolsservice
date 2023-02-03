@@ -1048,24 +1048,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 using (StreamWriter streamWriter = new StreamWriter(memoryStream))
                 {
-            //  Writes the xml to the memory stream
-            streamWriter.Write(sourceXml);
-            streamWriter.Flush();
+                    //  Writes the xml to the memory stream
+                    streamWriter.Write(sourceXml);
+                    streamWriter.Flush();
 
-            //  Resets the stream to the beginning
-            memoryStream.Seek(0, SeekOrigin.Begin);
+                    //  Resets the stream to the beginning
+                    memoryStream.Seek(0, SeekOrigin.Begin);
 
-            //  Creates the XML reader from the stream 
-            //  and moves it to the correct node
-            XmlReader xmlReader = XmlReader.Create(memoryStream);
-            xmlReader.MoveToContent();
+                    //  Creates the XML reader from the stream 
+                    //  and moves it to the correct node
+                    XmlReader xmlReader = XmlReader.Create(memoryStream);
+                    xmlReader.MoveToContent();
 
-            // generate the xml document
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.PreserveWhitespace = true;
-            xmlDocument.LoadXml(xmlReader.ReadOuterXml());
+                    // generate the xml document
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.PreserveWhitespace = true;
+                    xmlDocument.LoadXml(xmlReader.ReadOuterXml());
 
-            return xmlDocument;
+                    return xmlDocument;
                 }
             }
         }
@@ -1130,9 +1130,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 }
             }
             catch (Exception)
-                {
-                        }
-                    }
+            {
+            }
+        }
 
         #endregion
 
@@ -1146,7 +1146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             ConnectionInfo connInfo,            
             bool databaseExists = false,
             XmlDocument? containerDoc = null)
-                    {
+        {
             containerDoc ??= CreateDataContainerDocument(connInfo, databaseExists);
 
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
@@ -1159,15 +1159,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return dataContainer;
         }
 
-        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) {
+        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) 
+        {
             var passwordSecureString = new System.Security.SecureString();
-            if (password != null) {
-                foreach (char c in password) {
+            if (password != null) 
+            {
+                foreach (char c in password) 
+                {
                     passwordSecureString.AppendChar(c);
                 }
-                    }
+            }
             return passwordSecureString;
-                }
+        }
 
         /// <summary>
         /// Create data container document

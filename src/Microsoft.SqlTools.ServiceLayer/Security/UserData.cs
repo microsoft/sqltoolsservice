@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -1076,87 +1077,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         CertificateMappedUser,
         AsymmetricKeyMappedUser
     };
-
-    internal class LanguageUtils
-    {
-        /// <summary>
-        /// Gets alias for a language name.
-        /// </summary>
-        /// <param name="connectedServer"></param>
-        /// <param name="languageName"></param>
-        /// <returns>Returns string.Empty in case it doesn't find a matching languageName on the server</returns>
-        public static string GetLanguageAliasFromName(Server connectedServer,
-                                                        string languageName)
-        {
-            string languageAlias = string.Empty;
-
-            SetLanguageDefaultInitFieldsForDefaultLanguages(connectedServer);
-
-            foreach (Language lang in connectedServer.Languages)
-            {
-                if (lang.Name == languageName)
-                {
-                    languageAlias = lang.Alias;
-                    break;
-                }
-            }
-
-            return languageAlias;
-        }
-
-        /// <summary>
-        /// Gets name for a language alias.
-        /// </summary>
-        /// <param name="connectedServer"></param>
-        /// <param name="languageAlias"></param>
-        /// <returns>Returns string.Empty in case it doesn't find a matching languageAlias on the server</returns>
-        public static string GetLanguageNameFromAlias(Server connectedServer,
-                                                        string languageAlias)
-        {
-            string languageName = string.Empty;
-
-            SetLanguageDefaultInitFieldsForDefaultLanguages(connectedServer);
-
-            foreach (Language lang in connectedServer.Languages)
-            {
-                if (lang.Alias == languageAlias)
-                {
-                    languageName = lang.Name;
-                    break;
-                }
-            }
-
-            return languageName;
-        }
-
-        /// <summary>
-        /// Sets exhaustive fields required for displaying and working with default languages in server, 
-        /// database and user dialogs as default init fields so that queries are not sent again and again.
-        /// </summary>
-        /// <param name="connectedServer">server on which languages will be enumerated</param>
-        public static void SetLanguageDefaultInitFieldsForDefaultLanguages(Server connectedServer)
-        {
-            string[] fieldsNeeded = new string[] { "Alias", "Name", "LocaleID", "LangID" };
-            connectedServer.SetDefaultInitFields(typeof(Language), fieldsNeeded);
-        }
-    }
-
-    internal class ObjectNoLongerExistsException : Exception
-	{
-		private static string ExceptionMessage
-		{
-			get
-			{				
-				return "Object no longer exists";
-			}
-		}
-		
-		public ObjectNoLongerExistsException()
-			: base(ExceptionMessage)
-		{
-			//
-			// TODO: Add constructor logic here
-			//
-		}
-	}
 }

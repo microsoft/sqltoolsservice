@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 if (7 < context.Server.Information.Version.Major)
                 {
-                    this.collation = this.defaultCollation = manager.GetString("general.default");
+                    this.collation = this.defaultCollation = manager.GetString("general_default");
                 }
                 else
                 {
@@ -370,7 +370,7 @@ WHERE do.database_id = @DbID
                 {
                     if (context.IsNewObject)
                     {
-                        this.collation = this.defaultCollation = manager.GetString("general.default");
+                        this.collation = this.defaultCollation = manager.GetString("general_default");
                     }
                     else
                     {
@@ -497,7 +497,7 @@ WHERE do.database_id = @DbID
                 if ((db.CompatibilityLevel == CompatibilityLevel.Version60) ||
                     (db.CompatibilityLevel == CompatibilityLevel.Version65))
                 {
-                    string errorMessage = manager.GetString("error.60compatibility");
+                    string errorMessage = manager.GetString("error_60compatibility");
                     throw new InvalidOperationException(errorMessage);
                 }
 
@@ -989,10 +989,6 @@ WHERE do.database_id = @DbID
                 }
                 else
                 {
-                    System.Diagnostics.Debug.Assert(
-                        value == manager.GetString("prototype.db.prop.restrictAccess.value.single"),
-                        "unexpected value for restrictAccess");
-
                     this.currentState.restrictAccess = DatabaseUserAccess.Single;
                 }
 
@@ -1148,9 +1144,6 @@ WHERE do.database_id = @DbID
                 }
                 else
                 {
-                    System.Diagnostics.Debug.Assert(
-                        value == manager.GetString("prototype.db.prop.defaultCursor.value.global"),
-                        "unexpected value for defaultCursor");
                     this.currentState.defaultCursor = DefaultCursor.Global;
                 }
 

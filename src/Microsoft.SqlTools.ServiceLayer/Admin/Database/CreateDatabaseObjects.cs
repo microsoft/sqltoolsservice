@@ -364,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         fg = db.FileGroups[this.Name];
                     }
                     else
-                    {                        
+                    {
                         fg = new FileGroup(db, this.Name, this.FileGroupType);                        
                         db.FileGroups.Add(fg);
                     }
