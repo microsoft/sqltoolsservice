@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlServer.Dac.Model;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -58,6 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(ParseTSqlScriptRequest.Type, this.HandleParseTSqlScriptRequest, true);
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
+            serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
         }
 
         /// <summary>
@@ -306,6 +308,41 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 objectInfos = operation.GetObjectsFromTSqlModel();
                 await requestContext.SendResult(objectInfos);
             }
+            return;
+        }
+
+        /// <summary>
+        /// Handles request to save a publish profile
+        /// </summary>
+        /// <returns></returns>
+        public async Task HandleSavePublishProfileRequest(SaveProfileParams parameters, RequestContext<bool> requestContext)
+        {
+            try
+            {
+                if (parameters.ProfilePath != null)
+                {
+                    DacProfile profile = new DacProfile();
+                    profile.TargetDatabaseName = parameters.DatabaseName;
+                    profile.TargetConnectionString = parameters.ConnectionString;
+                    //TODO: Set deploy options to pass on to DacFx
+
+                    if (parameters.SqlCommandVariableValues != null)
+                    {
+                        foreach (string key in parameters.SqlCommandVariableValues.Keys)
+                        {
+                            profile.DeployOptions.SqlCommandVariableValues[key] = parameters.SqlCommandVariableValues[key];
+                        }
+                    }
+
+                    profile.Save(parameters.ProfilePath);
+                }
+                await requestContext.SendResult(true);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e);
+            }
+
             return;
         }
 
