@@ -1326,6 +1326,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.UserID = "";
                         connectionBuilder.Password = "";
                         break;
+                    case "ActiveDirectoryInteractive": 
+                        //TODO: implement 
                     case "ActiveDirectoryPassword":
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
                         break;
@@ -1760,6 +1762,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
+                
+                // TODO: register authenticationprovider here
+                // Set authentication mode here: ActiveDirectoryInteractive (replacing AzureMFA)
+                // eventually will have to pass all the way through in connection Details
+                // call api and provide connection info that you want to test
+                // can test cache location as well
 
                 // Fill in Azure authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null)
