@@ -37,10 +37,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         #region Fields
 
         private ServerConnection serverConnection;
-        private Server m_server = null;   
-        protected XmlDocument m_doc = null;
-        private XmlDocument originalDocument = null;
-        private SqlOlapConnectionInfoBase connectionInfo = null;
+        private Server m_server;   
+        protected XmlDocument m_doc;
+        private XmlDocument originalDocument;
+        private SqlOlapConnectionInfoBase connectionInfo;
         private SqlConnectionInfoWithConnection sqlCiWithConnection;
         private bool ownConnection = true;
         private IManagedConnection managedConnection;
@@ -53,12 +53,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         private ServerType serverType = ServerType.UNKNOWN;
 
-        private Hashtable m_hashTable = null;
+        private Hashtable m_hashTable;
 
         private string objectNameKey = "object-name-9524b5c1-e996-4119-a433-b5b947985566";
         private string objectSchemaKey = "object-schema-ccaf2efe-8fa3-4f62-be79-62ef3cbe7390";
 
-        private SqlSmoObject sqlDialogSubject = null;
+        private SqlSmoObject sqlDialogSubject;
 
         private int sqlServerVersion = 0;
         private int sqlServerEffectiveVersion = 0;
@@ -1191,7 +1191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         internal static CDataContainer CreateDataContainer(
             ConnectionInfo connInfo,            
             bool databaseExists = false,
-            XmlDocument containerDoc = null)
+            XmlDocument? containerDoc = null)
         {
             containerDoc ??= CreateDataContainerDocument(connInfo, databaseExists);
 
@@ -1221,11 +1221,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create document for existing database or not</param>
         /// <returns></returns>
-        private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
+        internal static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool objectExists, string? itemType = null)
         {
             string xml = string.Empty;
 
-            if (!databaseExists)
+            if (!objectExists)
             {
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
@@ -1234,10 +1234,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
                 <servertype>sql</servertype>
                 <urn>Server[@Name='{0}']</urn>
-                <itemtype>Database</itemtype>                
+                <itemtype>{2}</itemtype>
+                {3}                
                 </params></formdescription> ",
                 connInfo.ConnectionDetails.ServerName.ToUpper(),
-                connInfo.ConnectionDetails.UserName);
+                connInfo.ConnectionDetails.UserName,
+                itemType ?? "Database",
+                !string.IsNullOrEmpty(itemType) ? "<database>" + connInfo.ConnectionDetails.DatabaseName + "</database>" : string.Empty);
             }
             else
             {
@@ -1248,7 +1251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
                 <servertype>sql</servertype>
                 <urn>Server[@Name='{0}']</urn>
-                <database>{2}</database>                
+                <database>{2}</database>
                 </params></formdescription> ",
                 connInfo.ConnectionDetails.ServerName.ToUpper(),
                 connInfo.ConnectionDetails.UserName,

@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     {
         private bool disposed;
 
-        private ConnectionService connectionService = null;
+        private ConnectionService connectionService;
 
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
 
@@ -171,49 +171,62 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 #region "User Handlers"
 
+        internal Task<Tuple<bool, string>> ConfigureUser(
+            string ownerUri,
+            UserInfo user,
+            ConfigAction configAction,
+            RunType runType)
+        {
+            return Task<Tuple<bool, string>>.Run(() =>
+            {
+                try
+                {
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    if (connInfo == null)
+                    {
+                        throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
+                    }
+
+                    bool objectExists = configAction != ConfigAction.Create;
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                        connInfo, 
+                        databaseExists: objectExists,
+                        containerDoc: CDataContainer.CreateDataContainerDocument(connInfo, objectExists, itemType: "User"));
+
+                    var b = dataContainer.IsNewObject;
+                    using (var actions = new UserActions(dataContainer, user, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(actions);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
+        }
+
+
         /// <summary>
-        /// Handle request to create a login
+        /// Handle request to create a user
         /// </summary>
         internal async Task HandleCreateUserRequest(CreateUserParams parameters, RequestContext<CreateUserResult> requestContext)
         {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-            // if (connInfo == null) 
-            // {
-            //     // raise an error
-            // }
+             var result = await ConfigureUser(parameters.OwnerUri,
+                parameters.User,
+                ConfigAction.Create,
+                RunType.RunNow);
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            
-
-            // LoginPrototype prototype = new LoginPrototype(dataContainer.Server, parameters.Login);
-
-            // if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
-            // {
-            //     // check that there is a password
-            //     // this check is made if policy enforcement is off
-            //     // with policy turned on we do not display this message, instead we let server
-            //     // return the error associated with null password (coming from policy) - see bug 124377
-            //     if (prototype.SqlPassword.Length == 0 && prototype.EnforcePolicy == false)
-            //     {
-            //         // raise error here                                                   
-            //     }
-
-            //     // check that password and confirm password controls' text matches
-            //     if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
-            //     {
-            //         // raise error here
-            //     }                 
-            // }
-
-            // prototype.ApplyGeneralChanges(dataContainer.Server);
-
-            // await requestContext.SendResult(new CreateLoginResult()
-            // {
-            //     Login = parameters.Login,
-            //     Success = true,
-            //     ErrorMessage = string.Empty
-            // });
+            await requestContext.SendResult(new CreateUserResult()
+            {
+                User = parameters.User,
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });            
         }
 
         private UserPrototype InitUserNew(CDataContainer dataContainer)
@@ -901,7 +914,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Database database = dataContainer.Server.Databases[databaseName];
             System.Diagnostics.Debug.Assert(database!= null, "database is null");
 
-            DatabaseRole role = null;
+            DatabaseRole role;
 
             if (isPropertiesMode == true) // in properties mode -> alter role
             {
@@ -934,7 +947,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private void DbRole_LoadSchemas(string databaseName, string  dbroleName, ServerConnection serverConnection)
         {
             bool isPropertiesMode = false;
-            HybridDictionary schemaOwnership = null;
+            HybridDictionary schemaOwnership;
             schemaOwnership = new HybridDictionary();
 
             Enumerator en = new Enumerator();

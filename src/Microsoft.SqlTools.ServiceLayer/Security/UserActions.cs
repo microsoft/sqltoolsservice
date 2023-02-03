@@ -12,6 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     {
 #region Variables
         private UserPrototypeData userData;
+        private UserPrototype userPrototype;
         private UserInfo user;
         private ConfigAction configAction;
 #endregion
@@ -31,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.configAction = configAction;
 
             this.userData = new UserPrototypeData(context);
+            this.userPrototype = new UserPrototype(context, this.userData, this.userData);
 
             // this.credentialData = new CredentialData(context, credential);
             // this.credentialData.Initialize();
@@ -67,6 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             else
             {
+                //prototype.ApplyGeneralChanges(dataContainer.Server);
                 //this.credentialData.SendDataToServer();
             }
         }
