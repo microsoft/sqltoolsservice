@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlServer.Dac.Model;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -315,7 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to save a publish profile
         /// </summary>
         /// <returns></returns>
-        public async Task HandleSavePublishProfileRequest(SaveProfileParams parameters, RequestContext<bool> requestContext)
+        public async Task HandleSavePublishProfileRequest(SavePublishProfileParams parameters, RequestContext<ResultStatus> requestContext)
         {
             try
             {
@@ -333,14 +333,21 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                             profile.DeployOptions.SqlCommandVariableValues[key] = parameters.SqlCommandVariableValues[key];
                         }
                     }
-
+                    //TODO: Add return from Save with success/fail status
                     profile.Save(parameters.ProfilePath);
                 }
-                await requestContext.SendResult(true);
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = true
+                });
             }
             catch (Exception e)
             {
-                await requestContext.SendError(e);
+                await requestContext.SendResult(new ResultStatus()
+                {
+                    Success = false,
+                    ErrorMessage = e.Message
+                });
             }
 
             return;

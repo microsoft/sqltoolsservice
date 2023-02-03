@@ -3,16 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System.Collections.Generic;
-using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-//using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
     /// <summary>
     /// Parameters for a DacFx save publish profile request.
     /// </summary>
-    public class SaveProfileParams
+    public class SavePublishProfileParams
     {
         /// <summary>
         /// Gets or sets the profile path
@@ -45,8 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     class SavePublishProfileRequest
     {
-        public static readonly RequestType<SaveProfileParams, bool> Type =
-            RequestType<SaveProfileParams, bool>.Create("dacfx/savePublishProfile");
+        public static readonly RequestType<SavePublishProfileParams, ResultStatus> Type =
+            RequestType<SavePublishProfileParams, ResultStatus>.Create("dacfx/savePublishProfile");
     }
 }
 

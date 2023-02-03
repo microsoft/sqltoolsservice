@@ -876,7 +876,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
             string profileFilePath = Path.Combine(folderPath, string.Format("validateSavePublishProfile.publish.xml"));
 
-            var saveProfileParams = new SaveProfileParams
+            var savePublishProfileParams = new SavePublishProfileParams
             {
                 ProfilePath = profileFilePath,
                 DatabaseName = "testDb",
@@ -890,7 +890,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             var dacfxRequestContext = new Mock<RequestContext<bool>>();
             dacfxRequestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
 
-            await service.HandleSavePublishProfileRequest(saveProfileParams, dacfxRequestContext.Object);
+            await service.HandleSavePublishProfileRequest(savePublishProfileParams, dacfxRequestContext.Object);
 
             VerifyAndCleanup(profileFilePath);      // verify file gets created
         }
