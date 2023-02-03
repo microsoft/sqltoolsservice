@@ -9,28 +9,29 @@ using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
+using System;
+using System.Data;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
     /// <summary>
     /// Database properties for SQL Azure DB.
-    ///  Business/Web editions are up to compat level 100 now   
     /// </summary>
-    [TypeConverter(typeof(DynamicValueTypeConverter))]
-    internal class DatabasePrototypeAzure : DatabasePrototype100
+    internal class DatabasePrototypeAzure : DatabasePrototype160
     {
 
         #region Constants
 
         public const string Category_Azure = "Category_Azure";
+        public const string Category_Azure_BRS = "Category_Azure_BRS";
         public const string Property_AzureMaxSize = "Property_AzureMaxSize";
         public const string Property_AzureCurrentServiceLevelObjective = "Property_AzureCurrentServiceLevelObjective";
         public const string Property_AzureConfiguredServiceLevelObjective = "Property_AzureConfiguredServiceLevelObjective";
         public const string Property_AzureEdition = "Property_AzureEdition";
+        public const string Property_AzureBackupStorageRedundancy = "Property_AzureBackupStorageRedundancy";
         #endregion Constants
 
         public DatabasePrototypeAzure(CDataContainer context, DatabaseEngineEdition editionToCreate = DatabaseEngineEdition.SqlDatabase)
@@ -40,9 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         #region Properties
-
-        [Category(Category_Azure),
-         DisplayNameAttribute(Property_AzureMaxSize)]
+       
         public string MaxSize
         {
             get
@@ -51,13 +50,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
             set
             {
-                this.currentState.maxSize = DbSize.ParseDbSize(value);
+                this.currentState.maxSize = string.IsNullOrEmpty(value) ? null : DbSize.ParseDbSize(value);
                 this.NotifyObservers();
             }
         }
 
-        [Category(Category_Azure),
-         DisplayNameAttribute(Property_AzureCurrentServiceLevelObjective)]
         public string CurrentServiceLevelObjective
         {
             get
@@ -66,20 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
             set
             {
+                if (value != null && value.Contains('\''))
+                {
+                    throw new ArgumentException("Error_InvalidServiceLevelObjective");
+                }
                 this.currentState.currentServiceLevelObjective = value;
                 this.NotifyObservers();
-            }
-        }
-
-        [Category(Category_Azure),
-         DisplayNameAttribute(Property_AzureConfiguredServiceLevelObjective)]
-        public string ConfiguredServiceLevelObjective
-        {
-            //This value is read only because it's changed by changing the current SLO,
-            //we just expose this to show if the DB is currently transitioning
-            get
-            {
-                return this.currentState.configuredServiceLevelObjective;
             }
         }
 
@@ -92,35 +81,79 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
         }
 
-        [Category(Category_Azure),
-         DisplayNameAttribute(Property_AzureEdition)]
         //We have a separate property here so that the AzureEdition enum value is still exposed
         //(This property is for the name displayed in the drop down menu, which needs to be a string for casting purposes)
         public string AzureEditionDisplay
         {
             get
             {
-                return this.currentState.azureEditionDisplayValue;
+                return AzureSqlDbHelper.GetAzureEditionDisplayName(this.currentState.azureEdition);
             }
-            set
-            {
-                // TODO set from here should probably allow for the fact that System is a valid edition for
-                // actual system DBs. Not handling for now
-                AzureEdition edition;
-                if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(value, out edition))
-                {
-                    if (edition == this.currentState.azureEdition)
-                    { //No changes, return early since we don't need to do any of the changes below
-                        return;
-                    }
+            // set
+            // {
+            //     AzureEdition edition;
+            //     if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(value, out edition))
+            //     {
+            //         //Try to get the ServiceLevelObjective from the api,if not the default hardcoded service level objectives will be retrieved.
+            //         string serverLevelObjective = AzureServiceLevelObjectiveProvider.TryGetAzureServiceLevelObjective(value, AzureServiceLocation);
 
-                    this.currentState.azureEdition = edition;
-                    this.currentState.azureEditionDisplayValue = value;
-                    this.CurrentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(edition);
-                    this.MaxSize = AzureSqlDbHelper.GetDatabaseDefaultSize(edition).ToString();
-                    this.NotifyObservers();
-                }              
-            }
+            //         if (!string.IsNullOrEmpty(serverLevelObjective))
+            //         {
+            //             this.currentState.azureEdition = edition;
+            //             this.currentState.currentServiceLevelObjective = serverLevelObjective;
+            //             // Instead of creating db instance with default Edition, update EditionToCreate while selecting Edition from the UI.
+            //             this.EditionToCreate = MapAzureEditionToDbEngineEdition(edition);
+            //             string storageAccountType = AzureServiceLevelObjectiveProvider.TryGetAzureStorageType(value, AzureServiceLocation);
+            //             if (!string.IsNullOrEmpty(storageAccountType))
+            //             {
+            //                 this.currentState.backupStorageRedundancy = storageAccountType;
+            //             }
+
+            //             // Try to get the azure maxsize from the api,if not the default hardcoded maxsize will be retrieved.
+            //             DbSize dbSize = AzureServiceLevelObjectiveProvider.TryGetAzureMaxSize(value, serverLevelObjective, AzureServiceLocation);
+            //             if (!string.IsNullOrEmpty(dbSize.ToString()))
+            //             {
+            //                 this.currentState.maxSize = new DbSize(dbSize.Size, dbSize.SizeUnit);
+            //             }
+            //         }
+            //         else
+            //         {
+            //             if (edition == this.currentState.azureEdition)
+            //             { //No changes, return early since we don't need to do any of the changes below
+            //                 return;
+            //             }
+
+            //             this.currentState.azureEdition = edition;                        
+            //             this.EditionToCreate = MapAzureEditionToDbEngineEdition(edition);
+            //             this.CurrentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(edition);
+            //             this.BackupStorageRedundancy = AzureSqlDbHelper.GetDefaultBackupStorageRedundancy(edition);
+            //             var defaultSize = AzureSqlDbHelper.GetDatabaseDefaultSize(edition);
+
+            //             this.MaxSize = defaultSize == null ? String.Empty : defaultSize.ToString();
+            //         }
+            //         this.NotifyObservers();
+            //     }
+            //     else
+            //     {
+            //         //Can't really do much if we fail to parse the display name so just leave it as is and log a message
+            //         System.Diagnostics.Debug.Assert(false,
+            //             string.Format(CultureInfo.InvariantCulture,
+            //                 "Failed to parse edition display name '{0}' back into AzureEdition", value));
+            //     }
+            // }
+        }
+
+        /// <summary>
+        /// Mapping funtion to get the Database engine edition based on the selected AzureEdition value
+        /// </summary>
+        /// <param name="edition">Selected dropdown Azure Edition value</param>
+        /// <returns>Corresponding DatabaseEngineEdition value</returns>
+        private static DatabaseEngineEdition MapAzureEditionToDbEngineEdition(AzureEdition edition)
+        {
+            // As of now we only know for sure that AzureEdition.DataWarehouse maps to
+            // DatabaseEngineEdition.SqlDataWarehouse, for all others we keep the default value
+            // as before which was 'SqlDatabase'
+            return edition == AzureEdition.DataWarehouse ? DatabaseEngineEdition.SqlDataWarehouse : DatabaseEngineEdition.SqlDatabase;
         }
 
         public override IList<FilegroupPrototype> Filegroups
@@ -146,6 +179,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             get { return this.ServerVersion.Major > 11 && this.AzureEdition != AzureEdition.DataWarehouse; }
         }
 
+        // [Browsable(false)]
+        // public SubscriptionLocationKey AzureServiceLocation { get; set; }
+        
+        public string BackupStorageRedundancy
+        {
+            get
+            {
+                return this.currentState.backupStorageRedundancy;
+            }
+            set
+            {
+                this.currentState.backupStorageRedundancy = value;
+                this.NotifyObservers();
+            }
+        }
+
         #endregion Properties
 
         #region DatabasePrototype overrides
@@ -157,69 +206,71 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>The SMO database object that was created or modified</returns>
         public override Database ApplyChanges()
         {
-           // For v12 Non-DW DBs lets use SMO
-           if (this.ServerVersion.Major >= 12  && this.AzureEdition != AzureEdition.DataWarehouse)
-           {
-               return base.ApplyChanges();
-           }
-
-           //Note : We purposely don't call base.ApplyChanges() here since SMO doesn't fully support Azure yet and so will throw
-           //an error if we try to modify the Database object directly            
-           string alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifyAzureDbOptionsStatement(this.Name, this.AzureEdition, this.MaxSize, this.CurrentServiceLevelObjective);
-           if (this.AzureEdition == AzureEdition.DataWarehouse)
-           {
-               alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifySqlDwDbOptionsStatement(this.Name, this.MaxSize, this.CurrentServiceLevelObjective);
-           }
-
-           string alterAzureDbRecursiveTriggersEnabledStatement = DatabasePrototypeAzure.CreateAzureDbSetRecursiveTriggersStatement(this.Name, this.RecursiveTriggers);
-           string alterAzureDbIsReadOnlyStatement = DatabasePrototypeAzure.CreateAzureDbSetIsReadOnlyStatement(this.Name, this.IsReadOnly);
-
-           Database db = this.GetDatabase();
-
-           //Altering the DB needs to be done on the master DB
-           using (var conn = new SqlConnection(this.context.ServerConnection.GetDatabaseConnection("master").ConnectionString))
-           {
-                using (var cmd = new SqlCommand())
+            Database database = base.ApplyChanges();
+            if (this.AzureEdition != AzureEdition.DataWarehouse)
+            {
+                // We don't need to alter BSR value if the user is just scripting or if the DB is not creating.
+                if (database != null && this.context.Server.ConnectionContext.SqlExecutionModes != SqlExecutionModes.CaptureSql)
                 {
-                    cmd.Connection = conn;
-                    conn.Open();
-
-                    //Only run the alter statements for modifications made. This is mostly to allow the non-Azure specific
-                    //properties to be updated when a SLO change is in progress, but it also is beneficial to save trips to the
-                    //server whenever we can (especially when Azure is concerned)
-                    if (currentState.azureEdition != originalState.azureEdition ||
-                       currentState.currentServiceLevelObjective != originalState.currentServiceLevelObjective ||
-                       currentState.maxSize != originalState.maxSize)
+                    string alterAzureDbBackupStorageRedundancy = DatabasePrototypeAzure.CreateModifySqlDBBackupStorageRedundancyStatement(this.Name, this.currentState.backupStorageRedundancy);
+                    using (var conn = this.context.ServerConnection.GetDatabaseConnection(this.Name).SqlConnectionObject)
                     {
-                        cmd.CommandText = alterDbPropertiesStatement;
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    if (currentState.recursiveTriggers != originalState.recursiveTriggers)
-                    {
-                        cmd.CommandText = alterAzureDbRecursiveTriggersEnabledStatement;
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    if (currentState.isReadOnly != originalState.isReadOnly)
-                    {
-                        cmd.CommandText = alterAzureDbIsReadOnlyStatement;
-                        cmd.ExecuteNonQuery();
+                        //While scripting the database, there is already an open connection. So, we are checking the state of the connection here.
+                        if (conn != null && conn.State == ConnectionState.Closed)
+                        {
+                            conn.Open();
+                            using (var cmd = new SqlCommand { Connection = conn })
+                            {
+                                cmd.CommandText = alterAzureDbBackupStorageRedundancy;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
                     }
                 }
-           }
 
-           //Because we didn't use SMO to do the alter we should refresh the DB object so it picks up the correct properties
-           db.Refresh();
+                return database;
+            }
 
-           // For properties that are supported in Database.Alter(), call SaveProperties, and then alter the DB.
-           //
-           if (this.AzureEdition != AzureEdition.DataWarehouse)
-           {
-               this.SaveProperties(db);
-               db.Alter(TerminationClause.FailOnOpenTransactions);
-           }
-           return db;
+            string alterDbPropertiesStatement = DatabasePrototypeAzure.CreateModifySqlDwDbOptionsStatement(this.Name, this.MaxSize, this.CurrentServiceLevelObjective);
+
+            string alterAzureDbRecursiveTriggersEnabledStatement = DatabasePrototypeAzure.CreateAzureDbSetRecursiveTriggersStatement(this.Name, this.RecursiveTriggers);
+            string alterAzureDbIsReadOnlyStatement = DatabasePrototypeAzure.CreateAzureDbSetIsReadOnlyStatement(this.Name, this.IsReadOnly);
+
+            Database db = this.GetDatabase();
+
+            //Altering the DB needs to be done on the master DB
+            using (var conn = this.context.ServerConnection.GetDatabaseConnection("master").SqlConnectionObject)
+            {
+                var cmd = new SqlCommand { Connection = conn };
+                conn.Open();
+
+                //Only run the alter statements for modifications made. This is mostly to allow the non-Azure specific
+                //properties to be updated when a SLO change is in progress, but it also is beneficial to save trips to the
+                //server whenever we can (especially when Azure is concerned)
+                if ((currentState.azureEdition != null && currentState.azureEdition != originalState.azureEdition) ||
+                   (!string.IsNullOrEmpty(currentState.currentServiceLevelObjective) && currentState.currentServiceLevelObjective != originalState.currentServiceLevelObjective) ||
+                   (currentState.maxSize != null && currentState.maxSize != originalState.maxSize))
+                {
+                    cmd.CommandText = alterDbPropertiesStatement;
+                    cmd.ExecuteNonQuery();
+                }
+
+                if (currentState.recursiveTriggers != originalState.recursiveTriggers)
+                {
+                    cmd.CommandText = alterAzureDbRecursiveTriggersEnabledStatement;
+                    cmd.ExecuteNonQuery();
+                }
+
+                if (currentState.isReadOnly != originalState.isReadOnly)
+                {
+                    cmd.CommandText = alterAzureDbIsReadOnlyStatement;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            //Because we didn't use SMO to do the alter we should refresh the DB object so it picks up the correct properties
+            db.Refresh();
+            return db;
         }
 
         #endregion DatabasePrototype overrides
@@ -227,30 +278,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         protected override void SaveProperties(Database db)
         {
             base.SaveProperties(db);
-            if (this.ServerVersion.Major >= 12 && this.AzureEdition != AzureEdition.DataWarehouse)
+
+            // treat null as defaults/unchanged
+            // SMO will only script changed values so if the user changes edition and size and SLO are empty the alter
+            // will change the db to the default size and slo for the new edition
+            // if the new combination of edition/size/slo is invalid the alter will fail
+            if (this.currentState.maxSize != null && (!this.Exists || (this.originalState.maxSize != this.currentState.maxSize)))
             {
-                if (!this.Exists || (this.originalState.maxSize != this.currentState.maxSize))
-                {
-                    db.MaxSizeInBytes = this.currentState.maxSize.SizeInBytes;
-                }
-
-                if (!this.Exists || (this.originalState.azureEdition != this.currentState.azureEdition))
-                {
-                    db.AzureEdition = this.currentState.azureEdition.ToString();
-                }
-
-                if (!this.Exists || (this.originalState.currentServiceLevelObjective != this.currentState.currentServiceLevelObjective))
-                {
-                    db.AzureServiceObjective = this.currentState.currentServiceLevelObjective;
-                }
+                db.MaxSizeInBytes = this.currentState.maxSize.SizeInBytes;
             }
-            
+
+            if (this.currentState.azureEdition != null && (!this.Exists || (this.originalState.azureEdition != this.currentState.azureEdition)))
+            {
+                db.AzureEdition = this.currentState.azureEdition.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(this.currentState.currentServiceLevelObjective) && (!this.Exists || (this.originalState.currentServiceLevelObjective != this.currentState.currentServiceLevelObjective)))
+            {
+                db.AzureServiceObjective = this.currentState.currentServiceLevelObjective;
+            }
         }
 
-        private const string AlterDbStatementFormat =
-            @"ALTER DATABASE [{0}] {1}";
-
-        private const string ModifyAzureDbStatementFormat = @"MODIFY (EDITION = '{0}', MAXSIZE={1} {2})";
+        private const string AlterDbStatementFormat = @"ALTER DATABASE [{0}] {1}";
         private const string ModifySqlDwDbStatementFormat = @"MODIFY (MAXSIZE={0} {1})";
         private const string AzureServiceLevelObjectiveOptionFormat = @"SERVICE_OBJECTIVE = '{0}'";
         private const string SetReadOnlyOption = @"SET READ_ONLY";
@@ -258,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         private const string SetRecursiveTriggersOptionFormat = @"SET RECURSIVE_TRIGGERS {0}";
         private const string On = @"ON";
         private const string Off = @"OFF";
+        private const string ModifySqlDbBackupStorageRedundancy = @"MODIFY BACKUP_STORAGE_REDUNDANCY = '{0}'";
 
         /// <summary>
         /// Creates an ALTER DATABASE statement to modify the Read-Only status of the target DB
@@ -287,29 +337,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
-        /// Creates an ALTER DATABASE statement to modify the Azure Database properties (Edition, MaxSize and Service Level Objective)
-        /// for the target database
-        /// </summary>
-        /// <param name="dbName"></param>
-        /// <param name="edition"></param>
-        /// <param name="maxSize"></param>
-        /// <param name="serviceLevelObjective"></param>
-        /// <returns></returns>
-        protected static string CreateModifyAzureDbOptionsStatement(string dbName, AzureEdition edition, string maxSize, string serviceLevelObjective)
-        {
-            //We might not have a SLO since some editions don't support it
-            string sloOption = string.IsNullOrEmpty(serviceLevelObjective) ?
-                string.Empty : ", " + string.Format(CultureInfo.InvariantCulture, AzureServiceLevelObjectiveOptionFormat, serviceLevelObjective);
-
-            return CreateAzureAlterDbStatement(dbName,
-                string.Format(CultureInfo.InvariantCulture,
-                    ModifyAzureDbStatementFormat,
-                    edition,
-                    maxSize,
-                    sloOption));
-        }
-
-        /// <summary>
         /// Creates an ALTER DATABASE statement to modify the Azure DataWarehouse properties  (MaxSize and Service Level Objective)
         /// for the target database
         /// </summary>
@@ -328,6 +355,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     ModifySqlDwDbStatementFormat,
                     maxSize,
                     sloOption));
+        }
+
+        /// <summary>
+        /// Creates the ATLER DATABASE statement from the given backup storage redundancy option.
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <param name="option"></param>
+        /// <returns></returns>
+        protected static string CreateModifySqlDBBackupStorageRedundancyStatement(string dbName, string option)
+        {
+            //Note: We allow user to select any one of the value from the UI for backupStorageRedundancy. So, we are inlining the value.
+            return CreateAzureAlterDbStatement(dbName,
+                string.Format(CultureInfo.InvariantCulture,
+                    ModifySqlDbBackupStorageRedundancy,
+                    option));
         }
 
         /// <summary>

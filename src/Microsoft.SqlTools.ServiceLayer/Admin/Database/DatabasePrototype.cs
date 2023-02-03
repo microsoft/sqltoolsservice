@@ -4,18 +4,21 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Resources;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.Data.SqlClient;
-using System.Collections.Generic;
-using System.Diagnostics;
-using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -46,10 +49,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public ContainmentType databaseContainmentType;
             public PageVerify pageVerify;
             public AzureEdition azureEdition;
-            public string azureEditionDisplayValue;
             public string configuredServiceLevelObjective;
             public string currentServiceLevelObjective;
             public DbSize maxSize;
+            public string backupStorageRedundancy;
 
             public bool closeCursorOnCommit;
             public bool isReadOnly;
@@ -107,7 +110,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public DatabaseScopedConfigurationOnOff queryOptimizerHotfixes;
             public DatabaseScopedConfigurationOnOff queryOptimizerHotfixesForSecondary;
 
-            
+            public bool isLedger;
+
             /// <summary>
             /// Constructor for new databases using default data
             /// </summary>
@@ -115,7 +119,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             /// This method is only called when the user doesn't have access to the model database
             /// </remarks>
             public DatabaseData(CDataContainer context)
-            {      
+            {
+                System.Diagnostics.Debug.Assert(context.Server != null, "SMO server not initialized");
+
                 this.name = string.Empty;
                 this.owner = string.Empty;
                 this.restrictAccess = DatabaseUserAccess.Multiple;
@@ -151,7 +157,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.filestreamDirectoryName = String.Empty;
                 this.delayedDurability = DelayedDurability.Disabled;
                 this.azureEdition = AzureEdition.Standard;
-                this.azureEditionDisplayValue = AzureEdition.Standard.ToString();
                 this.configuredServiceLevelObjective = String.Empty;
                 this.currentServiceLevelObjective = String.Empty;
                 this.maxSize = new DbSize(0, DbSize.SizeUnits.MB);
@@ -163,17 +168,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.parameterSniffingForSecondary = DatabaseScopedConfigurationOnOff.Primary;
                 this.queryOptimizerHotfixes = DatabaseScopedConfigurationOnOff.Off;
                 this.queryOptimizerHotfixesForSecondary = DatabaseScopedConfigurationOnOff.Primary;
+                this.isLedger = false;
 
                 //The following properties are introduced for contained databases.
                 //In case of plain old databases, these values should reflect the server configuration values.
                 this.defaultFulltextLanguageLcid = context.Server.Configuration.DefaultFullTextLanguage.ConfigValue;
                 int defaultLanguagelangid = context.Server.Configuration.DefaultLanguage.ConfigValue;
-                this.defaultLanguageLcid = 1033; // LanguageUtils.GetLcidFromLangId(context.Server, defaultLanguagelangid);
+                this.defaultLanguageLcid = LanguageUtils.GetLcidFromLangId(context.Server, defaultLanguagelangid);
                 this.nestedTriggersEnabled = context.Server.Configuration.NestedTriggers.ConfigValue == 1;
                 this.transformNoiseWords = context.Server.Configuration.TransformNoiseWords.ConfigValue == 1;
                 this.twoDigitYearCutoff = context.Server.Configuration.TwoDigitYearCutoff.ConfigValue;
 
                 this.targetRecoveryTime = 0;
+                this.backupStorageRedundancy = string.Empty;
 
                 ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
@@ -185,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 if (7 < context.Server.Information.Version.Major)
                 {
-                    this.collation = this.defaultCollation = manager.GetString("general_default");
+                    this.collation = this.defaultCollation = manager.GetString("general.default");
                 }
                 else
                 {
@@ -211,63 +218,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     this.fullTextIndexingEnabled = true;
                 }
 
-                switch (context.SqlServerVersion)
+                var compatLevelInt = Enum.GetValues(typeof(CompatibilityLevel)).Cast<int>().OrderBy(c => c).ToArray();
+                // SqlServerVersion uses the Information.VersionMajor property which does get vbumped for Azure DB when it adds a new compat level
+                if (!compatLevelInt.Contains(context.SqlServerVersion * 10))
                 {
-                    case 6:
-
-                        string errorMessage = manager.GetString("error_60compatibility");
-                        throw new InvalidOperationException(errorMessage);
-
-                    case 7:
-
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version70;
-                        break;
-
-                    case 8:
-
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version80;
-                        break;
-
-                    case 9:
-
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version90;
-                        break;
-
-                    case 10:
-
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version100;
-                        break;
-
-                    case 11:
-
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version110;
-                        break;
-
-                    case 12:
-
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version120;
-                        break;
-
-                    case 13:
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version130;
-                        break;
-
-                    case 14:
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version140;
-                        break;
-
-                    default:                        
-                        this.databaseCompatibilityLevel = CompatibilityLevel.Version140;
-                        break;
+                    databaseCompatibilityLevel = (CompatibilityLevel)compatLevelInt[compatLevelInt.Length - 1];
+                }
+                else
+                {
+                    databaseCompatibilityLevel = (CompatibilityLevel)(context.SqlServerVersion * 10);
                 }
 
                 if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
-                { //These properties are only available for Azure DBs
-                    this.azureEdition = AzureEdition.Standard;
-                    this.azureEditionDisplayValue = azureEdition.ToString();
-                    this.currentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(this.azureEdition);
-                    this.configuredServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(this.azureEdition);
-                    this.maxSize = AzureSqlDbHelper.GetDatabaseDefaultSize(this.azureEdition);                    
+                {   // These Properties have different expected defaults in Azure DBs
+                    this.allowSnapshotIsolation = true;
+                    this.isReadCommittedSnapshotOn = true;
+                    this.encryptionEnabled = true;
+                    //These properties are only available for Azure DBs
+                    this.azureEdition = AzureEdition.GeneralPurpose;
+                    this.currentServiceLevelObjective = this.configuredServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(this.azureEdition);
+                    this.maxSize = AzureSqlDbHelper.GetDatabaseDefaultSize(this.azureEdition);
+                    this.backupStorageRedundancy = AzureSqlDbHelper.GetDefaultBackupStorageRedundancy(this.azureEdition);
                 }
             }
 
@@ -278,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 SELECT so.name as configured_slo_name, so2.name as current_slo_name
 FROM dbo.slo_database_objectives do 
     INNER JOIN dbo.slo_service_objectives so ON do.configured_objective_id = so.objective_id
-    INNER JOIN dbo.slo_service_objectives so2 ON do.current_objective_id = so2.objective_id
+	INNER JOIN dbo.slo_service_objectives so2 ON do.current_objective_id = so2.objective_id
 WHERE do.database_id = @DbID
 ";
 
@@ -298,18 +269,9 @@ WHERE do.database_id = @DbID
 
                 isSystemDB = db.IsSystemObject;
 
-                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).Assembly);
 
-                try
-                {
-                    this.owner = db.Owner;
-                }
-                catch (Exception)
-                {
-                    // TODO: fix the exception in SMO
-                    this.owner = string.Empty;
-                }
-
+                this.owner = db.Owner;
 
                 // Databases that are restored from other servers might not have valid owners.
                 // If the logged in user is an administrator and the owner is not valid, show
@@ -360,7 +322,7 @@ WHERE do.database_id = @DbID
                     }
                     else
                     {
-                        throw;
+                        throw ex;
                     }
                 }
 
@@ -373,7 +335,10 @@ WHERE do.database_id = @DbID
                 {
                     this.autoClose = db.DatabaseOptions.AutoClose;
                 }
-                this.autoShrink = db.DatabaseOptions.AutoShrink;
+                if (db.IsSupportedProperty("AutoShrink"))
+                {
+                    this.autoShrink = db.DatabaseOptions.AutoShrink;
+                }
                 this.autoCreateStatistics = db.DatabaseOptions.AutoCreateStatistics;
                 this.autoUpdateStatistics = db.DatabaseOptions.AutoUpdateStatistics;
                 this.ansiNullDefault = db.DatabaseOptions.AnsiNullDefault;
@@ -405,7 +370,7 @@ WHERE do.database_id = @DbID
                 {
                     if (context.IsNewObject)
                     {
-                        this.collation = this.defaultCollation = manager.GetString("general_default");
+                        this.collation = this.defaultCollation = manager.GetString("general.default");
                     }
                     else
                     {
@@ -476,7 +441,7 @@ WHERE do.database_id = @DbID
                 }
 
                 this.varDecimalEnabled =
-                    // db.IsVarDecimalStorageFormatSupported &&
+                    db.IsVarDecimalStorageFormatSupported &&
                     db.IsVarDecimalStorageFormatEnabled;
 
                 // SQL Server 2008 options
@@ -532,9 +497,10 @@ WHERE do.database_id = @DbID
                 if ((db.CompatibilityLevel == CompatibilityLevel.Version60) ||
                     (db.CompatibilityLevel == CompatibilityLevel.Version65))
                 {
-                    string errorMessage = manager.GetString("error_60compatibility");
+                    string errorMessage = manager.GetString("error.60compatibility");
                     throw new InvalidOperationException(errorMessage);
-                }        
+                }
+
 
                 this.databaseCompatibilityLevel = db.CompatibilityLevel;
 
@@ -557,7 +523,7 @@ WHERE do.database_id = @DbID
 
                 try
                 {
-                    if (db.IsSupportedProperty("IsMirroringEnabled") && db.IsMirroringEnabled)
+                    if (db.IsMirroringEnabled)
                     {
                         this.mirrorSafetyLevel = db.MirroringSafetyLevel;
                         this.witnessServer = db.MirroringWitness;
@@ -572,7 +538,7 @@ WHERE do.database_id = @DbID
                     }
                     else
                     {
-                        throw;
+                        throw ex;
                     }
                 }
 
@@ -583,20 +549,25 @@ WHERE do.database_id = @DbID
                     this.delayedDurability = db.DelayedDurability;
                 }
 
-                //Only fill in the Azure properties when connected to an Azure server
-                if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase
-                && context.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlOnDemand)
+                if (db.IsSupportedProperty("IsLedger")) 
                 {
-                    this.azureEditionDisplayValue = db.AzureEdition;
-                    AzureEdition edition;
-                    if (Enum.TryParse(db.AzureEdition, true, out edition))
+                    this.isLedger = db.IsLedger;
+                }
+
+                //Only fill in the Azure properties when connected to an Azure server
+                if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                {
+                    AzureEdition edition = AzureSqlDbHelper.AzureEditionFromString(db.AzureEdition);
+                    if (edition != null)
                     {
                         this.azureEdition = edition;
                     }
                     else
                     {
-                        // Unknown Azure DB Edition so we can't set a value, leave as default Standard
-                        // Note that this is likely a 
+                        //Unknown Azure DB Edition so we can't continue
+                        System.Diagnostics.Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown Azure DB Edition {0}",
+                            db.AzureEdition));
+                        throw new Exception("Error_UnknownAzureEdition");
                     }
 
                     //Size is in MB, but if it's greater than a GB we want to display the size in GB
@@ -609,9 +580,8 @@ WHERE do.database_id = @DbID
                     {
                         this.maxSize = new DbSize((int)db.Size, DbSize.SizeUnits.MB);
                     }
-
                     this.GetServiceLevelObjectiveValues(context);
-
+                    this.backupStorageRedundancy = AzureSqlDbHelper.GetDefaultBackupStorageRedundancy(edition);
                 }
 
                 // Check if we support database scoped configurations on this server. Since these were all added at the same time,
@@ -637,35 +607,11 @@ WHERE do.database_id = @DbID
             {
                 Database db = context.Server.Databases[this.name];
 
-                //For Azure v12 or later we can use SMO (the property doesn't exist prior to v12)
-                if (Utils.IsSql12OrLater(context.Server.Information.Version.Major))
-                {
-                    //Currently the only way to get the configured service level objective is to use the REST API. 
-                    //Since SSMS doesn't currently support that we'll leave it blank for now until support is 
-                    //added or T-SQL supports getting the configured SLO
-                    this.configuredServiceLevelObjective = "";
-                    this.currentServiceLevelObjective = db.AzureServiceObjective;
-                }
-                else
-                { //If it's under v12 we need to query the master DB directly since that has the views containing the necessary information
-                    using (var conn = new SqlConnection(context.Server.ConnectionContext.ConnectionString))
-                    {
-                        using (var cmd = new SqlCommand(dbSloQuery, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@DbID", db.ID);
-                            conn.Open();
-                            using (SqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    this.configuredServiceLevelObjective = reader["configured_slo_name"].ToString();
-                                    this.currentServiceLevelObjective = reader["current_slo_name"].ToString();
-                                    break; //Got our service level objective so we're done
-                                }
-                            }
-                        }
-                    }
-                }
+                //Currently the only way to get the configured service level objective is to use the REST API. 
+                //Since SSMS doesn't currently support that we'll leave it blank for now until support is 
+                //added or T-SQL supports getting the configured SLO
+                this.configuredServiceLevelObjective = "";
+                this.currentServiceLevelObjective = db.AzureServiceObjective;
             }
 
             /// <summary>
@@ -728,7 +674,6 @@ WHERE do.database_id = @DbID
                 this.targetRecoveryTime = other.targetRecoveryTime;
                 this.delayedDurability = other.delayedDurability;
                 this.azureEdition = other.azureEdition;
-                this.azureEditionDisplayValue = other.azureEditionDisplayValue;
                 this.configuredServiceLevelObjective = other.configuredServiceLevelObjective;
                 this.currentServiceLevelObjective = other.currentServiceLevelObjective;
                 this.legacyCardinalityEstimation = other.legacyCardinalityEstimation;
@@ -740,6 +685,8 @@ WHERE do.database_id = @DbID
                 this.queryOptimizerHotfixes = other.queryOptimizerHotfixes;
                 this.queryOptimizerHotfixesForSecondary = other.queryOptimizerHotfixesForSecondary;
                 this.maxSize = other.maxSize == null ? null : new DbSize(other.maxSize);
+                this.backupStorageRedundancy = other.backupStorageRedundancy;
+                this.isLedger = other.isLedger;
             }
 
             /// <summary>
@@ -822,7 +769,9 @@ WHERE do.database_id = @DbID
                     (this.queryOptimizerHotfixes == other.queryOptimizerHotfixes) &&
                     (this.queryOptimizerHotfixesForSecondary == other.queryOptimizerHotfixesForSecondary) &&
                     (this.queryStoreEnabled == other.queryStoreEnabled) &&
-                    (this.maxSize == other.maxSize);
+                    (this.maxSize == other.maxSize) &&
+                    (this.backupStorageRedundancy == other.backupStorageRedundancy) &&
+                    (this.isLedger == other.isLedger);
 
                 return result;
             }
@@ -846,6 +795,7 @@ WHERE do.database_id = @DbID
         protected ServerVersion serverVersion;
         protected Microsoft.SqlServer.Management.Common.DatabaseEngineType databaseEngineType;
         private bool isFilestreamEnabled;
+        private bool isFileGroupAutogrowthEnabled;
 
         private event EventHandler observableChanged;
         private bool allowNotifications = true;
@@ -862,11 +812,16 @@ WHERE do.database_id = @DbID
         /// <summary>
         /// Whether or not the UI should show File Groups
         /// </summary>
+        [Browsable(false)]
         public virtual bool HideFileSettings
         {
-            get { return false; }
+            get
+            {
+                return this.context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand;
+            }
         }
 
+        [Browsable(false)]
         public virtual bool AllowScripting
         {
             get { return true; }
@@ -969,6 +924,7 @@ WHERE do.database_id = @DbID
             }
             set
             {
+                System.Diagnostics.Debug.Assert(this.IsCollationSupported, "changing collation is not supported on this server");
                 this.currentState.collation = value;
                 this.NotifyObservers();
             }
@@ -1015,6 +971,8 @@ WHERE do.database_id = @DbID
 
                 }
 
+                System.Diagnostics.Debug.Assert(result != null && result.Length != 0, "didn't get string for restrictAccess value");
+
                 return result;
             }
             set
@@ -1031,6 +989,10 @@ WHERE do.database_id = @DbID
                 }
                 else
                 {
+                    System.Diagnostics.Debug.Assert(
+                        value == manager.GetString("prototype.db.prop.restrictAccess.value.single"),
+                        "unexpected value for restrictAccess");
+
                     this.currentState.restrictAccess = DatabaseUserAccess.Single;
                 }
 
@@ -1050,7 +1012,7 @@ WHERE do.database_id = @DbID
             {
                 string result = null;
                 ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
-                
+
                 if ((this.currentState.databaseState & DatabaseStatus.Normal) != 0)
                 {
                     result = this.AppendState(result, manager.GetString("prototype_db_prop_databaseState_value_normal"));
@@ -1171,19 +1133,24 @@ WHERE do.database_id = @DbID
                         break;
                 }
 
+                System.Diagnostics.Debug.Assert(result != null && result.Length != 0, "no string found for defaultCursor value");
+
                 return result;
             }
 
             set
             {
                 ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
-                
+
                 if (value == manager.GetString("prototype_db_prop_defaultCursor_value_local"))
                 {
                     this.currentState.defaultCursor = DefaultCursor.Local;
                 }
                 else
                 {
+                    System.Diagnostics.Debug.Assert(
+                        value == manager.GetString("prototype.db.prop.defaultCursor.value.global"),
+                        "unexpected value for defaultCursor");
                     this.currentState.defaultCursor = DefaultCursor.Global;
                 }
 
@@ -1591,6 +1558,7 @@ WHERE do.database_id = @DbID
             }
             set
             {
+                System.Diagnostics.Debug.Assert(this.Exists, "can not set safety level witness for new database");
                 currentState.mirrorSafetyLevel = value;
                 this.NotifyObservers();
             }
@@ -1608,6 +1576,7 @@ WHERE do.database_id = @DbID
             }
             set
             {
+                System.Diagnostics.Debug.Assert(this.Exists, "can not set Mirror witness for new database");
                 currentState.witnessServer = value;
                 this.NotifyObservers();
             }
@@ -1657,21 +1626,44 @@ WHERE do.database_id = @DbID
             }
         }
 
+        /// <summary>
+        /// Whether Filegroup autogrow all files feature is enabled or not.
+        /// </summary> 
+        [Browsable(false)]
+        public bool IsFileGroupAutogrowthEnabled
+        {
+            get
+            {
+                return this.isFileGroupAutogrowthEnabled;
+            }
+        }
+
+        /// <summary>
+        /// The name of the azure database edition
+        /// </summary>
+        [Browsable(false)]
+        public AzureEdition OriginalAzureEditionName
+        {
+            get
+            {
+                return this.originalState.azureEdition;
+            }
+        }
 
         #endregion
 
         private StringCollection GetDatabaseDefaultInitFields(Server server)
         {
-             StringCollection databaseDefaultInitFields;
-             if (context.IsNewObject)
-             {
-                 databaseDefaultInitFields = server.GetPropertyNames(typeof(Database), server.DatabaseEngineEdition);
-             }
-             else
-             {
-                 string databaseName = context.GetDocumentPropertyString("database");
-                 databaseDefaultInitFields = server.GetPropertyNames(typeof(Database), this.context.Server.Databases[databaseName].DatabaseEngineEdition);
-             }
+            StringCollection databaseDefaultInitFields;
+            if (context.IsNewObject)
+            {
+                databaseDefaultInitFields = server.GetPropertyNames(typeof(Database), server.DatabaseEngineEdition);
+            }
+            else
+            {
+                string databaseName = context.GetDocumentPropertyString("database");
+                databaseDefaultInitFields = server.GetPropertyNames(typeof(Database), this.context.Server.Databases[databaseName].DatabaseEngineEdition);
+            }
 
             //AvailabilityGroupName throws exception for Contained Authentication
             //and at the same time is not required in the Database Properties UI.
@@ -1725,6 +1717,8 @@ WHERE do.database_id = @DbID
         /// <param name="context"></param>
         public DatabasePrototype(CDataContainer context)
         {
+            System.Diagnostics.Debug.Assert(context != null, "unexpected null server");
+
             this.context = context;
             this.serverVersion = context.Server.ConnectionContext.ServerVersion;
             this.databaseEngineType = context.Server.DatabaseEngineType;
@@ -1734,7 +1728,8 @@ WHERE do.database_id = @DbID
             this.removedFilegroups = new List<FilegroupPrototype>();
             this.removedFiles = new List<DatabaseFilePrototype>();
             this.numberOfLogFiles = 0;
-            this.EditionToCreate = DatabaseEngineEdition.Unknown;
+            this.EditionToCreate = GetDefaultDatabaseEngineEdition(this.context.Server);
+            this.isFileGroupAutogrowthEnabled = FileGroupAutogrowthEnabled(this.context.Server);
 
             StringCollection databaseDefaultInitFields = this.GetDatabaseDefaultInitFields(this.context.Server);
             context.Server.SetDefaultInitFields(typeof(Database), databaseDefaultInitFields);
@@ -1779,9 +1774,9 @@ WHERE do.database_id = @DbID
                 this.originalState.name = String.Empty;
                 this.currentState = this.originalState.Clone();
                 this.existingDatabase = false;
-                this.currentState = this.originalState.Clone();                
+                this.currentState = this.originalState.Clone();
                 //this value should set to false(it is true when it gets here due model db)
-                this.originalState.isSystemDB = false;                
+                this.originalState.isSystemDB = false;
             }
         }
 
@@ -1829,230 +1824,225 @@ WHERE do.database_id = @DbID
         /// <returns>The SMO database object that was created or modified</returns>
         public virtual Database ApplyChanges()
         {
-           Database db = null;
+            Database db = null;
 
-           if (this.ChangesExist())
-           {
-               bool scripting = (SqlExecutionModes.CaptureSql == this.context.Server.ConnectionContext.SqlExecutionModes);
-               bool mustRollback = false;
+            if (this.ChangesExist())
+            {
+                bool scripting = (SqlExecutionModes.CaptureSql == this.context.Server.ConnectionContext.SqlExecutionModes);
+                bool mustRollback = false;
 
-               db = this.GetDatabase();
+                db = this.GetDatabase();
 
-               // Other connections will need to be closed if the following is true
-               // 1) The database already exists, AND
-               // 2) We are not scripting, AND
-               //  a) read-only state is changing, OR
-               //  b) user-access is changing, OR
-               //  c) date correlation optimization is changing
+                // Other connections will need to be closed if the following is true
+                // 1) The database already exists, AND
+                // 2) We are not scripting, AND
+                //  a) read-only state is changing, OR
+                //  b) user-access is changing, OR
+                //  c) date correlation optimization is changing
 
-               // There are also additional properties we don't currently expose that also need
-               // to be changed when no one else is connected:
+                // There are also additional properties we don't currently expose that also need
+                // to be changed when no one else is connected:
 
-               //  d) emergency, OR
-               //  e) offline, (moving to offline - obviously not necessary to check when moving from offline)
-               //  f) read committed snapshot
+                //  d) emergency, OR
+                //  e) offline, (moving to offline - obviously not necessary to check when moving from offline)
+                //  f) read committed snapshot
 
-               if (this.Exists && !scripting &&
-                   ((this.currentState.isReadOnly != this.originalState.isReadOnly) ||
-                   (this.currentState.filestreamDirectoryName != this.originalState.filestreamDirectoryName) ||
-                   (this.currentState.filestreamNonTransactedAccess != this.originalState.filestreamNonTransactedAccess) ||
-                   (this.currentState.restrictAccess != this.originalState.restrictAccess) ||
-                   (this.currentState.dateCorrelationOptimization != this.originalState.dateCorrelationOptimization) ||
-                   (this.currentState.isReadCommittedSnapshotOn != this.originalState.isReadCommittedSnapshotOn)))
-               {
+                if (this.Exists && !scripting &&
+                    ((this.currentState.isReadOnly != this.originalState.isReadOnly) ||
+                    (this.currentState.filestreamDirectoryName != this.originalState.filestreamDirectoryName) ||
+                    (this.currentState.filestreamNonTransactedAccess != this.originalState.filestreamNonTransactedAccess) ||
+                    (this.currentState.restrictAccess != this.originalState.restrictAccess) ||
+                    (this.currentState.dateCorrelationOptimization != this.originalState.dateCorrelationOptimization) ||
+                    (this.currentState.isReadCommittedSnapshotOn != this.originalState.isReadCommittedSnapshotOn)))
+                {
 
-                   // If the user lacks permissions to enumerate other connections (e.g. the user is not SA)
-                   // assume there is a connection to close.  This occasionally results in unnecessary
-                   // prompts, but the database alter does succeed this way.  If we assume no other connections,
-                   // then we get errors when other connections do exist.
-                   int numberOfOpenConnections = 1;
+                    // If the user lacks permissions to enumerate other connections (e.g. the user is not SA)
+                    // assume there is a connection to close.  This occasionally results in unnecessary
+                    // prompts, but the database alter does succeed this way.  If we assume no other connections,
+                    // then we get errors when other connections do exist.
+                    int numberOfOpenConnections = 1;
 
-                   try
-                   {
-                       numberOfOpenConnections = db.ActiveConnections;
-                   }
-                   catch (Exception)
-                   {
-                       // do nothing - the user doesn't have permission to check whether there are active connections
-                       //STrace.LogExCatch(ex);
-                   }
+                    try
+                    {
+                        numberOfOpenConnections = db.ActiveConnections;
+                    }
+                    catch (Exception ex)
+                    {
+                        // do nothing - the user doesn't have permission to check whether there are active connections
+                        System.Diagnostics.Trace.TraceError(ex.Message);
+                    }
 
-                   if (0 < numberOfOpenConnections)
-                   {
-                    //    DialogResult result = (DialogResult)marshallingControl.Invoke(new SimplePrompt(this.PromptToCloseConnections));
-                    //    if (result == DialogResult.No)
-                    //    {
-                    //        throw new OperationCanceledException();
-                    //    }
+                    if (0 < numberOfOpenConnections)
+                    {
                         mustRollback = true;
-                        throw new OperationCanceledException();                       
-                   }
-               }
+                    }
+                }
 
-               // create/alter filegroups
-               foreach (FilegroupPrototype filegroup in Filegroups)
-               {
-                   filegroup.ApplyChanges(db);
-               }
+                // create/alter filegroups
+                foreach (FilegroupPrototype filegroup in Filegroups)
+                {
+                    filegroup.ApplyChanges(db);
+                }
 
-               // create/alter files
-               foreach (DatabaseFilePrototype file in Files)
-               {
-                   file.ApplyChanges(db);
-               }
+                // create/alter files
+                foreach (DatabaseFilePrototype file in Files)
+                {
+                    file.ApplyChanges(db);
+                }
 
-               // set the database properties
-               this.SaveProperties(db);
+                // set the database properties
+                this.SaveProperties(db);
 
-               // alter the database to match the properties
-               if (!this.Exists)
-               {
-                   // this is to prevent silent creation of db behind users back
-                   // eg. the alter statements to set properties fail when filestream directory name is invalid bug #635273 
-                   // but create database statement already succeeded
+                // alter the database to match the properties
+                if (!this.Exists)
+                {
+                    // this is to prevent silent creation of db behind users back
+                    // eg. the alter statements to set properties fail when filestream directory name is invalid bug #635273 
+                    // but create database statement already succeeded
 
 
-                   // if filestream directory name has been set by user validate it
-                   if (!string.IsNullOrEmpty(this.FilestreamDirectoryName))
-                   {
-                       // check is filestream directory name is valid
-                       if (!FileNameHelper.IsValidFilename(this.FilestreamDirectoryName))
-                       {
-                           string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    // if filestream directory name has been set by user validate it
+                    if (!string.IsNullOrEmpty(this.FilestreamDirectoryName))
+                    {
+                        // check is filestream directory name is valid
+                        if (!FileNameHelper.IsValidFilename(this.FilestreamDirectoryName))
+                        {
+                            string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
                                                            SR.Error_InvalidDirectoryName,
-                                                           this.FilestreamDirectoryName);
-                           throw new ArgumentException(message);
-                       }
+                                                            this.FilestreamDirectoryName);
+                            throw new ArgumentException(message);
+                        }
 
-                       int rowCount = 0;
-                       try
-                       {
+                        int rowCount = 0;
+                        try
+                        {
 
-                           //if filestream directory name already exists in this instance
-                           string sqlFilestreamQuery = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
-                                                                    "SELECT * from sys.database_filestream_options WHERE directory_name = {0}",
-                                                                     SqlSmoObject.MakeSqlString(this.FilestreamDirectoryName));
-                           DataSet filestreamResults = this.context.ServerConnection.ExecuteWithResults(sqlFilestreamQuery);
-                           rowCount = filestreamResults.Tables[0].Rows.Count;
-                       }
-                       catch
-                       {
-                           // lets not do anything if there is an exception while validating
-                           // this is will prevent bugs in validation logic from preventing creation of valid databases
-                           // if database settings are invalid create database tsql statement will fail anyways
-                       }
-                       if (rowCount != 0)
-                       {
-                           string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            //if filestream directory name already exists in this instance
+                            string sqlFilestreamQuery = string.Format(SmoApplication.DefaultCulture, "SELECT * from sys.database_filestream_options WHERE directory_name = {0}",
+                                                                      SqlSmoObject.MakeSqlString(this.FilestreamDirectoryName));
+                            DataSet filestreamResults = this.context.ServerConnection.ExecuteWithResults(sqlFilestreamQuery);
+                            rowCount = filestreamResults.Tables[0].Rows.Count;
+                        }
+                        catch
+                        {
+                            // lets not do anything if there is an exception while validating
+                            // this is will prevent bugs in validation logic from preventing creation of valid databases
+                            // if database settings are invalid create database tsql statement will fail anyways
+                        }
+                        if (rowCount != 0)
+                        {
+                            string message = String.Format(System.Globalization.CultureInfo.InvariantCulture,
                                                            SR.Error_ExistingDirectoryName,
-                                                           this.FilestreamDirectoryName, this.Name);
-                           throw new ArgumentException(message);
+                                                            this.FilestreamDirectoryName, this.Name);
+                            throw new ArgumentException(message);
 
-                       }
-                   }
+                        }
+                    }
 
-                   db.Create();
-               }
-               else
-               {
-                   TerminationClause termination =
-                       mustRollback ?
-                       TerminationClause.RollbackTransactionsImmediately :
-                       TerminationClause.FailOnOpenTransactions;
+                    db.Create();
+                }
+                else
+                {
+                    TerminationClause termination =
+                        mustRollback ?
+                        TerminationClause.RollbackTransactionsImmediately :
+                        TerminationClause.FailOnOpenTransactions;
 
-                   db.Alter(termination);
-               }
+                    db.Alter(termination);
+                }
 
-               // have to explicitly set the default filegroup after the database has been created
-               foreach (FilegroupPrototype filegroup in Filegroups)
-               {
-                   if (filegroup.IsDefault && !(filegroup.Exists && db.FileGroups[filegroup.Name].IsDefault))
-                   {
-                       if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized))
-                       {
-                           db.SetDefaultFileStreamFileGroup(filegroup.Name);
-                       }
-                       else
-                       {
-                           db.SetDefaultFileGroup(filegroup.Name);
-                       }
-                   }
-               }
+                // have to explicitly set the default filegroup after the database has been created
+                // Also bug 97696
+                foreach (FilegroupPrototype filegroup in Filegroups)
+                {
+                    if (filegroup.IsDefault && !(filegroup.Exists && db.FileGroups[filegroup.Name].IsDefault))
+                    {
+                        if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized) &&
+                            Utils.IsKatmaiOrLater(db.ServerVersion.Major))
+                        {
+                            db.SetDefaultFileStreamFileGroup(filegroup.Name);
+                        }
+                        else
+                        {
+                            db.SetDefaultFileGroup(filegroup.Name);
+                        }
+                    }
+                }
 
-               FilegroupPrototype fg = null;
-               // drop should happen after alter so that if we delete default filegroup it makes another default before deleting.
-               // drop removed files and filegroups for existing databases
-               if (this.Exists)
-               {
-                   foreach (FilegroupPrototype filegroup in this.removedFilegroups)
-                   {
-                       // In case all filegroups are removed from filestream . memory optimized one default will remain and that has to be the last.
-                       if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized) &&
-                           db.FileGroups[filegroup.Name].IsDefault)
-                       {
-                           fg = filegroup;
-                       }
-                       else
-                       {
-                           filegroup.ApplyChanges(db);
-                       }
-                   }
+                FilegroupPrototype fg = null;
+                // drop should happen after alter so that if we delete default filegroup it makes another default before deleting.
+                // drop removed files and filegroups for existing databases
+                if (this.Exists)
+                {
+                    foreach (FilegroupPrototype filegroup in this.removedFilegroups)
+                    {
+                        // In case all filegroups are removed from filestream . memory optimized one default will remain and that has to be the last.
+                        if ((filegroup.IsFileStream || filegroup.IsMemoryOptimized) &&
+                            db.FileGroups[filegroup.Name].IsDefault)
+                        {
+                            fg = filegroup;
+                        }
+                        else
+                        {
+                            filegroup.ApplyChanges(db);
+                        }
+                    }
 
-                   if (fg != null)
-                   {
-                       fg.ApplyChanges(db);
-                   }
+                    if (fg != null)
+                    {
+                        fg.ApplyChanges(db);
+                    }
 
-                   foreach (DatabaseFilePrototype file in this.removedFiles)
-                   {
-                       file.ApplyChanges(db);
-                   }
-               }
+                    foreach (DatabaseFilePrototype file in this.removedFiles)
+                    {
+                        file.ApplyChanges(db);
+                    }
+                }
 
-               // SnapshotIsolation and Owner cannot be set during scripting time for a newly creating database
-               // and even in capture mode. Hence this check has been made
-               if (db.State == SqlSmoState.Existing)
-               {
-                   if (this.originalState.allowSnapshotIsolation != this.currentState.allowSnapshotIsolation)
-                   {
-                       db.SetSnapshotIsolation(this.currentState.allowSnapshotIsolation);
-                   }
+                // SnapshotIsolation and Owner cannot be set during scripting time for a newly creating database
+                // and even in capture mode. Hence this check has been made
+                if (db.State == SqlSmoState.Existing)
+                {
+                    if (this.originalState.allowSnapshotIsolation != this.currentState.allowSnapshotIsolation)
+                    {
+                        db.SetSnapshotIsolation(this.currentState.allowSnapshotIsolation);
+                    }
 
-                   // Set the database owner.  Note that setting owner is an "immediate" operation that 
-                   // has to happen after the database is created. There is a SMO limitation where SMO 
-                   // throws an exception if immediate operations such as SetOwner() are attempted on 
-                   // an object that doesn't exist on the server.
+                    // Set the database owner.  Note that setting owner is an "immediate" operation that 
+                    // has to happen after the database is created. There is a SMO limitation where SMO 
+                    // throws an exception if immediate operations such as SetOwner() are attempted on 
+                    // an object that doesn't exist on the server.
 
-                   if ((this.Owner.Length != 0) &&
-                       (this.currentState.owner != this.originalState.owner))
-                   {
-                       //
-                       // bug 20000092 says the error message is confusing if this fails, so 
-                       // wrap this and throw a nicer error on failure.
-                       //
-                       try
-                       {
-                           db.SetOwner(this.Owner, false);
-                       }
-                       catch (Exception ex)
-                       {
-                           SqlException sqlException = CUtils.GetSqlException(ex);
+                    if ((this.Owner.Length != 0) &&
+                        (this.currentState.owner != this.originalState.owner))
+                    {
+                        //
+                        // bug 20000092 says the error message is confusing if this fails, so 
+                        // wrap this and throw a nicer error on failure.
+                        //
+                        try
+                        {
+                            db.SetOwner(this.Owner, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            SqlException sqlException = CUtils.GetSqlException(ex);
 
-                           if ((null != sqlException) && CUtils.IsPermissionDeniedException(sqlException))
-                           {
-                               
-                               throw new Exception(SR.SetOwnerFailed(this.Owner) + ex.ToString());
-                           }
-                           else
-                           {
-                               throw;
-                           }
-                       }
-                   }
-               }
-           }
+                            if ((null != sqlException) && CUtils.IsPermissionDeniedException(sqlException))
+                            {
+                                System.Diagnostics.Trace.TraceError(ex.Message);
+                                throw new Exception(SR.SetOwnerFailed(this.Owner) + ex.ToString());
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                    }
+                }
+            }
 
-           return db;
+            return db;
         }
 
         /// <summary>
@@ -2062,7 +2052,7 @@ WHERE do.database_id = @DbID
         {
             Database db = this.GetDatabase();
 
-            // db.QueryStoreOptions.PurgeQueryStoreData();
+            db.QueryStoreOptions.PurgeQueryStoreData();
         }
 
         /// <summary>
@@ -2134,6 +2124,7 @@ WHERE do.database_id = @DbID
                     if (filegroup.IsDefault)
                     {
                         FilegroupPrototype primary = this.filegroups[0];
+                        System.Diagnostics.Debug.Assert(primary.Name == "PRIMARY", "PRIMARY filegroup is not first in list");
                         primary.IsDefault = true;
                     }
 
@@ -2177,11 +2168,13 @@ WHERE do.database_id = @DbID
             {
                 if (file.IsPrimaryFile)
                 {
+                    System.Diagnostics.Debug.Fail("unexpected removal of the primary data file");
                     throw new InvalidOperationException("unexpected removal of the primary data file");
                 }
 
                 if ((1 == this.numberOfLogFiles) && (FileType.Log == file.DatabaseFileType))
                 {
+                    System.Diagnostics.Debug.Fail("Unexpected removal of the last log file.");
                     throw new InvalidOperationException("Unexpected removal of the last log file.");
                 }
 
@@ -2214,8 +2207,8 @@ WHERE do.database_id = @DbID
             this.removedFiles.Clear();
             this.removedFilegroups.Clear();
 
-            //Azure doesn't support files/filegroups so just exit early after clearing the current settings
-            if (this.context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+            //Azure and SqlOnDemand don't support files/filegroups so just exit early after clearing the current settings
+            if (this.context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase || this.context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand)
             {
                 return;
             }
@@ -2223,12 +2216,13 @@ WHERE do.database_id = @DbID
             Database database = context.Server.Databases[this.Name];
             foreach (FileGroup filegroup in database.FileGroups)
             {
-                FilegroupPrototype filegroupPrototype = new FilegroupPrototype(this,
-                    filegroup.Name,
-                    filegroup.ReadOnly,
-                    filegroup.IsDefault,
-                    filegroup.FileGroupType,
-                    true);
+                FilegroupPrototype filegroupPrototype = new FilegroupPrototype(parent: this,
+                    name: filegroup.Name,
+                    isReadOnly: filegroup.ReadOnly,
+                    isDefault: filegroup.IsDefault,
+                    filegroupType: filegroup.FileGroupType,
+                    exists: true,
+                    isAutogrowAllFiles: filegroup.IsSupportedProperty("AutogrowAllFiles") ? filegroup.AutogrowAllFiles : false);
 
                 this.Add(filegroupPrototype);
 
@@ -2240,10 +2234,10 @@ WHERE do.database_id = @DbID
                         this.Add(file);
                     }
                 }
-                catch (ExecutionFailureException)
+                catch (ExecutionFailureException ex)
                 {
                     // do nothing
-
+                    System.Diagnostics.Trace.TraceError(ex.Message);
                 }
             }
 
@@ -2277,18 +2271,16 @@ WHERE do.database_id = @DbID
             {
                 try
                 {
-                    if (this.context.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlOnDemand)
+                    foreach (LogFile logfile in database.LogFiles)
                     {
-                        foreach (LogFile logfile in database.LogFiles)
-                        {
-                            DatabaseFilePrototype logfilePrototype = new DatabaseFilePrototype(this, logfile);
-                            this.Add(logfilePrototype);
-                        }
+                        DatabaseFilePrototype logfilePrototype = new DatabaseFilePrototype(this, logfile);
+                        this.Add(logfilePrototype);
                     }
                 }
-                catch (ExecutionFailureException)
+                catch (ExecutionFailureException ex)
                 {
                     // do nothing
+                    System.Diagnostics.Trace.TraceError(ex.Message);
                 }
             }
 
@@ -2329,9 +2321,12 @@ WHERE do.database_id = @DbID
                 }
             }
 
-            if (!this.Exists || (db.DatabaseOptions.AutoShrink != this.AutoShrink))
+            if (db.IsSupportedProperty("AutoShrink"))
             {
-                db.DatabaseOptions.AutoShrink = this.AutoShrink;
+                if (!this.Exists || (db.DatabaseOptions.AutoShrink != this.AutoShrink))
+                {
+                    db.DatabaseOptions.AutoShrink = this.AutoShrink;
+                }
             }
 
             if (!this.Exists || (db.DatabaseOptions.AutoCreateStatistics != this.AutoCreateStatistics))
@@ -2395,25 +2390,21 @@ WHERE do.database_id = @DbID
                 }
             }
 
-            // $FUTURE: 6/25/2004-stevetw Consider moving mirroring property sets
-            // to a Yukon-specific subclass
-            if (db.IsSupportedProperty("IsMirroringEnabled"))
-            {
-                if (this.Exists && db.IsMirroringEnabled && (db.MirroringSafetyLevel != MirrorSafetyLevel))
-                {
-                    db.MirroringSafetyLevel = this.MirrorSafetyLevel;
-                }
 
-                if (this.Exists && db.IsMirroringEnabled && (string.Compare(db.MirroringWitness, this.MirrorWitness, StringComparison.OrdinalIgnoreCase) != 0))
+            if (this.Exists && db.IsMirroringEnabled && (db.MirroringSafetyLevel != MirrorSafetyLevel))
+            {
+                db.MirroringSafetyLevel = this.MirrorSafetyLevel;
+            }
+
+            if (this.Exists && db.IsMirroringEnabled && (string.Compare(db.MirroringWitness, this.MirrorWitness, StringComparison.OrdinalIgnoreCase) != 0))
+            {
+                if (this.MirrorWitness.Length == 0) // we want to remove it
                 {
-                    if (this.MirrorWitness.Length == 0) // we want to remove it
-                    {
-                        db.ChangeMirroringState(MirroringOption.RemoveWitness);
-                    }
-                    else
-                    {
-                        db.MirroringWitness = this.MirrorWitness;
-                    }
+                    db.ChangeMirroringState(MirroringOption.RemoveWitness);
+                }
+                else
+                {
+                    db.MirroringWitness = this.MirrorWitness;
                 }
             }
 
@@ -2619,6 +2610,48 @@ WHERE do.database_id = @DbID
             return result;
         }
 
+        /// <summary>
+        /// Checks whether Filegroup autogrow all files feature is enabled on the server
+        /// </summary>
+        /// <param name="svr">The server object to check against</param>
+        /// <returns> True if the Filegroup autogrow all files is enabled on the server, false otherwise.</returns>
+        private bool FileGroupAutogrowthEnabled(Server svr)
+        {
+            bool result = false;
+            if (svr != null)
+            {
+                // Modifying Filegroup Autogrow property is only allowed for SQL 2016 and above,
+                // and is not permitted for Azure Synapse Analytics and Azure SQL DB.
+                if (svr.Information.Version.Major >= 13
+                   && svr.ServerType != DatabaseEngineType.SqlAzureDatabase)
+                {
+                    result = true;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Set target database engine edition to Unknown (default behaviour).
+        /// For Managed Servers, set it explicitly to avoid
+        /// scripting unsupported stuff
+        /// /// </summary>
+        /// <param name="svr">The server object to check against</param>
+        /// <returns>Desired engine edition</returns>
+        private DatabaseEngineEdition GetDefaultDatabaseEngineEdition(Server svr)
+        {
+            if (svr != null && (svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance || 
+                svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand ||
+                svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlAzureArcManagedInstance))
+            {
+                return svr.DatabaseEngineEdition;
+            }
+            else
+            {
+                return DatabaseEngineEdition.Unknown;
+            }
+        }
+
         protected Database GetDatabase()
         {
             Database result = null;
@@ -2627,6 +2660,8 @@ WHERE do.database_id = @DbID
             if (this.Exists)
             {
                 result = this.context.Server.Databases[this.originalState.name];
+
+                System.Diagnostics.Debug.Assert(0 == String.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing database has changed");
                 if (result == null)
                 {
                     throw new Exception("Object does not exist");
@@ -2634,9 +2669,9 @@ WHERE do.database_id = @DbID
             }
             else
             {
-                result = new Database(this.context.Server, this.Name, this.EditionToCreate);                
+                result = new Database(this.context.Server, this.Name, this.EditionToCreate);
             }
-            
+
             return result;
         }
 

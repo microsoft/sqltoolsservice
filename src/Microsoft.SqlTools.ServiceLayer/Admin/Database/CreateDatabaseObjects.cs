@@ -4,16 +4,16 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Resources;
 using System.Data;
 using System.IO;
+using System.Resources;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
-using Smo = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Smo = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             public string name;
             public bool isReadOnly;
             public bool isDefault;
+            public bool isAutogrowAllFiles;
             public FileGroupType fileGroupType = FileGroupType.RowsFileGroup;
 
             /// <summary>
@@ -64,17 +65,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 this.name = String.Empty;
                 this.isReadOnly = false;
                 this.isDefault = false;
+                this.isAutogrowAllFiles = false;
             }
 
             /// <summary>
             /// Creates an instance of FilegroupData
             /// </summary>
             public FilegroupData(FileGroupType fileGroupType)
+                : this(name: String.Empty, isReadOnly: false, isDefault: false, fileGroupType: fileGroupType, isAutogrowAllFiles: false)
             {
-                this.name = String.Empty;
-                this.isReadOnly = false;
-                this.isDefault = false;
-                this.fileGroupType = fileGroupType;
             }
 
             /// <summary>
@@ -85,10 +84,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             /// <param name="isDefault">Default filegroup or not</param>
             /// <param name="fileGroupType">FileGroupType</param>
             public FilegroupData(string name, bool isReadOnly, bool isDefault, FileGroupType fileGroupType)
+                : this(name, isReadOnly, isDefault, fileGroupType, isAutogrowAllFiles: false)
+            {
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the FilegroupData class.
+            /// </summary>
+            /// <param name="name">filegroup name</param>
+            /// <param name="isReadOnly">Readonly or not</param>
+            /// <param name="isDefault">Default filegroup or not</param>
+            /// <param name="fileGroupType">FileGroupType</param>
+            /// <param name="isAutogrowAllFiles">Autogrow all files enabled or not</param>
+            public FilegroupData(string name, bool isReadOnly, bool isDefault, FileGroupType fileGroupType, bool isAutogrowAllFiles)
             {
                 this.name = name;
                 this.isReadOnly = isReadOnly;
                 this.isDefault = isDefault;
+                this.isAutogrowAllFiles = isAutogrowAllFiles;
                 this.fileGroupType = fileGroupType;
             }
 
@@ -97,11 +110,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             /// </summary>
             /// <param name="other"></param>
             public FilegroupData(FilegroupData other)
+                : this(other.name, other.isReadOnly, other.isDefault, other.fileGroupType, other.isAutogrowAllFiles)
             {
-                this.name = other.name;
-                this.isReadOnly = other.isReadOnly;
-                this.isDefault = other.isDefault;
-                this.fileGroupType = other.fileGroupType;
             }
 
             /// <summary>
@@ -133,6 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             set
             {
+                System.Diagnostics.Debug.Assert(!this.Exists, "can't rename existing filegroups");
                 if (!this.Exists)
                 {
                     string oldname = this.currentState.name;
@@ -171,6 +182,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     this.currentState.isDefault = value;
                     NotifyFileGroupDefaultChanged(!value, value);
+                    this.parent.NotifyObservers();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Whether the filegroup has AUTOGROW_ALL_FILES enabled
+        /// </summary>
+        public bool IsAutogrowAllFiles
+        {
+            get { return this.currentState.isAutogrowAllFiles; }
+
+            set
+            {
+                if (this.currentState.isAutogrowAllFiles != value)
+                {
+                    this.currentState.isAutogrowAllFiles = value;
                     this.parent.NotifyObservers();
                 }
             }
@@ -266,13 +294,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="parent"></param>
         /// <param name="filegroupType"></param>
         public FilegroupPrototype(DatabasePrototype parent, FileGroupType filegroupType)
+            : this(parent: parent,
+            name: String.Empty,
+            isReadOnly: false,
+            isDefault: false,
+            filegroupType: filegroupType,
+            exists: false,
+            isAutogrowAllFiles: false)
         {
-            this.originalState = new FilegroupData(filegroupType);
-            this.currentState = this.originalState.Clone();
-            this.parent = parent;
-
-            this.filegroupExists = false;
-            this.removed = false;
         }
 
         /// <summary>
@@ -286,8 +315,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="exists">filegroup exists or not</param>
         public FilegroupPrototype(DatabasePrototype parent, string name, bool isReadOnly, bool isDefault,
             FileGroupType filegroupType, bool exists)
+            : this(parent, name, isReadOnly, isDefault, filegroupType, exists, isAutogrowAllFiles: false)
         {
-            this.originalState = new FilegroupData(name, isReadOnly, isDefault, filegroupType);
+        }
+
+        /// <summary>
+        ///  Initializes a new instance of the FilegroupPrototype class.
+        /// </summary>
+        /// <param name="parent">instance of DatabasePrototype</param>
+        /// <param name="name">file group name</param>
+        /// <param name="isReadOnly">whether it is readonly or not</param>
+        /// <param name="isDefault">is default or not</param>
+        /// <param name="filegroupType">filegrouptype</param>
+        /// <param name="exists">filegroup exists or not</param>
+        /// <param name="isAutogrowAllFiles">is autogrow all files enabled or not</param>
+        public FilegroupPrototype(DatabasePrototype parent, string name, bool isReadOnly, bool isDefault,
+            FileGroupType filegroupType, bool exists, bool isAutogrowAllFiles)
+        {
+            this.originalState = new FilegroupData(name, isReadOnly, isDefault, filegroupType, isAutogrowAllFiles);
             this.currentState = this.originalState.Clone();
             this.parent = parent;
 
@@ -319,7 +364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         fg = db.FileGroups[this.Name];
                     }
                     else
-                    {                  
+                    {                        
                         fg = new FileGroup(db, this.Name, this.FileGroupType);                        
                         db.FileGroups.Add(fg);
                     }
@@ -327,6 +372,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (!this.Exists || (fg.ReadOnly != this.IsReadOnly))
                     {
                         fg.ReadOnly = this.IsReadOnly;
+                        filegroupChanged = true;
+                    }
+
+                    if (fg.IsSupportedProperty("AutogrowAllFiles") &&
+                        (!this.Exists || (fg.AutogrowAllFiles != this.IsAutogrowAllFiles)))
+                    {
+                        fg.AutogrowAllFiles = this.IsAutogrowAllFiles;
                         filegroupChanged = true;
                     }
 
@@ -350,7 +402,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 !this.Exists ||
                 this.Removed ||
                 (this.originalState.isDefault != this.currentState.isDefault) ||
-                (this.originalState.isReadOnly != this.currentState.isReadOnly));
+                (this.originalState.isReadOnly != this.currentState.isReadOnly) ||
+                (this.originalState.isAutogrowAllFiles != this.currentState.isAutogrowAllFiles));
 
             return result;
         }
@@ -568,7 +621,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 if (FileGrowthType.Percent == file.GrowthType)
                 {
                     this.isGrowthInPercent = true;
-                    this.growthInPercent = (int) file.Growth;
+                    this.growthInPercent = (int)file.Growth;
                     this.growthInKilobytes = 10240.0;
 
                     // paranoia - make sure percent amount is greater than 1
@@ -640,7 +693,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 if (FileGrowthType.Percent == fileGrowthType)
                 {
                     this.isGrowthInPercent = true;
-                    this.growthInPercent = (int) file.Growth;
+                    this.growthInPercent = (int)file.Growth;
                     this.growthInKilobytes = 10240.0;
 
                     // paranoia - make sure percent amount is greater than 1
@@ -1018,9 +1071,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             set
             {
+                System.Diagnostics.Debug.Assert(!this.Exists, "Can't change the filegroup of an existing file.");
+
                 if ((FileType.Data == this.currentState.fileType ||
                      FileType.FileStream == this.currentState.fileType) && !this.Exists && (value != null))
                 {
+                    if (this.IsPrimaryFile && (value != null))
+                    {
+                        System.Diagnostics.Debug.Assert(value.Name == "PRIMARY", "Primary file must belong to primary filegroup");
+                    }
+
                     if (this.currentState.filegroup != null)
                     {
                         this.currentState.filegroup.OnFileGroupDeletedHandler -=
@@ -1077,6 +1137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             set
             {
+                if (value == true)
+                {
+                    System.Diagnostics.Debug.Assert(FileGroup.Name == "PRIMARY", "Primary file must belong to primary filegroup");
+                }
+
                 this.currentState.isPrimaryFile = value;
                 this.database.NotifyObservers();
             }
@@ -1308,6 +1373,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="db">The database from which the file is to be removed</param>
         private void RemoveFile(Database db)
         {
+            System.Diagnostics.Debug.Assert(this.Removed, "We're removing a file we arn't supposed to remove");
+
             if (this.Exists)
             {
                 if (FileType.Log == this.DatabaseFileType)
@@ -1402,7 +1469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.Autogrowth.IsGrowthInPercent)
                     {
                         file.GrowthType = FileGrowthType.Percent;
-                        file.Growth = (double) this.Autogrowth.GrowthInPercent;
+                        file.Growth = (double)this.Autogrowth.GrowthInPercent;
                     }
                     else
                     {
@@ -1434,7 +1501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.currentState.autogrowth.IsGrowthInPercent)
                     {
                         newFileGrowthType = FileGrowthType.Percent;
-                        newGrowth = (double) this.currentState.autogrowth.GrowthInPercent;
+                        newGrowth = (double)this.currentState.autogrowth.GrowthInPercent;
                     }
                     else
                     {
@@ -1453,7 +1520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.originalState.autogrowth.IsGrowthInPercent)
                     {
                         originalFileGrowthType = FileGrowthType.Percent;
-                        originalGrowth = (double) this.originalState.autogrowth.GrowthInPercent;
+                        originalGrowth = (double)this.originalState.autogrowth.GrowthInPercent;
                     }
                     else
                     {
@@ -1626,7 +1693,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.Autogrowth.IsGrowthInPercent)
                     {
                         file.GrowthType = FileGrowthType.Percent;
-                        file.Growth = (double) this.Autogrowth.GrowthInPercent;
+                        file.Growth = (double)this.Autogrowth.GrowthInPercent;
                     }
                     else
                     {
@@ -1658,7 +1725,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.currentState.autogrowth.IsGrowthInPercent)
                     {
                         newFileGrowthType = FileGrowthType.Percent;
-                        newGrowth = (double) this.currentState.autogrowth.GrowthInPercent;
+                        newGrowth = (double)this.currentState.autogrowth.GrowthInPercent;
                     }
                     else
                     {
@@ -1677,7 +1744,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     if (this.originalState.autogrowth.IsGrowthInPercent)
                     {
                         originalFileGrowthType = FileGrowthType.Percent;
-                        originalGrowth = (double) this.originalState.autogrowth.GrowthInPercent;
+                        originalGrowth = (double)this.originalState.autogrowth.GrowthInPercent;
                     }
                     else
                     {
@@ -1762,12 +1829,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
             else
             {
+                System.Diagnostics.Debug.Assert(false,
+                    "Client must set the ConnectionInfo property of the CDataContainer passed to the DatabasePrototype constructor");
+                // $CONSIDER throwing an exception here.
                 connectionInfo = context.ConnectionInfo;
             }
 
             // get default data file size
             request.Urn = "Server/Database[@Name='model']/FileGroup[@Name='PRIMARY']/File";
-            request.Fields = new String[1] {"Size"};
+            request.Fields = new String[1] { "Size" };
 
             try
             {
@@ -1779,8 +1849,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 defaultDataFileSize = DatabaseFilePrototype.RoundUpToNearestMegabyte(size);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Trace.TraceError(ex.Message);
                 // user doesn't have access to model so we set the default size
                 // to be 5 MB
                 defaultDataFileSize = 5120.0;
@@ -1788,7 +1859,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             // get default log file size
             request.Urn = "Server/Database[@Name='model']/LogFile";
-            request.Fields = new String[1] {"Size"};
+            request.Fields = new String[1] { "Size" };
 
             try
             {
@@ -1797,8 +1868,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                 defaultLogFileSize = DatabaseFilePrototype.RoundUpToNearestMegabyte(size);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Trace.TraceError(ex.Message);
+
                 // user doesn't have access to model so we set the default size
                 // to be 1MB
                 defaultLogFileSize = 1024.0;
@@ -1806,7 +1879,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             // get default data and log folders
             request.Urn = "Server/Setting";
-            request.Fields = new String[] {"DefaultFile", "DefaultLog"};
+            request.Fields = new String[] { "DefaultFile", "DefaultLog" };
 
             try
             {
@@ -1817,7 +1890,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 if (defaultDataFolder.Length == 0 || defaultLogFolder.Length == 0)
                 {
                     request.Urn = "Server/Information";
-                    request.Fields = new string[] {"MasterDBPath", "MasterDBLogPath"};
+                    request.Fields = new string[] { "MasterDBPath", "MasterDBLogPath" };
                     fileInfo = enumerator.Process(connectionInfo, request);
 
                     if (defaultDataFolder.Length == 0)
@@ -1856,8 +1929,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         rest);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Trace.TraceError(ex.Message);
             }
         }
 
@@ -1897,7 +1971,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                     if (defaultDataAutogrowth.IsGrowthInPercent)
                     {
-                        defaultDataAutogrowth.GrowthInPercent = (int) datafile.Growth;
+                        defaultDataAutogrowth.GrowthInPercent = (int)datafile.Growth;
                         defaultDataAutogrowth.GrowthInMegabytes = 10;
                     }
                     else
@@ -1943,7 +2017,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
                     if (defaultLogAutogrowth.IsGrowthInPercent)
                     {
-                        defaultLogAutogrowth.GrowthInPercent = (int) logfile.Growth;
+                        defaultLogAutogrowth.GrowthInPercent = (int)logfile.Growth;
                         defaultLogAutogrowth.GrowthInMegabytes = 10;
                     }
                     else
@@ -1999,7 +2073,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnFilegroupDeleted(object sender, FilegroupDeletedEventArgs e)
-        {           
+        {
+            System.Diagnostics.Debug.Assert(this.FileGroup == sender, "received filegroup deleted notification from wrong filegroup");
             e.DeletedFilegroup.OnFileGroupDeletedHandler -= new FileGroupDeletedEventHandler(OnFilegroupDeleted);
 
             // SQL Server deletes all the files in a filegroup when the filegroup is removed
@@ -2019,7 +2094,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <param name="fileName">The proposed file name to check</param>
         private void CheckFileName(string fileName)
         {
-            char[] badFileCharacters = new char[] {'\\', '/', ':', '*', '?', '\"', '<', '>', '|'};
+            char[] badFileCharacters = new char[] { '\\', '/', ':', '*', '?', '\"', '<', '>', '|' };
 
             bool isAllWhitespace = (fileName.Trim(null).Length == 0);
 
@@ -2041,6 +2116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 else
                 {
                     int i = fileName.IndexOfAny(badFileCharacters);
+                    System.Diagnostics.Debug.Assert(-1 < i, "unexpected error type");
 
                     message = String.Format(System.Globalization.CultureInfo.CurrentCulture,
                         resourceManager.GetString("error_fileNameContainsIllegalCharacter"), fileName, fileName[i]);
@@ -2057,7 +2133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>The equivalent number of megabytes</returns>
         internal static int KilobytesToMegabytes(double kilobytes)
         {
-            return (int) Math.Ceiling(kilobytes/kilobytesPerMegabyte);
+            return (int)Math.Ceiling(kilobytes / kilobytesPerMegabyte);
         }
 
         /// <summary>
@@ -2067,7 +2143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>The equivalent number of kilobytes</returns>
         internal static double MegabytesToKilobytes(int megabytes)
         {
-            return (((double) megabytes)*kilobytesPerMegabyte);
+            return (((double)megabytes) * kilobytesPerMegabyte);
         }
 
         /// <summary>
@@ -2078,8 +2154,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>The number of kb in the next larger mb</returns>
         internal static double RoundUpToNearestMegabyte(double kilobytes)
         {
-            double megabytes = Math.Ceiling(kilobytes/kilobytesPerMegabyte);
-            return (megabytes*kilobytesPerMegabyte);
+            double megabytes = Math.Ceiling(kilobytes / kilobytesPerMegabyte);
+            return (megabytes * kilobytesPerMegabyte);
         }
 
         /// <summary>
@@ -2110,6 +2186,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <exception cref="InvalidOperationException">If logical name is empty, or physical name is invalid.</exception>
         private string MakeDiskFileName(string logicalName, string preferredPhysicalName, string suffix)
         {
+            System.Diagnostics.Debug.Assert(logicalName != null, "unexpected param - logical name cannot be null");
+            System.Diagnostics.Debug.Assert(suffix != null, "unexpected param - suffix cannot be null. Pass String.Empty instead.");
             ResourceManager resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
             string filePath = String.Empty; // returned to the caller.
@@ -2130,6 +2208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     string message = String.Empty;
 
                     message = resourceManager.GetString("error_emptyFileName");
+                    System.Diagnostics.Debug.Assert(message != null, "unexpected error string missing.");
                     throw new InvalidOperationException(message);
                 }
 
@@ -2264,7 +2343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             ResourceManager resourceManager =
                 new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabaseAlreadyExistsException).GetAssembly());
+                    typeof(DatabaseAlreadyExistsException).Assembly);
             format = resourceManager.GetString("error.databaseAlreadyExists");
         }
 
@@ -2286,7 +2365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             ResourceManager manager =
                 new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabasePrototype).GetAssembly());
+                    typeof(DatabasePrototype).Assembly);
             List<string> standardValues = null;
             TypeConverter.StandardValuesCollection result = null;
 
@@ -2329,7 +2408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             ResourceManager manager =
                 new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabasePrototype90).GetAssembly());
+                    typeof(DatabasePrototype90).Assembly);
             List<string> standardValues = new List<string>();
             TypeConverter.StandardValuesCollection result = null;
 
@@ -2371,7 +2450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             ResourceManager manager =
                 new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabasePrototype80).GetAssembly());
+                    typeof(DatabasePrototype80).Assembly);
             List<string> standardValues = new List<string>();
             TypeConverter.StandardValuesCollection result = null;
 
@@ -2415,7 +2494,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             ResourceManager manager =
                 new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabasePrototype80).GetAssembly());
+                    typeof(DatabasePrototype80).Assembly);
             List<string> standardValues = new List<string>();
             TypeConverter.StandardValuesCollection result = null;
 
@@ -2499,7 +2578,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             ResourceManager manager =
                 new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-                    typeof (DatabasePrototype).GetAssembly());
+                    typeof(DatabasePrototype).Assembly);
             List<string> standardValues = new List<string>();
             TypeConverter.StandardValuesCollection result = null;
 
@@ -2537,176 +2616,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             return true;
         }
     }
-
-    ///// <summary>
-    ///// Helper class to provide standard values for populating drop down boxes on 
-    ///// properties displayed in the Properties Grid
-    ///// </summary>
-    //internal class DynamicValuesConverter : StringConverter
-    //{
-    //    /// <summary>
-    //    /// This method returns a list of dynamic values
-    //    /// for various Properties in this class. 
-    //    /// </summary>
-    //    /// <param name="context"></param>
-    //    /// <returns>List of Database Status Types </returns>
-    //    public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-    //    {
-    //        var standardValues = new List<object>();
-    //        StandardValuesCollection result = null;
-    
-    //        //Handle ServiceLevelObjective values
-    //        if (context.PropertyDescriptor != null &&
-    //            string.Compare(context.PropertyDescriptor.Name, "CurrentServiceLevelObjective",
-    //                StringComparison.OrdinalIgnoreCase) == 0)
-    //        {             
-    //            var designableObject = context.Instance as DesignableObject;
-    //            if (designableObject != null)
-    //            {
-    //                var prototype = designableObject.ObjectDesigned as DatabasePrototypeAzure;
-    //                if (prototype != null)
-    //                {
-    //                    KeyValuePair<int, string[]> pair;
-    //                    if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(prototype.AzureEdition, out pair))
-    //                    {
-    //                        standardValues.AddRange(pair.Value);
-    //                    }
-    //                }                   
-    //            }
-    //        }
-    //        //Handle AzureEditionDisplay values
-    //        else if (context.PropertyDescriptor != null &&
-    //                 string.Compare(context.PropertyDescriptor.Name, "AzureEditionDisplay",
-    //                     StringComparison.OrdinalIgnoreCase) == 0)
-    //        {
-    //            var designableObject = context.Instance as DesignableObject;
-
-    //            if (designableObject != null)
-    //            {
-    //                var prototype = designableObject.ObjectDesigned as DatabasePrototype;
-    //                if (prototype != null)
-    //                {
-    //                    foreach (
-    //                        AzureEdition edition in
-    //                            AzureSqlDbHelper.GetValidAzureEditionOptions(prototype.ServerVersion))
-    //                    {
-    //                        // We don't yet support creating DW with the UI 
-    //                        if (prototype.Exists || edition != AzureEdition.DataWarehouse)
-    //                        {
-    //                            standardValues.Add(AzureSqlDbHelper.GetAzureEditionDisplayName(edition));
-    //                        }
-    //                    }
-    //                }
-    //                else
-    //                {
-    //                    STrace.Assert(false,
-    //                        "DesignableObject ObjectDesigned isn't a DatabasePrototype for AzureEditionDisplay StandardValues");
-    //                }
-    //            }
-    //            else
-    //            {
-    //                STrace.Assert(designableObject != null,
-    //                    "Context instance isn't a DesignableObject for AzureEditionDisplay StandardValues");
-    //            }
-    //        }
-    //        //Handle MaxSize values
-    //        else if (context.PropertyDescriptor != null &&
-    //                 string.Compare(context.PropertyDescriptor.Name, "MaxSize", StringComparison.OrdinalIgnoreCase) == 0)
-    //        {
-    //            var designableObject = context.Instance as DesignableObject;
-    //            if (designableObject != null)
-    //            {
-
-    //                var prototype = designableObject.ObjectDesigned as DatabasePrototypeAzure;
-    //                if (prototype != null)
-    //                {
-    //                    KeyValuePair<int, DbSize[]> pair;
-    //                    if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(prototype.AzureEdition, out pair))
-    //                    {
-    //                        standardValues.AddRange(pair.Value);
-    //                    }
-    //                }
-    //            }
-               
-    //        }
-
-    //        if (standardValues.Count > 0)
-    //        {
-    //            result = new StandardValuesCollection(standardValues);
-    //        }
-
-    //        return result;
-    //    }
-
-    //    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-    //    {
-    //        //Tells the grid that we'll support the values to display in a drop down
-    //        return true;
-    //    }
-
-    //    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-    //    {
-    //        //The values are exclusive (populated in a drop-down list instead of combo box)
-    //        return true;
-    //    }
-    //}
-
-    ///// <summary>
-    ///// Helper class to provide standard values for populating drop down boxes on 
-    ///// database scoped configuration properties displayed in the Properties Grid
-    ///// </summary>
-    //internal class DatabaseScopedConfigurationOnOffTypes : StringConverter
-    //{
-    //    /// <summary>
-    //    /// This method returns a list of database scoped configuration on off values
-    //    /// which will be populated as a drop down list.
-    //    /// </summary>
-    //    /// <param name="context"></param>
-    //    /// <returns>Database scoped configurations which will populate the drop down list.</returns>
-    //    public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-    //    {
-    //        ResourceManager manager =
-    //            new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings",
-    //                typeof (DatabasePrototype).GetAssembly());
-    //        List<string> standardValues = new List<string>();
-    //        TypeConverter.StandardValuesCollection result = null;
-
-    //        if (
-    //            string.Compare(context.PropertyDescriptor.Name, "LegacyCardinalityEstimationDisplay",
-    //                StringComparison.OrdinalIgnoreCase) == 0 ||
-    //            string.Compare(context.PropertyDescriptor.Name, "ParameterSniffingDisplay",
-    //                StringComparison.OrdinalIgnoreCase) == 0 ||
-    //            string.Compare(context.PropertyDescriptor.Name, "QueryOptimizerHotfixesDisplay",
-    //                StringComparison.OrdinalIgnoreCase) == 0)
-    //        {
-    //            standardValues.Add(manager.GetString("prototype.db.prop.databasescopedconfig.value.off"));
-    //            standardValues.Add(manager.GetString("prototype.db.prop.databasescopedconfig.value.on"));
-    //        }
-    //        else
-    //        {
-    //            standardValues.Add(manager.GetString("prototype.db.prop.databasescopedconfig.value.off"));
-    //            standardValues.Add(manager.GetString("prototype.db.prop.databasescopedconfig.value.on"));
-    //            standardValues.Add(manager.GetString("prototype.db.prop.databasescopedconfig.value.primary"));
-    //        }
-
-    //        if (standardValues.Count > 0)
-    //        {
-    //            result = new TypeConverter.StandardValuesCollection(standardValues);
-    //        }
-
-    //        return result;
-    //    }
-
-    //    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-    //    {
-    //        //Tells the grid that we'll support the values to display in a drop down
-    //        return true;
-    //    }
-
-    //    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-    //    {
-    //        //The values are exclusive (populated in a drop-down list instead of combo box)
-    //        return true;
-    //    }
-    //}
 }
