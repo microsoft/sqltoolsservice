@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Collections.Generic;
