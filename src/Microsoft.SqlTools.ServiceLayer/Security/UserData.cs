@@ -11,6 +11,7 @@ using System.Security;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -74,13 +75,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     /// Object have exhaustive list of data elements which are required for creating 
     /// any type of database user.
     /// </summary>
-    public class UserPrototypeDataNew
+    public class UserPrototypeData
     {
         public string name = string.Empty;
         public UserType userType = UserType.SqlUser;
         public bool isSystemObject = false;
-        public Dictionary<string, bool> isSchemaOwned = null;
-        public Dictionary<string, bool> isMember = null;
+        public Dictionary<string, bool> isSchemaOwned;
+        public Dictionary<string, bool> isMember;
 
         public AuthenticationType authenticationType = AuthenticationType.Instance;
         public string mappedLoginName = string.Empty;
@@ -96,13 +97,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <summary>
         /// Used for creating clone of a UserPrototypeData.
         /// </summary>
-        private UserPrototypeDataNew()
+        private UserPrototypeData()
         {
             this.isSchemaOwned = new Dictionary<string, bool>();
             this.isMember = new Dictionary<string, bool>();
         }
 
-        public UserPrototypeDataNew(CDataContainer context)
+        public UserPrototypeData(CDataContainer context)
         {
             this.isSchemaOwned = new Dictionary<string, bool>();
             this.isMember = new Dictionary<string, bool>();
@@ -117,9 +118,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.LoadSchemaData(context);            
         }
 
-        public UserPrototypeDataNew Clone()
+        public UserPrototypeData Clone()
         {
-            UserPrototypeDataNew result = new UserPrototypeDataNew();
+            UserPrototypeData result = new UserPrototypeData();
 
             result.asymmetricKeyName = this.asymmetricKeyName;
             result.authenticationType = this.authenticationType;
@@ -135,20 +136,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             result.isOldPasswordRequired = this.isOldPasswordRequired;
             result.userType = this.userType;
 
-            foreach (string key in this.isMember.Keys)
+            foreach (string key in this.isMember?.Keys ?? Enumerable.Empty<string>())
             {
-                result.isMember[key] = this.isMember[key];
+                if (result.isMember?.ContainsKey(key) == true 
+                    && this.isMember?.ContainsKey(key) == true)
+                {
+                    result.isMember[key] = this.isMember[key];
+                }
             }
 
-            foreach (string key in this.isSchemaOwned.Keys)
+            foreach (string key in this.isSchemaOwned?.Keys ?? Enumerable.Empty<string>())
             {
-                result.isSchemaOwned[key] = this.isSchemaOwned[key];
+                if (result.isSchemaOwned?.ContainsKey(key) == true 
+                    && this.isSchemaOwned?.ContainsKey(key) == true)
+                {
+                    result.isSchemaOwned[key] = this.isSchemaOwned[key];
+                }
             }
 
             return result;
         }
 
-        public bool HasSameValueAs(UserPrototypeDataNew other)
+        public bool HasSameValueAs(UserPrototypeData other)
         {
             bool result =
                 (this.asymmetricKeyName == other.asymmetricKeyName) &&
@@ -165,12 +174,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 (this.isOldPasswordRequired == other.isOldPasswordRequired) &&
                 (this.userType == other.userType);
 
-            result = result && this.isMember.Keys.Count == other.isMember.Keys.Count;
+            result = result && this.isMember?.Keys.Count == other.isMember?.Keys.Count;
             if (result)
             {
-                foreach (string key in this.isMember.Keys)
+                foreach (string key in this.isMember?.Keys ?? Enumerable.Empty<string>())
                 {
-                    if (this.isMember[key] != other.isMember[key])
+                    if (this.isMember?.ContainsKey(key) == true
+                        && other.isMember?.ContainsKey(key) == true
+                        && this.isMember[key] != other.isMember[key])
                     {
                         result = false;
                         break;
@@ -200,7 +211,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <param name="context"></param>
         private void LoadUserData(CDataContainer context)
         {
-            User existingUser = context.Server.GetSmoObject(new Urn(context.ObjectUrn)) as User;
+            User? existingUser = context.Server.GetSmoObject(new Urn(context.ObjectUrn)) as User;
+            if (existingUser == null)
+            {
+                return;
+            }
 
             this.name = existingUser.Name;
             this.mappedLoginName = existingUser.Login;
@@ -231,7 +246,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Urn objUrn = new Urn(context.ObjectUrn);
             Urn databaseUrn = objUrn.Parent;
 
-            Database parentDb = context.Server.GetSmoObject(databaseUrn) as Database;
+            Database? parentDb = context.Server.GetSmoObject(databaseUrn) as Database;
+            if (parentDb == null)
+            {
+                return;
+            }
+
             User existingUser = context.Server.Databases[parentDb.Name].Users[objUrn.GetNameForType("User")];
 
             foreach (DatabaseRole dbRole in parentDb.Roles)
@@ -260,7 +280,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Urn objUrn = new Urn(context.ObjectUrn);
             Urn databaseUrn = objUrn.Parent;
 
-            Database parentDb = context.Server.GetSmoObject(databaseUrn) as Database;
+            Database? parentDb = context.Server.GetSmoObject(databaseUrn) as Database;
+            if (parentDb == null)
+            {
+                return;
+            }
+
             User existingUser = context.Server.Databases[parentDb.Name].Users[objUrn.GetNameForType("User")];
 
             if (!SqlMgmtUtils.IsYukonOrAbove(context.Server)
@@ -287,15 +312,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     /// <summary>
 	/// Prototype object for creating or altering users
 	/// </summary>
-    internal class UserPrototypeNew : IUserPrototype
+    internal class UserPrototype : IUserPrototype
     {
-        protected UserPrototypeDataNew originalState = null;
-        protected UserPrototypeDataNew currentState = null;
+        protected UserPrototypeData originalState;
+        protected UserPrototypeData currentState;
 
-        private List<string> schemaNames = null;
-        private List<string> roleNames = null;
+        private List<string> schemaNames;
+        private List<string> roleNames;
         private bool exists = false;
-        private Database parent = null;
+        private Database parent;
 
         public bool IsRoleMembershipChangesApplied { get; set; } //default is false
         public bool IsSchemaOwnershipChangesApplied { get; set; } //default is false
@@ -414,23 +439,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		/// Constructor
 		/// </summary>
 		/// <param name="context">The context for the dialog</param>
-		public UserPrototypeNew(CDataContainer context, 
-                                UserPrototypeDataNew current,
-                                UserPrototypeDataNew original)
+		public UserPrototype(CDataContainer context, 
+                                UserPrototypeData current,
+                                UserPrototypeData original)
 		{
             this.currentState = current;
             this.originalState = original;
-
             this.exists = !context.IsNewObject;
-            this.parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database;
-            
-            this.PopulateRoles();
-            this.PopulateSchemas();
+
+            Database? parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database;
+            if (parent == null)
+            {
+                throw new ArgumentException("Context ParentUrn is invalid");
+            }
+            this.parent = parent;
+
+            this.roleNames = this.PopulateRoles();
+            this.schemaNames = this.PopulateSchemas();
         }
 
-        private void PopulateRoles()
+        private List<string> PopulateRoles()
         {
-            this.roleNames = new List<string>();
+            var roleNames = new List<string>();
 
             foreach (DatabaseRole dbRole in this.parent.Roles)
             {
@@ -440,22 +470,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     this.roleNames.Add(dbRole.Name);
                 }
             }
+            return roleNames;
         }
 
-        private void PopulateSchemas()
+        private List<string> PopulateSchemas()
         {
-            this.schemaNames = new List<string>();
+            var schemaNames = new List<string>();
 
             if (!SqlMgmtUtils.IsYukonOrAbove(this.parent.Parent)
                 || this.parent.CompatibilityLevel <= CompatibilityLevel.Version80)
             {
-                return;
+                throw new ArgumentException("Unsupported server version");
             }
 
             foreach (Schema sch in this.parent.Schemas)
             {
                 this.schemaNames.Add(sch.Name);
-            }            
+            }
+            return schemaNames;
         }
 
         public bool IsYukonOrLater
@@ -468,9 +500,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         public User ApplyChanges()
         {
-            User user = null;
-
-            user = this.GetUser();
+            User user = this.GetUser();
 
             if (this.ChangesExist())
             {
@@ -506,50 +536,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private void ApplySchemaOwnershipChanges(User user)
         {
-            IEnumerator<KeyValuePair<string, bool>> enumerator = this.currentState.isSchemaOwned.GetEnumerator();
-            enumerator.Reset();
-
-            String nullString = null;
-
-            while (enumerator.MoveNext())
+            IEnumerator<KeyValuePair<string, bool>>? enumerator = this.currentState.isSchemaOwned?.GetEnumerator();
+            if (enumerator != null)
             {
-                string schemaName = enumerator.Current.Key.ToString();
-                bool userIsOwner = (bool)enumerator.Current.Value;
+                enumerator.Reset();
 
-                if (((bool)this.originalState.isSchemaOwned[schemaName]) != userIsOwner)
+                String? nullString = null;
+
+                while (enumerator.MoveNext())
                 {
-                    System.Diagnostics.Debug.Assert(!this.Exists || userIsOwner, "shouldn't have to unset ownership for new users");
+                    string schemaName = enumerator.Current.Key.ToString();
+                    bool userIsOwner = (bool)enumerator.Current.Value;
 
-                    Schema schema = this.parent.Schemas[schemaName];
-                    schema.Owner = userIsOwner ? user.Name : nullString;
-                    schema.Alter();
+                    if (this.originalState.isSchemaOwned?[schemaName] != userIsOwner)
+                    {
+                        System.Diagnostics.Debug.Assert(!this.Exists || userIsOwner, "shouldn't have to unset ownership for new users");
+
+                        Schema schema = this.parent.Schemas[schemaName];
+                        schema.Owner = userIsOwner ? user.Name : nullString;
+                        schema.Alter();
+                    }
                 }
             }
         }
 
         private void ApplyRoleMembershipChanges(User user)
         {
-            IEnumerator<KeyValuePair<string, bool>> enumerator = this.currentState.isMember.GetEnumerator();
-            enumerator.Reset();
-
-            while (enumerator.MoveNext())
+            IEnumerator<KeyValuePair<string, bool>>? enumerator = this.currentState.isMember?.GetEnumerator();
+            if (enumerator != null)
             {
-                string roleName = enumerator.Current.Key;
-                bool userIsMember = (bool)enumerator.Current.Value;
+                enumerator.Reset();
 
-                if (((bool)this.originalState.isMember[roleName]) != userIsMember)
+                while (enumerator.MoveNext())
                 {
-                    System.Diagnostics.Debug.Assert(this.Exists || userIsMember, "shouldn't have to unset membership for new users");
+                    string roleName = enumerator.Current.Key;
+                    bool userIsMember = enumerator.Current.Value;
 
-                    DatabaseRole role = this.parent.Roles[roleName];
+                    if (this.originalState.isMember?[roleName] != userIsMember)
+                    {
+                        System.Diagnostics.Debug.Assert(this.Exists || userIsMember, "shouldn't have to unset membership for new users");
 
-                    if (userIsMember)
-                    {
-                        role.AddMember(user.Name);
-                    }
-                    else
-                    {
-                        role.DropMember(user.Name);
+                        DatabaseRole role = this.parent.Roles[roleName];
+
+                        if (userIsMember)
+                        {
+                            role.AddMember(user.Name);
+                        }
+                        else
+                        {
+                            role.DropMember(user.Name);
+                        }
                     }
                 }
             }
@@ -579,13 +615,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         public User GetUser()
         {
-            User result = null;
+            User result;
 
             // if we think we exist, get the SMO user object
             if (this.Exists)
             {
                 result = this.parent.Users[this.originalState.name];
-                result.Refresh();
+                result?.Refresh();
 
                 System.Diagnostics.Debug.Assert(0 == String.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing user has changed");
                 if (result == null)
@@ -615,7 +651,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
     }
 
-    internal class UserPrototypeWithDefaultSchema : UserPrototypeNew,
+    internal class UserPrototypeWithDefaultSchema : UserPrototype,
                                                     IUserPrototypeWithDefaultSchema
     {
         private CDataContainer context;
@@ -650,8 +686,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		/// </summary>
 		/// <param name="context">The context for the dialog</param>
         public UserPrototypeWithDefaultSchema(CDataContainer context,
-                                UserPrototypeDataNew current,
-                                UserPrototypeDataNew original)
+                                UserPrototypeData current,
+                                UserPrototypeData original)
             : base(context, current, original)
         {
             this.context = context;
@@ -694,8 +730,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		/// </summary>
 		/// <param name="context">The context for the dialog</param>
         public UserPrototypeForSqlUserWithLogin(CDataContainer context,
-                                UserPrototypeDataNew current,
-                                UserPrototypeDataNew original)
+                                UserPrototypeData current,
+                                UserPrototypeData original)
             : base(context, current, original)
         {
         }
@@ -721,9 +757,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             get
             {
                 //Default Schema was not supported before Denali for windows group.
-                User user = null;
-
-                user = this.GetUser();
+                User user = this.GetUser();
                 if (this.Exists && user.LoginType == LoginType.WindowsGroup)
                 {
                     return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
@@ -765,8 +799,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		/// </summary>
 		/// <param name="context">The context for the dialog</param>
         public UserPrototypeForWindowsUser(CDataContainer context,
-                                UserPrototypeDataNew current,
-                                UserPrototypeDataNew original)
+                                UserPrototypeData current,
+                                UserPrototypeData original)
             : base(context, current, original)
         {
             this.context = context;
@@ -871,8 +905,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 		/// </summary>
 		/// <param name="context">The context for the dialog</param>
         public UserPrototypeForSqlUserWithPassword(CDataContainer context,
-                                UserPrototypeDataNew current,
-                                UserPrototypeDataNew original)
+                                UserPrototypeData current,
+                                UserPrototypeData original)
             : base(context, current, original)
         {
             this.context = context;
@@ -935,26 +969,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     /// </summary>
     internal class UserPrototypeFactory
     {
-        private static UserPrototypeFactory singletonInstance;
+        private static UserPrototypeFactory? singletonInstance;
 
-        private UserPrototypeDataNew currentData;
-        private UserPrototypeDataNew originalData;
+        private UserPrototypeData currentData;
+        private UserPrototypeData originalData;
         private CDataContainer context;
 
-        private UserPrototypeNew asymmetricKeyMappedUser;
-        private UserPrototypeNew certificateMappedUser;
-        private UserPrototypeNew loginMappedUser;
-        private UserPrototypeNew noLoginUser;
-        private UserPrototypeNew sqlUserWithPassword;
-        private UserPrototypeNew windowsUser;        
+        private UserPrototype? asymmetricKeyMappedUser;
+        private UserPrototype? certificateMappedUser;
+        private UserPrototype? loginMappedUser;
+        private UserPrototype? noLoginUser;
+        private UserPrototype? sqlUserWithPassword;
+        private UserPrototype? windowsUser;        
 
-        private UserPrototypeNew currentPrototype;
+        private UserPrototype? currentPrototype;
 
-        public UserPrototypeNew CurrentPrototype
+        public UserPrototype CurrentPrototype
         {
             get
             {
-                currentPrototype ??= new UserPrototypeNew(this.context,
+                currentPrototype ??= new UserPrototype(this.context,
                                                         this.currentData,
                                                         this.originalData);
                 return currentPrototype;
@@ -965,7 +999,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             this.context = context;
 
-            this.originalData = new UserPrototypeDataNew(this.context);
+            this.originalData = new UserPrototypeData(this.context);
             this.currentData = this.originalData.Clone();
         }
 
@@ -982,19 +1016,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return singletonInstance;
         }
 
-        public UserPrototypeNew GetUserPrototype(ExhaustiveUserTypes userType)
+        public UserPrototype GetUserPrototype(ExhaustiveUserTypes userType)
         {
             switch (userType)
             {
                 case ExhaustiveUserTypes.AsymmetricKeyMappedUser:
                     currentData.userType = UserType.AsymmetricKey;
-                    this.asymmetricKeyMappedUser ??= new UserPrototypeNew(this.context, this.currentData, this.originalData);
+                    this.asymmetricKeyMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
                     this.currentPrototype = asymmetricKeyMappedUser;
                     break;                    
 
                 case ExhaustiveUserTypes.CertificateMappedUser:
                     currentData.userType = UserType.Certificate;
-                    this.certificateMappedUser ??= new UserPrototypeNew(this.context, this.currentData, this.originalData);
+                    this.certificateMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
                     this.currentPrototype = certificateMappedUser; 
                     break;
 

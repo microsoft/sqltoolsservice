@@ -170,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 #region "User Handlers"
 
-        private UserPrototypeNew InitUserNew(CDataContainer dataContainer)
+        private UserPrototype InitUserNew(CDataContainer dataContainer)
         {
             // this.DataContainer = context;          
             // this.parentDbUrn = new Urn(this.DataContainer.ParentUrn); 
@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
             }
 
-           UserPrototypeNew currentUserPrototype = userPrototypeFactory.GetUserPrototype(currentUserType);
+           UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(currentUserType);
            return currentUserPrototype;
         }
 
@@ -312,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         public void UserMemberships_OnRunNow(object sender, CDataContainer dataContainer)
         {
-            UserPrototypeNew currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
+            UserPrototype currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
 
             //In case the UserGeneral/OwnedSchemas pages are loaded,
             //those will takes care of applying membership changes also.
@@ -338,7 +338,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <param name="node"></param>
         public void UserOwnedSchemas_OnRunNow(object sender, CDataContainer dataContainer)
         {
-            UserPrototypeNew currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
+            UserPrototype currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
 
             //In case the UserGeneral/Membership pages are loaded,
             //those will takes care of applying schema ownership changes also.
