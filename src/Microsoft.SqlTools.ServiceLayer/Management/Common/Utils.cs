@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using Microsoft.Data.SqlClient;
 using System.Globalization;
@@ -286,6 +288,76 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         public static bool IsASAzure(string serverName)
         {
             return !string.IsNullOrEmpty(serverName) && serverName.StartsWith("asazure://", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsSql11OrLater(ServerVersion version)
+        {
+            return IsSql11OrLater(version.Major);
+        }
+
+        public static bool IsSql11OrLater(int versionMajor)
+        {
+            return (versionMajor >= 11);
+        }
+
+        public static bool IsSql12OrLater(ServerVersion version)
+        {
+            return IsSql12OrLater(version.Major);
+        }
+
+        public static bool IsSql12OrLater(int versionMajor)
+        {
+            return (versionMajor >= 12);
+        }
+
+        public static bool IsSql13OrLater(ServerVersion version)
+        {
+            return IsSql13OrLater(version.Major);
+        }
+
+        public static bool IsSql13OrLater(int versionMajor)
+        {
+            return (versionMajor >= 13);
+        }
+
+        public static bool IsSql14OrLater(ServerVersion version)
+        {
+            return IsSql14OrLater(version.Major);
+        }
+
+        public static bool IsSql14OrLater(int versionMajor)
+        {
+            return (versionMajor >= 14);
+        }
+
+        public static bool IsSql15OrLater(ServerVersion version)
+        {
+            return IsSql15OrLater(version.Major);
+        }
+
+        public static bool IsSql15OrLater(int versionMajor)
+        {
+            return (versionMajor >= 15);
+        }
+
+        public static bool IsSql16OrLater(ServerVersion version)
+        {
+            return IsSql16OrLater(version.Major);
+        }
+
+        public static bool IsSql16OrLater(int versionMajor)
+        {
+            return (versionMajor >= 16);
+        }
+
+        public static bool IsYukonOrAbove(SqlServer.Management.Smo.Server server)
+        {
+            return server.Version.Major >= 9;
+        }
+
+        public static bool IsBelowYukon(SqlServer.Management.Smo.Server server)
+        {
+            return server.Version.Major < 9;
         }
     }
 

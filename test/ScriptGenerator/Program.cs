@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using ScriptGenerator.Properties;
 using System.IO;
 using System.Text.RegularExpressions;
