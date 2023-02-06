@@ -5,7 +5,7 @@
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<IsPackable>false</IsPackable>
 		<ApplicationIcon />
-		<StartupObject />
+		<StartupObject />		
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Text.Encoding.CodePages" />

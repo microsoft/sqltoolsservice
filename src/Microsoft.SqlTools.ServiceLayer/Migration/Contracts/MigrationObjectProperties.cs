@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlServer.Migration.Assessment.Common.Contracts.TargetAssessment.Models;
 
 namespace Microsoft.SqlTools.ServiceLayer.Migration.Contracts

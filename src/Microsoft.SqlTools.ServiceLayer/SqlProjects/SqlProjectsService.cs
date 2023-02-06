@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -95,6 +97,48 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path), requestContext);
+        }
+
+        #endregion
+
+        #region Database Reference calls
+
+        internal async Task HandleAddSystemDatabaseReferenceRequest(AddSystemDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Add(
+                new SystemDatabaseReference(
+                    requestParams.SystemDatabase,
+                    requestParams.SuppressMissingDependencies,
+                    requestParams.DatabaseVariable)),
+                requestContext);
+        }
+
+        internal async Task HandleAddDacpacReferenceRequest(AddDacpacReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Add(
+                new DacpacReference(
+                    requestParams.DacpacPath,
+                    requestParams.SuppressMissingDependencies,
+                    requestParams.DatabaseVariable,
+                    requestParams.ServerVariable)),
+                requestContext);
+        }
+
+        internal async Task HandleAddSqlProjectReferenceRequest(AddSqlProjectReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Add(
+                new SqlProjectReference(
+                    requestParams.ProjectPath,
+                    requestParams.ProjectGuid,
+                    requestParams.SuppressMissingDependencies,
+                    requestParams.DatabaseVariable,
+                    requestParams.ServerVariable)),
+                requestContext);
+        }
+
+        internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseReferences.Delete(requestParams.Name), requestContext);
         }
 
         #endregion
