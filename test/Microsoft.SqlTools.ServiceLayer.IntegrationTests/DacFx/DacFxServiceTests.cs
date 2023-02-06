@@ -23,6 +23,7 @@ using Microsoft.SqlServer.Dac.Model;
 using NUnit.Framework;
 using Moq;
 using System.Reflection;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -889,12 +890,12 @@ Streaming query statement contains a reference to missing output stream 'Missing
                     }
             };
 
-            var dacfxRequestContext = new Mock<RequestContext<bool>>();
-            dacfxRequestContext.Setup((RequestContext<bool> x) => x.SendResult(It.Is<bool>((result) => result == true))).Returns(Task.FromResult(new object()));
+            var dacfxRequestContext = new Mock<RequestContext<ResultStatus>>();
+            dacfxRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
 
             await service.HandleSavePublishProfileRequest(savePublishProfileParams, dacfxRequestContext.Object);
 
-            VerifyAndCleanup(profileFilePath);      // verify file gets created
+          VerifyAndCleanup(profileFilePath);      // verify file gets created
         }
 
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
