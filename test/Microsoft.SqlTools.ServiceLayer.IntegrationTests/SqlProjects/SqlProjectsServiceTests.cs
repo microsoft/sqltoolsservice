@@ -306,6 +306,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleDeleteSqlCmdVariableRequest));
             Assert.AreEqual(0, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after deletion not as expected");
         }
+
+        [Test]
+        public async Task TestCrossPlatformUpdates()
+        {
+            string projectPath = "";
+
+            SqlProjectsService service = new();
+
+            /// Validate that the cross-platform status can be fetched
+            MockRequest<ResultStatus> requestMock = new();
+            await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+            Assert.IsFalse(((GetCrossPlatformCompatiblityResult)requestMock.Result).IsCrossPlatformCompatible, "Input file should not be cross-platform compatible before conversion");
+
+            // Validate that the project can be updated
+            requestMock = new();
+            await service.HandleUpdateProjectForCrossPlatformRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath,
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleUpdateProjectForCrossPlatformRequest));
+
+            // Validate that the cross-platform status has changed
+            requestMock = new();
+            await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+            Assert.IsTrue(((GetCrossPlatformCompatiblityResult)requestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
+
+        }
     }
 
     internal static class SqlProjectsExtensions

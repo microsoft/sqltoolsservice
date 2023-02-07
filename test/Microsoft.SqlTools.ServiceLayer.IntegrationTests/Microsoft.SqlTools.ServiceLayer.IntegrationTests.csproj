@@ -55,5 +55,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare\SqlProjects\emptyTemplate.sqlproj" />
+    <None Include="SqlProjects\Inputs\SSDTProject.sqlproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
