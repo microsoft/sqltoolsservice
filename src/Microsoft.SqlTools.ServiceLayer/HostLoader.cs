@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
@@ -11,12 +14,14 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.AzureBlob;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions;
 using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
@@ -25,6 +30,9 @@ using Microsoft.SqlTools.ServiceLayer.Metadata;
 #if INCLUDE_MIGRATION
 using Microsoft.SqlTools.ServiceLayer.Migration;
 #endif
+using Microsoft.SqlTools.ServiceLayer.ModelManagement;
+using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
@@ -33,14 +41,9 @@ using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
-using Microsoft.SqlTools.ServiceLayer.ModelManagement;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
-using Microsoft.SqlTools.ServiceLayer.AzureBlob;
-using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
-using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
-using System.IO;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -178,6 +181,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ObjectManagementService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ObjectManagementService.Instance);
+
+            SqlProjectsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SqlProjectsService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }

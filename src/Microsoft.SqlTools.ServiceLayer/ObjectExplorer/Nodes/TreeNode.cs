@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -202,9 +204,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             nodePath = path;
         }
 
-        public TreeNode FindNodeByPath(string path, bool expandIfNeeded = false)
+        public TreeNode? FindNodeByPath(string path, bool expandIfNeeded = false)
         {
-            TreeNode nodeForPath = ObjectExplorerUtils.FindNode(this, node =>
+            TreeNode? nodeForPath = ObjectExplorerUtils.FindNode(this, node =>
             {
                 return node.GetNodePath() == path;
             }, nodeToFilter =>

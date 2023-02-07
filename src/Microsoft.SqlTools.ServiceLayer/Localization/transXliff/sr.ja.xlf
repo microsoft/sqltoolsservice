@@ -6525,6 +6525,26 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">[OK] を押して別のパスワードを入力します。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">トランザクション ID の開始</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">トランザクション ID の終了</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">シーケンス番号の開始</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">シーケンス番号の終了</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

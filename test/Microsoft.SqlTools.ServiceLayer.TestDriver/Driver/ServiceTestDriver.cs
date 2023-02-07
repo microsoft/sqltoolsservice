@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 //
 // The following is based upon code from PowerShell Editor Services
 // License: https://github.com/PowerShell/PowerShellEditorServices/blob/develop/LICENSE

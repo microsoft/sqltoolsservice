@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
     /// <summary>
@@ -30,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
                 HostNameInCertificate = details.HostNameInCertificate,
                 PersistSecurityInfo = details.PersistSecurityInfo,
                 ConnectTimeout = details.ConnectTimeout,
+                CommandTimeout = details.CommandTimeout,
                 ConnectRetryCount = details.ConnectRetryCount,
                 ConnectRetryInterval = details.ConnectRetryInterval,
                 ApplicationName = details.ApplicationName,

@@ -6525,6 +6525,26 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">请按“确定”，输入其他密码。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">事务 ID 开始</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">事务 ID 结束</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">序列号开始</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">序列号结束</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

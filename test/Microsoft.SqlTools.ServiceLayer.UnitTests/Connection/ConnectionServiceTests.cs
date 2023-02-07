@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
@@ -538,6 +540,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"PersistSecurityInfo", true, "Persist Security Info"},
             new object[] {"PersistSecurityInfo", false, "Persist Security Info"},
             new object[] {"ConnectTimeout", 15, "Connect Timeout"},
+            new object[] {"CommandTimeout", 30, "Command Timeout"},
             new object[] {"ConnectRetryCount", 1, "Connect Retry Count"},
             new object[] {"ConnectRetryInterval", 10, "Connect Retry Interval"},
             new object[] {"ApplicationName", "vscode-mssql", "Application Name"},
@@ -1687,7 +1690,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
 
-            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Command Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
             Assert.That(details.ServerName, Is.EqualTo("tcp:{servername},1433"), "Unexpected server name");
@@ -1700,6 +1703,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
+            Assert.That(details.CommandTimeout, Is.EqualTo(30), "Unexpected CommandTimeout Timeout value");
         }
 
         /// <summary>
@@ -1711,7 +1715,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
 
-            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=Strict;TrustServerCertificate=False;Connection Timeout=30;HostNameInCertificate={servername}";
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=Strict;TrustServerCertificate=False;Connection Timeout=30;Command Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
             Assert.That(details.ServerName, Is.EqualTo("tcp:{servername},1433"), "Unexpected server name");
@@ -1724,6 +1728,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
+            Assert.That(details.CommandTimeout, Is.EqualTo(30), "Unexpected Command Timeout value");
         }
 
         [Test]

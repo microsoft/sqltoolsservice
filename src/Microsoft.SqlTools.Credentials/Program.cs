@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials.Utility;
-using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
@@ -41,7 +40,7 @@ namespace Microsoft.SqlTools.Credentials
 
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "credentials", commandOptions.AutoFlushLog);
 
-                // set up the host details and profile paths 
+                // set up the host details and profile paths
                 var hostDetails = new HostDetails(
                     name: "SqlTools Credentials Provider",
                     profileId: "Microsoft.SqlTools.Credentials",

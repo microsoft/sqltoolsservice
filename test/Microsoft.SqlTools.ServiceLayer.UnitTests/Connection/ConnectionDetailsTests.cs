@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -41,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.ConnectRetryInterval, expectedForInt);
             Assert.AreEqual(details.ConnectRetryCount, expectedForInt);
             Assert.AreEqual(details.ConnectTimeout, expectedForInt);
+            Assert.AreEqual(details.CommandTimeout, expectedForInt);
             Assert.AreEqual(details.LoadBalanceTimeout, expectedForInt);
             Assert.AreEqual(details.MaxPoolSize, expectedForInt);
             Assert.AreEqual(details.MinPoolSize, expectedForInt);
@@ -82,6 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.ConnectRetryInterval = expectedForInt + index++;
             details.ConnectRetryCount = expectedForInt + index++;
             details.ConnectTimeout = expectedForInt + index++;
+            details.CommandTimeout = expectedForInt + index++;
             details.LoadBalanceTimeout = expectedForInt + index++;
             details.MaxPoolSize = expectedForInt + index++;
             details.MinPoolSize = expectedForInt + index++;
@@ -115,6 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.ConnectRetryInterval, expectedForInt + index++);
             Assert.AreEqual(details.ConnectRetryCount, expectedForInt + index++);
             Assert.AreEqual(details.ConnectTimeout, expectedForInt + index++);
+            Assert.AreEqual(details.CommandTimeout, expectedForInt + index++);
             Assert.AreEqual(details.LoadBalanceTimeout, expectedForInt + index++);
             Assert.AreEqual(details.MaxPoolSize, expectedForInt + index++);
             Assert.AreEqual(details.MinPoolSize, expectedForInt + index++);
@@ -157,6 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.ConnectRetryInterval = expectedForInt + index++;
             details.ConnectRetryCount = expectedForInt + index++;
             details.ConnectTimeout = expectedForInt + index++;
+            details.CommandTimeout = expectedForInt + index++;
             details.LoadBalanceTimeout = expectedForInt + index++;
             details.MaxPoolSize = expectedForInt + index++;
             details.MinPoolSize = expectedForInt + index++;
@@ -199,7 +205,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             }
         }
 
-
         [Test]
         public void SettingConnectiomTimeoutToLongShouldStillReturnInt()
         {
@@ -227,6 +232,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.Options["connectTimeout"] = null;
             int? expectedValue = null;
             Assert.AreEqual(details.ConnectTimeout, expectedValue);
+        }
+
+        [Test]
+        public void SettingCommandTimeoutToLongShouldStillReturnInt()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+
+            long timeout = 30;
+            int? expectedValue = 30;
+            details.Options["commandTimeout"] = timeout;
+
+            Assert.AreEqual(details.CommandTimeout, expectedValue);
+        }
+
+        [Test]
+        public void CommandTimeoutShouldReturnNullIfNotSet()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            int? expectedValue = null;
+            Assert.AreEqual(details.CommandTimeout, expectedValue);
+        }
+
+        [Test]
+        public void CommandTimeoutShouldReturnNullIfSetToNull()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+            details.Options["commandTimeout"] = null;
+            int? expectedValue = null;
+            Assert.AreEqual(details.CommandTimeout, expectedValue);
         }
 
         [Test]
@@ -260,6 +294,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.That(details.ConnectTimeout, Is.EqualTo(expectedValue), "Connect Timeout not as expected");
             Assert.That(details.Encrypt, Is.EqualTo("Mandatory"), "Encrypt should be mandatory.");
+        }
+
+        [Test]
+        public void SettingCommandTimeoutToLongWhichCannotBeConvertedToIntShouldNotCrash()
+        {
+            ConnectionDetails details = new ConnectionDetails();
+
+            long timeout = long.MaxValue;
+            int? expectedValue = null;
+            string? expectedEncryptValue = "Strict";
+            details.Options["commandTimeout"] = timeout;
+            details.Options["encrypt"] = expectedEncryptValue;
+
+            Assert.That(details.CommandTimeout, Is.EqualTo(expectedValue), "Command Timeout not as expected");
+            Assert.That(details.Encrypt, Is.EqualTo("Strict"), "Encrypt should be strict.");
         }
 
         [Test]

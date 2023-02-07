@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -48,8 +50,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <param name="condition">Predicate function that accesses the tree and
         /// determines whether to stop going further up the tree</param>
         /// <param name="filter">Predicate function to filter the children when traversing</param>
-        /// <returns>A Tree Node that matches the condition</returns>
-        public static TreeNode FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter, bool expandIfNeeded = false)
+        /// <returns>A Tree Node that matches the condition, or null if no matching node could be found</returns>
+        public static TreeNode? FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter, bool expandIfNeeded = false)
         {
             if(node == null)
             {
@@ -65,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 if (filter != null && filter(child))
                 {
-                    TreeNode childNode = FindNode(child, condition, filter, expandIfNeeded);
+                    TreeNode? childNode = FindNode(child, condition, filter, expandIfNeeded);
                     if (childNode != null)
                     {
                         return childNode;

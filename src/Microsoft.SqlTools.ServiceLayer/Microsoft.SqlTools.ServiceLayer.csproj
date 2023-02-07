@@ -27,7 +27,7 @@
 		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
 			<PropertyGroup>
 				<PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
-				<PackageVersion>1.1.0</PackageVersion>
+				<PackageVersion>1.2.0</PackageVersion>
 				<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
 				<PackAsTool>true</PackAsTool>
 				<ToolCommandName>$(AssemblyName)</ToolCommandName>
@@ -54,10 +54,13 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
 		<PackageReference Include="Microsoft.SqlServer.DacFx" />
+		<PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
+		<PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />
 		<PackageReference Include="Microsoft.SqlServer.Migration.Logins" />
+		<PackageReference Include="Microsoft.SqlServer.Migration.Tde" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />

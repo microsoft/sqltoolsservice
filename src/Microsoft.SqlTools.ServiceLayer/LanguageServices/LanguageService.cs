@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -181,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private CancellationTokenSource existingRequestCancellation;
+        private CancellationTokenSource? existingRequestCancellation;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -314,7 +316,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
             var assemblies = new Assembly[] { assembly };
-            serviceProvider.AddAssembliesToConfiguration(assemblies);
+            serviceProvider.AddAssembliesToConfiguration<ICompletionExtension>(assemblies);
             foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
             {
                 var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);

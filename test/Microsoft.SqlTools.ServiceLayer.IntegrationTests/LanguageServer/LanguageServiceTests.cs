@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -97,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             result.TextDocumentPosition.Position.Character = 7;
             result.ScriptFile.Contents = "select ";
 
-            var autoCompleteService = LanguageService.Instance;
+            var autoCompleteService = CreateLanguageService(result.ScriptFile);
             var completions = autoCompleteService.GetCompletionItems(
                 result.TextDocumentPosition,
                 result.ScriptFile,
@@ -132,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             result.ScriptFile = ScriptFileTests.GetTestScriptFile("select * f");
             result.TextDocumentPosition.TextDocument.Uri = result.ScriptFile.FilePath;
 
-            var autoCompleteService = LanguageService.Instance;
+            var autoCompleteService = CreateLanguageService(result.ScriptFile);
             var requestContext = new Mock<SqlTools.Hosting.Protocol.RequestContext<bool>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
                 .Returns(Task.FromResult(true));
@@ -241,7 +243,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             };
 
             // If the SQL has already been parsed
-            var service = LanguageService.Instance;
+            var service = CreateLanguageService(result.ScriptFile);
             await service.UpdateLanguageServiceOnConnection(result.ConnectionInfo);
             Thread.Sleep(2000);
 
@@ -283,11 +285,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         public async Task RebuildIntellisenseCacheClearsScriptParseInfoCorrectly()
         {
             var testDb = SqlTestDb.CreateNew(TestServerType.OnPrem, false, null, null, "LangSvcTest");
+            LiveConnectionHelper.TestConnectionResult? connectionInfoResult = null;
             try
             {
-                var connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
+                connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
 
-                var langService = LanguageService.Instance;
+                var langService = CreateLanguageService(connectionInfoResult.ScriptFile);
+
                 await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
                 var queryText = "SELECT * FROM dbo.";
                 connectionInfoResult.ScriptFile.SetFileContents(queryText);
@@ -351,12 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 scriptFile.SetFileContents("koko wants a bananas");
                 File.WriteAllText(scriptFile.ClientUri, scriptFile.Contents);
 
-                // Create a workspace and add file to it so that its found for intellense building
-                var workspace = new ServiceLayer.Workspace.Workspace();
-                var workspaceService = new WorkspaceService<SqlToolsSettings> { Workspace = workspace };
-                var langService = new LanguageService() { WorkspaceServiceInstance = workspaceService };
-                langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
-                langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+                var langService = CreateLanguageService(scriptFile);
 
                 // Add a connection to ensure the intellisense building works            
                 ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
@@ -426,7 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 var connectionInfoResult = LiveConnectionHelper.InitLiveConnectionInfo(testDb.DatabaseName);
 
-                var langService = LanguageService.Instance;
+                var langService = CreateLanguageService(connectionInfoResult.ScriptFile);
                 await langService.UpdateLanguageServiceOnConnection(connectionInfoResult.ConnectionInfo);
                 connectionInfoResult.ScriptFile.SetFileContents(sqlStarQuery);
 
@@ -463,6 +462,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 testDb.Cleanup();
             }
+        }
+
+        /// <summary>
+        /// Creates a new language service and sets it up with an initial script file.
+        /// </summary>
+        /// <param name="scriptFile">The initial script file to initialize in the workspace</param>
+        /// <returns></returns>
+        private LanguageService CreateLanguageService(ScriptFile scriptFile)
+        {
+            var langService = new LanguageService()
+            {
+                WorkspaceServiceInstance = new WorkspaceService<SqlToolsSettings>()
+                {
+                    Workspace = new ServiceLayer.Workspace.Workspace()
+                }
+            };
+            langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
+            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            return langService;
         }
     }
 }

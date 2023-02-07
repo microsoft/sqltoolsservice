@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -98,6 +100,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         "The length of time (in seconds) to wait for a connection to the server before terminating the attempt and generating an error",
                         ValueType = ConnectionOption.ValueTypeNumber,
                         DefaultValue = "15",
+                        GroupName = "Initialization"
+                    },
+                    new ConnectionOption
+                    {
+                        Name = "commandTimeout",
+                        DisplayName = "Command timeout",
+                        Description =
+                        "The length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error",
+                        ValueType = ConnectionOption.ValueTypeNumber,
+                        DefaultValue = "30",
                         GroupName = "Initialization"
                     },
                     new ConnectionOption

@@ -3,10 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Globalization;
 using System.Linq;
-using Microsoft.SqlTools.Hosting.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {

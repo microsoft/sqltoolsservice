@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine;
 using Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;

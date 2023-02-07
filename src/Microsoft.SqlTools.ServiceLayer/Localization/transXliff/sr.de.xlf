@@ -6525,6 +6525,26 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Drücken Sie OK, um ein anderes Kennwort einzugeben.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdStart">
+        <source>Transaction Id Start</source>
+        <target state="translated">Transaktions-ID Start</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_TransactionIdEnd">
+        <source>Transaction Id End</source>
+        <target state="translated">Transaktions-ID Ende</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberStart">
+        <source>Sequence Number Start</source>
+        <target state="translated">Sequenznummern Start</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
+        <source>Sequence Number End</source>
+        <target state="translated">Sequenznummern Ende</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

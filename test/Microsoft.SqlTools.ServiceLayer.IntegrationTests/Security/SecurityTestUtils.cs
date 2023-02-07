@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -21,6 +23,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         internal static string GetCurrentUserIdentity()
         {               
             return string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
+        }
+
+        internal static LoginInfo GetTestLoginInfo()
+        {
+            return new LoginInfo()
+            {
+                LoginName = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                LoginType= LoginType.Sql,
+                CertificateName = "Test Cert",        
+                AsymmetricKeyName = "Asymmetric Test Cert",
+                WindowsGrantAccess = true,
+                MustChange = false,
+                IsDisabled = false,
+                IsLockedOut = false,
+                EnforcePolicy = false,
+                EnforceExpiration = false,
+                WindowsAuthSupported = false,
+                Password = "placeholder",                
+                OldPassword = "placeholder",
+                DefaultLanguage = "us_english",
+                DefaultDatabase = "master"
+            };
         }
 
         internal static CredentialInfo GetTestCredentialInfo()
