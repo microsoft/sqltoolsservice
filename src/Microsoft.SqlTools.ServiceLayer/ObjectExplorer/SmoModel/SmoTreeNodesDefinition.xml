@@ -63,14 +63,24 @@
   <Node Name="ServerLevelErrorMessages" LocLabel="SR.SchemaHierarchy_ErrorMessages" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelErrorMessage" ChildQuerierTypes="SqlErrorMessage"/>
   
   <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel">
-    <Child Name="Tables"/>
-    <Child Name="Views"/>
-    <Child Name="Synonyms"/>
+    <Child Name="ExpandableSchemas" SettingsFlag="SchemaBasedOE"/>
+    <Child Name="Tables" SettingsFlag="!SchemaBasedOE"/>
+    <Child Name="Views" SettingsFlag="!SchemaBasedOE"/>
+    <Child Name="Synonyms" SettingsFlag="!SchemaBasedOE"/>
     <Child Name="Programmability"/>
     <Child Name="ExternalResources"/>
     <Child Name="ServiceBroker"/>
     <Child Name="Storage"/>
     <Child Name="Security"/>
+  </Node>
+
+  <Node Name="ExpandableSchemas" LocLabel="SR.SchemaHierarchy_Schemas" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSchema"  NodeType="Schema" TreeNode="ExpandableSchemaTreeNode" Image="Schema"/>
+
+  <Node Name="ExpandableSchema" LocLabel="string.empty"  BaseClass="ModelBased" Strategy="CreateModel">
+    <Child Name="Tables"/>
+    <Child Name="Views"/>
+    <Child Name="Synonyms"/>
+    <Child Name="ExpandableSchemaProgrammability"/>
   </Node>
 
   <Node Name="Tables" LocLabel="SR.SchemaHierarchy_Tables" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlTable" TreeNode="TableTreeNode">
@@ -115,15 +125,21 @@
 
   <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
-    <Child Name="StoredProcedures"/>
-    <Child Name="Functions"/>
+    <Child Name="StoredProcedures" SettingsFlag="!SchemaBasedOE"/>
+    <Child Name="Functions" SettingsFlag="!SchemaBasedOE"/>
     <Child Name="DatabaseTriggers"/>
     <Child Name="Assemblies"/>
-    <Child Name="Types"/>
+    <Child Name="Types" SettingsFlag="!SchemaBasedOE"/>
     <!--
     <Child Name="Rules"/>
     <Child Name="Defaults"/>
     -->
+    <Child Name="Sequences" SettingsFlag="!SchemaBasedOE"/>
+  </Node>
+  <Node Name="ExpandableSchemaProgrammability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
+    <Child Name="StoredProcedures"/>
+    <Child Name="Functions"/>
+    <Child Name="Types"/>
     <Child Name="Sequences"/>
   </Node>
   <Node Name="ExternalResources" LocLabel="SR.SchemaHierarchy_ExternalResources" BaseClass="ModelBased" TreeNode="ExternalResourceTreeNode" ValidFor="Sql2016OrHigher|AzureV12|SqlOnDemand">
@@ -511,6 +527,7 @@
     <UniqueTreeNode Name="ExternalTableTreeNode"/>
     <UniqueTreeNode Name="ExternalResourceTreeNode"/>
     <UniqueTreeNode Name="HistoryTableTreeNode" />
+    <UniqueTreeNode Name="ExpandableSchemaTreeNode" Type="Schema"/>
   </CodeGenOptions>
 
   <!-- WARNING: Specifying reverse dependencies that could load large numbers of objects will be detrimental to performance. -->

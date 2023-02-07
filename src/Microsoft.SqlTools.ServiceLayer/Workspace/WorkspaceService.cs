@@ -329,6 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             {
                 Logger.Write(TraceEventType.Verbose, "HandleDidChangeConfigurationNotification");
 
+                this.CurrentSettings = configChangeParams.Settings;
                 // Propagate the changes to the event handlers
                 var configUpdateTasks = ConfigChangeCallbacks.Select(
                     t => t(configChangeParams.Settings, CurrentSettings, eventContext));

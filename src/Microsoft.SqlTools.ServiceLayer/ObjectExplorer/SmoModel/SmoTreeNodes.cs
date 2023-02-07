@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -144,6 +146,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             NodeValue = string.Empty;
             this.NodeType = "HistoryTable";
             this.NodeTypeId = NodeTypes.HistoryTable;
+            OnInitialize();
+        }
+    }
+
+    internal sealed partial class ExpandableSchemaTreeNode : SmoTreeNode
+    {
+        public ExpandableSchemaTreeNode() : base()
+        {
+            NodeValue = string.Empty;
+            this.NodeType = "Schema";
+            this.NodeTypeId = NodeTypes.ExpandableSchema;
             OnInitialize();
         }
     }
@@ -681,28 +694,47 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Tables,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Tables,
-                IsSystemObject = false,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Views,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Views,
-                IsSystemObject = false,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Synonyms,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Synonyms,
-                IsSystemObject = false,
-                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
+			if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Schemas,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.ExpandableSchemas,
+                    IsSystemObject = false,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Tables,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Tables,
+                    IsSystemObject = false,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Views,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Views,
+                    IsSystemObject = false,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Synonyms,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Synonyms,
+                    IsSystemObject = false,
+                    ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Programmability,
                 NodeType = "Folder",
@@ -757,6 +789,85 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             var child = new SmoTreeNode();
             child.IsAlwaysLeaf = true;
             child.NodeType = "Database";
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExpandableSchemasChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExpandableSchemas" }; }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlSchemaQuerier), };
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ExpandableSchemaTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExpandableSchemaChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExpandableSchema" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Tables,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Tables,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Views,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Views,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Synonyms,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Synonyms,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Programmability,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.ExpandableSchemaProgrammability,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.NotSqlDemand,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new Type[0];
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new SmoTreeNode();
+            child.IsAlwaysLeaf = true;
             InitializeChild(parent, child, context);
             return child;
         }
@@ -1004,21 +1115,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_StoredProcedures,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.StoredProcedures,
-                IsSystemObject = false,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_Functions,
-                NodeType = "Folder",
-                NodeTypeId = NodeTypes.Functions,
-                IsSystemObject = false,
-                ValidFor = ValidForFlag.NotSqlDemand,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_StoredProcedures,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.StoredProcedures,
+                    IsSystemObject = false,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Functions,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Functions,
+                    IsSystemObject = false,
+                    ValidFor = ValidForFlag.NotSqlDemand,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_DatabaseTriggers,
                 NodeType = "Folder",
@@ -1033,6 +1150,62 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Assemblies,
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Types,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Types,
+                    IsSystemObject = false,
+                    ValidFor = ValidForFlag.NotSqlDemand,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_Sequences,
+                    NodeType = "Folder",
+                    NodeTypeId = NodeTypes.Sequences,
+                    IsSystemObject = false,
+                    ValidFor = ValidForFlag.Sql2012OrHigher|ValidForFlag.AzureV12,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+        }
+
+        internal override Type[] ChildQuerierTypes { get {return null;} }
+
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            return null;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class ExpandableSchemaProgrammabilityChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { "ExpandableSchemaProgrammability" }; }
+
+        protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
+        {
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_StoredProcedures,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.StoredProcedures,
+                IsSystemObject = false,
+                SortPriority = SmoTreeNode.NextSortPriority,
+            });
+            currentChildren.Add(new FolderNode {
+                NodeValue = SR.SchemaHierarchy_Functions,
+                NodeType = "Folder",
+                NodeTypeId = NodeTypes.Functions,
+                IsSystemObject = false,
+                ValidFor = ValidForFlag.NotSqlDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
             currentChildren.Add(new FolderNode {

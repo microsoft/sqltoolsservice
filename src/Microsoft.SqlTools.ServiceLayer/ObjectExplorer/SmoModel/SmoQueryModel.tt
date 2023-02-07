@@ -22,6 +22,7 @@ using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 using Index = Microsoft.SqlServer.Management.Smo.Index;
 
@@ -82,7 +83,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			string navigationPath = GetNavigationPath(nodeElement, nodeName, navPathElement);
 			string subField = GetNavPathAttribute(navPathElement, "SubField");
 			string fieldType = GetNavPathAttribute(navPathElement, "FieldType");
-
+			if(navPathElement != null){
+				XmlNodeList runtimeFilters = navPathElement.GetElementsByTagName("Filter");
+				if(runtimeFilters.Count > 0)
+				{
+					WriteLine("List<NodePropertyFilter> filters = new List<NodePropertyFilter>();");
+					foreach(XmlElement filter in runtimeFilters)
+					{
+						string filterName = filter.GetAttribute("Property");
+						string filterField = filter.GetAttribute("Field");
+						string filterType = filter.GetAttribute("Type");
+                        string filterValidFor = filter.GetAttribute("ValidFor");
+						WriteLine("filters.Add(new NodePropertyFilter()");
+						WriteLine("{");
+						PushIndent(indent);
+						WriteLine("Property = \"{0}\",", filterName);
+						WriteLine("Type = typeof({0}),", filterType);
+						WriteLine("Values = new List<object> {{ {0}.{1} }},", parentVar, filterField);
+                        if(!string.IsNullOrWhiteSpace(filterValidFor))
+                        {
+                            WriteLine("ValidFor = {0},", GetValidForFlags(filterValidFor));
+                        }
+                        else
+                        {
+                            WriteLine("ValidFor = ValidForFlag.All ");
+                        }
+						PopIndent();
+						WriteLine("});");
+					}
+					WriteLine("filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);");
+				}
+			}
 
 			WriteLine("var retValue = {0}.{1};", parentVar, navigationPath);
 			WriteLine("if (retValue != null)");

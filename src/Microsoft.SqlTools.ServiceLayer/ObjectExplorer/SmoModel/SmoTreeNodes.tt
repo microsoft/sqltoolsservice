@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -30,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 <#
 	var directory = Path.GetDirectoryName(Host.TemplateFile);
 	string xmlFile = Path.Combine(directory, "SmoTreeNodesDefinition.xml");
+	var indent = "    ";
 
 	/////////
 	// TODO - is Generate all the ReverseDependencies needed?
@@ -71,12 +74,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 	foreach (var TreeNode in allTreeNodes)
 	{
 		var name = TreeNode.GetAttribute("Name");
+		var type = !String.IsNullOrWhiteSpace(TreeNode.GetAttribute("Type")) ? TreeNode.GetAttribute("Type") : TreeNode.GetAttribute("Name");
 		WriteLine("    internal sealed partial class {0} : SmoTreeNode", name);
 		WriteLine("    {");
 		WriteLine("        public {0}() : base()", name);
 		WriteLine("        {");
 		WriteLine("            NodeValue = string.Empty;");
-		WriteLine("            this.NodeType = \"{0}\";", name.Replace("TreeNode", string.Empty));
+		WriteLine("            this.NodeType = \"{0}\";", type.Replace("TreeNode", string.Empty));
 		WriteLine("            this.NodeTypeId = NodeTypes.{0};", name.Replace("TreeNode", string.Empty));
 		WriteLine("            OnInitialize();");
 		WriteLine("        }");
@@ -242,6 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				foreach (var child in children)
 				{
 					var childName = child.GetAttribute("Name");
+					var settingsFlag = child.GetAttribute("SettingsFlag");
 
 					XmlElement childAsXmlElement = GetNodeElement(xmlFile, childName);
 					if (childAsXmlElement == null)
@@ -257,6 +262,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					if (sortPriority == string.Empty)
 					{
 						sortPriority = "SmoTreeNode.NextSortPriority";
+					}
+
+					var doesSettingsFlagExist = !String.IsNullOrEmpty(settingsFlag);
+
+					if(doesSettingsFlagExist){
+						var notOperator = "";
+						if(settingsFlag.Substring(0, 1) == "!"){
+							notOperator = "!";
+							settingsFlag = settingsFlag.Substring(1, settingsFlag.Length-1);
+						}
+						WriteLine("			if ({0}WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.{1})", notOperator, settingsFlag);
+						WriteLine("			{");
+						PushIndent(indent);
 					}
 
 					if (TreeNodeExists(xmlFile, childName + "TreeNode"))
@@ -282,6 +300,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine("                SortPriority = {0},", sortPriority);
 						WriteLine("            });");
 					}
+
+					if(doesSettingsFlagExist){
+						PopIndent();
+						WriteLine("			}");
+					}
+
 				}
 				WriteLine("        }");
 			}

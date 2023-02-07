@@ -28,5 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Number of seconds to wait before fail expand request with timeout error
         /// </summary>
         public int ExpandTimeout { get; set; }
+
+        /// <summary>
+        /// Moves Schema to the top level of OE and then move Tables, Views, Programmability and Synonyms under it. 
+        /// </summary>
+        /// <value></value>
+        public bool SchemaBasedOE { get; set; }
     }
 }

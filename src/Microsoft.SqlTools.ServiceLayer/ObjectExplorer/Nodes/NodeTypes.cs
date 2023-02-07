@@ -13,7 +13,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     /// <summary>
     /// Enum listing possible node types in the object explorer tree
     /// </summary>
-    // TODO Consider replacing this with an auto-gen'd version
     public enum NodeTypes
     {
         Server,
@@ -33,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         ServerLevelServerTriggers,
         ServerLevelErrorMessages,
         Database,
+        ExpandableSchemas,
         Tables,
         Views,
         Synonyms,
@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         ServiceBroker,
         Storage,
         Security,
+        ExpandableSchema,
+        ExpandableSchemaProgrammability,
         SystemTables,
         ExternalTables,
         DroppedLedgerTables,

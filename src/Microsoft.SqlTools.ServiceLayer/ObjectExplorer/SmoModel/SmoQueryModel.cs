@@ -13,6 +13,7 @@ using System.Composition;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Broker;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 using Index = Microsoft.SqlServer.Management.Smo.Index;
 
@@ -356,6 +357,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.Tables;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<Table>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    Logger.Verbose("End query Table");
+                    return ret;
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -408,6 +430,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.Views;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<View>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    Logger.Verbose("End query View");
+                    return ret;
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -433,6 +476,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query Synonym");
+                    return ret;
+                }
+            }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.Synonyms;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<Synonym>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query Synonym");
                     return ret;
                 }
@@ -775,6 +839,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.Sequences;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<Sequence>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    Logger.Verbose("End query Sequence");
+                    return ret;
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -800,6 +885,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedDataType");
+                    return ret;
+                }
+            }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.UserDefinedDataTypes;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedDataType>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedDataType");
                     return ret;
                 }
@@ -830,6 +936,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.UserDefinedTableTypes;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedTableType>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    Logger.Verbose("End query UserDefinedTableType");
+                    return ret;
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -852,6 +979,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query XmlSchemaCollection");
+                    return ret;
+                }
+            }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.XmlSchemaCollections;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<XmlSchemaCollection>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query XmlSchemaCollection");
                     return ret;
                 }
@@ -882,6 +1030,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.UserDefinedTypes;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedType>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    Logger.Verbose("End query UserDefinedType");
+                    return ret;
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -908,6 +1077,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     return ret;
                 }
             }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.UserDefinedFunctions;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedFunction>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
+                    Logger.Verbose("End query UserDefinedFunction");
+                    return ret;
+                }
+            }
             return Enumerable.Empty<SqlSmoObject>();
         }
     }
@@ -930,6 +1120,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query UserDefinedAggregate");
+                    return ret;
+                }
+            }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.UserDefinedAggregates;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<UserDefinedAggregate>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query UserDefinedAggregate");
                     return ret;
                 }
@@ -1739,6 +1950,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     retValue.ClearAndInitialize(filter, extraProperties);
                     var ret = new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentDatabase, c));
+                    Logger.Verbose("End query StoredProcedure");
+                    return ret;
+                }
+            }
+            Schema parentSchema = context.Parent as Schema;
+            if (parentSchema != null)
+            {
+                List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
+                filters.Add(new NodePropertyFilter()
+                {
+                    Property = "Schema",
+                    Type = typeof(string),
+                    Values = new List<object> { parentSchema.Name },
+                    ValidFor = ValidForFlag.All 
+                });
+                filter = INodeFilter.AddPropertyFilterToFilterString(filter, filters, this.GetType(), context.ValidFor);
+                var retValue = parentSchema.Parent.StoredProcedures;
+                if (retValue != null)
+                {
+                    retValue.ClearAndInitialize(filter, extraProperties);
+                    var ret = new SmoCollectionWrapper<StoredProcedure>(retValue).Where(c => PassesFinalFilters(parentSchema, c));
                     Logger.Verbose("End query StoredProcedure");
                     return ret;
                 }

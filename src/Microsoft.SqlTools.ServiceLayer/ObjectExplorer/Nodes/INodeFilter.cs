@@ -53,5 +53,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             return string.Empty;
         }
+
+        public static string AddPropertyFilterToFilterString(string filterString, IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
+        {
+            if(String.IsNullOrEmpty(filterString))
+            {
+                return GetPropertyFilter(filters, type, validForFlag);
+            }
+            foreach(var value in filters)
+            {
+                var filter = value.ToPropertyFilterString(type, validForFlag);
+                if(filter != string.Empty)
+                {
+                    filterString = filterString.Remove(filterString.Length - 1, 1) + $" and {filter}" + "]";
+                }
+            }
+            return filterString;
+        }
     }
 }

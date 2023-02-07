@@ -24,7 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     /// <summary>
     /// Enum listing possible node types in the object explorer tree
     /// </summary>
-    // TODO Consider replacing this with an auto-gen'd version
     public enum NodeTypes
     {
 <#
