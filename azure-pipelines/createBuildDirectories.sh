@@ -13,7 +13,7 @@
 
 # The script need to run from the repo root
 
-net7projectArray=(
+dotnetProjectArray=(
     "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
     "./src/Microsoft.SqlTools.Hosting"
@@ -34,13 +34,8 @@ net7projectArray=(
     "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
-netStandard2ProjectArray=(
-    "./src/Microsoft.SqlTools.ManagedBatchParser"
-)
-
 # Please update the framework vars when updating target framework for the projects
 framework7="/bin/Debug/net7.0/"
-framework2="/bin/Debug/netstandard2.1/"
 
 requiredLocDirectories=(
     "cs"
@@ -74,24 +69,13 @@ requiredLocDirectories=(
     "zh-hant"
 )
 
-for i in "${net7projectArray[@]}"
+for i in "${dotnetProjectArray[@]}"
 do
    : 
    for k in "${requiredLocDirectories[@]}"
     do
         : 
         output=`mkdir -v -p $i$framework7$k`
-        echo $output
-    done
-done
-
-for i in "${netStandard2ProjectArray[@]}"
-do
-   : 
-   for k in "${requiredLocDirectories[@]}"
-    do
-        : 
-        output=`mkdir -v -p $i$framework2$k`
         echo $output
     done
 done
