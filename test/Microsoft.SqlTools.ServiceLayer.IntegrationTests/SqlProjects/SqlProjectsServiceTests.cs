@@ -212,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference");
             DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.First(x => x is DacpacReference);
             Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
-            Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable);
+            Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable.VarName);
             Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable);
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
 
