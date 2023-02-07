@@ -189,6 +189,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     {
                         throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
                     }
+                    
+                    DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator();
+                    containerXml.GenerateXmlDocument();
+                    //containerXml.AddDatabase(connInfo.DatabaseName);
+
 
                     bool objectExists = configAction != ConfigAction.Create;
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(

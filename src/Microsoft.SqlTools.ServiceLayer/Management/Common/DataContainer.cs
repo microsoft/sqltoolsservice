@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,29 +38,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         #region Fields
 
-        private ServerConnection serverConnection;
-        private Server m_server;   
-        protected XmlDocument m_doc;
-        private XmlDocument originalDocument;
-        private SqlOlapConnectionInfoBase connectionInfo;
-        private SqlConnectionInfoWithConnection sqlCiWithConnection;
+        private ServerConnection? serverConnection;
+        private Server? m_server;   
+        protected XmlDocument? m_doc;
+        private XmlDocument? originalDocument;
+        private SqlOlapConnectionInfoBase? connectionInfo;
+        private SqlConnectionInfoWithConnection? sqlCiWithConnection;
         private bool ownConnection = true;
-        private IManagedConnection managedConnection;
-        protected string serverName;
+        private IManagedConnection? managedConnection;
+        protected string? serverName;
 
         //This member is used for non-express sku only
-        protected string olapServerName;
+        protected string? olapServerName;
 
-        protected string sqlceFilename;
+        protected string? sqlceFilename;
 
         private ServerType serverType = ServerType.UNKNOWN;
 
-        private Hashtable m_hashTable;
+        private Hashtable? m_hashTable;
 
         private string objectNameKey = "object-name-9524b5c1-e996-4119-a433-b5b947985566";
         private string objectSchemaKey = "object-schema-ccaf2efe-8fa3-4f62-be79-62ef3cbe7390";
 
-        private SqlSmoObject sqlDialogSubject;
+        private SqlSmoObject? sqlDialogSubject;
 
         private int sqlServerVersion = 0;
 
@@ -74,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// gets/sets XmlDocument with parameters
         /// </summary>
-        public XmlDocument Document
+        public XmlDocument? Document
         {
             get
             {
@@ -111,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// gets/sets SMO server object
         /// </summary>
-        public Server Server
+        public Server? Server
         {
             get
             {
@@ -127,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// connection info that should be used by the dialogs
         /// </summary>
-        public SqlOlapConnectionInfoBase ConnectionInfo
+        public SqlOlapConnectionInfoBase? ConnectionInfo
         {
             get
             {
@@ -143,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     if (this.RelevantDatabaseName != null)
                     {
                         IComparer<string> dbNamesComparer = new ServerComparer(conn.ServerConnection, "master");
-                        if (dbNamesComparer.Compare(this.RelevantDatabaseName, conn.DatabaseName) != 0)
+                        if (dbNamesComparer.Compare(this.RelevantDatabaseName, conn.DatabaseName) != 0 && this.connectionInfo != null)
                         {
                             ServerConnection databaseConnection = conn.ServerConnection.GetDatabaseConnection(this.RelevantDatabaseName, true, conn.AccessToken);
                             ((SqlConnectionInfoWithConnection)this.connectionInfo).ServerConnection = databaseConnection;
@@ -184,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     }
                     else
                     {
-                        SqlConnectionInfo sci = this.connectionInfo as SqlConnectionInfo;
+                        SqlConnectionInfo? sci = this.connectionInfo as SqlConnectionInfo;
                         System.Diagnostics.Debug.Assert(sci != null, "CDataContainer.ServerConnection: connection info MUST be SqlConnectionInfo");
                         this.serverConnection = new ServerConnection(sci);
                     }
@@ -199,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// returns SMO server connection object constructed off the connectionInfo.
         /// This method cannot work until ConnectionInfo property has been set
         /// </summary>
-        public SqlConnectionInfoWithConnection SqlInfoWithConnection
+        public SqlConnectionInfoWithConnection? SqlInfoWithConnection
         {
             get
             {
@@ -226,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     }
                     else
                     {
-                        SqlConnectionInfo sci = this.connectionInfo as SqlConnectionInfo;
+                        SqlConnectionInfo? sci = this.connectionInfo as SqlConnectionInfo;
                         System.Diagnostics.Debug.Assert(sci != null, "CDataContainer.ServerConnection: connection info MUST be SqlConnectionInfo");
                         this.serverConnection = new ServerConnection(sci);
                     }
@@ -237,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-        public string ServerName
+        public string? ServerName
         {
             get
             {
@@ -261,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-        public string SqlCeFileName
+        public string? SqlCeFileName
         {
             get
             {
@@ -274,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         }
 
         //This member is used for non-express sku only
-        public string OlapServerName
+        public string? OlapServerName
         {
             get
             {
@@ -432,11 +430,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// The SQL SMO object that is the subject of the dialog.
         /// </summary>
-        public SqlSmoObject SqlDialogSubject
+        public SqlSmoObject? SqlDialogSubject
         {
             get
             {
-                SqlSmoObject result = null;
+                SqlSmoObject? result;
 
                 if (this.sqlDialogSubject != null)
                 {
@@ -444,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 }
                 else
                 {
-                    result = this.Server.GetSmoObject(this.ObjectUrn);
+                    result = this.Server?.GetSmoObject(this.ObjectUrn);
                 }
 
                 return result;
@@ -607,7 +605,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="userName">User name for not trusted connections</param>
         /// <param name="password">Password for not trusted connections</param>
         /// <param name="xmlParameters">XML string with parameters</param>
-        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters, string azureAccountToken = null)
+        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters, string? azureAccountToken = null)
         {
             this.serverType = serverType;
             this.serverName = serverName;
@@ -712,7 +710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 //If this code doesn't execute, then dc.Init call below will result in CDataContainer
                 //initializing its ConnectionInfo member with a new object contructed off the parameters
                 //in the XML doc [server name, user name etc]
-                IManagedConnection managedConnection =
+                IManagedConnection? managedConnection =
                     site.GetService(typeof (IManagedConnection)) as IManagedConnection;
                 if (managedConnection != null)
                 {
@@ -822,7 +820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
 
             // Ensure there is no password in the XML document
-            string temp = string.Empty;
+            string? temp = string.Empty;
             if (param.GetParam("password", ref temp))
             {
                 temp = null;
@@ -860,7 +858,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns>The property value</returns>
         public object GetDocumentPropertyValue(string propertyName)
         {
-            object result = null;
+            object? result = null;
             STParameters param = new STParameters(this.Document);
 
             param.GetBaseParam(propertyName, ref result);
@@ -953,7 +951,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             string userName,
             SecureString password,
             string databaseName,
-            string azureAccountToken)
+            string? azureAccountToken)
         {
             System.Diagnostics.Debug.Assert(this.serverType == ServerType.SQL, "GetTempSqlConnectionInfoWithConnection should only be called for SQL Server type");
 
@@ -983,7 +981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnSqlConnectionClosed(object sender, EventArgs e)
+        private void OnSqlConnectionClosed(object? sender, EventArgs e)
         {
         }
 
