@@ -6,12 +6,8 @@
     <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
-    <NoWarn>$(NoWarn);SYSLIB1045</NoWarn>
-		<NoWarn>$(NoWarn);IDE0200</NoWarn>
-		<NoWarn>$(NoWarn);IDE0230</NoWarn>
-		<NoWarn>$(NoWarn);CA1311</NoWarn>
-		<NoWarn>$(NoWarn);CA1852</NoWarn>
-		<NoWarn>$(NoWarn);CA1854</NoWarn>	
+	<!-- TODO FIX THESE WARNINGS ASAP -->
+    <NoWarn>$(NoWarn);SYSLIB1045;IDE0200;IDE0230;CA1311;CA1852;CA1854</NoWarn>	
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />

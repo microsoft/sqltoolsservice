@@ -13,6 +13,7 @@
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<Product>Microsoft SqlTools Managed batch parser</Product>
+		<!-- TODO FIX THESE WARNINGS ASAP -->
 		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>

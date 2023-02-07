@@ -6,6 +6,7 @@
 		<IsPackable>false</IsPackable>
 		<ApplicationIcon />
 		<StartupObject />
+		<!-- TODO FIX THESE WARNINGS ASAP -->
 		<NoWarn>$(NoWarn);SYSLIB1045;IDE0200;IDE0230;CA1311;CA1852;CA1854</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>

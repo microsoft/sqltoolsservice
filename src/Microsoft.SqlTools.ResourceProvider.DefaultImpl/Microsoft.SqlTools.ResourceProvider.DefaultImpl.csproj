@@ -10,6 +10,7 @@
 		<StartupObject />
 		<Description>Provides the default  for SqlTools applications.</Description>
 		<Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
+		<!-- TODO FIX THESE WARNINGS ASAP -->
 		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
