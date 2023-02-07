@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding system db reference");
             SystemDatabaseReference systemDbRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.First(x => x is SystemDatabaseReference);
             Assert.AreEqual(SystemDatabase.MSDB, systemDbRef.SystemDb, "Referenced system DB");
-            Assert.AreEqual("$(EmEssDeeBee)", systemDbRef.DatabaseVariable);
+            Assert.AreEqual("$(EmEssDeeBee)", systemDbRef.DatabaseVariableLiteralName);
             Assert.IsFalse(systemDbRef.SuppressMissingDependencies, nameof(systemDbRef.SuppressMissingDependencies));
 
             // Validate adding a dacpac reference
