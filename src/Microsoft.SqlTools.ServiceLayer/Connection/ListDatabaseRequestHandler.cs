@@ -166,12 +166,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             get
             {
+                // NOTES: Converting the size to BIGINT is need to handle the large database scenarios.
+                // size column in sys.master_files represents the number of pages and each page is 8 KB
+                // The end result is size in MB.
                 return @"
 WITH
     db_size
     AS
     (
-        SELECT database_id, CAST(SUM(size) * 8.0 / 1024 AS INTEGER) size
+        SELECT database_id, CAST(SUM(CAST(size AS BIGINT)) * 8.0 / 1024 AS BIGINT) size
         FROM sys.master_files
         GROUP BY database_id
     ),
