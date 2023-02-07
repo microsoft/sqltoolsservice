@@ -196,10 +196,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 
                     bool objectExists = configAction != ConfigAction.Create;
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                        connInfo, 
-                        databaseExists: objectExists,
-                        containerDoc: CDataContainer.CreateDataContainerDocument(connInfo, objectExists, itemType: "User"));
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: objectExists);
+                    // CDataContainer dataContainer = CDataContainer.CreateDataContainer(
+                    //     connInfo, 
+                    //     databaseExists: objectExists,
+                    //     containerDoc: CDataContainer.CreateDataContainerDocument(connInfo, objectExists, itemType: "User"));
 
                     var b = dataContainer.IsNewObject;
                     using (var actions = new UserActions(dataContainer, user, configAction))

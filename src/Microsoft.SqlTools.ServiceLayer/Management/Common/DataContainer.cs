@@ -1178,11 +1178,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create document for existing database or not</param>
         /// <returns></returns>
-        internal static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool objectExists, string? itemType = null)
+        private static XmlDocument CreateDataContainerDocument(ConnectionInfo connInfo, bool databaseExists)
         {
             string xml = string.Empty;
 
-            if (!objectExists)
+            if (!databaseExists)
             {
                 xml =
                 string.Format(@"<?xml version=""1.0""?>
@@ -1191,13 +1191,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
                 <servertype>sql</servertype>
                 <urn>Server[@Name='{0}']</urn>
-                <itemtype>{2}</itemtype>
-                {3}                
+                <itemtype>Database</itemtype>                
                 </params></formdescription> ",
                 connInfo.ConnectionDetails.ServerName.ToUpper(),
-                connInfo.ConnectionDetails.UserName,
-                itemType ?? "Database",
-                !string.IsNullOrEmpty(itemType) ? "<database>" + connInfo.ConnectionDetails.DatabaseName + "</database>" : string.Empty);
+                connInfo.ConnectionDetails.UserName);
             }
             else
             {
@@ -1208,7 +1205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <connectionmoniker>{0} (SQLServer, user = {1})</connectionmoniker>
                 <servertype>sql</servertype>
                 <urn>Server[@Name='{0}']</urn>
-                <database>{2}</database>
+                <database>{2}</database>                
                 </params></formdescription> ",
                 connInfo.ConnectionDetails.ServerName.ToUpper(),
                 connInfo.ConnectionDetails.UserName,

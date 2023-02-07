@@ -37,12 +37,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         public const string SelectedExplorerViewItems = "ssms:SelectedExplorerViewItems";
 
-        public static string    ContextDomain<TDomain>()
+        public static string ContextDomain<TDomain>()
         {
             return "ssms:Domain:" + typeof(TDomain).FullName;
         }
 
-        public static string    ContextInstance<TInstance>()
+        public static string ContextInstance<TInstance>()
         {
             return "ssms:Instance:" + typeof(TInstance).FullName;
         }
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// Value of the ShellType property in a hosting app without its own top level form
         /// </summary>
-        public const string  ShellTypeMinimal = "minimal";
+        public const string ShellTypeMinimal = "minimal";
 
         /// <summary>
         /// Value of the ShellType property in a hosting app with its own top level form
@@ -145,24 +145,55 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
     }
 
     public interface INodeContext
-	{
-      /// <summary>
-      /// Connection information.
-      /// </summary>
-      SqlOlapConnectionInfoBase Connection
-		{
-			get;
-			set;
-		}
+    {
 
-      /// <summary>
-      /// Enumerators urn for this node.
-      /// </summary>
-		string Context
-		{
-			get;
-			set;
-		}
+        /// <summary>
+        /// Parent node
+        /// </summary>
+        /// <remarks>
+        /// null if this is the root.
+        /// </remarks>
+        //INodeInformation Parent { get; }
+
+        /// <summary>
+        /// Caption for this node.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Non localized name. Includes all parts of Urn Key, e.g. Schema
+        /// </summary>
+        string InvariantName
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Hierarchy this node belongs to
+        /// </summary> 
+        //IExplorerHierarchy Hierarchy { get; }
+
+        /// <summary>
+        /// property bag for this node
+        /// </summary>
+        object this[string name] { get; }
+        /// <summary>
+        /// Connection information.
+        /// </summary>
+        SqlOlapConnectionInfoBase Connection
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Enumerators urn for this node.
+        /// </summary>
+        string Context
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         ///  returns scheleton Path for current context
@@ -216,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             set { parent = value; }
         }
 
-         private string mode = null;
+        private string mode = null;
         /// <summary>
         /// mode
         /// </summary>
@@ -380,15 +411,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             // don't lose leading or trailing whitespace
             doc.PreserveWhitespace = true;
 
-			// directly create the document from the memoryStream.
-			// We do this because using an xmlreader in between would an extra
-			// overhead and it also messes up the new line characters in the original
-			// stream (converts all \r to \n).-anchals
+            // directly create the document from the memoryStream.
+            // We do this because using an xmlreader in between would an extra
+            // overhead and it also messes up the new line characters in the original
+            // stream (converts all \r to \n).-anchals
             doc.Load(memoryStream);
 
             return doc;
         }
-#endregion
+        #endregion
 
         #region document start/end
         /// <summary>
@@ -458,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //     ToolMenuItemHelper.GenerateOlapConnectionXml(xmlWriter, Parent);
 
         // }
-	#endregion
+        #endregion
 
         #region item context generation
         /// <summary>
@@ -812,7 +843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //         else
         //         {
         //             System.Diagnostics.Debug.Assert(false, "ToolsMenuItem.OnCreateAndShowForm: could not  get Form    object via Reflection!!!");
-                    
+
         //             //BUGBUG - should we have internal exception in this case?
         //             ArgumentException innerEx = new ArgumentException(SRError.TypeShouldBeFromDerived, "doc");
         //             throw new ApplicationException(SRError.CannotExecuteMenuCommand, innerEx);
@@ -892,23 +923,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 GenerateSqlConnectionXml(xmlWriter, context);
                 serverType = "sql";
             }
-//             else if (context.Connection is SqlCeConnectionInfo)
-//             {
-//                 GenerateSqlCeConnectionXml(xmlWriter, context);
-//                 serverType = "sqlce";
-//             }
-// #if !SSMS_EXPRESS
-//             else if (context.Connection.GetType().ToString() == "Microsoft.SqlServer.Management.UI.RSClient.RSConnectionInfo")
-//             {
-//                 GenerateRsConnectionXml(xmlWriter, context);
-//                 serverType = "rss";
-//             }
-//             else if (context.Connection is OlapConnectionInfo)
-//             {
-//                 GenerateOlapConnectionXml(xmlWriter, context);
-//                 serverType = "olap";
-//             }
-// #endif
+            //             else if (context.Connection is SqlCeConnectionInfo)
+            //             {
+            //                 GenerateSqlCeConnectionXml(xmlWriter, context);
+            //                 serverType = "sqlce";
+            //             }
+            // #if !SSMS_EXPRESS
+            //             else if (context.Connection.GetType().ToString() == "Microsoft.SqlServer.Management.UI.RSClient.RSConnectionInfo")
+            //             {
+            //                 GenerateRsConnectionXml(xmlWriter, context);
+            //                 serverType = "rss";
+            //             }
+            //             else if (context.Connection is OlapConnectionInfo)
+            //             {
+            //                 GenerateOlapConnectionXml(xmlWriter, context);
+            //                 serverType = "olap";
+            //             }
+            // #endif
             else
             {
                 System.Diagnostics.Debug.Assert(false, "Warning: Parents  ConnectionInfo  type is unknown.");
@@ -931,64 +962,64 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             xmlWriter.WriteElementString("servername", context.Connection.ServerName);
         }
 
-//         /// <summary>
-//         /// Generate SQL CE Specific connection informatio
-//         /// </summary>
-//         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-//         public static void GenerateSqlCeConnectionXml(XmlWriter xmlWriter, INodeContext context)
-//         {
-//             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
+        //         /// <summary>
+        //         /// Generate SQL CE Specific connection informatio
+        //         /// </summary>
+        //         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
+        //         public static void GenerateSqlCeConnectionXml(XmlWriter xmlWriter, INodeContext context)
+        //         {
+        //             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
-//             SqlCeConnectionInfo ci = (SqlCeConnectionInfo)context.Connection;
+        //             SqlCeConnectionInfo ci = (SqlCeConnectionInfo)context.Connection;
 
-//             xmlWriter.WriteElementString("database", ci.ServerName);
-//             xmlWriter.WriteElementString("connecttimeout", ci.ConnectionTimeout.ToString());
-//             xmlWriter.WriteElementString("maxdatabasesize", ci.MaxDatabaseSize.ToString());
-//             xmlWriter.WriteElementString("defaultlockescalation", ci.DefaultLockEscalation.ToString());
-//         }
+        //             xmlWriter.WriteElementString("database", ci.ServerName);
+        //             xmlWriter.WriteElementString("connecttimeout", ci.ConnectionTimeout.ToString());
+        //             xmlWriter.WriteElementString("maxdatabasesize", ci.MaxDatabaseSize.ToString());
+        //             xmlWriter.WriteElementString("defaultlockescalation", ci.DefaultLockEscalation.ToString());
+        //         }
 
-// #if !SSMS_EXPRESS
-//         /// <summary>
-//         /// Generate Report Server Specific XML
-//         /// </summary>
-//         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-//         public static void GenerateRsConnectionXml(XmlWriter xmlWriter, INodeContext context)
-//         {
-//             xmlWriter.WriteElementString("servername", context.Connection.ServerName);
+        // #if !SSMS_EXPRESS
+        //         /// <summary>
+        //         /// Generate Report Server Specific XML
+        //         /// </summary>
+        //         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
+        //         public static void GenerateRsConnectionXml(XmlWriter xmlWriter, INodeContext context)
+        //         {
+        //             xmlWriter.WriteElementString("servername", context.Connection.ServerName);
 
-//             Type type = context.Connection.GetType();
+        //             Type type = context.Connection.GetType();
 
-//             PropertyInfo connStringProp = type.GetProperty("ConnectionString");
+        //             PropertyInfo connStringProp = type.GetProperty("ConnectionString");
 
-//             MethodInfo connStringGet = (connStringProp != null) ? connStringProp.GetGetMethod() : null;
+        //             MethodInfo connStringGet = (connStringProp != null) ? connStringProp.GetGetMethod() : null;
 
-//             string connectionString = (connStringGet != null) ? connStringGet.Invoke(context.Connection, null).ToString() : string.Empty;
+        //             string connectionString = (connStringGet != null) ? connStringGet.Invoke(context.Connection, null).ToString() : string.Empty;
 
-//             xmlWriter.WriteElementString("connectionstring", connectionString);
-//             // if you don't specify trusted or username, password you will get an
-//             // exception.
-//             xmlWriter.WriteElementString("trusted", "true");
-//         }
-//         /// <summary>
-//         /// Generate Olap Specific XML
-//         /// </summary>
-//         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-//         public static void GenerateOlapConnectionXml(XmlWriter xmlWriter,
-//             Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeContext context)
-//         {
-//             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
+        //             xmlWriter.WriteElementString("connectionstring", connectionString);
+        //             // if you don't specify trusted or username, password you will get an
+        //             // exception.
+        //             xmlWriter.WriteElementString("trusted", "true");
+        //         }
+        //         /// <summary>
+        //         /// Generate Olap Specific XML
+        //         /// </summary>
+        //         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
+        //         public static void GenerateOlapConnectionXml(XmlWriter xmlWriter,
+        //             Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeContext context)
+        //         {
+        //             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
-//             xmlWriter.WriteElementString("olapservername", context.Connection.ServerName);
-//             xmlWriter.WriteElementString("trusted", "true");
-//         }
-// #endif
+        //             xmlWriter.WriteElementString("olapservername", context.Connection.ServerName);
+        //             xmlWriter.WriteElementString("trusted", "true");
+        //         }
+        // #endif
         /// <summary>
         /// Generate the context for an individual item.
         /// While Generating the context we will break down the Urn to it's individual elements
         /// and pass each Type attribute in individually.
         /// </summary>
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-        public static void GenerateIndividualItemContext(XmlWriter xmlWriter,string itemType, INodeContext context)
+        public static void GenerateIndividualItemContext(XmlWriter xmlWriter, string itemType, INodeContext context)
         {
             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
             System.Diagnostics.Debug.Assert(context.Context != null, "No context available.");
@@ -1065,54 +1096,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
             while (urn != null);
         }
-    //     /// <summary>
-    //     /// Generate the monikor for maintenanceplan Execute menuitem       
-    //     /// </summary>
+        //     /// <summary>
+        //     /// Generate the monikor for maintenanceplan Execute menuitem       
+        //     /// </summary>
 
-    //     public static XmlDocument GenerateXmlDocumentForMaintenanceplanExecute(INodeContext context)
-    //     {
-    //         MemoryStream memoryStream = new MemoryStream();
-    //         XmlTextWriter xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
+        //     public static XmlDocument GenerateXmlDocumentForMaintenanceplanExecute(INodeContext context)
+        //     {
+        //         MemoryStream memoryStream = new MemoryStream();
+        //         XmlTextWriter xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
 
-    //         ToolMenuItemHelper.StartXmlDocument(xmlWriter);
-    //         GenerateConnectionXml(xmlWriter, context);
-    //         GenerateIndividualItemContext(xmlWriter, String.Empty, context);
-    //         // write out MP execute properties to the document.
-    //         //xmlWriter.WriteElementString(ReusableFormIndicator, null);
-    //         xmlWriter.WriteElementString("assemblyname", "SqlManagerUi.dll");
-    //         xmlWriter.WriteElementString("formtype", "Microsoft.SqlServer.Management.SqlManagerUI.MaintenancePlanMenu_Run");
-    //         xmlWriter.WriteEndElement();
-    //         xmlWriter.WriteEndElement();
-    //         xmlWriter.Flush();
-    //         memoryStream.Seek(0, SeekOrigin.Begin);
+        //         ToolMenuItemHelper.StartXmlDocument(xmlWriter);
+        //         GenerateConnectionXml(xmlWriter, context);
+        //         GenerateIndividualItemContext(xmlWriter, String.Empty, context);
+        //         // write out MP execute properties to the document.
+        //         //xmlWriter.WriteElementString(ReusableFormIndicator, null);
+        //         xmlWriter.WriteElementString("assemblyname", "SqlManagerUi.dll");
+        //         xmlWriter.WriteElementString("formtype", "Microsoft.SqlServer.Management.SqlManagerUI.MaintenancePlanMenu_Run");
+        //         xmlWriter.WriteEndElement();
+        //         xmlWriter.WriteEndElement();
+        //         xmlWriter.Flush();
+        //         memoryStream.Seek(0, SeekOrigin.Begin);
 
-    //         XmlDocument doc = new XmlDocument();
-    //         doc.PreserveWhitespace = true;
-   	// 		// directly create the document from the memoryStream.
-	// 		// We do this because using an xmlreader in between would an extra
-	// 		// overhead and it also messes up the new line characters in the original
-	// 		// stream (converts all \r to \n).-anchals
-    //         doc.Load(memoryStream);
-    //         return doc;
-    //     }
+        //         XmlDocument doc = new XmlDocument();
+        //         doc.PreserveWhitespace = true;
+        // 		// directly create the document from the memoryStream.
+        // 		// We do this because using an xmlreader in between would an extra
+        // 		// overhead and it also messes up the new line characters in the original
+        // 		// stream (converts all \r to \n).-anchals
+        //         doc.Load(memoryStream);
+        //         return doc;
+        //     }
 
-    //     /// <summary>
-    //     /// We have to diable the execute menuitem on MP if the "Execute window" is already up.       
-    //     /// </summary>
-    //     public static void CheckAndDisableMaintenancePlanExecute(ContextMenuStrip contextMenu,
-    //         Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeContext context)
-    //     {
-    //         XmlDocument doc = ToolMenuItemHelper.GenerateXmlDocumentForMaintenanceplanExecute(context);
-    //         //get string that we'll use  as  form's moniker
-    //         string formMoniker = doc.InnerXml;
-    //         //We have to disable the Execute menuitem if the form is already opened.
-    //         if (Microsoft.SqlServer.Management.SqlMgmt.RunningFormsTable.Table.FormExists(formMoniker))
-    //         {
-    //             ToolStripItem tsi = contextMenu.Items[5];
-    //             tsi.Enabled = false;                
-    //         }
-    //     }
-       
+        //     /// <summary>
+        //     /// We have to diable the execute menuitem on MP if the "Execute window" is already up.       
+        //     /// </summary>
+        //     public static void CheckAndDisableMaintenancePlanExecute(ContextMenuStrip contextMenu,
+        //         Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeContext context)
+        //     {
+        //         XmlDocument doc = ToolMenuItemHelper.GenerateXmlDocumentForMaintenanceplanExecute(context);
+        //         //get string that we'll use  as  form's moniker
+        //         string formMoniker = doc.InnerXml;
+        //         //We have to disable the Execute menuitem if the form is already opened.
+        //         if (Microsoft.SqlServer.Management.SqlMgmt.RunningFormsTable.Table.FormExists(formMoniker))
+        //         {
+        //             ToolStripItem tsi = contextMenu.Items[5];
+        //             tsi.Enabled = false;                
+        //         }
+        //     }
+
 
     }//end ToolMenuItemHelperClass
 
@@ -1155,7 +1186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //             if (managedconnection != null)
         //             {
         //                 connection = managedconnection.Connection;
-                        
+
         //                 managedconnection.Dispose();
         //             }
         //         }
@@ -1179,7 +1210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //         }
         //     }
         //}
-        
+
 
         public XmlDocument GenerateXmlDocument(IContext context, SqlOlapConnectionInfoBase connection)
         {
@@ -1213,7 +1244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             string singleton;
             if (context.TryGetPropertyValue<string>("Singleton", out singleton))
             {
-               // parameters.AppendChild(document.CreateElement(ToolMenuItemHelper.ReusableFormIndicator));    
+                // parameters.AppendChild(document.CreateElement(ToolMenuItemHelper.ReusableFormIndicator));    
             }
 
             // context portion
@@ -1251,7 +1282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             //     parameters.AppendChild(document.CreateElement("formtype")).InnerText = objectType.FullName;
             //     parameters.AppendChild(document.CreateElement("assemblyname")).InnerText = objectType.Assembly.ManifestModule.Name;
             // }
-            
+
             return document;
         }
 
