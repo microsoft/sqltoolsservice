@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.First(x => x is DacpacReference);
             Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable.VarName);
-            Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable);
+            Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable.VarName);
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
 
             // Validate adding a project reference
@@ -235,8 +235,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SqlProjectReference projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.First(x => x is SqlProjectReference);
             Assert.AreEqual(mockReferencePath, projectRef.ProjectPath, "Referenced project");
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
-            Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable);
-            Assert.AreEqual(serverVar.Name, projectRef.ServerVariable);
+            Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable.VarName);
+            Assert.AreEqual(serverVar.Name, projectRef.ServerVariable.VarName);
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
 
             // Validate deleting a reference
@@ -310,8 +310,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         [Test]
         public async Task TestCrossPlatformUpdates()
         {
-            string projectPath = "";
+            string inputProjectPath = Path.Join(Path.GetDirectoryName(typeof(SqlProjectsServiceTests).Assembly.Location), "SqlProjects", "Inputs", "SSDTProject.sqlproj");
+            string projectPath = Path.Join(TestContext.CurrentContext.GetTestWorkingFolder(), "SSDTProject.sqlproj");
 
+            Directory.CreateDirectory(Path.GetDirectoryName(projectPath));
+            File.Copy(inputProjectPath, projectPath);
             SqlProjectsService service = new();
 
             /// Validate that the cross-platform status can be fetched
