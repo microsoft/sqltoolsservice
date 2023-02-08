@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
 
             string newUrn = INodeFilter.AddPropertyFilterToFilterString(allFiltersValid, nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
-            string expectedNewUrn = "[((@TemporalType = 1) or (@LedgerType = 1)) and (@Schema = 'jsdafl983!@$#%535343]]]][[[')]";
+            string expectedNewUrn = "[(@TemporalType = 1) and (@LedgerType = 1) and (@Schema = 'jsdafl983!@$#%535343]]]][[[')]";
             Assert.That(newUrn, Is.EqualTo(expectedNewUrn), "GetPropertyFilter did not construct the URN filter string as expected");
         }
     }
