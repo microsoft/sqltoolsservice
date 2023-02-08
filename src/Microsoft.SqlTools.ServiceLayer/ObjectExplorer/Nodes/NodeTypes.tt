@@ -37,8 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     {
         WriteLine("        {0},", name);
     }
-    // Folder type is required in tests.
-    WriteLine("        Folder");
 
 #>
     }
@@ -50,6 +48,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         XmlDocument doc = new XmlDocument();
         doc.Load(xmlFile);
 
+
+        // Adding all node types
         HashSet<string> retElements = new HashSet<string>();
         XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node");
         foreach (XmlElement item in nodeList)
@@ -60,11 +60,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 retElements.Add(child.GetAttribute("Name"));
             }
         }
+
+        // Adding UniqueTreeNodes
         foreach(var name in GetUniqueTreeNodes(xmlFile))
         {
             retElements.Add(name);
         }
-        return retElements.ToList();
+
+        // Adding types that are not present anywhere. These types are referred in tests.
+        retElements.Add("Folder");
+
+        var retList = retElements.ToList();
+        retList.Sort();
+        return retList;
     }
 
     public static List<XmlElement> GetChildren(string xmlFile, string parentName)
