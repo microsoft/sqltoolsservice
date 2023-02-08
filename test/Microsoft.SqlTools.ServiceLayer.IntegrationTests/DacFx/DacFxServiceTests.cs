@@ -24,6 +24,7 @@ using NUnit.Framework;
 using Moq;
 using System.Reflection;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -890,10 +891,9 @@ Streaming query statement contains a reference to missing output stream 'Missing
                     }
             };
 
-            var dacfxRequestContext = new Mock<RequestContext<ResultStatus>>();
-            dacfxRequestContext.Setup((RequestContext<ResultStatus> x) => x.SendResult(It.Is<ResultStatus>((result) => result.Success == true))).Returns(Task.FromResult(new object()));
+            MockRequest<ResultStatus> requestMock = new();
 
-            await service.HandleSavePublishProfileRequest(savePublishProfileParams, dacfxRequestContext.Object);
+            await service.HandleSavePublishProfileRequest(savePublishProfileParams, requestMock.Object);
 
           VerifyAndCleanup(profileFilePath);      // verify file gets created
         }
