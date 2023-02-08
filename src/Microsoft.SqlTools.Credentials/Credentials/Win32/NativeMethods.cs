@@ -1,6 +1,6 @@
 ﻿//
-// Code originally from http://credentialmanagement.codeplex.com/, 
-// Licensed under the Apache License 2.0 
+// Code originally from http://credentialmanagement.codeplex.com/,
+// Licensed under the Apache License 2.0
 //
 
 using System;
@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
 {
     internal class NativeMethods
     {
-        
+
         [StructLayout(LayoutKind.Sequential)]
         internal struct CREDENTIAL
         {
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             [MarshalAs(UnmanagedType.LPWStr)]
             public string UserName;
         }
-        
+
         [DllImport("Advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern bool CredRead(string target, CredentialType type, int reservedFlag, out IntPtr CredentialPtr);
 
@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern bool CredEnumerateW(string filter, int flag, out uint count, out IntPtr pCredentials);
-        
+
         [DllImport("ole32.dll")]
         internal static extern void CoTaskMemFree(IntPtr ptr);
 
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             }
 
             // Perform any specific actions to release the handle in the ReleaseHandle method.
-            // Often, you need to use Pinvoke to make a call into the Win32 API to release the 
+            // Often, you need to use Pinvoke to make a call into the Win32 API to release the
             // handle. In this case, however, we can use the Marshal class to release the unmanaged memory.
 
             protected override bool ReleaseHandle()
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
                     SetHandleAsInvalid();
                     return true;
                 }
-                // Return false. 
+                // Return false.
                 return false;
             }
         }

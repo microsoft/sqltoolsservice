@@ -10,6 +10,7 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Utility;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.Migration
 {
@@ -17,7 +18,7 @@ namespace Microsoft.SqlTools.Migration
     {
         private const string ServiceName = "MicrosoftSqlToolsMigration.exe";
 
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             try
             {
@@ -51,7 +52,7 @@ namespace Microsoft.SqlTools.Migration
                     });
 
                 serviceHost.RegisterAndInitializeService(new MigrationService());
-                serviceHost.WaitForExit();
+                await serviceHost.WaitForExitAsync();
                 Logger.Verbose("SqlTools Migration Server exiting....");
             }
             catch (Exception ex)

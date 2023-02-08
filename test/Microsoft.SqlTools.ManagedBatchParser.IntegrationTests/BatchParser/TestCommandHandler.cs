@@ -13,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
-    internal class TestCommandHandler : ICommandHandler
+    public class TestCommandHandler : ICommandHandler
     {
         private Parser parser;
         private StringBuilder outputString;

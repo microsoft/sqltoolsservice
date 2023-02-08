@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<!-- Targeting both net6.0 and net472 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
-		<TargetFrameworks>net6.0;net472</TargetFrameworks>
+		<!-- Targeting both net7.0 and net472 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
+		<TargetFrameworks>net7.0;net472</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
@@ -13,6 +13,8 @@
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<Product>Microsoft SqlTools Managed batch parser</Product>
+		<!-- TODO FIX THESE WARNINGS ASAP -->
+		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
@@ -25,7 +27,7 @@
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework) == 'net6.0'">
+	<ItemGroup Condition="$(TargetFramework) == 'net7.0'">
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />

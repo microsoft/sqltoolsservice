@@ -599,7 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (currentList != null &&
                 token != null && !string.IsNullOrWhiteSpace(token.Text) &&
-                token.Text.All(ch => char.IsLetter(ch)) &&
+                token.Text.All(char.IsLetter) &&
                 currentList.All(x => string.Compare(x.Label, token.Text, true) != 0
                 ))
             {

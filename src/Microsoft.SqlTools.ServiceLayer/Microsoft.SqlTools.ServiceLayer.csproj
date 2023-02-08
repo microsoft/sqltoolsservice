@@ -13,6 +13,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+		<!-- TODO FIX THESE WARNINGS ASAP -->
+		<NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854;CS8600;CS8603;CS8625</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup>

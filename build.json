@@ -9,24 +9,24 @@
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "net6.0"
+      "net7.0"
     ],
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net6.0"
+      "net7.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
-      "net6.0"
+      "net7.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
-      "net6.0"
+      "net7.0"
     ]
   },
   "Frameworks": [
-    "net6.0"
+    "net7.0"
   ],
   "FxFrameworks":[
     "net472",
-    "net6.0"
+    "net7.0"
   ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
