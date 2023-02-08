@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task RunWithErrorHandling(Action action, RequestContext<ResultStatus> requestContext)
+        public static async Task RunWithErrorHandling(Action action, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(async () => await Task.Run(action), requestContext);
         }
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task RunWithErrorHandling(Func<Task> action, RequestContext<ResultStatus> requestContext)
+        public static async Task RunWithErrorHandling(Func<Task> action, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling<ResultStatus>(async () =>
             {
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task RunWithErrorHandling<T>(Func<T> action, RequestContext<T> requestContext) where T : ResultStatus, new()
+        public static async Task RunWithErrorHandling<T>(Func<T> action, RequestContext<T> requestContext) where T : ResultStatus, new()
         {
             await RunWithErrorHandling<T>(async () => await Task.Run(action), requestContext);
         }
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="action"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task RunWithErrorHandling<T>(Func<Task<T>> action, RequestContext<T> requestContext) where T : ResultStatus, new()
+        public static async Task RunWithErrorHandling<T>(Func<Task<T>> action, RequestContext<T> requestContext) where T : ResultStatus, new()
         {
             try
             {
