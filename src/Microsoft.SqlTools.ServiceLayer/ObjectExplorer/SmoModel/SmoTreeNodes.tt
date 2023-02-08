@@ -101,6 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		var strategy = nodeElement.GetAttribute("Strategy");
 		var nodeType = nodeElement.GetAttribute("NodeType");
 		var ChildQuerierTypes = nodeElement.GetAttribute("ChildQuerierTypes");
+		var ConditionalChildQuerierTypes = nodeElement.GetElementsByTagName("ConditionalChildQuerierType");
 		var TreeNode = nodeElement.GetAttribute("TreeNode");
 		var isAsync = nodeElement.GetAttributeNode("IsAsyncLoad");
 		var disableSort = nodeElement.GetAttributeNode("DisableSort");
@@ -267,12 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					var doesSettingsFlagExist = !String.IsNullOrEmpty(settingsFlag);
 
 					if(doesSettingsFlagExist){
-						var notOperator = "";
-						if(settingsFlag.Substring(0, 1) == "!"){
-							notOperator = "!";
-							settingsFlag = settingsFlag.Substring(1, settingsFlag.Length-1);
-						}
-						WriteLine("			if ({0}WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.{1})", notOperator, settingsFlag);
+						WriteLine("			if ({0})", GetSettingsString(settingsFlag));
 						WriteLine("			{");
 						PushIndent(indent);
 					}
@@ -285,7 +281,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					{
 						WriteLine("            currentChildren.Add(new FolderNode {");
 						WriteLine("                NodeValue = {0},", childAsXmlElement.GetAttribute("LocLabel"));
-						WriteLine("                NodeType = \"{0}\",", "Folder");
 						WriteLine("                NodeTypeId = NodeTypes.{0},", childName);
 						WriteLine("                IsSystemObject = {0},", child.GetAttribute("IsSystemObject") == "1" ? "true" : "false");
 
@@ -312,28 +307,60 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 			if (!string.IsNullOrWhiteSpace(strategy))
 			{
-				string[] allTypes = ChildQuerierTypes.Split(new [] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-				WriteLine("");
-				WriteLine("        internal override Type[] ChildQuerierTypes");
-				WriteLine("        {");
-				WriteLine("            get");
-				WriteLine("            {");
-				if (!string.IsNullOrWhiteSpace(ChildQuerierTypes))
+				if(ConditionalChildQuerierTypes.Count > 0)
 				{
-					Write("                return new [] {");
-					foreach (var typeToRe in allTypes)
+					WriteLine("");
+					WriteLine("        internal override Type[] ChildQuerierTypes");
+					WriteLine("        {");
+					WriteLine("            get");
+					WriteLine("            {");
+					WriteLine("					List<Type> conditionalTypesList = new List<Type>();");
+					foreach(XmlElement Querier in ConditionalChildQuerierTypes)
 					{
-					   Write(" typeof({0}Querier),", typeToRe);
+						var settingsFlag = Querier.GetAttribute("SettingsFlag");
+						var QuerierName = Querier.GetAttribute("Name");
+						
+						if(!String.IsNullOrEmpty(settingsFlag))
+						{
+							WriteLine("					if ({0})", GetSettingsString(settingsFlag));
+							WriteLine("					{");
+							WriteLine("						conditionalTypesList.Add(typeof({0}Querier));", QuerierName);
+							WriteLine("					}");
+						}
+						else
+						{
+							WriteLine("					conditionalTypesList.Add(typeof({0}Querier));", QuerierName);
+						}
 					}
-					WriteLine(" };");
-				}
-				else
+					WriteLine("					return conditionalTypesList.ToArray();");
+					WriteLine("            }");
+					WriteLine("        }");
+				} 
+				else 
 				{
-					WriteLine("                return new Type[0];");
+					string[] allTypes = ChildQuerierTypes.Split(new [] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+					WriteLine("");
+					WriteLine("        internal override Type[] ChildQuerierTypes");
+					WriteLine("        {");
+					WriteLine("            get");
+					WriteLine("            {");
+					if (!string.IsNullOrWhiteSpace(ChildQuerierTypes))
+					{
+						Write("                return new [] {");
+						foreach (var typeToRe in allTypes)
+						{
+						Write(" typeof({0}Querier),", typeToRe);
+						}
+						WriteLine(" };");
+					}
+					else
+					{
+						WriteLine("                return new Type[0];");
+					}
+					WriteLine("            }");
+					WriteLine("        }");
 				}
-				WriteLine("            }");
-				WriteLine("        }");
-
+				
 				WriteLine("");
 
 				WriteLine("        public override TreeNode CreateChild(TreeNode parent, object context)");
@@ -623,4 +650,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine(indent + "    }");
 		}
 	}
+
+    /// <summary>
+	/// Helper function to parse out settings Name with not operators and return code to 
+	/// </summary>
+    public string GetSettingsString(string settingsName)
+    {
+        var notOperator = "";
+        if(settingsName.Substring(0, 1) == "!"){
+            notOperator = "!";
+            settingsName = settingsName.Substring(1, settingsName.Length-1);
+        }
+        return String.Format("{0}WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.{1}", notOperator, settingsName);
+    }
 #>

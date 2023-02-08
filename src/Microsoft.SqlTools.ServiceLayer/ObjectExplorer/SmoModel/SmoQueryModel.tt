@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine("filters.Add(new NodePropertyFilter()");
 						WriteLine("{");
 						PushIndent(indent);
-						WriteLine("Property = \"{0}\",", filterName);
+						WriteLine("Property = nameof({0}),", filterName);
 						WriteLine("Type = typeof({0}),", filterType);
 						WriteLine("Values = new List<object> {{ {0}.{1} }},", parentVar, filterField);
                         if(!string.IsNullOrWhiteSpace(filterValidFor))

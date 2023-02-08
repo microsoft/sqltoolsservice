@@ -54,6 +54,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return string.Empty;
         }
 
+        /// <summary>
+        /// Appends a list of property filters to an URN query string
+        /// </summary>
         public static string AddPropertyFilterToFilterString(string filterString, IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
         {
             if(String.IsNullOrEmpty(filterString))

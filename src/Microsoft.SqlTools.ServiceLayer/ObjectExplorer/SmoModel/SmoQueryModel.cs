@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -436,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -486,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -845,7 +845,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -895,7 +895,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -942,7 +942,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -989,7 +989,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -1036,7 +1036,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -1083,7 +1083,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -1130,7 +1130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 
@@ -1960,7 +1960,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
-                    Property = "Schema",
+                    Property = nameof(Schema),
                     Type = typeof(string),
                     Values = new List<object> { parentSchema.Name },
                     ValidFor = ValidForFlag.All 

@@ -29,9 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             try
             {
+                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
                 OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                 RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
                 OnBeginAsyncOperations(parent);
             }
             catch(Exception ex)

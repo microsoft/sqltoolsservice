@@ -62,8 +62,8 @@
   <Node Name="ServerLevelServerTriggers" LocLabel="SR.SchemaHierarchy_ServerTriggers" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerTrigger" ChildQuerierTypes="SqlServerDdlTrigger"/>
   <Node Name="ServerLevelErrorMessages" LocLabel="SR.SchemaHierarchy_ErrorMessages" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelErrorMessage" ChildQuerierTypes="SqlErrorMessage"/>
   
-  <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel">
-    <Child Name="ExpandableSchemas" SettingsFlag="SchemaBasedOE"/>
+  <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel" TreeNode="ExpandableSchemaTreeNode">
+    <ConditionalChildQuerierType Name="SqlSchema" SettingsFlag="SchemaBasedOE"/>
     <Child Name="Tables" SettingsFlag="!SchemaBasedOE"/>
     <Child Name="Views" SettingsFlag="!SchemaBasedOE"/>
     <Child Name="Synonyms" SettingsFlag="!SchemaBasedOE"/>
@@ -73,8 +73,6 @@
     <Child Name="Storage"/>
     <Child Name="Security"/>
   </Node>
-
-  <Node Name="ExpandableSchemas" LocLabel="SR.SchemaHierarchy_Schemas" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSchema"  NodeType="Schema" TreeNode="ExpandableSchemaTreeNode" Image="Schema"/>
 
   <Node Name="ExpandableSchema" LocLabel="string.empty"  BaseClass="ModelBased" Strategy="CreateModel">
     <Child Name="Tables"/>
