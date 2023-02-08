@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath = "PreDeploymentScript.sql";
             string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
-            await File.WriteAllTextAsync(scriptFullPath, "SELECT 7");
+            await File.WriteAllTextAsync(scriptFullPath, "SELECT 'Deployment starting...'");
             Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
 
             await service.HandleAddPreDeploymentScriptRequest(new SqlProjectScriptParams()
@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath = "PostDeploymentScript.sql";
             string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
-            await File.WriteAllTextAsync(scriptFullPath, "SELECT 7");
+            await File.WriteAllTextAsync(scriptFullPath, "SELECT 'Deployment finished!'");
             Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
 
             await service.HandleAddPostDeploymentScriptRequest(new SqlProjectScriptParams()
