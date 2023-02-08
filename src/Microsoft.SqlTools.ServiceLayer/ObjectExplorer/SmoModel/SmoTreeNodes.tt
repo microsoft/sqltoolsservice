@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine("    {");
             if(!string.IsNullOrEmpty(nodeElement.GetAttribute("PutFoldersAfterNodes")))
             {
-                WriteLine("        public bool PutFolderAfterNodes = {0};", nodeElement.GetAttribute("PutFoldersAfterNodes"));
+                WriteLine("        public override bool PutFoldersAfterNodes => {0};", nodeElement.GetAttribute("PutFoldersAfterNodes"));
             }
 			WriteLine("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ nameof(NodeTypes.{0}) }}; }}", type);
 

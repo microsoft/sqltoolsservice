@@ -675,7 +675,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class DatabaseChildFactory : SmoChildFactoryBase
     {
-        public bool PutFolderAfterNodes = true;
+        public override bool PutFoldersAfterNodes => true;
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Database) }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)

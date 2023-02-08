@@ -74,6 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// A flag that puts child folders after nodes when the node is expanded.
         /// </summary>
         /// <value></value>
-        public bool PutFoldersAfterNodes { get; set; } = false;
+        public virtual bool PutFoldersAfterNodes => false;
     }
 }
