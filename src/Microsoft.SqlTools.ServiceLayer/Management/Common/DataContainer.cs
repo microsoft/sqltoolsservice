@@ -1150,12 +1150,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             containerDoc ??= CreateDataContainerDocument(connInfo, databaseExists);
 
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
-
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
+
+            return CreateDataContainer(connectionInfoWithConnection, containerDoc);
+        }
+
+        /// <summary>
+        /// Create a data container object
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
+        internal static CDataContainer CreateDataContainer(
+            SqlConnectionInfoWithConnection connectionInfoWithConnection,            
+            XmlDocument containerDoc)
+        {
             CDataContainer dataContainer = new CDataContainer(ServerType.SQL, connectionInfoWithConnection, true);
             dataContainer.Init(containerDoc);
-
             return dataContainer;
         }
 

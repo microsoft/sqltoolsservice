@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,71 +12,35 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
     public static class SqlStudioConstants
     {
         // context
-        public const string SSMSPrefix = "ssms:";
         public const string UrnPath = "ssms:UrnPath";
-        public const string UrnPathSkeleton = "ssms:UrnPathSkelton";
-        public const string UrnNotificationPath = "ssms:UrnNotificationPath";
-        public const string Name = "ssms:Name";
-        public const string Server = "ssms:Server";
-        public const string HelpID = "ssms:HelpID";
-        public const string ConnectionInfo = "ssms:ConnectionInfo";
-        public const string UIConnectionInfo = "ssms:UIConnectionInfo";
-        public const string CompatibilityLevel = "ssms:CompatibilityLevel";
         public const string NodeContexts = "ssms:NodeContexts";
-        public const string QueryHint = "ssms:QueryHint";
-        public const string PowerShellUrnHint = "ssms:PowerShellUrnHint";
+    }
 
-        public const string ActionMoniker = "ssms:ActionMoniker";
-        public const string ActionHandlerMoniker = "ssms:ActionHandlerMoniker";
-
-        public const string SelectedExplorerViewItems = "ssms:SelectedExplorerViewItems";
-
-        public static string ContextDomain<TDomain>()
-        {
-            return "ssms:Domain:" + typeof(TDomain).FullName;
-        }
-
-        public static string ContextInstance<TInstance>()
-        {
-            return "ssms:Instance:" + typeof(TInstance).FullName;
-        }
-
-
-
-        // user settings
-        public const string CurrentUserDirectory = "ssms:CurrentUserDirectory";
-        public const string DefaultUserDirectory = "ssms:DefaultUserDirectory";
-
-        // log viewer
-        public const string LogType = "ssms:LogType";
-        public const string ShowNTLog = "ssms:ShowNTLog";
-
-        // host attributes
-
+    /// <summary>
+    /// IPropertyHandler defines a means of adding extra properties to the nodes property bag.
+    /// </summary>
+    public interface IPropertyHandler
+    {
         /// <summary>
-        /// Set to a non-null value by non-SSMS action hosts. 
-        /// "minimal" informs the action handler to act as a top level form
-        /// "full" informs the action handler there's a full hosting shell
+        /// Populate a properties collection.
         /// </summary>
-        public const string ShellType = "ssms:ShellType";
-
-        /// <summary>
-        /// Value of the ShellType property in a hosting app without its own top level form
-        /// </summary>
-        public const string ShellTypeMinimal = "minimal";
-
-        /// <summary>
-        /// Value of the ShellType property in a hosting app with its own top level form
-        /// </summary>
-        public const string ShellTypeFull = "full";
+        /// <param name="source">Information relating to the source node.</param>
+        /// <param name="properties">Collection to add the properties.</param>
+        /// <remarks>
+        /// Properties brought back from the enumerator will be placed into the collection before any property
+        /// handlers are called. It is possible to access these properties using this collection.
+        /// </remarks>
+        void PopulateProperties(NodeContext source, NameObjectCollection properties);
     }
 
     public interface IPropertyDictionary : ISfcPropertySet
@@ -144,86 +110,521 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
     {
     }
 
-    public interface INodeContext
+
+    public class NodeContext
     {
-
+        #region private members
         /// <summary>
-        /// Parent node
+        /// Name of the object
         /// </summary>
-        /// <remarks>
-        /// null if this is the root.
-        /// </remarks>
-        //INodeInformation Parent { get; }
-
+        string name;
         /// <summary>
-        /// Caption for this node.
+        /// connection to the server
         /// </summary>
-        string Name { get; }
-
+        private SqlOlapConnectionInfoBase connection;
         /// <summary>
-        /// Non localized name. Includes all parts of Urn Key, e.g. Schema
+        /// Connection context
         /// </summary>
-        string InvariantName
+        private string context;
+        /// <summary>
+        /// Parent node in the tree
+        /// </summary>
+        //private INodeInformation parent;
+        /// <summary>
+        /// Weak reference to the tree node this is paired with
+        /// </summary>
+        WeakReference NavigableItemReference;
+        /// <summary>
+        /// Property handlers
+        /// </summary>
+        private IList<IPropertyHandler> propertyHandlers;
+        /// <summary>
+        /// Property bag
+        /// </summary>
+        NameObjectCollection properties;
+        /// <summary>
+        /// Object to lock on when we are modifying public state
+        /// </summary>
+        private object itemStateLock = new object();
+        /// <summary>
+        /// Cached UrnPath
+        /// </summary>
+        private string urnPath;
+        #endregion
+
+        #region constructors
+        public NodeContext(SqlOlapConnectionInfoBase connection, string name, string context) : this(connection, name, context, null) { }
+        public NodeContext(NodeContext nodeInformation) : this(nodeInformation.Connection, nodeInformation.Name, nodeInformation.ContextUrn, nodeInformation) { }
+        public NodeContext(SqlOlapConnectionInfoBase connection, string name, string context, NodeContext parent)
         {
-            get;
+            if (connection == null)
+            {
+                throw new ArgumentNullException("connection");
+            }
+            if (context == null)
+            {
+                throw new ArgumentNullException("context");
+            }
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            this.connection = connection;
+            this.context = context;
+            //this.parent = (parent.Context == null || parent.Context.Length == 0) ? null : parent;
+            this.name = name;
+
+            properties = new NameObjectCollection();
+            propertyHandlers = null;
+            NavigableItemReference = null;
+        }
+        #endregion
+
+        #region INodeInformation implementation
+        public SqlOlapConnectionInfoBase Connection
+        {
+            get
+            {
+                return this.connection;
+            }
+            set
+            {
+                lock (this.itemStateLock)
+                {
+                    this.connection = value;
+                }
+            }
+        }
+        public string ContextUrn
+        {
+            get
+            {
+                return this.context;
+            }
+            set
+            {
+                lock (this.itemStateLock)
+                {
+                    this.context = value;
+                }
+            }
         }
 
-        /// <summary>
-        /// Hierarchy this node belongs to
-        /// </summary> 
-        //IExplorerHierarchy Hierarchy { get; }
+        public string NavigationContext
+        {
+            get 
+            {
+                return GetNavigationContext(this); 
+            }
+        }
+
+        public string UrnPath
+        {
+            get
+            {
+                this.urnPath ??= NodeContext.BuildUrnPath(this.NavigationContext);
+                return this.urnPath;
+            }
+        }
+
+        // public INodeInformation Parent
+        // {
+        //     get
+        //     {
+        //         return this.parent;
+        //     }
+        // }
+        public string Name
+        {
+            get
+            {
+                return this.name;
+            }
+        }
+        public string InvariantName
+        {
+            get
+            {
+                string name = this["UniqueName"] as string;
+                
+                if (!string.IsNullOrEmpty(name))
+                    return name;
+
+                StringBuilder uniqueName = new StringBuilder();
+
+                foreach (string urnValue in GetUrnPropertyValues())
+                {
+                    if(uniqueName.Length > 0)
+                        uniqueName.Append(".");
+
+                    uniqueName.Append(urnValue);
+                }
+
+                return (uniqueName.Length > 0) ? uniqueName.ToString() : new Urn(ContextUrn).Type;
+            }
+        }
 
         /// <summary>
         /// property bag for this node
         /// </summary>
-        object this[string name] { get; }
-        /// <summary>
-        /// Connection information.
-        /// </summary>
-        SqlOlapConnectionInfoBase Connection
+        public object this[string name] => properties[name];
+
+        public object CreateObjectInstance()
         {
-            get;
-            set;
+            return CreateObjectInstance(this.ContextUrn, this.Connection);
+        }
+
+        #endregion
+
+        #region ISfcPropertyProvider implementation
+
+        public NameObjectCollection GetPropertySet()
+        {
+            return this.properties;
+        }
+
+        // event EventHandler<SfcPropertyMetadataChangedEventArgs> ISfcNotifyPropertyMetadataChanged.PropertyMetadataChanged
+        // {
+        //     add { throw new NotSupportedException(); }
+        //     remove { throw new NotSupportedException(); }
+        // }
+
+        // event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        // {
+        //     add { throw new NotSupportedException(); }
+        //     remove { throw new NotSupportedException(); }
+        // }
+
+        #endregion
+
+        #region NodeName helper
+        public string NodeName
+        {
+            get
+            {
+                return this.name;
+            }
+            set
+            {
+                lock (this.itemStateLock)
+                {
+                    this.name = value;
+                }
+            }
+        }
+        #endregion
+
+        // #region NavigableItem weak reference
+        // public NavigableItem NavigableItem
+        // {
+        //     get
+        //     {
+        //         NavigableItem item = null;
+        //         if (NavigableItemReference != null && NavigableItemReference.IsAlive)
+        //         {
+        //             item = (NavigableItem)NavigableItemReference.Target;
+        //         }
+        //         return item;
+        //     }
+        //     set
+        //     {
+        //         lock (this.itemStateLock)
+        //         {
+        //             NavigableItemReference = new WeakReference(value);
+        //         }
+        //     }
+        // }
+        // #endregion
+
+        // #region deprecated treenode code
+        // // No longer used.
+        // public ExplorerHierarchyNode TreeNode
+        // {
+        //     get
+        //     {
+        //         return null;
+        //     }
+        //     set
+        //     {
+        //         ;
+        //     }
+        // }
+        // #endregion
+
+        #region property bag support
+
+        public NameObjectCollection Properties
+        {
+            get
+            {
+                return this.properties;
+            }
+            set
+            {
+                lock (this.itemStateLock)
+                {
+                    this.properties = value;
+                }
+            }
+        }
+        public IList<IPropertyHandler> PropertyHandlers
+        {
+            get
+            {
+                return this.propertyHandlers;
+            }
+            set
+            {
+                lock (this.itemStateLock)
+                {
+                    this.propertyHandlers = value;
+                }
+            }
+        }
+        public void PopulateProperties()
+        {
+            lock (this.itemStateLock)
+            {
+                // opportunity for property handlers to update themselves
+                if (this.propertyHandlers != null)
+                {
+                    if (this.propertyHandlers.Count > 0)
+                    {
+                        for (int i = 0; i < this.propertyHandlers.Count; ++i)
+                        {
+                            propertyHandlers[i].PopulateProperties(this, properties);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region helpers
+
+        public static string GetNavigationContext(NodeContext source)
+        {
+            string context = source.ContextUrn;
+            // see if this is a folder
+            string name = source["UniqueName"] as string;
+            if (name == null || name.Length == 0)
+            {
+                name = source.Name;
+            }
+            string queryHint = source["QueryHint"] as string;
+            if (queryHint == null || queryHint.Length == 0)
+            {
+                context = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture
+                    , "{0}/Folder[@Name='{1}']"
+                    , source.ContextUrn
+                    , Urn.EscapeString(name));
+            }
+            else
+            {
+                context = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture
+                    , "{0}/Folder[@Name='{1}' and @Type='{2}']"
+                    , source.ContextUrn
+                    , Urn.EscapeString(name)
+                    , Urn.EscapeString(queryHint));
+
+            }
+            return context;
         }
 
         /// <summary>
-        /// Enumerators urn for this node.
-        /// </summary>
-        string Context
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        ///  returns scheleton Path for current context
-        /// </summary>
-        string UrnPath
-        {
-            get;
-        }
-
-        /// <summary>
-        ///  returns Notifocation (folder) context
-        /// </summary>
-        string NavigationContext
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Creates an instance of the object 
-        /// defined by Context and Connection properties
+        /// Get the values of the keys in the current objects Urn
+        /// e.g. For Table[@Name='Foo' and @Schem='Bar'] return Foo and Bar
         /// </summary>
         /// <returns></returns>
-        object CreateObjectInstance();
+        private IEnumerable<string> GetUrnPropertyValues()
+        {
+            Urn urn = new Urn(ContextUrn);
+            Enumerator enumerator = new Enumerator();
+            RequestObjectInfo request = new RequestObjectInfo(urn, RequestObjectInfo.Flags.UrnProperties);
+            
+            ObjectInfo info = enumerator.Process(connection, request);
+
+            if (info == null || info.UrnProperties == null)
+                yield break;
+
+            // $ISSUE (stanisc, VSTS 323552) - Enumerator returns "Name" as an Urn Property for
+            // OlapServer but the actual OlapServer Urns contain ID
+            if (urn.XPathExpression[0].Name == "OlapServer")
+            {
+                yield return urn.GetAttribute("ID");
+            }
+            else
+            {
+                // Special order for Schema and Name
+                if (properties.Contains("Schema"))
+                    yield return urn.GetAttribute("Schema");
+
+                if (properties.Contains("Name"))
+                    yield return urn.GetAttribute("Name");
+            }
+
+            foreach (ObjectProperty obj in info.UrnProperties)
+            {
+                if (obj.Name.Equals("Name", StringComparison.OrdinalIgnoreCase) || obj.Name.Equals("Schema", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (obj.Name.Equals("ID", StringComparison.OrdinalIgnoreCase) && urn.XPathExpression[0].Name == "OlapServer")
+                    continue;
+                yield return urn.GetAttribute(obj.Name);
+            }
+        }
+
+
+        public static string BuildUrnPath(string urn)
+        {
+            StringBuilder urnPathBuilder = new StringBuilder(urn != null ? urn.Length : 0);
+
+            string folderName = string.Empty;
+            bool replaceLeafValueInQuery = false;
+
+            if (!string.IsNullOrEmpty(urn))
+            {
+                Urn urnObject = new Urn(urn);
+
+                while (urnObject != null)
+                {
+                    string objectType = urnObject.Type;
+                   
+                    if (string.CompareOrdinal(objectType, "Folder") == 0)
+                    {
+                        folderName = urnObject.GetAttribute("Name").Replace(" ", "");
+                        if (folderName != null)
+                        {
+                            objectType = string.Format("{0}Folder", folderName);
+                        }
+                    }
+                    // else if (string.CompareOrdinal(objectType, "DTS") == 0)
+                    // {
+                    //     // Special processing for DTS URNs. They have all information encoded 
+                    //     // in attributes
+                    //     string packagePath = urnObject.GetAttribute("Path");
+                    //     if (packagePath != null && packagePath.Length > 0)
+                    //     {
+                    //         // This is a 'Stored Packages' subtree
+                    //         // Figure out it if is a leaf or folder node
+                    //         string leafPackage = urnObject.GetAttribute("Leaf");
+                    //         if (string.CompareOrdinal(leafPackage, "1") == 0)
+                    //         {
+                    //             urnPathBuilder.Insert(0, "StoredPackage");
+                    //         }
+                    //         else
+                    //         {
+                    //             urnPathBuilder.Insert(0, "StoredPackagesFolder");
+                    //         }
+                    //     }
+                    // }
+
+                    // Build the path
+                    if (urnPathBuilder.Length > 0)
+                    {
+                        urnPathBuilder.Insert(0, '/');
+                    }
+
+                    if (objectType.Length > 0)
+                    {
+                        urnPathBuilder.Insert(0, objectType);
+                    }
+
+                    // Remove one element from the urn
+                    urnObject = urnObject.Parent;
+                }
+
+                // Build the query
+                if (replaceLeafValueInQuery)
+                {
+                    // This is another special case for DTS urns.
+                    // When we want to request data for an individual package
+                    // we need to use a special urn with Leaf="2" attribute,
+                    // replacing the Leaf='1' that comes from OE.
+                    urnObject = new Urn(urn.Replace("@Leaf='1'", "@Leaf='2'"));
+                }
+                else
+                {
+                    urnObject = new Urn(urn);
+                }
+            }
+
+            return urnPathBuilder.ToString();
+        }
+
+
+        public static object CreateObjectInstance(string urn, SqlOlapConnectionInfoBase connectionInfo)
+        {
+            if (string.IsNullOrEmpty(urn))
+            {
+                return null;
+            }
+
+            // we support only SqlConnection right now
+            if (!(connectionInfo is SqlConnectionInfo))
+            {
+                return null;
+            }
+            
+            try
+            {
+                SqlConnection connection = connectionInfo.CreateConnectionObject() as SqlConnection;
+                if (connection == null)
+                {
+                    return null;
+                }
+
+                SfcObjectQuery oq = null;
+                Urn urnObject = new Microsoft.SqlServer.Management.Sdk.Sfc.Urn(urn);
+
+                // i have to find domain from Urn.
+                // DomainInstanceName thrown NotImplemented Exception
+                // so, i have to walk Urn tree to the top
+                Urn current = urnObject;
+                while (current.Parent != null)
+                {
+                    current = current.Parent; 
+                }
+                string domainName = current.Type;
+
+                if (domainName == "Server")
+                {
+                    oq = new SfcObjectQuery(new Microsoft.SqlServer.Management.Smo.Server(new ServerConnection(connection)));
+                }
+                else
+                {
+                    // no need to check return value - this method will throw, if domain is incorrect
+                    SfcDomainInfo ddi = Microsoft.SqlServer.Management.Sdk.Sfc.SfcRegistration.Domains[domainName];
+
+                    ISfcDomain domain = (ISfcDomain)Activator.CreateInstance(ddi.RootType, new SqlStoreConnection(connection));
+
+                    oq = new SfcObjectQuery(domain);
+                }
+
+                foreach (object obj in oq.ExecuteIterator(new SfcQueryExpression(urn), null, null))
+                {
+                    return obj;
+                }
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError(ex.Message);
+                return null;
+            }
+
+            return null;
+        }
+
+        #endregion
+
     }
 
-    internal class DataContainerXmlGenerator
+    public class DataContainerXmlGenerator
     {
         #region private members
         /// <summary>
-        /// radditional xml to be passed to the dialog
+        /// additional xml to be passed to the dialog
         /// </summary>
         protected string rawXml = string.Empty;
         /// <summary>
@@ -237,17 +638,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         protected string? invokeMultiChildQueryXPath = null;
 
-        private INodeContext parent;
+        private NodeContext context;
         /// <summary>
         /// The node in the hierarchy that owns this
         /// </summary>
-        public virtual INodeContext Parent
+        public virtual NodeContext Context
         {
-            get { return parent; }
-            set { parent = value; }
+            get { return context; }
+            set { context = value; }
         }
 
-        private string mode = null;
+        private string mode;
         /// <summary>
         /// mode
         /// </summary>
@@ -266,8 +667,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// 
         /// </summary>
-        public DataContainerXmlGenerator()
+        public DataContainerXmlGenerator(NodeContext context, string mode = "new")
         {
+            this.context = context;
+            this.mode = mode;
         }
 
         // /// <summary>
@@ -296,20 +699,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             //  RAWXML is xml that is added to the document we're passing to the dialog with no additional
             //  processing
-            if (String.Compare(name, "rawxml", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(name, "rawxml", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 this.rawXml += value.ToString();
             }
             // ITEMTYPE is for new  menu items where we do not  want to pass in the information for this type
             // e.g. New Database menu   item on an existing database should not pass    the database name   through,
             // so we set ITEMTYPE as Database.
-            else if (String.Compare(name, "itemtype", StringComparison.OrdinalIgnoreCase) == 0)
+            else if (string.Compare(name, "itemtype", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 this.itemType = value.ToString();
             }
             // Allows us to query below the current level in the    enumerator and  pass the    results through to
             // the dialog. Usefull  for Do xyz on all   for menu's on folders.
-            else if (String.Compare(name, "multichildqueryxpath", StringComparison.OrdinalIgnoreCase) == 0)
+            else if (string.Compare(name, "multichildqueryxpath", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 this.invokeMultiChildQueryXPath = value.ToString();
             }
@@ -452,7 +855,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
         protected virtual void GenerateConnectionXml(XmlWriter xmlWriter)
         {
-            ToolMenuItemHelper.GenerateConnectionXml(xmlWriter, Parent);
+            ToolMenuItemHelper.GenerateConnectionXml(xmlWriter, this.Context);
         }
         /// <summary>
         /// Generate SQL Server specific connection information
@@ -460,7 +863,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
         protected virtual void GenerateSqlConnectionXml(XmlWriter xmlWriter)
         {
-            ToolMenuItemHelper.GenerateSqlConnectionXml(xmlWriter, Parent);
+            ToolMenuItemHelper.GenerateSqlConnectionXml(xmlWriter, this.Context);
         }
 
         // /// <summary>
@@ -525,7 +928,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
         protected virtual void GenerateIndividualItemContext(XmlWriter xmlWriter)
         {
-            ToolMenuItemHelper.GenerateIndividualItemContext(xmlWriter, itemType, Parent);
+            ToolMenuItemHelper.GenerateIndividualItemContext(xmlWriter, itemType, this.Context);
         }
 
         /// <summary>
@@ -550,14 +953,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             // generate the request
             Request request = new Request();
             // only need urn
-            request.Fields = new String[] { "Urn" };
-            request.Urn = new Urn(this.Parent.Context + "/" + this.invokeMultiChildQueryXPath);
+            request.Fields = new string[] { "Urn" };
+            request.Urn = new Urn(this.Context.ContextUrn + "/" + this.invokeMultiChildQueryXPath);
 
             DataTable dt;
 
             // run the query
             Enumerator enumerator = new Enumerator();
-            EnumResult result = enumerator.Process(this.Parent.Connection, request);
+            EnumResult result = enumerator.Process(this.Context.Connection, request);
 
             if (result.Type == ResultType.DataTable)
             {
@@ -584,16 +987,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="urn">Urn to be written</param>
         protected virtual void WriteUrnInformation(XmlWriter xmlWriter, string? urn)
         {
-            ToolMenuItemHelper.WriteUrnInformation(xmlWriter, urn, Parent);
+            ToolMenuItemHelper.WriteUrnInformation(xmlWriter, urn, this.Context);
         }
         /// <summary>
         /// Get the list of Urn attributes for this item.
         /// </summary>
         /// <param name="urn">Urn to be checked</param>
-        /// <returns>String array of Urn attribute names. This can be zero length but will not be null</returns>
+        /// <returns>string array of Urn attribute names. This can be zero length but will not be null</returns>
         protected virtual string[] GetUrnAttributes(Urn urn)
         {
-            String[]? urnAttributes = null;
+            string[]? urnAttributes = null;
 
             if (urn.XPathExpression != null && urn.XPathExpression.Length > 0)
             {
@@ -603,7 +1006,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     System.Collections.SortedList list = urn.XPathExpression[index].FixedProperties;
                     System.Collections.ICollection keys = list.Keys;
 
-                    urnAttributes = new String[keys.Count];
+                    urnAttributes = new string[keys.Count];
 
                     int i = 0;
                     foreach (object o in keys)
@@ -616,7 +1019,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     }
                 }
             }
-            return urnAttributes != null ? urnAttributes : new String[0];
+            return urnAttributes != null ? urnAttributes : new string[0];
         }
         #endregion
 
@@ -844,7 +1247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //         {
         //             System.Diagnostics.Debug.Assert(false, "ToolsMenuItem.OnCreateAndShowForm: could not  get Form    object via Reflection!!!");
 
-        //             //BUGBUG - should we have internal exception in this case?
+        //             //BUGBUG - should we have public exception in this case?
         //             ArgumentException innerEx = new ArgumentException(SRError.TypeShouldBeFromDerived, "doc");
         //             throw new ApplicationException(SRError.CannotExecuteMenuCommand, innerEx);
         //         }
@@ -887,7 +1290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
         /// <param name="urn">Urn to be written</param>
-        public static void WriteUrnInformation(XmlWriter xmlWriter, string urn, INodeContext context)
+        public static void WriteUrnInformation(XmlWriter xmlWriter, string urn, NodeContext context)
         {
             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
@@ -895,13 +1298,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             xmlWriter.WriteElementString("urn", urn);
 
             // if nessesary write out the olap info
-            if (context.Connection is OlapConnectionInfo)
-            {
-                xmlWriter.WriteStartElement("olappath");
-                // ConvertUrnToDataPath returns XML so write it as raw
-                xmlWriter.WriteRaw(UrnDataPathConverter.ConvertUrnToDataPath(new Urn(urn)));
-                xmlWriter.WriteEndElement();
-            }
+            // if (context.Connection is OlapConnectionInfo)
+            // {
+            //     xmlWriter.WriteStartElement("olappath");
+            //     // ConvertUrnToDataPath returns XML so write it as raw
+            //     xmlWriter.WriteRaw(UrnDataPathConverter.ConvertUrnToDataPath(new Urn(urn)));
+            //     xmlWriter.WriteEndElement();
+            // }
 
         }
 
@@ -909,12 +1312,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// Generate the XML that will allow the dialog to connect to the server
         /// </summary>
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-        public static void GenerateConnectionXml(XmlWriter xmlWriter, INodeContext context)
+        public static void GenerateConnectionXml(XmlWriter xmlWriter, NodeContext context)
         {
             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
             // framework also needs to know the type
-            String serverType = String.Empty;
+            string serverType = string.Empty;
 
             // Generate Connection specific XML.
             // TODO: This should be refactored away from if type == else...
@@ -954,7 +1357,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// Generate SQL Server specific connection information
         /// </summary>
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-        public static void GenerateSqlConnectionXml(XmlWriter xmlWriter, INodeContext context)
+        public static void GenerateSqlConnectionXml(XmlWriter xmlWriter, NodeContext context)
         {
             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
@@ -966,7 +1369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //         /// Generate SQL CE Specific connection informatio
         //         /// </summary>
         //         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-        //         public static void GenerateSqlCeConnectionXml(XmlWriter xmlWriter, INodeContext context)
+        //         public static void GenerateSqlCeConnectionXml(XmlWriter xmlWriter, NodeContext context)
         //         {
         //             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
@@ -983,7 +1386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //         /// Generate Report Server Specific XML
         //         /// </summary>
         //         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-        //         public static void GenerateRsConnectionXml(XmlWriter xmlWriter, INodeContext context)
+        //         public static void GenerateRsConnectionXml(XmlWriter xmlWriter, NodeContext context)
         //         {
         //             xmlWriter.WriteElementString("servername", context.Connection.ServerName);
 
@@ -1005,7 +1408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //         /// </summary>
         //         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
         //         public static void GenerateOlapConnectionXml(XmlWriter xmlWriter,
-        //             Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeContext context)
+        //             Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.NodeContext context)
         //         {
         //             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
@@ -1019,12 +1422,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// and pass each Type attribute in individually.
         /// </summary>
         /// <param name="xmlWriter">XmlWriter that these elements will be written to</param>
-        public static void GenerateIndividualItemContext(XmlWriter xmlWriter, string itemType, INodeContext context)
+        public static void GenerateIndividualItemContext(XmlWriter xmlWriter, string itemType, NodeContext context)
         {
             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
-            System.Diagnostics.Debug.Assert(context.Context != null, "No context available.");
+            System.Diagnostics.Debug.Assert(context.ContextUrn != null, "No context available.");
 
-            Urn urn = new Urn(context.Context);
+            Urn urn = new Urn(context.ContextUrn);
 
             foreach (KeyValuePair<string, string> item in ExtractUrnPart(itemType, urn))
             {
@@ -1034,7 +1437,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             // if we are filtering out the information for this level (e.g. new database on a database should not
             // pass in the information relating to the selected database. We need to make sure that the Urn we pass
             // in is trimmed as well.
-            Urn sourceUrn = new Urn(context.Context);
+            Urn sourceUrn = new Urn(context.ContextUrn);
             if (itemType != null
                 && itemType.Length > 0
                 && sourceUrn.Type == itemType)
@@ -1071,7 +1474,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     // make sure we are not supposed to skip this type. The skip allows us to bring up a "new"
                     // dialog on an item of that type without passing in context.
                     // e.g. New Database... on AdventureWorks should not pass in <database>AdventureWorks</Database>
-                    if (String.Compare(urn.Type, itemType, StringComparison.OrdinalIgnoreCase) != 0)
+                    if (string.Compare(urn.Type, itemType, StringComparison.OrdinalIgnoreCase) != 0)
                     {
                         for (int i = 0; i < urnAttributes.Length; ++i)
                         {
@@ -1100,14 +1503,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //     /// Generate the monikor for maintenanceplan Execute menuitem       
         //     /// </summary>
 
-        //     public static XmlDocument GenerateXmlDocumentForMaintenanceplanExecute(INodeContext context)
+        //     public static XmlDocument GenerateXmlDocumentForMaintenanceplanExecute(NodeContext context)
         //     {
         //         MemoryStream memoryStream = new MemoryStream();
         //         XmlTextWriter xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
 
         //         ToolMenuItemHelper.StartXmlDocument(xmlWriter);
         //         GenerateConnectionXml(xmlWriter, context);
-        //         GenerateIndividualItemContext(xmlWriter, String.Empty, context);
+        //         GenerateIndividualItemContext(xmlWriter, string.Empty, context);
         //         // write out MP execute properties to the document.
         //         //xmlWriter.WriteElementString(ReusableFormIndicator, null);
         //         xmlWriter.WriteElementString("assemblyname", "SqlManagerUi.dll");
@@ -1131,7 +1534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         //     /// We have to diable the execute menuitem on MP if the "Execute window" is already up.       
         //     /// </summary>
         //     public static void CheckAndDisableMaintenancePlanExecute(ContextMenuStrip contextMenu,
-        //         Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeContext context)
+        //         Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.NodeContext context)
         //     {
         //         XmlDocument doc = ToolMenuItemHelper.GenerateXmlDocumentForMaintenanceplanExecute(context);
         //         //get string that we'll use  as  form's moniker
@@ -1286,9 +1689,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return document;
         }
 
-
         #endregion
     }
-
-
 }

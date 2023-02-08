@@ -11,6 +11,7 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Security;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Dmf;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -189,20 +190,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     {
                         throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
                     }
+
+                    var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
+                    var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
+                    connectionInfoWithConnection.ServerConnection = serverConnection;
+
+                    string urn  = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
+                        "Server[@Name='{0}']/Database[@Name='{1}']", 
+                        Urn.EscapeString(serverConnection.ServerInstance),
+                        Urn.EscapeString(serverConnection.DatabaseName));
+
+                    NodeContext context = new NodeContext(connectionInfoWithConnection, "new_user", urn);
                     
-                    DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator();
-                    containerXml.GenerateXmlDocument();
+                    DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
+                    XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
                     //containerXml.AddDatabase(connInfo.DatabaseName);
 
-
                     bool objectExists = configAction != ConfigAction.Create;
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: objectExists);
-                    // CDataContainer dataContainer = CDataContainer.CreateDataContainer(
-                    //     connInfo, 
-                    //     databaseExists: objectExists,
-                    //     containerDoc: CDataContainer.CreateDataContainerDocument(connInfo, objectExists, itemType: "User"));
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
 
-                    var b = dataContainer.IsNewObject;
+                    //var b = dataContainer.IsNewObject;
                     using (var actions = new UserActions(dataContainer, user, configAction))
                     {
                         var executionHandler = new ExecutonHandler(actions);
