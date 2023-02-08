@@ -37,7 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     {
         WriteLine("        {0},", name);
     }
-    
+    // Folder type is required in tests.
+    WriteLine("        Folder");
 
 #>
     }
