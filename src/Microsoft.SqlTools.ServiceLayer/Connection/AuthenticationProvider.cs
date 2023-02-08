@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,34 +25,36 @@ public class AuthenticationProvider : SqlAuthenticationProvider {
     private static readonly string clientId = "a69788c6-1d43-44ed-9ca3-b83e194da255";
     private static readonly string redirectUri = "http://localhost/redirect";
     private static readonly string s_defaultScopeSuffix = "/.default";   
-    public string homedir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    public string homedir;
+    public string path;
+    public IPublicClientApplication publicClientApplication;
 
-    IPublicClientApplication publicClientApplication = PublicClientApplicationBuilder.Create(clientId)
-                .WithClientName("Sql Tools Service")
-                .WithRedirectUri(redirectUri)
-                .Build();
-
-    // Cache name: azureTokenCacheMsal-azure_publicCloud for MSAL token cache
+    public AuthenticationProvider()
+    {
+        publicClientApplication = PublicClientApplicationBuilder.Create(clientId)
+               .WithClientName("Sql Tools Service")
+               .WithRedirectUri(redirectUri)
+               .Build();
+        path = BuildDirectoryPath();
+        homedir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        // Cache name: azureTokenCacheMsal-azure_publicCloud for MSAL token cache
+        var storageProperties =
+         new StorageCreationPropertiesBuilder("azureTokenCacheMsal-azure_publicCloud", $"{path}/azuredatastudio/Azure Accounts")
+         //  .WithLinuxKeyring(
+         //      Config.LinuxKeyRingSchema,
+         //      Config.LinuxKeyRingCollection,
+         //      Config.LinuxKeyRingLabel,
+         //      Config.LinuxKeyRingAttr1,
+         //      Config.LinuxKeyRingAttr2)
+         .WithMacKeyChain(
+             Config.KeyChainServiceName,
+             Config.KeyChainAccountName)
+         .Build();
+    }
 
     // TODO: 
     // Implement fetching access token in a separate class (anything related to identity client), maybe that can be moved to hosting in the future
     // helper class will be fetching token, understands clientId, redirectUri - PCA should be singleton
-
-    var path = BuildDirectoryPath();
-    var storageProperties =
-     new StorageCreationPropertiesBuilder("azureTokenCacheMsal-azure_publicCloud", $"{path}/azuredatastudio/Azure Accounts")
-    //  .WithLinuxKeyring(
-    //      Config.LinuxKeyRingSchema,
-    //      Config.LinuxKeyRingCollection,
-    //      Config.LinuxKeyRingLabel,
-    //      Config.LinuxKeyRingAttr1,
-    //      Config.LinuxKeyRingAttr2)
-     .WithMacKeyChain(
-         Config.KeyChainServiceName,
-         Config.KeyChainAccountName)
-     .Build();
-
-
     
     public override async Task<SqlAuthenticationToken> AcquireTokenAsync(SqlAuthenticationParameters parameters)
     {
@@ -131,23 +134,44 @@ public class AuthenticationProvider : SqlAuthenticationProvider {
         // Windows
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return System.GetEnvironmentVariable("APPDATA") || System.join(System.GetEnvironmentVariable("USERPROFILE"), "AppData", "Roaming");
+            var appData = Environment.GetEnvironmentVariable("APPDATA");
+            var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+            if (appData != null)
+            {
+                return appData;
+            }
+            else if (userProfile != null)
+            {
+                return String.Join(Environment.GetEnvironmentVariable("USERPROFILE"), "AppData", "Roaming");
+            }
+            else
+            {
+                throw new Exception("Not able to find APPDATA or USERPROFILE");
+            }
         }
 
         // Mac
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return System.join(homedir, "Library", "Application Support");
+            return String.Join(homedir, "Library", "Application Support");
         }
 
         // Linux
-        else if (var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
         {
-            return System.GetEnvironmentVariable("XDG_CONFIG_HOME") || System.join(homedir, ".config");
+            var xdgConfigHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
+            if (xdgConfigHome != null) 
+            {
+                return xdgConfigHome;
+            }
+            else
+            {
+                return String.Join(homedir, ".config");
+            }
         }
         else
         {
-            throw new Error("Platform not supported");
+            throw new Exception("Platform not supported");
         }
 
     }

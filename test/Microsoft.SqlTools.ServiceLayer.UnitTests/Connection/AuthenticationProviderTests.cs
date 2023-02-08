@@ -6,27 +6,31 @@
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using Moq;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
-
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection {
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection 
+{
 
     [TestFixture]
     /// <summary>
     /// Tests for ConnectionDetails Class
     /// </summary>
-    public class AuthenticationProviderTests {
-
+    public class AuthenticationProviderTests 
+    {
+        private static ConnectionDetails details = new ConnectionDetails()
+        {
+            UserName = "user",
+            Password = "password",
+            DatabaseName = "msdb",
+            ServerName = "serverName"
+        };
+        ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);
         // Create Public Client Application
-        public SqlAuthenticationParameters CreateMockSqlAuthenticationParameters() {
-            private static ConnectionDetails details = new ConnectionDetails()
-            {
-                UserName = "user",
-                Password = "password",
-                DatabaseName = "msdb",
-                ServerName = "serverName"
-            };
-            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, details);
+        public void CreateConnection() 
+        {
             var connectionString = ConnectionService.BuildConnectionString(connectionInfo.ConnectionDetails);
+
             SqlConnection sqlConn = new SqlConnection(connectionString);
             // Need to mock SqlAuthenticationParameters
             // var sqlAuthenticationMethod = SqlAuthenticationMethod.ActiveDirectoryInteractive;
@@ -34,10 +38,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection {
             // SqlAuthenticationParameters sqlAuthenticationParameters = new SqlAuthenticationParameters(sqlAuthenticationMethod, "servername", "databasename", "resource", "authority", "userId", "password", systemGuid, 30);
             var sqlAuthenticationParameters = new Mock<SqlAuthenticationParameters>{ };
         
-        
+            return;
         }
         
-        public SqlAuthenticationToken TestAcquireTokenAsync() {
+        public SqlAuthenticationToken TestAcquireTokenAsync() 
+        {
             
             throw new System.NotImplementedException();
         }
