@@ -16,11 +16,11 @@ namespace Microsoft.SqlTools.Credentials
         {
 
             [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
-            internal static extern OSStatus SecKeychainAddGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName, 
+            internal static extern OSStatus SecKeychainAddGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName,
                 UInt32 accountNameLength, string accountName, UInt32 passwordLength, IntPtr password, [Out] IntPtr itemRef);
-            
+
             /// <summary>
-            /// Find a generic password based on the attributes passed            
+            /// Find a generic password based on the attributes passed
             /// </summary>
             /// <param name="keyChainRef">
             /// A reference to an array of keychains to search, a single keychain, or NULL to search the user's default keychain search list.
@@ -31,22 +31,22 @@ namespace Microsoft.SqlTools.Credentials
             /// <param name="accountName">A pointer to a string containing the account name.</param>
             /// <param name="passwordLength">On return, the length of the buffer pointed to by passwordData.</param>
             /// <param name="password">
-            /// On return, a pointer to a data buffer containing the password. 
-            /// Your application must call SecKeychainItemFreeContent(NULL, passwordData) 
+            /// On return, a pointer to a data buffer containing the password.
+            /// Your application must call SecKeychainItemFreeContent(NULL, passwordData)
             /// to release this data buffer when it is no longer needed.Pass NULL if you are not interested in retrieving the password data at
             /// this time, but simply want to find the item reference.
             /// </param>
             /// <param name="itemRef">On return, a reference to the keychain item which was found.</param>
             /// <returns>A result code that should be in <see cref="OSStatus"/></returns>
             /// <remarks>
-            /// The SecKeychainFindGenericPassword function finds the first generic password item which matches the attributes you provide. 
-            /// Most attributes are optional; you should pass only as many as you need to narrow the search sufficiently for your application's intended use. 
+            /// The SecKeychainFindGenericPassword function finds the first generic password item which matches the attributes you provide.
+            /// Most attributes are optional; you should pass only as many as you need to narrow the search sufficiently for your application's intended use.
             /// SecKeychainFindGenericPassword optionally returns a reference to the found item.
             /// </remarks>
             [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
-            internal static extern OSStatus SecKeychainFindGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName, 
+            internal static extern OSStatus SecKeychainFindGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName,
                 UInt32 accountNameLength, string accountName, out UInt32 passwordLength, out IntPtr password, out IntPtr itemRef);
-            
+
             /// <summary>
             /// Releases the memory used by the keychain attribute list and the keychain data retrieved in a previous call to SecKeychainItemCopyContent.
             /// </summary>
@@ -55,15 +55,15 @@ namespace Microsoft.SqlTools.Credentials
             /// <returns>A result code that should be in <see cref="OSStatus"/></returns>
             [DllImport(Libraries.SecurityLibrary, SetLastError = true)]
             internal static extern OSStatus SecKeychainItemFreeContent([In] IntPtr attrList, [In] IntPtr data);
-            
+
             /// <summary>
             /// Deletes a keychain item from the default keychain's permanent data store.
             /// </summary>
             /// <param name="itemRef">A keychain item reference of the item to delete.</param>
             /// <returns>A result code that should be in <see cref="OSStatus"/></returns>
             /// <remarks>
-            /// If itemRef has not previously been added to the keychain, SecKeychainItemDelete does nothing and returns ErrSecSuccess. 
-            /// IMPORTANT: SecKeychainItemDelete does not dispose the memory occupied by the item reference itself; 
+            /// If itemRef has not previously been added to the keychain, SecKeychainItemDelete does nothing and returns ErrSecSuccess.
+            /// IMPORTANT: SecKeychainItemDelete does not dispose the memory occupied by the item reference itself;
             /// use the CFRelease function when you are completely * * finished with an item.
             /// </remarks>
             [DllImport(Libraries.SecurityLibrary, SetLastError = true)]

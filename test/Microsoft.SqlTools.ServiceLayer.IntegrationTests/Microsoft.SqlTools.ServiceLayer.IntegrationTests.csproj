@@ -6,6 +6,8 @@
     <PackageId>Microsoft.SqlTools.ServiceLayer.IntegrationTests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+	<!-- TODO FIX THESE WARNINGS ASAP -->
+    <NoWarn>$(NoWarn);SYSLIB1045;IDE0200;IDE0230;CA1311;CA1852;CA1854</NoWarn>	
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
@@ -55,5 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SchemaCompare\SqlProjects\emptyTemplate.sqlproj" />
+    <None Include="SqlProjects\Inputs\SSDTProject.sqlproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -1364,6 +1364,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case "HGS":
                         connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.HGS;
                         break;
+                    case "None":
+                        connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.None;
+                        break;
                     default:
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(connectionDetails.EnclaveAttestationProtocol));
                 }

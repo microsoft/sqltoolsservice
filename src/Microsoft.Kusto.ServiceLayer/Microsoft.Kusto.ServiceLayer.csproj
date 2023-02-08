@@ -14,6 +14,8 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+	<!-- TODO FIX THESE WARNINGS ASAP -->
+    <NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>

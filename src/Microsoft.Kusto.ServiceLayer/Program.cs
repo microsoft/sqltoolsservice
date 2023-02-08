@@ -8,6 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Microsoft.Kusto.ServiceLayer
 {
@@ -21,7 +22,7 @@ namespace Microsoft.Kusto.ServiceLayer
         /// <summary>
         /// Main entry point into the SQL Tools API Service Layer
         /// </summary>
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             try
             {
@@ -54,7 +55,7 @@ namespace Microsoft.Kusto.ServiceLayer
                     ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
                 }
 
-                serviceHost.WaitForExit();
+                await serviceHost.WaitForExitAsync();
             }
             catch (Exception e)
             {

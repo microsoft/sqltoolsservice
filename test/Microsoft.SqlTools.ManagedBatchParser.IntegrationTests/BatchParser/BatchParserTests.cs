@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
 
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                Assert.Throws<BatchParserException>(p.Parse);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                Assert.Throws<BatchParserException>(p.Parse);
             }
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                Assert.Throws<BatchParserException>(p.Parse);
             }
         }
 
@@ -119,7 +119,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                Assert.Throws<BatchParserException>(p.Parse);
             }
         }
 
@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 handler.SetParser(p);
                 // This test will fail because we are passing invalid number.
                 // Exception will be raised from  ParseGo()
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                Assert.Throws<BatchParserException>(p.Parse);
             }
         }
 
@@ -248,7 +248,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
 
-                var exception = Assert.Throws<BatchParserException>(() => p.Parse());
+                var exception = Assert.Throws<BatchParserException>(p.Parse);
                 // Verify the message should be "Command Execute is not supported."
                 Assert.AreEqual("Command Execute is not supported.", exception.Message);
             }
