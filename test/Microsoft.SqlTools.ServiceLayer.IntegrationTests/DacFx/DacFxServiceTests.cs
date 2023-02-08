@@ -877,8 +877,10 @@ Streaming query statement contains a reference to missing output stream 'Missing
         public async Task ValidateSavePublishProfile()
         {
             DacFxService service = new DacFxService();
+            string fileName = "validateSavePublishProfile.publish.xml";
             string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
-            string profileFilePath = Path.Combine(folderPath, string.Format("validateSavePublishProfile.publish.xml"));
+            string profileFilePath = Path.Combine(folderPath, fileName);
+            string expectedFile = Path.Combine(publishProfileFolder, fileName);
 
             var savePublishProfileParams = new SavePublishProfileParams
             {
@@ -894,8 +896,9 @@ Streaming query statement contains a reference to missing output stream 'Missing
             MockRequest<ResultStatus> requestMock = new();
 
             await service.HandleSavePublishProfileRequest(savePublishProfileParams, requestMock.Object);
+            requestMock.AssertSuccess(nameof(service.HandleSavePublishProfileRequest));
 
-          VerifyAndCleanup(profileFilePath);      // verify file gets created
+            VerifyContentAndCleanup(expectedFile, profileFilePath);
         }
 
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
@@ -969,6 +972,24 @@ Streaming query statement contains a reference to missing output stream 'Missing
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
+            }
+        }
+
+        private void VerifyContentAndCleanup(string baselineFilePath, string outputFilePath)
+        {
+            // Verify it was created
+            Assert.True(File.Exists(outputFilePath));
+
+            //Verify the contents are same
+            string baseline = File.ReadAllText(baselineFilePath);
+            string output = File.ReadAllText(outputFilePath);
+
+            Assert.That(output, Is.EqualTo(baseline), $"The output doesn't match the baseline. Expected \n {baseline} \n Actual \n {output}");
+
+            // Remove the file
+            if (File.Exists(outputFilePath))
+            {
+                File.Delete(outputFilePath);
             }
         }
 

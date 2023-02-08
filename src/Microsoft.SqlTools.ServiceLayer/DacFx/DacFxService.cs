@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleSavePublishProfileRequest(SavePublishProfileParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            try
+            await BaseService.RunWithErrorHandling(() =>
             {
                 if (parameters.ProfilePath != null)
                 {
@@ -338,20 +338,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     //TODO: Add return from Save with success/fail status
                     profile.Save(parameters.ProfilePath);
                 }
-                await requestContext.SendResult(new ResultStatus()
-                {
-                    Success = true
-                });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendResult(new ResultStatus()
-                {
-                    Success = false,
-                    ErrorMessage = e.Message
-                });
-            }
-
+            }, requestContext);
+ 
             return;
         }
 
