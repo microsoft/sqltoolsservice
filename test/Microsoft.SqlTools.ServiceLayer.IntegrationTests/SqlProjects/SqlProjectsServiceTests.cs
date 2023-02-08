@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.IO;
 using System.Linq;
@@ -192,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding system db reference");
             SystemDatabaseReference systemDbRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.First(x => x is SystemDatabaseReference);
             Assert.AreEqual(SystemDatabase.MSDB, systemDbRef.SystemDb, "Referenced system DB");
-            Assert.AreEqual("$(EmEssDeeBee)", systemDbRef.DatabaseVariable);
+            Assert.AreEqual("$(EmEssDeeBee)", systemDbRef.DatabaseVariableLiteralName);
             Assert.IsFalse(systemDbRef.SuppressMissingDependencies, nameof(systemDbRef.SuppressMissingDependencies));
 
             // Validate adding a dacpac reference
@@ -212,8 +210,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference");
             DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.First(x => x is DacpacReference);
             Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
-            Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable);
-            Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable);
+            Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable.VarName);
+            Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable.VarName);
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
 
             // Validate adding a project reference
@@ -235,8 +233,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SqlProjectReference projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.First(x => x is SqlProjectReference);
             Assert.AreEqual(mockReferencePath, projectRef.ProjectPath, "Referenced project");
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
-            Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable);
-            Assert.AreEqual(serverVar.Name, projectRef.ServerVariable);
+            Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable.VarName);
+            Assert.AreEqual(serverVar.Name, projectRef.ServerVariable.VarName);
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
 
             // Validate deleting a reference
@@ -336,6 +334,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteSqlCmdVariableRequest));
             Assert.AreEqual(0, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after deletion not as expected");
+        }
+
+        [Test]
+        public async Task TestCrossPlatformUpdates()
+        {
+            string inputProjectPath = Path.Join(Path.GetDirectoryName(typeof(SqlProjectsServiceTests).Assembly.Location), "SqlProjects", "Inputs", "SSDTProject.sqlproj");
+            string projectPath = Path.Join(TestContext.CurrentContext.GetTestWorkingFolder(), "SSDTProject.sqlproj");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(projectPath)!);
+            File.Copy(inputProjectPath, projectPath);
+            SqlProjectsService service = new();
+
+            /// Validate that the cross-platform status can be fetched
+            MockRequest<GetCrossPlatformCompatiblityResult> getRequestMock = new();
+            await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath
+            }, getRequestMock.Object);
+
+            getRequestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+            Assert.IsFalse(getRequestMock.Result.IsCrossPlatformCompatible, "Input file should not be cross-platform compatible before conversion");
+
+            // Validate that the project can be updated
+            MockRequest<ResultStatus> updateRequestMock = new();
+            await service.HandleUpdateProjectForCrossPlatformRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath,
+            }, updateRequestMock.Object);
+
+            updateRequestMock.AssertSuccess(nameof(service.HandleUpdateProjectForCrossPlatformRequest));
+
+            // Validate that the cross-platform status has changed
+            getRequestMock = new();
+            await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath
+            }, getRequestMock.Object);
+
+            getRequestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+            Assert.IsTrue(((GetCrossPlatformCompatiblityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
         }
     }
 
