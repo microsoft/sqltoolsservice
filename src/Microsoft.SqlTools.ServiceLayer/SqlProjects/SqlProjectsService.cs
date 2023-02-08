@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
     /// <summary>
     /// Main class for SqlProjects service
     /// </summary>
-    class SqlProjectsService
+    public sealed class SqlProjectsService : BaseService
     {
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
 
@@ -215,74 +215,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         #endregion
 
         #region Helper methods
-
-        /// <summary>
-        /// Synchronous action with standard ResultStatus
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="requestContext"></param>
-        /// <returns></returns>
-        private async Task RunWithErrorHandling(Action action, RequestContext<ResultStatus> requestContext)
-        {
-            await RunWithErrorHandling(async () => await Task.Run(action), requestContext);
-        }
-
-        /// <summary>
-        /// Asynchronous action with standard ResultStatus
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="requestContext"></param>
-        /// <returns></returns>
-        private async Task RunWithErrorHandling(Func<Task> action, RequestContext<ResultStatus> requestContext)
-        {
-            await RunWithErrorHandling<ResultStatus>(async () =>
-            {
-                await action();
-
-                return new ResultStatus()
-                {
-                    Success = true,
-                    ErrorMessage = null
-                };
-            }, requestContext);
-        }
-
-
-        /// <summary>
-        /// Synchronous action with custom result
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="action"></param>
-        /// <param name="requestContext"></param>
-        /// <returns></returns>
-        private async Task RunWithErrorHandling<T>(Func<T> action, RequestContext<T> requestContext) where T : ResultStatus, new()
-        {
-            await RunWithErrorHandling<T>(async () => await Task.Run(action), requestContext);
-        }
-
-        /// <summary>
-        /// Asynchronous action with custom result
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="action"></param>
-        /// <param name="requestContext"></param>
-        /// <returns></returns>
-        private async Task RunWithErrorHandling<T>(Func<Task<T>> action, RequestContext<T> requestContext) where T : ResultStatus, new()
-        {
-            try
-            {
-                T result = await action();
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendResult(new T()
-                {
-                    Success = false,
-                    ErrorMessage = ex.Message
-                });
-            }
-        }
 
         private SqlProject GetProject(string projectUri)
         {
