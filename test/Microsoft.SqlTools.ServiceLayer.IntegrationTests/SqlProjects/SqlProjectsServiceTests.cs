@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.IO;
 using System.Linq;
@@ -313,39 +311,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             string inputProjectPath = Path.Join(Path.GetDirectoryName(typeof(SqlProjectsServiceTests).Assembly.Location), "SqlProjects", "Inputs", "SSDTProject.sqlproj");
             string projectPath = Path.Join(TestContext.CurrentContext.GetTestWorkingFolder(), "SSDTProject.sqlproj");
 
-            Directory.CreateDirectory(Path.GetDirectoryName(projectPath));
+            Directory.CreateDirectory(Path.GetDirectoryName(projectPath)!);
             File.Copy(inputProjectPath, projectPath);
             SqlProjectsService service = new();
 
             /// Validate that the cross-platform status can be fetched
-            MockRequest<ResultStatus> requestMock = new();
+            MockRequest<GetCrossPlatformCompatiblityResult> getRequestMock = new();
             await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
             {
                 ProjectUri = projectPath
-            }, requestMock.Object);
+            }, getRequestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
-            Assert.IsFalse(((GetCrossPlatformCompatiblityResult)requestMock.Result).IsCrossPlatformCompatible, "Input file should not be cross-platform compatible before conversion");
+            getRequestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+            Assert.IsFalse(getRequestMock.Result.IsCrossPlatformCompatible, "Input file should not be cross-platform compatible before conversion");
 
             // Validate that the project can be updated
-            requestMock = new();
+            MockRequest<ResultStatus> updateRequestMock = new();
             await service.HandleUpdateProjectForCrossPlatformRequest(new SqlProjectParams()
             {
                 ProjectUri = projectPath,
-            }, requestMock.Object);
+            }, updateRequestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleUpdateProjectForCrossPlatformRequest));
+            updateRequestMock.AssertSuccess(nameof(service.HandleUpdateProjectForCrossPlatformRequest));
 
             // Validate that the cross-platform status has changed
-            requestMock = new();
+            getRequestMock = new();
             await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
             {
                 ProjectUri = projectPath
-            }, requestMock.Object);
+            }, getRequestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
-            Assert.IsTrue(((GetCrossPlatformCompatiblityResult)requestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
-
+            getRequestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+            Assert.IsTrue(((GetCrossPlatformCompatiblityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
         }
     }
 

@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatiblityResult> requestContext)
         {
             await RunWithErrorHandling(() =>
             {

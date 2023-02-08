@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     public class GetCrossPlatformCompatiblityRequest
     {
-        public static readonly RequestType<SqlProjectParams, ResultStatus> Type = RequestType<SqlProjectParams, ResultStatus>.Create("sqlProjects/getCrossPlatformCompatibility");
+        public static readonly RequestType<SqlProjectParams, GetCrossPlatformCompatiblityResult> Type = RequestType<SqlProjectParams, GetCrossPlatformCompatiblityResult>.Create("sqlProjects/getCrossPlatformCompatibility");
     }
 
     /// <summary>
