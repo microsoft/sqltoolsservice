@@ -3,12 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -20,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// <summary>
         /// Main entry point into the SQL Tools API Service Layer
         /// </summary>
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             SqlClientListener? sqlClientListener = null;
             try
@@ -59,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                     ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
                 }
 
-                serviceHost.WaitForExit();
+                await serviceHost.WaitForExitAsync();
             }
             catch (Exception ex)
             {

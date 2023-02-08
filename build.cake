@@ -56,6 +56,14 @@ public class BuildPlan
     // The set of projects that we want to call dotnet pack on which require publishing being done first
     public string[] PackagePublishedProjects { get; set; }
     public string[] DotnetToolProjects { get; set; }
+    public Project[] Projects{ get; set; }
+}
+
+public class Project
+{
+    public string Name { get; set; }
+    public string[] PackageProjects { get; set; }
+    public string[] TestProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -429,8 +437,29 @@ Task("OnlyPublish")
     .IsDependentOn("CodeGen")
     .Does(() =>
 {
-	var packageName = buildPlan.PackageName;
-    foreach (var project in buildPlan.MainProjects)
+    PublishProject(buildPlan.PackageName, buildPlan.MainProjects);
+});
+
+/// <summary>
+///  Build, publish and package artifacts.
+///  Targets all RIDs specified in build.json unless restricted by RestrictToLocalRuntime.
+///  No dependencies on other tasks to support quick builds.
+/// </summary>
+Task("PublishExternalProjects")
+    .IsDependentOn("Setup")
+    .IsDependentOn("SrGen")
+    .IsDependentOn("CodeGen")
+    .Does(() =>
+{
+    foreach(var project in buildPlan.Projects)
+    {
+        PublishProject(project.Name, project.PackageProjects);
+    }
+});
+
+void PublishProject(string packageName, string[] projects)
+{
+    foreach (var project in projects)
     {
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
         foreach (var framework in buildPlan.Frameworks)
@@ -441,7 +470,7 @@ Task("OnlyPublish")
                 var publishArguments = "publish";
                 if (!runtime.Equals("default"))
                 {
-                    publishArguments = $"{publishArguments} --runtime {runtime}";
+                    publishArguments = $"{publishArguments} --runtime {runtime} --self-contained";
                 }
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
                 publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
@@ -483,7 +512,9 @@ Task("OnlyPublish")
         }
         CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
     }
-});
+
+}
+
 
 /// <summary>
 ///  Alias for OnlyPublish.
@@ -492,6 +523,7 @@ Task("OnlyPublish")
 Task("AllPublish")
     .IsDependentOn("Restore")
     .IsDependentOn("OnlyPublish")
+    .IsDependentOn("PublishExternalProjects")
     .Does(() =>
 {
 });
@@ -514,6 +546,7 @@ Task("LocalPublish")
     .IsDependentOn("Restore")
     .IsDependentOn("RestrictToLocalRuntime")
     .IsDependentOn("OnlyPublish")
+    .IsDependentOn("PublishExternalProjects")
     .Does(() =>
 {
 });

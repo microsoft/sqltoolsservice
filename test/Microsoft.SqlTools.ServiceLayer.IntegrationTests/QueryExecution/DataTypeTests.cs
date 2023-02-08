@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -68,6 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         public async Task DateTimeOffsetTest()
         {
             await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIMEOFFSET)", "2020-01-01 00:00:00.0000000 +00:00");
+            await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIMEOFFSET(6))", "2020-01-01 00:00:00.000000 +00:00");
+            await ExecuteAndVerifyResult("SELECT CAST('2020-01-01' AS DATETIMEOFFSET(0))", "2020-01-01 00:00:00 +00:00");
         }
 
         [Test]

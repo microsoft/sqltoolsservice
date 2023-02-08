@@ -23,6 +23,7 @@ stages:
       - ImageOverride -equals ADS-Windows_Image
     steps:
     - template: build.yml
+    timeoutInMinutes: 90
 
 - stage: Release
   variables:

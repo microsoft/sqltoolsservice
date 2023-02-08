@@ -13,7 +13,7 @@
 
 # The script need to run from the repo root
 
-net6projectArray=(
+dotnetProjectArray=(
     "./src/Microsoft.Kusto.ServiceLayer"
     "./src/Microsoft.SqlTools.Credentials"
     "./src/Microsoft.SqlTools.Hosting"
@@ -21,6 +21,7 @@ net6projectArray=(
     "./src/Microsoft.SqlTools.ResourceProvider.Core"
     "./src/Microsoft.SqlTools.ResourceProvider.DefaultImpl"
     "./src/Microsoft.SqlTools.ServiceLayer"
+    "./src/Microsoft.SqlTools.Migration"
     "./test/Microsoft.Kusto.ServiceLayer.UnitTests"
     "./test/Microsoft.SqlTools.ManagedBatchParser.IntegrationTests"
     "./test/Microsoft.SqlTools.ServiceLayer.IntegrationTests"
@@ -33,13 +34,8 @@ net6projectArray=(
     "./test/Microsoft.SqlTools.Test.CompletionExtension"
 )
 
-netStandard2ProjectArray=(
-    "./src/Microsoft.SqlTools.ManagedBatchParser"
-)
-
 # Please update the framework vars when updating target framework for the projects
-framework6="/bin/Debug/net6.0/"
-framework2="/bin/Debug/netstandard2.1/"
+framework7="/bin/Debug/net7.0/"
 
 requiredLocDirectories=(
     "cs"
@@ -73,24 +69,13 @@ requiredLocDirectories=(
     "zh-hant"
 )
 
-for i in "${net6projectArray[@]}"
+for i in "${dotnetProjectArray[@]}"
 do
    : 
    for k in "${requiredLocDirectories[@]}"
     do
         : 
-        output=`mkdir -v -p $i$framework6$k`
-        echo $output
-    done
-done
-
-for i in "${netStandard2ProjectArray[@]}"
-do
-   : 
-   for k in "${requiredLocDirectories[@]}"
-    do
-        : 
-        output=`mkdir -v -p $i$framework2$k`
+        output=`mkdir -v -p $i$framework7$k`
         echo $output
     done
 done

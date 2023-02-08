@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -34,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             try
             {
-                var filters = Parameters.ObjectTypes.Select(t => MapType(t)).ToArray();
+                var filters = Parameters.ObjectTypes.Select(MapType).ToArray();
                 var objects = Model.GetObjects(DacQueryScopes.UserDefined, filters).ToList();
 
                 return objects.Select(o => new TSqlObjectInfo

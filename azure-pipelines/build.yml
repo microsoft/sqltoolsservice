@@ -1,6 +1,56 @@
+parameters:
+  - name: platforms
+    type: object
+    default:
+    - name: 'osx.10.11-x64'
+      displayName: 'osx'
+      archiveName: 'osx-x64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'osx-arm64'
+      displayName: 'osx arm'
+      archiveName: 'osx-arm64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'rhel.7.2-x64'
+      displayName: 'rhel'
+      archiveName: 'rhel-x64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'win-x64'
+      displayName: 'Windows 64 bit'
+      archiveName: 'win-x64'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'win-x86'
+      displayName: 'Windows 32 bit'
+      archiveName: 'win-x86'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    # - name: 'win10-arm64'
+    #   displayName: 'Windows 10 ARM 64 bit'
+    #   archiveFileFormat: 'zip'
+    # - name: 'win10-arm'
+    #   displayName: 'Windows 10 ARM'
+    #   archiveFileFormat: 'zip'
+  - name: projects
+    type: object
+    default:
+    - 'Microsoft.SqlTools.ServiceLayer'
+    - 'Microsoft.SqlTools.Migration'
+
 steps:
+# .NET Core 2.1 SDK is installed for ESRP Code signing task,
+# ESRP currently uses DLL from this path: ~\1.9.111\netcoreapp2.1\esrpcli.dll (found in logs)
+# Can be removed once ESRP codesigning task gets an upgrade and a newer SDK DLL is used.
 - task: UseDotNet@2
-  displayName: 'Use defined .NET Core sdk'
+  displayName: 'Use .NET Core 2 sdk'
+  inputs:
+    useGlobalJson: false
+    version: 2.x
+
+- task: UseDotNet@2
+  displayName: 'Use defined .NET sdk'
   inputs:
     useGlobalJson: true
 
@@ -109,7 +159,7 @@ steps:
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll,MicrosoftSqlToolsMigration.exe,MicrosoftSqlToolsMigration.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -199,58 +249,16 @@ steps:
     MaxConcurrency: '50'
     MaxRetryAttempts: '5'
 
-- task: ArchiveFiles@1
-  displayName: 'Archive osx build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/net6.0'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-net6.0.tar.gz'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive osx arm build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-arm64/net6.0'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-arm64-net6.0.tar.gz'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive rhel build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/net6.0'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-net6.0.tar.gz'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive windows 64 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x64/net6.0'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-net6.0.zip'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive windows 32 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win-x86/net6.0'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-net6.0.zip'
-
-# - task: ArchiveFiles@1
-#   displayName: 'Archive windows10 arm 32 bit build'
-#   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/net6.0'
-#     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-net6.0.zip'
-
-# - task: ArchiveFiles@1
-#   displayName: 'Archive windows10 arm 64 bit build'
-#   inputs:
-#     rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/net6.0'
-#     includeRootFolder: false
-#     archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-net6.0.zip'
-
+- ${{ each project in parameters.projects }}:
+  - ${{ each platform in parameters.platforms }}:
+    - task: ArchiveFiles@1
+      displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
+      inputs:
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net7.0'
+        includeRootFolder: false
+        archiveType: ${{ platform.archiveType }}
+        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net7.0.${{ platform.archiveFileFormat }}'
+    
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'
   inputs:

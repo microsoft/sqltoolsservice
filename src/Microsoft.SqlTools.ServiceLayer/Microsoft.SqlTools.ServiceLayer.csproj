@@ -13,6 +13,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+		<!-- TODO FIX THESE WARNINGS ASAP -->
+		<NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854;CS8600;CS8603;CS8625</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -50,6 +52,8 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
 		<PackageReference Include="Microsoft.SqlServer.DacFx" />
+		<PackageReference Include="Microsoft.SqlServer.DacFx.Projects" />
+		<PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
 		<PackageReference Include="Microsoft.SqlServer.Assessment" />

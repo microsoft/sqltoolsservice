@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.IO;
 using System.Xml.Linq;
@@ -11,7 +13,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 {
-    class Program
+    sealed class Program
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0210:Convert to top-level statements", Justification = "Structure retained for readability.")]
         static void Main(string[] args)

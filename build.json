@@ -9,31 +9,32 @@
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "net6.0"
+      "net7.0"
     ],
     "Microsoft.Kusto.ServiceLayer.UnitTests": [
-      "net6.0"
+      "net7.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
-      "net6.0"
+      "net7.0"
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
-      "net6.0"
+      "net7.0"
     ]
   },
   "Frameworks": [
-    "net6.0"
+    "net7.0"
   ],
   "FxFrameworks":[
     "net472",
-    "net6.0"
+    "net7.0"
   ],
   "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
     "Microsoft.Kusto.ServiceLayer",
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.SqlTools.ManagedBatchParser"
+    "Microsoft.SqlTools.ManagedBatchParser",
+    "Microsoft.SqlTools.Migration"
   ],
   "FxBuildProjects": [
     "Microsoft.SqlTools.ManagedBatchParser"
@@ -57,6 +58,18 @@
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
-    "Microsoft.Kusto.ServiceLayer"
+    "Microsoft.Kusto.ServiceLayer",
+    "Microsoft.SqlTools.Migration"
+  ],
+  "Projects": [
+    {
+      "Name": "Microsoft.SqlTools.Migration",
+      "PackageProjects": [
+        "Microsoft.SqlTools.Migration"
+      ],
+      "TestProjects": [
+        "Microsoft.SqlTools.Migration.UnitTests"
+      ]
+    }
   ]
 }

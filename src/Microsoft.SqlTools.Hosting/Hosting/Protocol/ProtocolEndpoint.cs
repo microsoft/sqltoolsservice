@@ -119,10 +119,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
         }
 
-        public void WaitForExit()
+        public async Task WaitForExitAsync()
         {
             this.endpointExitedTask = new TaskCompletionSource<bool>();
-            this.endpointExitedTask.Task.Wait();
+            await this.endpointExitedTask.Task.WaitAsync(CancellationToken.None);
         }
 
         public async Task Stop()

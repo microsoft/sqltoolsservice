@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.Credentials
         /// <summary>
         /// Main entry point into the Credentials Service Host
         /// </summary>
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace Microsoft.SqlTools.Credentials
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 UtilityServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
-                serviceHost.WaitForExit();
+                await serviceHost.WaitForExitAsync();
             }
             catch (Exception e)
             {
