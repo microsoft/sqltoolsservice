@@ -69,5 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         // TODO Consider whether Remove operations need to be supported
         //public abstract bool CanRemoveChild(TreeNode parent, object context);
         //public abstract int GetChildIndexToRemove(TreeNode parent, object context);
+
+        /// <summary>
+        /// A flag that puts child folders after nodes when the node is expanded.
+        /// </summary>
+        /// <value></value>
+        public bool PutFoldersAfterNodes { get; set; } = false;
     }
 }

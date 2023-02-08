@@ -675,11 +675,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     [Shared]
     internal partial class DatabaseChildFactory : SmoChildFactoryBase
     {
+        public bool PutFolderAfterNodes = true;
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Database) }; }
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Tables,
@@ -688,7 +689,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Views,
@@ -697,7 +698,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Synonyms,
@@ -748,7 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
 					List<Type> conditionalTypesList = new List<Type>();
-					if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+					if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 					{
 						conditionalTypesList.Add(typeof(SqlSchemaQuerier));
 					}
@@ -1055,7 +1056,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_StoredProcedures,
@@ -1064,7 +1065,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Functions,
@@ -1088,7 +1089,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Types,
@@ -1098,7 +1099,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
-			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.SchemaBasedOE)
+			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Sequences,

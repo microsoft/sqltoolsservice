@@ -33,6 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Moves Schema to the top level of OE and then move Tables, Views, Programmability and Synonyms under it. 
         /// </summary>
         /// <value></value>
-        public bool SchemaBasedOE { get; set; }
+        public bool GroupBySchema { get; set; } = false;
     }
 }

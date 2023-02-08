@@ -62,11 +62,11 @@
   <Node Name="ServerLevelServerTriggers" LocLabel="SR.SchemaHierarchy_ServerTriggers" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerTrigger" ChildQuerierTypes="SqlServerDdlTrigger"/>
   <Node Name="ServerLevelErrorMessages" LocLabel="SR.SchemaHierarchy_ErrorMessages" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelErrorMessage" ChildQuerierTypes="SqlErrorMessage"/>
   
-  <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel" TreeNode="ExpandableSchemaTreeNode">
-    <ConditionalChildQuerierType Name="SqlSchema" SettingsFlag="SchemaBasedOE"/>
-    <Child Name="Tables" SettingsFlag="!SchemaBasedOE"/>
-    <Child Name="Views" SettingsFlag="!SchemaBasedOE"/>
-    <Child Name="Synonyms" SettingsFlag="!SchemaBasedOE"/>
+  <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel" TreeNode="ExpandableSchemaTreeNode" PutFoldersAfterNodes="true">
+    <ConditionalChildQuerierType Name="SqlSchema" SettingsFlag="GroupBySchema"/>
+    <Child Name="Tables" SettingsFlag="!GroupBySchema"/>
+    <Child Name="Views" SettingsFlag="!GroupBySchema"/>
+    <Child Name="Synonyms" SettingsFlag="!GroupBySchema"/>
     <Child Name="Programmability"/>
     <Child Name="ExternalResources"/>
     <Child Name="ServiceBroker"/>
@@ -123,16 +123,16 @@
 
   <Node Name="Synonyms" LocLabel="SR.SchemaHierarchy_Synonyms" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="Synonym" ChildQuerierTypes="SqlSynonym" ValidFor="AllOnPrem|AzureV12"/>
   <Node Name="Programmability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
-    <Child Name="StoredProcedures" SettingsFlag="!SchemaBasedOE"/>
-    <Child Name="Functions" SettingsFlag="!SchemaBasedOE"/>
+    <Child Name="StoredProcedures" SettingsFlag="!GroupBySchema"/>
+    <Child Name="Functions" SettingsFlag="!GroupBySchema"/>
     <Child Name="DatabaseTriggers"/>
     <Child Name="Assemblies"/>
-    <Child Name="Types" SettingsFlag="!SchemaBasedOE"/>
+    <Child Name="Types" SettingsFlag="!GroupBySchema"/>
     <!--
     <Child Name="Rules"/>
     <Child Name="Defaults"/>
     -->
-    <Child Name="Sequences" SettingsFlag="!SchemaBasedOE"/>
+    <Child Name="Sequences" SettingsFlag="!GroupBySchema"/>
   </Node>
   <Node Name="ExpandableSchemaProgrammability" LocLabel="SR.SchemaHierarchy_Programmability" BaseClass="ModelBased" ValidFor="NotSqlDemand">
     <Child Name="StoredProcedures"/>

@@ -118,6 +118,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 			WriteLine("    internal partial class {0}ChildFactory : {1}", type, childFactoryBaseClass);
 
 			WriteLine("    {");
+            if(!string.IsNullOrEmpty(nodeElement.GetAttribute("PutFoldersAfterNodes")))
+            {
+                WriteLine("        public bool PutFolderAfterNodes = {0};", nodeElement.GetAttribute("PutFoldersAfterNodes"));
+            }
 			WriteLine("        public override IEnumerable<string> ApplicableParents() {{ return new[] {{ nameof(NodeTypes.{0}) }}; }}", type);
 
 			List<XmlElement> children = GetChildren(xmlFile, type);
