@@ -980,7 +980,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
              };
             object[][] rows =
             {
-                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"}
+                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"},
                 new object[] {"master", "Online", "11", "2010-01-01 11:11:12"},
                 new object[] {"model", "Offline", "12", "2010-01-01 11:11:13"},
                 new object[] {"msdb", "Online", "13", "2010-01-01 11:11:14"},
