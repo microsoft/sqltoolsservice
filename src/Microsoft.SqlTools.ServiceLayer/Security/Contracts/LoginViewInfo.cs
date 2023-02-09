@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     public class LoginViewInfo
     {
 
-        public LoginInfo Login { get; set; }
+        public LoginInfo ObjectInfo { get; set; }
         public bool SupportWindowsAuthentication { get; set; }
         public bool SupportAADAuthentication { get; set; }
         public bool SupportSQLAuthentication { get; set; }
@@ -16,5 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         public string[] Databases;
         public string[] Languages;
         public string[] ServerRoles;
+        public bool SupportAdvancedPasswordOptions;
+        public bool SupportAdvancedOptions;
     }
 }

@@ -105,14 +105,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <summary>
         /// Handle request to create a login
         /// </summary>
-        internal async Task HandleCreateLoginRequest(CreateLoginParams parameters, RequestContext<CreateLoginResult> requestContext)
+        internal async Task HandleCreateLoginRequest(CreateLoginParams parameters, RequestContext<object> requestContext)
         {
             ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-            // if (connInfo == null) 
-            // {
-            //     // raise an error
-            // }
+            string ownerUri;
+            contextIdToConnectionUriMap.TryGetValue(parameters.ContextId, out ownerUri);
+            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            if (connInfo == null) 
+            {
+                throw new Exception("random");
+            }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginPrototype prototype = new LoginPrototype(dataContainer.Server, parameters.Login);
@@ -134,15 +136,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     // raise error here
                 }
             }
-
+            await requestContext.SendError("test ");
             prototype.ApplyGeneralChanges(dataContainer.Server);
-
-            await requestContext.SendResult(new CreateLoginResult()
-            {
-                Login = parameters.Login,
-                Success = true,
-                ErrorMessage = string.Empty
-            });
+            await requestContext.SendResult(new object());
         }
 
         /// <summary>
@@ -183,23 +179,84 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // {
             //     // raise an error
             // }
-
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginViewInfo loginViewInfo = new LoginViewInfo();
 
-            if (parameters.IsNewObject)
+            string[] databases = new string[dataContainer.Server.Databases.Count];
+            for (int i = 0; i < dataContainer.Server.Databases.Count; i++)
             {
-                LoginInfo loginInfo = new LoginInfo();
-                await requestContext.SendResult(new LoginViewInfo()
-                {
-                    Login = loginInfo,
-                    SupportWindowsAuthentication = true,
-                    SupportAADAuthentication = true,
-                    SupportSQLAuthentication = true,
-                    CanEditLockedOutState = true,
-                    Databases = new string[0],
-                    Languages = new string[0],
-                    ServerRoles = new string[0]
-                });
+                databases[i] = dataContainer.Server.Databases[i].Name;
+            }
+            string[] languages = new string[dataContainer.Server.Languages.Count];
+            for (int i = 0; i < dataContainer.Server.Languages.Count; i++)
+            {
+                languages[i] = dataContainer.Server.Languages[i].Name;
+            }
+            string[] roles;
+            try 
+            {
+
+            roles = new string[dataContainer.Server.Roles.Count];
+            for (int i = 0; i < dataContainer.Server.Roles.Count; i++)
+            {
+                roles[i] = dataContainer.Server.Roles[i].Name;
+            }
+
+            }
+            catch
+            {
+                roles = new string[0];
+            }
+
+
+            LoginPrototype prototype = parameters.IsNewObject 
+            ? new LoginPrototype(dataContainer.Server) 
+            : new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Name]);
+            LoginInfo loginInfo = new LoginInfo()
+            {
+                Name = prototype.LoginName,
+                AuthenticationType = LoginTypeToAuthenticationType(prototype.LoginType),
+                EnforcePasswordExpiration = prototype.EnforceExpiration,
+                EnforcePasswordPolicy = prototype.EnforcePolicy,
+                MustChangePassword = prototype.MustChange,
+                DefaultDatabase = prototype.DefaultDatabase,
+                DefaultLanguage = prototype.DefaultDatabase,
+                ServerRoles = prototype.ServerRoles.ServerRoleNames,
+                ConnectPermission = prototype.WindowsGrantAccess,
+                IsEnabled = !prototype.IsDisabled,
+                IsLockedOut = prototype.IsLockedOut,
+                UserMapping = new ServerLoginDatabaseUserMapping[0]
+            };
+
+            await requestContext.SendResult(new LoginViewInfo()
+            {
+                ObjectInfo = loginInfo,
+                SupportWindowsAuthentication = prototype.WindowsAuthSupported,
+                SupportAADAuthentication = prototype.AADAuthSupported,
+                SupportSQLAuthentication = true,
+                CanEditLockedOutState = true,
+                Databases = databases,
+                Languages = languages,
+                ServerRoles = roles,
+                SupportAdvancedPasswordOptions = true,
+                SupportAdvancedOptions = true
+            });
+        }
+
+        private LoginAuthenticationType LoginTypeToAuthenticationType(LoginType loginType)
+        {
+            switch (loginType)
+            {
+                case LoginType.WindowsUser:
+                case LoginType.WindowsGroup:
+                    return LoginAuthenticationType.Windows;
+                case LoginType.SqlLogin:
+                    return LoginAuthenticationType.Sql;
+                case LoginType.ExternalUser:
+                case LoginType.ExternalGroup:
+                    return LoginAuthenticationType.AAD;
+                default:
+                    return LoginAuthenticationType.Others;
             }
         }
 

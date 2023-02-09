@@ -814,6 +814,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             private Microsoft.SqlServer.Management.Smo.Server server;
             private static string       defaultLanguageDisplay;
             private bool                windowsAuthSupported = true;
+            private bool                aADAuthSupported = true;
 
             private StringCollection credentials = null;
             #endregion
@@ -957,6 +958,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     }
 
                     return this.windowsAuthSupported;
+                }
+            }
+
+            public bool AADAuthSupported
+            {
+                get
+                {
+                    return this.aADAuthSupported;
                 }
             }
 
@@ -1516,6 +1525,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             get
             {
                 return this.currentState.WindowsAuthSupported;
+            }
+        }
+
+        public bool AADAuthSupported
+        {
+            get
+            {
+                return this.currentState.AADAuthSupported;
             }
         }
 

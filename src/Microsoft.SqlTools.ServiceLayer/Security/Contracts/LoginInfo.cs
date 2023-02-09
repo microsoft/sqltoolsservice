@@ -17,7 +17,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         [EnumMember(Value = "Sql")]
         Sql,
         [EnumMember(Value = "AAD")]
-        AAD
+        AAD,
+        [EnumMember(Value = "Others")]
+        Others
     }
 
     public class ServerLoginDatabaseUserMapping
@@ -34,7 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     public class LoginInfo
     {
         public string Name { get; set; }
-        public string IconType { get; set; }
 
         public LoginAuthenticationType AuthenticationType { get; set; }
 

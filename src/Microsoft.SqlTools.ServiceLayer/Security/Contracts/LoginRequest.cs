@@ -14,19 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class CreateLoginParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
+        public string ContextId { get; set; }
 
         public LoginInfo Login { get; set; }
     }
-
-    /// <summary>
-    /// Create Login result
-    /// </summary>
-    public class CreateLoginResult : ResultStatus
-    {
-        public LoginInfo Login { get; set; }        
-    }
-
 
     /// <summary>
     /// Create Login request type
@@ -37,8 +28,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateLoginParams, CreateLoginResult> Type =
-            RequestType<CreateLoginParams, CreateLoginResult>.Create("objectManagement/createLogin");
+            RequestType<CreateLoginParams, object> Type =
+            RequestType<CreateLoginParams, object>.Create("objectManagement/createLogin");
     }
 
     /// <summary>
