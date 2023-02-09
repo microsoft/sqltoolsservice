@@ -58,7 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class UserInfo
     {
-        DatabaseUserType? Type { get; set; }
+        public DatabaseUserType? Type { get; set; }
+
+        public string UserName { get; set; }
 
         public string LoginName { get; set; }
 
@@ -72,9 +74,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 
         public bool isAAD { get; set; }
 
-        public ExtendedProperty[] ExtendedProperties { get; set; }
+        public ExtendedProperty[]? ExtendedProperties { get; set; }
 
-        public SecurablePermissions[] SecurablePermissions { get; set; }   
+        public SecurablePermissions[]? SecurablePermissions { get; set; }   
     }
 }
 

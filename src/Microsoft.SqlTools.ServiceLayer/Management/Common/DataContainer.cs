@@ -3,11 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Security;
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             SQL,
             OLAP, //This type is used only for non-express sku
-			SQLCE,
+            SQLCE,
             UNKNOWN
         }
 
@@ -38,32 +38,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         #region Fields
 
-        private ServerConnection serverConnection;
-        private Server m_server = null;   
-        protected XmlDocument m_doc = null;
-        private XmlDocument originalDocument = null;
-        private SqlOlapConnectionInfoBase connectionInfo = null;
-        private SqlConnectionInfoWithConnection sqlCiWithConnection;
+        private ServerConnection? serverConnection;
+        private Server? m_server;
+        protected XmlDocument? m_doc;
+        private XmlDocument? originalDocument;
+        private SqlOlapConnectionInfoBase? connectionInfo;
+        private SqlConnectionInfoWithConnection? sqlCiWithConnection;
         private bool ownConnection = true;
-        private IManagedConnection managedConnection;
-        protected string serverName;
+        private IManagedConnection? managedConnection;
+        protected string? serverName;
 
         //This member is used for non-express sku only
-        protected string olapServerName;
+        protected string? olapServerName;
 
-		protected string sqlceFilename;
+        protected string? sqlceFilename;
 
         private ServerType serverType = ServerType.UNKNOWN;
 
-        private Hashtable m_hashTable = null;
+        private Hashtable? m_hashTable;
 
         private string objectNameKey = "object-name-9524b5c1-e996-4119-a433-b5b947985566";
         private string objectSchemaKey = "object-schema-ccaf2efe-8fa3-4f62-be79-62ef3cbe7390";
 
-        private SqlSmoObject sqlDialogSubject = null;
+        private SqlSmoObject? sqlDialogSubject;
 
         private int sqlServerVersion = 0;
-        private int sqlServerEffectiveVersion = 0;
 
 
         #endregion
@@ -73,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// gets/sets XmlDocument with parameters
         /// </summary>
-        public XmlDocument Document
+        public XmlDocument? Document
         {
             get
             {
@@ -85,8 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
                 if (value != null)
                 {
-                    //this.originalDocument = (XmlDocument) value.Clone();
-                    this.originalDocument = value;
+                    this.originalDocument = (XmlDocument)value.Clone();
                 }
                 else
                 {
@@ -111,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// gets/sets SMO server object
         /// </summary>
-        public Server Server
+        public Server? Server
         {
             get
             {
@@ -127,26 +125,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// connection info that should be used by the dialogs
         /// </summary>
-        public SqlOlapConnectionInfoBase ConnectionInfo
+        public SqlOlapConnectionInfoBase? ConnectionInfo
         {
             get
             {
-                //// update the database name in the serverconnection object to set the correct database context when connected to Azure
-                //var conn = this.connectionInfo as SqlConnectionInfoWithConnection;
+                // update the database name in the serverconnection object to set the correct database context when connected to Azure
+                var conn = this.connectionInfo as SqlConnectionInfoWithConnection;
 
-                //if (conn != null && conn.ServerConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
-                //{
-                //    if (this.RelevantDatabaseName != null)
-                //    {
-                //        IComparer<string> dbNamesComparer = ServerConnection.ConnectionFactory.GetInstance(conn.ServerConnection).ServerComparer as IComparer<string>;
-                //        if (dbNamesComparer.Compare(this.RelevantDatabaseName, conn.DatabaseName) != 0)
-                //        {                            
-                //            ServerConnection serverConnection = conn.ServerConnection.GetDatabaseConnection(this.RelevantDatabaseName, true, conn.AccessToken);
-                //            ((SqlConnectionInfoWithConnection)this.connectionInfo).ServerConnection = serverConnection;
-                //        }
-                //    }
-                //}
-                
+                // Don't update the database name if this is a Gen3 connection since Gen3 supports USE from the server connection.
+                if (conn != null &&
+                    conn.ServerConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase &&
+                    !(conn.ServerConnection.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse &&
+                    conn.ServerConnection.ProductVersion.Major >= 12))
+                {
+                    if (this.RelevantDatabaseName != null)
+                    {
+                        IComparer<string> dbNamesComparer = new ServerComparer(conn.ServerConnection, "master");
+                        if (dbNamesComparer.Compare(this.RelevantDatabaseName, conn.DatabaseName) != 0 && this.connectionInfo != null)
+                        {
+                            ServerConnection databaseConnection = conn.ServerConnection.GetDatabaseConnection(this.RelevantDatabaseName, true, conn.AccessToken);
+                            ((SqlConnectionInfoWithConnection)this.connectionInfo).ServerConnection = databaseConnection;
+                        }
+                    }
+                }
                 return this.connectionInfo;
             }
         }
@@ -163,11 +164,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 {
                     if (this.serverType != ServerType.SQL)
                     {
+                        System.Diagnostics.Debug.Assert(false, "CDataContainer.ServerConnection can be used only for SQL connection");
+
                         throw new InvalidOperationException();
                     }
 
                     if (this.connectionInfo == null)
                     {
+                        System.Diagnostics.Debug.Assert(false, "CDataContainer.ServerConnection can be used only after ConnectionInfo property has been set");
+
                         throw new InvalidOperationException();
                     }
 
@@ -177,12 +182,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     }
                     else
                     {
-                        SqlConnectionInfo sci = this.connectionInfo as SqlConnectionInfo;
+                        SqlConnectionInfo? sci = this.connectionInfo as SqlConnectionInfo;
+                        System.Diagnostics.Debug.Assert(sci != null, "CDataContainer.ServerConnection: connection info MUST be SqlConnectionInfo");
                         this.serverConnection = new ServerConnection(sci);
                     }
                 }
 
-
+                System.Diagnostics.Debug.Assert(this.serverConnection != null);
                 return this.serverConnection;
             }
         }
@@ -191,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// returns SMO server connection object constructed off the connectionInfo.
         /// This method cannot work until ConnectionInfo property has been set
         /// </summary>
-        public SqlConnectionInfoWithConnection SqlInfoWithConnection
+        public SqlConnectionInfoWithConnection? SqlInfoWithConnection
         {
             get
             {
@@ -199,11 +205,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 {
                     if (this.serverType != ServerType.SQL)
                     {
+                        System.Diagnostics.Debug.Assert(false, "CDataContainer.ServerConnection can be used only for SQL connection");
+
                         throw new InvalidOperationException();
                     }
 
                     if (this.connectionInfo == null)
                     {
+                        System.Diagnostics.Debug.Assert(false, "CDataContainer.ServerConnection can be used only after ConnectionInfo property has been set");
+
                         throw new InvalidOperationException();
                     }
 
@@ -214,16 +224,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     }
                     else
                     {
-                        SqlConnectionInfo sci = this.connectionInfo as SqlConnectionInfo;
+                        SqlConnectionInfo? sci = this.connectionInfo as SqlConnectionInfo;
+                        System.Diagnostics.Debug.Assert(sci != null, "CDataContainer.ServerConnection: connection info MUST be SqlConnectionInfo");
                         this.serverConnection = new ServerConnection(sci);
                     }
                 }
 
+                System.Diagnostics.Debug.Assert(this.serverConnection != null);
                 return this.sqlCiWithConnection;
             }
         }
 
-        public string ServerName
+        public string? ServerName
         {
             get
             {
@@ -247,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-        public string SqlCeFileName
+        public string? SqlCeFileName
         {
             get
             {
@@ -260,7 +272,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         }
 
         //This member is used for non-express sku only
-        public string OlapServerName
+        public string? OlapServerName
         {
             get
             {
@@ -418,11 +430,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <summary>
         /// The SQL SMO object that is the subject of the dialog.
         /// </summary>
-        public SqlSmoObject SqlDialogSubject
+        public SqlSmoObject? SqlDialogSubject
         {
             get
             {
-                SqlSmoObject result = null;
+                SqlSmoObject? result;
 
                 if (this.sqlDialogSubject != null)
                 {
@@ -430,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 }
                 else
                 {
-                    result = this.Server.GetSmoObject(this.ObjectUrn);
+                    result = this.Server?.GetSmoObject(this.ObjectUrn);
                 }
 
                 return result;
@@ -451,6 +463,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 bool result = false;
 
+                System.Diagnostics.Debug.Assert(this.Server != null, "SMO Server object is null!");
+                System.Diagnostics.Debug.Assert(this.Server.ConnectionContext != null, "SMO Server Connection object is null!");
+
                 if (this.Server != null && this.Server.ConnectionContext != null)
                 {
                     result = this.Server.ConnectionContext.IsInFixedServerRole(FixedServerRoles.SysAdmin);
@@ -470,6 +485,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 string result = String.Empty;
                 string urnText = this.GetDocumentPropertyString("urn");
+
+                System.Diagnostics.Debug.Assert(urnText.Length != 0, "couldn't get relevant URN");
 
                 if (urnText.Length != 0)
                 {
@@ -501,6 +518,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 {
                     this.sqlServerVersion = 9;
 
+                    System.Diagnostics.Debug.Assert(this.ConnectionInfo != null, "ConnectionInfo is null!");
+                    System.Diagnostics.Debug.Assert(ServerType.SQL == this.ContainerServerType, "unexpected server type");
+
                     if ((this.ConnectionInfo != null) && (ServerType.SQL == this.ContainerServerType))
                     {
                         Enumerator enumerator = new Enumerator();
@@ -520,99 +540,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         }
 
-        /// <summary>
-        /// The server version the database is emulating.  If database compatibility level is
-        /// not relevant to the subject, then this just returns the actual server version.
-        /// </summary>
-        public int EffectiveSqlServerVersion
-        {
-            get
-            {
-                if (this.sqlServerEffectiveVersion == 0)
-                {
-                    this.sqlServerEffectiveVersion = 9;
-
-                    if ((this.ConnectionInfo != null) && (ServerType.SQL == this.ContainerServerType))
-                    {
-                        string databaseName = this.RelevantDatabaseName;
-
-                        if (databaseName.Length != 0)
-                        {
-                            Enumerator enumerator = new Enumerator();
-                            Urn urn = String.Format("Server/Database[@Name='{0}']", Urn.EscapeString(databaseName));
-                            string[] fields = new string[] { "CompatibilityLevel" };
-                            DataTable dataTable = enumerator.Process(this.ConnectionInfo, new Request(urn, fields));
-
-                            if (dataTable.Rows.Count != 0)
-                            {
-
-                                CompatibilityLevel level = (CompatibilityLevel)dataTable.Rows[0][0];
-
-                                switch (level)
-                                {
-                                    case CompatibilityLevel.Version60:
-                                    case CompatibilityLevel.Version65:
-
-                                        this.sqlServerEffectiveVersion = 6;
-                                        break;
-
-                                    case CompatibilityLevel.Version70:
-
-                                        this.sqlServerEffectiveVersion = 7;
-                                        break;
-
-                                    case CompatibilityLevel.Version80:
-
-                                        this.sqlServerEffectiveVersion = 8;
-                                        break;
-
-                                    case CompatibilityLevel.Version90:
-
-                                        this.sqlServerEffectiveVersion = 9;
-                                        break;
-                                    case CompatibilityLevel.Version100:
-
-                                        this.sqlServerEffectiveVersion = 10;
-                                        break;
-                                    case CompatibilityLevel.Version110:
-
-                                        this.sqlServerEffectiveVersion = 11;
-                                        break;
-                                    case CompatibilityLevel.Version120:
-
-                                        this.sqlServerEffectiveVersion = 12;
-                                        break;
-
-                                    case CompatibilityLevel.Version130:
-                                        this.sqlServerEffectiveVersion = 13;
-                                        break;
-
-                                    case CompatibilityLevel.Version140:
-                                        this.sqlServerEffectiveVersion = 14;
-                                        break;
-
-                                    default:
-
-                                        this.sqlServerEffectiveVersion = 14;
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                this.sqlServerEffectiveVersion = this.SqlServerVersion;
-                            }
-                        }
-                        else
-                        {
-                            this.sqlServerEffectiveVersion = this.SqlServerVersion;
-                        }
-                    }
-                }
-
-                return this.sqlServerEffectiveVersion;
-            }
-        }
-
         #endregion
 
         #region Constructors, finalizer
@@ -628,9 +555,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="ciObj">connection info containing live connection</param>
         public CDataContainer(object ciObj, bool ownConnection)
         {
-            SqlConnectionInfoWithConnection ci = (SqlConnectionInfoWithConnection)ciObj;          
+            SqlConnectionInfoWithConnection ci = (SqlConnectionInfoWithConnection)ciObj;
             if (ci == null)
             {
+                System.Diagnostics.Debug.Assert(false, "CDataContainer.CDataContainer(SqlConnectionInfoWithConnection): specified connection info is null");
+
                 throw new ArgumentNullException("ci");
             }
             ApplyConnectionInfo(ci, ownConnection);
@@ -645,9 +574,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="ci">connection info containing live connection</param>
         public CDataContainer(ServerType serverType, object ciObj, bool ownConnection)
         {
-            SqlConnectionInfoWithConnection ci = (SqlConnectionInfoWithConnection)ciObj;            
+            SqlConnectionInfoWithConnection ci = (SqlConnectionInfoWithConnection)ciObj;
             if (ci == null)
             {
+                System.Diagnostics.Debug.Assert(false, "CDataContainer.CDataContainer(SqlConnectionInfoWithConnection): specified connection info is null");
+
                 throw new ArgumentNullException("ci");
             }
 
@@ -656,12 +587,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (serverType == ServerType.SQL)
             {
-                    //NOTE: ServerConnection property will constuct the object if needed
-                    m_server = new Server(ServerConnection);
-            }           
+                //NOTE: ServerConnection property will construct the object if needed
+                m_server = new Server(ServerConnection);
+            }
             else
             {
-                    throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
+                throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
             }
         }
 
@@ -674,7 +605,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="userName">User name for not trusted connections</param>
         /// <param name="password">Password for not trusted connections</param>
         /// <param name="xmlParameters">XML string with parameters</param>
-        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters, string azureAccountToken = null)
+        public CDataContainer(ServerType serverType, string serverName, bool trusted, string userName, SecureString password, string databaseName, string xmlParameters, string? azureAccountToken = null)
         {
             this.serverType = serverType;
             this.serverName = serverName;
@@ -710,6 +641,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="xmlParameters">XML string with parameters</param>
         public CDataContainer(CDataContainer dataContainer, string xmlParameters)
         {
+            //BUGBUG - should we be reusing same SqlConnectionInfoWithConnection if it is available?
+
+            System.Diagnostics.Debug.Assert(dataContainer.Server != null, "DataContainer.Server can not be null.");
             Server = dataContainer.Server;
             this.serverName = dataContainer.serverName;
             this.serverType = dataContainer.serverType;
@@ -718,9 +652,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             this.sqlCiWithConnection = dataContainer.connectionInfo as SqlConnectionInfoWithConnection;
             if (this.sqlCiWithConnection != null)
-            {              
+            {
                 //we want to be notified if it is closed
                 this.sqlCiWithConnection.ConnectionClosed += new EventHandler(OnSqlConnectionClosed);
+            }
+
+            if (this.connectionInfo is SqlConnectionInfo)
+            {
+                System.Diagnostics.Debug.Assert(this.sqlCiWithConnection != null, "CDataContainer.ConnectionInfo setter: for SQL connection info you MUST use SqlConnectionInfoWithConnection derived class!");
             }
 
             if (xmlParameters != null)
@@ -764,20 +703,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (site != null)
             {
-                // see if service provider supports INodeInformation interface from the object explorer
-                // NOTE: we're trying to forcefully set connection information on the data container.
-                // If this code doesn't execute, then dc.Init call below will result in CDataContainer
-                // initializing its ConnectionInfo member with a new object contructed off the parameters
-                // in the XML doc [server name, user name etc]
-                IManagedConnection managedConnection = site.GetService(typeof(IManagedConnection)) as IManagedConnection;
+                Trace.TraceInformation("CDataContainer.Init has non-null IServiceProvider");
+                //see if service provider supports IManagedConnection interface from the object explorer
+
+                //NOTE: we're trying to forcefully set connection information on the data container.
+                //If this code doesn't execute, then dc.Init call below will result in CDataContainer
+                //initializing its ConnectionInfo member with a new object contructed off the parameters
+                //in the XML doc [server name, user name etc]
+                IManagedConnection? managedConnection =
+                    site.GetService(typeof(IManagedConnection)) as IManagedConnection;
                 if (managedConnection != null)
                 {
+                    Trace.TraceInformation("CDataContainer.Init has non-null IManagedConnection");
                     this.SetManagedConnection(managedConnection);
                 }
             }
 
             this.Document = doc;
-            LoadData();           
+            LoadData();
 
             // finish the initialization
             this.Init(doc);
@@ -808,13 +751,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
                 // NOTE: ServerConnection property will constuct the object if needed
                 m_server ??= new Server(ServerConnection);
-            }           
-            else if (this.serverType == ServerType.SQLCE)
-            {
-                // do nothing; originally we were only distinguishing between two
-                // types of servers (OLAP/SQL); as a result for SQLCE we were 
-                // executing the same codepath as for OLAP server which was
-                // resulting in an exception;
             }
         }
 
@@ -837,21 +773,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (!bStatus || this.serverName.Length == 0)
             {
+                if (this.sqlCiWithConnection != null)
                 {
-                    bStatus = param.GetParam("database", ref this.sqlceFilename);	
-				    if (bStatus && !string.IsNullOrEmpty(this.sqlceFilename))
-				    {
-					    this.serverType = ServerType.SQLCE;
-				    }
-				    else if (this.sqlCiWithConnection != null)
-				    {	
-					    this.serverType = ServerType.SQL;
-				    }
-				    else
-				    {
-					    this.serverType = ServerType.UNKNOWN;
-				    }
-                }              
+                    this.serverType = ServerType.SQL;
+                }
+                else
+                {
+                    this.serverType = ServerType.UNKNOWN;
+                }
+
             }
             else
             {
@@ -877,10 +807,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
 
             // Ensure there is no password in the XML document
-            string temp = string.Empty;
+            string? temp = string.Empty;
             if (param.GetParam("password", ref temp))
             {
-                temp = null;               
+                temp = null;
+                System.Diagnostics.Debug.Assert(false, "Plaintext password found in XML document!  This must be fixed!");
+
                 throw new SecurityException();
             }
 
@@ -899,7 +831,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         /// <param name="managedConnection"></param>
         internal void SetManagedConnection(IManagedConnection managedConnection)
-        {          
+        {
+            System.Diagnostics.Debug.Assert(this.managedConnection == null, "CDataContainer.SetManagedConnection: overwriting the previous value");
             this.managedConnection = managedConnection;
 
             ApplyConnectionInfo(managedConnection.Connection, true);//it will do some extra initialization
@@ -912,7 +845,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns>The property value</returns>
         public object GetDocumentPropertyValue(string propertyName)
         {
-            object result = null;
+            object? result = null;
             STParameters param = new STParameters(this.Document);
 
             param.GetBaseParam(propertyName, ref result);
@@ -974,6 +907,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         private void InitializeObjectNameAndSchema()
         {
+            System.Diagnostics.Debug.Assert(ServerType.SQL == this.serverType, "This method only valid for SQL Servers");
+
             string documentUrn = this.GetDocumentPropertyString("urn");
             if (documentUrn.Length != 0)
             {
@@ -1003,8 +938,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             string userName,
             SecureString password,
             string databaseName,
-            string azureAccountToken)
-        {         
+            string? azureAccountToken)
+        {
+            System.Diagnostics.Debug.Assert(this.serverType == ServerType.SQL, "GetTempSqlConnectionInfoWithConnection should only be called for SQL Server type");
+
             SqlConnectionInfoWithConnection tempCI = new SqlConnectionInfoWithConnection(serverName);
             tempCI.SingleConnection = false;
             tempCI.Pooled = false;
@@ -1031,7 +968,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnSqlConnectionClosed(object sender, EventArgs e)
+        private void OnSqlConnectionClosed(object? sender, EventArgs e)
         {
         }
 
@@ -1042,7 +979,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="ci"></param>
         private void ApplyConnectionInfo(SqlOlapConnectionInfoBase ci, bool ownConnection)
         {
-          
+            System.Diagnostics.Debug.Assert(this.connectionInfo == null, "CDataContainer.ApplyConnectionInfo: overwriting non-null connection info!");
+            System.Diagnostics.Debug.Assert(ci != null, "CDataContainer.ApplyConnectionInfo: ci is null!");
+
             this.connectionInfo = ci;
             this.ownConnection = ownConnection;
 
@@ -1050,12 +989,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             this.sqlCiWithConnection = ci as SqlConnectionInfoWithConnection;
 
             if (this.sqlCiWithConnection != null)
-            {               
+            {
                 // we want to be notified if it is closed
                 this.sqlCiWithConnection.ConnectionClosed += new EventHandler(OnSqlConnectionClosed);
             }
         }
-        
+
         private static bool MustRethrow(Exception exception)
         {
             bool result = false;
@@ -1132,7 +1071,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// MUST be called, as we'll be closing SQL connection inside this call
         /// </summary>
         private void Dispose(bool disposing)
-        {           
+        {
             try
             {
                 //take care of live SQL connection
@@ -1175,42 +1114,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                         this.managedConnection.Close();
                     }
                     this.managedConnection = null;
-                }               
+                }
             }
             catch (Exception)
-            {               
+            {
             }
         }
 
         #endregion
 
-        
+
         /// <summary>
         /// Create a data container object
         /// </summary>
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
         internal static CDataContainer CreateDataContainer(
-            ConnectionInfo connInfo,            
+            ConnectionInfo connInfo,
             bool databaseExists = false,
-            XmlDocument containerDoc = null)
+            XmlDocument? containerDoc = null)
         {
             containerDoc ??= CreateDataContainerDocument(connInfo, databaseExists);
 
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
-
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
+
+            return CreateDataContainer(connectionInfoWithConnection, containerDoc);
+        }
+
+        /// <summary>
+        /// Create a data container object
+        /// </summary>
+        /// <param name="connInfo">connection info</param>
+        /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
+        internal static CDataContainer CreateDataContainer(
+            SqlConnectionInfoWithConnection connectionInfoWithConnection,
+            XmlDocument containerDoc)
+        {
             CDataContainer dataContainer = new CDataContainer(ServerType.SQL, connectionInfoWithConnection, true);
             dataContainer.Init(containerDoc);
-
             return dataContainer;
         }
 
-        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) {
+        internal static System.Security.SecureString BuildSecureStringFromPassword(string password)
+        {
             var passwordSecureString = new System.Security.SecureString();
-            if (password != null) {
-                foreach (char c in password) {
+            if (password != null)
+            {
+                foreach (char c in password)
+                {
                     passwordSecureString.AppendChar(c);
                 }
             }
