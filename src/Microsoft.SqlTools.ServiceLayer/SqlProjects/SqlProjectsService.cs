@@ -278,19 +278,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #endregion
 
-        #region Folder functions
-
-        internal async Task HandleAddFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
-        {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri!).Folders.Add(new Folder(requestParams.Path!)), requestContext);
-        }
-
-        internal async Task HandleDeleteFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
-        {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri!).Folders.Delete(requestParams.Path!), requestContext);
-        }
-
-        #endregion
 
         #region SQLCMD variable functions
 
