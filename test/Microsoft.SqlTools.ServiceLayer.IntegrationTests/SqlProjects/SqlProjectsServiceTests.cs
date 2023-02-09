@@ -162,6 +162,128 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestPreDeploymentScriptAddDeleteExclude()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.AreEqual(0, service.Projects[projectUri].PreDeployScripts.Count, "Baseline number of Pre-deployment scripts");
+
+            // Validate adding a pre-deployment script
+            MockRequest<ResultStatus> requestMock = new();
+            string scriptRelativePath = "PreDeploymentScript.sql";
+            string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
+            await File.WriteAllTextAsync(scriptFullPath, "SELECT 'Deployment starting...'");
+            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
+
+            await service.HandleAddPreDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddPreDeploymentScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScript count after add");
+            Assert.IsTrue(service.Projects[projectUri].PreDeployScripts.Contains(scriptRelativePath), $"PreDeployScripts expected to contain {scriptRelativePath}");
+
+            // Validate excluding a pre-deployment script
+            requestMock = new();
+            await service.HandleExcludePreDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleExcludePreDeploymentScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after exclude");
+            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to still exist on disk");
+
+            // Re-add to set up for Delete
+            requestMock = new();
+            await service.HandleAddPreDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddPreDeploymentScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts    .Count, "PreDeployScripts count after re-add");
+
+            // Validate deleting a pre-deployment script
+            requestMock = new();
+            await service.HandleDeletePreDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeletePreDeploymentScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after delete");
+            Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
+        }
+
+        [Test]
+        public async Task TestPostDeploymentScriptAddDeleteExclude()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.AreEqual(0, service.Projects[projectUri].PostDeployScripts.Count, "Baseline number of Post-deployment scripts");
+
+            // Validate adding a Post-deployment script
+            MockRequest<ResultStatus> requestMock = new();
+            string scriptRelativePath = "PostDeploymentScript.sql";
+            string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
+            await File.WriteAllTextAsync(scriptFullPath, "SELECT 'Deployment finished!'");
+            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
+
+            await service.HandleAddPostDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddPostDeploymentScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScript count after add");
+            Assert.IsTrue(service.Projects[projectUri].PostDeployScripts.Contains(scriptRelativePath), $"PostDeployScripts expected to contain {scriptRelativePath}");
+
+            // Validate excluding a Post-deployment script
+            requestMock = new();
+            await service.HandleExcludePostDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleExcludePostDeploymentScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after exclude");
+            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to still exist on disk");
+
+            // Re-add to set up for Delete
+            requestMock = new();
+            await service.HandleAddPostDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddPostDeploymentScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after re-add");
+
+            // Validate deleting a Post-deployment script
+            requestMock = new();
+            await service.HandleDeletePostDeploymentScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeletePostDeploymentScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after delete");
+            Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
+        }
+
+        [Test]
         public async Task TestDatabaseReferenceAddDelete()
         {
             // Setup
