@@ -180,9 +180,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             get { return this.ServerVersion.Major > 11 && this.AzureEdition != AzureEdition.DataWarehouse; }
         }
-
-        // [Browsable(false)]
-        // public SubscriptionLocationKey AzureServiceLocation { get; set; }
         
         public string BackupStorageRedundancy
         {

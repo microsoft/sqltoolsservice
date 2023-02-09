@@ -67,9 +67,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         
         private UserPrototype InitUserNew(CDataContainer dataContainer, UserInfo user)
         {
-            // this.DataContainer = context;          
-            // this.parentDbUrn = new Urn(this.DataContainer.ParentUrn); 
-            // this.objectUrn = new Urn(this.DataContainer.ObjectUrn);
             ExhaustiveUserTypes currentUserType;
             UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, user);
 
