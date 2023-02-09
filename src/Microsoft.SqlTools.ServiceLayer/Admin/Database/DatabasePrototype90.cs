@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     this.currentState.pageVerify = PageVerify.None;
                 }
                 else
-                {                
+                {
                     this.currentState.pageVerify = PageVerify.TornPageDetection;
                 }
 

@@ -22,6 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 
     public class AddSystemDatabaseReferenceRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/addSystemDatabaseReference");
+        public static readonly RequestType<AddSystemDatabaseReferenceParams, ResultStatus> Type = RequestType<AddSystemDatabaseReferenceParams, ResultStatus>.Create("sqlprojects/addSystemDatabaseReference");
     }
 }
