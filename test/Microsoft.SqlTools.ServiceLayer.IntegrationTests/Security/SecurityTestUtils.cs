@@ -47,12 +47,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             };
         }
 
-        internal static UserInfo GetTestUserInfo()
+        internal static UserInfo GetTestUserInfo(string loginName)
         {
             return new UserInfo()
             {
                 Type = DatabaseUserType.UserWithLogin,
-                LoginName = "TestUserName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                UserName = "TestUserName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                LoginName = loginName,
                 Password = "placeholder",
                 DefaultSchema = "dbo",
                 OwnedSchemas = new string[] { "dbo" },

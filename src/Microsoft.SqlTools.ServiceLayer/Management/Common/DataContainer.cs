@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         #region Fields
 
         private ServerConnection? serverConnection;
-        private Server? m_server;   
+        private Server? m_server;
         protected XmlDocument? m_doc;
         private XmlDocument? originalDocument;
         private SqlOlapConnectionInfoBase? connectionInfo;
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
                 if (value != null)
                 {
-                    this.originalDocument = (XmlDocument) value.Clone();
+                    this.originalDocument = (XmlDocument)value.Clone();
                 }
                 else
                 {
@@ -587,12 +587,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (serverType == ServerType.SQL)
             {
-                //NOTE: ServerConnection property will constuct the object if needed
-                    m_server = new Server(ServerConnection);
+                //NOTE: ServerConnection property will construct the object if needed
+                m_server = new Server(ServerConnection);
             }
             else
             {
-                    throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
+                throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
             }
         }
 
@@ -617,7 +617,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
                 // NOTE: ServerConnection property will constuct the object if needed
                 m_server = new Server(ServerConnection);
-            }          
+            }
             else
             {
                 throw new ArgumentException(SR.UnknownServerType(serverType.ToString()));
@@ -711,7 +711,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 //initializing its ConnectionInfo member with a new object contructed off the parameters
                 //in the XML doc [server name, user name etc]
                 IManagedConnection? managedConnection =
-                    site.GetService(typeof (IManagedConnection)) as IManagedConnection;
+                    site.GetService(typeof(IManagedConnection)) as IManagedConnection;
                 if (managedConnection != null)
                 {
                     Trace.TraceInformation("CDataContainer.Init has non-null IManagedConnection");
@@ -752,13 +752,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 // NOTE: ServerConnection property will constuct the object if needed
                 m_server ??= new Server(ServerConnection);
             }
-            else if (this.serverType == ServerType.SQLCE)
-            {
-                // do nothing; originally we were only distinguishing between two
-                // types of servers (OLAP/SQL); as a result for SQLCE we were 
-                // executing the same codepath as for OLAP server which was
-                // resulting in an exception;
-            }
         }
 
         /// <summary>
@@ -780,22 +773,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (!bStatus || this.serverName.Length == 0)
             {
+                if (this.sqlCiWithConnection != null)
                 {
-                    bStatus = param.GetParam("database", ref this.sqlceFilename);
-				    if (bStatus && !string.IsNullOrEmpty(this.sqlceFilename))
-                    {
-                        this.serverType = ServerType.SQLCE;
-                    }
-				    else if (this.sqlCiWithConnection != null)
-                            {
-                                this.serverType = ServerType.SQL;
-                            }
-                            else
-                            {
-                                this.serverType = ServerType.UNKNOWN;
-                            }
-                        }
-                    }
+                    this.serverType = ServerType.SQL;
+                }
+                else
+                {
+                    this.serverType = ServerType.UNKNOWN;
+                }
+
+            }
             else
             {
                 // OK, let's see if <servertype> was specified in the parameters. It it was, use
@@ -1136,14 +1123,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         #endregion
 
-        
+
         /// <summary>
         /// Create a data container object
         /// </summary>
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
         internal static CDataContainer CreateDataContainer(
-            ConnectionInfo connInfo,            
+            ConnectionInfo connInfo,
             bool databaseExists = false,
             XmlDocument? containerDoc = null)
         {
@@ -1162,7 +1149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="connInfo">connection info</param>
         /// <param name="databaseExists">flag indicating whether to create taskhelper for existing database or not</param>
         internal static CDataContainer CreateDataContainer(
-            SqlConnectionInfoWithConnection connectionInfoWithConnection,            
+            SqlConnectionInfoWithConnection connectionInfoWithConnection,
             XmlDocument containerDoc)
         {
             CDataContainer dataContainer = new CDataContainer(ServerType.SQL, connectionInfoWithConnection, true);
@@ -1170,12 +1157,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return dataContainer;
         }
 
-        internal static System.Security.SecureString BuildSecureStringFromPassword(string password) 
+        internal static System.Security.SecureString BuildSecureStringFromPassword(string password)
         {
             var passwordSecureString = new System.Security.SecureString();
-            if (password != null) 
+            if (password != null)
             {
-                foreach (char c in password) 
+                foreach (char c in password)
                 {
                     passwordSecureString.AppendChar(c);
                 }

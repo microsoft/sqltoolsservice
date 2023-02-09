@@ -5,11 +5,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
@@ -102,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.isMember = new Dictionary<string, bool>();
         }
 
-        public UserPrototypeData(CDataContainer context)
+        public UserPrototypeData(CDataContainer context, UserInfo userInfo)
         {
             this.isSchemaOwned = new Dictionary<string, bool>();
             this.isMember = new Dictionary<string, bool>();
@@ -111,10 +112,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 this.LoadUserData(context);
             }
+            else
+            {
+                this.name = userInfo.UserName;
+                this.mappedLoginName = userInfo.LoginName;
+                this.defaultSchemaName = userInfo.DefaultSchema;
+                this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);        
+            }
 
             this.LoadRoleMembership(context);
 
-            this.LoadSchemaData(context);            
+            this.LoadSchemaData(context);
         }
 
         public UserPrototypeData Clone()
@@ -466,7 +474,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 var comparer = this.parent.GetStringComparer();
                 if (comparer.Compare(dbRole.Name, "public") != 0)
                 {
-                    this.roleNames.Add(dbRole.Name);
+                    roleNames.Add(dbRole.Name);
                 }
             }
             return roleNames;
@@ -484,7 +492,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             foreach (Schema sch in this.parent.Schemas)
             {
-                this.schemaNames.Add(sch.Name);
+                schemaNames.Add(sch.Name);
             }
             return schemaNames;
         }
@@ -540,7 +548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 enumerator.Reset();
 
-                String? nullString = null;
+                string? nullString = null;
 
                 while (enumerator.MoveNext())
                 {
@@ -598,15 +606,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             if ((this.currentState.userType == UserType.Certificate)
-                &&(!this.Exists || (user.Certificate != this.currentState.certificateName))
-                )
+                &&(!this.Exists || (user.Certificate != this.currentState.certificateName)))
             {
                 user.Certificate = this.currentState.certificateName;
             }
 
             if ((this.currentState.userType == UserType.AsymmetricKey)
-                && (!this.Exists || (user.AsymmetricKey != this.currentState.asymmetricKeyName))
-                )
+                && (!this.Exists || (user.AsymmetricKey != this.currentState.asymmetricKeyName)))
             {
                 user.AsymmetricKey = this.currentState.asymmetricKeyName;
             }
@@ -622,7 +628,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 result = this.parent.Users[this.originalState.name];
                 result?.Refresh();
 
-                System.Diagnostics.Debug.Assert(0 == String.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing user has changed");
+                System.Diagnostics.Debug.Assert(0 == string.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing user has changed");
                 if (result == null)
                 {
                     throw new Exception();
@@ -757,7 +763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 //Default Schema was not supported before Denali for windows group.
                 User user = this.GetUser();
-                if (this.Exists && user.LoginType == LoginType.WindowsGroup)
+                if (this.Exists && user.LoginType == Microsoft.SqlServer.Management.Smo.LoginType.WindowsGroup)
                 {
                     return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
                 }
@@ -994,15 +1000,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-        private UserPrototypeFactory(CDataContainer context)
+        private UserPrototypeFactory(CDataContainer context, UserInfo user)
         {
             this.context = context;
 
-            this.originalData = new UserPrototypeData(this.context);
+            this.originalData = new UserPrototypeData(this.context, user);
             this.currentData = this.originalData.Clone();
         }
 
-        public static UserPrototypeFactory GetInstance(CDataContainer context)
+        public static UserPrototypeFactory GetInstance(CDataContainer context, UserInfo user)
         {
             if (singletonInstance != null
                 && singletonInstance.context != context)
@@ -1010,7 +1016,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 singletonInstance = null;
             }
 
-            singletonInstance ??= new UserPrototypeFactory(context);
+            singletonInstance ??= new UserPrototypeFactory(context, user);
 
             return singletonInstance;
         }
