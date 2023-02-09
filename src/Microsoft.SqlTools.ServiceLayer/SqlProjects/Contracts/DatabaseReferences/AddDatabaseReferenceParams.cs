@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public bool SuppressMissingDependencies { get; set; }
 
         /// <summary>
-        /// Database 
+        /// Literal name used to reference another database in the same server, if not using SQLCMD variables 
         /// </summary>
         public string? DatabaseLiteral { get; set; }
     }
