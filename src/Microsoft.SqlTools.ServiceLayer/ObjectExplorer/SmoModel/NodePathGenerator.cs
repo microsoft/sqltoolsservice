@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             else
             {
                 var returnSet = new HashSet<string>();
-                if (currentNode.ContainedType() == "Database")
+                if (currentNode.ContainedType() == "Database" || currentNode.ContainedType() == "ExpandableSchema")
                 {
                     path = databaseName + "/" + path;
                 }
