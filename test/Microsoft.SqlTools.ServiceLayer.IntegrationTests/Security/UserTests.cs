@@ -10,7 +10,6 @@ using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 {
