@@ -269,6 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable!.VarName);
             Assert.AreEqual(serverVar.Name, projectRef.ServerVariable!.VarName);
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
+            service.Projects[projectUri].DatabaseReferences.Delete(mockReferencePath);
 
             // Validate adding a project reference via database literal
             mockReferencePath = Path.Join(Path.GetDirectoryName(projectUri), "..", "OtherDatabase", "OtherDatabaseLiteral.sqlproj");
