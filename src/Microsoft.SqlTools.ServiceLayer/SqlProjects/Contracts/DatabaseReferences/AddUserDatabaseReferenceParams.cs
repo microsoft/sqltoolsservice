@@ -21,15 +21,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string? ServerVariable { get; set; }
 
         /// <summary>
-        /// Throws if either both or neither DatabaseVariable and DatabaseLiteral are set. This only validates
+        /// Throws if either both DatabaseVariable and DatabaseLiteral are set. This only validates
         /// what is necessary for Tools Service.  The DacFx Projects library does comprehensive validation.
         /// </summary>
         /// <exception cref="ArgumentException"></exception>
         internal void Validate()
         {
-            if ((DatabaseVariable == null) == (DatabaseLiteral == null))
+            if (DatabaseVariable != null && DatabaseLiteral != null)
             {
-                throw new ArgumentException($"Either {nameof(DatabaseVariable)} or {nameof(DatabaseLiteral)} must be set, but not both.");
+                throw new ArgumentException($"Both {nameof(DatabaseVariable)} and {nameof(DatabaseLiteral)} cannot be set.");
             }
         }
     }

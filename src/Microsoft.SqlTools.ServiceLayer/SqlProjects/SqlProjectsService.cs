@@ -144,20 +144,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 DacpacReference reference;
 
-                if (requestParams.DatabaseLiteral != null)
+                if (requestParams.DatabaseLiteral != null) // same server, different database via database name literal
                 {
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
-                else
+                else if (requestParams.DatabaseVariable != null) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
                         requestParams.SuppressMissingDependencies,
                         project.SqlCmdVariables.Get(requestParams.DatabaseVariable!),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
+                }
+                else // same database
+                {
+                    reference = new DacpacReference(requestParams.DacpacPath, requestParams.SuppressMissingDependencies);
                 }
 
                 project.DatabaseReferences.Add(reference);
@@ -173,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 SqlProjectReference reference;
 
-                if (requestParams.DatabaseLiteral != null)
+                if (requestParams.DatabaseLiteral != null) // same server, different database via database name literal
                 {
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,
@@ -181,13 +185,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
-                else
+                else if (requestParams.DatabaseVariable != null) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,
                         requestParams.ProjectGuid, requestParams.SuppressMissingDependencies,
                         project.SqlCmdVariables.Get(requestParams.DatabaseVariable!),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
+                }
+                else // same database
+                {
+                    reference = new SqlProjectReference(
+                        requestParams.ProjectPath,
+                        requestParams.ProjectGuid,
+                        requestParams.SuppressMissingDependencies);
                 }
 
                 project.DatabaseReferences.Add(reference);
