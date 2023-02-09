@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Contracts;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         CategoryValues = new CategoryValue[]
                         { new CategoryValue { DisplayName = "SQL Login", Name = "SqlLogin" },
                           new CategoryValue { DisplayName = "Windows Authentication", Name = "Integrated" },
-                          new CategoryValue { DisplayName = "Azure Active Directory - Universal with MFA support", Name = "AzureMFA" }
+                          new CategoryValue { DisplayName = "Azure Active Directory - Universal with MFA support", Name = AzureMFA }
                         },
                         IsIdentity = true,
                         IsRequired = true,

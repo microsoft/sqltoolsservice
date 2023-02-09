@@ -12,6 +12,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.Authentication.Sql;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -49,12 +52,20 @@ namespace Microsoft.SqlTools.ServiceLayer
                     sqlClientListener = new SqlClientListener();
                 }
 
+
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
                 serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
+
+                if (commandOptions.EnableSqlAuthenticationProvider)
+                {
+                    // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
+                    SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, new AuthenticationProvider());
+                    ConnectionService.EnableSqlAuthenticationProvider = true;
+                }
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)

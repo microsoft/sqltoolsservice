@@ -66,6 +66,9 @@ namespace Microsoft.SqlTools.Utility
                             case "-parallel-message-processing":
                                 ParallelMessageProcessing = true;
                                 break;
+                            case "-enable-sql-authentication-provider":
+                                EnableSqlAuthenticationProvider = true;
+                                break;
                             case "-parent-pid":
                                 string nextArg = args[++i];
                                 if (Int32.TryParse(nextArg, out int parsedInt))
@@ -146,6 +149,13 @@ namespace Microsoft.SqlTools.Utility
         /// Eventually we will fix the issues and make this the default behavior.
         /// </summary>
         public bool ParallelMessageProcessing { get; private set; } = false;
+
+        /// <summary>
+        /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
+        /// when user chooses 'Azure MFA'. This setting enables MSAL.NET to acquire token with SqlClient integration.
+        /// Currently this option is disabled by default, it's planned to be enabled by default in future releases.
+        /// </summary>
+        public bool EnableSqlAuthenticationProvider { get; private set; } = false;
 
         /// <summary>
         /// The ID of the process that started this service. This is used to check when the parent

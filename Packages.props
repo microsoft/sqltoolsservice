@@ -15,6 +15,8 @@
 		<PackageReference Update="Microsoft.Extensions.DependencyModel" Version="3.1.4" />
 		<PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="7.0.0" />
 
+		<PackageReference Update="Microsoft.Identity.Client" Version="4.49.1" />
+		<PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="2.25.3" />
 		<PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
