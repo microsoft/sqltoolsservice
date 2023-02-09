@@ -271,7 +271,7 @@ WHERE do.database_id = @DbID
 
                 isSystemDB = db.IsSystemObject;
 
-                ResourceManager manager = new ResourceManager("Microsoft.SqlServer.Management.SqlManagerUI.CreateDatabaseStrings", typeof(DatabasePrototype).Assembly);
+                ResourceManager manager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).Assembly);
 
                 this.owner = db.Owner;
 
@@ -2012,7 +2012,7 @@ WHERE do.database_id = @DbID
                         (this.currentState.owner != this.originalState.owner))
                     {
                         //
-                        // bug 20000092 says the error message is confusing if this fails, so 
+                        // the error message is confusing if this fails, so 
                         // wrap this and throw a nicer error on failure.
                         //
                         try
