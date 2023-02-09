@@ -3,13 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-using System.Security;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Dmf;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
@@ -30,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     {
         private bool disposed;
 
-        private ConnectionService connectionService = null;
+        private ConnectionService connectionService;
 
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
 
@@ -97,6 +99,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
             this.ServiceHost.SetRequestHandler(InitializeLoginViewRequest.Type, HandleInitializeLoginViewRequest, true);
             this.ServiceHost.SetRequestHandler(DisposeLoginViewRequest.Type, HandleDisposeLoginViewRequest, true);
+
+            // User request handlers
+            this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
         }
 
 
@@ -267,112 +272,73 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 #region "User Handlers"
 
-        private UserPrototypeNew InitUserNew(CDataContainer dataContainer)
+        internal Task<Tuple<bool, string>> ConfigureUser(
+            string ownerUri,
+            UserInfo user,
+            ConfigAction configAction,
+            RunType runType)
         {
-            // this.DataContainer = context;          
-            // this.parentDbUrn = new Urn(this.DataContainer.ParentUrn); 
-            // this.objectUrn = new Urn(this.DataContainer.ObjectUrn);
-            ExhaustiveUserTypes currentUserType;
-            UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer);
-
-            if (dataContainer.IsNewObject)
+            return Task<Tuple<bool, string>>.Run(() =>
             {
-                if (IsParentDatabaseContained(dataContainer.ParentUrn, dataContainer))
+                try
                 {
-                    currentUserType = ExhaustiveUserTypes.SqlUserWithPassword;
-                }
-                else
-                {
-                    currentUserType = ExhaustiveUserTypes.LoginMappedUser;
-                }
-            }
-            else
-            {
-                currentUserType = this.GetCurrentUserTypeForExistingUser(
-                    dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
-            }
-
-           UserPrototypeNew currentUserPrototype = userPrototypeFactory.GetUserPrototype(currentUserType);
-           return currentUserPrototype;
-        }
-
-        private ExhaustiveUserTypes GetCurrentUserTypeForExistingUser(User user)
-        {
-            switch (user.UserType)
-            {
-                case UserType.SqlUser:
-                    if (user.IsSupportedProperty("AuthenticationType"))
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+                    if (connInfo == null)
                     {
-                        if (user.AuthenticationType == AuthenticationType.Windows)
-                        {
-                            return ExhaustiveUserTypes.WindowsUser;                            
-                        }
-                        else if (user.AuthenticationType == AuthenticationType.Database)
-                        {
-                            return ExhaustiveUserTypes.SqlUserWithPassword;
-                        }
+                        throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
                     }
 
-                    return ExhaustiveUserTypes.LoginMappedUser;
-                    
-                case UserType.NoLogin:
-                    return ExhaustiveUserTypes.SqlUserWithoutLogin;
-                    
-                case UserType.Certificate:
-                    return ExhaustiveUserTypes.CertificateMappedUser;
-                    
-                case UserType.AsymmetricKey:
-                    return ExhaustiveUserTypes.AsymmetricKeyMappedUser;
-                    
-                default:
-                    return ExhaustiveUserTypes.Unknown;
-            }
+                    var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
+                    var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
+                    connectionInfoWithConnection.ServerConnection = serverConnection;
+
+                    string urn  = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
+                        "Server/Database[@Name='{0}']", 
+                        Urn.EscapeString(serverConnection.DatabaseName));
+
+                    ActionContext context = new ActionContext(serverConnection, "new_user", urn);
+                    DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
+                    containerXml.AddProperty("itemtype", "User");
+
+                    XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
+                    bool objectExists = configAction != ConfigAction.Create;
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
+
+                    using (var actions = new UserActions(dataContainer, user, configAction))
+                    {
+                        var executionHandler = new ExecutonHandler(actions);
+                        executionHandler.RunNow(runType, this);
+                    }
+
+                    return new Tuple<bool, string>(true, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    return new Tuple<bool, string>(false, ex.ToString());
+                }
+            });
         }
 
-        private bool IsParentDatabaseContained(Urn parentDbUrn, CDataContainer dataContainer)
+        /// <summary>
+        /// Handle request to create a user
+        /// </summary>
+        internal async Task HandleCreateUserRequest(CreateUserParams parameters, RequestContext<CreateUserResult> requestContext)
         {
-            string parentDbName = parentDbUrn.GetNameForType("Database");
-            Database parentDatabase = dataContainer.Server.Databases[parentDbName];
+             var result = await ConfigureUser(parameters.OwnerUri,
+                parameters.User,
+                ConfigAction.Create,
+                RunType.RunNow);
 
-            if (parentDatabase.IsSupportedProperty("ContainmentType")
-                && parentDatabase.ContainmentType == ContainmentType.Partial)
+            await requestContext.SendResult(new CreateUserResult()
             {
-                return true;
-            }
-
-            return false;
+                User = parameters.User,
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });            
         }
 
         
-        private void GetUserTypeOptions(CDataContainer dataContainer)
-        {
-            if (SqlMgmtUtils.IsSql11OrLater(dataContainer.Server.ServerVersion)
-                && IsParentDatabaseContained(dataContainer.ParentUrn, dataContainer))
-            {
-                // this.userTypeComboBox.Items.AddRange(
-                // new string[]{
-                //     UserSR.SqlUserWithPasswordUserTypeText
-                //     }
-                //);
-            }
-            if (SqlMgmtUtils.IsYukonOrAbove(dataContainer.Server))
-            {
-                // this.userTypeComboBox.Items.AddRange(
-                // new string[]{
-                //     UserSR.AsymmetricKeyUserTypeText,
-                //     UserSR.CertificateUserTypeText,
-                //     UserSR.WithoutLoginSqlUserTypeText,               
-                //     UserSR.WindowsUserTypeText
-                //     }
-                // );
-            }
-            // this.userTypeComboBox.Items.AddRange(
-            //     new string[]{
-            //         UserSR.LoginMappedSqlUserTypeText
-            //         }
-            //     );
-        }
-
         private void GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
             // this.defaultLanguageComboBox.Items.Clear();            
@@ -395,65 +361,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-        private SecureString GetReadOnlySecureString(string secret)
-        {
-            SecureString ss = new SecureString();
-            foreach (char c in secret.ToCharArray())
-            {
-                ss.AppendChar(c);
-            }
-            ss.MakeReadOnly();
+        // code needs to be ported into the useraction class
+        // public void UserMemberships_OnRunNow(object sender, CDataContainer dataContainer)
+        // {
+        //     UserPrototype currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
 
-            return ss;
-        }
+        //     //In case the UserGeneral/OwnedSchemas pages are loaded,
+        //     //those will takes care of applying membership changes also.
+        //     //Hence, we only need to apply changes in this method when those are not loaded.
+        //     if (!currentPrototype.IsRoleMembershipChangesApplied)
+        //     {
+        //         //base.OnRunNow(sender);
 
-        public void UserMemberships_OnRunNow(object sender, CDataContainer dataContainer)
-        {
-            UserPrototypeNew currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
+        //         User user = currentPrototype.ApplyChanges();
 
-            //In case the UserGeneral/OwnedSchemas pages are loaded,
-            //those will takes care of applying membership changes also.
-            //Hence, we only need to apply changes in this method when those are not loaded.
-            if (!currentPrototype.IsRoleMembershipChangesApplied)
-            {
-                //base.OnRunNow(sender);
+        //         //this.ExecutionMode = ExecutionMode.Success;
+        //         dataContainer.ObjectName = currentPrototype.Name;
+        //         dataContainer.SqlDialogSubject = user;
+        //     }
 
-                User user = currentPrototype.ApplyChanges();
+        //     //setting back to original after changes are applied
+        //     currentPrototype.IsRoleMembershipChangesApplied = false;
+        // }
 
-                //this.ExecutionMode = ExecutionMode.Success;
-                dataContainer.ObjectName = currentPrototype.Name;
-                dataContainer.SqlDialogSubject = user;
-            }
+        // /// <summary>
+        // /// implementation of OnPanelRunNow
+        // /// </summary>
+        // /// <param name="node"></param>
+        // public void UserOwnedSchemas_OnRunNow(object sender, CDataContainer dataContainer)
+        // {
+        //     UserPrototype currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
 
-            //setting back to original after changes are applied
-            currentPrototype.IsRoleMembershipChangesApplied = false;
-        }
+        //     //In case the UserGeneral/Membership pages are loaded,
+        //     //those will takes care of applying schema ownership changes also.
+        //     //Hence, we only need to apply changes in this method when those are not loaded.
+        //     if (!currentPrototype.IsSchemaOwnershipChangesApplied)
+        //     {
+        //         //base.OnRunNow(sender);
 
-        /// <summary>
-        /// implementation of OnPanelRunNow
-        /// </summary>
-        /// <param name="node"></param>
-        public void UserOwnedSchemas_OnRunNow(object sender, CDataContainer dataContainer)
-        {
-            UserPrototypeNew currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
+        //         User user = currentPrototype.ApplyChanges();
 
-            //In case the UserGeneral/Membership pages are loaded,
-            //those will takes care of applying schema ownership changes also.
-            //Hence, we only need to apply changes in this method when those are not loaded.
-            if (!currentPrototype.IsSchemaOwnershipChangesApplied)
-            {
-                //base.OnRunNow(sender);
+        //         //this.ExecutionMode = ExecutionMode.Success;
+        //         dataContainer.ObjectName = currentPrototype.Name;
+        //         dataContainer.SqlDialogSubject = user;                
+        //     }
 
-                User user = currentPrototype.ApplyChanges();
-
-                //this.ExecutionMode = ExecutionMode.Success;
-                dataContainer.ObjectName = currentPrototype.Name;
-                dataContainer.SqlDialogSubject = user;                
-            }
-
-            //setting back to original after changes are applied
-            currentPrototype.IsSchemaOwnershipChangesApplied = false;
-        }
+        //     //setting back to original after changes are applied
+        //     currentPrototype.IsSchemaOwnershipChangesApplied = false;
+        // }
 
         // how to populate defaults from prototype, will delete once refactored
         // private void InitializeValuesInUiControls()
@@ -952,7 +907,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Database database = dataContainer.Server.Databases[databaseName];
             System.Diagnostics.Debug.Assert(database!= null, "database is null");
 
-            DatabaseRole role = null;
+            DatabaseRole role;
 
             if (isPropertiesMode == true) // in properties mode -> alter role
             {
@@ -985,7 +940,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private void DbRole_LoadSchemas(string databaseName, string  dbroleName, ServerConnection serverConnection)
         {
             bool isPropertiesMode = false;
-            HybridDictionary schemaOwnership = null;
+            HybridDictionary schemaOwnership;
             schemaOwnership = new HybridDictionary();
 
             Enumerator en = new Enumerator();

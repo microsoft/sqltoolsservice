@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Globalization;
 using System.IO;
@@ -11,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
-    internal class TestCommandHandler : ICommandHandler
+    public class TestCommandHandler : ICommandHandler
     {
         private Parser parser;
         private StringBuilder outputString;

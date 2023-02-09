@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
@@ -21,7 +23,7 @@ namespace Microsoft.SqlTools.Migration.Utils
             foreach (var keyValuePair2 in exceptionMap2)
             {
                 // If the dictionary already contains the key then merge them
-                if (exceptionMap1.ContainsKey(keyValuePair2.Key))
+                if (exceptionMap1.TryGetValue(keyValuePair2.Key, out _))
                 {
                     foreach (var value in keyValuePair2.Value)
                     {

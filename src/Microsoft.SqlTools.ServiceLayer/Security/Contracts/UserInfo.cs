@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -56,7 +58,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class UserInfo
     {
-        DatabaseUserType? Type { get; set; }
+        public DatabaseUserType? Type { get; set; }
+
+        public string UserName { get; set; }
 
         public string LoginName { get; set; }
 
@@ -70,9 +74,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 
         public bool isAAD { get; set; }
 
-        public ExtendedProperty[] ExtendedProperties { get; set; }
+        public ExtendedProperty[]? ExtendedProperties { get; set; }
 
-        public SecurablePermissions[] SecurablePermissions { get; set; }   
+        public SecurablePermissions[]? SecurablePermissions { get; set; }   
     }
 }
 

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 //using System.Management.Automation.Language;
 
 namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts

@@ -5,7 +5,9 @@
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<IsPackable>false</IsPackable>
 		<ApplicationIcon />
-		<StartupObject />		
+		<StartupObject />
+		<!-- TODO FIX THESE WARNINGS ASAP -->
+		<NoWarn>$(NoWarn);SYSLIB1045;IDE0200;IDE0230;CA1311;CA1852;CA1854</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Text.Encoding.CodePages" />

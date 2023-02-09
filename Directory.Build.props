@@ -2,7 +2,7 @@
   <PropertyGroup>
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootDir>$(MSBuildThisFileDirectory)</RootDir>
 
     <!-- Defaults-->

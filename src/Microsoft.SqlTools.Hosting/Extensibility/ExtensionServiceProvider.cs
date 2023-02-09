@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.Extensibility
             if (!services.ContainsKey(typeof(T)))
             {
                 ExtensionStore store = new ExtensionStore(typeof(T), config);
-                base.Register<T>(() => store.GetExports<T>());
+                base.Register<T>(store.GetExports<T>);
             }
         }
 
@@ -136,11 +136,11 @@ namespace Microsoft.SqlTools.Extensibility
             // If the service type is already registered, replace the existing registration with the new one
             if (this.services.ContainsKey(typeof(T)))
             {
-                this.services[typeof(T)] = () => store.GetExports<T>();
+                this.services[typeof(T)] = store.GetExports<T>;
             }
             else
             {
-                base.Register<T>(() => store.GetExports<T>());
+                base.Register<T>(store.GetExports<T>);
             }
         }
 

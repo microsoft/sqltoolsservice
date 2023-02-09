@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.ComponentModel;
 using System.Resources;
 using Microsoft.SqlServer.Management.Smo;
@@ -82,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     this.currentState.pageVerify = PageVerify.None;
                 }
                 else
-                {                
+                {
                     this.currentState.pageVerify = PageVerify.TornPageDetection;
                 }
 

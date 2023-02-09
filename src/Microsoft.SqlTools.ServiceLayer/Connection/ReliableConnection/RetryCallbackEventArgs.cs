@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 // This code is copied from the source described in the comment below.
 
 // =======================================================================================

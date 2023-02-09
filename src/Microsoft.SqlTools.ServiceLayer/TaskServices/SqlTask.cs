@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -229,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         //Run Task synchronously 
         public void Run()
         {
-            Task.Run(() => RunAsync());
+            Task.Run(RunAsync);
         }
 
         /// <summary>
