@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
                         else
                         {
-                            key += "_" + entry.Key +":false";
+                            key += "_" + entry.Key + ":false";
                         }
                     }
                     else if (!string.IsNullOrEmpty(entry.Value as String))
