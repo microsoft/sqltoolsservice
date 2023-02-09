@@ -898,7 +898,7 @@ Streaming query statement contains a reference to missing output stream 'Missing
             await service.HandleSavePublishProfileRequest(savePublishProfileParams, requestMock.Object);
             requestMock.AssertSuccess(nameof(service.HandleSavePublishProfileRequest));
 
-            VerifyContentAndCleanup(expectedFile, profileFilePath);
+            await VerifyContentAndCleanupAsync(expectedFile, profileFilePath);
         }
 
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
@@ -975,16 +975,16 @@ Streaming query statement contains a reference to missing output stream 'Missing
             }
         }
 
-        private void VerifyContentAndCleanup(string baselineFilePath, string outputFilePath)
+        private async Task VerifyContentAndCleanupAsync(string baselineFilePath, string outputFilePath)
         {
             // Verify it was created
-            Assert.True(File.Exists(outputFilePath));
+            Assert.True(File.Exists(outputFilePath), "The output file did not get generated.");
 
             //Verify the contents are same
-            string baseline = File.ReadAllText(baselineFilePath);
-            string output = File.ReadAllText(outputFilePath);
+            string baseline = await File.ReadAllTextAsync(baselineFilePath);
+            string output = await File.ReadAllTextAsync(outputFilePath);
 
-            Assert.That(output, Is.EqualTo(baseline), $"The output doesn't match the baseline. Expected \n {baseline} \n Actual \n {output}");
+            Assert.That(output, Is.EqualTo(baseline), $"The output doesn't match the baseline. Expected {Environment.NewLine} {baseline} {Environment.NewLine} Actual {Environment.NewLine} {output}");
 
             // Remove the file
             if (File.Exists(outputFilePath))
