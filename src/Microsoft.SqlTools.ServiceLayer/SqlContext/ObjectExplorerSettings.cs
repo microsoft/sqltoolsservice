@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         public int ExpandTimeout { get; set; }
 
         /// <summary>
-        /// Moves Schema to the top level of OE and then move Tables, Views, Programmability and Synonyms under it. 
+        /// Moves Schema to the top level of OE and then move schema-bound nodes under it.
         /// </summary>
         /// <value></value>
         public bool GroupBySchema { get; set; } = false;
