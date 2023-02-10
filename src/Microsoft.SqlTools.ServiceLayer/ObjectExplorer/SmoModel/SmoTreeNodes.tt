@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 												sortPriority = "SmoTreeNode.NextSortPriority";
 										}
 
-										var doesSettingsFlagExist = !String.IsNullOrEmpty(settingsFlag);
+										var doesSettingsFlagExist = !string.IsNullOrEmpty(settingsFlag);
 
 										if(doesSettingsFlagExist){
 												WriteLine("			if ({0})", GetSettingsString(settingsFlag));
@@ -324,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 												var settingsFlag = Querier.GetAttribute("SettingsFlag");
 												var QuerierName = Querier.GetAttribute("Name");
 						
-												if(!String.IsNullOrEmpty(settingsFlag))
+												if(!string.IsNullOrEmpty(settingsFlag))
 												{
 														WriteLine("					if ({0})", GetSettingsString(settingsFlag));
 														WriteLine("					{");
