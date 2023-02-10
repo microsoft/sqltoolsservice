@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -42,6 +44,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 OldPassword = "placeholder",
                 DefaultLanguage = "us_english",
                 DefaultDatabase = "master"
+            };
+        }
+
+        internal static UserInfo GetTestUserInfo(string loginName)
+        {
+            return new UserInfo()
+            {
+                Type = DatabaseUserType.UserWithLogin,
+                UserName = "TestUserName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                LoginName = loginName,
+                Password = "placeholder",
+                DefaultSchema = "dbo",
+                OwnedSchemas = new string[] { "dbo" },
+                isEnabled = false,
+                isAAD = false,
+                ExtendedProperties = null,
+                SecurablePermissions = null
             };
         }
 

@@ -3,10 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
@@ -64,6 +67,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
             parameters.Add($"{paramName}", contentBytes);
             return $"@{paramName}";
+        }
+
+        public static SecureString GetReadOnlySecureString(string secret)
+        {
+            SecureString ss = new SecureString();
+            foreach (char c in secret.ToCharArray())
+            {
+                ss.AppendChar(c);
+            }
+            ss.MakeReadOnly();
+
+            return ss;
         }
     }
 }

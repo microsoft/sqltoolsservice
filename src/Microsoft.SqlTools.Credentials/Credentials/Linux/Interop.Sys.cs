@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Runtime.InteropServices;
 
@@ -17,7 +19,7 @@ namespace Microsoft.SqlTools.Credentials
         {
             [DllImport(Libraries.SystemNative, EntryPoint = "SystemNative_ChMod", SetLastError = true)]
             internal static extern int ChMod(string path, int mode);
-            
+
             internal struct Passwd
             {
                 internal IntPtr Name;           // char*

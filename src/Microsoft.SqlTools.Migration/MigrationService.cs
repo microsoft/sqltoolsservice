@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,6 +26,9 @@ using Microsoft.SqlServer.Migration.Assessment.Common.Models;
 using Microsoft.SqlServer.Migration.Assessment.Common.Utils;
 using Microsoft.SqlServer.Migration.Logins;
 using Microsoft.SqlServer.Migration.Logins.Contracts;
+using Microsoft.SqlServer.Migration.Logins.Contracts.ErrorHandling;
+using Microsoft.SqlServer.Migration.Logins.ErrorHandling;
+using Microsoft.SqlServer.Migration.Logins.Helpers;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Aggregation;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Billing;
@@ -285,8 +290,9 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList, parameters.AADDomainName);
+                null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
 
@@ -317,8 +323,9 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList, parameters.AADDomainName);
+                null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
                 Stopwatch stopWatch = new Stopwatch();
@@ -349,8 +356,9 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList, parameters.AADDomainName);
+                null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
                 Stopwatch stopWatch = new Stopwatch();
@@ -381,8 +389,9 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList, parameters.AADDomainName);
+                null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
 
@@ -414,8 +423,9 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
+                ILoginsMigrationLogger logger = this.GetLoginsMigrationLogger();
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
-                null, parameters.LoginList, parameters.AADDomainName);
+                null, parameters.LoginList, parameters.AADDomainName, logger);
 
                 IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
                 Stopwatch stopWatch = new Stopwatch();
@@ -990,6 +1000,14 @@ namespace Microsoft.SqlTools.Migration
             {
                 return new CertificateMigrationEntryResult { DbName = dbName, Success = false, Message = ex.Message };
             }
+        }
+
+        private ILoginsMigrationLogger GetLoginsMigrationLogger()
+        {
+            SqlLoginMigrationConfiguration.AllowTelemetry = true;
+            SqlLoginMigrationConfiguration.EnableLocalLogging = true;
+            SqlLoginMigrationConfiguration.LogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+            return new DefaultLoginsMigrationLogger();
         }
 
         /// <summary>

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
@@ -10,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
-    internal class BatchParserMockEventHandler : IBatchEventsHandler
+    public class BatchParserMockEventHandler : IBatchEventsHandler
     {
         public SqlError Error { get; private set; }
 
