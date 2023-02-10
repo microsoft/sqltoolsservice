@@ -434,7 +434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
             Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding SQL project reference (sqlcmdvar)");
             projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(mockReferencePath, projectRef.ProjectPath, "Referenced project");
+            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), projectRef.ProjectPath, "Referenced project");
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
             Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable!.VarName);
             Assert.AreEqual(serverVar.Name, projectRef.ServerVariable!.VarName);
@@ -456,7 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
             Assert.AreEqual(3, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding SQL project reference (db literal)");
             projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(mockReferencePath, projectRef.ProjectPath, "Referenced project");
+            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), projectRef.ProjectPath, "Referenced project");
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
             Assert.AreEqual("ProjectLiteral", projectRef.DatabaseVariableLiteralName);
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
