@@ -95,6 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
 
             // User request handlers
+            this.ServiceHost.SetRequestHandler(InitializeUserViewRequest.Type, HandleInitializeUserViewRequest, true);
             this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
         }
 
@@ -219,6 +220,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
+        }
+
+        /// <summary>
+        /// Handle request to initialize user view
+        /// </summary>
+        internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
+        {
+            UserViewInfo userViewInfo = new UserViewInfo()
+            {
+                ObjectInfo = new UserInfo()
+                {
+                    Type = DatabaseUserType.UserWithLogin,
+                    UserName = "User1",
+                    LoginName = "Login1",
+                    Password = "Password1",
+                    DefaultSchema = "dbo",
+                    OwnedSchemas = new string[] { "dbo" },
+                    isEnabled = true,
+                    isAAD = false,
+                    ExtendedProperties = new Microsoft.SqlTools.ServiceLayer.Security.Contracts.ExtendedProperty[] { },
+                    SecurablePermissions = new SecurablePermissions[] { }
+                },
+                SupportContainedUser = true,
+                SupportWindowsAuthentication = true,
+                SupportAADAuthentication = true,
+                SupportSQLAuthentication = true,
+                Languages = new string[] {},
+                Schemas = new string[] {},
+                Logins = new string[] {},
+                DatabaseRoles = new string[] {}
+            };
+
+            await requestContext.SendResult(userViewInfo);            
         }
 
         /// <summary>
