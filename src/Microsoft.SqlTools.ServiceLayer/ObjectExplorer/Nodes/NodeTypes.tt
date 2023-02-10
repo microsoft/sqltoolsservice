@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 		public static XmlElement GetNodeElement(string xmlFile, string nodeName)
 		{
 				XmlDocument doc = new XmlDocument();
-		d								.Load(xmlFile);
+		        doc.Load(xmlFile);
 				return (XmlElement)doc.SelectSingleNode(string.Format("/ServerExplorerTree/Node[@Name='{0}']", nodeName));
 		}
 
