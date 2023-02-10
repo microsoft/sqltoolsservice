@@ -157,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 								WriteLine("if (refresh)");
 								WriteLine("{");
 								PushIndent(indent);
-										iteLine("{0}.{1}.Refresh();", parentVar, navigationPath);
+								WriteLine("{0}.{1}.Refresh();", parentVar, navigationPath);
 								PopIndent();
 								WriteLine("}");
 								WriteLine("return new SqlSmoObject[] { retValue };");
