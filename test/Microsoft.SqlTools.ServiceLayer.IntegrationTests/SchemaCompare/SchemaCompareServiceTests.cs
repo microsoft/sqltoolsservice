@@ -1794,7 +1794,7 @@ WITH VALUES
             {
                 string projectPath = SchemaCompareTestUtils.CreateProject(db, isProjectTarget ? "TargetProject" : "SourceProject");
                 string[] scripts = SchemaCompareTestUtils.GetProjectScripts(projectPath);
-                return new SchemaCompareProjectEndpoint(Path.Combine(projectPath, isProjectTarget ? "TargetProject.sqlproj" : "SourceProject.sqlproj"), scripts, "150");
+                return new SchemaCompareProjectEndpoint(Path.Combine(projectPath, isProjectTarget ? "TargetProject.sqlproj" : "SourceProject.sqlproj"), scripts, "150", DacExtractTarget.SchemaObjectType);
             }
             else
             {
