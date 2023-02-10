@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
@@ -18,8 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public bool SuppressMissingDependencies { get; set; }
 
         /// <summary>
-        /// SQLCMD variable name for specifying the other database this reference is to, if different from that of the current project
+        /// Literal name used to reference another database in the same server, if not using SQLCMD variables 
         /// </summary>
-        public string? DatabaseVariable { get; set; }
+        public string? DatabaseLiteral { get; set; }
     }
 }

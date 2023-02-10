@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -18,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// Name of the SQLCMD variable to be deleted
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public class DeleteSqlCmdVariableRequest
