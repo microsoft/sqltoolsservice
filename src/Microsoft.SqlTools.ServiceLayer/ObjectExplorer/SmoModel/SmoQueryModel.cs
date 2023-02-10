@@ -35,6 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Databases;
                 if (retValue != null)
                 {
@@ -61,6 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.LinkedServers;
                 if (retValue != null)
                 {
@@ -87,6 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Logins;
                 if (retValue != null)
                 {
@@ -113,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Roles;
                 if (retValue != null)
                 {
@@ -139,6 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Credentials;
                 if (retValue != null)
                 {
@@ -165,6 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.CryptographicProviders;
                 if (retValue != null)
                 {
@@ -191,6 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Audits;
                 if (retValue != null)
                 {
@@ -217,6 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.ServerAuditSpecifications;
                 if (retValue != null)
                 {
@@ -243,6 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Endpoints;
                 if (retValue != null)
                 {
@@ -269,6 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.LinkedServers;
                 if (retValue != null)
                 {
@@ -298,6 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.Triggers;
                 if (retValue != null)
                 {
@@ -324,6 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Server parentServer = context.Parent as Server;
             if (parentServer != null)
             {
+                Logger.Verbose("Parent of type `Server` found");
                 var retValue = parentServer.UserDefinedMessages;
                 if (retValue != null)
                 {
@@ -350,6 +362,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Tables;
                 if (retValue != null)
                 {
@@ -362,6 +375,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -397,6 +411,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
+                Logger.Verbose("Parent of type `Table` found");
                 var retValue = parentTable.Parent.Tables;
                 if (retValue != null)
                 {
@@ -423,6 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Views;
                 if (retValue != null)
                 {
@@ -435,6 +451,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -473,6 +490,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Synonyms;
                 if (retValue != null)
                 {
@@ -485,6 +503,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -520,6 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
+                Logger.Verbose("Parent of type `TableViewTableTypeBase` found");
                 var retValue = parentTableViewTableTypeBase.Columns;
                 if (retValue != null)
                 {
@@ -546,6 +566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             TableViewTableTypeBase parentTableViewTableTypeBase = context.Parent as TableViewTableTypeBase;
             if (parentTableViewTableTypeBase != null)
             {
+                Logger.Verbose("Parent of type `TableViewTableTypeBase` found");
                 var retValue = parentTableViewTableTypeBase.Indexes;
                 if (retValue != null)
                 {
@@ -572,6 +593,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
+                Logger.Verbose("Parent of type `Table` found");
                 var retValue = parentTable.Checks;
                 if (retValue != null)
                 {
@@ -598,6 +620,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
+                Logger.Verbose("Parent of type `Table` found");
                 var retValue = parentTable.ForeignKeys;
                 if (retValue != null)
                 {
@@ -624,6 +647,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
+                Logger.Verbose("Parent of type `Table` found");
                 var retValue = parentTable.Columns;
                 if (retValue != null)
                 {
@@ -645,6 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             UserDefinedTableType parentUserDefinedTableType = context.Parent as UserDefinedTableType;
             if (parentUserDefinedTableType != null)
             {
+                Logger.Verbose("Parent of type `UserDefinedTableType` found");
                 var retValue = parentUserDefinedTableType.Columns;
                 if (retValue != null)
                 {
@@ -683,6 +708,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
+                Logger.Verbose("Parent of type `Table` found");
                 var retValue = parentTable.Triggers;
                 if (retValue != null)
                 {
@@ -695,6 +721,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             View parentView = context.Parent as View;
             if (parentView != null)
             {
+                Logger.Verbose("Parent of type `View` found");
                 var retValue = parentView.Triggers;
                 if (retValue != null)
                 {
@@ -724,6 +751,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Table parentTable = context.Parent as Table;
             if (parentTable != null)
             {
+                Logger.Verbose("Parent of type `Table` found");
                 var retValue = parentTable.FullTextIndex;
                 if (retValue != null)
                 {
@@ -751,6 +779,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             TableViewBase parentTableViewBase = context.Parent as TableViewBase;
             if (parentTableViewBase != null)
             {
+                Logger.Verbose("Parent of type `TableViewBase` found");
                 var retValue = parentTableViewBase.Statistics;
                 if (retValue != null)
                 {
@@ -780,6 +809,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Triggers;
                 if (retValue != null)
                 {
@@ -806,6 +836,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Assemblies;
                 if (retValue != null)
                 {
@@ -832,6 +863,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Sequences;
                 if (retValue != null)
                 {
@@ -844,6 +876,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -882,6 +915,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.UserDefinedDataTypes;
                 if (retValue != null)
                 {
@@ -894,6 +928,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -929,6 +964,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.UserDefinedTableTypes;
                 if (retValue != null)
                 {
@@ -941,6 +977,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -976,6 +1013,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.XmlSchemaCollections;
                 if (retValue != null)
                 {
@@ -988,6 +1026,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -1023,6 +1062,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.UserDefinedTypes;
                 if (retValue != null)
                 {
@@ -1035,6 +1075,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -1070,6 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.UserDefinedFunctions;
                 if (retValue != null)
                 {
@@ -1082,6 +1124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -1117,6 +1160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.UserDefinedAggregates;
                 if (retValue != null)
                 {
@@ -1129,6 +1173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -1164,6 +1209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.FileGroups;
                 if (retValue != null)
                 {
@@ -1190,6 +1236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             FileGroup parentFileGroup = context.Parent as FileGroup;
             if (parentFileGroup != null)
             {
+                Logger.Verbose("Parent of type `FileGroup` found");
                 var retValue = parentFileGroup.Files;
                 if (retValue != null)
                 {
@@ -1216,6 +1263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.FullTextCatalogs;
                 if (retValue != null)
                 {
@@ -1242,6 +1290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.FullTextStopLists;
                 if (retValue != null)
                 {
@@ -1268,6 +1317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.PartitionFunctions;
                 if (retValue != null)
                 {
@@ -1294,6 +1344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.PartitionSchemes;
                 if (retValue != null)
                 {
@@ -1320,6 +1371,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.SearchPropertyLists;
                 if (retValue != null)
                 {
@@ -1346,6 +1398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Users;
                 if (retValue != null)
                 {
@@ -1372,6 +1425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Schemas;
                 if (retValue != null)
                 {
@@ -1398,6 +1452,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.AsymmetricKeys;
                 if (retValue != null)
                 {
@@ -1424,6 +1479,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Certificates;
                 if (retValue != null)
                 {
@@ -1450,6 +1506,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.SymmetricKeys;
                 if (retValue != null)
                 {
@@ -1476,6 +1533,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.DatabaseEncryptionKey;
                 if (retValue != null)
                 {
@@ -1503,6 +1561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.MasterKey;
                 if (retValue != null)
                 {
@@ -1530,6 +1589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.DatabaseAuditSpecifications;
                 if (retValue != null)
                 {
@@ -1556,6 +1616,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.SecurityPolicies;
                 if (retValue != null)
                 {
@@ -1582,6 +1643,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.DatabaseScopedCredentials;
                 if (retValue != null)
                 {
@@ -1608,6 +1670,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Roles;
                 if (retValue != null)
                 {
@@ -1634,6 +1697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ApplicationRoles;
                 if (retValue != null)
                 {
@@ -1660,6 +1724,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ColumnMasterKeys;
                 if (retValue != null)
                 {
@@ -1686,6 +1751,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ColumnEncryptionKeys;
                 if (retValue != null)
                 {
@@ -1712,6 +1778,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ServiceBroker;
                 if (retValue != null)
                 {
@@ -1739,6 +1806,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
+                Logger.Verbose("Parent of type `ServiceBroker` found");
                 var retValue = parentServiceBroker.Services;
                 if (retValue != null)
                 {
@@ -1765,6 +1833,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
+                Logger.Verbose("Parent of type `ServiceBroker` found");
                 var retValue = parentServiceBroker.ServiceContracts;
                 if (retValue != null)
                 {
@@ -1791,6 +1860,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
+                Logger.Verbose("Parent of type `ServiceBroker` found");
                 var retValue = parentServiceBroker.Queues;
                 if (retValue != null)
                 {
@@ -1817,6 +1887,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
+                Logger.Verbose("Parent of type `ServiceBroker` found");
                 var retValue = parentServiceBroker.RemoteServiceBindings;
                 if (retValue != null)
                 {
@@ -1843,6 +1914,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
+                Logger.Verbose("Parent of type `ServiceBroker` found");
                 var retValue = parentServiceBroker.Priorities;
                 if (retValue != null)
                 {
@@ -1869,6 +1941,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             ServiceBroker parentServiceBroker = context.Parent as ServiceBroker;
             if (parentServiceBroker != null)
             {
+                Logger.Verbose("Parent of type `ServiceBroker` found");
                 var retValue = parentServiceBroker.MessageTypes;
                 if (retValue != null)
                 {
@@ -1895,6 +1968,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ExternalDataSources;
                 if (retValue != null)
                 {
@@ -1921,6 +1995,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ExternalFileFormats;
                 if (retValue != null)
                 {
@@ -1947,6 +2022,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.StoredProcedures;
                 if (retValue != null)
                 {
@@ -1959,6 +2035,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Schema parentSchema = context.Parent as Schema;
             if (parentSchema != null)
             {
+                Logger.Verbose("Parent of type `Schema` found");
                 List<NodePropertyFilter> filters = new List<NodePropertyFilter>();
                 filters.Add(new NodePropertyFilter()
                 {
@@ -1994,6 +2071,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.ExtendedStoredProcedures;
                 if (retValue != null)
                 {
@@ -2020,6 +2098,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             StoredProcedure parentStoredProcedure = context.Parent as StoredProcedure;
             if (parentStoredProcedure != null)
             {
+                Logger.Verbose("Parent of type `StoredProcedure` found");
                 var retValue = parentStoredProcedure.Parameters;
                 if (retValue != null)
                 {
@@ -2032,6 +2111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             UserDefinedAggregate parentUserDefinedAggregate = context.Parent as UserDefinedAggregate;
             if (parentUserDefinedAggregate != null)
             {
+                Logger.Verbose("Parent of type `UserDefinedAggregate` found");
                 var retValue = parentUserDefinedAggregate.Parameters;
                 if (retValue != null)
                 {
@@ -2044,6 +2124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             UserDefinedFunction parentUserDefinedFunction = context.Parent as UserDefinedFunction;
             if (parentUserDefinedFunction != null)
             {
+                Logger.Verbose("Parent of type `UserDefinedFunction` found");
                 var retValue = parentUserDefinedFunction.Parameters;
                 if (retValue != null)
                 {
@@ -2070,6 +2151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             PartitionFunction parentPartitionFunction = context.Parent as PartitionFunction;
             if (parentPartitionFunction != null)
             {
+                Logger.Verbose("Parent of type `PartitionFunction` found");
                 var retValue = parentPartitionFunction.PartitionFunctionParameters;
                 if (retValue != null)
                 {
@@ -2096,6 +2178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             Database parentDatabase = context.Parent as Database;
             if (parentDatabase != null)
             {
+                Logger.Verbose("Parent of type `Database` found");
                 var retValue = parentDatabase.Parent.SystemDataTypes;
                 if (retValue != null)
                 {

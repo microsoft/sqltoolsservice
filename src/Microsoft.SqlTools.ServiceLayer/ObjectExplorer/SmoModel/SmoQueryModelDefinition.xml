@@ -5,13 +5,21 @@
   into code using a T4 template.
   
   Key properties:
-  Name: This maps 
-  Type: Optional SMO type. If not specified, the Name without the Sql prefix is used
-  Parent: Expected parent type. Needed to codegen the response. if there are multiple parents
-    then each one
+  attr.Name: This maps 
+  attr.Type: Optional SMO type. If not specified, the Name without the Sql prefix is used
+  attr.Parent: Expected parent type. Needed to codegen the response.
+  Parent: In case a node has multiple parents, chilren of type parents need to be added. 
+    Each parent should have corresponding navigation path.
   NavigationPath: For types whose access path differs based on parent or needs custom navigation
     this can be used.
-  
+    attr.Parent: The parent type that this navigation path is valid for
+    attr.Field: The field to use to navigate to the child type
+    Filter: Optional filter to apply to the navigation path. This is used to filter out
+      results that are not of the expected type. For example, the SqlTable type has a
+      filter on the Schema field to ensure that the table is in the expected schema.
+      attr.Property: The property to filter on
+      attr.Field: The field to use from the parent to filter on the property
+      attr.Type: The type of the field.
 -->
 <SmoQueryModel>
   <!--<Node Name="SqlServer"/> -->

@@ -80,12 +80,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						WriteLine("if ({0} != null)", parentVar);
 						WriteLine("{");
 						PushIndent(indent);
-
+						WriteLine("Logger.Verbose(\"Parent of type `{0}` found\");",parentType);
 						XmlElement navPathElement = GetNavPathElement(xmlFile, nodeName, parentType);
 						string navigationPath = GetNavigationPath(nodeElement, nodeName, navPathElement);
 						string subField = GetNavPathAttribute(navPathElement, "SubField");
 						string fieldType = GetNavPathAttribute(navPathElement, "FieldType");
 						if(navPathElement != null){
+								/**
+								Adding runtime filters to the querier based on the property values available in the context. 
+								The code below will go through all the filters in the navPath element and add them to the filter string 
+								recieved by the querier.
+								**/
 								XmlNodeList runtimeFilters = navPathElement.GetElementsByTagName("Filter");
 								if(runtimeFilters.Count > 0)
 								{
