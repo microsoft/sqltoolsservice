@@ -29,23 +29,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             try
             {
-                if(this.PutFoldersAfterNodes){
+                if (this.PutFoldersAfterNodes)
+                {
                     OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
                     OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                     RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                } 
-                else 
+                }
+                else
                 {
                     OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                     RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
                     OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
                 }
-                
+
                 OnBeginAsyncOperations(parent);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}",
                     parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
                 throw;

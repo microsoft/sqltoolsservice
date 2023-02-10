@@ -27,92 +27,92 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     public enum NodeTypes
     {
 <#
-    var directory = Path.GetDirectoryName(Host.TemplateFile);
+		var directory = Path.GetDirectoryName(Host.TemplateFile);
 
-    string xmlFile = Path.Combine(directory, "..\\SmoModel\\SmoTreeNodesDefinition.xml");
+		string xmlFile = Path.Combine(directory, "..\\SmoModel\\SmoTreeNodesDefinition.xml");
 
-    var allTreeNodes = GetUniqueNodeTypes(xmlFile);
+		var allTreeNodes = GetUniqueNodeTypes(xmlFile);
 
-    foreach (var name in allTreeNodes)
-    {
-        WriteLine("        {0},", name);
-    }
+		foreach (var name in allTreeNodes)
+		{
+				WriteLine("        {0},", name);
+		}
 
 #>
     }
 }
 
 <#+
-    public static List<string> GetUniqueNodeTypes(string xmlFile)
-    {
-        XmlDocument doc = new XmlDocument();
-        doc.Load(xmlFile);
-
-
-        // Adding all node types
-        HashSet<string> retElements = new HashSet<string>();
-        XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node");
-        foreach (XmlElement item in nodeList)
-        {
-            retElements.Add(item.GetAttribute("Name"));
-            foreach (XmlElement child in GetChildren(xmlFile, item.GetAttribute("Name")))
-            {
-                retElements.Add(child.GetAttribute("Name"));
-            }
-        }
-
-        // Adding UniqueTreeNodes
-        foreach(var name in GetUniqueTreeNodes(xmlFile))
-        {
-            retElements.Add(name);
-        }
-
-        // Adding types that are not present anywhere. These types are referred in tests.
-        retElements.Add("Folder");
-
-        var retList = retElements.ToList();
-        retList.Sort();
-        return retList;
-    }
-
-    public static List<XmlElement> GetChildren(string xmlFile, string parentName)
-	{
-		XmlElement nodeElement = GetNodeElement(xmlFile, parentName);
-		XmlDocument doc = new XmlDocument();
-		doc.Load(xmlFile);
-
-		List<XmlElement> retElements = new List<XmlElement>();
-		XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Child", parentName));
-		foreach (var item in nodeList)
+		public static List<string> GetUniqueNodeTypes(string xmlFile)
 		{
-			XmlElement itemAsElement = item as XmlElement;
-			if (itemAsElement != null)
-			{
-			  retElements.Add(itemAsElement);
-			}
+				XmlDocument doc = new XmlDocument();
+				doc.Load(xmlFile);
+
+
+				// Adding all node types
+				HashSet<string> retElements = new HashSet<string>();
+				XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/Node");
+				foreach (XmlElement item in nodeList)
+				{
+						retElements.Add(item.GetAttribute("Name"));
+						foreach (XmlElement child in GetChildren(xmlFile, item.GetAttribute("Name")))
+						{
+								retElements.Add(child.GetAttribute("Name"));
+						}
+				}
+
+				// Adding UniqueTreeNodes
+				foreach(var name in GetUniqueTreeNodes(xmlFile))
+				{
+						retElements.Add(name);
+				}
+
+				// Adding types that are not present anywhere. These types are referred in tests.
+				retElements.Add("Folder");
+
+				var retList = retElements.ToList();
+				retList.Sort();
+				return retList;
 		}
-		return retElements;
-	}
 
-    public static XmlElement GetNodeElement(string xmlFile, string nodeName)
-	{
-		XmlDocument doc = new XmlDocument();
-		doc.Load(xmlFile);
-		return (XmlElement)doc.SelectSingleNode(string.Format("/ServerExplorerTree/Node[@Name='{0}']", nodeName));
-	}
-
-    public static List<string> GetUniqueTreeNodes(string xmlFile)
-	{
-		XmlDocument doc = new XmlDocument();
-		doc.Load(xmlFile);
-
-		List<string> retElements = new List<string>();
-		XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/CodeGenOptions/UniqueTreeNode");
-		foreach (XmlElement item in nodeList)
+		public static List<XmlElement> GetChildren(string xmlFile, string parentName)
 		{
-			retElements.Add(item.GetAttribute("Name").Replace("TreeNode", string.Empty));
+				XmlElement nodeElement = GetNodeElement(xmlFile, parentName);
+				XmlDocument doc = new XmlDocument();
+				doc.Load(xmlFile);
 
+				List<XmlElement> retElements = new List<XmlElement>();
+				XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/Node[@Name='{0}']/Child", parentName));
+				foreach (var item in nodeList)
+				{
+						XmlElement itemAsElement = item as XmlElement;
+						if (itemAsElement != null)
+						{
+								retElements.Add(itemAsElement);
+						}
+				}
+				return retElements;
 		}
-		return retElements;
-	}
+
+		public static XmlElement GetNodeElement(string xmlFile, string nodeName)
+		{
+				XmlDocument doc = new XmlDocument();
+		d								.Load(xmlFile);
+				return (XmlElement)doc.SelectSingleNode(string.Format("/ServerExplorerTree/Node[@Name='{0}']", nodeName));
+		}
+
+		public static List<string> GetUniqueTreeNodes(string xmlFile)
+		{
+				XmlDocument doc = new XmlDocument();
+				doc.Load(xmlFile);
+
+				List<string> retElements = new List<string>();
+				XmlNodeList nodeList = doc.SelectNodes("/ServerExplorerTree/CodeGenOptions/UniqueTreeNode");
+				foreach (XmlElement item in nodeList)
+				{
+						retElements.Add(item.GetAttribute("Name").Replace("TreeNode", string.Empty));
+
+				}
+				return retElements;
+		}
 #>
