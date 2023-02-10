@@ -2,10 +2,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
 using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -42,7 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             {
                 string andPrefix = filter.Length == 0 ? string.Empty : " and ";
                 var filterString = value.ToPropertyFilterString(type, validForFlag);
-                if (filterString != string.Empty) {
+                if (filterString != string.Empty)
+                {
                     filter.Append($"{andPrefix}{filterString}");
                 }
             }
@@ -59,14 +59,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public static string AddPropertyFilterToFilterString(string filterString, IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
         {
-            if(String.IsNullOrEmpty(filterString))
+            if (string.IsNullOrEmpty(filterString))
             {
                 return GetPropertyFilter(filters, type, validForFlag);
             }
-            foreach(var value in filters)
+            foreach (var value in filters ?? Enumerable.Empty<INodeFilter>())
             {
                 var filter = value.ToPropertyFilterString(type, validForFlag);
-                if(filter != string.Empty)
+                if (filter != string.Empty)
                 {
                     filterString = filterString.Remove(filterString.Length - 1, 1) + $" and {filter}" + "]";
                 }
