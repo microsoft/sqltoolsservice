@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after re-add");
 
             // Validate moving a SQL object script
-            string movedScriptRelativePath = @"SubPath\\MyRenamedTable.sql";
+            string movedScriptRelativePath = @"SubPath\MyRenamedTable.sql";
             string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after re-add");
 
             // Validate moving a pre-deployment object script
-            string movedScriptRelativePath = @"SubPath\\RenamedPreDeploymentScript.sql";
+            string movedScriptRelativePath = @"SubPath\RenamedPreDeploymentScript.sql";
             string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
@@ -305,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after re-add");
 
             // Validate moving a post-deployment object script
-            string movedScriptRelativePath = @"SubPath\\RenamedPostDeploymentScript.sql";
+            string movedScriptRelativePath = @"SubPath\RenamedPostDeploymentScript.sql";
             string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
