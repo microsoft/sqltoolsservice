@@ -8,8 +8,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
-    public class DeletePreDeploymentScriptRequest
+    public class MovePostDeploymentScriptRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/deletePreDeploymentScript");
+        public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/movePostDeploymentScript");
     }
 }

@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestSqlObjectScriptAddDeleteExclude()
+        public async Task TestSqlObjectScriptAddDeleteExcludeMove()
         {
             // Setup
             SqlProjectsService service = new();
@@ -111,9 +111,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             // Validate adding a SQL object script
             MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath = "MyTable.sql";
-            string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
-            await File.WriteAllTextAsync(scriptFullPath, "CREATE TABLE [MyTable] ([Id] INT)");
-            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
+            string scriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
+            await File.WriteAllTextAsync(scriptAbsolutePath, "CREATE TABLE [MyTable] ([Id] INT)");
+            Assert.IsTrue(File.Exists(scriptAbsolutePath), $"{scriptAbsolutePath} expected to be on disk");
 
             await service.HandleAddSqlObjectScriptRequest(new SqlProjectScriptParams()
             {
@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleExcludeSqlObjectScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after exclude");
-            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to still exist on disk");
+            Assert.IsTrue(File.Exists(scriptAbsolutePath), $"{scriptAbsolutePath} expected to still exist on disk");
 
             // Re-add to set up for Delete
             requestMock = new();
@@ -148,21 +148,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
             Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after re-add");
 
+            // Validate moving a SQL object script
+            string movedScriptRelativePath = @"SubPath\MyRenamedTable.sql";
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
+
+            requestMock = new();
+            await service.HandleMoveSqlObjectScriptRequest(new MoveItemParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath,
+                DestinationPath = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMoveSqlObjectScriptRequest));
+            Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
+            Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after move");
+
             // Validate deleting a SQL object script
             requestMock = new();
             await service.HandleDeleteSqlObjectScriptRequest(new SqlProjectScriptParams()
             {
                 ProjectUri = projectUri,
-                Path = scriptRelativePath
+                Path = movedScriptRelativePath
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteSqlObjectScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after delete");
-            Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
+            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
         }
 
         [Test]
-        public async Task TestPreDeploymentScriptAddDeleteExclude()
+        public async Task TestPreDeploymentScriptAddDeleteExcludeMove()
         {
             // Setup
             SqlProjectsService service = new();
@@ -172,9 +189,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             // Validate adding a pre-deployment script
             MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath = "PreDeploymentScript.sql";
-            string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
-            await File.WriteAllTextAsync(scriptFullPath, "SELECT 'Deployment starting...'");
-            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
+            string scriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
+            await File.WriteAllTextAsync(scriptAbsolutePath, "SELECT 'Deployment starting...'");
+            Assert.IsTrue(File.Exists(scriptAbsolutePath), $"{scriptAbsolutePath} expected to be on disk");
 
             await service.HandleAddPreDeploymentScriptRequest(new SqlProjectScriptParams()
             {
@@ -196,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleExcludePreDeploymentScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after exclude");
-            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to still exist on disk");
+            Assert.IsTrue(File.Exists(scriptAbsolutePath), $"{scriptAbsolutePath} expected to still exist on disk");
 
             // Re-add to set up for Delete
             requestMock = new();
@@ -207,23 +224,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddPreDeploymentScriptRequest));
-            Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts    .Count, "PreDeployScripts count after re-add");
+            Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after re-add");
+
+            // Validate moving a pre-deployment object script
+            string movedScriptRelativePath = @"SubPath\RenamedPreDeploymentScript.sql";
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
+
+            requestMock = new();
+            await service.HandleMovePreDeploymentScriptRequest(new MoveItemParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath,
+                DestinationPath = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMovePreDeploymentScriptRequest));
+            Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
+            Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after move");
 
             // Validate deleting a pre-deployment script
             requestMock = new();
             await service.HandleDeletePreDeploymentScriptRequest(new SqlProjectScriptParams()
             {
                 ProjectUri = projectUri,
-                Path = scriptRelativePath
+                Path = movedScriptRelativePath
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeletePreDeploymentScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScripts count after delete");
-            Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
+            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
         }
 
         [Test]
-        public async Task TestPostDeploymentScriptAddDeleteExclude()
+        public async Task TestPostDeploymentScriptAddDeleteExcludeMove()
         {
             // Setup
             SqlProjectsService service = new();
@@ -233,9 +267,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             // Validate adding a Post-deployment script
             MockRequest<ResultStatus> requestMock = new();
             string scriptRelativePath = "PostDeploymentScript.sql";
-            string scriptFullPath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
-            await File.WriteAllTextAsync(scriptFullPath, "SELECT 'Deployment finished!'");
-            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to be on disk");
+            string scriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), scriptRelativePath);
+            await File.WriteAllTextAsync(scriptAbsolutePath, "SELECT 'Deployment finished!'");
+            Assert.IsTrue(File.Exists(scriptAbsolutePath), $"{scriptAbsolutePath} expected to be on disk");
 
             await service.HandleAddPostDeploymentScriptRequest(new SqlProjectScriptParams()
             {
@@ -257,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleExcludePostDeploymentScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after exclude");
-            Assert.IsTrue(File.Exists(scriptFullPath), $"{scriptFullPath} expected to still exist on disk");
+            Assert.IsTrue(File.Exists(scriptAbsolutePath), $"{scriptAbsolutePath} expected to still exist on disk");
 
             // Re-add to set up for Delete
             requestMock = new();
@@ -270,17 +304,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddPostDeploymentScriptRequest));
             Assert.AreEqual(1, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after re-add");
 
+            // Validate moving a post-deployment object script
+            string movedScriptRelativePath = @"SubPath\RenamedPostDeploymentScript.sql";
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
+
+            requestMock = new();
+            await service.HandleMovePostDeploymentScriptRequest(new MoveItemParams()
+            {
+                ProjectUri = projectUri,
+                Path = scriptRelativePath,
+                DestinationPath = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMovePostDeploymentScriptRequest));
+            Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
+            Assert.AreEqual(1, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after move");
+
             // Validate deleting a Post-deployment script
             requestMock = new();
             await service.HandleDeletePostDeploymentScriptRequest(new SqlProjectScriptParams()
             {
                 ProjectUri = projectUri,
-                Path = scriptRelativePath
+                Path = movedScriptRelativePath
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeletePostDeploymentScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScripts count after delete");
-            Assert.IsFalse(File.Exists(scriptFullPath), $"{scriptFullPath} expected to have been deleted from disk");
+            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
         }
 
         #region Database reference tests
