@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.Authentication
         /// <summary>
         /// User name to be provided as userhint when acquiring access token.
         /// </summary>
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         /// <summary>
         /// Default constructor
@@ -52,13 +52,23 @@ namespace Microsoft.SqlTools.Authentication
         /// <param name="username">User hint information</param>
         /// <param name="connectionId">Connection Id for tracing AAD request</param>
         public AuthenticationParams(AuthenticationMethod authMethod, string authority, string audience, 
-            string[] scopes, string username, Guid connectionId) {
+            string[] scopes, string userName, Guid connectionId) {
             this.AuthenticationMethod = authMethod;
             this.Authority = authority;
             this.Audience = audience;
             this.Scopes = scopes;
-            this.Username = username;
+            this.UserName = userName;
             this.ConnectionId = connectionId;
+        }
+
+        public string ToLogString(bool piiEnabled)
+        {
+            return $"\tAuthenticationMethod: {AuthenticationMethod}" +
+                $"\n\tAuthority: {Authority}" +
+                $"\n\tAudience: {Audience}" +
+                $"\n\tScopes: {Scopes.ToString()}" +
+                (piiEnabled ? $"\n\tUsername: {UserName}" : "") +
+                $"\n\tConnection Id: {ConnectionId}";
         }
     }
 }

@@ -25,6 +25,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Shared.Utility.Constants;
 using System.Diagnostics;
+using Microsoft.SqlTools.Authentication.Sql;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -159,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
         /// when user chooses 'Azure MFA'.
         /// </summary>
-        public static bool EnableSqlAuthenticationProvider { get; set; }
+        public bool EnableSqlAuthenticationProvider { get; set; }
 
         /// <summary>
         /// Returns a connection queue for given type
@@ -1068,9 +1069,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return handler.HandleRequest(this.connectionFactory, info);
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        public void InitializeService(IProtocolEndpoint serviceHost, ServiceLayerCommandOptions commandOptions)
         {
             this.ServiceHost = serviceHost;
+
+            if (commandOptions.EnableSqlAuthenticationProvider)
+            {
+                // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
+                SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, new AuthenticationProvider());
+                this.EnableSqlAuthenticationProvider = true;
+            }
 
             // Register request and event handlers with the Service Host
             serviceHost.SetRequestHandler(ConnectionRequest.Type, HandleConnectRequest, true);
@@ -1333,7 +1341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         break;
                     case AzureMFA:
-                        if (EnableSqlAuthenticationProvider)
+                        if (Instance.EnableSqlAuthenticationProvider)
                         {
                             connectionBuilder.UserID = connectionDetails.UserName;
                             connectionDetails.AuthenticationType = ActiveDirectoryInteractive;

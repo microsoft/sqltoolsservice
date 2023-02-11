@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Migration
                     logFilePath = Logger.GenerateLogFilePath(logFilePath);
                 }
 
-                Logger.Initialize(SourceLevels.Verbose, logFilePath, "Migration", commandOptions.AutoFlushLog);
+                Logger.Initialize(SourceLevels.Verbose, piiEnabled: commandOptions.PiiLogging, logFilePath, "Migration", commandOptions.AutoFlushLog);
                 
                 Logger.Verbose("Starting SqlTools Migration Server...");
 

@@ -12,9 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.Authentication.Sql;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -44,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                     logFilePath = Logger.GenerateLogFilePath("sqltools");
                 }
 
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
                 // Only enable SQL Client logging when verbose or higher to avoid extra overhead when the
                 // detailed logging it provides isn't needed
                 if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
@@ -57,15 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer
                 var hostDetails = new HostDetails(version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions);
                 serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
-
-                if (commandOptions.EnableSqlAuthenticationProvider)
-                {
-                    // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-                    SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, new AuthenticationProvider());
-                    ConnectionService.EnableSqlAuthenticationProvider = true;
-                }
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)

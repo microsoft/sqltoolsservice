@@ -48,6 +48,9 @@ namespace Microsoft.SqlTools.Utility
                             case "-tracing-level":
                                 TracingLevel = args[++i];
                                 break;
+                            case "-piiLogging":
+                                PiiLogging = true;
+                                break;
                             case "-log-file":
                                 LogFilePath = args[++i];
                                 break;
@@ -139,6 +142,8 @@ namespace Microsoft.SqlTools.Utility
         }
 
         public string TracingLevel { get; private set; }
+
+        public bool PiiLogging { get; private set; }
 
         public string LogFilePath { get; private set; }
 

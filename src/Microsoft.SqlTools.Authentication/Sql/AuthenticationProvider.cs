@@ -4,6 +4,7 @@
 //
 
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.Authentication.Utility;
 
 namespace Microsoft.SqlTools.Authentication.Sql
 {
@@ -15,7 +16,20 @@ namespace Microsoft.SqlTools.Authentication.Sql
     /// </summary>
     public class AuthenticationProvider : SqlAuthenticationProvider
     {
+        private const string ApplicationClientId = "a69788c6-1d43-44ed-9ca3-b83e194da255";
+        private string ApplicationName = "azuredatastudio";
+        private const string AzureTokenFolder = "Azure Accounts";
+        private const string MSAL_CacheName = "azureTokenCacheMsal-azure_publicCloud";
         private const string s_defaultScopeSuffix = "/.default";
+
+        private static Authenticator? authenticator;
+
+        public AuthenticationProvider()
+        {
+            var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), ApplicationName, AzureTokenFolder);
+            authenticator = new Authenticator(ApplicationClientId, ApplicationName, AzureTokenFolder, MSAL_CacheName);
+        }
+
 
         /// <summary>
         /// Acquires access token with provided <paramref name="parameters"/>
@@ -61,7 +75,7 @@ namespace Microsoft.SqlTools.Authentication.Sql
                 userName!,
                 parameters.ConnectionId);
 
-            AccessToken? result = await new Authenticator().GetTokenAsync(@params, cts.Token);
+            AccessToken? result = await authenticator!.GetTokenAsync(@params, cts.Token);
             return new SqlAuthenticationToken(result!.Token, result!.ExpiresOn);
         }
 

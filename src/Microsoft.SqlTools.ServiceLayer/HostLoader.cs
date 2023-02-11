@@ -43,6 +43,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext, Stream? inputStream = null, Stream? outputStream = null)
+        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext, ServiceLayerCommandOptions? commandOptions, Stream? inputStream = null, Stream? outputStream = null)
         {
             ServiceHost serviceHost = ServiceHost.Instance;
             lock (lockObject)
@@ -66,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                     // Grab the instance of the service host
                     serviceHost.Initialize(inputStream, outputStream);
 
-                    InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext);
+                    InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext, commandOptions);
 
                     // Start the service only after all request handlers are setup. This is vital
                     // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
@@ -78,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             return serviceHost;
         }
 
-        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext)
+        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext, ServiceLayerCommandOptions? commandOptions)
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
@@ -99,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost);
+            ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);

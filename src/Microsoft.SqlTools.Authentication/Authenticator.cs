@@ -4,9 +4,10 @@
 //
 
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
+using Microsoft.SqlTools.Authentication.Utility;
+using SqlToolsLogger = Microsoft.SqlTools.Utility.Logger;
 
 namespace Microsoft.SqlTools.Authentication
 {
@@ -15,17 +16,21 @@ namespace Microsoft.SqlTools.Authentication
     /// </summary>
     public class Authenticator
     {
-        private const string ApplicationClientId = "a69788c6-1d43-44ed-9ca3-b83e194da255";
-        private const string ApplicationName = "azuredatastudio";
-        private const string AzureTokenFolder = "Azure Accounts";
-        private const string MSAL_CacheName = "azureTokenCacheMsal-azure_publicCloud";
-        private const string RedirectUri = "http://localhost";
-
-        private static ConcurrentDictionary<string, IPublicClientApplication> s_pcaMap
+        private string applicationClientId;
+        private string applicationName;
+        private string cacheFolderPath;
+        private string cacheFileName;
+        private static ConcurrentDictionary<string, IPublicClientApplication> PublicClientAppMap
             = new ConcurrentDictionary<string, IPublicClientApplication>();
 
         #region Public APIs
-        public Authenticator() { }
+        public Authenticator(string appClientId, string appName, string cacheFolderPath, string cacheFileName)
+        {
+            this.applicationClientId = appClientId;
+            this.applicationName = appName;
+            this.cacheFolderPath = cacheFolderPath;
+            this.cacheFileName = cacheFileName;
+        }
 
         /// <summary>
         /// Acquires access token synchronously.
@@ -45,11 +50,12 @@ namespace Microsoft.SqlTools.Authentication
         /// <exception cref="Exception"></exception>
         public async Task<AccessToken?> GetTokenAsync(AuthenticationParams @params, CancellationToken cancellationToken)
         {
+            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Received @params: {@params.ToLogString(SqlToolsLogger.IsPiiEnabled)}");
+
             IPublicClientApplication publicClientApplication = GetPublicClientAppInstance(@params.Authority, @params.Audience);
 
-            var cachePath = Path.Combine(BuildDirectoryPath(), ApplicationName, AzureTokenFolder);
-            var storageCreationProperties = new StorageCreationPropertiesBuilder(MSAL_CacheName, cachePath)
-                .WithCacheChangedEvent(ApplicationClientId, @params.Authority + '/' + @params.Audience)
+            // Storage creation properties are used to enable file system caching with MSAL
+            var storageCreationProperties = new StorageCreationPropertiesBuilder(this.cacheFileName, this.cacheFolderPath)
                 .WithUnprotectedFile().Build();
 
             // This hooks up the cross-platform cache into MSAL
@@ -59,61 +65,63 @@ namespace Microsoft.SqlTools.Authentication
             AuthenticationResult? result;
             if (@params.AuthenticationMethod == AuthenticationMethod.ActiveDirectoryInteractive)
             {
-                // Handle username format to extract email: "John Doe - johndoe@constoso.com"
-                string username = @params.Username.Contains(" - ") ? @params.Username.Split(" - ")[1] : @params.Username;
-                
                 // Find account
                 IEnumerator<IAccount>? accounts = (await publicClientApplication.GetAccountsAsync().ConfigureAwait(false)).GetEnumerator();
                 IAccount? account = default;
-                if (accounts.MoveNext())
+
+                if (!string.IsNullOrEmpty(@params.UserName) && accounts.MoveNext())
                 {
-                    if (!string.IsNullOrEmpty(username))
+                    // Handle username format to extract email: "John Doe - johndoe@constoso.com"
+                    string username = @params.UserName.Contains(" - ") ? @params.UserName.Split(" - ")[1] : @params.UserName;
+                    if (!Utils.isValidEmail(username))
                     {
-                        do
+                        SqlToolsLogger.Pii($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Unexpected username format, email not retreived: {@params.UserName}. " +
+                            $"Accepted formats are: 'johndoe@org.com' or 'John Doe - johndoe@org.com'.");
+                        throw new Exception($"Invalid email address format for user: [{username}]");
+                    }
+
+                    do
+                    {
+                        IAccount? currentVal = accounts.Current;
+                        if (string.Compare(username, currentVal.Username, StringComparison.InvariantCultureIgnoreCase) == 0)
                         {
-                            IAccount? currentVal = accounts.Current;
-                            if (string.Compare(username, currentVal.Username, StringComparison.InvariantCultureIgnoreCase) == 0)
-                            {
-                                account = currentVal;
-                                break;
-                            }
+                            account = currentVal;
+                            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | User account found in MSAL Cache: {account.HomeAccountId}");
+                            break;
                         }
-                        while (accounts.MoveNext());
+                    }
+                    while (accounts.MoveNext());
+
+                    if (null != account)
+                    {
+                        try
+                        {
+                            // Fetch token silently
+                            result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
+                                .ExecuteAsync(cancellationToken: cancellationToken)
+                                .ConfigureAwait(false);
+                        }
+                        catch (Exception e)
+                        {
+                            SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed to resource {@params.Authority} for ConnectionId {@params.ConnectionId}");
+                            throw new Exception($"Reauthentication needed for user [{username}]: Silent authentication failed", e);
+                        }
                     }
                     else
                     {
-                        account = accounts.Current;
-                    }
-                }
-
-                if (null != account)
-                {
-                    try
-                    {
-                        // Fetch token silently
-                        result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
-                            .ExecuteAsync(cancellationToken: cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-                    catch (Exception e) when (e is MsalUiRequiredException || e is MsalServiceException)
-                    {
-                        result = await AcquireTokenInteractiveAsync(publicClientApplication,
-                            @params.Scopes, @params.ConnectionId, username,
-                            @params.AuthenticationMethod, cancellationToken)
-                            .ConfigureAwait(false);
+                        SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Account not found in MSAL cache for user.");
+                        throw new Exception($"Account not found in MSAL cache for user: [{username}]");
                     }
                 }
                 else
                 {
-                    // If no existing 'account' is found, we request user to sign in interactively.
-                    result = await AcquireTokenInteractiveAsync(publicClientApplication,
-                        @params.Scopes, @params.ConnectionId, username,
-                        @params.AuthenticationMethod, cancellationToken)
-                        .ConfigureAwait(false);
+                    SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | User account not received.");
+                    throw new Exception("User account not received.");
                 }
             }
             else
             {
+                SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Authentication Method ${@params.AuthenticationMethod} is not supported.");
                 throw new Exception($"Authentication Method ${@params.AuthenticationMethod} is not supported.");
             }
 
@@ -126,117 +134,22 @@ namespace Microsoft.SqlTools.Authentication
         private IPublicClientApplication GetPublicClientAppInstance(string authority, string audience)
         {
             string authorityUrl = authority + '/' + audience;
-            if (!s_pcaMap.TryGetValue(authorityUrl, out IPublicClientApplication? clientApplicationInstance))
+            if (!PublicClientAppMap.TryGetValue(authorityUrl, out IPublicClientApplication? clientApplicationInstance))
             {
                 clientApplicationInstance = CreatePublicClientAppInstance(authority, audience);
-                s_pcaMap.TryAdd(authorityUrl, clientApplicationInstance);
+                PublicClientAppMap.TryAdd(authorityUrl, clientApplicationInstance);
             }
             return clientApplicationInstance;
         }
 
         private IPublicClientApplication CreatePublicClientAppInstance(string authority, string audience) =>
-            PublicClientApplicationBuilder.Create(ApplicationClientId)
+            PublicClientApplicationBuilder.Create(this.applicationClientId)
                 .WithAuthority(authority, audience)
-                .WithClientName(ApplicationName)
-                .WithRedirectUri(RedirectUri)
-                .WithClientId(ApplicationClientId)
-                .WithLogging((logLevel, message, pii) =>
-                {
-                    switch (logLevel)
-                    {
-                        case LogLevel.Error:
-                            if (!pii) Utility.Logger.Error(message);
-                            break;
-                        case LogLevel.Warning:
-                            if (!pii) Utility.Logger.Warning(message);
-                            break;
-                        case LogLevel.Info:
-                            if (!pii) Utility.Logger.Information(message);
-                            break;
-                        case LogLevel.Verbose:
-                            if (!pii) Utility.Logger.Verbose(message);
-                            break;
-                        case LogLevel.Always:
-                            if (!pii) Utility.Logger.Critical(message);
-                            break;
-                    }
-                })
+                .WithClientName(this.applicationName)
+                .WithLogging(Utils.MSALLogCallback)
+                .WithDefaultRedirectUri()
                 .Build();
 
-        private async Task<AuthenticationResult> AcquireTokenInteractiveAsync(IPublicClientApplication publicClientApplication, string[] scopes, Guid connectionId, string username, AuthenticationMethod authenticationMethod, CancellationToken cancellationToken)
-        {
-            try
-            {
-                CancellationTokenSource ctsInteractive = new CancellationTokenSource();
-                /*
-                 * On .NET Core, MSAL will start the system browser as a separate process. MSAL does not have control over this browser,
-                 * but once the user finishes authentication, the web page is redirected in such a way that MSAL can intercept the Uri.
-                 * MSAL cannot detect if the user navigates away or simply closes the browser. Apps using this technique are encouraged
-                 * to define a timeout (via CancellationToken). We recommend a timeout of at least a few minutes, to take into account
-                 * cases where the user is prompted to change password or perform 2FA.
-                 *
-                 * https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/System-Browser-on-.Net-Core#system-browser-experience
-                 */
-                ctsInteractive.CancelAfter(180000);
-
-                return await publicClientApplication.AcquireTokenInteractive(scopes)
-                    .WithCorrelationId(connectionId)
-                    .WithLoginHint(username)
-                    .ExecuteAsync(ctsInteractive.Token)
-                    .ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                throw new Exception($"Timeout occurred or operation canceled by user. Failed to acquire token interactively.");
-            }
-        }
-
-        public string BuildDirectoryPath()
-        {
-            var homedir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            // Windows
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var appData = Environment.GetEnvironmentVariable("APPDATA");
-                var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-                if (appData != null)
-                {
-                    return appData;
-                }
-                else if (userProfile != null)
-                {
-                    return String.Join(Environment.GetEnvironmentVariable("USERPROFILE"), "AppData", "Roaming");
-                }
-                else
-                {
-                    throw new Exception("Not able to find APPDATA or USERPROFILE");
-                }
-            }
-
-            // Mac
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return String.Join(homedir, "Library", "Application Support");
-            }
-
-            // Linux
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                var xdgConfigHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
-                if (xdgConfigHome != null)
-                {
-                    return xdgConfigHome;
-                }
-                else
-                {
-                    return String.Join(homedir, ".config");
-                }
-            }
-            else
-            {
-                throw new Exception("Platform not supported");
-            }
-        }
         #endregion
     }
 }

@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.Utility
             get => tracingLevel;
             set
             {
-                if(TraceSource != null)
+                if (TraceSource != null)
                 {
                     // configures the source level filter. This alone is not enough for tracing that is done via "Trace" class instead of "TraceSource" object
                     TraceSource.Switch = new SourceSwitch(TraceSource.Name, value.ToString());
@@ -97,6 +97,8 @@ namespace Microsoft.SqlTools.Utility
                 Listener!.Filter = new EventTypeFilter(tracingLevel);
             }
         }
+
+        public static bool IsPiiEnabled { get; set; } = false;
 
         public static bool AutoFlush { get; set; } = false;
 
@@ -116,11 +118,13 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
+            bool piiEnabled = false,
             string? logFilePath = null,
             string traceSource = defaultTraceSource,
             bool autoFlush = false)
         {
             Logger.tracingLevel = tracingLevel;
+            Logger.IsPiiEnabled = piiEnabled;
             Logger.AutoFlush = autoFlush;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
             if (string.IsNullOrWhiteSpace(logFilePath))
@@ -147,11 +151,12 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="autoFlush">
         /// Optional. Specifies whether the log is flushed after every message
         /// </param>
-        public static void Initialize(string tracingLevel, string? logFilePath = null, string traceSource = defaultTraceSource, bool autoFlush = false)
+        public static void Initialize(string tracingLevel, bool piiEnabled, string? logFilePath = null, string traceSource = defaultTraceSource, bool autoFlush = false)
         {
             Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
+                , piiEnabled
                 , logFilePath
                 , traceSource
                 , autoFlush);
@@ -200,7 +205,7 @@ namespace Microsoft.SqlTools.Utility
             }
 
             string fileName;
-            try 
+            try
             {
                 var now = DateTime.Now;
                 fileName = string.Format(CultureInfo.InvariantCulture,
@@ -239,6 +244,16 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="eventType">The level at which the message will be written.</param>
         /// <param name="logMessage">The message text to be written.</param>
         public static void Write(TraceEventType eventType, string logMessage) => Write(eventType, LogEvent.Default, logMessage);
+
+        /// <summary>
+        /// Writes a PII message to the log file with the Verbose event level when PII flag is enabled.
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Pii(string logMessage) {
+            if (IsPiiEnabled) {
+                Write(TraceEventType.Verbose, logMessage);
+            }
+        }
 
         /// <summary>
         /// Writes a message to the log file with the Verbose event level

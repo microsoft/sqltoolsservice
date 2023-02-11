@@ -12,7 +12,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
-    class ServiceLayerCommandOptions : CommandOptions
+    public class ServiceLayerCommandOptions : CommandOptions
     {
         internal const string ServiceLayerServiceName = "MicrosoftSqlToolsServiceLayer.exe";
 
