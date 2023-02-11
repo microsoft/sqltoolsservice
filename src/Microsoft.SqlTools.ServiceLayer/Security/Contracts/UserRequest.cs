@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// </summary>
         public static readonly
             RequestType<InitializeUserViewParams, UserViewInfo> Type =
-            RequestType<InitializeUserViewParams, UserViewInfo>.Create("objectManagement/initializeUserView'");
+            RequestType<InitializeUserViewParams, UserViewInfo>.Create("objectManagement/initializeUserView");
     }
 
     /// <summary>
@@ -44,7 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     public class CreateUserParams : GeneralRequestDetails
     {
         public string? OwnerUri { get; set; }
-
         public UserInfo? User { get; set; }
     }
 

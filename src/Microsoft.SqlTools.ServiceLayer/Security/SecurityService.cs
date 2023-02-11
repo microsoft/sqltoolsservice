@@ -3,12 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Common;
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     {
         private bool disposed;
 
-        private ConnectionService connectionService;
+        private ConnectionService? connectionService;
 
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
 
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Service host object for sending/receiving requests/events.
         /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost
+        internal IProtocolEndpoint? ServiceHost
         {
             get;
             set;
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
 
                 // check that password and confirm password controls' text matches
-                if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
+                if (0 != string.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
                 {
                     // raise error here
                 }                 
@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            Login login = dataContainer.Server.Logins[parameters.LoginName];
+            Login login = dataContainer.Server?.Logins[parameters.LoginName];
      
             dataContainer.SqlDialogSubject = login;
             DoDropObject(dataContainer);
@@ -175,8 +175,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 #region "User Handlers"
 
         internal Task<Tuple<bool, string>> ConfigureUser(
-            string ownerUri,
-            UserInfo user,
+            string? ownerUri,
+            UserInfo? user,
             ConfigAction configAction,
             RunType runType)
         {
@@ -222,11 +222,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
+        private Dictionary<string, SchemaOwnership> LoadSchemas(string databaseName, string  dbroleName, ServerConnection serverConnection)
+        {
+            bool isPropertiesMode = false;
+            Dictionary<string, SchemaOwnership> schemaOwnership = new Dictionary<string, SchemaOwnership>();
+
+            Enumerator en = new Enumerator();
+            Request req = new Request();
+            req.Fields = new String [] { "Name", "Owner" };
+            req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Schema";
+
+            DataTable dt = en.Process(serverConnection, req);
+            System.Diagnostics.Debug.Assert((dt != null) && (0 < dt.Rows.Count), "enumerator did not return schemas");
+            System.Diagnostics.Debug.Assert(!isPropertiesMode || (dbroleName.Length != 0), "role name is not known");
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                string  schemaName      = Convert.ToString(dr["Name"],System.Globalization.CultureInfo.InvariantCulture);
+                string  schemaOwner     = Convert.ToString(dr["Owner"],System.Globalization.CultureInfo.InvariantCulture);
+                bool roleOwnsSchema = isPropertiesMode && (0 == String.Compare(dbroleName, schemaOwner, StringComparison.Ordinal));
+                if (schemaName != null)
+                {
+                    schemaOwnership[schemaName] = new SchemaOwnership(roleOwnsSchema);
+                }
+            }
+            return schemaOwnership;
+        }
+
         /// <summary>
         /// Handle request to initialize user view
         /// </summary>
         internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
-        {
+        {            
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
+            if (connInfo == null)
+            {
+                throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
+            }
+
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
+
+            string database = parameters.Database ?? "master";
+            var schemaMap = LoadSchemas(database, string.Empty, serverConnection);
+            schemaMap.Keys.ToArray();
+            
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -247,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 SupportAADAuthentication = true,
                 SupportSQLAuthentication = true,
                 Languages = new string[] {},
-                Schemas = new string[] {},
+                Schemas = schemaMap.Keys.ToArray(),
                 Logins = new string[] {},
                 DatabaseRoles = new string[] {}
             };
@@ -283,10 +323,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             SortedList sortedLanguages = new SortedList(Comparer.Default);
 
             LanguageUtils.SetLanguageDefaultInitFieldsForDefaultLanguages(dataContainer.Server);
-            foreach (Language language in dataContainer.Server.Languages)
+            if (dataContainer.Server != null && dataContainer.Server.Languages != null)
             {
-                LanguageDisplay listValue = new LanguageDisplay(language);
-                sortedLanguages.Add(language.Alias, listValue);
+                foreach (Language language in dataContainer.Server.Languages)
+                {
+                    LanguageDisplay listValue = new LanguageDisplay(language);
+                    sortedLanguages.Add(language.Alias, listValue);
+                }
             }
 
             // add the language display objects to the combo box
@@ -492,18 +535,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
                 CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-                var credentials = dataContainer.Server.Credentials;
-                int credentialsCount = credentials.Count;
+                var credentials = dataContainer.Server?.Credentials;
+                int credentialsCount = credentials != null ? credentials.Count : 0;
                 CredentialInfo[] credentialsInfos = new CredentialInfo[credentialsCount];
-                for (int i = 0; i < credentialsCount; ++i)
+                if (credentials != null)
                 {
-                    credentialsInfos[i] = new CredentialInfo();
-                    credentialsInfos[i].Name = credentials[i].Name;
-                    credentialsInfos[i].Identity = credentials[i].Identity;
-                    credentialsInfos[i].Id = credentials[i].ID;
-                    credentialsInfos[i].DateLastModified = credentials[i].DateLastModified;
-                    credentialsInfos[i].CreateDate = credentials[i].CreateDate;
-                    credentialsInfos[i].ProviderName = credentials[i].ProviderName;
+                    for (int i = 0; i < credentialsCount; ++i)
+                    {
+                        credentialsInfos[i] = new CredentialInfo();
+                        credentialsInfos[i].Name = credentials[i].Name;
+                        credentialsInfos[i].Identity = credentials[i].Identity;
+                        credentialsInfos[i].Id = credentials[i].ID;
+                        credentialsInfos[i].DateLastModified = credentials[i].DateLastModified;
+                        credentialsInfos[i].CreateDate = credentials[i].CreateDate;
+                        credentialsInfos[i].ProviderName = credentials[i].ProviderName;
+                    }
                 }
                 result.Credentials = credentialsInfos;
                 result.Success = true;
@@ -567,7 +613,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         /// <param name="objectRowNumber"></param>
         private void DoDropObject(CDataContainer dataContainer)
-        {            
+        {      
+            // if a server isn't connected then there is nothing to do      
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
             var executionMode = dataContainer.Server.ConnectionContext.SqlExecutionModes;
             var subjectExecutionMode = executionMode;
 
@@ -591,7 +643,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes;
             }
 
-            Urn objUrn = sqlDialogSubject.Urn;
+            Urn objUrn = sqlDialogSubject?.Urn;
             System.Diagnostics.Debug.Assert(objUrn != null);
 
             SfcObjectQuery objectQuery = new SfcObjectQuery(dataContainer.Server);
@@ -634,6 +686,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private void SpecialPreDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj, 
             bool deleteBackupRestoreOrDisableAuditSpecOrDisableAudit, bool dropOpenConnections)
         {
+            // if a server isn't connected then there is nothing to do      
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
             Database db = droppableObj as Database;
 
             if (deleteBackupRestoreOrDisableAuditSpecOrDisableAudit)
@@ -672,7 +730,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // special case database drop - drop existing connections to the database other than this one
             if (dropOpenConnections)
             {
-                if (db.ActiveConnections > 0)
+                if (db?.ActiveConnections > 0)
                 {
                     // force the database to be single user
                     db.DatabaseOptions.UserAccess = DatabaseUserAccess.Single;
@@ -683,6 +741,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private void SpecialPostDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj)
         {
+            // if a server isn't connected then there is nothing to do      
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
             if (droppableObj is Policy)
             {
                 Policy policyToDrop = (Policy)droppableObj;
@@ -757,7 +821,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 foreach (DataRow dr in dt.Rows)
                 {
                     string memberName = dr["Name"].ToString();
-                    roleMembers[memberName] = new RoleMembership(true);
+                    if (memberName != null)
+                    {
+                        roleMembers[memberName] = new RoleMembership(true);
+                    }
                 }
             }
         }
@@ -776,14 +843,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 DictionaryEntry entry       = enumerator.Entry;
                 string          memberName  = entry.Key.ToString();
                 RoleMembership  membership  = (RoleMembership) entry.Value;
-
-                if (!membership.initiallyAMember && membership.currentlyAMember)
+                if (membership != null)
                 {
-                    dbrole.AddMember(memberName);
-                }
-                else if (membership.initiallyAMember && !membership.currentlyAMember)
-                {
-                    dbrole.DropMember(memberName);
+                    if (!membership.initiallyAMember && membership.currentlyAMember)
+                    {
+                        dbrole.AddMember(memberName);
+                    }
+                    else if (membership.initiallyAMember && !membership.currentlyAMember)
+                    {
+                        dbrole.DropMember(memberName);
+                    }
                 }
             }
         }
@@ -871,40 +940,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // SendToServerSchemaOwnershipChanges(database, role);
             // SendToServerMembershipChanges(database, role);
         }
-
-        private void DbRole_LoadSchemas(string databaseName, string  dbroleName, ServerConnection serverConnection)
-        {
-            bool isPropertiesMode = false;
-            HybridDictionary schemaOwnership;
-            schemaOwnership = new HybridDictionary();
-
-            Enumerator en = new Enumerator();
-            Request req = new Request();
-            req.Fields = new String [] { "Name", "Owner" };
-            req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Schema";
-
-            DataTable dt = en.Process(serverConnection, req);
-            System.Diagnostics.Debug.Assert((dt != null) && (0 < dt.Rows.Count), "enumerator did not return schemas");
-            System.Diagnostics.Debug.Assert(!isPropertiesMode || (dbroleName.Length != 0), "role name is not known");
-
-            foreach (DataRow dr in dt.Rows)
-            {
-                string  schemaName      = Convert.ToString(dr["Name"],System.Globalization.CultureInfo.InvariantCulture);
-                string  schemaOwner     = Convert.ToString(dr["Owner"],System.Globalization.CultureInfo.InvariantCulture);
-                bool    roleOwnsSchema  = 
-                    isPropertiesMode &&
-                    (0 == String.Compare(dbroleName, schemaOwner, StringComparison.Ordinal));
-
-                schemaOwnership[schemaName] = new SchemaOwnership(roleOwnsSchema);
-            }
-        }
+        
 
         /// <summary>
         /// sends to server changes related to schema ownership
         /// </summary>
         private void DbRole_SendToServerSchemaOwnershipChanges(CDataContainer dataContainer, Database db, DatabaseRole dbrole)
         {
-            HybridDictionary schemaOwnership = null;
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
+            HybridDictionary schemaOwnership = new HybridDictionary();
             if (9 <= dataContainer.Server.Information.Version.Major)
             {
                 IDictionaryEnumerator enumerator = schemaOwnership.GetEnumerator();
@@ -918,7 +966,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     // If we are creating a new role, then no schema will have been initially owned by this role.
                     // If we are modifying an existing role, we can only take ownership of roles.  (Ownership can't
                     // be renounced, it can only be positively assigned to a principal.)
-                    if (ownership.currentlyOwned && !ownership.initiallyOwned)
+                    if (ownership != null && (ownership.currentlyOwned && !ownership.initiallyOwned))
                     {
                         Schema schema = db.Schemas[schemaName];
                         schema.Owner = dbrole.Name;
@@ -930,7 +978,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 #endregion
 
-    }
-
-    
+    }    
 }
