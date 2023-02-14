@@ -251,6 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var lastSchemaPosition = Array.FindLastIndex(databaseChildren.Nodes, t => t.ObjectType == nameof(NodeTypes.ExpandableSchema));
                 var firstNonSchemaPosition = Array.FindIndex(databaseChildren.Nodes, t => t.ObjectType != nameof(NodeTypes.ExpandableSchema));
                 Assert.True(lastSchemaPosition < firstNonSchemaPosition, "Schema nodes should be before non-schema nodes");
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
             });
         }
 
