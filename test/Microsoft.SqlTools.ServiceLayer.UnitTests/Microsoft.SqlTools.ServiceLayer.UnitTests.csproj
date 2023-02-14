@@ -17,6 +17,7 @@
 		<PackageReference Include="nunit3testadapter" />
 		<PackageReference Include="nunit.console" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="System.Drawing.Common" />
 		<PackageReference Include="coverlet.collector">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
