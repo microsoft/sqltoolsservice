@@ -43,6 +43,7 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDa
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlManagedInstance;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Models.Sql;
+using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Utils;
 using Microsoft.SqlServer.Migration.Tde;
 using Microsoft.SqlServer.Migration.Tde.Common;

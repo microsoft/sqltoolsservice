@@ -37,7 +37,6 @@ using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Sku;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Exceptions;
 using Microsoft.SqlServer.Migration.SkuRecommendation.Contracts.Models.Environment;
-using Microsoft.SqlServer.Migration.SkuRecommendation.TargetProvisioning;
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy;
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlManagedInstance;
 using Microsoft.SqlServer.Migration.SkuRecommendation.ElasticStrategy.AzureSqlDatabase;
