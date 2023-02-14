@@ -665,6 +665,33 @@ namespace Microsoft.SqlTools.Migration
             return resultSet;
         }
 
+        /// <summary>
+        /// Handle request to generate provisioning script from a list of SKU recommendations
+        /// </summary>
+        internal async Task HandleGenerateProvisioningScriptRequest(
+            GenerateProvisioningScriptParams parameters,
+            RequestContext<GenerateProvisioningScriptResult> requestContext)
+        {
+            try
+            {
+                SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
+
+                ArmTemplateServiceProvider templateProvider = new ArmTemplateServiceProvider();
+
+                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.SkuRecommendations, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
+
+                GenerateProvisioningScriptResult result = new GenerateProvisioningScriptResult{
+                    ProvisioningScriptFilePath = armTemplateFilePath
+                };
+
+                await requestContext.SendResult(result);
+            }
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.ToString());
+            }
+        }
+
         internal class AssessmentRequest : IAssessmentRequest
         {
             private readonly Check[] checks = null;
