@@ -14,11 +14,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     {
         public static int DefaultCreateSessionTimeout = 45;
         public static int DefaultExpandTimeout = 45;
+        public static bool DefaultGroupBySchema = false;
 
         public ObjectExplorerSettings()
         {
             CreateSessionTimeout = DefaultCreateSessionTimeout;
             ExpandTimeout = DefaultExpandTimeout;
+            GroupBySchema = DefaultGroupBySchema;
         }
 
         /// <summary>
@@ -35,6 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Moves Schema to the top level of OE and then move schema-bound nodes under it.
         /// </summary>
         /// <value></value>
-        public bool GroupBySchema { get; set; } = false;
+        public bool GroupBySchema { get; set; }
     }
 }
