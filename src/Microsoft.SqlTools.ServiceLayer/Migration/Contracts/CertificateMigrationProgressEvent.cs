@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+// To be deprecated -- see src/Microsoft.SqlTools.Migration/Contracts/CertificateMigrationProgressEvent.cs
+
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
