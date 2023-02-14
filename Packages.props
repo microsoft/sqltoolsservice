@@ -47,7 +47,6 @@
 		<PackageReference Update="coverlet.collector" Version="3.1.2" />
 		<PackageReference Update="coverlet.msbuild" Version="3.1.2" />
 	</ItemGroup>
-<<<<<<< HEAD
 
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
@@ -57,6 +56,4 @@
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
-=======
->>>>>>> t-rayfeng/target-provisioning
 </Project>
