@@ -32,6 +32,8 @@ namespace Microsoft.SqlTools.Authentication
             this.cacheFileName = cacheFileName;
         }
 
+        public delegate Task<AccessToken> InteractiveAuthCallback(string authority, string resource, string username, string[] scopes);
+
         /// <summary>
         /// Acquires access token synchronously.
         /// </summary>
@@ -62,7 +64,7 @@ namespace Microsoft.SqlTools.Authentication
             var cacheHelper = await MsalCacheHelper.CreateAsync(storageCreationProperties);
             cacheHelper.RegisterCache(publicClientApplication.UserTokenCache);
 
-            AuthenticationResult? result;
+            AccessToken? accessToken;
             if (@params.AuthenticationMethod == AuthenticationMethod.ActiveDirectoryInteractive)
             {
                 // Find account
@@ -97,20 +99,21 @@ namespace Microsoft.SqlTools.Authentication
                         try
                         {
                             // Fetch token silently
-                            result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
+                            var result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
                                 .ExecuteAsync(cancellationToken: cancellationToken)
                                 .ConfigureAwait(false);
+                            accessToken = new AccessToken(result!.AccessToken, result!.ExpiresOn);
                         }
-                        catch (Exception e)
+                        catch (MsalUiRequiredException)
                         {
-                            SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed to resource {@params.Authority} for ConnectionId {@params.ConnectionId}");
-                            throw new Exception($"Reauthentication needed for user [{username}]: Silent authentication failed", e);
+                            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed to resource {@params.Authority} for ConnectionId {@params.ConnectionId}, proceeding to run callback.");
+                            accessToken = await AcquireAccessTokenFromCallback(@params);
                         }
                     }
                     else
                     {
                         SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Account not found in MSAL cache for user.");
-                        throw new Exception($"Account not found in MSAL cache for user: [{username}]");
+                        accessToken = await AcquireAccessTokenFromCallback(@params);
                     }
                 }
                 else
@@ -125,12 +128,25 @@ namespace Microsoft.SqlTools.Authentication
                 throw new Exception($"Authentication Method ${@params.AuthenticationMethod} is not supported.");
             }
 
-            return result != null ? new AccessToken(result.AccessToken, result.ExpiresOn) : null;
+            return accessToken;
         }
 
         #endregion
 
         #region Private methods
+
+        private async Task<AccessToken?> AcquireAccessTokenFromCallback(AuthenticationParams @params)
+        {
+            if (@params.interactiveAuthCallback != null)
+            {
+                return await @params.interactiveAuthCallback(@params.Authority, @params.Resource, @params.UserName, @params.Scopes);
+            }
+            else
+            {
+                throw new Exception($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed to resource {@params.Authority} for ConnectionId {@params.ConnectionId}. Authentication Callback not available.");
+            }
+        }
+
         private IPublicClientApplication GetPublicClientAppInstance(string authority, string audience)
         {
             string authorityUrl = authority + '/' + audience;

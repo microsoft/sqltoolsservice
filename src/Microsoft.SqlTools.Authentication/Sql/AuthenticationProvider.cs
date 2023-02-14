@@ -5,6 +5,7 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Authentication.Utility;
+using static Microsoft.SqlTools.Authentication.Authenticator;
 
 namespace Microsoft.SqlTools.Authentication.Sql
 {
@@ -27,9 +28,13 @@ namespace Microsoft.SqlTools.Authentication.Sql
         public AuthenticationProvider()
         {
             var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), ApplicationName, AzureTokenFolder);
-            authenticator = new Authenticator(ApplicationClientId, ApplicationName, AzureTokenFolder, MSAL_CacheName);
+            authenticator = new Authenticator(ApplicationClientId, ApplicationName, cachePath, MSAL_CacheName);
         }
 
+        /// <summary>
+        /// Callback method to be called when UI interaction is required for acquiring access token.
+        /// </summary>
+        public InteractiveAuthCallback? InteractiveAuthCallback { get; set; }
 
         /// <summary>
         /// Acquires access token with provided <paramref name="parameters"/>
@@ -39,7 +44,19 @@ namespace Microsoft.SqlTools.Authentication.Sql
         public override async Task<SqlAuthenticationToken> AcquireTokenAsync(SqlAuthenticationParameters parameters)
         {
             // Setup scope
-            string scope = parameters.Resource.EndsWith(s_defaultScopeSuffix) ? parameters.Resource : parameters.Resource + s_defaultScopeSuffix;
+            string resource = parameters.Resource;
+            string scope;
+
+            if (parameters.Resource.EndsWith(s_defaultScopeSuffix))
+            {
+                scope = parameters.Resource;
+                resource = parameters.Resource.Substring(0, parameters.Resource.LastIndexOf('/') + 1);
+            }
+            else
+            {
+                scope = parameters.Resource + s_defaultScopeSuffix;
+            }
+
             string[] scopes = new string[] { scope };
 
             CancellationTokenSource cts = new CancellationTokenSource();
@@ -71,9 +88,12 @@ namespace Microsoft.SqlTools.Authentication.Sql
                 AuthenticationMethod.ActiveDirectoryInteractive,
                 authority,
                 audience,
+                resource,
                 scopes,
                 userName!,
                 parameters.ConnectionId);
+
+            @params.interactiveAuthCallback = InteractiveAuthCallback;
 
             AccessToken? result = await authenticator!.GetTokenAsync(@params, cts.Token);
             return new SqlAuthenticationToken(result!.Token, result!.ExpiresOn);

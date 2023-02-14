@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using static Microsoft.SqlTools.Authentication.Authenticator;
+
 namespace Microsoft.SqlTools.Authentication
 {
     /// <summary>
@@ -16,6 +18,11 @@ namespace Microsoft.SqlTools.Authentication
         public AuthenticationMethod AuthenticationMethod { get; set; }
 
         /// <summary>
+        /// Callback method to would handle authentication with user interaction when using 'ActiveDirectoryInteractive' method.
+        /// </summary>
+        public InteractiveAuthCallback? interactiveAuthCallback { get; set; }
+
+        /// <summary>
         /// Authority URL, e.g. https://login.microsoftonline.com/
         /// </summary>
         public string Authority { get; set; }
@@ -25,6 +32,11 @@ namespace Microsoft.SqlTools.Authentication
         /// It can also be a tenant Id when authenticating multi-tenant application accounts.
         /// </summary>
         public string Audience { get; set; }
+
+        /// <summary>
+        /// Resource URL, e.g. https://database.windows.net/
+        /// </summary>
+        public string Resource { get; set; }
 
         /// <summary>
         /// Array of scopes for which access token is requested.
@@ -48,14 +60,16 @@ namespace Microsoft.SqlTools.Authentication
         /// <param name="authMethod">Authentication Method to be used.</param>
         /// <param name="authority">Authority URL</param>
         /// <param name="audience">Audience</param>
+        /// <param name="resource">Resource for which token is requested.</param>
         /// <param name="scopes">Scopes for access token</param>
-        /// <param name="username">User hint information</param>
+        /// <param name="userName">User hint information</param>
         /// <param name="connectionId">Connection Id for tracing AAD request</param>
         public AuthenticationParams(AuthenticationMethod authMethod, string authority, string audience, 
-            string[] scopes, string userName, Guid connectionId) {
+            string resource, string[] scopes, string userName, Guid connectionId) {
             this.AuthenticationMethod = authMethod;
             this.Authority = authority;
             this.Audience = audience;
+            this.Resource = resource;
             this.Scopes = scopes;
             this.UserName = userName;
             this.ConnectionId = connectionId;
@@ -66,6 +80,7 @@ namespace Microsoft.SqlTools.Authentication
             return $"\tAuthenticationMethod: {AuthenticationMethod}" +
                 $"\n\tAuthority: {Authority}" +
                 $"\n\tAudience: {Audience}" +
+                $"\n\tResource: {Resource}" +
                 $"\n\tScopes: {Scopes.ToString()}" +
                 (piiEnabled ? $"\n\tUsername: {UserName}" : "") +
                 $"\n\tConnection Id: {ConnectionId}";

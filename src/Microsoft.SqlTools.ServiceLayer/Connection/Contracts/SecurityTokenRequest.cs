@@ -12,14 +12,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
     class RequestSecurityTokenParams
     {
         /// <summary>
-        /// Gets or sets the address of the authority to issue token.
-        /// </summary>
-        public string Authority { get; set; }
-
-        /// <summary>
         /// Gets or sets the provider that indicates the type of linked account to query.
         /// </summary>
         public string Provider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the address of the authority to issue token.
+        /// </summary>
+        public string Authority { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
@@ -27,9 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Resource { get; set; }
 
         /// <summary>
-        /// Gets or sets the scope of the authentication request.
+        /// Gets or sets the username for which access token is requested.
         /// </summary>
-        public string Scope { get; set; }
+        public string Username { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scope array of the authentication request.
+        /// </summary>
+        public string [] Scopes { get; set; }
     }
 
     class RequestSecurityTokenResponse
@@ -43,6 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Gets or sets the access token.
         /// </summary>
         public string Token { get; set; }
+
+        /// <summary>
+        /// Gets or sets the expiry date of the access token.
+        /// </summary>
+        public long ExpiresOn { get; set; }
     }
 
     /// <summary>
