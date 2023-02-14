@@ -25,7 +25,7 @@
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20221028.23" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20220808.764" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230207.42" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="160.22524.0" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230119.40" />
@@ -47,6 +47,7 @@
 		<PackageReference Update="coverlet.collector" Version="3.1.2" />
 		<PackageReference Update="coverlet.msbuild" Version="3.1.2" />
 	</ItemGroup>
+<<<<<<< HEAD
 
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
@@ -56,4 +57,6 @@
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
+=======
+>>>>>>> t-rayfeng/target-provisioning
 </Project>
