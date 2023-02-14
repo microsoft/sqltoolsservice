@@ -1085,16 +1085,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return handler.HandleRequest(this.connectionFactory, info);
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost, ServiceLayerCommandOptions commandOptions)
+        public void InitializeService(IProtocolEndpoint serviceHost, ServiceLayerCommandOptions? commandOptions)
         {
             this.ServiceHost = serviceHost;
 
-            if (commandOptions.EnableSqlAuthenticationProvider)
+            if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
             {
-                var provider = new AuthenticationProvider()
-                {
-                    InteractiveAuthCallback = ActiveDirectoryInteractiveCallback
-                };
+                var provider = new AuthenticationProvider(ActiveDirectoryInteractiveCallback);
 
                 // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
                 SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);

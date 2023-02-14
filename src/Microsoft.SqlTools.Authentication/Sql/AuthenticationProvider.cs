@@ -23,10 +23,11 @@ namespace Microsoft.SqlTools.Authentication.Sql
         private const string MSAL_CacheName = "azureTokenCacheMsal-azure_publicCloud";
         private const string s_defaultScopeSuffix = "/.default";
 
-        private static Authenticator? authenticator;
+        private Authenticator? authenticator;
 
-        public AuthenticationProvider()
+        public AuthenticationProvider(InteractiveAuthCallback authCallback)
         {
+            this.InteractiveAuthCallback = authCallback;
             var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), ApplicationName, AzureTokenFolder);
             authenticator = new Authenticator(ApplicationClientId, ApplicationName, cachePath, MSAL_CacheName);
         }

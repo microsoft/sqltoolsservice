@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.Authentication
                     {
                         SqlToolsLogger.Pii($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Unexpected username format, email not retreived: {@params.UserName}. " +
                             $"Accepted formats are: 'johndoe@org.com' or 'John Doe - johndoe@org.com'.");
-                        throw new Exception($"Invalid email address format for user: [{username}]");
+                        throw new Exception($"Invalid email address format for user: [{username}] received for Azure Active Directory authentication.");
                     }
 
                     do
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.Authentication
                         }
                         catch (MsalUiRequiredException)
                         {
-                            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed to resource {@params.Authority} for ConnectionId {@params.ConnectionId}, proceeding to run callback.");
+                            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed for resource {@params.Resource} for ConnectionId {@params.ConnectionId}, proceeding to run callback.");
                             accessToken = await AcquireAccessTokenFromCallback(@params);
                         }
                     }
