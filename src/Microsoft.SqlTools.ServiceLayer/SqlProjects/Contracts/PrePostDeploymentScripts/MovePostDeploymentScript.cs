@@ -8,8 +8,8 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
-    public class UpdateSqlCmdVariableRequest
+    public class MovePostDeploymentScriptRequest
     {
-        public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/updateSqlCmdVariable");
+        public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/movePostDeploymentScript");
     }
 }

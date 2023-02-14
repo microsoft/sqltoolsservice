@@ -13,18 +13,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Parameters for adding a Dacpac reference to a SQL project
     /// </summary>
-    public class AddDacpacReferenceParams : AddDatabaseReferenceParams
+    public class AddDacpacReferenceParams : AddUserDatabaseReferenceParams
     {
         /// <summary>
         /// Path to the .dacpac file
         /// </summary>
         public string DacpacPath { get; set; }
-
-        /// <summary>
-        /// SQLCMD variable name for specifying the other server this reference is to, if different from that of the current project.
-        /// If this is set, DatabaseVariable must also be set.
-        /// </summary>
-        public string? ServerVariable { get; set; }
     }
 
     public class AddDacpacReferenceRequest
