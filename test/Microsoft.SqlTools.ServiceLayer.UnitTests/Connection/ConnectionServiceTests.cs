@@ -514,7 +514,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [TestCase(null, ActiveDirectoryInteractive)]
         public async Task ConnectingWitNoUsernameFailsForAADInteractiveAuth(string userName, string authMode)
         {
-            TestObjects.GetTestConnectionService().EnableSqlAuthenticationProvider = true;
+            // This is an exception scenario test, therefore using ConnectionService instance instead of TestConnectionService directly.
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
             // Connect
             var connectionResult = await
                 TestObjects.GetTestConnectionService()
@@ -540,7 +541,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         [TestCase("user", "anything", ActiveDirectoryInteractive)]
         public async Task ConnectingWitPasswordIsIgnoredForAADInteractiveAuth(string username, string password, string authMode)
         {
-            TestObjects.GetTestConnectionService().EnableSqlAuthenticationProvider = true;
             // Connect
             var connectionResult = await
                 TestObjects.GetTestConnectionService()
