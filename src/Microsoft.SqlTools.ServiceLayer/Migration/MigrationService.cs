@@ -132,7 +132,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             this.ServiceHost.SetRequestHandler(StopPerfDataCollectionRequest.Type, HandleStopPerfDataCollectionRequest, true);
             this.ServiceHost.SetRequestHandler(RefreshPerfDataCollectionRequest.Type, HandleRefreshPerfDataCollectionRequest, true);
             this.ServiceHost.SetRequestHandler(GetSkuRecommendationsRequest.Type, HandleGetSkuRecommendationsRequest, true);
-            this.ServiceHost.SetRequestHandler(GenerateProvisioningScriptRequest.Type, HandleGenerateProvisioningScriptRequest);
             this.ServiceHost.SetRequestHandler(StartLoginMigrationRequest.Type, HandleStartLoginMigration, true);
             this.ServiceHost.SetRequestHandler(ValidateLoginMigrationRequest.Type, HandleValidateLoginMigration, true);
             this.ServiceHost.SetRequestHandler(MigrateLoginsRequest.Type, HandleMigrateLogins, true);
@@ -719,32 +718,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Migration
             return resultSet;
         }
 
-        /// <summary>
-        /// Handle request to generate provisioning script from a list of SKU recommendations
-        /// </summary>
-        internal async Task HandleGenerateProvisioningScriptRequest(
-            GenerateProvisioningScriptParams parameters,
-            RequestContext<GenerateProvisioningScriptResult> requestContext)
-        {
-            try
-            {
-                SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
-
-                ArmTemplateServiceProvider templateProvider = new ArmTemplateServiceProvider();
-
-                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.SkuRecommendations, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
-
-                GenerateProvisioningScriptResult result = new GenerateProvisioningScriptResult{
-                    ProvisioningScriptFilePath = armTemplateFilePath
-                };
-
-                await requestContext.SendResult(result);
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e.ToString());
-            }
-        }
         internal class AssessmentRequest : IAssessmentRequest
         {
             private readonly Check[] checks = null;
