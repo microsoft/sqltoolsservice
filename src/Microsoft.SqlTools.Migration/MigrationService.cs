@@ -678,7 +678,7 @@ namespace Microsoft.SqlTools.Migration
             {
                 SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
-                ArmTemplateServiceProvider templateProvider = new ArmTemplateServiceProvider();
+                ProvisioningScriptServiceProvider templateProvider = new ProvisioningScriptServiceProvider();
 
                 string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.SkuRecommendations, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
 
