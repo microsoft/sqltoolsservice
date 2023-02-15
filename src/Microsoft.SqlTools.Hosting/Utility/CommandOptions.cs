@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.Utility
             ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
+            ApplicationName = string.Empty;
 
             try
             {
@@ -42,6 +43,9 @@ namespace Microsoft.SqlTools.Utility
 
                         switch (argName)
                         {
+                            case "-application-name":
+                                ApplicationName = args[++i];
+                                break;
                             case "-autoflush-log":
                                 AutoFlushLog = true;
                                 break;
@@ -100,6 +104,11 @@ namespace Microsoft.SqlTools.Utility
                 }
             }
         }
+
+        /// <summary>
+        /// Name of application that is sending command options
+        /// </summary>
+        public string ApplicationName { get; private set; }
 
         /// <summary>
         /// Contains any error messages during execution

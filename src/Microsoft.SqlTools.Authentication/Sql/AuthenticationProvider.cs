@@ -11,25 +11,29 @@ namespace Microsoft.SqlTools.Authentication.Sql
 {
     /// <summary>
     /// Provides an implementation of <see cref="SqlAuthenticationProvider"/> for SQL Tools to be able to perform Federated authentication
-    /// with Microsoft.Data.SqlClient integration only for "ActiveDirectory" authentication modes. 
+    /// silently with Microsoft.Data.SqlClient integration only for "ActiveDirectory" authentication modes. 
     /// When registered, the SqlClient driver calls the <see cref="AcquireTokenAsync(SqlAuthenticationParameters)"/> API 
     /// with server-sent authority information to request access token when needed.
     /// </summary>
     public class AuthenticationProvider : SqlAuthenticationProvider
     {
         private const string ApplicationClientId = "a69788c6-1d43-44ed-9ca3-b83e194da255";
-        private string ApplicationName = "azuredatastudio";
         private const string AzureTokenFolder = "Azure Accounts";
-        private const string MSAL_CacheName = "azureTokenCacheMsal-azure_publicCloud";
+        private const string MsalCacheName = "azureTokenCacheMsal-azure_publicCloud";
         private const string s_defaultScopeSuffix = "/.default";
 
-        private Authenticator? authenticator;
+        private Authenticator authenticator;
 
-        public AuthenticationProvider(InteractiveAuthCallback authCallback)
+        /// <summary>
+        /// Instantiates AuthenticationProvider to be used for AAD authentication with MSAL.NET and MSAL.js co-ordinated.
+        /// </summary>
+        /// <param name="applicationName">Application Name that identifies user folder path location for reading/writing to shared cache.</param>
+        /// <param name="authCallback">Callback that handles AAD authentication when user interaction is needed.</param>
+        public AuthenticationProvider(string applicationName, InteractiveAuthCallback authCallback)
         {
             this.InteractiveAuthCallback = authCallback;
-            var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), ApplicationName, AzureTokenFolder);
-            authenticator = new Authenticator(ApplicationClientId, ApplicationName, cachePath, MSAL_CacheName);
+            var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), applicationName, AzureTokenFolder);
+            this.authenticator = new Authenticator(ApplicationClientId, applicationName, cachePath, MsalCacheName);
         }
 
         /// <summary>
@@ -96,7 +100,7 @@ namespace Microsoft.SqlTools.Authentication.Sql
 
             @params.interactiveAuthCallback = InteractiveAuthCallback;
 
-            AccessToken? result = await authenticator!.GetTokenAsync(@params, cts.Token);
+            AccessToken? result = await authenticator.GetTokenAsync(@params, cts.Token);
             return new SqlAuthenticationToken(result!.Token, result!.ExpiresOn);
         }
 

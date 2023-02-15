@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Authentication
             this.cacheFileName = cacheFileName;
         }
 
-        public delegate Task<AccessToken> InteractiveAuthCallback(string authority, string resource, string username, string[] scopes);
+        public delegate Task<AccessToken?> InteractiveAuthCallback(string authority, string resource, string username, string[] scopes);
 
         /// <summary>
         /// Acquires access token synchronously.
