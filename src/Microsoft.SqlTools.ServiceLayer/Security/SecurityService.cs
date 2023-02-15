@@ -249,6 +249,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return schemaOwnership;
         }
 
+        private string[] LoadDatebaseRoles(ServerConnection serverConnection, string databaseName)
+		{
+            var server = new Server(serverConnection);
+            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";            
+            Database? parent = server.GetSmoObject(new Urn(dbUrn)) as Database;
+            var roles = new List<string>();
+            if (parent != null)
+            {
+                foreach (DatabaseRole dbRole in parent.Roles)
+                {
+                    var comparer = parent.GetStringComparer();
+                    if (comparer.Compare(dbRole.Name, "public") != 0)
+                    {
+                        roles.Add(dbRole.Name);
+                    }
+                }
+            }
+            return roles.ToArray();			
+		}
+
         /// <summary>
         /// Handle request to initialize user view
         /// </summary>
@@ -263,10 +283,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
 
-            string database = parameters.Database ?? "master";
-            var schemaMap = LoadSchemas(database, string.Empty, serverConnection);
-            schemaMap.Keys.ToArray();
-            
+            string databaseName = parameters.Database ?? "master";
+            var schemaMap = LoadSchemas(databaseName, string.Empty, serverConnection);
+
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -277,6 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     Password = "Password1",
                     DefaultSchema = "dbo",
                     OwnedSchemas = new string[] { "dbo" },
+                    DatabaseRoles = new string[] { },
                     isEnabled = true,
                     isAAD = false,
                     ExtendedProperties = new Microsoft.SqlTools.ServiceLayer.Security.Contracts.ExtendedProperty[] { },
@@ -289,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 Languages = new string[] {},
                 Schemas = schemaMap.Keys.ToArray(),
                 Logins = new string[] {},
-                DatabaseRoles = new string[] {}
+                DatabaseRoles = LoadDatebaseRoles(serverConnection, databaseName)
             };
 
             await requestContext.SendResult(userViewInfo);            
@@ -800,7 +820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.initiallyAMember = initiallyAMember;
                 this.currentlyAMember = currentlyAMember;
             }
-        }
+        }        
 
         private void DbRole_LoadMembership(string databaseName, string dbroleName, ServerConnection serverConnection)
         {
@@ -940,7 +960,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // SendToServerSchemaOwnershipChanges(database, role);
             // SendToServerMembershipChanges(database, role);
         }
-        
+
 
         /// <summary>
         /// sends to server changes related to schema ownership

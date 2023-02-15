@@ -68,6 +68,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 
         public string[]? OwnedSchemas { get; set; }
 
+        public string[]? DatabaseRoles { get; set; }
+
         public bool isEnabled { get; set; }
 
         public bool isAAD { get; set; }
