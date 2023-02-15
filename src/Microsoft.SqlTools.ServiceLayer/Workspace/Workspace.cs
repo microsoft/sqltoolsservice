@@ -32,7 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
         {
             "file",
             UntitledScheme,
-            "tsqloutput"
+            "tsqloutput",
+            "vscode-notebook-cell"
         };
 
         private Dictionary<string, ScriptFile> workspaceFiles = new Dictionary<string, ScriptFile>();
