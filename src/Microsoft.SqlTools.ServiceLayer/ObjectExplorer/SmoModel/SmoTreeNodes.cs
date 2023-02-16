@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -387,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -1024,7 +1024,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 filters.Add(new NodePropertyFilter
                 {
@@ -1054,7 +1054,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerTable",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -1153,14 +1153,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 filters.Add(new NodePropertyFilter
                 {
                     Property = "IsDroppedLedgerView",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -1624,7 +1624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -1661,7 +1661,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsDroppedLedgerTable",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -1929,7 +1929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerColumn",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -1981,7 +1981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerColumn",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -2183,7 +2183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -2221,7 +2221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerView",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -3096,7 +3096,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -3144,7 +3144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -3250,7 +3250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -3297,7 +3297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -3403,7 +3403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 0 },
+                    Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -3450,7 +3450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                     Values = new List<object> { 1 },
+                    Values = new List<object> { 1 },
                 });
                 return filters;
             }

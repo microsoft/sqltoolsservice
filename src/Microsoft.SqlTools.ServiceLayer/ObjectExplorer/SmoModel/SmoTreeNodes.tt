@@ -655,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						}
 						else
 						{
-								WriteLine(indent + "     Values = new List<object> {{ {0} }},", propertyValue);
+								WriteLine(indent + "    Values = new List<object> {{ {0} }},", propertyValue);
 						}
 				}
 				if (filterValues != null && filterValues.Count > 0)
