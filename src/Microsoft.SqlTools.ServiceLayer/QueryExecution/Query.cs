@@ -580,11 +580,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void OnInfoMessage(object sender, SqlInfoMessageEventArgs args)
         {
-            SqlConnection conn = sender as SqlConnection;
-            if (conn == null)
-            {
-                throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
-            }
+            SqlConnection conn = sender as SqlConnection ?? throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
 
             foreach (SqlError error in args.Errors)
             {
