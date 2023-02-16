@@ -1073,13 +1073,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             this.ServiceHost = serviceHost;
 
-            // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-            var provider = new AuthenticationProvider(commandOptions.ApplicationName);
-            SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
-
-            if (commandOptions.EnableSqlAuthenticationProvider)
+            if (commandOptions != null)
             {
-                this.EnableSqlAuthenticationProvider = true;
+                // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
+                var provider = new AuthenticationProvider(commandOptions.ApplicationName);
+                SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
+
+                if (commandOptions.EnableSqlAuthenticationProvider)
+                {
+                    this.EnableSqlAuthenticationProvider = true;
+                }
             }
 
             // Register request and event handlers with the Service Host
