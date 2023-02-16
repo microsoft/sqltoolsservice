@@ -65,6 +65,11 @@
   <Node Name="Database" LocLabel="string.Empty" Image="Database" BaseClass="ModelBased" NodeType="Database" IsAsyncLoad="" Strategy="CreateModel" TreeNode="ExpandableSchemaTreeNode" PutFoldersAfterNodes="true">
     <ConditionalChildQuerierType Name="SqlSchema" SettingsFlag="GroupBySchema"/>
     <Filters>
+      <!-- 
+        Excluding built-in schemas for backward compatibility from the database node and moving them to legacy schema folder.
+        The list of schemas was obtained from: 
+        https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/ownership-and-user-schema-separation?view=sql-server-ver16#built-in-schemas-for-backward-compatibility
+      -->
       <Filter Property="Name" Value="db_accessadmin" Type="string" FilterType="contains" IsNotFilter="true"/>
       <Filter Property="Name" Value="db_backupoperator" Type="string" FilterType="contains" IsNotFilter="true"/>
       <Filter Property="Name" Value="db_datareader" Type="string" FilterType="contains" IsNotFilter="true"/>
