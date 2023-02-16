@@ -440,6 +440,8 @@ SchemaHierarchy_Rules = Rules
 
 SchemaHierarchy_Schemas = Schemas
 
+SchemaHierarchy_LegacySchemas = Legacy Schemas
+
 SchemaHierarchy_Security = Security
 
 SchemaHierarchy_ServerObjects = Server Objects

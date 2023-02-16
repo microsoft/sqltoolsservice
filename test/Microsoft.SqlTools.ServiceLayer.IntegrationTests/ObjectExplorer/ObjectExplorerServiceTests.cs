@@ -255,6 +255,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
+        [Test]
+        public async Task GroupBySchemaHidesLegacySchemas()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t1"), "Non legacy schema node t1 should be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t2"), "Non legacy schema node t2 should be found in database node when group by schema is enabled");
+                string[] legacySchemas = new string[] 
+                { 
+                    "db_accessadmin", 
+                    "db_backupoperator", 
+                    "db_datareader", 
+                    "db_datawriter", 
+                    "db_ddladmin", 
+                    "db_denydatareader", 
+                    "db_denydatawriter", 
+                    "db_owner", 
+                    "db_securityadmin" 
+                };
+                foreach(var nodes in databaseChildren.Nodes)
+                {
+                    Assert.False(legacySchemas.Contains(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
+                }
+                var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_LegacySchemas);
+                var legacySchemasChildren = await _service.ExpandNode(session, legacySchemasNode.NodePath);
+                foreach(var nodes in legacySchemasChildren.Nodes)
+                {
+                    Assert.True(legacySchemas.Contains(nodes.Label), "Legacy schema nodes should be found in legacy schemas folder when group by schema is enabled");
+                }
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+            });
+        }
 
         private async Task VerifyRefresh(ObjectExplorerSession session, string tablePath, string tableName, bool deleted = true)
         {

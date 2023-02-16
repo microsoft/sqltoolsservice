@@ -42,6 +42,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public Type TypeToReverse { get; set; } = default!;
 
         /// <summary>
+        /// Indicates if the filter is a "not" filter. Eg (not(@IsSystemObject = 0))
+        /// </summary>
+        public bool IsNotFilter { get; set; } = false;
+
+        /// <summary>
+        /// Indicates the type of the filter. It can be EQUALS, DATETIME, FALSE or CONTAINS
+        /// More information can be found here:
+        /// https://learn.microsoft.com/en-us/sql/powershell/query-expressions-and-uniform-resource-names?view=sql-server-ver16#examples
+        /// </summary>
+        public FilterType FilterType { get; set; } = FilterType.EQUALS;
+
+        /// <summary>
         /// Returns true if the filter can be apply to the given type and Server type
         /// </summary>
         /// <param name="type">Type of the querier</param>
@@ -82,8 +94,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     propertyValue = (int)Convert.ChangeType(value, Type);
                 }
 
+                string filterText = string.Empty;
+                switch (FilterType)
+                {
+                    case FilterType.EQUALS:
+                        filterText = $"@{Property} = {propertyValue}";
+                        break;
+                    case FilterType.DATETIME:
+                        filterText = $"@{Property} = datetime({propertyValue})";
+                        break;
+                    case FilterType.CONTAINS:
+                        filterText = $"contains(@{Property}, {propertyValue})";
+                        break;
+                    case FilterType.FALSE:
+                        filterText = $"@{Property} = false()";
+                        break;
+                    case FilterType.ISNULL:
+                        filterText = $"isnull(@{Property})";
+                        break;
+                }
+
                 string orPrefix = filter.Length == 0 ? string.Empty : " or ";
-                filter.Append($"{orPrefix}@{Property} = {propertyValue}");
+                if (IsNotFilter)
+                {
+                    filter.Append($"{orPrefix}not({filterText})");
+                }
+                else
+                {
+                    filter.Append($"{orPrefix}{filterText}");
+                }
             }
 
             if (filter.Length != 0)
@@ -92,5 +131,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             return string.Empty;
         }
+    }
+
+    public enum FilterType
+    {
+        EQUALS,
+        DATETIME,
+        CONTAINS,
+        FALSE,
+        ISNULL
+
     }
 }

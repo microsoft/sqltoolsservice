@@ -621,6 +621,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				var propertyType = filter.GetAttribute("Type");
 				var propertyValue = filter.GetAttribute("Value");
 				var validFor = filter.GetAttribute("ValidFor");
+				var filterType = filter.GetAttribute("FilterType");
+				var isNotFiler = filter.GetAttribute("IsNotFilter");
 				var typeToReverse = filter.GetAttribute("TypeToReverse");
 
 				List<XmlElement> filterValues = GetNodeFilterValues(xmlFile, parentName, propertyName, orFilter);
@@ -637,9 +639,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				{
 						WriteLine(indent + "    ValidFor = {0},", GetValidForFlags(validFor));
 				}
+				if (!string.IsNullOrWhiteSpace(filterType))
+				{
+						WriteLine(indent + "    FilterType = FilterType.{0},", filterType.ToUpper());
+				}
+				if (!string.IsNullOrWhiteSpace(isNotFiler))
+				{
+						WriteLine(indent + "    IsNotFilter = {0},", isNotFiler);
+				}
 				if (propertyValue != null && (filterValues == null || filterValues.Count == 0))
 				{
-						WriteLine(indent + "    Values = new List<object> {{ {0} }},", propertyValue);
+						if (propertyType.Equals("string"))
+						{
+								WriteLine(indent + "    Values = new List<object> {{ \"{0}\" }},", propertyValue);
+						}
+						else
+						{
+								WriteLine(indent + "     Values = new List<object> {{ {0} }},", propertyValue);
+						}
 				}
 				if (filterValues != null && filterValues.Count > 0)
 				{
@@ -650,7 +667,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						{
 								string separator =  (i != filterValues.Count - 1) ? "," : "";
 								var filterValue = filterValues[i];
-								WriteLine(indent + "        {{ {0} }}{1}", filterValue.InnerText, separator);
+								if(propertyType.Equals("string"))
+								{
+										WriteLine(indent + "        {{ \"{0}\" }}{1}", filterValue.InnerText, separator);
+								}
+								else
+								{
+										WriteLine(indent + "        {{ {0} }}{1}", filterValue.InnerText, separator);
+								}
 						}
 
 						WriteLine(indent + "    }");

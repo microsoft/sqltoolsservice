@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -387,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -680,6 +680,87 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override bool PutFoldersAfterNodes => true;
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Database) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_accessadmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_backupoperator" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_datareader" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_datawriter" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_ddladmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_denydatareader" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_denydatawriter" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_owner" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    FilterType = FilterType.CONTAINS,
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_securityadmin" },
+                });
+                return filters;
+            }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
 			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
@@ -707,6 +788,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Synonyms,
                     IsSystemObject = false,
                     ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_LegacySchemas,
+                    NodeTypeId = NodeTypes.LegacySchemas,
+                    IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
@@ -756,6 +846,105 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						conditionalTypesList.Add(typeof(SqlSchemaQuerier));
 					}
 					return conditionalTypesList.ToArray();
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ExpandableSchemaTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class LegacySchemasChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.LegacySchemas) }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodeOrFilter
+                {
+                    FilterList = new List<NodePropertyFilter> {
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_accessadmin" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_backupoperator" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_datareader" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_datawriter" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_ddladmin" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_denydatareader" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_denydatawriter" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_owner" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            FilterType = FilterType.CONTAINS,
+                            Values = new List<object> { "db_securityadmin" },
+                        },
+                    }
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlSchemaQuerier), };
             }
         }
 
@@ -835,7 +1024,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 filters.Add(new NodePropertyFilter
                 {
@@ -865,7 +1054,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerTable",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -964,14 +1153,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 filters.Add(new NodePropertyFilter
                 {
                     Property = "IsDroppedLedgerView",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -1435,7 +1624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -1472,7 +1661,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsDroppedLedgerTable",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -1740,7 +1929,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerColumn",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -1792,7 +1981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerColumn",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -1994,7 +2183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -2032,7 +2221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Property = "IsDroppedLedgerView",
                     Type = typeof(bool),
                     ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -2907,7 +3096,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -2955,7 +3144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -3061,7 +3250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -3108,7 +3297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
@@ -3214,7 +3403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 0 },
+                     Values = new List<object> { 0 },
                 });
                 return filters;
             }
@@ -3261,7 +3450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     Property = "IsSystemObject",
                     Type = typeof(bool),
-                    Values = new List<object> { 1 },
+                     Values = new List<object> { 1 },
                 });
                 return filters;
             }
