@@ -9,6 +9,8 @@ using System.ComponentModel;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -46,6 +48,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             set
             {
                 this.currentState.defaultFulltextLanguageLcid = value;
+                this.NotifyObservers();
+            }
+        }
+
+        public LanguageChoice DefaultLanguage
+        {
+            get
+            {
+                return LanguageUtils.GetLanguageChoiceAlias(this.context.Server,
+                                                this.currentState.defaultLanguageLcid);
+            }
+            set
+            {
+                this.currentState.defaultLanguageLcid = value.lcid;
                 this.NotifyObservers();
             }
         }
@@ -152,6 +168,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                         db.DefaultFullTextLanguage.Lcid = this.DefaultFullTextLanguageLcid;
                     }
 
+                    if (!this.Exists || (db.DefaultLanguage.Lcid != this.DefaultLanguage.lcid))
+                    {
+                        db.DefaultLanguage.Lcid = this.DefaultLanguage.lcid;
+                    }
+
                     if (!this.Exists || (db.NestedTriggersEnabled != this.NestedTriggersEnabled))
                     {
                         db.NestedTriggersEnabled = this.NestedTriggersEnabled;
@@ -184,6 +205,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     db.DelayedDurability = this.DelayedDurability;
                 }
             }
+        }
+
+        int Lcid
+        {
+            get { return this.DefaultLanguage.lcid; }
+        }
+
+        ServerConnection Connection
+        {            
+            get { return this.context.ServerConnection; }
         }
     }
 }

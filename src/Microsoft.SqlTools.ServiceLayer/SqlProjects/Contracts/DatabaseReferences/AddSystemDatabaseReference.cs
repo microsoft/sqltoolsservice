@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -24,6 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 
     public class AddSystemDatabaseReferenceRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/addSystemDatabaseReference");
+        public static readonly RequestType<AddSystemDatabaseReferenceParams, ResultStatus> Type = RequestType<AddSystemDatabaseReferenceParams, ResultStatus>.Create("sqlprojects/addSystemDatabaseReference");
     }
 }

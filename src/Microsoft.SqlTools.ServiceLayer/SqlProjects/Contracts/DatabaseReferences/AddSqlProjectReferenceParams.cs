@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Parameters for adding a reference to another SQL project
     /// </summary>
-    public class AddSqlProjectReferenceParams : AddDatabaseReferenceParams
+    public class AddSqlProjectReferenceParams : AddUserDatabaseReferenceParams
     {
         /// <summary>
         /// Path to the referenced .sqlproj file
@@ -23,13 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// GUID for the referenced SQL project
         /// </summary>
-        public string? ProjectGuid { get; set; }
-
-        /// <summary>
-        /// SQLCMD variable name for specifying the other server this reference is to, if different from that of the current project.
-        /// If this is set, DatabaseVariable must also be set.
-        /// </summary>
-        public string? ServerVariable { get; set; }
+        public string ProjectGuid { get; set; }
     }
 
 

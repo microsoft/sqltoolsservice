@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -44,7 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             {
                 string andPrefix = filter.Length == 0 ? string.Empty : " and ";
                 var filterString = value.ToPropertyFilterString(type, validForFlag);
-                if (filterString != string.Empty) {
+                if (filterString != string.Empty)
+                {
                     filter.Append($"{andPrefix}{filterString}");
                 }
             }
@@ -54,6 +53,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 return "[" + filter.ToString() + "]";
             }
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Appends a list of property filters to an URN query string
+        /// </summary>
+        public static string AddPropertyFilterToFilterString(string filterString, IEnumerable<INodeFilter> filters, Type type, ValidForFlag validForFlag)
+        {
+            if (string.IsNullOrEmpty(filterString))
+            {
+                return GetPropertyFilter(filters, type, validForFlag);
+            }
+            foreach (var value in filters ?? Enumerable.Empty<INodeFilter>())
+            {
+                var filter = value.ToPropertyFilterString(type, validForFlag);
+                if (filter != string.Empty)
+                {
+                    filterString = filterString.Remove(filterString.Length - 1, 1) + $" and {filter}" + "]";
+                }
+            }
+            return filterString;
         }
     }
 }

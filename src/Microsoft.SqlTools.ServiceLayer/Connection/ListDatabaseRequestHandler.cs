@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
+using System.Diagnostics;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -58,20 +60,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     abstract class ListDatabaseRequestHandler<T> : IListDatabaseRequestHandler
     {
-        private static readonly string[] SystemDatabases = new string[] { "master", "model", "msdb", "tempdb" };
-
         public abstract string QueryText { get; }
 
         public ListDatabasesResponse HandleRequest(ISqlConnectionFactory connectionFactory, ConnectionInfo connectionInfo)
         {
+            ListDatabasesResponse response = new ListDatabasesResponse();
             ConnectionDetails connectionDetails = connectionInfo.ConnectionDetails.Clone();
+            // Running query against sys.databases view will only return a subset of databases the current login/user might have access to, we need to
+            // query the master database to get the full database list, but for users without master db access, we have to query the
+            // original database as a fallback.
+            var databasesToTry = new List<string>() { CommonConstants.MasterDatabaseName };
+            if (connectionDetails.DatabaseName != CommonConstants.MasterDatabaseName)
+            {
+                databasesToTry.Add(connectionDetails.DatabaseName);
+            }
+            for (int i = 0; i < databasesToTry.Count; i++)
+            {
+                try
+                {
+                    connectionDetails.DatabaseName = databasesToTry[i];
+                    var results = this.GetResults(connectionFactory, connectionDetails);
+                    SetResponse(response, results);
+                    break;
+                }
+                catch (Microsoft.Data.SqlClient.SqlException ex)
+                {
+                    // Retry when login attempt failed.
+                    // https://learn.microsoft.com/sql/relational-databases/errors-events/mssqlserver-18456-database-engine-error
+                    if (i != databasesToTry.Count - 1 && ex.Number == 18456)
+                    {
+                        Logger.Write(TraceEventType.Information, string.Format("Failed to get database list from database '{0}', will fallback to original database.", databasesToTry[i]));
+                        continue;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
 
-            // Connect to master
-            connectionDetails.DatabaseName = "master";
+            }
+            return response;
+        }
+
+        private T[] GetResults(ISqlConnectionFactory connectionFactory, ConnectionDetails connectionDetails)
+        {
+            List<T> results = new List<T>();
             using (var connection = connectionFactory.CreateSqlConnection(ConnectionService.BuildConnectionString(connectionDetails), connectionDetails.AzureAccountToken))
             {
                 connection.Open();
-                ListDatabasesResponse response = new ListDatabasesResponse();
                 using (DbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = this.QueryText;
@@ -79,24 +115,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     command.CommandType = CommandType.Text;
                     using (var reader = command.ExecuteReader())
                     {
-                        List<T> results = new List<T>();
                         while (reader.Read())
                         {
                             results.Add(this.CreateItem(reader));
                         }
-                        // Put system databases at the top of the list
-                        results = results.Where(s => SystemDatabases.Any(x => this.NameMatches(x, s))).Concat(
-                            results.Where(s => SystemDatabases.All(x => !this.NameMatches(x, s)))).ToList();
-                        SetResponse(response, results.ToArray());
                     }
                 }
                 connection.Close();
-                return response;
             }
+            return results.ToArray();
         }
 
         protected abstract bool NameMatches(string databaseName, T item);
+
         protected abstract T CreateItem(DbDataReader reader);
+
         protected abstract void SetResponse(ListDatabasesResponse response, T[] results);
     }
 

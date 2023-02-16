@@ -27,9 +27,6 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
-#if INCLUDE_MIGRATION
-using Microsoft.SqlTools.ServiceLayer.Migration;
-#endif
 using Microsoft.SqlTools.ServiceLayer.ModelManagement;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
@@ -162,11 +159,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
-
-#if INCLUDE_MIGRATION
-            MigrationService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(MigrationService.Instance);
-#endif
 
             TableDesignerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(TableDesignerService.Instance);

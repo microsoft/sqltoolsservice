@@ -273,6 +273,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     break;
             }
 
+            System.Diagnostics.Debug.Assert(result != null && result.Length != 0, "no string found for database scoped configuration value");
+
             return result;
         }
 
@@ -291,11 +293,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 return DatabaseScopedConfigurationOnOff.Off;
             }
             else if (displayText == manager.GetString("prototype_db_prop_databasescopedconfig_value_on") || !forSecondary)
-            {            
+            {
                 return DatabaseScopedConfigurationOnOff.On;
             }
             else
-            {               
+            {
                 return DatabaseScopedConfigurationOnOff.Primary;
             }
         }
