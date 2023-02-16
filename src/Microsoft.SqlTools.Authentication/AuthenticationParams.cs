@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using static Microsoft.SqlTools.Authentication.Authenticator;
-
 namespace Microsoft.SqlTools.Authentication
 {
     /// <summary>
@@ -16,11 +14,6 @@ namespace Microsoft.SqlTools.Authentication
         /// Authentication method to be used by <see cref="Authenticator"/>.
         /// </summary>
         public AuthenticationMethod AuthenticationMethod { get; set; }
-
-        /// <summary>
-        /// Callback method to would handle authentication with user interaction when using 'ActiveDirectoryInteractive' method.
-        /// </summary>
-        public InteractiveAuthCallback? interactiveAuthCallback { get; set; }
 
         /// <summary>
         /// Authority URL, e.g. https://login.microsoftonline.com/

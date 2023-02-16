@@ -26,7 +26,6 @@ using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Shared.Utility.Constants;
 using System.Diagnostics;
 using Microsoft.SqlTools.Authentication.Sql;
-using Microsoft.SqlTools.Authentication;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -142,21 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.LockedDatabaseManager.ConnectionService = this;
         }
 
-        public static async Task<AccessToken?> ActiveDirectoryInteractiveCallback(string authority, string resource, string username, string[] scopes)
-        {
-            RequestSecurityTokenParams message = new RequestSecurityTokenParams()
-            {
-                Provider = "Azure",
-                Authority = authority,
-                Resource = resource,
-                Username = username,
-                Scopes = scopes
-            };
-
-            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
-            return response != null ? new AccessToken(response.Token, new DateTimeOffset(new DateTime(response.ExpiresOn))) : null;
-        }
-
         public static async Task<string> AzureActiveDirectoryAuthenticationCallback(string authority, string resource, string scope)
         {
             RequestSecurityTokenParams message = new RequestSecurityTokenParams()
@@ -167,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Scopes = new string[] { scope }
             };
 
-            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true);
+            RequestSecurityTokenResponse response = await Instance.ServiceHost.SendRequest(SecurityTokenRequest.Type, message, true).ConfigureAwait(false);
 
             return response.Token;
         }
@@ -1090,7 +1074,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             this.ServiceHost = serviceHost;
 
             // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-            var provider = new AuthenticationProvider(commandOptions.ApplicationName, ActiveDirectoryInteractiveCallback);
+            var provider = new AuthenticationProvider(commandOptions.ApplicationName);
             SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
             if (commandOptions.EnableSqlAuthenticationProvider)

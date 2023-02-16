@@ -5,7 +5,6 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Authentication.Utility;
-using static Microsoft.SqlTools.Authentication.Authenticator;
 
 namespace Microsoft.SqlTools.Authentication.Sql
 {
@@ -29,17 +28,11 @@ namespace Microsoft.SqlTools.Authentication.Sql
         /// </summary>
         /// <param name="applicationName">Application Name that identifies user folder path location for reading/writing to shared cache.</param>
         /// <param name="authCallback">Callback that handles AAD authentication when user interaction is needed.</param>
-        public AuthenticationProvider(string applicationName, InteractiveAuthCallback authCallback)
+        public AuthenticationProvider(string applicationName)
         {
-            this.InteractiveAuthCallback = authCallback;
             var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), applicationName, AzureTokenFolder);
             this.authenticator = new Authenticator(ApplicationClientId, applicationName, cachePath, MsalCacheName);
         }
-
-        /// <summary>
-        /// Callback method to be called when UI interaction is required for acquiring access token.
-        /// </summary>
-        public InteractiveAuthCallback? InteractiveAuthCallback { get; set; }
 
         /// <summary>
         /// Acquires access token with provided <paramref name="parameters"/>
@@ -98,9 +91,7 @@ namespace Microsoft.SqlTools.Authentication.Sql
                 userName!,
                 parameters.ConnectionId);
 
-            @params.interactiveAuthCallback = InteractiveAuthCallback;
-
-            AccessToken? result = await authenticator.GetTokenAsync(@params, cts.Token);
+            AccessToken? result = await authenticator.GetTokenAsync(@params, cts.Token).ConfigureAwait(false);
             return new SqlAuthenticationToken(result!.Token, result!.ExpiresOn);
         }
 
