@@ -140,6 +140,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         CONTAINS,
         FALSE,
         ISNULL
-
     }
 }
