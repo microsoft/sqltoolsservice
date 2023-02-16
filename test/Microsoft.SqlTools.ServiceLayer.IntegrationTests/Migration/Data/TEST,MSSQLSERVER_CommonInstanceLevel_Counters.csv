@@ -1,2 +1,0 @@
-ServerName,Edition,HyperthreadRatio,IsClustered,IsHadrEnabled,LogicalCpuCount,MaxServerMemoryInUse,NumberCoresUsed,NumberOfUserDatabases,PhysicalCpuCount,ProductVersion,SqlStartTime,SumOfUserDatabasesSize,TempDbSize,NumOfLogins,TimeDataCollected
-TEST,Enterprise Edition (64-bit),2,False,False,2,2147483647,2,2,1,10.50.6592.0,2021-10-26 19:26:06,203,8,13,2021-10-28 19:08:03
