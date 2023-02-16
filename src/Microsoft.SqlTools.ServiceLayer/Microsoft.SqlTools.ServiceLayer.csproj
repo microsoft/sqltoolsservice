@@ -21,30 +21,18 @@
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 
-	<Choose>
-		<When Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
-			<PropertyGroup>
-				<PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
-				<PackageVersion>1.3.0</PackageVersion>
-				<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
-				<PackAsTool>true</PackAsTool>
-				<ToolCommandName>$(AssemblyName)</ToolCommandName>
-				<PackageOutputPath>./nupkg</PackageOutputPath>
-			</PropertyGroup>
-			<ItemGroup>
-				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;Migration/**/*.cs" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<PropertyGroup>
-				<DefineConstants>$(DefineConstants);INCLUDE_MIGRATION</DefineConstants>
-			</PropertyGroup>
-			<ItemGroup>
-				<PackageReference Include="Microsoft.SqlServer.Migration.Assessment" />
-				<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
-			</ItemGroup>
-		</Otherwise>
-	</Choose>
+	<PropertyGroup Condition="'$(BUILD_DOTNET_TOOL)' == 'true'">
+		<PackageId>Microsoft.SqlServer.SqlToolsServiceLayer.Tool</PackageId>
+		<PackageVersion>1.3.0</PackageVersion>
+		<PackageDescription>.NET client SQL Tools Service application, usable as a dotnet tool. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>$(AssemblyName)</ToolCommandName>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" />
