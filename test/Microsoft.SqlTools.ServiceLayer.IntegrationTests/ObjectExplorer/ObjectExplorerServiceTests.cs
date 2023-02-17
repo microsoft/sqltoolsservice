@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 {
                     Assert.False(legacySchemas.Contains(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
                 }
-                var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_LegacySchemas);
+                var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_BuiltInSchema);
                 var legacySchemasChildren = await _service.ExpandNode(session, legacySchemasNode.NodePath);
                 foreach(var nodes in legacySchemasChildren.Nodes)
                 {
