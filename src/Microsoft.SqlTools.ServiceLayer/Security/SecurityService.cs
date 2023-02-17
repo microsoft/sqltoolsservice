@@ -116,9 +116,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             string ownerUri;
             contextIdToConnectionUriMap.TryGetValue(parameters.ContextId, out ownerUri);
             ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+
             if (connInfo == null) 
             {
-                throw new Exception("random");
+                    // raise error here
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
@@ -141,25 +142,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     // raise error here
                 }
             }
-            await requestContext.SendError("test ");
+
             prototype.ApplyGeneralChanges(dataContainer.Server);
+
+            // TODO move this to LoginData
+            // TODO support role assignment for Azure
+            LoginPrototype newPrototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Login.Name]);
+            var _ =newPrototype.ServerRoles.ServerRoleNames;
+
+            foreach (string role in parameters.Login.ServerRoles)
+            {
+                newPrototype.ServerRoles.SetMember(role, true);
+            }
+
+            newPrototype.ApplyServerRoleChanges(dataContainer.Server);
             await requestContext.SendResult(new object());
         }
 
         /// <summary>
         /// Handle request to delete a credential
         /// </summary>
-        internal async Task HandleDeleteLoginRequest(DeleteLoginParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleDeleteLoginRequest(DeleteLoginParams parameters, RequestContext<object> requestContext)
         {
             ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
             // if (connInfo == null) 
             // {
             //     // raise an error
             // }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            Login login = dataContainer.Server.Logins[parameters.LoginName];
+            Login login = dataContainer.Server.Logins[parameters.Name];
      
             dataContainer.SqlDialogSubject = login;
             DoDropObject(dataContainer);
@@ -171,8 +184,59 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        internal async Task HandleUpdateLoginRequest(UpdateLoginParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleUpdateLoginRequest(UpdateLoginParams parameters, RequestContext<object> requestContext)
         {
+            ConnectionInfo connInfo;
+            string ownerUri;
+            contextIdToConnectionUriMap.TryGetValue(parameters.ContextId, out ownerUri);
+            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            if (connInfo == null) 
+            {
+                    // raise error here
+            }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Login.Name]);
+
+            var login = parameters.Login;
+            prototype.SqlPassword = login.Password;
+            prototype.DefaultLanguage = login.DefaultLanguage;
+            prototype.DefaultDatabase = login.DefaultDatabase;
+            prototype.EnforcePolicy = login.EnforcePasswordPolicy;
+            prototype.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;
+            prototype.IsLockedOut = login.IsLockedOut;
+            prototype.IsDisabled = !login.IsEnabled;
+            prototype.MustChange = login.EnforcePasswordPolicy ? login.MustChangePassword : false;
+            prototype.WindowsGrantAccess = login.ConnectPermission;
+
+            if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
+            {
+                // check that there is a password
+                // this check is made if policy enforcement is off
+                // with policy turned on we do not display this message, instead we let server
+                // return the error associated with null password (coming from policy) - see bug 124377
+                if (prototype.SqlPassword.Length == 0 && prototype.EnforcePolicy == false)
+                {
+                    // raise error here
+                }
+
+                // check that password and confirm password controls' text matches
+                if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
+                {
+                    // raise error here
+                }
+            }
+
+            var _ = prototype.ServerRoles.ServerRoleNames;
+            foreach (string role in login.ServerRoles)
+            {
+                prototype.ServerRoles.SetMember(role, true);
+            }
+
+            prototype.ApplyGeneralChanges(dataContainer.Server);
+            prototype.ApplyServerRoleChanges(dataContainer.Server);
+            prototype.ApplyDatabaseRoleChanges(dataContainer.Server);
+            await requestContext.SendResult(new object());
         }
 
         internal async Task HandleInitializeLoginViewRequest(InitializeLoginViewRequestParams parameters, RequestContext<LoginViewInfo> requestContext)
@@ -180,10 +244,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             contextIdToConnectionUriMap.Add(parameters.ContextId, parameters.ConnectionUri);
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            // if (connInfo == null) 
-            // {
-            //     // raise an error
-            // }
+            if (connInfo == null) 
+            {
+                // raise an error
+            }
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginViewInfo loginViewInfo = new LoginViewInfo();
 
@@ -197,36 +261,32 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 languages[i] = dataContainer.Server.Languages[i].Name;
             }
-            string[] roles;
-            try 
-            {
-
-            roles = new string[dataContainer.Server.Roles.Count];
-            for (int i = 0; i < dataContainer.Server.Roles.Count; i++)
-            {
-                roles[i] = dataContainer.Server.Roles[i].Name;
-            }
-
-            }
-            catch
-            {
-                roles = new string[0];
-            }
-
 
             LoginPrototype prototype = parameters.IsNewObject 
             ? new LoginPrototype(dataContainer.Server) 
             : new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Name]);
+
+            List<string> loginServerRoles = new List<string>();
+            foreach(string role in prototype.ServerRoles.ServerRoleNames)
+            {
+                if (prototype.ServerRoles.IsMember(role))
+                {
+                    loginServerRoles.Add(role);
+                }
+            }
+
             LoginInfo loginInfo = new LoginInfo()
             {
                 Name = prototype.LoginName,
+                Password = prototype.SqlPassword,
+                OldPassword = prototype.OldPassword,
                 AuthenticationType = LoginTypeToAuthenticationType(prototype.LoginType),
                 EnforcePasswordExpiration = prototype.EnforceExpiration,
                 EnforcePasswordPolicy = prototype.EnforcePolicy,
                 MustChangePassword = prototype.MustChange,
                 DefaultDatabase = prototype.DefaultDatabase,
                 DefaultLanguage = prototype.DefaultDatabase,
-                ServerRoles = prototype.ServerRoles.ServerRoleNames,
+                ServerRoles = loginServerRoles.ToArray(),
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
                 IsLockedOut = prototype.IsLockedOut,
@@ -238,11 +298,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 ObjectInfo = loginInfo,
                 SupportWindowsAuthentication = prototype.WindowsAuthSupported,
                 SupportAADAuthentication = prototype.AADAuthSupported,
-                SupportSQLAuthentication = true,
+                SupportSQLAuthentication = true, // SQL Auth support for login, not necessarily mean SQL Auth support for CONNECT etc.
                 CanEditLockedOutState = true,
                 Databases = databases,
                 Languages = languages,
-                ServerRoles = roles,
+                ServerRoles = prototype.ServerRoles.ServerRoleNames,
                 SupportAdvancedPasswordOptions = true,
                 SupportAdvancedOptions = true
             });
@@ -265,8 +325,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-        internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<object> requestContext)
         {
+            contextIdToConnectionUriMap.Remove(parameters.ContextId);
+            await requestContext.SendResult(new object());
         }
 #endregion
 

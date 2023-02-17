@@ -6,7 +6,6 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
@@ -39,9 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class DeleteLoginParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
+        public string ConnectionUri { get; set; }
 
-        public string LoginName { get; set; }
+        public string Name { get; set; }
     }
 
     /// <summary>
@@ -53,8 +52,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DeleteLoginParams, ResultStatus> Type =
-            RequestType<DeleteLoginParams, ResultStatus>.Create("objectManagement/deleteLogin");
+            RequestType<DeleteLoginParams, object> Type =
+            RequestType<DeleteLoginParams, object>.Create("objectManagement/deleteLogin");
     }
 
     /// <summary>
@@ -62,9 +61,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class UpdateLoginParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
+        public string ContextId { get; set; }
 
-        public string LoginName { get; set; }
+        public LoginInfo Login { get; set; }
     }
 
     /// <summary>
@@ -76,8 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<UpdateLoginParams, ResultStatus> Type =
-            RequestType<UpdateLoginParams, ResultStatus>.Create("objectManagement/updateLogin");
+            RequestType<UpdateLoginParams, object> Type =
+            RequestType<UpdateLoginParams, object>.Create("objectManagement/updateLogin");
     }
 
 
@@ -86,9 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class DisposeLoginViewRequestParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
-
-        public string LoginName { get; set; }
+        public string ContextId { get; set; }
     }
 
     /// <summary>
@@ -100,8 +97,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DisposeLoginViewRequestParams, ResultStatus> Type =
-            RequestType<DisposeLoginViewRequestParams, ResultStatus>.Create("objectManagement/disposeLoginView");
+            RequestType<DisposeLoginViewRequestParams, object> Type =
+            RequestType<DisposeLoginViewRequestParams, object>.Create("objectManagement/disposeLoginView");
     }
 
     /// <summary>
