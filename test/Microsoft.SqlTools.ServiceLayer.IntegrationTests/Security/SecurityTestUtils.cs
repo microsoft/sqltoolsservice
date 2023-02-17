@@ -29,17 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         {
             return new LoginInfo()
             {
-                LoginName = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
-                LoginType= LoginType.Sql,
-                CertificateName = "Test Cert",        
-                AsymmetricKeyName = "Asymmetric Test Cert",
+                Name = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                AuthenticationType= LoginAuthenticationType.Sql,
                 WindowsGrantAccess = true,
-                MustChange = false,
-                IsDisabled = false,
+                MustChangePassword = false,
+                IsEnabled = false,
                 IsLockedOut = false,
-                EnforcePolicy = false,
-                EnforceExpiration = false,
-                WindowsAuthSupported = false,
+                EnforcePasswordPolicy = false,
+                EnforcePasswordExpiration = false,
                 Password = "placeholder",                
                 OldPassword = "placeholder",
                 DefaultLanguage = "us_english",

@@ -6,7 +6,6 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
@@ -16,19 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class CreateLoginParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
+        public string ContextId { get; set; }
 
         public LoginInfo Login { get; set; }
     }
-
-    /// <summary>
-    /// Create Login result
-    /// </summary>
-    public class CreateLoginResult : ResultStatus
-    {
-        public LoginInfo Login { get; set; }        
-    }
-
 
     /// <summary>
     /// Create Login request type
@@ -39,8 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<CreateLoginParams, CreateLoginResult> Type =
-            RequestType<CreateLoginParams, CreateLoginResult>.Create("security/createlogin");
+            RequestType<CreateLoginParams, object> Type =
+            RequestType<CreateLoginParams, object>.Create("objectManagement/createLogin");
     }
 
     /// <summary>
@@ -48,9 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class DeleteLoginParams : GeneralRequestDetails
     {
-        public string OwnerUri { get; set; }
+        public string ConnectionUri { get; set; }
 
-        public string LoginName { get; set; }
+        public string Name { get; set; }
     }
 
     /// <summary>
@@ -62,7 +52,78 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// Request definition
         /// </summary>
         public static readonly
-            RequestType<DeleteLoginParams, ResultStatus> Type =
-            RequestType<DeleteLoginParams, ResultStatus>.Create("security/deletelogin");
+            RequestType<DeleteLoginParams, object> Type =
+            RequestType<DeleteLoginParams, object>.Create("objectManagement/deleteLogin");
+    }
+
+    /// <summary>
+    /// Update Login params
+    /// </summary>
+    public class UpdateLoginParams : GeneralRequestDetails
+    {
+        public string ContextId { get; set; }
+
+        public LoginInfo Login { get; set; }
+    }
+
+    /// <summary>
+    /// Update Login request type
+    /// </summary>
+    public class UpdateLoginRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<UpdateLoginParams, object> Type =
+            RequestType<UpdateLoginParams, object>.Create("objectManagement/updateLogin");
+    }
+
+
+    /// <summary>
+    /// Update Login params
+    /// </summary>
+    public class DisposeLoginViewRequestParams : GeneralRequestDetails
+    {
+        public string ContextId { get; set; }
+    }
+
+    /// <summary>
+    /// Update Login request type
+    /// </summary>
+    public class DisposeLoginViewRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DisposeLoginViewRequestParams, object> Type =
+            RequestType<DisposeLoginViewRequestParams, object>.Create("objectManagement/disposeLoginView");
+    }
+
+    /// <summary>
+    /// Initialize Login View Request params
+    /// </summary>
+
+    public class InitializeLoginViewRequestParams : GeneralRequestDetails
+    {
+        public string ConnectionUri { get; set; }
+        public string ContextId { get; set; }
+        public bool IsNewObject { get; set; }
+
+        public string Name { get; set; }
+    }
+
+    /// <summary>
+    /// Initialize Login View request type
+    /// </summary>
+    public class InitializeLoginViewRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<InitializeLoginViewRequestParams, LoginViewInfo> Type =
+            RequestType<InitializeLoginViewRequestParams, LoginViewInfo>.Create("objectManagement/initializeLoginView");
     }
 }
