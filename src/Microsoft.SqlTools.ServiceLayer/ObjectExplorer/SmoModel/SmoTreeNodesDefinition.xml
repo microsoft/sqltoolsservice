@@ -70,13 +70,15 @@
         The list of schemas was obtained from: 
         https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/ownership-and-user-schema-separation?view=sql-server-ver16#built-in-schemas-for-backward-compatibility
       -->
-      <Or>
-        <Filter Property="IsSystemObject" Value="0" Type="bool" />
-        <Filter Property="Name" Value="dbo" Type="string"/>
-        <Filter Property="Name" Value="guest" Type="string"/>
-        <Filter Property="Name" Value="INFORMATION_SCHEMA" Type="string"/>
-        <Filter Property="Name" Value="sys" Type="string"/>
-      </Or>
+      <Filter Property="Name" Value="db_accessadmin" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_backupoperator" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_datareader" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_datawriter" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_ddladmin" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_denydatareader" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_denydatawriter" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_owner" Type="string" IsNotFilter="true"/>
+      <Filter Property="Name" Value="db_securityadmin" Type="string" IsNotFilter="true"/>
     </Filters>
     <Child Name="Tables" SettingsFlag="!GroupBySchema"/>
     <Child Name="Views" SettingsFlag="!GroupBySchema"/>
@@ -91,11 +93,17 @@
 
   <Node Name="BuiltInSchemas" LocLabel="SR.SchemaHierarchy_BuiltInSchema" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlSchema" TreeNode="ExpandableSchemaTreeNode">
     <Filters>
-      <Filter Property="IsSystemObject" Value="1" Type="bool"/>
-      <Filter Property="Name" Value="dbo" Type="string" IsNotFilter="true"/>
-      <Filter Property="Name" Value="guest" Type="string" IsNotFilter="true"/>
-      <Filter Property="Name" Value="INFORMATION_SCHEMA" Type="string" IsNotFilter="true"/>
-      <Filter Property="Name" Value="sys" Type="string" IsNotFilter="true"/>
+      <Or>
+        <Filter Property="Name" Value="db_accessadmin" Type="string" />
+        <Filter Property="Name" Value="db_backupoperator" Type="string" />
+        <Filter Property="Name" Value="db_datareader" Type="string"/>
+        <Filter Property="Name" Value="db_datawriter" Type="string"/>
+        <Filter Property="Name" Value="db_ddladmin" Type="string"/>
+        <Filter Property="Name" Value="db_denydatareader" Type="string"/>
+        <Filter Property="Name" Value="db_denydatawriter" Type="string"/>
+        <Filter Property="Name" Value="db_owner" Type="string"/>
+        <Filter Property="Name" Value="db_securityadmin" Type="string"/>
+      </Or>
     </Filters>
   </Node>
 

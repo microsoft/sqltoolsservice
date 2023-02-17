@@ -685,40 +685,82 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
                 var filters = new List<INodeFilter>();
-                filters.Add(new NodeOrFilter
+                filters.Add(new NodePropertyFilter
                 {
-                    FilterList = new List<NodePropertyFilter> {
-                        new NodePropertyFilter
-                        {
-                            Property = "IsSystemObject",
-                            Type = typeof(bool),
-                            Values = new List<object> { 0 },
-                        },
-                        new NodePropertyFilter
-                        {
-                            Property = "Name",
-                            Type = typeof(string),
-                            Values = new List<object> { "dbo" },
-                        },
-                        new NodePropertyFilter
-                        {
-                            Property = "Name",
-                            Type = typeof(string),
-                            Values = new List<object> { "guest" },
-                        },
-                        new NodePropertyFilter
-                        {
-                            Property = "Name",
-                            Type = typeof(string),
-                            Values = new List<object> { "INFORMATION_SCHEMA" },
-                        },
-                        new NodePropertyFilter
-                        {
-                            Property = "Name",
-                            Type = typeof(string),
-                            Values = new List<object> { "sys" },
-                        },
-                    }
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_accessadmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_backupoperator" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_datareader" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_datawriter" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_ddladmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_denydatareader" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_denydatawriter" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_owner" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_securityadmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "TargetServerRole" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "TargetServerRole" },
                 });
                 return filters;
             }
@@ -831,39 +873,64 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             get
             {
                 var filters = new List<INodeFilter>();
-                filters.Add(new NodePropertyFilter
+                filters.Add(new NodeOrFilter
                 {
-                    Property = "IsSystemObject",
-                    Type = typeof(bool),
-                    Values = new List<object> { 1 },
-                });
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    IsNotFilter = true,
-                    Values = new List<object> { "dbo" },
-                });
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    IsNotFilter = true,
-                    Values = new List<object> { "guest" },
-                });
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    IsNotFilter = true,
-                    Values = new List<object> { "INFORMATION_SCHEMA" },
-                });
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    IsNotFilter = true,
-                    Values = new List<object> { "sys" },
+                    FilterList = new List<NodePropertyFilter> {
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_accessadmin" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_backupoperator" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_datareader" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_datawriter" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_ddladmin" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_denydatareader" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_denydatawriter" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_owner" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_securityadmin" },
+                        },
+                    }
                 });
                 return filters;
             }
