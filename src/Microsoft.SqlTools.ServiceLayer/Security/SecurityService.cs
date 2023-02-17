@@ -303,8 +303,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 Databases = databases,
                 Languages = languages,
                 ServerRoles = prototype.ServerRoles.ServerRoleNames,
-                SupportAdvancedPasswordOptions = true,
-                SupportAdvancedOptions = true
+                SupportAdvancedPasswordOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse,
+                SupportAdvancedOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance
             });
         }
 
