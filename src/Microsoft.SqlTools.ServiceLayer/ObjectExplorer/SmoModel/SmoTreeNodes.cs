@@ -748,20 +748,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     IsNotFilter = true,
                     Values = new List<object> { "db_securityadmin" },
                 });
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    IsNotFilter = true,
-                    Values = new List<object> { "TargetServerRole" },
-                });
-                filters.Add(new NodePropertyFilter
-                {
-                    Property = "Name",
-                    Type = typeof(string),
-                    IsNotFilter = true,
-                    Values = new List<object> { "TargetServerRole" },
-                });
                 return filters;
             }
         }
