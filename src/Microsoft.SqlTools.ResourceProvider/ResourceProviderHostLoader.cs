@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ResourceProvider
                     // Start the service only after all request handlers are setup. This is vital
                     // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
                     // is hooked up to receive the message
-                    serviceHost.Start().Wait();
+                    serviceHost.Start().GetAwaiter().GetResult();
                     isLoaded = true;
                 }
             }

@@ -193,5 +193,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             string expectedTableQuerierFilters = "[(@IsSystemObject = 1) and ((@IsSystemObject = 1))]";
             Assert.That(invalidQuerierType, Is.EqualTo(expectedTableQuerierFilters), "GetPropertyFilter did not construct the URN filter string as expected when excluding filters that don't match the querier type.");
         }
+        [Test]
+        public void TestAddPropertyFiltersToExistingURNs()
+        {
+            var Node = new List<NodePropertyFilter> {
+                    TemporalFilter,
+                    LedgerHistoryFilter
+                };
+            
+            var nodeList = new List<INodeFilter> {
+                new NodePropertyFilter(){
+                    Property = "Schema",
+                    Values = new List<object> {"jsdafl983!@$#%535343]]]][[["},
+                    Type = typeof(string),
+                    ValidFor = ValidForFlag.Sql2022OrHigher
+                }
+            };
+
+            string allFiltersValid = INodeFilter.GetPropertyFilter(Node, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
+            string expectedAllFilters = "[(@TemporalType = 1) and (@LedgerType = 1)]";
+            Assert.That(allFiltersValid, Is.EqualTo(expectedAllFilters), "GetPropertyFilter did not construct the URN filter string as expected");
+
+            string newUrn = INodeFilter.AddPropertyFilterToFilterString(allFiltersValid, nodeList, typeof(SqlHistoryTableQuerier), ValidForFlag.Sql2022OrHigher);
+            string expectedNewUrn = "[(@TemporalType = 1) and (@LedgerType = 1) and (@Schema = 'jsdafl983!@$#%535343]]]][[[')]";
+            Assert.That(newUrn, Is.EqualTo(expectedNewUrn), "GetPropertyFilter did not construct the URN filter string as expected");
+        }
     }
 }

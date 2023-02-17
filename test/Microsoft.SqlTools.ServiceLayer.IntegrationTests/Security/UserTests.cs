@@ -28,29 +28,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             {
                 // setup
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var contextId = System.Guid.NewGuid().ToString();
+
+                var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams
+                {
+                    ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                    ContextId = contextId,
+                    IsNewObject = true
+                };
+
                 var loginParams = new CreateLoginParams
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    ContextId = contextId,
                     Login = SecurityTestUtils.GetTestLoginInfo()
                 };
 
-                var createLoginContext = new Mock<RequestContext<CreateLoginResult>>();
-                createLoginContext.Setup(x => x.SendResult(It.IsAny<CreateLoginResult>()))
+                var createLoginContext = new Mock<RequestContext<object>>();
+                createLoginContext.Setup(x => x.SendResult(It.IsAny<object>()))
                     .Returns(Task.FromResult(new object()));
+                var initializeLoginViewContext = new Mock<RequestContext<LoginViewInfo>>();
+                initializeLoginViewContext.Setup(x => x.SendResult(It.IsAny<LoginViewInfo>()))
+                    .Returns(Task.FromResult(new LoginViewInfo()));
 
                 // call the create login method
                 SecurityService service = new SecurityService();
+                await service.HandleInitializeLoginViewRequest(initializeLoginViewRequestParams, initializeLoginViewContext.Object);
                 await service.HandleCreateLoginRequest(loginParams, createLoginContext.Object);
 
-                // verify the result
-                createLoginContext.Verify(x => x.SendResult(It.Is<CreateLoginResult>
-                    (p => p.Success && p.Login.LoginName != string.Empty)));
-
-            
                 var userParams = new CreateUserParams
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    User = SecurityTestUtils.GetTestUserInfo(loginParams.Login.LoginName)
+                    ContextId = connectionResult.ConnectionInfo.OwnerUri,
+                    User = SecurityTestUtils.GetTestUserInfo(loginParams.Login.Name)
                 };
 
                 var createUserContext = new Mock<RequestContext<CreateUserResult>>();
@@ -62,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 // verify the result
                 createUserContext.Verify(x => x.SendResult(It.Is<CreateUserResult>
-                    (p => p.Success && p.User.UserName != string.Empty)));
+                    (p => p.Success && p.User.Name != string.Empty)));
             }
         }
     }

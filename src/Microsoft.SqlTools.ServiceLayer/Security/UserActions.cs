@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <param name="context"></param>
         public UserActions(
             CDataContainer context,
-            UserInfo user,
+            UserInfo? user,
             ConfigAction configAction)
         {
             this.DataContainer = context;
