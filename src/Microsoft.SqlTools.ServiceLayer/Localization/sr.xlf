@@ -6545,9 +6545,9 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Sequence Number End</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LegacySchemas">
-        <source>Legacy Schemas</source>
-        <target state="new">Legacy Schemas</target>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="new">Built-in Schemas</target>
         <note></note>
       </trans-unit>
     </body>

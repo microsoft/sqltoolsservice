@@ -440,7 +440,7 @@ SchemaHierarchy_Rules = Rules
 
 SchemaHierarchy_Schemas = Schemas
 
-SchemaHierarchy_LegacySchemas = Legacy Schemas
+SchemaHierarchy_BuiltInSchema = Built-in Schemas
 
 SchemaHierarchy_Security = Security
 

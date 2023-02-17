@@ -897,8 +897,8 @@
     <value>Schemas</value>
     <comment></comment>
   </data>
-  <data name="SchemaHierarchy_LegacySchemas" xml:space="preserve">
-    <value>Legacy Schemas</value>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Built-in Schemas</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
