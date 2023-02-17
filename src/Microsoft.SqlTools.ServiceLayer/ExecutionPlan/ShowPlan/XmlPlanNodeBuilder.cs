@@ -384,12 +384,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
             nsMgr.AddNamespace("shp", "http://schemas.microsoft.com/sqlserver/2004/07/showplan");
 
             //The root node in this case is the statement node
-            XmlNode rootNode = stmtXmlDocument.DocumentElement;
-            if(rootNode == null)
-            {
-                //Couldn't find our statement node, this should never happen in a properly formed document
-                throw new ArgumentNullException("StatementNode");
-            }
+            //If couldn't find our statement node, throw exception, as this should never happen in a properly formed document
+            XmlNode rootNode = stmtXmlDocument.DocumentElement ?? throw new ArgumentNullException("StatementNode");
 
             XmlNode missingIndexes = rootNode.SelectSingleNode("descendant::shp:MissingIndexes", nsMgr);
 
