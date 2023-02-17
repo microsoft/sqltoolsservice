@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             else
             {
-                this.name = userInfo.UserName;
+                this.name = userInfo.Name;
                 this.mappedLoginName = userInfo.LoginName;
                 this.defaultSchemaName = userInfo.DefaultSchema;
                 this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);        
@@ -454,11 +454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.originalState = original;
             this.exists = !context.IsNewObject;
 
-            Database? parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database;
-            if (parent == null)
-            {
-                throw new ArgumentException("Context ParentUrn is invalid");
-            }
+            Database? parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database ?? throw new ArgumentException("Context ParentUrn is invalid");
             this.parent = parent;
 
             this.roleNames = this.PopulateRoles();

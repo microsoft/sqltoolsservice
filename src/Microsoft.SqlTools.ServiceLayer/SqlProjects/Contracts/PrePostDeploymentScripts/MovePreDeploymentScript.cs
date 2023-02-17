@@ -4,12 +4,12 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
+using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
-    public class UpdateSqlCmdVariableRequest
+    public class MovePreDeploymentScriptRequest
     {
-        public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/updateSqlCmdVariable");
+        public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/movePreDeploymentScript");
     }
 }

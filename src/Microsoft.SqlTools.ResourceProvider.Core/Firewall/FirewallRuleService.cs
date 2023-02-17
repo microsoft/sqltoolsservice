@@ -159,12 +159,8 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         {
             try
             {
-                IEnumerable<IAzureUserAccountSubscriptionContext> subscriptions = await AuthenticationManager.GetSubscriptionsAsync();
-
-                if (subscriptions == null)
-                {
-                    throw new FirewallRuleException(SR.NoSubscriptionsFound);
-                }
+                IEnumerable<IAzureUserAccountSubscriptionContext> subscriptions = await AuthenticationManager.GetSubscriptionsAsync() 
+                    ?? throw new FirewallRuleException(SR.NoSubscriptionsFound);
 
                 ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null,
                      subscriptions, serverName, new CancellationToken(), TryFindAzureResourceForSubscriptionAsync);

@@ -946,7 +946,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             TestDbColumn[] cols = { new TestDbColumn("name") };
             object[][] rows =
             {
-                new object[] {"mydatabase"}, // this should be sorted to the end in the response
+                new object[] {"mydatabase"},
                 new object[] {"master"},
                 new object[] {"model"},
                 new object[] {"msdb"},
@@ -958,11 +958,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             string[] databaseNames = response.DatabaseNames;
 
             Assert.AreEqual(5, databaseNames.Length);
-            Assert.AreEqual("master", databaseNames[0]);
-            Assert.AreEqual("model", databaseNames[1]);
-            Assert.AreEqual("msdb", databaseNames[2]);
-            Assert.AreEqual("tempdb", databaseNames[3]);
-            Assert.AreEqual("mydatabase", databaseNames[4]);
+            Assert.AreEqual("mydatabase", databaseNames[0]);
+            Assert.AreEqual("master", databaseNames[1]);
+            Assert.AreEqual("model", databaseNames[2]);
+            Assert.AreEqual("msdb", databaseNames[3]);
+            Assert.AreEqual("tempdb", databaseNames[4]);
         }
 
         /// <summary>
@@ -980,7 +980,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
              };
             object[][] rows =
             {
-                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"}, // this should be sorted to the end in the response
+                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"},
                 new object[] {"master", "Online", "11", "2010-01-01 11:11:12"},
                 new object[] {"model", "Offline", "12", "2010-01-01 11:11:13"},
                 new object[] {"msdb", "Online", "13", "2010-01-01 11:11:14"},
@@ -990,11 +990,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var response = await RunListDatabasesRequestHandler(testdata: data, includeDetails: true);
 
             Assert.AreEqual(5, response.Databases.Length);
-            VerifyDatabaseDetail(rows[0], response.Databases[4]);
-            VerifyDatabaseDetail(rows[1], response.Databases[0]);
-            VerifyDatabaseDetail(rows[2], response.Databases[1]);
-            VerifyDatabaseDetail(rows[3], response.Databases[2]);
-            VerifyDatabaseDetail(rows[4], response.Databases[3]);
+            VerifyDatabaseDetail(rows[0], response.Databases[0]);
+            VerifyDatabaseDetail(rows[1], response.Databases[1]);
+            VerifyDatabaseDetail(rows[2], response.Databases[2]);
+            VerifyDatabaseDetail(rows[3], response.Databases[3]);
+            VerifyDatabaseDetail(rows[4], response.Databases[4]);
         }
 
         private void VerifyDatabaseDetail(object[] expected, DatabaseInfo actual)

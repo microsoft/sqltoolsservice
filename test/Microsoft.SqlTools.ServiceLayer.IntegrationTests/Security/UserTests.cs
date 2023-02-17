@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 var userParams = new CreateUserParams
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    ContextId = connectionResult.ConnectionInfo.OwnerUri,
                     User = SecurityTestUtils.GetTestUserInfo(loginParams.Login.Name)
                 };
 
@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 // verify the result
                 createUserContext.Verify(x => x.SendResult(It.Is<CreateUserResult>
-                    (p => p.Success && p.User.UserName != string.Empty)));
+                    (p => p.Success && p.User.Name != string.Empty)));
             }
         }
     }

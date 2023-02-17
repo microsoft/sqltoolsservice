@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -61,8 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     abstract class ListDatabaseRequestHandler<T> : IListDatabaseRequestHandler
     {
-        private static readonly string[] SystemDatabases = new string[] { "master", "model", "msdb", "tempdb" };
-
         public abstract string QueryText { get; }
 
         public ListDatabasesResponse HandleRequest(ISqlConnectionFactory connectionFactory, ConnectionInfo connectionInfo)
@@ -122,9 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         {
                             results.Add(this.CreateItem(reader));
                         }
-                        // Put system databases at the top of the list
-                        results = results.Where(s => SystemDatabases.Any(x => this.NameMatches(x, s))).Concat(
-                            results.Where(s => SystemDatabases.All(x => !this.NameMatches(x, s)))).ToList();
                     }
                 }
                 connection.Close();
