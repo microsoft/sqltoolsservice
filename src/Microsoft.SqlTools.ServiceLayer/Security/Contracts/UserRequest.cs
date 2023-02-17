@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class CreateUserParams : GeneralRequestDetails
     {
-        public string? OwnerUri { get; set; }
+        public string? ContextId { get; set; }
         public UserInfo? User { get; set; }
     }
 
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// </summary>
     public class CreateUserResult : ResultStatus
     {
-        public UserInfo? User { get; set; }        
+        public UserInfo? User { get; set; }
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// </summary>
         public static readonly
             RequestType<CreateUserParams, CreateUserResult> Type =
-            RequestType<CreateUserParams, CreateUserResult>.Create("objectmanagement/createuser");
+            RequestType<CreateUserParams, CreateUserResult>.Create("objectManagement/createUser");
     }
 
     /// <summary>
@@ -88,6 +88,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         /// </summary>
         public static readonly
             RequestType<DeleteUserParams, ResultStatus> Type =
-            RequestType<DeleteUserParams, ResultStatus>.Create("objectmanagement/deleteuser");
+            RequestType<DeleteUserParams, ResultStatus>.Create("objectManagement/deleteUser");
     }
 }

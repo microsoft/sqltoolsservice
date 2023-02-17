@@ -6,7 +6,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,6 +33,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private ConnectionService? connectionService;
 
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
+
+        private Dictionary<string, string> contextIdToConnectionUriMap = new Dictionary<string, string>();
 
         /// <summary>
         /// Construct a new SecurityService instance with default parameters
@@ -249,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return schemaOwnership;
         }
 
-        private string[] LoadDatebaseRoles(ServerConnection serverConnection, string databaseName)
+        private string[] LoadDatabaseRoles(ServerConnection serverConnection, string databaseName)
 		{
             var server = new Server(serverConnection);
             string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";            
@@ -269,16 +270,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return roles.ToArray();			
 		}
 
+        private string[] LoadSqlLogins(ServerConnection serverConnection)
+        {
+            return LoadItems(serverConnection, "Server/Login");
+        }
+
+        private string[] LoadItems(ServerConnection serverConnection, string urn)
+        {
+            List<string> items = new List<string>();
+            Request req = new Request();
+            req.Urn = urn;
+            req.ResultType = ResultType.IDataReader;
+            req.Fields = new string[] { "Name" };
+
+            Enumerator en = new Enumerator();
+            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
+            {
+                if (reader != null)
+                {
+                    string name;
+                    while (reader.Read())
+                    {
+                        // Get the permission name
+                        name = reader.GetString(0);
+                        items.Add(name);
+                    }
+                }
+            }
+            return items.ToArray();
+        }
+
         /// <summary>
         /// Handle request to initialize user view
         /// </summary>
         internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
-        {            
+        {  
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
             if (connInfo == null)
             {
                 throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
+            }
+
+            if (parameters.ContextId != null && parameters.ConnectionUri != null)
+            {
+                this.contextIdToConnectionUriMap.Add(parameters.ContextId, parameters.ConnectionUri);
             }
 
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
@@ -290,17 +326,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 ObjectInfo = new UserInfo()
                 {
-                    Type = DatabaseUserType.UserWithLogin,
-                    UserName = "User1",
-                    LoginName = "Login1",
-                    Password = "Password1",
-                    DefaultSchema = "dbo",
-                    OwnedSchemas = new string[] { "dbo" },
+                    Type = DatabaseUserType.WithLogin,
+                    Name = string.Empty,
+                    LoginName = string.Empty,
+                    Password = string.Empty,
+                    DefaultSchema = string.Empty,
+                    OwnedSchemas = new string[] { },
                     DatabaseRoles = new string[] { },
-                    isEnabled = true,
-                    isAAD = false,
-                    ExtendedProperties = new Microsoft.SqlTools.ServiceLayer.Security.Contracts.ExtendedProperty[] { },
-                    SecurablePermissions = new SecurablePermissions[] { }
                 },
                 SupportContainedUser = true,
                 SupportWindowsAuthentication = true,
@@ -308,8 +340,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 SupportSQLAuthentication = true,
                 Languages = new string[] {},
                 Schemas = schemaMap.Keys.ToArray(),
-                Logins = new string[] {},
-                DatabaseRoles = LoadDatebaseRoles(serverConnection, databaseName)
+                Logins = LoadSqlLogins(serverConnection),
+                DatabaseRoles = LoadDatabaseRoles(serverConnection, databaseName)
             };
 
             await requestContext.SendResult(userViewInfo);            
@@ -320,7 +352,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         internal async Task HandleCreateUserRequest(CreateUserParams parameters, RequestContext<CreateUserResult> requestContext)
         {
-             var result = await ConfigureUser(parameters.OwnerUri,
+            if (parameters.ContextId == null || !this.contextIdToConnectionUriMap.ContainsKey(parameters.ContextId))
+            {
+                throw new ArgumentException("Invalid context ID");
+            }
+
+            string connectionUri = this.contextIdToConnectionUriMap[parameters.ContextId];
+            var result = await ConfigureUser(connectionUri,
                 parameters.User,
                 ConfigAction.Create,
                 RunType.RunNow);
@@ -330,9 +368,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 User = parameters.User,
                 Success = result.Item1,
                 ErrorMessage = result.Item2
-            });            
+            });
         }
-
         
         private void GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
@@ -411,23 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         // how to populate defaults from prototype, will delete once refactored
         // private void InitializeValuesInUiControls()
         // {
-        //     this.userNameTextBox.Text = this.currentUserPrototype.Name;
-
-        //     if(this.currentUserPrototype.UserType == UserType.Certificate)
-        //     {
-        //         this.mappedObjTextbox.Text = this.currentUserPrototype.CertificateName;
-        //     }
-        //     if (this.currentUserPrototype.UserType == UserType.AsymmetricKey)
-        //     {
-        //         this.mappedObjTextbox.Text = this.currentUserPrototype.AsymmetricKeyName;
-        //     }
-        //     IUserPrototypeWithMappedLogin mappedLoginPrototype = this.currentUserPrototype
-        //                                                                     as IUserPrototypeWithMappedLogin;
-        //     if (mappedLoginPrototype != null)
-        //     {
-        //         this.mappedObjTextbox.Text = mappedLoginPrototype.LoginName;
-        //     }
-
+       
         //     IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = this.currentUserPrototype
         //                                                                             as IUserPrototypeWithDefaultLanguage;
         //     if (defaultLanguagePrototype != null
@@ -453,7 +474,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //     {
         //         this.defaultSchemaTextBox.Text = defaultSchemaPrototype.DefaultSchema;
         //     }
-
         //     IUserPrototypeWithPassword userWithPwdPrototype = this.currentUserPrototype
         //                                                                 as IUserPrototypeWithPassword;
         //     if (userWithPwdPrototype != null
@@ -463,26 +483,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //         this.confirmPwdTextBox.Text = FAKE_PASSWORD;                
         //     }
         // }
-        // private void UpdateUiControlsOnLoad()
-        // {
-        //     if (!this.DataContainer.IsNewObject)
-        //     {
-        //         this.userNameTextBox.ReadOnly = true; //Rename is not allowed from the dialog.
-        //         this.userSearchButton.Enabled = false;
-        //         this.mappedObjTextbox.ReadOnly = true; //Changing mapped login, certificate and asymmetric key is not allowed
-        //         this.mappedObjSearchButton.Enabled = false;
-        //         //from SMO also.
-        //         this.userTypeComboBox.Enabled = false;
-        //         this.oldPasswordTextBox.ReadOnly = true;
-        //     }
-        //     else
-        //     {
-        //         //Old password is only useful for changing the password.
-        //         this.specifyOldPwdCheckBox.Enabled = false;
-        //         this.oldPasswordLabel.Enabled = false;
-        //         this.oldPasswordTextBox.Enabled = false;
-        //     }
-        // }
+
+
 
 
 #endregion
@@ -822,179 +824,179 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }        
 
-        private void DbRole_LoadMembership(string databaseName, string dbroleName, ServerConnection serverConnection)
-        {
-            var roleMembers = new HybridDictionary();
-            bool isPropertiesMode = false;
-            if (isPropertiesMode)
-            {
-                Enumerator  enumerator  = new Enumerator();
-                Urn         urn         = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                        "Server/Database[@Name='{0}']/Role[@Name='{1}']/Member",
-                                                        Urn.EscapeString(databaseName),
-                                                        Urn.EscapeString(dbroleName));
-                string[]    fields      = new string[] { "Name" };
-                OrderBy[]   orderBy     = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc)};
-                Request     request     = new Request(urn, fields, orderBy);
-                DataTable   dt          = enumerator.Process(serverConnection, request);
+        // private void DbRole_LoadMembership(string databaseName, string dbroleName, ServerConnection serverConnection)
+        // {
+        //     var roleMembers = new HybridDictionary();
+        //     bool isPropertiesMode = false;
+        //     if (isPropertiesMode)
+        //     {
+        //         Enumerator  enumerator  = new Enumerator();
+        //         Urn         urn         = String.Format(System.Globalization.CultureInfo.InvariantCulture,
+        //                                                 "Server/Database[@Name='{0}']/Role[@Name='{1}']/Member",
+        //                                                 Urn.EscapeString(databaseName),
+        //                                                 Urn.EscapeString(dbroleName));
+        //         string[]    fields      = new string[] { "Name" };
+        //         OrderBy[]   orderBy     = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc)};
+        //         Request     request     = new Request(urn, fields, orderBy);
+        //         DataTable   dt          = enumerator.Process(serverConnection, request);
 
-                foreach (DataRow dr in dt.Rows)
-                {
-                    string memberName = dr["Name"].ToString();
-                    if (memberName != null)
-                    {
-                        roleMembers[memberName] = new RoleMembership(true);
-                    }
-                }
-            }
-        }
+        //         foreach (DataRow dr in dt.Rows)
+        //         {
+        //             string memberName = dr["Name"].ToString();
+        //             if (memberName != null)
+        //             {
+        //                 roleMembers[memberName] = new RoleMembership(true);
+        //             }
+        //         }
+        //     }
+        // }
 
-        /// <summary>
-        /// sends to server user changes related to membership
-        /// </summary>
-        private void DbRole_SendToServerMembershipChanges(Database db, DatabaseRole dbrole)
-        {
-            var roleMembers = new HybridDictionary();
-            IDictionaryEnumerator enumerator = roleMembers.GetEnumerator();
-            enumerator.Reset();
+        // /// <summary>
+        // /// sends to server user changes related to membership
+        // /// </summary>
+        // private void DbRole_SendToServerMembershipChanges(Database db, DatabaseRole dbrole)
+        // {
+        //     var roleMembers = new HybridDictionary();
+        //     IDictionaryEnumerator enumerator = roleMembers.GetEnumerator();
+        //     enumerator.Reset();
 
-            while (enumerator.MoveNext())
-            {
-                DictionaryEntry entry       = enumerator.Entry;
-                string          memberName  = entry.Key.ToString();
-                RoleMembership  membership  = (RoleMembership) entry.Value;
-                if (membership != null)
-                {
-                    if (!membership.initiallyAMember && membership.currentlyAMember)
-                    {
-                        dbrole.AddMember(memberName);
-                    }
-                    else if (membership.initiallyAMember && !membership.currentlyAMember)
-                    {
-                        dbrole.DropMember(memberName);
-                    }
-                }
-            }
-        }
+        //     while (enumerator.MoveNext())
+        //     {
+        //         DictionaryEntry entry       = enumerator.Entry;
+        //         string          memberName  = entry.Key.ToString();
+        //         RoleMembership  membership  = (RoleMembership) entry.Value;
+        //         if (membership != null)
+        //         {
+        //             if (!membership.initiallyAMember && membership.currentlyAMember)
+        //             {
+        //                 dbrole.AddMember(memberName);
+        //             }
+        //             else if (membership.initiallyAMember && !membership.currentlyAMember)
+        //             {
+        //                 dbrole.DropMember(memberName);
+        //             }
+        //         }
+        //     }
+        // }
 
-        private void InitProp(ServerConnection serverConnection, string serverName, string databaseName, 
-            string dbroleName, string dbroleUrn, bool isPropertiesMode)
-        {            
-            System.Diagnostics.Debug.Assert(serverName!=null);
-            System.Diagnostics.Debug.Assert((databaseName!=null) && (databaseName.Trim().Length!=0));
+        // private void InitProp(ServerConnection serverConnection, string serverName, string databaseName, 
+        //     string dbroleName, string dbroleUrn, bool isPropertiesMode)
+        // {            
+        //     System.Diagnostics.Debug.Assert(serverName!=null);
+        //     System.Diagnostics.Debug.Assert((databaseName!=null) && (databaseName.Trim().Length!=0));
 
-            // LoadSchemas();
-            // LoadMembership();
+        //     // LoadSchemas();
+        //     // LoadMembership();
 
-            if (isPropertiesMode == true)
-            {
-                // initialize from enumerator in properties mode
-                System.Diagnostics.Debug.Assert(dbroleName!=null);
-                System.Diagnostics.Debug.Assert(dbroleName.Trim().Length !=0);
-                System.Diagnostics.Debug.Assert(dbroleUrn!=null);
-                System.Diagnostics.Debug.Assert(dbroleUrn.Trim().Length != 0);
+        //     if (isPropertiesMode == true)
+        //     {
+        //         // initialize from enumerator in properties mode
+        //         System.Diagnostics.Debug.Assert(dbroleName!=null);
+        //         System.Diagnostics.Debug.Assert(dbroleName.Trim().Length !=0);
+        //         System.Diagnostics.Debug.Assert(dbroleUrn!=null);
+        //         System.Diagnostics.Debug.Assert(dbroleUrn.Trim().Length != 0);
 
-                Enumerator en = new Enumerator();
-                Request req = new Request();
-                req.Fields = new String [] { "Owner" };
+        //         Enumerator en = new Enumerator();
+        //         Request req = new Request();
+        //         req.Fields = new String [] { "Owner" };
 
-                if ((dbroleUrn!=null) && (dbroleUrn.Trim().Length != 0))
-                {
-                    req.Urn = dbroleUrn;
-                }
-                else
-                {
-                    req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Role[@Name='" + Urn.EscapeString(dbroleName) + "]";
-                }
+        //         if ((dbroleUrn!=null) && (dbroleUrn.Trim().Length != 0))
+        //         {
+        //             req.Urn = dbroleUrn;
+        //         }
+        //         else
+        //         {
+        //             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Role[@Name='" + Urn.EscapeString(dbroleName) + "]";
+        //         }
 
-                DataTable dt = en.Process(serverConnection, req);
-                System.Diagnostics.Debug.Assert(dt!=null);
-                System.Diagnostics.Debug.Assert(dt.Rows.Count==1);
+        //         DataTable dt = en.Process(serverConnection, req);
+        //         System.Diagnostics.Debug.Assert(dt!=null);
+        //         System.Diagnostics.Debug.Assert(dt.Rows.Count==1);
 
-                if (dt.Rows.Count==0)
-                {
-                    throw new Exception("DatabaseRoleSR.ErrorDbRoleNotFound");
-                }
+        //         if (dt.Rows.Count==0)
+        //         {
+        //             throw new Exception("DatabaseRoleSR.ErrorDbRoleNotFound");
+        //         }
 
-                // DataRow dr = dt.Rows[0];
-                // this.initialOwner = Convert.ToString(dr[DatabaseRoleGeneral.ownerField],System.Globalization.CultureInfo.InvariantCulture);
-                // this.textBoxOwner.Text = this.initialOwner;
-            }
-        }
+        //         // DataRow dr = dt.Rows[0];
+        //         // this.initialOwner = Convert.ToString(dr[DatabaseRoleGeneral.ownerField],System.Globalization.CultureInfo.InvariantCulture);
+        //         // this.textBoxOwner.Text = this.initialOwner;
+        //     }
+        // }
 
-        private void DbRole_SendDataToServer(CDataContainer dataContainer, string databaseName, 
-            string dbroleName, string ownerName, string initialOwner, string roleName, bool isPropertiesMode)
-        {
-            System.Diagnostics.Debug.Assert(databaseName != null && databaseName.Trim().Length != 0, "database name is empty");
-            System.Diagnostics.Debug.Assert(dataContainer.Server != null, "server is null");
+        // private void DbRole_SendDataToServer(CDataContainer dataContainer, string databaseName, 
+        //     string dbroleName, string ownerName, string initialOwner, string roleName, bool isPropertiesMode)
+        // {
+        //     System.Diagnostics.Debug.Assert(databaseName != null && databaseName.Trim().Length != 0, "database name is empty");
+        //     System.Diagnostics.Debug.Assert(dataContainer.Server != null, "server is null");
 
-            Database database = dataContainer.Server.Databases[databaseName];
-            System.Diagnostics.Debug.Assert(database!= null, "database is null");
+        //     Database database = dataContainer.Server.Databases[databaseName];
+        //     System.Diagnostics.Debug.Assert(database!= null, "database is null");
 
-            DatabaseRole role;
+        //     DatabaseRole role;
 
-            if (isPropertiesMode == true) // in properties mode -> alter role
-            {
-                System.Diagnostics.Debug.Assert(dbroleName != null && dbroleName.Trim().Length != 0, "role name is empty");
+        //     if (isPropertiesMode == true) // in properties mode -> alter role
+        //     {
+        //         System.Diagnostics.Debug.Assert(dbroleName != null && dbroleName.Trim().Length != 0, "role name is empty");
 
-                role = database.Roles[dbroleName];
-                System.Diagnostics.Debug.Assert(role != null, "role is null");
+        //         role = database.Roles[dbroleName];
+        //         System.Diagnostics.Debug.Assert(role != null, "role is null");
 
-                if (0 != String.Compare(ownerName, initialOwner, StringComparison.Ordinal))
-                {
-                    role.Owner = ownerName;
-                    role.Alter();
-                }
-            }
-            else // not in properties mode -> create role
-            {
-                role = new DatabaseRole(database, roleName);
-                if (ownerName.Length != 0)
-                {
-                    role.Owner = ownerName;
-                }
+        //         if (0 != String.Compare(ownerName, initialOwner, StringComparison.Ordinal))
+        //         {
+        //             role.Owner = ownerName;
+        //             role.Alter();
+        //         }
+        //     }
+        //     else // not in properties mode -> create role
+        //     {
+        //         role = new DatabaseRole(database, roleName);
+        //         if (ownerName.Length != 0)
+        //         {
+        //             role.Owner = ownerName;
+        //         }
 
-                role.Create();
-            }
+        //         role.Create();
+        //     }
 
-            // SendToServerSchemaOwnershipChanges(database, role);
-            // SendToServerMembershipChanges(database, role);
-        }
+        //     // SendToServerSchemaOwnershipChanges(database, role);
+        //     // SendToServerMembershipChanges(database, role);
+        // }
 
 
-        /// <summary>
-        /// sends to server changes related to schema ownership
-        /// </summary>
-        private void DbRole_SendToServerSchemaOwnershipChanges(CDataContainer dataContainer, Database db, DatabaseRole dbrole)
-        {
-            if (dataContainer.Server == null)
-            {
-                return;
-            }
+        // /// <summary>
+        // /// sends to server changes related to schema ownership
+        // /// </summary>
+        // private void DbRole_SendToServerSchemaOwnershipChanges(CDataContainer dataContainer, Database db, DatabaseRole dbrole)
+        // {
+        //     if (dataContainer.Server == null)
+        //     {
+        //         return;
+        //     }
 
-            HybridDictionary schemaOwnership = new HybridDictionary();
-            if (9 <= dataContainer.Server.Information.Version.Major)
-            {
-                IDictionaryEnumerator enumerator = schemaOwnership.GetEnumerator();
-                enumerator.Reset();
-                while (enumerator.MoveNext())
-                {
-                    DictionaryEntry de          = enumerator.Entry;
-                    string          schemaName  = de.Key.ToString();
-                    SchemaOwnership ownership   = (SchemaOwnership)de.Value;
+        //     HybridDictionary schemaOwnership = new HybridDictionary();
+        //     if (9 <= dataContainer.Server.Information.Version.Major)
+        //     {
+        //         IDictionaryEnumerator enumerator = schemaOwnership.GetEnumerator();
+        //         enumerator.Reset();
+        //         while (enumerator.MoveNext())
+        //         {
+        //             DictionaryEntry de          = enumerator.Entry;
+        //             string          schemaName  = de.Key.ToString();
+        //             SchemaOwnership ownership   = (SchemaOwnership)de.Value;
 
-                    // If we are creating a new role, then no schema will have been initially owned by this role.
-                    // If we are modifying an existing role, we can only take ownership of roles.  (Ownership can't
-                    // be renounced, it can only be positively assigned to a principal.)
-                    if (ownership != null && (ownership.currentlyOwned && !ownership.initiallyOwned))
-                    {
-                        Schema schema = db.Schemas[schemaName];
-                        schema.Owner = dbrole.Name;
-                        schema.Alter();
-                    }
-                }
-            }
-        }
+        //             // If we are creating a new role, then no schema will have been initially owned by this role.
+        //             // If we are modifying an existing role, we can only take ownership of roles.  (Ownership can't
+        //             // be renounced, it can only be positively assigned to a principal.)
+        //             if (ownership != null && (ownership.currentlyOwned && !ownership.initiallyOwned))
+        //             {
+        //                 Schema schema = db.Schemas[schemaName];
+        //                 schema.Owner = dbrole.Name;
+        //                 schema.Alter();
+        //             }
+        //         }
+        //     }
+        // }
 
 #endregion
 
