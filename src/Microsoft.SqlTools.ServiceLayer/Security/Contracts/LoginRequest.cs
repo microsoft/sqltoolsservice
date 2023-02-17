@@ -6,14 +6,13 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 {    
     /// <summary>
     /// Create Login parameters
     /// </summary>
-    public class CreateLoginParams : GeneralRequestDetails
+    public class CreateLoginParams
     {
         public string ContextId { get; set; }
 
@@ -36,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// Delete Login params
     /// </summary>
-    public class DeleteLoginParams : GeneralRequestDetails
+    public class DeleteLoginParams
     {
         public string ConnectionUri { get; set; }
 
@@ -59,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// Update Login params
     /// </summary>
-    public class UpdateLoginParams : GeneralRequestDetails
+    public class UpdateLoginParams
     {
         public string ContextId { get; set; }
 
@@ -83,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// Update Login params
     /// </summary>
-    public class DisposeLoginViewRequestParams : GeneralRequestDetails
+    public class DisposeLoginViewRequestParams
     {
         public string ContextId { get; set; }
     }
@@ -105,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// Initialize Login View Request params
     /// </summary>
 
-    public class InitializeLoginViewRequestParams : GeneralRequestDetails
+    public class InitializeLoginViewRequestParams
     {
         public string ConnectionUri { get; set; }
         public string ContextId { get; set; }
