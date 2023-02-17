@@ -98,10 +98,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // User request handlers
             this.ServiceHost.SetRequestHandler(InitializeUserViewRequest.Type, HandleInitializeUserViewRequest, true);
             this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteUserRequest.Type, HandleDeleteUserRequest, true);
         }
 
 
-#region "Login Handlers"        
+        #region "Login Handlers"        
 
         /// <summary>
         /// Handle request to create a login
@@ -133,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 if (0 != string.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
                 {
                     // raise error here
-                }                 
+                }
             }
 
             prototype.ApplyGeneralChanges(dataContainer.Server);
@@ -160,10 +161,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             Login login = dataContainer.Server?.Logins[parameters.LoginName];
-     
+
             dataContainer.SqlDialogSubject = login;
             DoDropObject(dataContainer);
-           
+
             await requestContext.SendResult(new ResultStatus()
             {
                 Success = true,
@@ -171,9 +172,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-#endregion
+        #endregion
 
-#region "User Handlers"
+        #region "User Handlers"
 
         internal Task<Tuple<bool, string>> ConfigureUser(
             string? ownerUri,
@@ -196,8 +197,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
                     connectionInfoWithConnection.ServerConnection = serverConnection;
 
-                    string urn  = string.Format(System.Globalization.CultureInfo.InvariantCulture, 
-                        "Server/Database[@Name='{0}']", 
+                    string urn = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                        "Server/Database[@Name='{0}']",
                         Urn.EscapeString(serverConnection.DatabaseName));
 
                     ActionContext context = new ActionContext(serverConnection, "new_user", urn);
@@ -223,14 +224,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        private Dictionary<string, SchemaOwnership> LoadSchemas(string databaseName, string  dbroleName, ServerConnection serverConnection)
+        private Dictionary<string, SchemaOwnership> LoadSchemas(string databaseName, string dbroleName, ServerConnection serverConnection)
         {
             bool isPropertiesMode = false;
             Dictionary<string, SchemaOwnership> schemaOwnership = new Dictionary<string, SchemaOwnership>();
 
             Enumerator en = new Enumerator();
             Request req = new Request();
-            req.Fields = new String [] { "Name", "Owner" };
+            req.Fields = new String[] { "Name", "Owner" };
             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Schema";
 
             DataTable dt = en.Process(serverConnection, req);
@@ -239,8 +240,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             foreach (DataRow dr in dt.Rows)
             {
-                string  schemaName      = Convert.ToString(dr["Name"],System.Globalization.CultureInfo.InvariantCulture);
-                string  schemaOwner     = Convert.ToString(dr["Owner"],System.Globalization.CultureInfo.InvariantCulture);
+                string schemaName = Convert.ToString(dr["Name"], System.Globalization.CultureInfo.InvariantCulture);
+                string schemaOwner = Convert.ToString(dr["Owner"], System.Globalization.CultureInfo.InvariantCulture);
                 bool roleOwnsSchema = isPropertiesMode && (0 == String.Compare(dbroleName, schemaOwner, StringComparison.Ordinal));
                 if (schemaName != null)
                 {
@@ -251,9 +252,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
 
         private string[] LoadDatabaseRoles(ServerConnection serverConnection, string databaseName)
-		{
+        {
             var server = new Server(serverConnection);
-            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";            
+            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";
             Database? parent = server.GetSmoObject(new Urn(dbUrn)) as Database;
             var roles = new List<string>();
             if (parent != null)
@@ -267,8 +268,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     }
                 }
             }
-            return roles.ToArray();			
-		}
+            return roles.ToArray();
+        }
 
         private string[] LoadSqlLogins(ServerConnection serverConnection)
         {
@@ -304,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Handle request to initialize user view
         /// </summary>
         internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
-        {  
+        {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
             if (connInfo == null)
@@ -338,13 +339,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 SupportWindowsAuthentication = true,
                 SupportAADAuthentication = true,
                 SupportSQLAuthentication = true,
-                Languages = new string[] {},
+                Languages = new string[] { },
                 Schemas = schemaMap.Keys.ToArray(),
                 Logins = LoadSqlLogins(serverConnection),
                 DatabaseRoles = LoadDatabaseRoles(serverConnection, databaseName)
             };
 
-            await requestContext.SendResult(userViewInfo);            
+            await requestContext.SendResult(userViewInfo);
         }
 
         /// <summary>
@@ -370,7 +371,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 ErrorMessage = result.Item2
             });
         }
-        
+
+        /// <summary>
+        /// Handle request to delete a user
+        /// </summary>
+        internal async Task HandleDeleteUserRequest(DeleteUserParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
+            // if (connInfo == null) 
+            // {
+            //     // raise an error
+            // }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
+            Database? parent = dataContainer.Server.GetSmoObject(new Urn(dbUrn)) as Database;
+            User user = parent.Users[parameters.Name];
+            dataContainer.SqlDialogSubject = user;
+            DoDropObject(dataContainer);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = true,
+                ErrorMessage = string.Empty
+            });
+        }
+
         private void GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
             // this.defaultLanguageComboBox.Items.Clear();            
@@ -448,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         // how to populate defaults from prototype, will delete once refactored
         // private void InitializeValuesInUiControls()
         // {
-       
+
         //     IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = this.currentUserPrototype
         //                                                                             as IUserPrototypeWithDefaultLanguage;
         //     if (defaultLanguagePrototype != null
@@ -487,9 +514,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 
 
-#endregion
+        #endregion
 
-#region "Credential Handlers"
+        #region "Credential Handlers"
 
         /// <summary>
         /// Handle request to create a credential
@@ -596,9 +623,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-#endregion        
+        #endregion
 
-#region "Helpers"
+        #region "Helpers"
 
         internal Task<Tuple<bool, string>> ConfigureCredential(
             string ownerUri,
@@ -635,7 +662,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         /// <param name="objectRowNumber"></param>
         private void DoDropObject(CDataContainer dataContainer)
-        {      
+        {
             // if a server isn't connected then there is nothing to do      
             if (dataContainer.Server == null)
             {
@@ -669,11 +696,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             System.Diagnostics.Debug.Assert(objUrn != null);
 
             SfcObjectQuery objectQuery = new SfcObjectQuery(dataContainer.Server);
-           
+
             IDroppable droppableObj = null;
             string[] fields = null;
 
-            foreach( object obj in objectQuery.ExecuteIterator( new SfcQueryExpression( objUrn.ToString() ), fields, null ) )
+            foreach (object obj in objectQuery.ExecuteIterator(new SfcQueryExpression(objUrn.ToString()), fields, null))
             {
                 System.Diagnostics.Debug.Assert(droppableObj == null, "there is only one object");
                 droppableObj = obj as IDroppable;
@@ -694,7 +721,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             //special case database drop - see if we need to delete backup and restore history
-            SpecialPreDropActionsForObject(dataContainer, droppableObj, 
+            SpecialPreDropActionsForObject(dataContainer, droppableObj,
                 deleteBackupRestoreOrDisableAuditSpecOrDisableAudit: false,
                 dropOpenConnections: false);
 
@@ -704,8 +731,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             SpecialPostDropActionsForObject(dataContainer, droppableObj);
 
         }
-        
-        private void SpecialPreDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj, 
+
+        private void SpecialPreDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj,
             bool deleteBackupRestoreOrDisableAuditSpecOrDisableAudit, bool dropOpenConnections)
         {
             // if a server isn't connected then there is nothing to do      
@@ -790,10 +817,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-#endregion // "Helpers"
+        #endregion // "Helpers"
 
-// some potentially useful code for working with server & db roles to be refactored later
-#region "Roles" 
+        // some potentially useful code for working with server & db roles to be refactored later
+        #region "Roles" 
         private class SchemaOwnership
         {
             public bool initiallyOwned;
@@ -822,7 +849,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.initiallyAMember = initiallyAMember;
                 this.currentlyAMember = currentlyAMember;
             }
-        }        
+        }
 
         // private void DbRole_LoadMembership(string databaseName, string dbroleName, ServerConnection serverConnection)
         // {
@@ -998,7 +1025,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //     }
         // }
 
-#endregion
+        #endregion
 
-    }    
+    }
 }

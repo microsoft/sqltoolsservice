@@ -71,11 +71,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// Delete User params
     /// </summary>
-    public class DeleteUserParams : GeneralRequestDetails
+    public class DeleteUserParams
     {
-        public string? OwnerUri { get; set; }
-
-        public string? UserName { get; set; }
+        public string? ConnectionUri { get; set; }
+	    
+        public string? Database { get; set; }
+	
+        public string? Name { get; set; }
     }
 
     /// <summary>
