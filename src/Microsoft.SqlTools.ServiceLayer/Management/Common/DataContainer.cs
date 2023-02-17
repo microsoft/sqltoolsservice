@@ -749,7 +749,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     throw new InvalidOperationException();
                 }
 
-                // NOTE: ServerConnection property will constuct the object if needed
+                // NOTE: ServerConnection property will construct the object if needed
                 m_server ??= new Server(ServerConnection);
             }
         }

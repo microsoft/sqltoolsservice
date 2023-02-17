@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             else
             {
-                this.name = userInfo.UserName;
+                this.name = userInfo.Name;
                 this.mappedLoginName = userInfo.LoginName;
                 this.defaultSchemaName = userInfo.DefaultSchema;
                 this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);        
