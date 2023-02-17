@@ -104,14 +104,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             TSqlBatch batch = ((TSqlScript)fragment).Batches[0];
             TSqlStatement statement = batch.Statements[0];
 
-            CreateExternalStreamingJobStatement createStatement = statement as CreateExternalStreamingJobStatement;
-
             // if the TSQL doesn't contain a CreateExternalStreamingJobStatement, we're in a bad path.
-
-            if (createStatement == null)
-            {
-                throw new ArgumentException(SR.NoCreateStreamingJobStatementFound);
-            }
+            CreateExternalStreamingJobStatement createStatement = statement as CreateExternalStreamingJobStatement ?? throw new ArgumentException(SR.NoCreateStreamingJobStatementFound);
 
             return (createStatement.Name.Value, createStatement.Statement.Value);
         }

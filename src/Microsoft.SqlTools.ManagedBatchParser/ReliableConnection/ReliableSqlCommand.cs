@@ -122,13 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                         throw new ArgumentNullException("value");
                     }
 
-                    ReliableSqlConnection newConnection = value as ReliableSqlConnection;
-
-                    if (newConnection == null)
-                    {
-                        throw new InvalidOperationException(Resources.OnlyReliableConnectionSupported);
-                    }
-
+                    ReliableSqlConnection newConnection = value as ReliableSqlConnection ?? throw new InvalidOperationException(Resources.OnlyReliableConnectionSupported);
                     _connection = newConnection;
                     _command.Connection = _connection._underlyingConnection;
                 }

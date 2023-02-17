@@ -118,14 +118,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
             }
-            ObjectExplorerService service = ServiceProvider.GetService<ObjectExplorerService>();
-            if (service == null)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                    SqlTools.Hosting.SR.ServiceNotFound, nameof(ObjectExplorerService)));
-            }
 
-            return service;
+            return ServiceProvider.GetService<ObjectExplorerService>()
+                ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                    SqlTools.Hosting.SR.ServiceNotFound, nameof(ObjectExplorerService)));
         }
 
         /// <summary>
