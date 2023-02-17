@@ -284,13 +284,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 };
                 foreach(var nodes in databaseChildren.Nodes)
                 {
-                    Assert.False(legacySchemas.Contains(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
+                    Assert.That(legacySchemas, Does.Not.Contain(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
                 }
                 var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_BuiltInSchema);
                 var legacySchemasChildren = await _service.ExpandNode(session, legacySchemasNode.NodePath);
                 foreach(var nodes in legacySchemasChildren.Nodes)
                 {
-                    Assert.True(legacySchemas.Contains(nodes.Label), "Legacy schema nodes should be found in legacy schemas folder when group by schema is enabled");
+                    Assert.That(legacySchemas, Does.Contain(nodes.Label), "Legacy schema nodes should be found in legacy schemas folder when group by schema is enabled");
                 }
                 WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
             });
