@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.Utility
                             case "-tracing-level":
                                 TracingLevel = args[++i];
                                 break;
-                            case "-piiLogging":
+                            case "-pii-logging":
                                 PiiLogging = true;
                                 break;
                             case "-log-file":
