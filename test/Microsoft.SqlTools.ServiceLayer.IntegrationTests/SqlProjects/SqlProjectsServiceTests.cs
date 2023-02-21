@@ -30,14 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate that result indicates failure when there's an exception
             MockRequest<ResultStatus> requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = projectUri,
                 SqlProjectType = ProjectType.SdkStyle
 
             }, requestMock.Object);
 
-            Assert.IsFalse(requestMock.Result.Success, $"{nameof(service.HandleNewSqlProjectRequest)} when file already exists expected to fail");
+            Assert.IsFalse(requestMock.Result.Success, $"{nameof(service.HandleCreateSqlProjectRequest)} when file already exists expected to fail");
             Assert.IsTrue(requestMock.Result.ErrorMessage!.Contains("Cannot create a new SQL project")
                        && requestMock.Result.ErrorMessage!.Contains("a file already exists at that location"),
                        $"Error message expected to mention that a file already exists, but instead was: '{requestMock.Result.ErrorMessage}'");
@@ -59,26 +59,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate creating SDK-style project
             MockRequest<ResultStatus> requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = sdkProjectUri,
                 SqlProjectType = ProjectType.SdkStyle
             }, requestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleNewSqlProjectRequest), "SDK");
+            requestMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest), "SDK");
             Assert.AreEqual(1, service.Projects.Count, "Number of loaded projects after creating SDK not as expected");
             Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri), "Loaded project list expected to contain SDK project URI");
             Assert.AreEqual(ProjectType.SdkStyle, service.Projects[sdkProjectUri].SqlProjStyle, "SqlProj style expected to be SDK");
 
             // Validate creating Legacy-style project
             requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = legacyProjectUri,
                 SqlProjectType = ProjectType.LegacyStyle
             }, requestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleNewSqlProjectRequest), "Legacy");
+            requestMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest), "Legacy");
             Assert.AreEqual(2, service.Projects.Count, "Number of loaded projects after creating Legacy");
             Assert.IsTrue(service.Projects.ContainsKey(legacyProjectUri), "Loaded project list expected to contain Legacy project URI");
             Assert.AreEqual(service.Projects[legacyProjectUri].SqlProjStyle, ProjectType.LegacyStyle, "SqlProj style");
@@ -675,7 +675,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             string projectUri = TestContext.CurrentContext.GetTestProjectPath();
 
             MockRequest<ResultStatus> requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = projectUri,
                 SqlProjectType = ProjectType.SdkStyle
