@@ -3994,4 +3994,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>Fin del número de secuencia</value>
   </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Esquemas integrados</value>
+  </data>
 </root>
