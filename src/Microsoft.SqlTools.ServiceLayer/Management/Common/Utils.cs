@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="customAttribute"></param>
         /// <returns></returns>
         public static Attribute GetCustomAttribute(object objectToGetAttributeFrom, Type customAttribute)
-        {         
+        {
             //first, see if the object implemented this interface to override standard behavior
             System.Reflection.ICustomAttributeProvider attribProvider = objectToGetAttributeFrom as System.Reflection.ICustomAttributeProvider;
             //if not, get it from its type
@@ -57,22 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns></returns>
         public static SqlConnectionInfo GetSqlConnectionInfoFromDataContainer(CDataContainer dc)
         {
-            if (dc != null)
-            {
-                // we may have been given conneciton information by the object explorer. in which case there is no need
-                // to build it ourselves.
-                SqlConnectionInfo result = dc.ConnectionInfo as SqlConnectionInfo;
-                if (result == null)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            // we may have been given conneciton information by the object explorer. in which case there is no need
+            // to build it ourselves.
+            return dc != null ? dc.ConnectionInfo as SqlConnectionInfo ?? throw new InvalidOperationException()
+                : null;
         }
 
         public static int InitialTreeViewWidth
@@ -226,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             bool result = false;
             if (svr != null)
             {
-                if (IsKatmaiOrLater(svr.Information.Version.Major)     
+                if (IsKatmaiOrLater(svr.Information.Version.Major)
                     && svr.ServerType != DatabaseEngineType.SqlAzureDatabase) //Azure doesn't support filestream
                 {
                     if (svr.Configuration.FilestreamAccessLevel.RunValue != 0)
@@ -390,11 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns>Smo Server object for the connection</returns>
         public static Microsoft.SqlServer.Management.Smo.Server GetSmoServer(IManagedConnection mc)
         {
-            SqlOlapConnectionInfoBase ci = mc.Connection;
-            if (ci == null)
-            {
-                throw new ArgumentNullException("ci");
-            }
+            SqlOlapConnectionInfoBase ci = mc.Connection ?? throw new ArgumentNullException("ci");
 
             SMO.Server server = null;
 
@@ -579,7 +563,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (string.IsNullOrWhiteSpace(s))
             {
                 return s;
-            } 
+            }
 
             StringBuilder sb = new StringBuilder(s.Length * 2);
             foreach (char c in s)

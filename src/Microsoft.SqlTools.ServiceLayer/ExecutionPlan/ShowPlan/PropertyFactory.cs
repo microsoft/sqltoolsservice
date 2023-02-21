@@ -756,20 +756,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private static IEnumerable GetAttributeCollectionForChoiceElement(PropertyDescriptor property)
         {
             Type type = property.ComponentType;
-            PropertyInfo pInfo = type.GetProperty("Items");
-
-            if (pInfo == null)
-            {
-                //Try using item.
-                pInfo = type.GetProperty("Item");
-            }
-
-            if (pInfo != null)
-            {
-                return pInfo.GetCustomAttributes(true);
-            }
-
-            return property.Attributes;
+            PropertyInfo pInfo = type.GetProperty("Items") ?? type.GetProperty("Item");
+            return pInfo != null ? pInfo.GetCustomAttributes(true) : property.Attributes;
         }
         public static PropertyDescriptor CreateProperty(string propertyName, object value)
         {

@@ -308,14 +308,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             var sqlConnection = ConnectionService.OpenSqlConnection(connInfo);
             SqlStoreConnection connection = new SqlStoreConnection(sqlConnection);
             BaseXEStore store = CreateXEventStore(connInfo, connection);
-            Session session = store.Sessions[sessionName];
+            Session session = store.Sessions[sessionName] ?? throw new Exception(SR.SessionNotFound);
 
             // start the session if it isn't already running
-            if (session == null)
-            {
-                throw new Exception(SR.SessionNotFound);
-            }
-
             if (session != null && !session.IsRunning)
             {
                 session.Start();

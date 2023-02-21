@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 }
                 catch (Exception e)
                 {
-                    if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
+                    if (!(e is AggregateException exception && exception.InnerExceptions[0] is TaskCanceledException))
                     {
                         // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
                         Logger.Write(TraceEventType.Error, string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
