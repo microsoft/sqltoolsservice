@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Parameters for creating a new SQL Project
     /// </summary>
-    public class NewSqlProjectParams : SqlProjectParams
+    public class CreateSqlProjectParams : SqlProjectParams
     {
         /// <summary>
         /// Type of SQL Project: SDK-style or Legacy
@@ -32,8 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string? BuildSdkVersion { get; set; }
     }
 
-    public class NewSqlProjectRequest
+    public class CreateSqlProjectRequest
     {
-        public static readonly RequestType<NewSqlProjectParams, ResultStatus> Type = RequestType<NewSqlProjectParams, ResultStatus>.Create("sqlProjects/newProject");
+        public static readonly RequestType<CreateSqlProjectParams, ResultStatus> Type = RequestType<CreateSqlProjectParams, ResultStatus>.Create("sqlProjects/createProject");
     }
 }
