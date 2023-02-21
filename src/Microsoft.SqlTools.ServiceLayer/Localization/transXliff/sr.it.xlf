@@ -6545,6 +6545,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Numero sequenza Fine</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">Schemi predefiniti</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
