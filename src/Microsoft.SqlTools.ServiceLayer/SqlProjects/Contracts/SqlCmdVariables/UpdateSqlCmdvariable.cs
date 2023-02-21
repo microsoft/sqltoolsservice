@@ -8,6 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Update an existing SQLCMD variable in a project
+    /// </summary>
     public class UpdateSqlCmdVariableRequest
     {
         public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/updateSqlCmdVariable");

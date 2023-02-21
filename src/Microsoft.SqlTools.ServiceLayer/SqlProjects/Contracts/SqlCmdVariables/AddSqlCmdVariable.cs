@@ -31,6 +31,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string Value { get; set; }
     }
 
+    /// <summary>
+    /// Add a SQLCMD variable to a project
+    /// </summary>
     public class AddSqlCmdVariableRequest
     {
         public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/addSqlCmdVariable");

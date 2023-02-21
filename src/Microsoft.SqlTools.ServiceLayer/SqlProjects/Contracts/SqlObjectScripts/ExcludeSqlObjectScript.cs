@@ -8,6 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Exclude a SQL object script from a project
+    /// </summary>
     public class ExcludeSqlObjectScriptRequest
     {
         public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/excludeSqlObjectScript");
