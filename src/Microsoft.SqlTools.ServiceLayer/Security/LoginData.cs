@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 
@@ -560,6 +561,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private bool                initialized;
 
+        // query to list all Sql and AAD logins with their role membership, ref: https://learn.microsoft.com/en-us/azure/azure-sql/database/security-server-roles?view=azuresql
+        // this is a temporary workaround for SMO not supporting server role population for Azure SQL
+        private static string AZURE_SERVER_ROLE_MEMBERSHIP_QUERY =
+@"SELECT
+		member.principal_id			AS MemberPrincipalID
+	,	member.name					AS MemberPrincipalName
+	,	roles.principal_id			AS RolePrincipalID
+	,	roles.name					AS RolePrincipalName
+FROM sys.server_role_members AS server_role_members
+INNER JOIN sys.server_principals	AS roles
+    ON server_role_members.role_principal_id = roles.principal_id
+INNER JOIN sys.server_principals	AS member 
+    ON server_role_members.member_principal_id = member.principal_id
+LEFT OUTER JOIN sys.sql_logins		AS sql_logins 
+    ON server_role_members.member_principal_id = sql_logins.principal_id
+WHERE member.principal_id NOT IN (-- prevent SQL Logins from interfering with resultset
+	SELECT principal_id FROM sys.sql_logins AS sql_logins
+		WHERE member.principal_id = sql_logins.principal_id)
+
+UNION
+
+SELECT
+		sql_logins.principal_id			AS MemberPrincipalID
+	,	sql_logins.name					AS MemberPrincipalName
+	,	roles.principal_id				AS RolePrincipalID
+	,	roles.name						AS RolePrincipalName
+FROM sys.server_role_members AS server_role_members
+INNER JOIN sys.server_principals AS roles
+    ON server_role_members.role_principal_id = roles.principal_id
+INNER JOIN sys.sql_logins AS sql_logins 
+    ON server_role_members.member_principal_id = sql_logins.principal_id
+";
+
+        private static string[] AZURE_SERVER_ROLES =
+        {
+            "##MS_DatabaseConnector##",
+            "##MS_DatabaseManager##",
+            "##MS_DefinitionReader##",
+            "##MS_LoginManager##",
+            "##MS_SecurityDefinitionReader##",
+            "##MS_ServerStateReader##",
+            "##MS_ServerStateManager##"
+        };
+
         /// <summary>
         /// Simple description, isMember pair - used as the value in the serverRoles map
         /// </summary>
@@ -688,7 +733,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             if (0 != String.Compare(serverRoleName, "public", StringComparison.Ordinal))
             {
-                ((ServerRoleInfo) serverRoles[serverRoleName]).isMember = isMember;
+                var roleInfo = ((ServerRoleInfo) serverRoles[serverRoleName]);
+                roleInfo.isMember = isMember;
             }
         }
 
@@ -732,6 +778,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.initialized = true;
             serverRoles.Clear();
 
+            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                PopulateServerRolesForAzure();
+                return;
+            }
+
             try
             {
                 foreach (ServerRole role in server.Roles)
@@ -758,6 +810,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
+        private void PopulateServerRolesForAzure()
+        {
+            Dictionary<string, HashSet<string>> roleToMembership = new Dictionary<string, HashSet<string>>();
+            DataSet dataset = server.ExecutionManager.ConnectionContext.ExecuteWithResults(AZURE_SERVER_ROLE_MEMBERSHIP_QUERY);
+
+            if (dataset != null)
+            {
+
+                for (int i = 0; i < dataset.Tables[0].Rows.Count; i++)
+                {
+                    string login = dataset.Tables[0].Rows[i][1].ToString();
+                    string role = dataset.Tables[0].Rows[i][3].ToString();
+
+                    if (!roleToMembership.ContainsKey(role))
+                    {
+                        roleToMembership.Add(role, new HashSet<string>());
+                    }
+                    HashSet<string> members;
+                    roleToMembership.TryGetValue(role, out members);
+
+                    if (members != null)
+                    {
+                        members.Add(login);
+                    }
+                }
+            }
+
+            foreach (string role in AZURE_SERVER_ROLES)
+            {
+                bool isRoleMember = false;
+
+                if (this.loginExists)
+                {
+                    HashSet<string> members;
+                    roleToMembership.TryGetValue(role, out members);
+
+                    if (members != null && members.Contains(this.loginName))
+                    {
+                        isRoleMember = true;
+                    }
+                }
+
+                string roleDescription = String.Empty; // role.Description;
+                this.serverRoles.Add(role, new ServerRoleInfo(roleDescription, isRoleMember));
+            }
+        }
     }
 
     /// <summary>
@@ -816,6 +914,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             private Microsoft.SqlServer.Management.Smo.Server server;
             private static string       defaultLanguageDisplay;
             private bool                windowsAuthSupported = true;
+            private bool                aadAuthSupported = false;
 
             private StringCollection credentials = null;
             #endregion
@@ -953,12 +1052,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 get
                 {
-                    if (this.server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance)
+                    if (this.server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                     {
                         this.windowsAuthSupported = false;
                     }
 
                     return this.windowsAuthSupported;
+                }
+            }
+
+            public bool AADAuthSupported
+            {
+                get
+                {
+                    if (this.server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                    {
+                        this.aadAuthSupported = true;
+                    }
+
+                    return this.aadAuthSupported;
                 }
             }
 
@@ -1344,7 +1456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
                 bool useSqlAuthentication = (login.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin);
 
-                this.windowsGrantAccess = !login.DenyWindowsLogin;
+                this.windowsGrantAccess = this.server.ServerType != DatabaseEngineType.SqlAzureDatabase ? !login.DenyWindowsLogin : false;
 
                 this.sqlPassword        = useSqlAuthentication ? LoginPrototype.fakePassword : string.Empty;
                 this.sqlPasswordConfirm = useSqlAuthentication ? LoginPrototype.fakePassword : string.Empty;
@@ -1365,7 +1477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
                 if (isYukon)
                 {
-                    if (login.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
+                    if (login.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin && this.server.ServerType != DatabaseEngineType.SqlAzureDatabase)
                     {
                         // these properties make sense only for Yukon+ with SQL Authentication
                         this.mustChange         = login.MustChangePassword;
@@ -1400,7 +1512,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     this.credentials.Add(login.Credential);
                 }
-                else if (server.Information.Version.Major >= 10)
+                else if (server.Information.Version.Major >= 10 && server.ServerType != DatabaseEngineType.SqlAzureDatabase)
                 {
                     this.credentials.Clear();
                     foreach (string str in login.EnumCredentials())
@@ -1518,6 +1630,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             get
             {
                 return this.currentState.WindowsAuthSupported;
+            }
+        }
+
+        public bool AADAuthSupported
+        {
+            get
+            {
+                return this.currentState.AADAuthSupported;
             }
         }
 
@@ -1963,12 +2083,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
 
-            this.LoginName = login.LoginName;
+            this.LoginName = login.Name;
             this.SqlPassword = login.Password;
             this.OldPassword = login.OldPassword;
-            this.LoginType = SqlServer.Management.Smo.LoginType.SqlLogin;
+            this.LoginType = GetLoginType(login);
             this.DefaultLanguage = login.DefaultLanguage;
             this.DefaultDatabase = login.DefaultDatabase;
+            this.EnforcePolicy = login.EnforcePasswordPolicy;
+            this.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;
+            this.IsLockedOut = login.IsLockedOut;
+            this.IsDisabled = !login.IsEnabled;
+            this.MustChange = login.EnforcePasswordPolicy ? login.MustChangePassword : false;
+            this.WindowsGrantAccess = login.ConnectPermission;
+        }
+
+        private LoginType GetLoginType(LoginInfo loginInfo)
+        {
+            switch (loginInfo.AuthenticationType)
+            {
+                case LoginAuthenticationType.AAD:
+                    return SqlServer.Management.Smo.LoginType.ExternalUser;
+                case LoginAuthenticationType.Windows:
+                    return SqlServer.Management.Smo.LoginType.WindowsUser; // TODO handle windows group
+                default:
+                    return SqlServer.Management.Smo.LoginType.SqlLogin;
+            }
         }
 
         /// <summary>
@@ -2030,7 +2169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 changesMade = true;
             }
 
-            if (9 <= server.Information.Version.Major)
+            if (9 <= server.Information.Version.Major && server.ServerType != DatabaseEngineType.SqlAzureDatabase)
             {
                 if (!this.Exists || (this.currentState.CertificateName != this.originalState.CertificateName))
                 {

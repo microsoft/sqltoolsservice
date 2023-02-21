@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// database and user dialogs as default init fields so that queries are not sent again and again.
         /// </summary>
         /// <param name="connectedServer">server on which languages will be enumerated</param>
-        public static void SetLanguageDefaultInitFieldsForDefaultLanguages(Server connectedServer)
+        public static void SetLanguageDefaultInitFieldsForDefaultLanguages(Server? connectedServer)
         {
             string[] fieldsNeeded = new string[] { "Alias", "Name", "LocaleID", "LangID" };
             connectedServer.SetDefaultInitFields(typeof(Language), fieldsNeeded);

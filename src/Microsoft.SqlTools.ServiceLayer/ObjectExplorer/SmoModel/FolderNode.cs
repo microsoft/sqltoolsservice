@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -14,6 +15,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     public class FolderNode : SmoTreeNode
     {
+
+        public FolderNode()
+        {
+            this.NodeType = nameof(NodeTypes.Folder);
+        }
         /// <summary>
         /// For folders, this copies the context of its parent if available
         /// </summary>

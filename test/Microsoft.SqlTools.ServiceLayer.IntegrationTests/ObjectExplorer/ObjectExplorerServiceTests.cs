@@ -19,8 +19,10 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
 
@@ -210,6 +212,90 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
+        [Test]
+        public async Task GroupBySchemaisDisabled()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Tables), "Tables node should be found in database node when group by schema is disabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Views), "Views node should be found in database node when group by schema is disabled");
+            });
+        }
+
+        [Test]
+        public async Task GroupBySchemaisEnabled()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t1"), "Schema node t1 should be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t2"), "Schema node t2 should be found in database node when group by schema is enabled");
+                Assert.False(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Tables), "Tables node should not be found in database node when group by schema is enabled");
+                Assert.False(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Views), "Views node should not be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Programmability), "Programmability node should be found in database node when group by schema is enabled");
+                var lastSchemaPosition = Array.FindLastIndex(databaseChildren.Nodes, t => t.ObjectType == nameof(NodeTypes.ExpandableSchema));
+                var firstNonSchemaPosition = Array.FindIndex(databaseChildren.Nodes, t => t.ObjectType != nameof(NodeTypes.ExpandableSchema));
+                Assert.True(lastSchemaPosition < firstNonSchemaPosition, "Schema nodes should be before non-schema nodes");
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+            });
+        }
+
+        [Test]
+        public async Task GroupBySchemaHidesLegacySchemas()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t1"), "Non legacy schema node t1 should be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t2"), "Non legacy schema node t2 should be found in database node when group by schema is enabled");
+                string[] legacySchemas = new string[] 
+                { 
+                    "db_accessadmin", 
+                    "db_backupoperator", 
+                    "db_datareader", 
+                    "db_datawriter", 
+                    "db_ddladmin", 
+                    "db_denydatareader", 
+                    "db_denydatawriter", 
+                    "db_owner", 
+                    "db_securityadmin" 
+                };
+                foreach(var nodes in databaseChildren.Nodes)
+                {
+                    Assert.That(legacySchemas, Does.Not.Contain(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
+                }
+                var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_BuiltInSchema);
+                var legacySchemasChildren = await _service.ExpandNode(session, legacySchemasNode.NodePath);
+                foreach(var nodes in legacySchemasChildren.Nodes)
+                {
+                    Assert.That(legacySchemas, Does.Contain(nodes.Label), "Legacy schema nodes should be found in legacy schemas folder when group by schema is enabled");
+                }
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+            });
+        }
+
         private async Task VerifyRefresh(ObjectExplorerSession session, string tablePath, string tableName, bool deleted = true)
         {
             //Refresh Root
@@ -217,7 +303,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
             //Verify tables cache is empty
             var rootChildrenCache = session.Root.GetChildren();
-             var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
+            var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
             Assert.False(tablesCache.Any());
 
             //Expand Tables
@@ -292,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             ConnectionDetails details = connectParams.Connection;
             string uri = ObjectExplorerService.GenerateUri(details);
 
-            var session =  await _service.DoCreateSession(details, uri);
+            var session = await _service.DoCreateSession(details, uri);
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "OE session created for database: {0}", databaseName));
             return session;
         }
@@ -403,7 +489,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         /// </summary>
         private async Task<NodeInfo> FindNodeByLabel(NodeInfo node, ObjectExplorerSession session, string label)
         {
-            if(node != null && node.Label == label)
+            if (node != null && node.Label == label)
             {
                 return node;
             }
@@ -434,7 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             // These are node types for which the label doesn't include a schema
             // (usually because the objects themselves aren't schema-bound)
-            var schemalessLabelNodeTypes = new List<string> () {
+            var schemalessLabelNodeTypes = new List<string>() {
                 "Column",
                 "Key",
                 "Constraint",

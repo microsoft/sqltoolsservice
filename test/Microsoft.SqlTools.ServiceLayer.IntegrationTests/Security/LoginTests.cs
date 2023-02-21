@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+// using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
@@ -31,40 +31,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             {
                 // setup
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var contextId = System.Guid.NewGuid().ToString();
+
+                var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams
+                {
+                    ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                    ContextId = contextId,
+                    IsNewObject = true
+                };
+
                 var loginParams = new CreateLoginParams
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
+                    ContextId = contextId,
                     Login = SecurityTestUtils.GetTestLoginInfo()
                 };
 
-                var createContext = new Mock<RequestContext<CreateLoginResult>>();
-                createContext.Setup(x => x.SendResult(It.IsAny<CreateLoginResult>()))
+                var createLoginContext = new Mock<RequestContext<object>>();
+                createLoginContext.Setup(x => x.SendResult(It.IsAny<object>()))
                     .Returns(Task.FromResult(new object()));
+                var initializeLoginViewContext = new Mock<RequestContext<LoginViewInfo>>();
+                initializeLoginViewContext.Setup(x => x.SendResult(It.IsAny<LoginViewInfo>()))
+                    .Returns(Task.FromResult(new LoginViewInfo()));
 
                 // call the create login method
                 SecurityService service = new SecurityService();
-                await service.HandleCreateLoginRequest(loginParams, createContext.Object);
-
-                // verify the result
-                createContext.Verify(x => x.SendResult(It.Is<CreateLoginResult>
-                    (p => p.Success && p.Login.LoginName != string.Empty)));
+                await service.HandleInitializeLoginViewRequest(initializeLoginViewRequestParams, initializeLoginViewContext.Object);
+                await service.HandleCreateLoginRequest(loginParams, createLoginContext.Object);
 
                 // cleanup created login
                 var deleteParams = new DeleteLoginParams
                 {
-                    OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                    LoginName = loginParams.Login.LoginName
+                    ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Name = loginParams.Login.Name
                 };
 
-                var deleteContext = new Mock<RequestContext<ResultStatus>>();
-                deleteContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>()))
+                var deleteContext = new Mock<RequestContext<object>>();
+                deleteContext.Setup(x => x.SendResult(It.IsAny<object>()))
                     .Returns(Task.FromResult(new object()));
 
                 // call the create login method
                 await service.HandleDeleteLoginRequest(deleteParams, deleteContext.Object);
-
-                // verify the result
-                deleteContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));
             }
         }
     }

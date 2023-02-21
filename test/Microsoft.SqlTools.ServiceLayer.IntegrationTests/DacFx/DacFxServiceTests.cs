@@ -23,6 +23,8 @@ using Microsoft.SqlServer.Dac.Model;
 using NUnit.Framework;
 using Moq;
 using System.Reflection;
+using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DacFx
 {
@@ -868,6 +870,37 @@ Streaming query statement contains a reference to missing output stream 'Missing
             }
         }
 
+        // <summary>
+        /// Verify that publish profile gets created and saved
+        /// </summary>
+        [Test]
+        public async Task ValidateSavePublishProfile()
+        {
+            DacFxService service = new DacFxService();
+            string fileName = "validateSavePublishProfile.publish.xml";
+            string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DacFxTest");
+            string profileFilePath = Path.Combine(folderPath, fileName);
+            string expectedFile = Path.Combine(publishProfileFolder, fileName);
+
+            var savePublishProfileParams = new SavePublishProfileParams
+            {
+                ProfilePath = profileFilePath,
+                DatabaseName = "testDb",
+                ConnectionString = "testConnString",
+                SqlCommandVariableValues = new Dictionary<string, string>()
+                    {
+                        { "testvar", "testval" }
+                    }
+            };
+
+            MockRequest<ResultStatus> requestMock = new();
+
+            await service.HandleSavePublishProfileRequest(savePublishProfileParams, requestMock.Object);
+            requestMock.AssertSuccess(nameof(service.HandleSavePublishProfileRequest));
+
+            await VerifyContentAndCleanupAsync(expectedFile, profileFilePath);
+        }
+
         private bool ValidateStreamingJobErrors(ValidateStreamingJobResult expected, ValidateStreamingJobResult actual)
         {
             return expected.Success == actual.Success
@@ -939,6 +972,24 @@ Streaming query statement contains a reference to missing output stream 'Missing
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
+            }
+        }
+
+        private async Task VerifyContentAndCleanupAsync(string baselineFilePath, string outputFilePath)
+        {
+            // Verify it was created
+            Assert.True(File.Exists(outputFilePath), "The output file did not get generated.");
+
+            //Verify the contents are same
+            string baseline = await File.ReadAllTextAsync(baselineFilePath);
+            string output = await File.ReadAllTextAsync(outputFilePath);
+
+            Assert.That(output, Is.EqualTo(baseline), $"The output doesn't match the baseline. Expected {Environment.NewLine} {baseline} {Environment.NewLine} Actual {Environment.NewLine} {output}");
+
+            // Remove the file
+            if (File.Exists(outputFilePath))
+            {
+                File.Delete(outputFilePath);
             }
         }
 

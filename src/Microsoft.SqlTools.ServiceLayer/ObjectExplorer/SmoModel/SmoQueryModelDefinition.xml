@@ -5,13 +5,21 @@
   into code using a T4 template.
   
   Key properties:
-  Name: This maps 
-  Type: Optional SMO type. If not specified, the Name without the Sql prefix is used
-  Parent: Expected parent type. Needed to codegen the response. if there are multiple parents
-    then each one
+  attr.Name: This maps 
+  attr.Type: Optional SMO type. If not specified, the Name without the Sql prefix is used
+  attr.Parent: Expected parent type. Needed to codegen the response.
+  Parent: In case a node has multiple parents, chilren of type parents need to be added. 
+    Each parent should have corresponding navigation path.
   NavigationPath: For types whose access path differs based on parent or needs custom navigation
     this can be used.
-  
+    attr.Parent: The parent type that this navigation path is valid for
+    attr.Field: The field to use to navigate to the child type
+    Filter: Optional filter to apply to the navigation path. This is used to filter out
+      results that are not of the expected type. For example, the SqlTable type has a
+      filter on the Schema field to ensure that the table is in the expected schema.
+      attr.Property: The property to filter on
+      attr.Field: The field to use from the parent to filter on the property
+      attr.Type: The type of the field.
 -->
 <SmoQueryModel>
   <!--<Node Name="SqlServer"/> -->
@@ -35,14 +43,37 @@
 
   <Node Name="SqlErrorMessage" Type="UserDefinedMessage" Parent="Server" />
 
-  <Node Name="SqlTable" Parent="Database" />
+  <Node Name="SqlTable">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="Tables" />
+    <NavigationPath Parent="Schema" Field="Parent.Tables">
+      <Filter Property="Schema" Field="Name" Type="string" />
+    </NavigationPath>
+  </Node>
+
+  
   <Node Name="SqlHistoryTable" Type="Table" Parent="Table" >
     <NavigationPath Parent="Table" Type="Table" Field="Parent.Tables" />
   </Node>
   
-  <Node Name="SqlView" Parent="Database" />
+  <Node Name="SqlView">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="Views" />
+    <NavigationPath Parent="Schema" Field="Parent.Views">
+      <Filter Property="Schema" Field="Name" Type="string" />
+    </NavigationPath>
+  </Node>
 
-  <Node Name="SqlSynonym" Parent="Database" ValidFor="NotSqlDw" />
+  <Node Name="SqlSynonym" ValidFor="NotSqlDw">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="Synonyms" />
+    <NavigationPath Parent="Schema" Field="Parent.Synonyms">
+      <Filter Property="Schema" Field="Name" Type="string" />
+    </NavigationPath>
+  </Node>
 
   <Node Name="SqlColumn" Parent="TableViewTableTypeBase"/>
   <Node Name="SqlIndex" Parent="TableViewTableTypeBase">
@@ -75,17 +106,68 @@
   <Node Name="SqlRule" Parent="Database" />
   <Node Name="SqlDefault" Parent="Database" />
   -->
-  <Node Name="SqlSequence" Parent="Database" />
+  <Node Name="SqlSequence">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="Sequences" />
+    <NavigationPath Parent="Schema" Field="Parent.Sequences">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
 
-  <Node Name="SqlUserDefinedDataType" Parent="Database" ValidFor="NotSqlDw" />
+  <Node Name="SqlUserDefinedDataType" ValidFor="NotSqlDw">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="UserDefinedDataTypes" />
+    <NavigationPath Parent="Schema" Field="Parent.UserDefinedDataTypes">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
 
-  <Node Name="SqlUserDefinedTableType" Parent="Database" />
-  <Node Name="SqlXmlSchemaCollection" />
-  <Node Name="SqlUserDefinedType" />
+  <Node Name="SqlUserDefinedTableType">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="UserDefinedTableTypes" />
+    <NavigationPath Parent="Schema" Field="Parent.UserDefinedTableTypes">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
 
-  <Node Name="SqlUserDefinedFunction" />
+  <Node Name="SqlXmlSchemaCollection">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="XmlSchemaCollections" />
+    <NavigationPath Parent="Schema" Field="Parent.XmlSchemaCollections">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
 
-  <Node Name="SqlUserDefinedAggregate" />
+  <Node Name="SqlUserDefinedType">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="UserDefinedTypes" />
+    <NavigationPath Parent="Schema" Field="Parent.UserDefinedTypes">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
+
+  <Node Name="SqlUserDefinedFunction">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <Navigation Path="Database" Field="UserDefinedFunctions" />
+    <NavigationPath Parent="Schema" Field="Parent.UserDefinedFunctions">
+      <Filter Property="Schema" Field="Name" Type="string"/>
+  </NavigationPath>
+  </Node>
+
+  <Node Name="SqlUserDefinedAggregate">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="UserDefinedAggregates" />
+    <NavigationPath Parent="Schema" Field="Parent.UserDefinedAggregates">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
 
   <Node Name="SqlFileGroup" />
   <Node Name="SqlFile" Type="DataFile" Parent="FileGroup" >
@@ -135,7 +217,14 @@
   <Node Name="SqlExternalDataSource" />
   <Node Name="SqlExternalFileFormat" />
 
-  <Node Name="SqlProcedure" Type="StoredProcedure"/>
+  <Node Name="SqlProcedure" Type="StoredProcedure">
+    <Parent>Database</Parent>
+    <Parent>Schema</Parent>
+    <NavigationPath Parent="Database" Field="StoredProcedures" />
+    <NavigationPath Parent="Schema" Field="Parent.StoredProcedures">
+        <Filter Property="Schema" Field="Name" Type="string"/>
+    </NavigationPath>
+  </Node>
   <Node Name="SqlExtendedStoredProcedure" />
   <Node Name="SqlSubroutineParameter" Type="Parameter" >
     <Parent>StoredProcedure</Parent>
