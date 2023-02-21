@@ -3994,4 +3994,7 @@
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>Конец последовательного номера</value>
   </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Встроенные схемы</value>
+  </data>
 </root>

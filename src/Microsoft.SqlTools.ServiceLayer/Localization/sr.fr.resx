@@ -3994,4 +3994,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>Fin du numéro de séquence</value>
   </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Schémas intégrés</value>
+  </data>
 </root>
