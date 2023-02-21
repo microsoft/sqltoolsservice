@@ -3994,4 +3994,7 @@
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>序列号结束</value>
   </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>内置架构</value>
+  </data>
 </root>
