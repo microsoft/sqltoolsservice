@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         Assemblies,
         AsymmetricKeys,
         BrokerPriorities,
+        BuiltInSchemas,
         Certificates,
         ColumnEncryptionKeys,
         ColumnMasterKeys,

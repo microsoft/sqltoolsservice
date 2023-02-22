@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             // Project-level functions
             serviceHost.SetRequestHandler(OpenSqlProjectRequest.Type, HandleOpenSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(CloseSqlProjectRequest.Type, HandleCloseSqlProjectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(NewSqlProjectRequest.Type, HandleNewSqlProjectRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(CreateSqlProjectRequest.Type, HandleCreateSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(GetCrossPlatformCompatiblityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest, isParallelProcessingSupported: false);
 
@@ -92,12 +92,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             await RunWithErrorHandling(() => Projects.TryRemove(requestParams.ProjectUri!, out _), requestContext);
         }
 
-        internal async Task HandleNewSqlProjectRequest(NewSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(async () =>
             {
-                await SqlProject.CreateProjectAsync(requestParams.ProjectUri!, new CreateSqlProjectParams() { ProjectType = requestParams.SqlProjectType, DspVersion = requestParams.DatabaseSchemaProvider });
-                GetProject(requestParams.ProjectUri!); // load into the cache
+                await SqlProject.CreateProjectAsync(requestParams.ProjectUri!, new SqlServer.Dac.Projects.CreateSqlProjectParams() { ProjectType = requestParams.SqlProjectType, DspVersion = requestParams.DatabaseSchemaProvider });
+                this.GetProject(requestParams.ProjectUri!); // load into the cache
             }, requestContext);
         }
 

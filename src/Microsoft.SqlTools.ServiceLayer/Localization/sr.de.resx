@@ -3994,4 +3994,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>Sequenznummern Ende</value>
   </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Integrierte Schemas</value>
+  </data>
 </root>

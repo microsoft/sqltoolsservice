@@ -251,6 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginViewInfo loginViewInfo = new LoginViewInfo();
 
+            // TODO cache databases and languages
             string[] databases = new string[dataContainer.Server.Databases.Count];
             for (int i = 0; i < dataContainer.Server.Databases.Count; i++)
             {
@@ -327,7 +328,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<object> requestContext)
         {
-            contextIdToConnectionUriMap.Remove(parameters.ContextId);
             await requestContext.SendResult(new object());
         }
         #endregion

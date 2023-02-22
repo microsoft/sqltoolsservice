@@ -1269,6 +1269,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string SchemaHierarchy_BuiltInSchema
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_BuiltInSchema);
+            }
+        }
+
         public static string SchemaHierarchy_Security
         {
             get
@@ -10672,6 +10680,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_Schemas = "SchemaHierarchy_Schemas";
+
+
+            public const string SchemaHierarchy_BuiltInSchema = "SchemaHierarchy_BuiltInSchema";
 
 
             public const string SchemaHierarchy_Security = "SchemaHierarchy_Security";
