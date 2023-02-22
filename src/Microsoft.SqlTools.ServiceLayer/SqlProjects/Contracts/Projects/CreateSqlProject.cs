@@ -10,7 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Parameters for creating a new SQL Project
+    /// Parameters for creating a new SQL project
     /// </summary>
     public class CreateSqlProjectParams : SqlProjectParams
     {
@@ -32,6 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string? BuildSdkVersion { get; set; }
     }
 
+    /// <summary>
+    /// Create a new SQL project
+    /// </summary>
     public class CreateSqlProjectRequest
     {
         public static readonly RequestType<CreateSqlProjectParams, ResultStatus> Type = RequestType<CreateSqlProjectParams, ResultStatus>.Create("sqlProjects/createProject");

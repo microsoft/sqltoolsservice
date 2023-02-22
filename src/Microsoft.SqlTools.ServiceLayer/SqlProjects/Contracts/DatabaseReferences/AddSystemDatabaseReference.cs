@@ -20,6 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public SystemDatabase SystemDatabase { get; set; }
     }
 
+    /// <summary>
+    /// Add a system database reference to a project
+    /// </summary>
     public class AddSystemDatabaseReferenceRequest
     {
         public static readonly RequestType<AddSystemDatabaseReferenceParams, ResultStatus> Type = RequestType<AddSystemDatabaseReferenceParams, ResultStatus>.Create("sqlprojects/addSystemDatabaseReference");

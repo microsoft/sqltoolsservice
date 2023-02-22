@@ -21,6 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string DacpacPath { get; set; }
     }
 
+    /// <summary>
+    /// Add a dacpac reference to a project
+    /// </summary>
     public class AddDacpacReferenceRequest
     {
         public static readonly RequestType<AddDacpacReferenceParams, ResultStatus> Type = RequestType<AddDacpacReferenceParams, ResultStatus>.Create("sqlprojects/addDacpacReference");
