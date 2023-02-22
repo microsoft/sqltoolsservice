@@ -187,16 +187,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
-                operation.Execute(parameters.TaskExecutionMode);
-
-                await requestContext.SendResult(new GenerateDeployPlanRequestResult()
+                await BaseService.RunWithErrorHandling(async () =>
                 {
-                    OperationId = operation.OperationId,
-                    Success = true,
-                    ErrorMessage = string.Empty,
-                    Report = operation.DeployReport
-                });
+                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
+                    operation.Execute(parameters.TaskExecutionMode);
+
+                    return new GenerateDeployPlanRequestResult()
+                    {
+                        OperationId = operation.OperationId,
+                        Success = true,
+                        ErrorMessage = string.Empty,
+                        Report = operation.DeployReport
+                    };
+                }, requestContext);
             }
         }
 
