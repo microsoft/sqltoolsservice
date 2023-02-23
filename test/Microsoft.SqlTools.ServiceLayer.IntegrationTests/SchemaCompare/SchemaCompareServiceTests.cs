@@ -1201,6 +1201,41 @@ WITH VALUES
         }
 
         /// <summary>
+        /// Verify folder structure gets stored in scmp file for project endpoint
+        /// </summary>
+        [Test]
+        public async Task VerifyExtractTargetInScmpFile()
+        {
+            SqlTestDb sourceDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, SourceScript, "SchemaCompareOpenScmpSource");
+            SqlTestDb targetDb = await SqlTestDb.CreateNewAsync(TestServerType.OnPrem, false, null, TargetScript, "SchemaCompareOpenScmpTarget");
+
+           try
+            {
+                SchemaCompareEndpoint sourceEndpoint = CreateSchemaCompareEndpoint(sourceDb, SchemaCompareEndpointType.Database);
+                SchemaCompareEndpoint targetEndpoint = CreateSchemaCompareEndpoint(targetDb, SchemaCompareEndpointType.Project, true);
+
+                // create a comparison and exclude the first difference
+                SchemaComparison compare = new SchemaComparison(sourceEndpoint, targetEndpoint);
+                SchemaComparisonResult result = compare.Compare();
+                Assert.That(result.Differences, Is.Not.Empty);
+
+                // save to scmp
+                string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest");
+                Directory.CreateDirectory(folderPath);
+                string filePath = Path.Combine(folderPath, string.Format("SchemaCompareOpenScmpTest{0}.scmp", DateTime.Now.ToFileTime()));
+                compare.SaveToFile(filePath);
+
+                SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent((targetEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath).FullName);
+                await VerifyContentAndCleanupAsync(filePath, "<FolderStructure>ObjectType</FolderStructure>");
+            }
+            finally
+            {
+                sourceDb.Cleanup();
+                targetDb.Cleanup();
+            }
+        }
+
+        /// <summary>
         /// Verify the schema compare Service Calls ends to end
         /// </summary>
         [Test]
@@ -1594,6 +1629,23 @@ WITH VALUES
             }
         }
 
+        private async Task VerifyContentAndCleanupAsync(string outputFilePath, string patternToMatch)
+        {
+            // Verify it was created
+            Assert.True(File.Exists(outputFilePath), "The output file did not get generated.");
+
+            //Verify the contents contain the stringToMatch
+            string output = await File.ReadAllTextAsync(outputFilePath);
+
+            Assert.True(output.Contains(patternToMatch), $"The output doesn't contain the string. Pattern expected {Environment.NewLine} {patternToMatch} {Environment.NewLine} Actual file {Environment.NewLine} {output}");
+
+            // Remove the file
+            if (File.Exists(outputFilePath))
+            {
+                File.Delete(outputFilePath);
+            }
+        }
+
         private void ValidateSchemaCompareWithExcludeIncludeResults(SchemaCompareOperation schemaCompareOperation, int? expectedDifferencesCount = null)
         {
             schemaCompareOperation.Execute(TaskExecutionMode.Execute);
@@ -1794,7 +1846,7 @@ WITH VALUES
             {
                 string projectPath = SchemaCompareTestUtils.CreateProject(db, isProjectTarget ? "TargetProject" : "SourceProject");
                 string[] scripts = SchemaCompareTestUtils.GetProjectScripts(projectPath);
-                return new SchemaCompareProjectEndpoint(Path.Combine(projectPath, isProjectTarget ? "TargetProject.sqlproj" : "SourceProject.sqlproj"), scripts, "150", DacExtractTarget.SchemaObjectType);
+                return new SchemaCompareProjectEndpoint(Path.Combine(projectPath, isProjectTarget ? "TargetProject.sqlproj" : "SourceProject.sqlproj"), scripts, "150", DacExtractTarget.ObjectType);
             }
             else
             {
