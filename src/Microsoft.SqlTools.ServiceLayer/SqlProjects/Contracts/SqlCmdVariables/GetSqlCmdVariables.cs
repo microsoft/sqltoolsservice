@@ -17,12 +17,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     }
 
     /// <summary>
-    /// Result containing whether SQL object scripts in the project
+    /// Result containing SQLCMD variables in the project
     /// </summary>
     public class GetSqlCmdVariablesResult : ResultStatus
     {
         /// <summary>
-        /// Array of SQL object scripts contained in the project
+        /// Array of SQLCMD variables contained in the project
         /// </summary>
         public SqlCmdVariable[] SqlCmdVariables { get; set; }
     }
