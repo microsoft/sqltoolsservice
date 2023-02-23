@@ -49,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.MinPoolSize, expectedForInt);
             Assert.AreEqual(details.PacketSize, expectedForInt);
             Assert.AreEqual(details.ColumnEncryptionSetting, expectedForStrings);
+            Assert.AreEqual(details.SecureEnclaves, expectedForStrings);
             Assert.AreEqual(details.EnclaveAttestationUrl, expectedForStrings);
             Assert.AreEqual(details.EnclaveAttestationProtocol, expectedForStrings);
             Assert.AreEqual(details.Encrypt, expectedForStrings);
@@ -91,6 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.MinPoolSize = expectedForInt + index++;
             details.PacketSize = expectedForInt + index++;
             details.ColumnEncryptionSetting = expectedForStrings + index++;
+            details.SecureEnclaves = expectedForStrings + index++;
             details.EnclaveAttestationProtocol = expectedForStrings + index++;
             details.EnclaveAttestationUrl = expectedForStrings + index++;
             details.Encrypt = expectedForStrings + index++;
@@ -125,6 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.AreEqual(details.MinPoolSize, expectedForInt + index++);
             Assert.AreEqual(details.PacketSize, expectedForInt + index++);
             Assert.AreEqual(details.ColumnEncryptionSetting, expectedForStrings + index++);
+            Assert.AreEqual(details.SecureEnclaves, expectedForStrings + index++);
             Assert.AreEqual(details.EnclaveAttestationProtocol, expectedForStrings + index++);
             Assert.AreEqual(details.EnclaveAttestationUrl, expectedForStrings + index++);
             Assert.AreEqual(details.Encrypt, expectedForStrings + index++);
@@ -168,6 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.MinPoolSize = expectedForInt + index++;
             details.PacketSize = expectedForInt + index++;
             details.ColumnEncryptionSetting = expectedForStrings + index++;
+            details.SecureEnclaves = expectedForStrings + index++;
             details.EnclaveAttestationProtocol = expectedForStrings + index++;
             details.EnclaveAttestationUrl = expectedForStrings + index++;
             details.Encrypt = expectedForStrings + index++;

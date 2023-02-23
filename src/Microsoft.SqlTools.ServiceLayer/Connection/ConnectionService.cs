@@ -1349,9 +1349,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
                 }
             }
+            if (!string.IsNullOrEmpty(connectionDetails.SecureEnclaves))
+            {
+                // Secure Enclaves is not mapped to SqlConnection, it's only used for throwing validation errors
+                // when Enclave Attestation Protocol is missing.
+                switch (connectionDetails.SecureEnclaves.ToUpper())
+                {
+                    case "ENABLED":
+                        break;
+                    case "DISABLED":
+                        break;
+                    default:
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.SecureEnclaves));
+                }
+            }
             if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
             {
-                if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED")
+                if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED"
+                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper() == "DISABLED")
                 {
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
@@ -1364,7 +1379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case "HGS":
                         connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.HGS;
                         break;
-                    case "None":
+                    case "NONE":
                         connectionBuilder.AttestationProtocol = SqlConnectionAttestationProtocol.None;
                         break;
                     default:
@@ -1373,12 +1388,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationUrl))
             {
-                if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED")
+                if (string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting) || connectionDetails.ColumnEncryptionSetting.ToUpper() == "DISABLED"
+                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper() == "DISABLED")
                 {
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
 
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
+            }
+            else if (connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.AAS
+                || connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.HGS)
+            {
+                throw new ArgumentException(SR.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
             }
 
             if (!string.IsNullOrEmpty(connectionDetails.Encrypt))

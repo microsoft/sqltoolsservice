@@ -603,6 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // Create a test connection details object and set the property to a specific value
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
             details.ColumnEncryptionSetting = "Enabled";
+            details.SecureEnclaves = "Disabled";
             details.GetType()
                 .GetProperty(propertyName)
                 .SetValue(details, propertyValue);

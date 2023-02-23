@@ -117,6 +117,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
+        /// Gets or sets a value that specifies that Always Encrypted with Secure Enclaves is enabled in a connection.
+        /// </summary>
+        public string SecureEnclaves
+        {
+            get
+            {
+                return GetOptionValue<string>("secureEnclaves");
+            }
+
+            set
+            {
+                SetOptionValue("secureEnclaves", value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value for Attestation Protocol.
         /// </summary>
         public string EnclaveAttestationProtocol
@@ -622,6 +638,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             && string.Equals(AuthenticationType, other.AuthenticationType, System.StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(AzureAccountToken, other.AzureAccountToken, System.StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(ColumnEncryptionSetting, other.ColumnEncryptionSetting, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(SecureEnclaves, other.SecureEnclaves, System.StringComparison.InvariantCultureIgnoreCase)
             && string.Equals(ConnectionString, other.ConnectionString, System.StringComparison.InvariantCultureIgnoreCase)
             && ConnectRetryCount == other.ConnectRetryCount
             && ConnectRetryInterval == other.ConnectRetryInterval

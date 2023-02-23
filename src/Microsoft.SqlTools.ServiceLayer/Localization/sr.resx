@@ -151,12 +151,16 @@
  Parameters: 0 - encrypt (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos; and &apos;HGS&apos;.</value>
+    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos;, &apos;HGS&apos; and &apos;None&apos;.</value>
     <comment>.
  Parameters: 0 - enclaveAttestationProtocol (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>Attestation URL cannot be empty with the selected value of Attestation Protocol.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</value>
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
