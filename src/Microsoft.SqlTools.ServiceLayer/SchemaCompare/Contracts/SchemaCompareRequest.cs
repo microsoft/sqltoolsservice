@@ -5,6 +5,7 @@
 
 #nullable disable
 using System.Collections.Generic;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -70,6 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// Connection details
         /// </summary>
         public ConnectionDetails ConnectionDetails { get; set; }
+
+        /// <summary>
+        /// Extract target of the project used when extracting a database to file system or updating the project from database
+        /// </summary>
+        public DacExtractTarget? ExtractTarget { get; set; }
     }
 
     /// <summary>
