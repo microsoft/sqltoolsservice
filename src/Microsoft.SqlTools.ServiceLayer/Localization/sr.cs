@@ -61,6 +61,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl
+        {
+            get
+            {
+                return Keys.GetString(Kets.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+            }
+        }
+
         public static string ConnectionServiceConnectionCanceled
         {
             get
@@ -9721,6 +9729,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
         }
 
+        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string columnEncryptionSetting)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, columnEncryptionSetting);
+        }
+
         public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEncryptOption, encrypt);
@@ -10147,6 +10160,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
 
 
+            public const string ConnectionServiceConnStringInvalidSecureEnclaves = "ConnectionServiceConnStringInvalidSecureEnclaves";
+
+
             public const string ConnectionServiceConnStringInvalidEncryptOption = "ConnectionServiceConnStringInvalidEncryptOption";
 
 
@@ -10157,6 +10173,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = "ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination";
+
+
+            public const string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = "ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl";
 
 
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";

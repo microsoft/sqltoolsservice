@@ -1360,7 +1360,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     case "DISABLED":
                         break;
                     default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.SecureEnclaves));
+                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidSecureEnclaves(connectionDetails.SecureEnclaves));
                 }
             }
             if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))

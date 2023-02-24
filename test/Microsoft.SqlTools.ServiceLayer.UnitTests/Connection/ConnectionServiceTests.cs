@@ -590,6 +590,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"EnclaveAttestationProtocol", "hgs", "Attestation Protocol=HGS"},
             new object[] {"EnclaveAttestationProtocol", "AaS", "Attestation Protocol=AAS"},
             new object[] {"EnclaveAttestationProtocol", "hGs", "Attestation Protocol=HGS"},
+            new object[] {"EnclaveAttestationProtocol", "NONE", "Attestation Protocol=None"},
+            new object[] {"EnclaveAttestationProtocol", "None", "Attestation Protocol=None"},
             new object[] {"EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave" },
         };
 
@@ -603,7 +605,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // Create a test connection details object and set the property to a specific value
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
             details.ColumnEncryptionSetting = "Enabled";
-            details.SecureEnclaves = "Disabled";
+            details.SecureEnclaves = "Enabled";
             details.GetType()
                 .GetProperty(propertyName)
                 .SetValue(details, propertyValue);
