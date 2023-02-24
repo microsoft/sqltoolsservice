@@ -1629,7 +1629,7 @@ WITH VALUES
             }
         }
 
-        private async Task VerifyContentAndCleanupAsync(string outputFilePath, string patternToMatch)
+        private async Task VerifyContentAndCleanupAsync(string outputFilePath, string textToMatch)
         {
             // Verify it was created
             Assert.True(File.Exists(outputFilePath), "The output file did not get generated.");
@@ -1637,7 +1637,7 @@ WITH VALUES
             //Verify the contents contain the stringToMatch
             string output = await File.ReadAllTextAsync(outputFilePath);
 
-            Assert.True(output.Contains(patternToMatch), $"The output doesn't contain the string. Pattern expected {Environment.NewLine} {patternToMatch} {Environment.NewLine} Actual file {Environment.NewLine} {output}");
+            Assert.True(output.Contains(textToMatch), $"The output doesn't contain the string. Pattern expected {Environment.NewLine} {textToMatch} {Environment.NewLine} Actual file {Environment.NewLine} {output}");
 
             // Remove the file
             if (File.Exists(outputFilePath))

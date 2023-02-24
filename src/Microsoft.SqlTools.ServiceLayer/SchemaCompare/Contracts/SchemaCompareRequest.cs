@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// <summary>
         /// Extract target of the project used when extracting a database to file system or updating the project from database
         /// </summary>
-        public DacExtractTarget ExtractTarget { get; set; }
+        public DacExtractTarget? ExtractTarget { get; set; }
     }
 
     /// <summary>
