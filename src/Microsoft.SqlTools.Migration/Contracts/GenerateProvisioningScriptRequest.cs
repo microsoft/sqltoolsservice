@@ -17,10 +17,20 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// List of SKU recommendations used to generate provisioning script
         /// </summary>
         public List<SkuRecommendationResult> SkuRecommendations { get; set; }
+
+        /// <summary>
+        /// Server level collation
+        /// </summary>
+        public string ServerLevelCollation { get; set; }
+
+        /// <summary>
+        /// Mapping of database names to database collation
+        /// </summary>
+        public List<DatabaseCollationMapping> DatabaseLevelCollations { get; set; }
     }
 
     public class GenerateProvisioningScriptResult
-    {
+    {   
         /// <summary>
         /// String containing the filepath of the provisioning script
         /// </summary>
@@ -32,5 +42,12 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public static readonly
             RequestType<GenerateProvisioningScriptParams, GenerateProvisioningScriptResult> Type =
                 RequestType<GenerateProvisioningScriptParams, GenerateProvisioningScriptResult>.Create("migration/generateprovisioningscript");
+    }
+
+    public class DatabaseCollationMapping
+    {
+        public string DatabaseName;
+
+        public string DatabaseCollation;
     }
 }

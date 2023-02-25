@@ -676,11 +676,16 @@ namespace Microsoft.SqlTools.Migration
         {
             try
             {
+                SqlAssessmentConfiguration.EnableLocalLogging = true;
                 SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath = Path.GetDirectoryName(Logger.LogFileFullPath);
 
                 ProvisioningScriptServiceProvider templateProvider = new ProvisioningScriptServiceProvider();
-
-                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(parameters.SkuRecommendations, SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath);
+                var x =  parameters.DatabaseLevelCollations.ToDictionary(kvp => kvp.DatabaseName, kvp => kvp.DatabaseCollation);
+                string armTemplateFilePath = templateProvider.GenerateAndSaveProvisioningScript(
+                    parameters.SkuRecommendations, 
+                    SqlAssessmentConfiguration.ReportsAndLogsRootFolderPath,
+                    parameters.ServerLevelCollation, 
+                    x);
 
                 GenerateProvisioningScriptResult result = new GenerateProvisioningScriptResult{
                     ProvisioningScriptFilePath = armTemplateFilePath
@@ -908,20 +913,20 @@ namespace Microsoft.SqlTools.Migration
                                                     ComputeTier.Provisioned,
                                                     AzureSqlPaaSHardwareType.PremiumSeries));
 
-                        // Premium Memory Optimized BC/GP
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.BusinessCritical,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    // Premium Memory Optimized BC/GP
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.BusinessCritical,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
 
-                        eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
-                                                        AzureSqlTargetPlatform.AzureSqlManagedInstance,
-                                                        AzureSqlPurchasingModel.vCore,
-                                                        AzureSqlPaaSServiceTier.GeneralPurpose,
-                                                        ComputeTier.Provisioned,
-                                                        AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
+                    eligibleSkuCategories.Add(new AzureSqlSkuPaaSCategory(
+                                                    AzureSqlTargetPlatform.AzureSqlManagedInstance,
+                                                    AzureSqlPurchasingModel.vCore,
+                                                    AzureSqlPaaSServiceTier.GeneralPurpose,
+                                                    ComputeTier.Provisioned,
+                                                    AzureSqlPaaSHardwareType.PremiumSeriesMemoryOptimized));
                     break;
 
                 case "AzureSqlVirtualMachine":
