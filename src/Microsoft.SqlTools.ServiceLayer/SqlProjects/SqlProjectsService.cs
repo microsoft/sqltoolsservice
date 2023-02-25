@@ -416,7 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             if (!Projects.ContainsKey(projectUri))
             {
-                Projects[projectUri] = new SqlProject(projectUri);
+                Projects[projectUri] = SqlProject.OpenProject(projectUri);
             }
 
             return Projects[projectUri];
