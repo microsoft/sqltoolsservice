@@ -21,6 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string DestinationPath { get; set; } 
     }
 
+    /// <summary>
+    /// Move a SQL object script in a project
+    /// </summary>
     public class MoveSqlObjectScriptRequest
     {
         public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/moveSqlObjectScript");

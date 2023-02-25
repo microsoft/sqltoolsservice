@@ -26,7 +26,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string ProjectGuid { get; set; }
     }
 
-
+    /// <summary>
+    /// Add a SQL Project reference to a project
+    /// </summary>
     public class AddSqlProjectReferenceRequest
     {
         public static readonly RequestType<AddSqlProjectReferenceParams, ResultStatus> Type = RequestType<AddSqlProjectReferenceParams, ResultStatus>.Create("sqlprojects/addSqlProjectReference");

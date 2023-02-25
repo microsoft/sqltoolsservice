@@ -8,6 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Get the cross-platform compatibility status for a project
+    /// </summary>
     public class GetCrossPlatformCompatiblityRequest
     {
         public static readonly RequestType<SqlProjectParams, GetCrossPlatformCompatiblityResult> Type = RequestType<SqlProjectParams, GetCrossPlatformCompatiblityResult>.Create("sqlProjects/getCrossPlatformCompatibility");

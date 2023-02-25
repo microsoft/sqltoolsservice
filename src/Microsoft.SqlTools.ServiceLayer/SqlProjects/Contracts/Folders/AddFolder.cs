@@ -21,6 +21,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         public string Path { get; set; }
     }
 
+    /// <summary>
+    /// Add a folder to a project
+    /// </summary>
     public class AddFolderRequest
     {
         public static readonly RequestType<FolderParams, ResultStatus> Type = RequestType<FolderParams, ResultStatus>.Create("sqlProjects/addFolder");
