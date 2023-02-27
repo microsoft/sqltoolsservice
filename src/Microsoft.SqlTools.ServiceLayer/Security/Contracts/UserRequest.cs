@@ -5,7 +5,6 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 {
@@ -18,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 
         public string? ConnectionUri { get; set; }
 
-        public bool isNewObject { get; set; }
+        public bool IsNewObject { get; set; }
 
         public string? Database { get; set; }
 
@@ -41,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// Create User parameters
     /// </summary>
-    public class CreateUserParams : GeneralRequestDetails
+    public class CreateUserParams
     {
         public string? ContextId { get; set; }
         public UserInfo? User { get; set; }
@@ -66,6 +65,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         public static readonly
             RequestType<CreateUserParams, CreateUserResult> Type =
             RequestType<CreateUserParams, CreateUserResult>.Create("objectManagement/createUser");
+    }
+
+    /// <summary>
+    /// Update User parameters
+    /// </summary>
+    public class UpdateUserParams
+    {
+        public string? ContextId { get; set; }
+        public UserInfo? User { get; set; }
+    }
+
+    /// <summary>
+    /// Update User request type
+    /// </summary>
+    public class UpdateUserRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<UpdateUserParams, ResultStatus> Type =
+            RequestType<UpdateUserParams, ResultStatus>.Create("objectManagement/updateUser");
     }
 
     /// <summary>

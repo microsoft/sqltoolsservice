@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 LoginName = loginName,
                 Password = "placeholder",
                 DefaultSchema = "dbo",
-                OwnedSchemas = new string[] { "dbo" }
+                OwnedSchemas = new string[] { "" }
             };
         }
 

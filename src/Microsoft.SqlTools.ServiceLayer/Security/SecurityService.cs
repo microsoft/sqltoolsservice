@@ -101,6 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // User request handlers
             this.ServiceHost.SetRequestHandler(InitializeUserViewRequest.Type, HandleInitializeUserViewRequest, true);
             this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateUserRequest.Type, HandleUpdateUserRequest, true);
             this.ServiceHost.SetRequestHandler(DeleteUserRequest.Type, HandleDeleteUserRequest, true);
         }
 
@@ -150,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             LoginPrototype newPrototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Login.Name]);
             var _ =newPrototype.ServerRoles.ServerRoleNames;
 
-            foreach (string role in parameters.Login.ServerRoles)
+            foreach (string role in parameters.Login.ServerRoles ?? Enumerable.Empty<string>())
             {
                 newPrototype.ServerRoles.SetMember(role, true);
             }
@@ -531,16 +532,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
 
         /// <summary>
+        /// Handle request to update a user
+        /// </summary>
+        internal async Task HandleUpdateUserRequest(UpdateUserParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            if (parameters.ContextId == null || !this.contextIdToConnectionUriMap.ContainsKey(parameters.ContextId))
+            {
+                throw new ArgumentException("Invalid context ID");
+            }
+
+            string connectionUri = this.contextIdToConnectionUriMap[parameters.ContextId];
+            var result = await ConfigureUser(connectionUri,
+                parameters.User,
+                ConfigAction.Update,
+                RunType.RunNow);
+
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = result.Item1,
+                ErrorMessage = result.Item2
+            });
+        }
+
+        /// <summary>
         /// Handle request to delete a user
         /// </summary>
         internal async Task HandleDeleteUserRequest(DeleteUserParams parameters, RequestContext<ResultStatus> requestContext)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            // if (connInfo == null) 
-            // {
-            //     // raise an error
-            // }
+            if (connInfo == null)
+            {
+                throw new ArgumentException("Invalid ConnectionUri");
+            }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
