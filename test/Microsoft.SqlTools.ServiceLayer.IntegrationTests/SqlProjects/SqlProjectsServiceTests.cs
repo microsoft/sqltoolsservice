@@ -731,16 +731,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestGetProjectProperties()
+        public async Task TestProjectProperties()
         {
             SqlProjectsService service = new();
-            string projectPath = await service.CreateSqlProject();
+            string projectUri = await service.CreateSqlProject();
 
             MockRequest<GetProjectPropertiesResult> mock = new();
 
             await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
             {
-                ProjectUri = projectPath
+                ProjectUri = projectUri
             }, mock.Object);
 
             mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
@@ -751,6 +751,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath);
             Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", mock.Result.DefaultCollation);
             Assert.IsNull(mock.Result.DatabaseSource, "DatabaseSource");
+
+            MockRequest<ResultStatus> setSourceMock = new();
+
+            await service.HandleSetDatabaseSourceRequest(new SetDatabaseSourceParams()
+            {
+                ProjectUri = projectUri,
+                DatabaseSource = "TestSource"
+            }, setSourceMock.Object);
+
+            setSourceMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
+
+            Assert.AreEqual("TestSource", service.Projects[projectUri].Properties.DatabaseSource);
         }
 
         #region Helpers
