@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         {
             get
             {
-                return Keys.GetString(Kets.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
             }
         }
 
