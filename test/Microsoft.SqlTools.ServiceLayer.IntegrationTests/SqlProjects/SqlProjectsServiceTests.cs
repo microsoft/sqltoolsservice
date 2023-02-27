@@ -730,6 +730,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(((GetCrossPlatformCompatiblityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
         }
 
+        [Test]
+        public async Task TestGetProjectProperties()
+        {
+            SqlProjectsService service = new();
+            string projectPath = await service.CreateSqlProject();
+
+            MockRequest<GetProjectPropertiesResult> mock = new();
+
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectPath
+            }, mock.Object);
+
+            mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+
+            Assert.IsTrue(Guid.TryParse(mock.Result.ProjectGuid, out _), $"ProjectGuid should be set");
+            Assert.AreEqual("AnyCPU", mock.Result.Platform);
+            Assert.AreEqual("Debug", mock.Result.Configuration);
+            Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath);
+            Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", mock.Result.DefaultCollation);
+            Assert.IsNull(mock.Result.DatabaseSource, "DatabaseSource");
+        }
+
         #region Helpers
 
         private async Task<(SqlProjectsService Service, string ProjectUri, SqlCmdVariable DatabaseVar, SqlCmdVariable ServerVar)> SetUpDatabaseReferenceTest()

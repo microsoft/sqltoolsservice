@@ -135,6 +135,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 return new GetProjectPropertiesResult()
                 {
+                    Success = true,
+                    ErrorMessage = null,
                     ProjectGuid = props.ProjectGuid,
                     Configuration = props.Configuration,
                     Platform = props.Platform,
