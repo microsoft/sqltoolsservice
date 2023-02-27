@@ -1394,6 +1394,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
 
+                if(connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.None)
+                {
+                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+                }
+
                 connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
             }
             else if (connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.AAS
