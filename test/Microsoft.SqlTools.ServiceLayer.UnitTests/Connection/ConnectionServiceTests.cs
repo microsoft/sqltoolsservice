@@ -584,15 +584,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
         private static readonly object[] optionalEnclaveParameters =
         {
-            new object[] {"EnclaveAttestationProtocol", "AAS", "Attestation Protocol=AAS"},
-            new object[] {"EnclaveAttestationProtocol", "HGS", "Attestation Protocol=HGS"},
-            new object[] {"EnclaveAttestationProtocol", "aas", "Attestation Protocol=AAS"},
-            new object[] {"EnclaveAttestationProtocol", "hgs", "Attestation Protocol=HGS"},
-            new object[] {"EnclaveAttestationProtocol", "AaS", "Attestation Protocol=AAS"},
-            new object[] {"EnclaveAttestationProtocol", "hGs", "Attestation Protocol=HGS"},
-            new object[] {"EnclaveAttestationProtocol", "NONE", "Attestation Protocol=None"},
-            new object[] {"EnclaveAttestationProtocol", "None", "Attestation Protocol=None"},
-            new object[] {"EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave" },
+            new object[] {"AAS", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=AAS"},
+            new object[] {"HGS", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=HGS"},
+            new object[] {"aas", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=AAS"},
+            new object[] {"hgs", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=HGS"},
+            new object[] {"AaS", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=AAS"},
+            new object[] {"hGs", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=HGS"},
+            new object[] {"NONE", null, "Attestation Protocol=None"},
+            new object[] {"None", null, "Attestation Protocol=None" },
         };
 
         /// <summary>
@@ -600,19 +599,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// can be built into a connection string for connecting.
         /// </summary>
         [Test, TestCaseSource(nameof(optionalEnclaveParameters))]
-        public void ConnectingWithOptionalEnclaveParametersBuildsConnectionString(string propertyName, object propertyValue, string connectionStringMarker)
+        public void ConnectingWithOptionalEnclaveParametersBuildsConnectionString(string attestationProtocol, string attestationUrl, string connectionStringMarker)
         {
-            // Create a test connection details object and set the property to a specific value
+            // Create a test connection details object
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+
+            //Enable Secure Enclaves
             details.ColumnEncryptionSetting = "Enabled";
             details.SecureEnclaves = "Enabled";
-            details.GetType()
-                .GetProperty(propertyName)
-                .SetValue(details, propertyValue);
 
-            // Test that a connection string can be created without exceptions
+            // Set Attestation Protocol
+            details.GetType()
+                .GetProperty("EnclaveAttestationProtocol")
+                .SetValue(details, attestationProtocol);
+
+            // Set Attestation URL
+            details.GetType()
+                .GetProperty("EnclaveAttestationUrl")
+                .SetValue(details, attestationUrl);
+
+            // Test that a connection string can be created without exceptions with provided combinations.
             string connectionString = ConnectionService.BuildConnectionString(details);
-            Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameter is in the connection string");
+            Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameters are in the connection string");
         }
 
         private static readonly object[] invalidOptions =
@@ -620,6 +628,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"AuthenticationType", "NotAValidAuthType" },
             new object[] {"ColumnEncryptionSetting", "NotAValidColumnEncryptionSetting" },
             new object[] {"EnclaveAttestationProtocol", "NotAValidEnclaveAttestationProtocol" },
+            new object[] {"EnclaveAttestationProtocol", "AAS" }, // Without Attestation Url
+            new object[] {"EnclaveAttestationProtocol", "hgs" }, // Without Attestation Url
+            new object[] { "EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave" }, // Without Attestation Protocol
         };
 
         /// <summary>
@@ -644,7 +655,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 },
             new []
                 {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", "Enabled"),
+                    Tuple.Create<string, object>("SecureEnclaves", null),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                },
+            new []
+                {
                     Tuple.Create<string, object>("ColumnEncryptionSetting", "Disabled"),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                },
+            new []
+                {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", "Enabled"),
+                    Tuple.Create<string, object>("SecureEnclaves", "Disabled"),
                     Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
                     Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
                 },
