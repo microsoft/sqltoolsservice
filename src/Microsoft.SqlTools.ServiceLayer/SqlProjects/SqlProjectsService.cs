@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(OpenSqlProjectRequest.Type, HandleOpenSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(CloseSqlProjectRequest.Type, HandleCloseSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(CreateSqlProjectRequest.Type, HandleCreateSqlProjectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetCrossPlatformCompatiblityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetCrossPlatformCompatibilityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest, isParallelProcessingSupported: false);
 
             // SQL object script functions
@@ -108,11 +108,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatiblityResult> requestContext)
+        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatibilityResult> requestContext)
         {
             await RunWithErrorHandling(() =>
             {
-                return new GetCrossPlatformCompatiblityResult()
+                return new GetCrossPlatformCompatibilityResult()
                 {
                     Success = true,
                     ErrorMessage = null,

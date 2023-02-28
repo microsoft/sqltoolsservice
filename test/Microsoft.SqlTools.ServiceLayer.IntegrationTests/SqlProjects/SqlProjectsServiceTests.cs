@@ -701,7 +701,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SqlProjectsService service = new();
 
             /// Validate that the cross-platform status can be fetched
-            MockRequest<GetCrossPlatformCompatiblityResult> getRequestMock = new();
+            MockRequest<GetCrossPlatformCompatibilityResult> getRequestMock = new();
             await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
             {
                 ProjectUri = projectPath
@@ -727,7 +727,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, getRequestMock.Object);
 
             getRequestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
-            Assert.IsTrue(((GetCrossPlatformCompatiblityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
+            Assert.IsTrue(((GetCrossPlatformCompatibilityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
         }
 
         #region Helpers
