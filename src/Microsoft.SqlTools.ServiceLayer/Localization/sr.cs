@@ -9729,9 +9729,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
         }
 
-        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string columnEncryptionSetting)
+        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves)
         {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, columnEncryptionSetting);
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, secureEnclaves);
         }
 
         public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
