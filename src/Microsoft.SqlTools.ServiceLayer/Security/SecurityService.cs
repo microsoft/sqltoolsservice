@@ -566,13 +566,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid ConnectionUri");
             }
 
+            if (string.IsNullOrWhiteSpace(parameters.Name) || string.IsNullOrWhiteSpace(parameters.Database))
+            {
+                throw new ArgumentException("Invalid null parameter");
+            }
+
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-            Database? parent = dataContainer.Server.GetSmoObject(new Urn(dbUrn)) as Database;
-            User user = parent.Users[parameters.Name];
+            Database? parent = dataContainer.Server?.GetSmoObject(new Urn(dbUrn)) as Database;
+            User? user = parent?.Users[parameters.Name];
             dataContainer.SqlDialogSubject = user;
             DoDropObject(dataContainer);
-
+    
             await requestContext.SendResult(new ResultStatus()
             {
                 Success = true,
