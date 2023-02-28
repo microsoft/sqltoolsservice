@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }, requestContext);
         }
 
-
         /// <summary>
         /// Synchronous action with custom result
         /// </summary>

@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(OpenSqlProjectRequest.Type, HandleOpenSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(CloseSqlProjectRequest.Type, HandleCloseSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(CreateSqlProjectRequest.Type, HandleCreateSqlProjectRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetCrossPlatformCompatiblityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetCrossPlatformCompatibilityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest, isParallelProcessingSupported: false);
 
             // SQL object script functions
@@ -66,6 +66,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(DeletePostDeploymentScriptRequest.Type, HandleDeletePostDeploymentScriptRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(ExcludePostDeploymentScriptRequest.Type, HandleExcludePostDeploymentScriptRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(MovePostDeploymentScriptRequest.Type, HandleMovePostDeploymentScriptRequest, isParallelProcessingSupported: false);
+
+            // None script functions
+            serviceHost.SetRequestHandler(GetNoneScriptsRequest.Type, HandleGetNoneScriptsRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(AddNoneScriptRequest.Type, HandleAddNoneScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(DeleteNoneScriptRequest.Type, HandleDeleteNoneScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(ExcludeNoneScriptRequest.Type, HandleExcludeNoneScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(MoveNoneScriptRequest.Type, HandleMoveNoneScriptRequest, isParallelProcessingSupported: false);
 
             // Folder functions
             serviceHost.SetRequestHandler(GetFoldersRequest.Type, HandleGetFoldersRequest, isParallelProcessingSupported: true);
@@ -108,11 +115,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatiblityResult> requestContext)
+        internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatibilityResult> requestContext)
         {
             await RunWithErrorHandling(() =>
             {
-                return new GetCrossPlatformCompatiblityResult()
+                return new GetCrossPlatformCompatibilityResult()
                 {
                     Success = true,
                     ErrorMessage = null,
@@ -233,6 +240,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleMovePostDeploymentScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).PostDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+        }
+
+        #endregion
+
+        #region None script functions
+
+        internal async Task HandleGetNoneScriptsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                return new GetScriptsResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Scripts = GetProject(requestParams.ProjectUri).NoneScripts.Select(x => x.Path).ToArray()
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleAddNoneScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Add(new NoneScript(requestParams.Path!)), requestContext);
+        }
+
+        internal async Task HandleDeleteNoneScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Delete(requestParams.Path!), requestContext);
+        }
+
+        internal async Task HandleExcludeNoneScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Exclude(requestParams.Path!), requestContext);
+        }
+
+        internal async Task HandleMoveNoneScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
 
         #endregion
@@ -369,7 +413,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         #endregion
-
 
         #region SQLCMD variable functions
 
