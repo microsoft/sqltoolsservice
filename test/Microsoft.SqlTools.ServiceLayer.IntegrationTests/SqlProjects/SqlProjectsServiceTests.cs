@@ -190,6 +190,99 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestNoneScriptOperations()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "Baseline number of NoneScripts");
+
+            // Validate adding a None script
+            MockRequest<ResultStatus> requestMock = new();
+            string relativePath = "NoneIncludeFile.json";
+            string absolutePath = Path.Join(Path.GetDirectoryName(projectUri), relativePath);
+            
+            #pragma warning disable JSON002 // Probable JSON string detected
+            await File.WriteAllTextAsync(absolutePath, @"{""included"" : false }");
+            #pragma warning restore JSON002 // Probable JSON string detected
+            
+            Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to be on disk");
+
+            await service.HandleAddNoneScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNoneScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneScripts count after add");
+            Assert.IsTrue(service.Projects[projectUri].NoneScripts.Contains(relativePath), $"NoneScripts expected to contain {relativePath}");
+
+            // Validate getting a list of the None scripts
+            MockRequest<GetScriptsResult> getMock = new();
+            await service.HandleGetNoneScriptsRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetNoneScriptsRequest));
+            Assert.AreEqual(1, getMock.Result.Scripts.Length);
+            Assert.AreEqual(relativePath, getMock.Result.Scripts[0]);
+
+            // Validate excluding a None script
+            requestMock = new();
+            await service.HandleExcludeNoneScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleExcludeNoneScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneScripts count after exclude");
+            Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to still exist on disk");
+
+            // Re-add to set up for Delete
+            requestMock = new();
+            await service.HandleAddNoneScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNoneScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneScripts count after re-add");
+
+            // Validate moving a None script
+            string movedScriptRelativePath = @"SubPath\RenamedNoneIncludeFile.json";
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
+
+            requestMock = new();
+            await service.HandleMoveNoneScriptRequest(new MoveItemParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath,
+                DestinationPath = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMoveNoneScriptRequest));
+            Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneScripts count after move");
+
+            // Validate deleting a None script
+            requestMock = new();
+            await service.HandleDeleteNoneScriptRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeleteNoneScriptRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneScripts count after delete");
+            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
+        }
+
+        [Test]
         public async Task TestPreDeploymentScriptOperations()
         {
             // Setup
