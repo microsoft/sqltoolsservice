@@ -171,7 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.MinPoolSize = expectedForInt + index++;
             details.PacketSize = expectedForInt + index++;
             details.ColumnEncryptionSetting = expectedForStrings + index++;
-            details.SecureEnclaves = expectedForStrings + index++;
             details.EnclaveAttestationProtocol = expectedForStrings + index++;
             details.EnclaveAttestationUrl = expectedForStrings + index++;
             details.Encrypt = expectedForStrings + index++;
