@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneScripts count after re-add");
 
             // Validate moving a SQL object script
-            string movedScriptRelativePath = @"SubPath\MyRenamedTable.sql";
+            string movedScriptRelativePath = @"SubPath\RenamedNoneIncludeFile.json";
             string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
