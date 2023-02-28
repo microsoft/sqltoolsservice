@@ -748,7 +748,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(Guid.TryParse(mock.Result.ProjectGuid, out _), $"ProjectGuid should be set");
             Assert.AreEqual("AnyCPU", mock.Result.Platform);
             Assert.AreEqual("Debug", mock.Result.Configuration);
-            Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath);
+            Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath); // default value is normalized to Windows slashes
             Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", mock.Result.DefaultCollation);
             Assert.IsNull(mock.Result.DatabaseSource, "DatabaseSource");
 
