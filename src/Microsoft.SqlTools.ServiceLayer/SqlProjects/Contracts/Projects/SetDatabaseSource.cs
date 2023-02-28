@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Parameters for creating a new SQL project
+    /// Parameters for setting the DatabaseSource property of a .sqlproj file
     /// </summary>
     public class SetDatabaseSourceParams : SqlProjectParams
     {
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     }
 
     /// <summary>
-    /// Create a new SQL project
+    /// Set the DatabaseSource property of a .sqlproj file
     /// </summary>
     public class SetDatabaseSourceRequest
     {

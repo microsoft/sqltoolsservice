@@ -745,15 +745,16 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
 
-            Assert.IsTrue(Guid.TryParse(mock.Result.ProjectGuid, out _), $"ProjectGuid should be set");
+            Assert.IsTrue(Guid.TryParse(mock.Result.ProjectGuid, out _), $"{mock.Result.ProjectGuid} should be set");
             Assert.AreEqual("AnyCPU", mock.Result.Platform);
             Assert.AreEqual("Debug", mock.Result.Configuration);
             Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath); // default value is normalized to Windows slashes
             Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", mock.Result.DefaultCollation);
-            Assert.IsNull(mock.Result.DatabaseSource, "DatabaseSource");
+            Assert.IsNull(mock.Result.DatabaseSource, nameof(mock.Result.DatabaseSource)); // validate DatabaseSource is null when the tag isn't present
+
+            // Validate that DatabaseSource can be set when the tag doesn't exist
 
             MockRequest<ResultStatus> setSourceMock = new();
-
             await service.HandleSetDatabaseSourceRequest(new SetDatabaseSourceParams()
             {
                 ProjectUri = projectUri,
@@ -761,8 +762,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, setSourceMock.Object);
 
             setSourceMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
-
             Assert.AreEqual("TestSource", service.Projects[projectUri].Properties.DatabaseSource);
+
+            // Validate DatabaseSource is read when it has a value
+
+            mock = new();
+
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, mock.Object);
+
+            mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.AreEqual("TestSource", mock.Result.DatabaseSource);
         }
 
         #region Helpers
