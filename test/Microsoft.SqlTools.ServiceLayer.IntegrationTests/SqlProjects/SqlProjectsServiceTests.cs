@@ -161,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a SQL object script
             string movedScriptRelativePath = @"SubPath\MyRenamedTable.sql";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a pre-deployment object script
             string movedScriptRelativePath = @"SubPath\RenamedPreDeploymentScript.sql";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
@@ -339,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a post-deployment object script
             string movedScriptRelativePath = @"SubPath\RenamedPostDeploymentScript.sql";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
