@@ -6545,6 +6545,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">序列号结束</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">内置架构</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

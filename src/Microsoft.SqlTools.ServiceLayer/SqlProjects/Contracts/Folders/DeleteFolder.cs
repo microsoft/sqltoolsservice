@@ -8,6 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Delete a folder from a project
+    /// </summary>
     public class DeleteFolderRequest
     {
         public static readonly RequestType<FolderParams, ResultStatus> Type = RequestType<FolderParams, ResultStatus>.Create("sqlProjects/deleteFolder");

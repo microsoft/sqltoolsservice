@@ -3994,4 +3994,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>Numero sequenza Fine</value>
   </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Schemi predefiniti</value>
+  </data>
 </root>

@@ -680,6 +680,78 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override bool PutFoldersAfterNodes => true;
         public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.Database) }; }
 
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_accessadmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_backupoperator" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_datareader" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_datawriter" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_ddladmin" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_denydatareader" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_denydatawriter" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_owner" },
+                });
+                filters.Add(new NodePropertyFilter
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    IsNotFilter = true,
+                    Values = new List<object> { "db_securityadmin" },
+                });
+                return filters;
+            }
+        }
+
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
 			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
@@ -707,6 +779,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Synonyms,
                     IsSystemObject = false,
                     ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
+                    SortPriority = SmoTreeNode.NextSortPriority,
+                });
+			}
+			if (WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
+			{
+                currentChildren.Add(new FolderNode {
+                    NodeValue = SR.SchemaHierarchy_BuiltInSchema,
+                    NodeTypeId = NodeTypes.BuiltInSchemas,
+                    IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
@@ -756,6 +837,96 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						conditionalTypesList.Add(typeof(SqlSchemaQuerier));
 					}
 					return conditionalTypesList.ToArray();
+            }
+        }
+
+        public override TreeNode CreateChild(TreeNode parent, object context)
+        {
+            var child = new ExpandableSchemaTreeNode();
+            InitializeChild(parent, child, context);
+            return child;
+        }
+    }
+
+    [Export(typeof(ChildFactory))]
+    [Shared]
+    internal partial class BuiltInSchemasChildFactory : SmoChildFactoryBase
+    {
+        public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.BuiltInSchemas) }; }
+
+        public override IEnumerable<INodeFilter> Filters
+        {
+            get
+            {
+                var filters = new List<INodeFilter>();
+                filters.Add(new NodeOrFilter
+                {
+                    FilterList = new List<NodePropertyFilter> {
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_accessadmin" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_backupoperator" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_datareader" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_datawriter" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_ddladmin" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_denydatareader" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_denydatawriter" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_owner" },
+                        },
+                        new NodePropertyFilter
+                        {
+                            Property = "Name",
+                            Type = typeof(string),
+                            Values = new List<object> { "db_securityadmin" },
+                        },
+                    }
+                });
+                return filters;
+            }
+        }
+
+        internal override Type[] ChildQuerierTypes
+        {
+            get
+            {
+                return new [] { typeof(SqlSchemaQuerier), };
             }
         }
 

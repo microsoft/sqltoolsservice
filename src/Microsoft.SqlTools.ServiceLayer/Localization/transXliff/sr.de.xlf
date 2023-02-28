@@ -6545,6 +6545,11 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Sequenznummern Ende</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">Integrierte Schemas</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -914,7 +914,7 @@ INNER JOIN sys.sql_logins AS sql_logins
             private Microsoft.SqlServer.Management.Smo.Server server;
             private static string       defaultLanguageDisplay;
             private bool                windowsAuthSupported = true;
-            private bool                aADAuthSupported = false;
+            private bool                aadAuthSupported = false;
 
             private StringCollection credentials = null;
             #endregion
@@ -1067,10 +1067,10 @@ INNER JOIN sys.sql_logins AS sql_logins
                 {
                     if (this.server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                     {
-                        this.aADAuthSupported = true;
+                        this.aadAuthSupported = true;
                     }
 
-                    return this.aADAuthSupported;
+                    return this.aadAuthSupported;
                 }
             }
 
