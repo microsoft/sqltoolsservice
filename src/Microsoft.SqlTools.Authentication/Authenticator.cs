@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.Authentication
         private string applicationName;
         private string cacheFolderPath;
         private string cacheFileName;
+        private MsalCacheHelper cacheHelper;
         private static ConcurrentDictionary<string, IPublicClientApplication> PublicClientAppMap
             = new ConcurrentDictionary<string, IPublicClientApplication>();
 
@@ -30,6 +31,13 @@ namespace Microsoft.SqlTools.Authentication
             this.applicationName = appName;
             this.cacheFolderPath = cacheFolderPath;
             this.cacheFileName = cacheFileName;
+
+            // Storage creation properties are used to enable file system caching with MSAL
+            var storageCreationProperties = new StorageCreationPropertiesBuilder(this.cacheFileName, this.cacheFolderPath)
+                .WithUnprotectedFile().Build();
+
+            // This hooks up the cross-platform cache into MSAL
+            this.cacheHelper = MsalCacheHelper.CreateAsync(storageCreationProperties).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -53,14 +61,6 @@ namespace Microsoft.SqlTools.Authentication
             SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Received @params: {@params.ToLogString(SqlToolsLogger.IsPiiEnabled)}");
 
             IPublicClientApplication publicClientApplication = GetPublicClientAppInstance(@params.Authority, @params.Audience);
-
-            // Storage creation properties are used to enable file system caching with MSAL
-            var storageCreationProperties = new StorageCreationPropertiesBuilder(this.cacheFileName, this.cacheFolderPath)
-                .WithUnprotectedFile().Build();
-
-            // This hooks up the cross-platform cache into MSAL
-            var cacheHelper = await MsalCacheHelper.CreateAsync(storageCreationProperties).ConfigureAwait(false);
-            cacheHelper.RegisterCache(publicClientApplication.UserTokenCache);
 
             AccessToken? accessToken;
             if (@params.AuthenticationMethod == AuthenticationMethod.ActiveDirectoryInteractive)
@@ -139,6 +139,7 @@ namespace Microsoft.SqlTools.Authentication
             if (!PublicClientAppMap.TryGetValue(authorityUrl, out IPublicClientApplication? clientApplicationInstance))
             {
                 clientApplicationInstance = CreatePublicClientAppInstance(authority, audience);
+                this.cacheHelper.RegisterCache(clientApplicationInstance.UserTokenCache);
                 PublicClientAppMap.TryAdd(authorityUrl, clientApplicationInstance);
             }
             return clientApplicationInstance;
