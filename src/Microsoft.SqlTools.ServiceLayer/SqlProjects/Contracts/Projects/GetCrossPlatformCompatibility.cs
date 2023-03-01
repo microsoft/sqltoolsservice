@@ -11,15 +11,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Get the cross-platform compatibility status for a project
     /// </summary>
-    public class GetCrossPlatformCompatiblityRequest
+    public class GetCrossPlatformCompatibilityRequest
     {
-        public static readonly RequestType<SqlProjectParams, GetCrossPlatformCompatiblityResult> Type = RequestType<SqlProjectParams, GetCrossPlatformCompatiblityResult>.Create("sqlProjects/getCrossPlatformCompatibility");
+        public static readonly RequestType<SqlProjectParams, GetCrossPlatformCompatibilityResult> Type = RequestType<SqlProjectParams, GetCrossPlatformCompatibilityResult>.Create("sqlProjects/getCrossPlatformCompatibility");
     }
 
     /// <summary>
     /// Result containing whether the project is cross-platform compatible
     /// </summary>
-    public class GetCrossPlatformCompatiblityResult : ResultStatus
+    public class GetCrossPlatformCompatibilityResult : ResultStatus
     {
         /// <summary>
         /// Whether the project is cross-platform compatible
