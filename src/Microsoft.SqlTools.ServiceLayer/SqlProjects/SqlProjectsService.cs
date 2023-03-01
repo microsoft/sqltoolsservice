@@ -458,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri!).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue, requestParams.Value)), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri!).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)), requestContext);
         }
 
         internal async Task HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -472,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 project.SqlCmdVariables.Delete(requestParams.Name); // idempotent (won't throw if doesn't exist)
-                project.SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue, requestParams.Value));
+                project.SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue));
             }, requestContext);
         }
 
