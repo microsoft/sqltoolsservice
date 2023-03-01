@@ -734,8 +734,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             {
                 ProjectUri = projectUri,
                 Name = variableName,
-                DefaultValue = "$(TestVarDefaultValue)",
-                Value = "$(TestVarValue)"
+                DefaultValue = "TestVarDefaultValue",
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddSqlCmdVariableRequest));
@@ -754,8 +753,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(variableName, getMock.Result.SqlCmdVariables[0].VarName);
 
             // Validate updating a SQLCMD variable
-            const string updatedDefaultValue = "$(UpdatedDefaultValue)";
-            const string updatedValue = "$(UpdatedValue)";
+            const string updatedDefaultValue = "UpdatedDefaultValues";
 
             requestMock = new();
             await service.HandleUpdateSqlCmdVariableRequest(new AddSqlCmdVariableParams()
@@ -763,13 +761,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 ProjectUri = projectUri,
                 Name = variableName,
                 DefaultValue = updatedDefaultValue,
-                Value = updatedValue
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleUpdateSqlCmdVariableRequest));
             Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after update not as expected");
             Assert.AreEqual(updatedDefaultValue, service.Projects[projectUri].SqlCmdVariables.First().DefaultValue, "Updated default value");
-            Assert.AreEqual(updatedValue, service.Projects[projectUri].SqlCmdVariables.First().Value, "Updated value");
 
             // Validate deleting a SQLCMD variable
             requestMock = new();
