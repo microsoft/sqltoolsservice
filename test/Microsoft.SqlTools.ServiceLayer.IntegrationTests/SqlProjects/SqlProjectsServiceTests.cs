@@ -254,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a None script
             string movedScriptRelativePath = @"SubPath\RenamedNoneIncludeFile.json";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
