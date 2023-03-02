@@ -2087,7 +2087,10 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.SqlPassword = login.Password;
             this.OldPassword = login.OldPassword;
             this.LoginType = GetLoginType(login);
-            this.DefaultLanguage = login.DefaultLanguage;
+            if (0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
+            {
+                this.DefaultLanguage = login.DefaultLanguage.Split(" - ")[1];
+            }
             this.DefaultDatabase = login.DefaultDatabase;
             this.EnforcePolicy = login.EnforcePasswordPolicy;
             this.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;

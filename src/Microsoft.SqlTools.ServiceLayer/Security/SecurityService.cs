@@ -257,12 +257,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 databases[i] = dataContainer.Server.Databases[i].Name;
             }
-            string[] languages = new string[dataContainer.Server.Languages.Count];
-            for (int i = 0; i < dataContainer.Server.Languages.Count; i++)
-            {
-                languages[i] = dataContainer.Server.Languages[i].Name;
-            }
 
+            var languageOptions = GetDefaultLanguageOptions(dataContainer);
+            var languageOptionsList = languageOptions.Select(FormatLanguageDisplay).ToList();
+            if (parameters.IsNewObject)
+            {
+                languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
+            }
+            string[] languages = languageOptionsList.ToArray();
             LoginPrototype prototype = parameters.IsNewObject 
             ? new LoginPrototype(dataContainer.Server) 
             : new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Name]);
@@ -286,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 EnforcePasswordPolicy = prototype.EnforcePolicy,
                 MustChangePassword = prototype.MustChange,
                 DefaultDatabase = prototype.DefaultDatabase,
-                DefaultLanguage = prototype.DefaultDatabase,
+                DefaultLanguage = FormatLanguageDisplay(languageOptions.FirstOrDefault(o => o?.Language.Name == prototype.DefaultLanguage || o?.Language.Alias == prototype.DefaultLanguage, null)),
                 ServerRoles = loginServerRoles.ToArray(),
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
@@ -329,6 +331,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<object> requestContext)
         {
             await requestContext.SendResult(new object());
+        }
+
+        private string FormatLanguageDisplay(LanguageDisplay? l)
+        {
+            if (l == null) return null;
+             return string.Format("{0} - {1}", l.Language.Alias, l.Language.Name);
         }
         #endregion
 
@@ -556,7 +564,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        private void GetDefaultLanguageOptions(CDataContainer dataContainer)
+        private IList<LanguageDisplay> GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
             // this.defaultLanguageComboBox.Items.Clear();            
             // this.defaultLanguageComboBox.Items.Add(defaultLanguagePlaceholder);            
@@ -574,11 +582,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
             }
 
-            // add the language display objects to the combo box
-            foreach (LanguageDisplay languageDisplay in sortedLanguages.Values)
+            IList<LanguageDisplay> res = new List<LanguageDisplay>();
+            foreach (LanguageDisplay ld in sortedLanguages.Values)
             {
-                //this.defaultLanguageComboBox.Items.Add(languageDisplay);
+                res.Add(ld);
             }
+
+            return res;
         }
 
         // code needs to be ported into the useraction class

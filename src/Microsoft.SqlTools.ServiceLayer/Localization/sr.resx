@@ -5386,4 +5386,8 @@ The Query Processor estimates that implementing the following index could improv
     <value>The connection could not be found</value>
     <comment></comment>
   </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+    <comment></comment>
+  </data>
 </root>
