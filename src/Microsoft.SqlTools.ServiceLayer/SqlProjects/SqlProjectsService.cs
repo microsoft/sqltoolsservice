@@ -281,29 +281,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     Success = true,
                     ErrorMessage = null,
-                    Scripts = GetProject(requestParams.ProjectUri).NoneItems.Select(x => x.Path).ToArray()
+                    Scripts = GetProject(requestParams.ProjectUri).NoneScripts.Select(x => x.Path).ToArray()
                 };
             }, requestContext);
         }
 
         internal async Task HandleAddNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Add(new NoneItem(requestParams.Path!)), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Add(new NoneScript(requestParams.Path!)), requestContext);
         }
 
         internal async Task HandleDeleteNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Delete(requestParams.Path!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Delete(requestParams.Path!), requestContext);
         }
 
         internal async Task HandleExcludeNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Exclude(requestParams.Path!), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Exclude(requestParams.Path!), requestContext);
         }
 
         internal async Task HandleMoveNoneItemRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
 
         #endregion
