@@ -151,7 +151,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     OutputPath = project.Properties.OutputPath,
                     DefaultCollation = project.Properties.DefaultCollation,
                     DatabaseSource = project.Properties.DatabaseSource,
-                    ProjectStyle = project.SqlProjStyle
+                    ProjectStyle = project.SqlProjStyle,
+                    DatabaseSchemaProvider = project.DatabaseSchemaProvider
                 };
             }, requestContext);
         }

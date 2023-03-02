@@ -59,5 +59,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Style of the .sqlproj file - SdkStyle or LegacyStyle
         /// </summary>
         public ProjectType ProjectStyle { get; set; }
+
+        /// <summary>
+        /// Database Schema Provider, in the format "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider"
+        /// </summary>
+        public string DatabaseSchemaProvider { get; set; }
     }
 }
