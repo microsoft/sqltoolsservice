@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 string tracingLevel = null;
                 SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
                 string expectedTraceSource = Logger.defaultTraceSource;
-                Logger.Initialize(tracingLevel);
+                Logger.Initialize(tracingLevel, false);
                 bool isLogFileExpectedToExist = false;
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);
@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 string tracingLevel = null;
                 SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
                 string expectedTraceSource = Logger.defaultTraceSource;
-                Logger.Initialize(tracingLevel);
+                Logger.Initialize(tracingLevel, false);
                 bool isLogFileExpectedToExist = false;
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);
@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 string tracingLevel = "invalid";
                 SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
                 string expectedTraceSource = Logger.defaultTraceSource;
-                Logger.Initialize(tracingLevel);
+                Logger.Initialize(tracingLevel, false);
                 bool isLogFileExpectedToExist = false;
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);

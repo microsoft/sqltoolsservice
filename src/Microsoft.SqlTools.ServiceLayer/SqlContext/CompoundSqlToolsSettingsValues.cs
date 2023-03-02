@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// group such as Intellisense is defined on a serialized setting it's used in the order of mssql, then sql, then
     /// falls back to a default value.
     /// </summary>
-    public class CompoundToolsSettingsValues: ISqlToolsSettingsValues
+    public class CompoundToolsSettingsValues : ISqlToolsSettingsValues
     {
         private List<ISqlToolsSettingsValues> priorityList = new List<ISqlToolsSettingsValues>();
         private SqlToolsSettingsValues defaultValues;
@@ -44,11 +44,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Gets or sets the detailed IntelliSense settings
         /// </summary>
         public IntelliSenseSettings IntelliSense
-        { 
+        {
             get
             {
                 return GetSettingOrDefault((settings) => settings.IntelliSense);
-            } 
+            }
             set
             {
                 priorityList[0].IntelliSense = value;
@@ -59,11 +59,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Gets or sets the query execution settings
         /// </summary>
         public QueryExecutionSettings QueryExecutionSettings
-        { 
+        {
             get
             {
                 return GetSettingOrDefault((settings) => settings.QueryExecutionSettings);
-            } 
+            }
             set
             {
                 priorityList[0].QueryExecutionSettings = value;
@@ -74,11 +74,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Gets or sets the formatter settings
         /// </summary>
         public FormatterSettings Format
-        { 
+        {
             get
             {
                 return GetSettingOrDefault((settings) => settings.Format);
-            } 
+            }
             set
             {
                 priorityList[0].Format = value;
@@ -89,15 +89,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Gets or sets the object explorer settings
         /// </summary>
         public ObjectExplorerSettings ObjectExplorer
-        { 
+        {
             get
             {
                 return GetSettingOrDefault((settings) => settings.ObjectExplorer);
-            } 
+            }
             set
             {
                 priorityList[0].ObjectExplorer = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets PII Logging setting.
+        /// </summary>
+        public bool PiiLogging
+        {
+            get => GetSettingOrDefault((settings) => settings.PiiLogging);
+            set => priorityList[0].PiiLogging = value;
         }
     }
 }

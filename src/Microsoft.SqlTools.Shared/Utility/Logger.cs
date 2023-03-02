@@ -3,11 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Threading;
 
 namespace Microsoft.SqlTools.Utility
 {
@@ -29,41 +26,45 @@ namespace Microsoft.SqlTools.Utility
     /// </summary>
     public static class Logger
     {
-        internal const SourceLevels defaultTracingLevel = SourceLevels.Critical; 
-        internal const string defaultTraceSource = "sqltools";
+        public const SourceLevels defaultTracingLevel = SourceLevels.Critical;
+        public const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
-        private static string logFileFullPath;
+        private static string? logFileFullPath;
 
-        internal static TraceSource TraceSource { get; set; }
+        public static TraceSource? TraceSource { get; set; }
+
         public static string LogFileFullPath
         {
-            get => logFileFullPath;
+            get => logFileFullPath!;
             private set
             {
-                //If the log file path has a directory component then ensure that the directory exists.
-                if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
+                if (value != null)
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(value));
-                }
+                    //If the log file path has a directory component then ensure that the directory exists.
+                    if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(value)!);
+                    }
 
-                logFileFullPath = value;
+                    logFileFullPath = value;
+                }
                 ConfigureListener();
             }
         }
 
-        private static SqlToolsTraceListener Listener { get; set; }
+        private static SqlToolsTraceListener? Listener { get; set; }
 
         private static void ConfigureLogFile(string logFilePrefix) => LogFileFullPath = GenerateLogFilePath(logFilePrefix);
 
         /// <summary>
         /// Calling this method will turn on inclusion CallStack in the log for all future traces
         /// </summary>
-        public static void StartCallStack() => Listener.TraceOutputOptions |= TraceOptions.Callstack;
+        public static void StartCallStack() => Listener!.TraceOutputOptions |= TraceOptions.Callstack;
 
         /// <summary>
         /// Calling this method will turn off inclusion of CallStack in the log for all future traces
         /// </summary>
-        public static void StopCallStack() => Listener.TraceOutputOptions &= ~TraceOptions.Callstack;
+        public static void StopCallStack() => Listener!.TraceOutputOptions &= ~TraceOptions.Callstack;
 
         /// <summary>
         /// Calls flush on defaultTracingLevel configured listeners.
@@ -86,16 +87,18 @@ namespace Microsoft.SqlTools.Utility
             get => tracingLevel;
             set
             {
-                if(TraceSource != null)
+                if (TraceSource != null)
                 {
                     // configures the source level filter. This alone is not enough for tracing that is done via "Trace" class instead of "TraceSource" object
                     TraceSource.Switch = new SourceSwitch(TraceSource.Name, value.ToString());
                 }
                 // configure the listener level filter
                 tracingLevel = value;
-                Listener.Filter = new EventTypeFilter(tracingLevel);
+                Listener!.Filter = new EventTypeFilter(tracingLevel);
             }
         }
+
+        public static bool IsPiiEnabled { get; set; } = false;
 
         public static bool AutoFlush { get; set; } = false;
 
@@ -115,11 +118,13 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
-            string logFilePath = null,
+            bool piiEnabled = false,
+            string? logFilePath = null,
             string traceSource = defaultTraceSource,
             bool autoFlush = false)
         {
             Logger.tracingLevel = tracingLevel;
+            Logger.IsPiiEnabled = piiEnabled;
             Logger.AutoFlush = autoFlush;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
             if (string.IsNullOrWhiteSpace(logFilePath))
@@ -146,11 +151,12 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="autoFlush">
         /// Optional. Specifies whether the log is flushed after every message
         /// </param>
-        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource, bool autoFlush = false)
+        public static void Initialize(string tracingLevel, bool piiEnabled, string? logFilePath = null, string traceSource = defaultTraceSource, bool autoFlush = false)
         {
             Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
+                , piiEnabled
                 , logFilePath
                 , traceSource
                 , autoFlush);
@@ -169,7 +175,7 @@ namespace Microsoft.SqlTools.Utility
                 throw new ArgumentOutOfRangeException(nameof(logFilePrefix), $"LogfilePath cannot be configured if argument {nameof(logFilePrefix)} has not been set");
             }
             // Create the log directory
-            string logDir = Path.GetDirectoryName(logFilePrefix);
+            string? logDir = Path.GetDirectoryName(logFilePrefix);
             if (!string.IsNullOrWhiteSpace(logDir))
             {
                 if (!Directory.Exists(logDir))
@@ -199,7 +205,7 @@ namespace Microsoft.SqlTools.Utility
             }
 
             string fileName;
-            try 
+            try
             {
                 var now = DateTime.Now;
                 fileName = string.Format(CultureInfo.InvariantCulture,
@@ -238,6 +244,16 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="eventType">The level at which the message will be written.</param>
         /// <param name="logMessage">The message text to be written.</param>
         public static void Write(TraceEventType eventType, string logMessage) => Write(eventType, LogEvent.Default, logMessage);
+
+        /// <summary>
+        /// Writes a PII message to the log file with the Verbose event level when PII flag is enabled.
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Pii(string logMessage) {
+            if (IsPiiEnabled) {
+                Write(TraceEventType.Verbose, logMessage);
+            }
+        }
 
         /// <summary>
         /// Writes a message to the log file with the Verbose event level
@@ -386,9 +402,9 @@ namespace Microsoft.SqlTools.Utility
              );
         }
         #region forward actual write/close/flush/dispose calls to the underlying listener.
-        public override void Write(string message) => Listener.Write(message);
+        public override void Write(string? message) => Listener.Write(message);
 
-        public override void WriteLine(string message) => Listener.WriteLine(message);
+        public override void WriteLine(string? message) => Listener.WriteLine(message);
 
         /// <Summary> 
         /// Closes the <see cref="System.Diagnostics.TextWriterTraceListener.Writer"> so that it no longer 
@@ -430,41 +446,41 @@ namespace Microsoft.SqlTools.Utility
         }
         #endregion
 
-        public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id)
+        public override void TraceEvent(TraceEventCache? eventCache, String source, TraceEventType eventType, int id)
         {
             TraceEvent(eventCache, source, eventType, id, String.Empty);
         }
 
         // All other TraceEvent methods come through this one.
-        public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string message)
+        public override void TraceEvent(TraceEventCache? eventCache, String source, TraceEventType eventType, int id, string? message)
         {
             if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
             {
                 return;
             }
 
-            WriteHeader(eventCache, source, eventType, id);
-            WriteLine(message);
-            WriteFooter(eventCache);
+            WriteHeader(eventCache!, source, eventType, id);
+            WriteLine(message!);
+            WriteFooter(eventCache!);
         }
 
-        public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string format, params object[] args)
+        public override void TraceEvent(TraceEventCache? eventCache, String source, TraceEventType eventType, int id, string? format, params object?[]? args)
         {
             if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
             {
                 return;
             }
 
-            WriteHeader(eventCache, source, eventType, id);
+            WriteHeader(eventCache!, source, eventType, id);
             if (args != null)
             {
-                WriteLine(String.Format(CultureInfo.InvariantCulture, format, args));
+                WriteLine(String.Format(CultureInfo.InvariantCulture, format!, args));
             }
             else
             {
-                WriteLine(format);
+                WriteLine(format!);
             }
-            WriteFooter(eventCache);
+            WriteFooter(eventCache!);
         }
 
         private void WriteHeader(TraceEventCache eventCache, String source, TraceEventType eventType, int id)

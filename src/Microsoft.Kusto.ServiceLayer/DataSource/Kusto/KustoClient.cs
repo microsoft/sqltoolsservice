@@ -21,6 +21,7 @@ using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 {
@@ -74,7 +75,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 ServerName = ClusterName,
                 DatabaseName = DatabaseName,
                 UserToken = accountToken,
-                AuthenticationType = "AzureMFA"
+                AuthenticationType = AzureMFA
             };
             
             Initialize(connectionDetails);
@@ -96,8 +97,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
             switch (connectionDetails.AuthenticationType)
             {
-                case "AzureMFA": return stringBuilder.WithAadUserTokenAuthentication(connectionDetails.UserToken);
-                case "dstsAuth": return stringBuilder.WithDstsUserTokenAuthentication(connectionDetails.UserToken);
+                case AzureMFA: return stringBuilder.WithAadUserTokenAuthentication(connectionDetails.UserToken);
+                case dstsAuth: return stringBuilder.WithDstsUserTokenAuthentication(connectionDetails.UserToken);
                 default:
                     return string.IsNullOrWhiteSpace(connectionDetails.UserName) && string.IsNullOrWhiteSpace(connectionDetails.Password)
                         ? stringBuilder
