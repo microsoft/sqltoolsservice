@@ -1716,10 +1716,19 @@
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Für das Nachweisprotokoll und die Enclave-Nachweis-URL muss Always Encrypted auf "Enabled" festgelegt sein.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1743,10 +1752,13 @@
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS" und "HGS".]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1764,6 +1776,21 @@
           <Val><![CDATA[Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Ungültiger Wert "{0}" für ApplicationIntent. Gültige Werte sind "ReadWrite" und "ReadOnly".]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringInvalidSecureEnclaves" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Attestation URL cannot be empty with the selected value of Attestation Protocol.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Die Beglaubigungs-URL darf mit dem ausgewählten Wert des Beglaubigungsprotokolls nicht leer sein.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
