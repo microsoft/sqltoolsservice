@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -54,5 +55,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// </summary>
         public string? DatabaseSource { get; set; }
 
+        /// <summary>
+        /// Style of the .sqlproj file - SdkStyle or LegacyStyle
+        /// </summary>
+        public ProjectType ProjectStyle { get; set; }
     }
 }

@@ -139,18 +139,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(() =>
             {
-                SqlProjectProperties props = GetProject(requestParams.ProjectUri).Properties;
+                SqlProject project = GetProject(requestParams.ProjectUri);
 
                 return new GetProjectPropertiesResult()
                 {
                     Success = true,
                     ErrorMessage = null,
-                    ProjectGuid = props.ProjectGuid,
-                    Configuration = props.Configuration,
-                    Platform = props.Platform,
-                    OutputPath = props.OutputPath,
-                    DefaultCollation = props.DefaultCollation,
-                    DatabaseSource = props.DatabaseSource,
+                    ProjectGuid = project.Properties.ProjectGuid,
+                    Configuration = project.Properties.Configuration,
+                    Platform = project.Properties.Platform,
+                    OutputPath = project.Properties.OutputPath,
+                    DefaultCollation = project.Properties.DefaultCollation,
+                    DatabaseSource = project.Properties.DatabaseSource,
+                    ProjectStyle = project.SqlProjStyle
                 };
             }, requestContext);
         }

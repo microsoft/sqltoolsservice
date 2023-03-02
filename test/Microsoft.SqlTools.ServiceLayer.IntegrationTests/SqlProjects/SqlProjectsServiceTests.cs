@@ -840,6 +840,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath); // default value is normalized to Windows slashes
             Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", mock.Result.DefaultCollation);
             Assert.IsNull(mock.Result.DatabaseSource, nameof(mock.Result.DatabaseSource)); // validate DatabaseSource is null when the tag isn't present
+            Assert.AreEqual(ProjectType.SdkStyle, mock.Result.ProjectStyle);
 
             // Validate that DatabaseSource can be set when the tag doesn't exist
 
