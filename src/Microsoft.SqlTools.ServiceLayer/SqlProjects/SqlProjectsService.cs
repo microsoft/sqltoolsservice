@@ -375,14 +375,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 DacpacReference reference;
 
-                if (requestParams.DatabaseLiteral != null) // same server, different database via database name literal
+                if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
                 {
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
-                else if (requestParams.DatabaseVariable != null) // different database, possibly different server via sqlcmdvar
+                else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 SqlProjectReference reference;
 
-                if (requestParams.DatabaseLiteral != null) // same server, different database via database name literal
+                if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
                 {
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,
@@ -416,7 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
-                else if (requestParams.DatabaseVariable != null) // different database, possibly different server via sqlcmdvar
+                else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,

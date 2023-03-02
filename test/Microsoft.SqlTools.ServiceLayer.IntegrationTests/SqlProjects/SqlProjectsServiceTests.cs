@@ -602,6 +602,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual("DacpacLiteral", dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
+
+            // Validate adding a dacpac reference via database literal when an empty string is passed in for DatabaseVariable
+            mockReferencePath = Path.Join(Path.GetDirectoryName(projectUri), "AnotherDatabaseLiteral.dacpac");
+
+            requestMock = new();
+            await service.HandleAddDacpacReferenceRequest(new AddDacpacReferenceParams()
+            {
+                ProjectUri = projectUri,
+                DacpacPath = mockReferencePath,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = "DacpacLiteral2",
+                DatabaseVariable = ""
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest), "db literal");
+            Assert.AreEqual(4, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference with an empty string passed in for database variable(db literal)");
+            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
+            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
+            Assert.AreEqual("DacpacLiteral2", dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
+            Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
+            Assert.AreEqual(null, dacpacRef.DatabaseVariable, nameof(dacpacRef.DatabaseVariable));
         }
 
         [Test]
