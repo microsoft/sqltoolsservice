@@ -4,14 +4,15 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Get all the post-deployment scripts in a project
+    /// Add a None item to a project
     /// </summary>
-    public class GetPostDeploymentScriptsRequest
+    public class AddNoneItemRequest
     {
-        public static readonly RequestType<SqlProjectParams, GetScriptsResult> Type = RequestType<SqlProjectParams, GetScriptsResult>.Create("sqlProjects/getPostDeploymentScripts");
+        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/addNoneItem");
     }
 }

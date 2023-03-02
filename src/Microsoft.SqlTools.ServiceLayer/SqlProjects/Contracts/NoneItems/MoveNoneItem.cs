@@ -9,10 +9,10 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Add a SQL object script to a project
+    /// Move a None item in a project
     /// </summary>
-    public class AddNoneScriptRequest
+    public class MoveNoneItemRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/addNoneScript");
+        public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/moveNoneItem");
     }
 }
