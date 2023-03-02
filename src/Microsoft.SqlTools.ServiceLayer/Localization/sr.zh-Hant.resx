@@ -1321,10 +1321,10 @@
     <value>加密的值 '{0}' 無效。有效值為 'Optional'、'Mandatory'、'Strict'、'True'、'False'、'Yes' 和 'No'。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS' 及 'HGS'。</value>
+    <value>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>證明通訊協定與記憶體保護區證明 URL 需要將 Always Encrypted 設定為「啟用」。</value>
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>執行批次期間發生錯誤，結束中。</value>
@@ -3996,5 +3996,14 @@
   </data>
   <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
     <value>內建結構描述</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>使用證明通訊協定的選取值時，證明 URL 不可為空白。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
   </data>
 </root>
