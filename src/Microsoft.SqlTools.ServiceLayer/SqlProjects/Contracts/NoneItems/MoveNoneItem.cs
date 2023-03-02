@@ -13,8 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// <summary>
     /// Move a SQL object script in a project
     /// </summary>
-    public class MoveNoneScriptRequest
+    public class MoveNoneItemRequest
     {
-        public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/moveNoneScript");
+        public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/moveNoneItem");
     }
 }

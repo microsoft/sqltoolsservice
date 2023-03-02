@@ -9,8 +9,8 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
-    public class GetNoneScriptsRequest
+    public class GetNoneItemsRequest
     {
-        public static readonly RequestType<SqlProjectParams, GetScriptsResult> Type = RequestType<SqlProjectParams, GetScriptsResult>.Create("sqlProjects/getNoneScripts");
+        public static readonly RequestType<SqlProjectParams, GetScriptsResult> Type = RequestType<SqlProjectParams, GetScriptsResult>.Create("sqlProjects/getNoneItems");
     }
 }
