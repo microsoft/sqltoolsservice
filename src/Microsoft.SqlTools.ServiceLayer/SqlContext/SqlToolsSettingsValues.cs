@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -25,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 QueryExecutionSettings = new QueryExecutionSettings();
                 Format = new FormatterSettings();
                 TableDesigner = new TableDesignerSettings();
+                PiiLogging = false;
             }
         }
 
@@ -57,5 +59,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         [JsonProperty("tableDesigner")]
         public TableDesignerSettings TableDesigner { get; set; }
+
+        /// <summary>
+        /// Gets or sets the setting to enable PII Logging.
+        /// </summary>
+        [JsonProperty("piiLogging")]
+        public Boolean PiiLogging { get; set; }
     }
 }

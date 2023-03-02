@@ -42,13 +42,21 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
 
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+
+                // Register PII Logging configuration change callback
+                Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
+                {
+                    Logger.IsPiiEnabled = newSettings?.MssqlTools?.PiiLogging ?? false;
+                    Logger.Information(Logger.IsPiiEnabled ? "PII Logging enabled" : "PII Logging disabled");
+                    return Task.FromResult(true);
+                });
+
                 // Only enable SQL Client logging when verbose or higher to avoid extra overhead when the
                 // detailed logging it provides isn't needed
                 if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
                 {
                     sqlClientListener = new SqlClientListener();
                 }
-
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
