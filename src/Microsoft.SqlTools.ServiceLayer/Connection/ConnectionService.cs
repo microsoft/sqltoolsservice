@@ -1073,16 +1073,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             this.ServiceHost = serviceHost;
 
-            if (commandOptions != null)
+            if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
             {
                 // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
                 var provider = new AuthenticationProvider(commandOptions.ApplicationName);
                 SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
-                if (commandOptions.EnableSqlAuthenticationProvider)
-                {
-                    this.EnableSqlAuthenticationProvider = true;
-                }
+                this.EnableSqlAuthenticationProvider = true;
+                Logger.Information("Registering implementation of SQL Authentication provider for 'Active Directory Interactive' authentication mode.");
             }
 
             // Register request and event handlers with the Service Host
@@ -1420,7 +1418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
 
-                if(connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.None)
+                if (connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.None)
                 {
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
                 }
@@ -1606,8 +1604,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ApplicationIntent = builder.ApplicationIntent.ToString(),
                 ApplicationName = builder.ApplicationName,
                 AttachDbFilename = builder.AttachDBFilename,
-                AuthenticationType = builder.IntegratedSecurity ? "Integrated" : 
-                    (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive 
+                AuthenticationType = builder.IntegratedSecurity ? "Integrated" :
+                    (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive
                     ? "ActiveDirectoryInteractive" : "SqlLogin"),
                 ConnectRetryCount = builder.ConnectRetryCount,
                 ConnectRetryInterval = builder.ConnectRetryInterval,
@@ -1811,7 +1809,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails.CommandTimeout = originalCommandTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
                 connInfo.ConnectionDetails.Pooling = originalPooling;
-                
+
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
 

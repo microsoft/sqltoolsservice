@@ -30,6 +30,9 @@ namespace Microsoft.SqlTools.Authentication.Sql
         /// <param name="authCallback">Callback that handles AAD authentication when user interaction is needed.</param>
         public AuthenticationProvider(string applicationName)
         {
+            if(string.IsNullOrEmpty(applicationName)) {
+                applicationName = nameof(SqlTools);
+            }
             var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), applicationName, AzureTokenFolder);
             this.authenticator = new Authenticator(ApplicationClientId, applicationName, cachePath, MsalCacheName);
         }
