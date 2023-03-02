@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Exclude a SQL object script from a project
+    /// Exclude a None item from a project
     /// </summary>
     public class ExcludeNoneItemRequest
     {

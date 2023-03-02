@@ -11,6 +11,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Get all the database references in a project
+    /// </summary>
     public class GetDatabaseReferencesRequest
     {
         public static readonly RequestType<SqlProjectParams, GetDatabaseReferencesResult> Type = RequestType<SqlProjectParams, GetDatabaseReferencesResult>.Create("sqlProjects/getDatabaseReferences");

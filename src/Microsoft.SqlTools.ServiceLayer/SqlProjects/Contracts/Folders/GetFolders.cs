@@ -10,6 +10,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Get all the folders in a project
+    /// </summary>
     public class GetFoldersRequest
     {
         public static readonly RequestType<SqlProjectParams, GetFoldersResult> Type = RequestType<SqlProjectParams, GetFoldersResult>.Create("sqlProjects/getFolders");

@@ -4,12 +4,12 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-
 using Microsoft.SqlTools.ServiceLayer.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Delete a SQL object script from a project
+    /// Delete a None item from a project
     /// </summary>
     public class DeleteNoneItemRequest
     {

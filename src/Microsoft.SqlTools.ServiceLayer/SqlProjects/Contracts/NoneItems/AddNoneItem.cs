@@ -9,7 +9,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Add a SQL object script to a project
+    /// Add a None item to a project
     /// </summary>
     public class AddNoneItemRequest
     {
