@@ -1321,10 +1321,10 @@
     <value>Valor inválido '{0}' para Criptografar. Os valores válidos são 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' e 'No'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Valor inválido '{0}' para EnclaveAttestationProtocol. Os valores válidos são 'AAS' e 'HGS'.</value>
+    <value>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>O Protocolo de Atestado e a URL de Atestado de Enclave exigem que a opção Always Encrypted seja definida como Habilitada.</value>
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>Erro durante a execução do lote. Saindo.</value>
@@ -3996,5 +3996,14 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   </data>
   <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
     <value>Esquemas Internos</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>A URL de Atestado não pode ficar vazia com o valor selecionado do Protocolo de Atestado.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
   </data>
 </root>

@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">Il valore '{0}' non è valido per EnclaveAttestationProtocol. I valori validi sono 'AAS' e 'HGS'.</target>
+        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">Valore '{0}' non valido per EnclaveAttestationProtocol. I valori validi sono 'AAS', 'HGS' e 'None'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">Il protocollo di attestazione e l'URL di attestazione dell'enclave richiedono che Always Encrypted sia impostato su Abilitato.</target>
+        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
+        <target state="translated">Il protocollo di attestazione e l'URL di attestazione dell'enclave richiedono che Always Encrypted con enclavi sicure sia impostato su Abilitato.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6548,6 +6548,22 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
       <trans-unit id="SchemaHierarchy_BuiltInSchema">
         <source>Built-in Schemas</source>
         <target state="translated">Schemi predefiniti</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
+        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <target state="translated">L'URL di attestazione non può essere vuoto con il valore selezionato del protocollo di attestazione.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
+        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">Valore '{0}' non valido per SecureEnclaves. I valori validi sono 'Enabled' e 'Disabled'.</target>
+        <note>.
+ Parameters: 0 - secureEnclaves (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
+        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">L'URL di attestazione dell'enclave non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</target>
         <note></note>
       </trans-unit>
     </body>
