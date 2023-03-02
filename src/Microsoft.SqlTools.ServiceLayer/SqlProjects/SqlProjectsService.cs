@@ -46,6 +46,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(CreateSqlProjectRequest.Type, HandleCreateSqlProjectRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(GetCrossPlatformCompatibilityRequest.Type, HandleGetCrossPlatformCompatibilityRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(GetProjectPropertiesRequest.Type, HandleGetProjectPropertiesRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(SetDatabaseSourceRequest.Type, HandleSetDatabaseSourceRequest, isParallelProcessingSupported: false);
 
             // SQL object script functions
             serviceHost.SetRequestHandler(GetSqlObjectScriptsRequest.Type, HandleGetSqlObjectScriptsRequest, isParallelProcessingSupported: true);
@@ -131,6 +133,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleUpdateProjectForCrossPlatformRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).UpdateForCrossPlatform(), requestContext);
+        }
+
+        internal async Task HandleGetProjectPropertiesRequest(SqlProjectParams requestParams, RequestContext<GetProjectPropertiesResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                SqlProjectProperties props = GetProject(requestParams.ProjectUri).Properties;
+
+                return new GetProjectPropertiesResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    ProjectGuid = props.ProjectGuid,
+                    Configuration = props.Configuration,
+                    Platform = props.Platform,
+                    OutputPath = props.OutputPath,
+                    DefaultCollation = props.DefaultCollation,
+                    DatabaseSource = props.DatabaseSource,
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleSetDatabaseSourceRequest(SetDatabaseSourceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Properties.DatabaseSource = requestParams.DatabaseSource, requestContext);
         }
 
         #endregion
@@ -310,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #endregion
 
-        #region Database Reference functions
+        #region Database reference functions
 
         internal async Task HandleGetDatabaseReferencesRequest(SqlProjectParams requestParams, RequestContext<GetDatabaseReferencesResult> requestContext)
         {
@@ -431,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri!).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue, requestParams.Value)), requestContext);
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri!).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)), requestContext);
         }
 
         internal async Task HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -445,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 project.SqlCmdVariables.Delete(requestParams.Name); // idempotent (won't throw if doesn't exist)
-                project.SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue, requestParams.Value));
+                project.SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue));
             }, requestContext);
         }
 
@@ -459,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             if (!Projects.ContainsKey(projectUri))
             {
-                Projects[projectUri] = new SqlProject(projectUri);
+                Projects[projectUri] = SqlProject.OpenProject(projectUri);
             }
 
             return Projects[projectUri];
