@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
@@ -109,7 +110,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 if (connInfo != null)
                 {
                     parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                    accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                    // Set Access Token only when authentication type is AzureMFA.
+                    if (connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
+                    {
+                        accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                    }
                 }
                 else
                 {

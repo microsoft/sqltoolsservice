@@ -32,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public SourceLevels TracingLevel { get; set; } = SourceLevels.Critical;
         public bool DoNotUseTraceSource { get; set; } = false;
 
+        public bool IsPiiEnabled { get; set; } = false;
+
         public bool AutoFlush { get; set; } = false;
 
         private List<Action> pendingVerifications;
@@ -43,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public string LogFileName { get => logFileName ?? Logger.LogFileFullPath; set => logFileName = value; }
         public void Initialize() =>
-            Logger.Initialize(TracingLevel, LogFilePath, TraceSource, AutoFlush); // initialize the logger
+            Logger.Initialize(TracingLevel, IsPiiEnabled, LogFilePath, TraceSource, AutoFlush); // initialize the logger
         public string LogContents
         {
             get

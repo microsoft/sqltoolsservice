@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -479,6 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {null, "12345678"},
             new object[] {"", "12345678"},
         };
+
         /// <summary>
         /// Verify that when using integrated authentication, the username and/or password can be empty.
         /// </summary>
@@ -497,11 +499,65 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                         DatabaseName = "test",
                         UserName = userName,
                         Password = password,
-                        AuthenticationType = "Integrated"
+                        AuthenticationType = Integrated
                     }
                 });
 
             Assert.That(connectionResult.ConnectionId, Is.Not.Null.Or.Empty, "check that the connection was successful");
+        }
+
+        /// <summary>
+        /// Verify that username is required when using Active Directory Interactive authentication.
+        /// Both AzureMFA and ActiveDirectoryInteractive should work same way, when SqlAuthenticationProvider is enabled.
+        /// </summary>
+        [TestCase(null, AzureMFA)]
+        [TestCase(null, ActiveDirectoryInteractive)]
+        public async Task ConnectingWitNoUsernameFailsForAADInteractiveAuth(string userName, string authMode)
+        {
+            // This is an exception scenario test, therefore using ConnectionService instance instead of TestConnectionService directly.
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+            // Connect
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = new ConnectionDetails()
+                    {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = userName,
+                        AuthenticationType = authMode
+                    }
+                });
+
+            Assert.That(connectionResult.ConnectionId, Is.Null.Or.Empty, "Connection should not be successful");
+        }
+
+        /// <summary>
+        /// Verify that password is ignored when using Active Directory Interactive authentication.
+        /// </summary>
+        [TestCase("user", "anything", AzureMFA)]
+        [TestCase("user", "anything", ActiveDirectoryInteractive)]
+        public async Task ConnectingWitPasswordIsIgnoredForAADInteractiveAuth(string username, string password, string authMode)
+        {
+            // Connect
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = new ConnectionDetails()
+                    {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = username,
+                        Password = password,
+                        AuthenticationType = authMode
+                    }
+                });
+
+            Assert.That(connectionResult.ConnectionId, Is.Not.Null.Or.Empty, "Connection should be successful");
         }
 
         /// <summary>
@@ -1773,16 +1829,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.AzureAccountToken = azureAccountToken;
             details.UserName = "";
             details.Password = "";
-            details.AuthenticationType = "AzureMFA";
+            details.AuthenticationType = AzureMFA;
 
-            // If I open a connection using connection details that include an account token
+            // Open a connection using connection details that include an account token
             await connectionService.Connect(new ConnectParams
             {
                 OwnerUri = "testURI",
                 Connection = details
             });
 
-            // Then the connection factory got called with details including an account token
+            // Validate that the connection factory gets called with details NOT including an account token
             mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken)), Times.Once());
         }
 

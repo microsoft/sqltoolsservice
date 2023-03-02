@@ -57,6 +57,8 @@
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
 		<ProjectReference Include="../Microsoft.SqlTools.ManagedBatchParser/Microsoft.SqlTools.ManagedBatchParser.csproj" />
+		<ProjectReference Include="..\Microsoft.SqlTools.Authentication\Microsoft.SqlTools.Authentication.csproj" />
+		<ProjectReference Include="..\Microsoft.SqlTools.Shared\Microsoft.SqlTools.Shared.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="..\..\Notice.txt">

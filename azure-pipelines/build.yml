@@ -27,12 +27,11 @@ parameters:
       archiveName: 'win-x86'
       archiveFileFormat: 'zip'
       archiveType: 'zip'
-    # - name: 'win10-arm64'
-    #   displayName: 'Windows 10 ARM 64 bit'
-    #   archiveFileFormat: 'zip'
-    # - name: 'win10-arm'
-    #   displayName: 'Windows 10 ARM'
-    #   archiveFileFormat: 'zip'
+    - name: 'win-arm64'
+      archiveName: 'win-arm64'
+      displayName: 'Windows ARM 64 bit'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
   - name: projects
     type: object
     default:
