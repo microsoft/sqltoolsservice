@@ -1800,7 +1800,11 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
                 connectionStringBuilder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
                 var connectionString = connectionStringBuilder.ToString();
-                tableDesigner = new Dac.TableDesigner(connectionString, tableInfo.AccessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+
+                // Set Access Token only when authentication mode is not specified.
+                var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
+                    ? tableInfo.AccessToken : null;
+                tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
             }
             else
             {

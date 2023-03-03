@@ -24,13 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Default value of the SQLCMD variable
         /// </summary>
         public string DefaultValue { get; set; }
-
-        /// <summary>
-        /// Value of the SQLCMD variable, with or without the $()
-        /// </summary>
-        public string Value { get; set; }
     }
 
+    /// <summary>
+    /// Add a SQLCMD variable to a project
+    /// </summary>
     public class AddSqlCmdVariableRequest
     {
         public static readonly RequestType<AddSqlCmdVariableParams, ResultStatus> Type = RequestType<AddSqlCmdVariableParams, ResultStatus>.Create("sqlProjects/addSqlCmdVariable");

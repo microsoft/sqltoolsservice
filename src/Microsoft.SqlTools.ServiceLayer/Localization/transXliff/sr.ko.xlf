@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">EnclaveAttestationProtocol에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS' 및 'HGS'입니다.</target>
+        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">증명 프로토콜 및 enclave 증명 URL을 사용하려면 Always Encrypted를 Enabled(사용)로 설정해야 합니다.</target>
+        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
+        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6543,6 +6543,27 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
         <source>Sequence Number End</source>
         <target state="translated">시퀀스 번호 끝</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">기본 제공 스키마</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
+        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <target state="translated">증명 URL은 증명 프로토콜의 선택된 값으로 비워 둘 수 없습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
+        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="new">Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <note>.
+ Parameters: 0 - secureEnclaves (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
+        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
+        <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
         <note></note>
       </trans-unit>
     </body>

@@ -35,11 +35,17 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
 
+ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves) = Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.
+
 ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
 
-ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.
+ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.
 
-ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.
+ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = Attestation URL cannot be empty with the selected value of Attestation Protocol.
+
+ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.
+
+ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.
 
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
@@ -439,6 +445,8 @@ SchemaHierarchy_Routes = Routes
 SchemaHierarchy_Rules = Rules
 
 SchemaHierarchy_Schemas = Schemas
+
+SchemaHierarchy_BuiltInSchema = Built-in Schemas
 
 SchemaHierarchy_Security = Security
 
@@ -2435,3 +2443,8 @@ GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from m
 
 #ObjectManagement Service
 ErrorConnectionNotFound = The connection could not be found
+
+############################################################################
+# Security Service
+DefaultLanguagePlaceholder = <default>
+

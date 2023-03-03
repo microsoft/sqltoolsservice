@@ -8,6 +8,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Move a post-deployment script in a project
+    /// </summary>
     public class MovePostDeploymentScriptRequest
     {
         public static readonly RequestType<MoveItemParams, ResultStatus> Type = RequestType<MoveItemParams, ResultStatus>.Create("sqlProjects/movePostDeploymentScript");

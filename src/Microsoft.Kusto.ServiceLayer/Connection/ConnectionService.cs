@@ -19,6 +19,7 @@ using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -916,7 +917,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             return new ConnectionDetails
             {
                 ApplicationName = builder.ApplicationNameForTracing,
-                AuthenticationType = "AzureMFA",
+                AuthenticationType = AzureMFA,
                 DatabaseName = builder.InitialCatalog,
                 ServerName = builder.DataSource,
                 UserName = builder.UserID,

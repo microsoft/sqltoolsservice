@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">Valeur « {0} » non valide pour EnclaveAttestationProtocol. Les valeurs valides sont « AAS » et « HGS ».</target>
+        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">Le protocole d'attestation et l'URL d'attestation d'enclave exigent l'activation d'Always Encrypted.</target>
+        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
+        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6543,6 +6543,27 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
         <source>Sequence Number End</source>
         <target state="translated">Fin du numéro de séquence</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">Schémas intégrés</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
+        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <target state="translated">L’URL d’attestation ne peut pas être vide avec la valeur sélectionnée protocole d’attestation.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
+        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="new">Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <note>.
+ Parameters: 0 - secureEnclaves (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
+        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
+        <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
         <note></note>
       </trans-unit>
     </body>

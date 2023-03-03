@@ -1321,10 +1321,10 @@
     <value>Valeur non valide '{0}' pour Chiffrer. Les valeurs valides sont 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' et 'No'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Valeur « {0} » non valide pour EnclaveAttestationProtocol. Les valeurs valides sont « AAS » et « HGS ».</value>
+    <value>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>Le protocole d'attestation et l'URL d'attestation d'enclave exigent l'activation d'Always Encrypted.</value>
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>Une erreur s'est produite durant l'exécution du lot. Fermeture en cours.</value>
@@ -3993,5 +3993,17 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
     <value>Fin du numéro de séquence</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Schémas intégrés</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>L’URL d’attestation ne peut pas être vide avec la valeur sélectionnée protocole d’attestation.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
   </data>
 </root>

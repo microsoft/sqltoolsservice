@@ -1716,9 +1716,21 @@
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.]]></Val>
+          <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[證明通訊協定與記憶體保護區證明 URL 需要將 Always Encrypted 設定為「啟用」。]]></Val>
+            <Val><![CDATA[證明通訊協定與 Enclave 證明 URL 需要將搭配 Secure Enclave 的 Always Encrypted 設定為 [啟用]5D;。]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[不得使用證明通訊協定 'None' 指定 Enclave 證明 URL。請設定適當的證明通訊協定，或從連線屬性移除證明 URL。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1743,10 +1755,13 @@
       </Item>
       <Item ItemId=";ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
+          <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS' 及 'HGS'。]]></Val>
+            <Val><![CDATA[EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS'、'HGS' 及 'None'。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1764,6 +1779,24 @@
           <Val><![CDATA[Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[ApplicationIntent 值 '{0}' 無效。有效值為 'ReadWrite' 和 'ReadOnly'。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringInvalidSecureEnclaves" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SecureEnclaves 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Attestation URL cannot be empty with the selected value of Attestation Protocol.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[使用證明通訊協定的選取值時，證明 URL 不可為空白。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7842,6 +7875,15 @@
           <Val><![CDATA[Broker Priorities]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[訊息代理程式優先權]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";SchemaHierarchy_BuiltInSchema" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Built-in Schemas]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[內建結構描述]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

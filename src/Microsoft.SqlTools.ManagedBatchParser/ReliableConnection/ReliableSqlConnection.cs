@@ -70,7 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             _connectionRetryPolicy.RetryOccurred += RetryConnectionCallback;
             _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
 
-            if (azureAccountToken != null)
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_underlyingConnection.ConnectionString);
+            if (builder.Authentication is SqlAuthenticationMethod.NotSpecified && azureAccountToken is not null)
             {
                 _underlyingConnection.AccessToken = azureAccountToken;
             }

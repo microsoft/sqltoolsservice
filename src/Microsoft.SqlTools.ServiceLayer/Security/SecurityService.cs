@@ -202,7 +202,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             var login = parameters.Login;
             prototype.SqlPassword = login.Password;
-            prototype.DefaultLanguage = login.DefaultLanguage;
+            if (0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
+            {
+                prototype.DefaultLanguage = login.DefaultLanguage.Split(" - ")[1];
+            }
             prototype.DefaultDatabase = login.DefaultDatabase;
             prototype.EnforcePolicy = login.EnforcePasswordPolicy;
             prototype.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;
@@ -253,17 +256,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginViewInfo loginViewInfo = new LoginViewInfo();
 
+            // TODO cache databases and languages
             string[] databases = new string[dataContainer.Server.Databases.Count];
             for (int i = 0; i < dataContainer.Server.Databases.Count; i++)
             {
                 databases[i] = dataContainer.Server.Databases[i].Name;
             }
-            string[] languages = new string[dataContainer.Server.Languages.Count];
-            for (int i = 0; i < dataContainer.Server.Languages.Count; i++)
-            {
-                languages[i] = dataContainer.Server.Languages[i].Name;
-            }
 
+            var languageOptions = GetDefaultLanguageOptions(dataContainer);
+            var languageOptionsList = languageOptions.Select(FormatLanguageDisplay).ToList();
+            if (parameters.IsNewObject)
+            {
+                languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
+            }
+            string[] languages = languageOptionsList.ToArray();
             LoginPrototype prototype = parameters.IsNewObject 
             ? new LoginPrototype(dataContainer.Server) 
             : new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Name]);
@@ -287,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 EnforcePasswordPolicy = prototype.EnforcePolicy,
                 MustChangePassword = prototype.MustChange,
                 DefaultDatabase = prototype.DefaultDatabase,
-                DefaultLanguage = prototype.DefaultDatabase,
+                DefaultLanguage = FormatLanguageDisplay(languageOptions.FirstOrDefault(o => o?.Language.Name == prototype.DefaultLanguage || o?.Language.Alias == prototype.DefaultLanguage, null)),
                 ServerRoles = loginServerRoles.ToArray(),
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
@@ -329,8 +335,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<object> requestContext)
         {
-            contextIdToConnectionUriMap.Remove(parameters.ContextId);
             await requestContext.SendResult(new object());
+        }
+
+        private string FormatLanguageDisplay(LanguageDisplay? l)
+        {
+            if (l == null) return null;
+             return string.Format("{0} - {1}", l.Language.Alias, l.Language.Name);
         }
         #endregion
 
@@ -610,7 +621,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        private void GetDefaultLanguageOptions(CDataContainer dataContainer)
+        private IList<LanguageDisplay> GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
             // this.defaultLanguageComboBox.Items.Clear();            
             // this.defaultLanguageComboBox.Items.Add(defaultLanguagePlaceholder);            
@@ -628,11 +639,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
             }
 
-            // add the language display objects to the combo box
-            foreach (LanguageDisplay languageDisplay in sortedLanguages.Values)
+            IList<LanguageDisplay> res = new List<LanguageDisplay>();
+            foreach (LanguageDisplay ld in sortedLanguages.Values)
             {
-                //this.defaultLanguageComboBox.Items.Add(languageDisplay);
+                res.Add(ld);
             }
+
+            return res;
         }
 
         // how to populate defaults from prototype, will delete once refactored

@@ -20,6 +20,7 @@ using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using CompletionItem = Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts.CompletionItem;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
@@ -63,7 +64,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 
         private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
         {
-            if (connectionDetails.AuthenticationType == "dstsAuth" || connectionDetails.AuthenticationType == "AzureMFA")
+            if (connectionDetails.AuthenticationType == dstsAuth || connectionDetails.AuthenticationType == AzureMFA)
             {
                 ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(connectionDetails.AccountToken),
                     $"The Kusto User Token is not specified - set {nameof(connectionDetails.AccountToken)}");
