@@ -6566,6 +6566,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="new">&lt;default&gt;</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
