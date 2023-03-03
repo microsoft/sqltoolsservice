@@ -12,14 +12,15 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 {
     public class DataSourceFactoryTests
     {
-        [TestCase(typeof(ArgumentException), "ConnectionString", "", "AzureMFA")]
-        [TestCase(typeof(ArgumentException), "ConnectionString", "", "dstsAuth")]
+        [TestCase(typeof(ArgumentException), "ConnectionString", "", AzureMFA)]
+        [TestCase(typeof(ArgumentException), "ConnectionString", "", dstsAuth)]
         public void Create_Throws_Exceptions_For_InvalidAzureAccountToken(Type exceptionType, string connectionString, string azureAccountToken, string authType)
         {
             Program.ServiceName = "Kusto";

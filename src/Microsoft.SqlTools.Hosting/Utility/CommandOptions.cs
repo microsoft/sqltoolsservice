@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.Utility
             ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
+            ApplicationName = string.Empty;
 
             try
             {
@@ -42,11 +43,17 @@ namespace Microsoft.SqlTools.Utility
 
                         switch (argName)
                         {
+                            case "-application-name":
+                                ApplicationName = args[++i];
+                                break;
                             case "-autoflush-log":
                                 AutoFlushLog = true;
                                 break;
                             case "-tracing-level":
                                 TracingLevel = args[++i];
+                                break;
+                            case "-pii-logging":
+                                PiiLogging = true;
                                 break;
                             case "-log-file":
                                 LogFilePath = args[++i];
@@ -65,6 +72,9 @@ namespace Microsoft.SqlTools.Utility
                                 break;
                             case "-parallel-message-processing":
                                 ParallelMessageProcessing = true;
+                                break;
+                            case "-enable-sql-authentication-provider":
+                                EnableSqlAuthenticationProvider = true;
                                 break;
                             case "-parent-pid":
                                 string nextArg = args[++i];
@@ -94,6 +104,11 @@ namespace Microsoft.SqlTools.Utility
                 }
             }
         }
+
+        /// <summary>
+        /// Name of application that is sending command options
+        /// </summary>
+        public string ApplicationName { get; private set; }
 
         /// <summary>
         /// Contains any error messages during execution
@@ -137,6 +152,8 @@ namespace Microsoft.SqlTools.Utility
 
         public string TracingLevel { get; private set; }
 
+        public bool PiiLogging { get; private set; }
+
         public string LogFilePath { get; private set; }
 
         public bool AutoFlushLog { get; private set; } = false;
@@ -146,6 +163,13 @@ namespace Microsoft.SqlTools.Utility
         /// Eventually we will fix the issues and make this the default behavior.
         /// </summary>
         public bool ParallelMessageProcessing { get; private set; } = false;
+
+        /// <summary>
+        /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
+        /// when user chooses 'Azure MFA'. This setting enables MSAL.NET to acquire token with SqlClient integration.
+        /// Currently this option is disabled by default, it's planned to be enabled by default in future releases.
+        /// </summary>
+        public bool EnableSqlAuthenticationProvider { get; private set; } = false;
 
         /// <summary>
         /// The ID of the process that started this service. This is used to check when the parent

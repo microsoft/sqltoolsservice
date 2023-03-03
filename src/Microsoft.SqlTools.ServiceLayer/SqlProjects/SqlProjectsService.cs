@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(UpdateProjectForCrossPlatformRequest.Type, HandleUpdateProjectForCrossPlatformRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(GetProjectPropertiesRequest.Type, HandleGetProjectPropertiesRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(SetDatabaseSourceRequest.Type, HandleSetDatabaseSourceRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(SetDatabaseSchemaProviderRequest.Type, HandleSetDatabaseSchemaProviderRequest, isParallelProcessingSupported: false);
 
             // SQL object script functions
             serviceHost.SetRequestHandler(GetSqlObjectScriptsRequest.Type, HandleGetSqlObjectScriptsRequest, isParallelProcessingSupported: true);
@@ -70,11 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(MovePostDeploymentScriptRequest.Type, HandleMovePostDeploymentScriptRequest, isParallelProcessingSupported: false);
 
             // None script functions
-            serviceHost.SetRequestHandler(GetNoneScriptsRequest.Type, HandleGetNoneScriptsRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(AddNoneScriptRequest.Type, HandleAddNoneScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(DeleteNoneScriptRequest.Type, HandleDeleteNoneScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(ExcludeNoneScriptRequest.Type, HandleExcludeNoneScriptRequest, isParallelProcessingSupported: false);
-            serviceHost.SetRequestHandler(MoveNoneScriptRequest.Type, HandleMoveNoneScriptRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(GetNoneItemsRequest.Type, HandleGetNoneItemsRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(AddNoneItemRequest.Type, HandleAddNoneItemRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(DeleteNoneItemRequest.Type, HandleDeleteNoneItemRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(ExcludeNoneItemRequest.Type, HandleExcludeNoneItemRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(MoveNoneItemRequest.Type, HandleMoveNoneItemRequest, isParallelProcessingSupported: false);
 
             // Folder functions
             serviceHost.SetRequestHandler(GetFoldersRequest.Type, HandleGetFoldersRequest, isParallelProcessingSupported: true);
@@ -139,18 +140,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(() =>
             {
-                SqlProjectProperties props = GetProject(requestParams.ProjectUri).Properties;
+                SqlProject project = GetProject(requestParams.ProjectUri);
 
                 return new GetProjectPropertiesResult()
                 {
                     Success = true,
                     ErrorMessage = null,
-                    ProjectGuid = props.ProjectGuid,
-                    Configuration = props.Configuration,
-                    Platform = props.Platform,
-                    OutputPath = props.OutputPath,
-                    DefaultCollation = props.DefaultCollation,
-                    DatabaseSource = props.DatabaseSource,
+                    ProjectGuid = project.Properties.ProjectGuid,
+                    Configuration = project.Properties.Configuration,
+                    Platform = project.Properties.Platform,
+                    OutputPath = project.Properties.OutputPath,
+                    DefaultCollation = project.Properties.DefaultCollation,
+                    DatabaseSource = project.Properties.DatabaseSource,
+                    ProjectStyle = project.SqlProjStyle,
+                    DatabaseSchemaProvider = project.DatabaseSchemaProvider
                 };
             }, requestContext);
         }
@@ -158,6 +161,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleSetDatabaseSourceRequest(SetDatabaseSourceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).Properties.DatabaseSource = requestParams.DatabaseSource, requestContext);
+        }
+
+        internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).DatabaseSchemaProvider = requestParams.DatabaseSchemaProvider, requestContext);
         }
 
         #endregion
@@ -273,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         #region None script functions
 
-        internal async Task HandleGetNoneScriptsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        internal async Task HandleGetNoneItemsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
         {
             await RunWithErrorHandling(() =>
             {
@@ -286,22 +294,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task HandleAddNoneScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleAddNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Add(new NoneScript(requestParams.Path!)), requestContext);
         }
 
-        internal async Task HandleDeleteNoneScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleDeleteNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Delete(requestParams.Path!), requestContext);
         }
 
-        internal async Task HandleExcludeNoneScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleExcludeNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Exclude(requestParams.Path!), requestContext);
         }
 
-        internal async Task HandleMoveNoneScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleMoveNoneItemRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
@@ -373,14 +381,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 DacpacReference reference;
 
-                if (requestParams.DatabaseLiteral != null) // same server, different database via database name literal
+                if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
                 {
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
-                else if (requestParams.DatabaseVariable != null) // different database, possibly different server via sqlcmdvar
+                else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new DacpacReference(
                         requestParams.DacpacPath,
@@ -406,7 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(requestParams.ProjectUri!);
                 SqlProjectReference reference;
 
-                if (requestParams.DatabaseLiteral != null) // same server, different database via database name literal
+                if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
                 {
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,
@@ -414,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
-                else if (requestParams.DatabaseVariable != null) // different database, possibly different server via sqlcmdvar
+                else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new SqlProjectReference(
                         requestParams.ProjectPath,

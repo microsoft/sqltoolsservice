@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
                 // Initialize the ServiceHost, using a MemoryStream for the output stream so that we don't fill up the logs
                 // with a bunch of outgoing messages (which aren't used for anything during tests)
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, null, new MemoryStream());
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, null, null, new MemoryStream());
 
                 // Set up our logger to write to Console for tests to help debug issues
                 Logger.Initialize(autoFlush: true);

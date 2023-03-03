@@ -11,6 +11,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Get all the SQLCMD variables in a project
+    /// </summary>
     public class GetSqlCmdVariablesRequest
     {
         public static readonly RequestType<SqlProjectParams, GetSqlCmdVariablesResult> Type = RequestType<SqlProjectParams, GetSqlCmdVariablesResult>.Create("sqlProjects/getSqlCmdVariables");

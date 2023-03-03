@@ -10,6 +10,9 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
+    /// <summary>
+    /// Get all the SQL object scripts in a project
+    /// </summary>
     public class GetSqlObjectScriptsRequest
     {
         public static readonly RequestType<SqlProjectParams, GetScriptsResult> Type = RequestType<SqlProjectParams, GetScriptsResult>.Create("sqlProjects/getSqlObjectScripts");

@@ -4,15 +4,15 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-
 using Microsoft.SqlTools.ServiceLayer.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
 {
     /// <summary>
-    /// Delete a SQL object script from a project
+    /// Exclude a None item from a project
     /// </summary>
-    public class DeleteNoneScriptRequest
+    public class ExcludeNoneItemRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/deleteNoneScript");
+        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlProjects/excludeNoneItem");
     }
 }
