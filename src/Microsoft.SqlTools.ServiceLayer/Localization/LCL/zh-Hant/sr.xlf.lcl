@@ -1717,8 +1717,8 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[證明通訊協定與記憶體保護區證明 URL 需要將 Always Encrypted 設定為「啟用」。]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[證明通訊協定與 Enclave 證明 URL 需要將搭配 Secure Enclave 的 Always Encrypted 設定為 [啟用]5D;。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.]]></Val>
@@ -1729,6 +1729,9 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[不得使用證明通訊協定 'None' 指定 Enclave 證明 URL。請設定適當的證明通訊協定，或從連線屬性移除證明 URL。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1753,8 +1756,8 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS' 及 'HGS'。]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS'、'HGS' 及 'None'。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
@@ -1783,6 +1786,9 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidSecureEnclaves" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SecureEnclaves 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
