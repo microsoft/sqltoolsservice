@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <exception cref="ArgumentException"></exception>
         internal void Validate()
         {
-            if (DatabaseVariable != null && DatabaseLiteral != null)
+            if (!string.IsNullOrWhiteSpace(DatabaseVariable) && !string.IsNullOrWhiteSpace(DatabaseLiteral))
             {
                 throw new ArgumentException($"Both {nameof(DatabaseVariable)} and {nameof(DatabaseLiteral)} cannot be set.");
             }
