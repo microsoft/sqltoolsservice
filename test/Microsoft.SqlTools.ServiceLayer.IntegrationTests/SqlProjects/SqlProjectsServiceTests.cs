@@ -846,47 +846,57 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SqlProjectsService service = new();
             string projectUri = await service.CreateSqlProject();
 
-            MockRequest<GetProjectPropertiesResult> mock = new();
-
+            MockRequest<GetProjectPropertiesResult> getMock = new();
             await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
             {
                 ProjectUri = projectUri
-            }, mock.Object);
+            }, getMock.Object);
 
-            mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
 
-            Assert.IsTrue(Guid.TryParse(mock.Result.ProjectGuid, out _), $"{mock.Result.ProjectGuid} should be set");
-            Assert.AreEqual("AnyCPU", mock.Result.Platform);
-            Assert.AreEqual("Debug", mock.Result.Configuration);
-            Assert.AreEqual(@"bin\Debug\", mock.Result.OutputPath); // default value is normalized to Windows slashes
-            Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", mock.Result.DefaultCollation);
-            Assert.IsNull(mock.Result.DatabaseSource, nameof(mock.Result.DatabaseSource)); // validate DatabaseSource is null when the tag isn't present
-            Assert.AreEqual(ProjectType.SdkStyle, mock.Result.ProjectStyle);
-            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider", mock.Result.DatabaseSchemaProvider);
+            Assert.IsTrue(Guid.TryParse(getMock.Result.ProjectGuid, out _), $"{getMock.Result.ProjectGuid} should be set");
+            Assert.AreEqual("AnyCPU", getMock.Result.Platform);
+            Assert.AreEqual("Debug", getMock.Result.Configuration);
+            Assert.AreEqual(@"bin\Debug\", getMock.Result.OutputPath); // default value is normalized to Windows slashes
+            Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", getMock.Result.DefaultCollation);
+            Assert.IsNull(getMock.Result.DatabaseSource, nameof(getMock.Result.DatabaseSource)); // validate DatabaseSource is null when the tag isn't present
+            Assert.AreEqual(ProjectType.SdkStyle, getMock.Result.ProjectStyle);
+            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider", getMock.Result.DatabaseSchemaProvider);
 
             // Validate that DatabaseSource can be set when the tag doesn't exist
 
-            MockRequest<ResultStatus> setSourceMock = new();
+            MockRequest<ResultStatus> setMock = new();
             await service.HandleSetDatabaseSourceRequest(new SetDatabaseSourceParams()
             {
                 ProjectUri = projectUri,
                 DatabaseSource = "TestSource"
-            }, setSourceMock.Object);
+            }, setMock.Object);
 
-            setSourceMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
+            setMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
             Assert.AreEqual("TestSource", service.Projects[projectUri].Properties.DatabaseSource);
 
             // Validate DatabaseSource is read when it has a value
 
-            mock = new();
-
+            getMock = new();
             await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
             {
                 ProjectUri = projectUri
-            }, mock.Object);
+            }, getMock.Object);
 
-            mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
-            Assert.AreEqual("TestSource", mock.Result.DatabaseSource);
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.AreEqual("TestSource", getMock.Result.DatabaseSource);
+
+            // Validate that DatabaseSchemaProvider can be set
+
+            setMock = new();
+            await service.HandleSetDatabaseSchemaProviderRequest(new SetDatabaseSchemaProviderParams()
+            {
+                ProjectUri = projectUri,
+                DatabaseSchemaProvider = "Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider"
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetDatabaseSchemaProviderRequest));
+            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider", service.Projects[projectUri].DatabaseSchemaProvider);
         }
 
         #region Helpers
