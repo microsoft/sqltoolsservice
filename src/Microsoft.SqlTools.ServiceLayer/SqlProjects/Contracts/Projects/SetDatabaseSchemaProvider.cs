@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     public class SetDatabaseSchemaProviderParams : SqlProjectParams
     {
         /// <summary>
-        /// Source of the database schema, used in telemetry
+        /// New DatabaseSchemaProvider value, in the form "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider"
         /// </summary>
         public string DatabaseSchemaProvider { get; set; }
     }
