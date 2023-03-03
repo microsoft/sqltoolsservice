@@ -2443,3 +2443,8 @@ GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from m
 
 #ObjectManagement Service
 ErrorConnectionNotFound = The connection could not be found
+
+############################################################################
+# Security Service
+DefaultLanguagePlaceholder = <default>
+

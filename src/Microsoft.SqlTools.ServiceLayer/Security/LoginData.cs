@@ -1363,6 +1363,7 @@ INNER JOIN sys.sql_logins AS sql_logins
             {
                 this.server = server;
                 this.login  = login;
+                LoadData();
             }          
 
             /// <summary>
@@ -2087,7 +2088,10 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.SqlPassword = login.Password;
             this.OldPassword = login.OldPassword;
             this.LoginType = GetLoginType(login);
-            this.DefaultLanguage = login.DefaultLanguage;
+            if (this.DefaultLanguage != null && 0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
+            {
+                this.DefaultLanguage = login.DefaultLanguage.Split(" - ")[1];
+            }
             this.DefaultDatabase = login.DefaultDatabase;
             this.EnforcePolicy = login.EnforcePasswordPolicy;
             this.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;
@@ -2350,6 +2354,12 @@ INNER JOIN sys.sql_logins AS sql_logins
             // get the login
             Login login = server.Logins[this.LoginName];
 
+            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                ApplyServerRoleChangesForAzure(server);
+                return;
+            }
+
             // foreach server role
             foreach (ServerRole role in server.Roles)
             {
@@ -2370,6 +2380,28 @@ INNER JOIN sys.sql_logins AS sql_logins
                     {
                         role.DropMember(this.LoginName);
                     }
+                }
+            }
+        }
+
+        private void ApplyServerRoleChangesForAzure(Microsoft.SqlServer.Management.Smo.Server server)
+        {
+            // foreach server role
+            foreach (string role in this.ServerRoles.ServerRoleNames)
+            {
+                 bool wasOriginallyARoleMember   = this.originalState.ServerRoles.IsMember(role);
+                bool isCurrentlyARoleMember     = this.currentState.ServerRoles.IsMember(role);
+
+
+                // if the login is currently a member of the role, but wasn't originally a member, add the login to the role
+                if (isCurrentlyARoleMember && !wasOriginallyARoleMember)
+                {
+                    //run query to add
+                }
+                // if the login is not currently a member of the role, but originally was a member, remove the login from the role
+                else if (!isCurrentlyARoleMember && wasOriginallyARoleMember)
+                {
+                    //run query to drop
                 }
             }
         }
