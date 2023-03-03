@@ -1363,6 +1363,7 @@ INNER JOIN sys.sql_logins AS sql_logins
             {
                 this.server = server;
                 this.login  = login;
+                LoadData();
             }          
 
             /// <summary>

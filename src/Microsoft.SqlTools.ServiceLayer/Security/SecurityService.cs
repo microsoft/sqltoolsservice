@@ -200,7 +200,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             var login = parameters.Login;
             prototype.SqlPassword = login.Password;
-            prototype.DefaultLanguage = login.DefaultLanguage;
+            if (0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
+            {
+                prototype.DefaultLanguage = login.DefaultLanguage.Split(" - ")[1];
+            }
             prototype.DefaultDatabase = login.DefaultDatabase;
             prototype.EnforcePolicy = login.EnforcePasswordPolicy;
             prototype.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;
