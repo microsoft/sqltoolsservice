@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 await SecurityTestUtils.DeleteUser(service, connectionResult, user);
 
-                await SecurityTestUtils.DeleteLogin(service, connectionResult, login);                
+                await SecurityTestUtils.DeleteLogin(service, connectionResult, login);
             }           
         }
     }

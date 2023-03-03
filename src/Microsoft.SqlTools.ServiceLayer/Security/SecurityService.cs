@@ -103,6 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
             this.ServiceHost.SetRequestHandler(UpdateUserRequest.Type, HandleUpdateUserRequest, true);
             this.ServiceHost.SetRequestHandler(DeleteUserRequest.Type, HandleDeleteUserRequest, true);
+            this.ServiceHost.SetRequestHandler(DisposeUserViewRequest.Type, HandleDisposeUserViewRequest, true);
         }
 
 
@@ -356,16 +357,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
                     connectionInfoWithConnection.ServerConnection = serverConnection;
 
-                    string urn = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        "Server/Database[@Name='{0}']",
-                        Urn.EscapeString(serverConnection.DatabaseName));
+                    string urn =  (configAction == ConfigAction.Update && user != null)
+                        ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "Server/Database[@Name='{0}']/User[@Name='{1}']",
+                            Urn.EscapeString(serverConnection.DatabaseName),
+                            Urn.EscapeString(user.Name))
+                        : string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "Server/Database[@Name='{0}']",
+                            Urn.EscapeString(serverConnection.DatabaseName));
 
-                    ActionContext context = new ActionContext(serverConnection, "new_user", urn);
+                    ActionContext context = new ActionContext(serverConnection, "User", urn);
                     DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
-                    containerXml.AddProperty("itemtype", "User");
 
-                    XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
-                    bool objectExists = configAction != ConfigAction.Create;
+                    if (configAction == ConfigAction.Create)
+                    {
+                        containerXml.AddProperty("itemtype", "User");
+                    }
+
+                    XmlDocument xmlDoc = containerXml.GenerateXmlDocument();                    
                     CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
 
                     using (var actions = new UserActions(dataContainer, user, configAction))
@@ -477,7 +486,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.contextIdToConnectionUriMap.Add(parameters.ContextId, parameters.ConnectionUri);
             }
 
-            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, true);
+            UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, null);
+            UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(ExhaustiveUserTypes.LoginMappedUser);        
+            ServerConnection serverConnection = dataContainer.ServerConnection;
 
             string databaseName = parameters.Database ?? "master";
             var schemaMap = LoadSchemas(databaseName, string.Empty, serverConnection);
@@ -585,6 +597,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
+        internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
+        {
+            if (!string.IsNullOrEmpty(parameters.ContextId))
+            {
+                contextIdToConnectionUriMap.Remove(parameters.ContextId);
+            }
+            await requestContext.SendResult(new ResultStatus()
+            {
+                Success = true,
+                ErrorMessage = string.Empty
+            });
+        }
+
         private void GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
             // this.defaultLanguageComboBox.Items.Clear();            
@@ -609,55 +634,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 //this.defaultLanguageComboBox.Items.Add(languageDisplay);
             }
         }
-
-        // code needs to be ported into the useraction class
-        // public void UserMemberships_OnRunNow(object sender, CDataContainer dataContainer)
-        // {
-        //     UserPrototype currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
-
-        //     //In case the UserGeneral/OwnedSchemas pages are loaded,
-        //     //those will takes care of applying membership changes also.
-        //     //Hence, we only need to apply changes in this method when those are not loaded.
-        //     if (!currentPrototype.IsRoleMembershipChangesApplied)
-        //     {
-        //         //base.OnRunNow(sender);
-
-        //         User user = currentPrototype.ApplyChanges();
-
-        //         //this.ExecutionMode = ExecutionMode.Success;
-        //         dataContainer.ObjectName = currentPrototype.Name;
-        //         dataContainer.SqlDialogSubject = user;
-        //     }
-
-        //     //setting back to original after changes are applied
-        //     currentPrototype.IsRoleMembershipChangesApplied = false;
-        // }
-
-        // /// <summary>
-        // /// implementation of OnPanelRunNow
-        // /// </summary>
-        // /// <param name="node"></param>
-        // public void UserOwnedSchemas_OnRunNow(object sender, CDataContainer dataContainer)
-        // {
-        //     UserPrototype currentPrototype = UserPrototypeFactory.GetInstance(dataContainer).CurrentPrototype;
-
-        //     //In case the UserGeneral/Membership pages are loaded,
-        //     //those will takes care of applying schema ownership changes also.
-        //     //Hence, we only need to apply changes in this method when those are not loaded.
-        //     if (!currentPrototype.IsSchemaOwnershipChangesApplied)
-        //     {
-        //         //base.OnRunNow(sender);
-
-        //         User user = currentPrototype.ApplyChanges();
-
-        //         //this.ExecutionMode = ExecutionMode.Success;
-        //         dataContainer.ObjectName = currentPrototype.Name;
-        //         dataContainer.SqlDialogSubject = user;                
-        //     }
-
-        //     //setting back to original after changes are applied
-        //     currentPrototype.IsSchemaOwnershipChangesApplied = false;
-        // }
 
         // how to populate defaults from prototype, will delete once refactored
         // private void InitializeValuesInUiControls()

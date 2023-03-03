@@ -113,4 +113,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
             RequestType<DeleteUserParams, ResultStatus> Type =
             RequestType<DeleteUserParams, ResultStatus>.Create("objectManagement/deleteUser");
     }
+
+    /// <summary>
+    /// Update User params
+    /// </summary>
+    public class DisposeUserViewRequestParams
+    {
+        public string? ContextId { get; set; }
+    }
+
+    /// <summary>
+    /// Update User request type
+    /// </summary>
+    public class DisposeUserViewRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<DisposeUserViewRequestParams, ResultStatus> Type =
+            RequestType<DisposeUserViewRequestParams, ResultStatus>.Create("objectManagement/disposeUserView");
+    }
 }

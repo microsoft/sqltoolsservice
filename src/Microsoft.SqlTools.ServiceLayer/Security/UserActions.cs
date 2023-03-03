@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 #region Variables
         //private UserPrototypeData userData;
         private UserPrototype userPrototype;
-        private UserInfo user;
+        private UserInfo? user;
         private ConfigAction configAction;
 #endregion
 
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.user = user;
             this.configAction = configAction;
 
-            this.userPrototype = InitUserNew(context, user);
+            this.userPrototype = InitUserPrototype(context, user);
         }
 
         // /// <summary> 
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
         
-        private UserPrototype InitUserNew(CDataContainer dataContainer, UserInfo user)
+        private UserPrototype InitUserPrototype(CDataContainer dataContainer, UserInfo user)
         {
             ExhaustiveUserTypes currentUserType;
             UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, user);
