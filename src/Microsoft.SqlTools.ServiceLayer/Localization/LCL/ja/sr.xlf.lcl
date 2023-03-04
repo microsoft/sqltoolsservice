@@ -1717,8 +1717,8 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted を Enabled に設定することが必要です。]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted with Secure Enclaves を有効に設定する必要があります。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.]]></Val>
@@ -1729,6 +1729,9 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[エンクレーブ構成証明の URL は構成証明プロトコル 'None' で指定することはできません。 適切な構成証明プロトコルを設定するか、接続プロパティから構成証明 URL を削除します。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1753,8 +1756,8 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS' と 'HGS' です。]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS'、'HGS'、'None' です。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.]]></Val>
@@ -1783,6 +1786,9 @@
       <Item ItemId=";ConnectionServiceConnStringInvalidSecureEnclaves" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SecureEnclaves の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2052,6 +2058,15 @@
           <Val><![CDATA[Allocates a local variable.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[ローカル変数を割り当てます。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";DefaultLanguagePlaceholder" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[<default>]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[<既定>]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
