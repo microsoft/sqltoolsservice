@@ -234,6 +234,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             var _ = prototype.ServerRoles.ServerRoleNames;
+
+            foreach (string role in prototype.ServerRoles.ServerRoleNames)
+            {
+                prototype.ServerRoles.SetMember(role, false);
+            }
+
             foreach (string role in login.ServerRoles)
             {
                 prototype.ServerRoles.SetMember(role, true);

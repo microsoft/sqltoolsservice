@@ -4006,4 +4006,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
     <value>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
   </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+  </data>
 </root>

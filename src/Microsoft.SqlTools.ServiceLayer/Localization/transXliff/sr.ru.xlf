@@ -2043,13 +2043,13 @@
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <target state="translated">Недопустимое значение "{0}" для EnclaveAttestationProtocol. Допустимые значения: "AAS", "HGS" и "None" (Нет).</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
         <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</target>
+        <target state="translated">Протокол аттестации и URL-адрес аттестации анклава требуют включения Always Encrypted с безопасными анклавами.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6557,13 +6557,18 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
         <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <target state="translated">Недопустимое значение "{0}" для SecureEnclaves. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
         <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
+        <target state="translated">Недопустимо задавать URL-адрес аттестации анклава с протоколом аттестации "None". Задайте подходящий протокол или удалите URL-адрес из свойств подключения.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="new">&lt;default&gt;</target>
         <note></note>
       </trans-unit>
     </body>
