@@ -177,6 +177,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             string contextId,
             LoginInfo login)
         {
+            var initializeViewRequestParams = new InitializeUserViewParams
+            {
+                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                ContextId = contextId,
+                IsNewObject = true,
+                Database = "master"
+            };
+
+            var initializeUserViewContext = new Mock<RequestContext<UserViewInfo>>();
+            initializeUserViewContext.Setup(x => x.SendResult(It.IsAny<UserViewInfo>()))
+                .Returns(Task.FromResult(new LoginViewInfo()));
+
+            await service.HandleInitializeUserViewRequest(initializeViewRequestParams, initializeUserViewContext.Object);
+
             var userParams = new CreateUserParams
             {
                 ContextId = contextId,

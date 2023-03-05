@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.isMember = new Dictionary<string, bool>();
         }
 
-        public UserPrototypeData(CDataContainer context, UserInfo userInfo)
+        public UserPrototypeData(CDataContainer context, UserInfo? userInfo)
         {
             this.isSchemaOwned = new Dictionary<string, bool>();
             this.isMember = new Dictionary<string, bool>();
@@ -114,10 +114,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             else
             {
-                this.name = userInfo.Name;
-                this.mappedLoginName = userInfo.LoginName;
-                this.defaultSchemaName = userInfo.DefaultSchema;
-                this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);        
+                if (userInfo != null)
+                {
+                    this.name = userInfo.Name;
+                    this.mappedLoginName = userInfo.LoginName;
+                    this.defaultSchemaName = userInfo.DefaultSchema;
+                    this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
+                }     
             }
 
             this.LoadRoleMembership(context);

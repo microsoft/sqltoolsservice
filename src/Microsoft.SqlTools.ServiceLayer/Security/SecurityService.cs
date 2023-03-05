@@ -16,6 +16,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
@@ -226,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
 
                 // check that password and confirm password controls' text matches
-                if (0 != String.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
+                if (0 != string.Compare(prototype.SqlPassword, prototype.SqlPasswordConfirm, StringComparison.Ordinal))
                 {
                     // raise error here
                 }
@@ -347,185 +348,129 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         #region "User Handlers"
 
-        internal Task<Tuple<bool, string>> ConfigureUser(
-            string? ownerUri,
-            UserInfo? user,
-            ConfigAction configAction,
-            RunType runType)
+        private class UserViewState
         {
-            return Task<Tuple<bool, string>>.Run(() =>
+            public string Database { get; set; }
+
+            public UserViewState(string database)
             {
-                try
-                {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
-                    if (connInfo == null)
-                    {
-                        throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
-                    }
-
-                    var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
-                    var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
-                    connectionInfoWithConnection.ServerConnection = serverConnection;
-
-                    string urn =  (configAction == ConfigAction.Update && user != null)
-                        ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                            "Server/Database[@Name='{0}']/User[@Name='{1}']",
-                            Urn.EscapeString(serverConnection.DatabaseName),
-                            Urn.EscapeString(user.Name))
-                        : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                            "Server/Database[@Name='{0}']",
-                            Urn.EscapeString(serverConnection.DatabaseName));
-
-                    ActionContext context = new ActionContext(serverConnection, "User", urn);
-                    DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
-
-                    if (configAction == ConfigAction.Create)
-                    {
-                        containerXml.AddProperty("itemtype", "User");
-                    }
-
-                    XmlDocument xmlDoc = containerXml.GenerateXmlDocument();                    
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
-
-                    using (var actions = new UserActions(dataContainer, user, configAction))
-                    {
-                        var executionHandler = new ExecutonHandler(actions);
-                        executionHandler.RunNow(runType, this);
-                    }
-
-                    return new Tuple<bool, string>(true, string.Empty);
-                }
-                catch (Exception ex)
-                {
-                    return new Tuple<bool, string>(false, ex.ToString());
-                }
-            });
-        }
-
-        private Dictionary<string, SchemaOwnership> LoadSchemas(string databaseName, string dbroleName, ServerConnection serverConnection)
-        {
-            bool isPropertiesMode = false;
-            Dictionary<string, SchemaOwnership> schemaOwnership = new Dictionary<string, SchemaOwnership>();
-
-            Enumerator en = new Enumerator();
-            Request req = new Request();
-            req.Fields = new String[] { "Name", "Owner" };
-            req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Schema";
-
-            DataTable dt = en.Process(serverConnection, req);
-            System.Diagnostics.Debug.Assert((dt != null) && (0 < dt.Rows.Count), "enumerator did not return schemas");
-            System.Diagnostics.Debug.Assert(!isPropertiesMode || (dbroleName.Length != 0), "role name is not known");
-
-            foreach (DataRow dr in dt.Rows)
-            {
-                string schemaName = Convert.ToString(dr["Name"], System.Globalization.CultureInfo.InvariantCulture);
-                string schemaOwner = Convert.ToString(dr["Owner"], System.Globalization.CultureInfo.InvariantCulture);
-                bool roleOwnsSchema = isPropertiesMode && (0 == String.Compare(dbroleName, schemaOwner, StringComparison.Ordinal));
-                if (schemaName != null)
-                {
-                    schemaOwnership[schemaName] = new SchemaOwnership(roleOwnsSchema);
-                }
+                this.Database = database;
             }
-            return schemaOwnership;
         }
 
-        private string[] LoadDatabaseRoles(ServerConnection serverConnection, string databaseName)
-        {
-            var server = new Server(serverConnection);
-            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";
-            Database? parent = server.GetSmoObject(new Urn(dbUrn)) as Database;
-            var roles = new List<string>();
-            if (parent != null)
-            {
-                foreach (DatabaseRole dbRole in parent.Roles)
-                {
-                    var comparer = parent.GetStringComparer();
-                    if (comparer.Compare(dbRole.Name, "public") != 0)
-                    {
-                        roles.Add(dbRole.Name);
-                    }
-                }
-            }
-            return roles.ToArray();
-        }
-
-        private string[] LoadSqlLogins(ServerConnection serverConnection)
-        {
-            return LoadItems(serverConnection, "Server/Login");
-        }
-
-        private string[] LoadItems(ServerConnection serverConnection, string urn)
-        {
-            List<string> items = new List<string>();
-            Request req = new Request();
-            req.Urn = urn;
-            req.ResultType = ResultType.IDataReader;
-            req.Fields = new string[] { "Name" };
-
-            Enumerator en = new Enumerator();
-            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
-            {
-                if (reader != null)
-                {
-                    string name;
-                    while (reader.Read())
-                    {
-                        // Get the permission name
-                        name = reader.GetString(0);
-                        items.Add(name);
-                    }
-                }
-            }
-            return items.ToArray();
-        }
+        private Dictionary<string, UserViewState> contextIdToViewState = new Dictionary<string, UserViewState>();
 
         /// <summary>
         /// Handle request to initialize user view
         /// </summary>
         internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
         {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            if (connInfo == null)
+            if (string.IsNullOrWhiteSpace(parameters.Database))
+            {
+                throw new ArgumentNullException("parameters.Database");
+            }
+
+            if (string.IsNullOrWhiteSpace(parameters.ContextId))
+            {
+                throw new ArgumentNullException("parameters.ContextId");
+            }
+
+            ConnectionInfo originalConnInfo;
+            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out originalConnInfo);
+            if (originalConnInfo == null)
             {
                 throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
             }
 
-            if (parameters.ContextId != null && parameters.ConnectionUri != null)
+            string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
+            originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
+            ConnectParams connectParams = new ConnectParams
             {
-                this.contextIdToConnectionUriMap.Add(parameters.ContextId, parameters.ConnectionUri);
+                OwnerUri = parameters.ContextId,
+                Connection = originalConnInfo.ConnectionDetails,
+                Type = Connection.ConnectionType.Default
+            };
+
+            try
+            {
+                await this.ConnectionServiceInstance.Connect(connectParams);
+            }
+            finally
+            {
+                originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
             }
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, true);
+            ConnectionInfo connInfo;
+            this.ConnectionServiceInstance.TryFindConnection(parameters.ContextId, out connInfo);
+
+            ConfigAction configAction = parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update;
+            CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, configAction, parameters.Database);
             UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, null);
             UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(ExhaustiveUserTypes.LoginMappedUser);        
+            
+            IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = currentUserPrototype as IUserPrototypeWithDefaultLanguage;
+            string? defaultLanguageAlias = null;
+            if (defaultLanguagePrototype != null && defaultLanguagePrototype.IsDefaultLanguageSupported)
+            {
+                string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
+                defaultLanguageAlias = defaultLanguagePrototype.DefaultLanguageAlias;
+                //If engine returns default language as empty or null, that means the default language of  
+                //database will be used.
+                //Default language is not applicable for users inside an uncontained authentication.
+                if (string.IsNullOrEmpty(defaultLanguageAlias)
+                    && (dataContainer.Server.GetSmoObject(dbUrn) as Database).ContainmentType != ContainmentType.None)
+                {
+                    defaultLanguageAlias = DefaultLanguagePlaceholder;
+                }
+            }
+
+            string? defaultSchema = null;
+            IUserPrototypeWithDefaultSchema defaultSchemaPrototype = currentUserPrototype as IUserPrototypeWithDefaultSchema;
+            if (defaultSchemaPrototype != null && defaultSchemaPrototype.IsDefaultSchemaSupported)
+            {
+                defaultSchema = defaultSchemaPrototype.DefaultSchema;
+            }
+            // IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
+            // if (userWithPwdPrototype != null && !this.DataContainer.IsNewObject)
+            // {
+            //     this.passwordTextBox.Text = FAKE_PASSWORD;
+            //     this.confirmPwdTextBox.Text = FAKE_PASSWORD;                
+            // }
+
+            string? loginName = null;
+            IUserPrototypeWithMappedLogin mappedLoginPrototype = currentUserPrototype as IUserPrototypeWithMappedLogin;
+            if (mappedLoginPrototype != null)
+            {
+                loginName = mappedLoginPrototype.LoginName;
+            }
+
             ServerConnection serverConnection = dataContainer.ServerConnection;
-
-            string databaseName = parameters.Database ?? "master";
-            var schemaMap = LoadSchemas(databaseName, string.Empty, serverConnection);
-
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
                 {
                     Type = DatabaseUserType.WithLogin,
-                    Name = string.Empty,
-                    LoginName = string.Empty,
+                    Name = currentUserPrototype.Name,
+                    LoginName = loginName,
                     Password = string.Empty,
-                    DefaultSchema = string.Empty,
+                    DefaultSchema = defaultSchema,
                     OwnedSchemas = new string[] { },
                     DatabaseRoles = new string[] { },
+                    DefaultLanguage = defaultLanguageAlias
                 },
                 SupportContainedUser = true,
                 SupportWindowsAuthentication = true,
                 SupportAADAuthentication = true,
                 SupportSQLAuthentication = true,
                 Languages = new string[] { },
-                Schemas = schemaMap.Keys.ToArray(),
+                Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = LoadSqlLogins(serverConnection),
-                DatabaseRoles = LoadDatabaseRoles(serverConnection, databaseName)
+                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
             };
+
+            this.contextIdToViewState.Add(
+                parameters.ContextId, 
+                new UserViewState(parameters.Database));
 
             await requestContext.SendResult(userViewInfo);
         }
@@ -535,16 +480,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         internal async Task HandleCreateUserRequest(CreateUserParams parameters, RequestContext<CreateUserResult> requestContext)
         {
-            if (parameters.ContextId == null || !this.contextIdToConnectionUriMap.ContainsKey(parameters.ContextId))
+            if (parameters.ContextId == null)
             {
                 throw new ArgumentException("Invalid context ID");
             }
 
-            string connectionUri = this.contextIdToConnectionUriMap[parameters.ContextId];
-            var result = await ConfigureUser(connectionUri,
+            UserViewState viewState;
+            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
+
+            if (viewState == null)
+            {
+                throw new ArgumentException("Invalid context ID view state");
+            }
+
+            Tuple<bool, string> result = ConfigureUser(
+                parameters.ContextId,
                 parameters.User,
                 ConfigAction.Create,
-                RunType.RunNow);
+                RunType.RunNow,
+                viewState.Database);
 
             await requestContext.SendResult(new CreateUserResult()
             {
@@ -559,16 +513,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         internal async Task HandleUpdateUserRequest(UpdateUserParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            if (parameters.ContextId == null || !this.contextIdToConnectionUriMap.ContainsKey(parameters.ContextId))
+            if (parameters.ContextId == null)
             {
                 throw new ArgumentException("Invalid context ID");
             }
 
-            string connectionUri = this.contextIdToConnectionUriMap[parameters.ContextId];
-            var result = await ConfigureUser(connectionUri,
+            UserViewState viewState;
+            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
+
+            if (viewState == null)
+            {
+                throw new ArgumentException("Invalid context ID view state");
+            }
+
+            Tuple<bool, string> result = ConfigureUser(
+                parameters.ContextId,
                 parameters.User,
                 ConfigAction.Update,
-                RunType.RunNow);
+                RunType.RunNow,
+                viewState.Database);
 
             await requestContext.SendResult(new ResultStatus()
             {
@@ -610,16 +573,110 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            if (!string.IsNullOrEmpty(parameters.ContextId))
-            {
-                contextIdToConnectionUriMap.Remove(parameters.ContextId);
-            }
+            // if (!string.IsNullOrEmpty(parameters.ContextId))
+            // {
+            //     contextIdToConnectionUriMap.Remove(parameters.ContextId);
+            // }
+
+// need to disconnect here
+
             await requestContext.SendResult(new ResultStatus()
             {
                 Success = true,
                 ErrorMessage = string.Empty
             });
         }
+
+        internal CDataContainer CreateUserDataContainer(
+            ConnectionInfo connInfo, 
+            UserInfo? user, 
+            ConfigAction configAction,
+            string databaseName)
+        {
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
+            var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
+            connectionInfoWithConnection.ServerConnection = serverConnection;
+
+            string urn =  (configAction == ConfigAction.Update && user != null)
+                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "Server/Database[@Name='{0}']/User[@Name='{1}']",
+                    Urn.EscapeString(databaseName),
+                    Urn.EscapeString(user.Name))
+                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "Server/Database[@Name='{0}']",
+                    Urn.EscapeString(databaseName));
+
+            ActionContext context = new ActionContext(serverConnection, "User", urn);
+            DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
+
+            if (configAction == ConfigAction.Create)
+            {
+                containerXml.AddProperty("itemtype", "User");
+            }
+
+            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();                    
+            return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
+        }
+
+        internal Tuple<bool, string> ConfigureUser(
+            string? ownerUri,
+            UserInfo? user,
+            ConfigAction configAction,
+            RunType runType,
+            string databaseName)
+        {
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            if (connInfo == null)
+            {
+                throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
+            }
+
+            CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
+            using (var actions = new UserActions(dataContainer, user, configAction))
+            {
+                var executionHandler = new ExecutonHandler(actions);
+                executionHandler.RunNow(runType, this);
+                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                {
+                    throw executionHandler.ExecutionFailureException;
+                }
+            }
+
+            return new Tuple<bool, string>(true, string.Empty);
+        }
+
+        private string[] LoadSqlLogins(ServerConnection serverConnection)
+        {
+            return LoadItems(serverConnection, "Server/Login");
+        }
+
+        private string[] LoadItems(ServerConnection serverConnection, string urn)
+        {
+            List<string> items = new List<string>();
+            Request req = new Request();
+            req.Urn = urn;
+            req.ResultType = ResultType.IDataReader;
+            req.Fields = new string[] { "Name" };
+
+            Enumerator en = new Enumerator();
+            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
+            {
+                if (reader != null)
+                {
+                    string name;
+                    while (reader.Read())
+                    {
+                        // Get the permission name
+                        name = reader.GetString(0);
+                        items.Add(name);
+                    }
+                }
+            }
+            return items.ToArray();
+        }
+
+        private readonly string DefaultLanguagePlaceholder = "(default)";
 
         private IList<LanguageDisplay> GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
@@ -647,48 +704,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             return res;
         }
-
-        // how to populate defaults from prototype, will delete once refactored
-        // private void InitializeValuesInUiControls()
-        // {
-
-        //     IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = this.currentUserPrototype
-        //                                                                             as IUserPrototypeWithDefaultLanguage;
-        //     if (defaultLanguagePrototype != null
-        //         && defaultLanguagePrototype.IsDefaultLanguageSupported)
-        //     {
-        //         string defaultLanguageAlias = defaultLanguagePrototype.DefaultLanguageAlias;
-
-        //         //If engine returns default language as empty or null, that means the default language of  
-        //         //database will be used.
-        //         //Default language is not applicable for users inside an uncontained authentication.
-        //         if (string.IsNullOrEmpty(defaultLanguageAlias)
-        //             && (this.DataContainer.Server.GetSmoObject(this.parentDbUrn) as Database).ContainmentType != ContainmentType.None)
-        //         {
-        //             defaultLanguageAlias = this.defaultLanguagePlaceholder;
-        //         }
-        //         this.defaultLanguageComboBox.Text = defaultLanguageAlias;
-        //     }
-
-        //     IUserPrototypeWithDefaultSchema defaultSchemaPrototype = this.currentUserPrototype
-        //                                                                         as IUserPrototypeWithDefaultSchema;
-        //     if (defaultSchemaPrototype != null
-        //         && defaultSchemaPrototype.IsDefaultSchemaSupported)
-        //     {
-        //         this.defaultSchemaTextBox.Text = defaultSchemaPrototype.DefaultSchema;
-        //     }
-        //     IUserPrototypeWithPassword userWithPwdPrototype = this.currentUserPrototype
-        //                                                                 as IUserPrototypeWithPassword;
-        //     if (userWithPwdPrototype != null
-        //         && !this.DataContainer.IsNewObject)
-        //     {
-        //         this.passwordTextBox.Text = FAKE_PASSWORD;
-        //         this.confirmPwdTextBox.Text = FAKE_PASSWORD;                
-        //     }
-        // }
-
-
-
 
         #endregion
 
