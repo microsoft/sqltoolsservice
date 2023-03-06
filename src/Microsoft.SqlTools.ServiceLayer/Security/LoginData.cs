@@ -2097,7 +2097,11 @@ INNER JOIN sys.sql_logins AS sql_logins
             && 0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal)
             && (server.DatabaseEngineType == DatabaseEngineType.Standalone|| server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance))
             {
-                this.DefaultLanguage = login.DefaultLanguage.Split(" - ")[1];
+                string[] arr = login.DefaultLanguage?.Split(" - ");
+                if (arr != null && arr.Length > 1)
+                {
+                    this.DefaultLanguage = arr[1];
+                }
             }
             this.DefaultDatabase = login.DefaultDatabase;
             this.EnforcePolicy = login.EnforcePasswordPolicy;
