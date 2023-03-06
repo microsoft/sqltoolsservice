@@ -4007,6 +4007,6 @@
     <value>不得使用證明通訊協定 'None' 指定 Enclave 證明 URL。請設定適當的證明通訊協定，或從連線屬性移除證明 URL。</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
-    <value>&lt;default&gt;</value>
+    <value>&lt;預設&gt;</value>
   </data>
 </root>

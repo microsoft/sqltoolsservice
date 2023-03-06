@@ -4007,6 +4007,6 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>La dirección URL de atestación del enclave no debe especificarse con el protocolo de atestación "none". Establezca el protocolo de atestación adecuado o quite la dirección URL de atestación de las propiedades de conexión.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
-    <value>&lt;default&gt;</value>
+    <value>&lt;predeterminado&gt;</value>
   </data>
 </root>

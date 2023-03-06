@@ -6568,7 +6568,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
         <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
+        <target state="translated">&lt;defaut&gt;</target>
         <note></note>
       </trans-unit>
     </body>

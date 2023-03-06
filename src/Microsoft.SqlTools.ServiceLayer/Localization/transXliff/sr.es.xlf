@@ -6568,7 +6568,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
         <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
+        <target state="translated">&lt;predeterminado&gt;</target>
         <note></note>
       </trans-unit>
     </body>
