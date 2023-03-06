@@ -2065,6 +2065,9 @@
       <Item ItemId=";DefaultLanguagePlaceholder" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[<default>]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[<default>]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
