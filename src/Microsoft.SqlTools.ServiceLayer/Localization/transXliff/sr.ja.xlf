@@ -2043,13 +2043,13 @@
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <target state="translated">EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS'、'HGS'、'None' です。</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
         <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</target>
+        <target state="translated">構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted with Secure Enclaves を有効に設定する必要があります。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6557,18 +6557,18 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
         <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <target state="translated">SecureEnclaves の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
         <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
+        <target state="translated">エンクレーブ構成証明の URL は構成証明プロトコル 'None' で指定することはできません。 適切な構成証明プロトコルを設定するか、接続プロパティから構成証明 URL を削除します。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
         <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
+        <target state="translated">&lt;既定&gt;</target>
         <note></note>
       </trans-unit>
     </body>

@@ -4007,6 +4007,6 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>L'URL d'attestation d'enclave ne doit pas être spécifiée avec le protocole d'attestation « Aucun ». Définissez le protocole d'attestation approprié ou supprimez l'URL d'attestation des propriétés de connexion.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
-    <value>&lt;default&gt;</value>
+    <value>&lt;defaut&gt;</value>
   </data>
 </root>

@@ -1321,10 +1321,10 @@
     <value>Encrypt の値 '{0}' が無効です。有効な値は、'Optional'、'Mandatory'、'Strict'、'True'、'False'、'Yes'、および 'No' です。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
+    <value>EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS'、'HGS'、'None' です。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
+    <value>構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted with Secure Enclaves を有効に設定する必要があります。</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>バッチの実行中にエラーが発生しました。終了します。</value>
@@ -4001,12 +4001,12 @@
     <value>構成証明プロトコルの選択された値では、構成証明 URL を空にすることはできません。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+    <value>SecureEnclaves の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
+    <value>エンクレーブ構成証明の URL は構成証明プロトコル 'None' で指定することはできません。 適切な構成証明プロトコルを設定するか、接続プロパティから構成証明 URL を削除します。</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
-    <value>&lt;default&gt;</value>
+    <value>&lt;既定&gt;</value>
   </data>
 </root>

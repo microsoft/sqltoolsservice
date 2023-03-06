@@ -6568,7 +6568,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
         <source>&lt;default&gt;</source>
-        <target state="new">&lt;default&gt;</target>
+        <target state="translated">&lt;default&gt;</target>
         <note></note>
       </trans-unit>
     </body>
