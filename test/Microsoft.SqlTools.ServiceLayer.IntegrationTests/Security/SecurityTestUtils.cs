@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 EnforcePasswordExpiration = false,
                 Password = "placeholder",                
                 OldPassword = "placeholder",
-                DefaultLanguage = "us_english",
+                DefaultLanguage = "English - us_english",
                 DefaultDatabase = "master"
             };
         }

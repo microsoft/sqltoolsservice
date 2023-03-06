@@ -173,6 +173,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
             }
 
+            // default to dbo schema, if there isn't already a default
+            if (string.IsNullOrWhiteSpace(defaultSchema) && currentUserPrototype.SchemaNames.Contains("dbo"))
+            {
+                defaultSchema = "dbo";
+            }
+
             ServerConnection serverConnection = dataContainer.ServerConnection;
             UserViewInfo userViewInfo = new UserViewInfo()
             {
