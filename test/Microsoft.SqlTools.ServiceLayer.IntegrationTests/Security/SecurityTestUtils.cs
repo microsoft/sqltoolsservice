@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 EnforcePasswordExpiration = false,
                 Password = "placeholder",                
                 OldPassword = "placeholder",
-                DefaultLanguage = "us_english",
+                DefaultLanguage = "English - us_english",
                 DefaultDatabase = "master"
             };
         }
@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 LoginName = loginName,
                 Password = "placeholder",
                 DefaultSchema = "dbo",
-                OwnedSchemas = new string[] { "dbo" }
+                OwnedSchemas = new string[] { "" }
             };
         }
 
@@ -124,5 +124,131 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             var service = new SecurityService();
             await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
         }
+
+        internal static async Task<LoginInfo> CreateLogin(SecurityService service, TestConnectionResult connectionResult, string contextId)
+        {
+            var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams
+            {
+                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                ContextId = contextId,
+                IsNewObject = true
+            };
+
+            var loginParams = new CreateLoginParams
+            {
+                ContextId = contextId,
+                Login = SecurityTestUtils.GetTestLoginInfo()
+            };
+
+            var createLoginContext = new Mock<RequestContext<object>>();
+            createLoginContext.Setup(x => x.SendResult(It.IsAny<object>()))
+                .Returns(Task.FromResult(new object()));
+            var initializeLoginViewContext = new Mock<RequestContext<LoginViewInfo>>();
+            initializeLoginViewContext.Setup(x => x.SendResult(It.IsAny<LoginViewInfo>()))
+                .Returns(Task.FromResult(new LoginViewInfo()));
+
+            // call the create login method
+            await service.HandleInitializeLoginViewRequest(initializeLoginViewRequestParams, initializeLoginViewContext.Object);
+            await service.HandleCreateLoginRequest(loginParams, createLoginContext.Object);
+
+            return loginParams.Login;
+        }
+
+        internal static async Task DeleteLogin(SecurityService service, TestConnectionResult connectionResult, LoginInfo login)
+        {
+            // cleanup created login
+            var deleteParams = new DeleteLoginParams
+            {
+                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                Name = login.Name
+            };
+
+            var deleteContext = new Mock<RequestContext<object>>();
+            deleteContext.Setup(x => x.SendResult(It.IsAny<object>()))
+                .Returns(Task.FromResult(new object()));
+
+            // call the create login method
+            await service.HandleDeleteLoginRequest(deleteParams, deleteContext.Object);
+        }
+
+        internal static async Task<UserInfo> CreateUser(
+            UserServiceHandlerImpl service, 
+            TestConnectionResult connectionResult, 
+            string contextId,
+            LoginInfo login)
+        {
+            var initializeViewRequestParams = new InitializeUserViewParams
+            {
+                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                ContextId = contextId,
+                IsNewObject = true,
+                Database = "master"
+            };
+
+            var initializeUserViewContext = new Mock<RequestContext<UserViewInfo>>();
+            initializeUserViewContext.Setup(x => x.SendResult(It.IsAny<UserViewInfo>()))
+                .Returns(Task.FromResult(new LoginViewInfo()));
+
+            await service.HandleInitializeUserViewRequest(initializeViewRequestParams, initializeUserViewContext.Object);
+
+            var userParams = new CreateUserParams
+            {
+                ContextId = contextId,
+                User = SecurityTestUtils.GetTestUserInfo(login.Name)
+            };
+
+            var createUserContext = new Mock<RequestContext<CreateUserResult>>();
+            createUserContext.Setup(x => x.SendResult(It.IsAny<CreateUserResult>()))
+                .Returns(Task.FromResult(new object()));
+
+            // call the create login method
+            await service.HandleCreateUserRequest(userParams, createUserContext.Object);
+
+            // verify the result
+            createUserContext.Verify(x => x.SendResult(It.Is<CreateUserResult>
+                (p => p.Success && p.User.Name != string.Empty)));
+
+            return userParams.User;             
+        }
+
+        internal static async Task UpdateUser(
+            UserServiceHandlerImpl service, 
+            TestConnectionResult connectionResult, 
+            string contextId,
+            UserInfo user)
+        {
+            // update the user
+            user.OwnedSchemas = new string[] { "dbo" };
+            var updateParams = new UpdateUserParams
+            {
+                ContextId = contextId,
+                User = user
+            };
+            var updateUserContext = new Mock<RequestContext<ResultStatus>>();
+            // call the create login method
+            await service.HandleUpdateUserRequest(updateParams, updateUserContext.Object);
+            // verify the result
+            updateUserContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));         
+        }
+
+        internal static async Task DeleteUser(UserServiceHandlerImpl service, TestConnectionResult connectionResult, UserInfo user)
+        {
+            // cleanup created user
+            var deleteParams = new DeleteUserParams
+            {
+                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                Name = user.Name,
+                Database = connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName
+            };
+
+            var deleteContext = new Mock<RequestContext<ResultStatus>>();
+            deleteContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>()))
+                .Returns(Task.FromResult(new object()));
+
+            // call the create user method
+            await service.HandleDeleteUserRequest(deleteParams, deleteContext.Object);
+
+            deleteContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));
+        }       
     }
 }

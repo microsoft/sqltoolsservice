@@ -5,6 +5,10 @@
 
 #nullable disable
 
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Dmf;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System;
 using System.Collections.Generic;
@@ -79,6 +83,167 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             ss.MakeReadOnly();
 
             return ss;
+        }
+
+        /// <summary>
+        /// this is the main method that is called by DropAllObjects for every object
+        /// in the grid
+        /// </summary>
+        /// <param name="objectRowNumber"></param>
+        public static void DoDropObject(CDataContainer dataContainer)
+        {
+            // if a server isn't connected then there is nothing to do      
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
+            var executionMode = dataContainer.Server.ConnectionContext.SqlExecutionModes;
+            var subjectExecutionMode = executionMode;
+
+            //For Azure the ExecutionManager is different depending on which ExecutionManager
+            //used - one at the Server level and one at the Database level. So to ensure we
+            //don't use the wrong execution mode we need to set the mode for both (for on-prem
+            //this will essentially be a no-op)
+            SqlSmoObject sqlDialogSubject = null;
+            try
+            {
+                sqlDialogSubject = dataContainer.SqlDialogSubject;
+            }
+            catch (System.Exception)
+            {
+                //We may not have a valid dialog subject here (such as if the object hasn't been created yet)
+                //so in that case we'll just ignore it as that's a normal scenario. 
+            }
+            if (sqlDialogSubject != null)
+            {
+                subjectExecutionMode =
+                    sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes;
+            }
+
+            Urn objUrn = sqlDialogSubject?.Urn;
+            System.Diagnostics.Debug.Assert(objUrn != null);
+
+            SfcObjectQuery objectQuery = new SfcObjectQuery(dataContainer.Server);
+
+            IDroppable droppableObj = null;
+            string[] fields = null;
+
+            foreach (object obj in objectQuery.ExecuteIterator(new SfcQueryExpression(objUrn.ToString()), fields, null))
+            {
+                System.Diagnostics.Debug.Assert(droppableObj == null, "there is only one object");
+                droppableObj = obj as IDroppable;
+            }
+
+            // For Azure databases, the SfcObjectQuery executions above may have overwritten our desired execution mode, so restore it
+            dataContainer.Server.ConnectionContext.SqlExecutionModes = executionMode;
+            if (sqlDialogSubject != null)
+            {
+                sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes = subjectExecutionMode;
+            }
+
+            if (droppableObj == null)
+            {
+                string objectName = objUrn.GetAttribute("Name");
+                objectName ??= string.Empty;
+                throw new Microsoft.SqlServer.Management.Smo.MissingObjectException("DropObjectsSR.ObjectDoesNotExist(objUrn.Type, objectName)");
+            }
+
+            //special case database drop - see if we need to delete backup and restore history
+            SpecialPreDropActionsForObject(dataContainer, droppableObj,
+                deleteBackupRestoreOrDisableAuditSpecOrDisableAudit: false,
+                dropOpenConnections: false);
+
+            droppableObj.Drop();
+
+            //special case Resource Governor reconfigure - for pool, external pool, group  Drop(), we need to issue
+            SpecialPostDropActionsForObject(dataContainer, droppableObj);
+
+        }
+
+        private static void SpecialPreDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj,
+            bool deleteBackupRestoreOrDisableAuditSpecOrDisableAudit, bool dropOpenConnections)
+        {
+            // if a server isn't connected then there is nothing to do      
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
+            Database db = droppableObj as Database;
+
+            if (deleteBackupRestoreOrDisableAuditSpecOrDisableAudit)
+            {
+                if (db != null)
+                {
+                    dataContainer.Server.DeleteBackupHistory(db.Name);
+                }
+                else
+                {
+                    // else droppable object should be a server or database audit specification
+                    ServerAuditSpecification sas = droppableObj as ServerAuditSpecification;
+                    if (sas != null)
+                    {
+                        sas.Disable();
+                    }
+                    else
+                    {
+                        DatabaseAuditSpecification das = droppableObj as DatabaseAuditSpecification;
+                        if (das != null)
+                        {
+                            das.Disable();
+                        }
+                        else
+                        {
+                            Audit aud = droppableObj as Audit;
+                            if (aud != null)
+                            {
+                                aud.Disable();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // special case database drop - drop existing connections to the database other than this one
+            if (dropOpenConnections)
+            {
+                if (db?.ActiveConnections > 0)
+                {
+                    // force the database to be single user
+                    db.DatabaseOptions.UserAccess = DatabaseUserAccess.Single;
+                    db.Alter(TerminationClause.RollbackTransactionsImmediately);
+                }
+            }
+        }
+
+        private static void SpecialPostDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj)
+        {
+            // if a server isn't connected then there is nothing to do      
+            if (dataContainer.Server == null)
+            {
+                return;
+            }
+
+            if (droppableObj is Policy)
+            {
+                Policy policyToDrop = (Policy)droppableObj;
+                if (!string.IsNullOrEmpty(policyToDrop.ObjectSet))
+                {
+                    ObjectSet objectSet = policyToDrop.Parent.ObjectSets[policyToDrop.ObjectSet];
+                    objectSet.Drop();
+                }
+            }
+
+            ResourcePool rp = droppableObj as ResourcePool;
+            ExternalResourcePool erp = droppableObj as ExternalResourcePool;
+            WorkloadGroup wg = droppableObj as WorkloadGroup;
+
+            if (null != rp || null != erp || null != wg)
+            {
+                // Alter() Resource Governor to reconfigure
+                dataContainer.Server.ResourceGovernor.Alter();
+            }
         }
     }
 }
