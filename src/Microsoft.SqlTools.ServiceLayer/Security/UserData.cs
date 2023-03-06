@@ -119,13 +119,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     this.name = userInfo.Name;
                     this.mappedLoginName = userInfo.LoginName;
                     this.defaultSchemaName = userInfo.DefaultSchema;
-                    this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
+                    if (!string.IsNullOrEmpty(userInfo.Password))
+                    {
+                        this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
+                    }
                 }     
             }
 
-            this.LoadRoleMembership(context);
+            this.LoadRoleMembership(context, userInfo);
 
-            this.LoadSchemaData(context);
+            this.LoadSchemaData(context, userInfo);
         }
 
         public UserPrototypeData Clone()
@@ -148,20 +151,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             foreach (string key in this.isMember?.Keys ?? Enumerable.Empty<string>())
             {
-                if (result.isMember?.ContainsKey(key) == true 
-                    && this.isMember?.ContainsKey(key) == true)
-                {
-                    result.isMember[key] = this.isMember[key];
-                }
+                result.isMember[key] = this.isMember[key];
             }
 
             foreach (string key in this.isSchemaOwned?.Keys ?? Enumerable.Empty<string>())
             {
-                if (result.isSchemaOwned?.ContainsKey(key) == true 
-                    && this.isSchemaOwned?.ContainsKey(key) == true)
-                {
-                    result.isSchemaOwned[key] = this.isSchemaOwned[key];
-                }
+                 result.isSchemaOwned[key] = this.isSchemaOwned[key];
             }
 
             return result;
@@ -251,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Loads role membership of a database user.
         /// </summary>
         /// <param name="context"></param>
-        private void LoadRoleMembership(CDataContainer context)
+        private void LoadRoleMembership(CDataContainer context, UserInfo? userInfo)
         {
             Urn objUrn = new Urn(context.ObjectUrn);
             Urn databaseUrn = objUrn.Parent;
@@ -262,20 +257,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 return;
             }
 
-            User existingUser = context.Server.Databases[parentDb.Name].Users[objUrn.GetNameForType("User")];
+            string userName = userInfo?.Name ?? objUrn.GetNameForType("User");
+            User existingUser = context.Server.Databases[parentDb.Name].Users[userName];
 
             foreach (DatabaseRole dbRole in parentDb.Roles)
             {
                 var comparer = parentDb.GetStringComparer();
                 if (comparer.Compare(dbRole.Name, "public") != 0)
                 {
-                    if (context.IsNewObject)
+                    if (userInfo != null && userInfo.DatabaseRoles != null)
                     {
-                        this.isMember[dbRole.Name] = false;
+                        this.isMember[dbRole.Name]  = userInfo.DatabaseRoles.Contains(dbRole.Name);
+                    }
+                    else if (existingUser != null)
+                    {
+                        this.isMember[dbRole.Name] = existingUser.IsMember(dbRole.Name);
                     }
                     else
                     {
-                        this.isMember[dbRole.Name] = existingUser.IsMember(dbRole.Name);
+                        this.isMember[dbRole.Name] = false;
                     }
                 }
             }
@@ -285,7 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// Loads schema ownership related data.
         /// </summary>
         /// <param name="context"></param>
-        private void LoadSchemaData(CDataContainer context)
+        private void LoadSchemaData(CDataContainer context, UserInfo? userInfo)
         {
             Urn objUrn = new Urn(context.ObjectUrn);
             Urn databaseUrn = objUrn.Parent;
@@ -296,7 +296,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 return;
             }
 
-            User existingUser = context.Server.Databases[parentDb.Name].Users[objUrn.GetNameForType("User")];
+            string userName = userInfo?.Name ?? objUrn.GetNameForType("User");
+            User existingUser = context.Server.Databases[parentDb.Name].Users[userName];
 
             if (!SqlMgmtUtils.IsYukonOrAbove(context.Server)
                 || parentDb.CompatibilityLevel <= CompatibilityLevel.Version80)
@@ -306,15 +307,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             foreach (Schema sch in parentDb.Schemas)
             {
-                if (context.IsNewObject)
+                if (userInfo != null && userInfo.OwnedSchemas != null)
                 {
-                    this.isSchemaOwned[sch.Name] = false;
+                    this.isSchemaOwned[sch.Name]  = userInfo.OwnedSchemas.Contains(sch.Name);
                 }
-                else
+                else if (existingUser != null)
                 {
                     var comparer = parentDb.GetStringComparer();
                     this.isSchemaOwned[sch.Name] = comparer.Compare(sch.Owner, existingUser.Name) == 0;
                 }
+                else
+                {
+                    this.isSchemaOwned[sch.Name] = false;
+                }                
             }
         }
     }
@@ -336,6 +341,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         public bool IsSchemaOwnershipChangesApplied { get; set; } //default is false
 
         #region IUserPrototype Members
+
+        public UserPrototypeData CurrentState
+        {
+            get
+            {
+                return this.currentState;
+            }
+        }
 
         public string Name
         {
@@ -999,15 +1012,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-        private UserPrototypeFactory(CDataContainer context, UserInfo user)
+        private UserPrototypeFactory(CDataContainer context, UserInfo user, UserPrototypeData? originalData)
         {
             this.context = context;
 
-            this.originalData = new UserPrototypeData(this.context, user);
-            this.currentData = this.originalData.Clone();
+            this.currentData = new UserPrototypeData(this.context, user);
+            this.originalData = originalData ?? this.currentData.Clone();
         }
 
-        public static UserPrototypeFactory GetInstance(CDataContainer context, UserInfo user)
+        public static UserPrototypeFactory GetInstance(CDataContainer context, UserInfo? user, UserPrototypeData? originalData)
         {
             if (singletonInstance != null
                 && singletonInstance.context != context)
@@ -1015,7 +1028,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 singletonInstance = null;
             }
 
-            singletonInstance ??= new UserPrototypeFactory(context, user);
+            singletonInstance ??= new UserPrototypeFactory(context, user, originalData);
 
             return singletonInstance;
         }

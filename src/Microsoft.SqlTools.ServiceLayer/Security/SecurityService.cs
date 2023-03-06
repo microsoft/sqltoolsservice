@@ -9,14 +9,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Dmf;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
@@ -33,6 +29,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private ConnectionService? connectionService;
 
+        private UserServiceHandlerImpl userServiceHandler;
+
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
 
         private Dictionary<string, string> contextIdToConnectionUriMap = new Dictionary<string, string>();
@@ -42,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         public SecurityService()
         {
+            userServiceHandler = new UserServiceHandlerImpl();
         }
 
         /// <summary>
@@ -100,11 +99,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(DisposeLoginViewRequest.Type, HandleDisposeLoginViewRequest, true);
 
             // User request handlers
-            this.ServiceHost.SetRequestHandler(InitializeUserViewRequest.Type, HandleInitializeUserViewRequest, true);
-            this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, HandleCreateUserRequest, true);
-            this.ServiceHost.SetRequestHandler(UpdateUserRequest.Type, HandleUpdateUserRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteUserRequest.Type, HandleDeleteUserRequest, true);
-            this.ServiceHost.SetRequestHandler(DisposeUserViewRequest.Type, HandleDisposeUserViewRequest, true);
+            this.ServiceHost.SetRequestHandler(InitializeUserViewRequest.Type, this.userServiceHandler.HandleInitializeUserViewRequest, true);
+            this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, this.userServiceHandler.HandleCreateUserRequest, true);
+            this.ServiceHost.SetRequestHandler(UpdateUserRequest.Type, this.userServiceHandler.HandleUpdateUserRequest, true);
+            this.ServiceHost.SetRequestHandler(DeleteUserRequest.Type, this.userServiceHandler.HandleDeleteUserRequest, true);
+            this.ServiceHost.SetRequestHandler(DisposeUserViewRequest.Type, this.userServiceHandler.HandleDisposeUserViewRequest, true);
         }
 
 
@@ -178,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Login login = dataContainer.Server?.Logins[parameters.Name];
      
             dataContainer.SqlDialogSubject = login;
-            DoDropObject(dataContainer);
+            DatabaseUtils.DoDropObject(dataContainer);
 
             await requestContext.SendResult(new ResultStatus()
             {
@@ -350,345 +349,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             if (l == null) return null;
              return string.Format("{0} - {1}", l.Language.Alias, l.Language.Name);
         }
-        #endregion
-
-        #region "User Handlers"
-
-        private class UserViewState
-        {
-            public string Database { get; set; }
-
-            public UserViewState(string database)
-            {
-                this.Database = database;
-            }
-        }
-
-        private Dictionary<string, UserViewState> contextIdToViewState = new Dictionary<string, UserViewState>();
-
-        /// <summary>
-        /// Handle request to initialize user view
-        /// </summary>
-        internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
-        {
-            if (string.IsNullOrWhiteSpace(parameters.Database))
-            {
-                throw new ArgumentNullException("parameters.Database");
-            }
-
-            if (string.IsNullOrWhiteSpace(parameters.ContextId))
-            {
-                throw new ArgumentNullException("parameters.ContextId");
-            }
-
-            ConnectionInfo originalConnInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out originalConnInfo);
-            if (originalConnInfo == null)
-            {
-                throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
-            }
-
-            string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
-            originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
-            ConnectParams connectParams = new ConnectParams
-            {
-                OwnerUri = parameters.ContextId,
-                Connection = originalConnInfo.ConnectionDetails,
-                Type = Connection.ConnectionType.Default
-            };
-
-            try
-            {
-                await this.ConnectionServiceInstance.Connect(connectParams);
-            }
-            finally
-            {
-                originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
-            }
-
-            ConnectionInfo connInfo;
-            this.ConnectionServiceInstance.TryFindConnection(parameters.ContextId, out connInfo);
-
-            ConfigAction configAction = parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update;
-            CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, configAction, parameters.Database);
-            UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, null);
-            UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(ExhaustiveUserTypes.LoginMappedUser);        
-            
-            IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = currentUserPrototype as IUserPrototypeWithDefaultLanguage;
-            string? defaultLanguageAlias = null;
-            if (defaultLanguagePrototype != null && defaultLanguagePrototype.IsDefaultLanguageSupported)
-            {
-                string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-                defaultLanguageAlias = defaultLanguagePrototype.DefaultLanguageAlias;
-                //If engine returns default language as empty or null, that means the default language of  
-                //database will be used.
-                //Default language is not applicable for users inside an uncontained authentication.
-                if (string.IsNullOrEmpty(defaultLanguageAlias)
-                    && (dataContainer.Server.GetSmoObject(dbUrn) as Database).ContainmentType != ContainmentType.None)
-                {
-                    defaultLanguageAlias = DefaultLanguagePlaceholder;
-                }
-            }
-
-            string? defaultSchema = null;
-            IUserPrototypeWithDefaultSchema defaultSchemaPrototype = currentUserPrototype as IUserPrototypeWithDefaultSchema;
-            if (defaultSchemaPrototype != null && defaultSchemaPrototype.IsDefaultSchemaSupported)
-            {
-                defaultSchema = defaultSchemaPrototype.DefaultSchema;
-            }
-            // IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
-            // if (userWithPwdPrototype != null && !this.DataContainer.IsNewObject)
-            // {
-            //     this.passwordTextBox.Text = FAKE_PASSWORD;
-            //     this.confirmPwdTextBox.Text = FAKE_PASSWORD;                
-            // }
-
-            string? loginName = null;
-            IUserPrototypeWithMappedLogin mappedLoginPrototype = currentUserPrototype as IUserPrototypeWithMappedLogin;
-            if (mappedLoginPrototype != null)
-            {
-                loginName = mappedLoginPrototype.LoginName;
-            }
-
-            ServerConnection serverConnection = dataContainer.ServerConnection;
-            UserViewInfo userViewInfo = new UserViewInfo()
-            {
-                ObjectInfo = new UserInfo()
-                {
-                    Type = DatabaseUserType.WithLogin,
-                    Name = currentUserPrototype.Name,
-                    LoginName = loginName,
-                    Password = string.Empty,
-                    DefaultSchema = defaultSchema,
-                    OwnedSchemas = new string[] { },
-                    DatabaseRoles = new string[] { },
-                    DefaultLanguage = defaultLanguageAlias
-                },
-                SupportContainedUser = true,
-                SupportWindowsAuthentication = true,
-                SupportAADAuthentication = true,
-                SupportSQLAuthentication = true,
-                Languages = new string[] { },
-                Schemas = currentUserPrototype.SchemaNames.ToArray(),
-                Logins = LoadSqlLogins(serverConnection),
-                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
-            };
-
-            this.contextIdToViewState.Add(
-                parameters.ContextId, 
-                new UserViewState(parameters.Database));
-
-            await requestContext.SendResult(userViewInfo);
-        }
-
-        /// <summary>
-        /// Handle request to create a user
-        /// </summary>
-        internal async Task HandleCreateUserRequest(CreateUserParams parameters, RequestContext<CreateUserResult> requestContext)
-        {
-            if (parameters.ContextId == null)
-            {
-                throw new ArgumentException("Invalid context ID");
-            }
-
-            UserViewState viewState;
-            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
-
-            if (viewState == null)
-            {
-                throw new ArgumentException("Invalid context ID view state");
-            }
-
-            Tuple<bool, string> result = ConfigureUser(
-                parameters.ContextId,
-                parameters.User,
-                ConfigAction.Create,
-                RunType.RunNow,
-                viewState.Database);
-
-            await requestContext.SendResult(new CreateUserResult()
-            {
-                User = parameters.User,
-                Success = result.Item1,
-                ErrorMessage = result.Item2
-            });
-        }
-
-        /// <summary>
-        /// Handle request to update a user
-        /// </summary>
-        internal async Task HandleUpdateUserRequest(UpdateUserParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            if (parameters.ContextId == null)
-            {
-                throw new ArgumentException("Invalid context ID");
-            }
-
-            UserViewState viewState;
-            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
-
-            if (viewState == null)
-            {
-                throw new ArgumentException("Invalid context ID view state");
-            }
-
-            Tuple<bool, string> result = ConfigureUser(
-                parameters.ContextId,
-                parameters.User,
-                ConfigAction.Update,
-                RunType.RunNow,
-                viewState.Database);
-
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = result.Item1,
-                ErrorMessage = result.Item2
-            });
-        }
-
-        /// <summary>
-        /// Handle request to delete a user
-        /// </summary>
-        internal async Task HandleDeleteUserRequest(DeleteUserParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid ConnectionUri");
-            }
-
-            if (string.IsNullOrWhiteSpace(parameters.Name) || string.IsNullOrWhiteSpace(parameters.Database))
-            {
-                throw new ArgumentException("Invalid null parameter");
-            }
-
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-            Database? parent = dataContainer.Server?.GetSmoObject(new Urn(dbUrn)) as Database;
-            User? user = parent?.Users[parameters.Name];
-            dataContainer.SqlDialogSubject = user;
-            DoDropObject(dataContainer);
-    
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = true,
-                ErrorMessage = string.Empty
-            });
-        }
-
-        internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            // if (!string.IsNullOrEmpty(parameters.ContextId))
-            // {
-            //     contextIdToConnectionUriMap.Remove(parameters.ContextId);
-            // }
-
-// need to disconnect here
-
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = true,
-                ErrorMessage = string.Empty
-            });
-        }
-
-        internal CDataContainer CreateUserDataContainer(
-            ConnectionInfo connInfo, 
-            UserInfo? user, 
-            ConfigAction configAction,
-            string databaseName)
-        {
-            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
-            var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
-            connectionInfoWithConnection.ServerConnection = serverConnection;
-
-            string urn =  (configAction == ConfigAction.Update && user != null)
-                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']/User[@Name='{1}']",
-                    Urn.EscapeString(databaseName),
-                    Urn.EscapeString(user.Name))
-                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(databaseName));
-
-            ActionContext context = new ActionContext(serverConnection, "User", urn);
-            DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
-
-            if (configAction == ConfigAction.Create)
-            {
-                containerXml.AddProperty("itemtype", "User");
-            }
-
-            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();                    
-            return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
-        }
-
-        internal Tuple<bool, string> ConfigureUser(
-            string? ownerUri,
-            UserInfo? user,
-            ConfigAction configAction,
-            RunType runType,
-            string databaseName)
-        {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
-            }
-
-            CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
-            using (var actions = new UserActions(dataContainer, user, configAction))
-            {
-                var executionHandler = new ExecutonHandler(actions);
-                executionHandler.RunNow(runType, this);
-                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
-                {
-                    throw executionHandler.ExecutionFailureException;
-                }
-            }
-
-            return new Tuple<bool, string>(true, string.Empty);
-        }
-
-        private string[] LoadSqlLogins(ServerConnection serverConnection)
-        {
-            return LoadItems(serverConnection, "Server/Login");
-        }
-
-        private string[] LoadItems(ServerConnection serverConnection, string urn)
-        {
-            List<string> items = new List<string>();
-            Request req = new Request();
-            req.Urn = urn;
-            req.ResultType = ResultType.IDataReader;
-            req.Fields = new string[] { "Name" };
-
-            Enumerator en = new Enumerator();
-            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
-            {
-                if (reader != null)
-                {
-                    string name;
-                    while (reader.Read())
-                    {
-                        // Get the permission name
-                        name = reader.GetString(0);
-                        items.Add(name);
-                    }
-                }
-            }
-            return items.ToArray();
-        }
-
-        private readonly string DefaultLanguagePlaceholder = "(default)";
 
         private IList<LanguageDisplay> GetDefaultLanguageOptions(CDataContainer dataContainer)
         {
-            // this.defaultLanguageComboBox.Items.Clear();            
-            // this.defaultLanguageComboBox.Items.Add(defaultLanguagePlaceholder);            
-
             // sort the languages alphabetically by alias
             SortedList sortedLanguages = new SortedList(Comparer.Default);
 
@@ -851,167 +514,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return new Tuple<bool, string>(false, ex.ToString());
                 }
             });
-        }
-
-        /// <summary>
-        /// this is the main method that is called by DropAllObjects for every object
-        /// in the grid
-        /// </summary>
-        /// <param name="objectRowNumber"></param>
-        private void DoDropObject(CDataContainer dataContainer)
-        {
-            // if a server isn't connected then there is nothing to do      
-            if (dataContainer.Server == null)
-            {
-                return;
-            }
-
-            var executionMode = dataContainer.Server.ConnectionContext.SqlExecutionModes;
-            var subjectExecutionMode = executionMode;
-
-            //For Azure the ExecutionManager is different depending on which ExecutionManager
-            //used - one at the Server level and one at the Database level. So to ensure we
-            //don't use the wrong execution mode we need to set the mode for both (for on-prem
-            //this will essentially be a no-op)
-            SqlSmoObject sqlDialogSubject = null;
-            try
-            {
-                sqlDialogSubject = dataContainer.SqlDialogSubject;
-            }
-            catch (System.Exception)
-            {
-                //We may not have a valid dialog subject here (such as if the object hasn't been created yet)
-                //so in that case we'll just ignore it as that's a normal scenario. 
-            }
-            if (sqlDialogSubject != null)
-            {
-                subjectExecutionMode =
-                    sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes;
-            }
-
-            Urn objUrn = sqlDialogSubject?.Urn;
-            System.Diagnostics.Debug.Assert(objUrn != null);
-
-            SfcObjectQuery objectQuery = new SfcObjectQuery(dataContainer.Server);
-
-            IDroppable droppableObj = null;
-            string[] fields = null;
-
-            foreach (object obj in objectQuery.ExecuteIterator(new SfcQueryExpression(objUrn.ToString()), fields, null))
-            {
-                System.Diagnostics.Debug.Assert(droppableObj == null, "there is only one object");
-                droppableObj = obj as IDroppable;
-            }
-
-            // For Azure databases, the SfcObjectQuery executions above may have overwritten our desired execution mode, so restore it
-            dataContainer.Server.ConnectionContext.SqlExecutionModes = executionMode;
-            if (sqlDialogSubject != null)
-            {
-                sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes = subjectExecutionMode;
-            }
-
-            if (droppableObj == null)
-            {
-                string objectName = objUrn.GetAttribute("Name");
-                objectName ??= string.Empty;
-                throw new Microsoft.SqlServer.Management.Smo.MissingObjectException("DropObjectsSR.ObjectDoesNotExist(objUrn.Type, objectName)");
-            }
-
-            //special case database drop - see if we need to delete backup and restore history
-            SpecialPreDropActionsForObject(dataContainer, droppableObj,
-                deleteBackupRestoreOrDisableAuditSpecOrDisableAudit: false,
-                dropOpenConnections: false);
-
-            droppableObj.Drop();
-
-            //special case Resource Governor reconfigure - for pool, external pool, group  Drop(), we need to issue
-            SpecialPostDropActionsForObject(dataContainer, droppableObj);
-
-        }
-
-        private void SpecialPreDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj,
-            bool deleteBackupRestoreOrDisableAuditSpecOrDisableAudit, bool dropOpenConnections)
-        {
-            // if a server isn't connected then there is nothing to do      
-            if (dataContainer.Server == null)
-            {
-                return;
-            }
-
-            Database db = droppableObj as Database;
-
-            if (deleteBackupRestoreOrDisableAuditSpecOrDisableAudit)
-            {
-                if (db != null)
-                {
-                    dataContainer.Server.DeleteBackupHistory(db.Name);
-                }
-                else
-                {
-                    // else droppable object should be a server or database audit specification
-                    ServerAuditSpecification sas = droppableObj as ServerAuditSpecification;
-                    if (sas != null)
-                    {
-                        sas.Disable();
-                    }
-                    else
-                    {
-                        DatabaseAuditSpecification das = droppableObj as DatabaseAuditSpecification;
-                        if (das != null)
-                        {
-                            das.Disable();
-                        }
-                        else
-                        {
-                            Audit aud = droppableObj as Audit;
-                            if (aud != null)
-                            {
-                                aud.Disable();
-                            }
-                        }
-                    }
-                }
-            }
-
-            // special case database drop - drop existing connections to the database other than this one
-            if (dropOpenConnections)
-            {
-                if (db?.ActiveConnections > 0)
-                {
-                    // force the database to be single user
-                    db.DatabaseOptions.UserAccess = DatabaseUserAccess.Single;
-                    db.Alter(TerminationClause.RollbackTransactionsImmediately);
-                }
-            }
-        }
-
-        private void SpecialPostDropActionsForObject(CDataContainer dataContainer, IDroppable droppableObj)
-        {
-            // if a server isn't connected then there is nothing to do      
-            if (dataContainer.Server == null)
-            {
-                return;
-            }
-
-            if (droppableObj is Policy)
-            {
-                Policy policyToDrop = (Policy)droppableObj;
-                if (!string.IsNullOrEmpty(policyToDrop.ObjectSet))
-                {
-                    ObjectSet objectSet = policyToDrop.Parent.ObjectSets[policyToDrop.ObjectSet];
-                    objectSet.Drop();
-                }
-            }
-
-            ResourcePool rp = droppableObj as ResourcePool;
-            ExternalResourcePool erp = droppableObj as ExternalResourcePool;
-            WorkloadGroup wg = droppableObj as WorkloadGroup;
-
-            if (null != rp || null != erp || null != wg)
-            {
-                // Alter() Resource Governor to reconfigure
-                dataContainer.Server.ResourceGovernor.Alter();
-            }
         }
 
         #endregion // "Helpers"

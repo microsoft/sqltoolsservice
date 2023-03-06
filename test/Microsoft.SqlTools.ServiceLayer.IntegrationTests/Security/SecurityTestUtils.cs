@@ -125,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
         }
 
-        public static async Task<LoginInfo> CreateLogin(SecurityService service, TestConnectionResult connectionResult, string contextId)
+        internal static async Task<LoginInfo> CreateLogin(SecurityService service, TestConnectionResult connectionResult, string contextId)
         {
             var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams
             {
@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return loginParams.Login;
         }
 
-        public static async Task DeleteLogin(SecurityService service, TestConnectionResult connectionResult, LoginInfo login)
+        internal static async Task DeleteLogin(SecurityService service, TestConnectionResult connectionResult, LoginInfo login)
         {
             // cleanup created login
             var deleteParams = new DeleteLoginParams
@@ -171,8 +171,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             await service.HandleDeleteLoginRequest(deleteParams, deleteContext.Object);
         }
 
-        public static async Task<UserInfo> CreateUser(
-            SecurityService service, 
+        internal static async Task<UserInfo> CreateUser(
+            UserServiceHandlerImpl service, 
             TestConnectionResult connectionResult, 
             string contextId,
             LoginInfo login)
@@ -211,8 +211,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return userParams.User;             
         }
 
-        public static async Task UpdateUser(
-            SecurityService service, 
+        internal static async Task UpdateUser(
+            UserServiceHandlerImpl service, 
             TestConnectionResult connectionResult, 
             string contextId,
             UserInfo user)
@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             updateUserContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));         
         }
 
-        public static async Task DeleteUser(SecurityService service, TestConnectionResult connectionResult, UserInfo user)
+        internal static async Task DeleteUser(UserServiceHandlerImpl service, TestConnectionResult connectionResult, UserInfo user)
         {
             // cleanup created user
             var deleteParams = new DeleteUserParams

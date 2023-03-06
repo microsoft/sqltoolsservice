@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
     /// Tests for the User management component
     /// </summary>
     public class UserTests
-    {       
+    {
         /// <summary>
         /// Test the basic Create User method handler
         /// </summary>
@@ -26,14 +26,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             {
                 // setup
                 SecurityService service = new SecurityService();
+                UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var contextId = System.Guid.NewGuid().ToString();
 
                 var login = await SecurityTestUtils.CreateLogin(service, connectionResult, contextId);
 
-                var user = await SecurityTestUtils.CreateUser(service, connectionResult, contextId, login);
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, contextId, login);
 
-                await SecurityTestUtils.DeleteUser(service, connectionResult, user);
+                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);
 
                 await SecurityTestUtils.DeleteLogin(service, connectionResult, login);                
             }
@@ -49,19 +50,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             {
                 // setup
                 SecurityService service = new SecurityService();
+                UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var contextId = System.Guid.NewGuid().ToString();
 
                 var login = await SecurityTestUtils.CreateLogin(service, connectionResult, contextId);
 
-                var user = await SecurityTestUtils.CreateUser(service, connectionResult, contextId, login);
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, contextId, login);
 
-                await SecurityTestUtils.UpdateUser(service, connectionResult, contextId, user);
+                await SecurityTestUtils.UpdateUser(userService, connectionResult, contextId, user);
 
-                await SecurityTestUtils.DeleteUser(service, connectionResult, user);
+                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);
 
                 await SecurityTestUtils.DeleteLogin(service, connectionResult, login);
-            }           
+            }
         }
     }
 }
