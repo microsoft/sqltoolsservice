@@ -304,48 +304,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        // /// <summary>
-        // /// Handle request to delete a user
-        // /// </summary>
-        // internal async Task HandleDeleteUserRequest(DeleteUserParams parameters, RequestContext<ResultStatus> requestContext)
-        // {
-        //     ConnectionInfo connInfo;
-        //     ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-        //     if (connInfo == null)
-        //     {
-        //         throw new ArgumentException("Invalid ConnectionUri");
-        //     }
-
-        //     if (string.IsNullOrWhiteSpace(parameters.Name) || string.IsNullOrWhiteSpace(parameters.Database))
-        //     {
-        //         throw new ArgumentException("Invalid null parameter");
-        //     }
-
-        //     CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
-        //     string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-        //     Database? parent = dataContainer.Server?.GetSmoObject(new Urn(dbUrn)) as Database;
-        //     User? existingUser = parent?.Users[parameters.Name];
-        //     dataContainer.SqlDialogSubject = existingUser;
-
-        //     UserInfo userInfo = new UserInfo()
-        //     {
-        //         Name = parameters.Name,
-        //         LoginName = existingUser.Login
-
-        //     };
-        //     UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, userInfo, originalData: null);
-        //     UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(ExhaustiveUserTypes.LoginMappedUser);     
-        //     RemoveAllSchemaOwnerships(parent, currentUserPrototype);
-
-        //     DatabaseUtils.DoDropObject(dataContainer);
-    
-        //     await requestContext.SendResult(new ResultStatus()
-        //     {
-        //         Success = true,
-        //         ErrorMessage = string.Empty
-        //     });
-        // }
-
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
         {
             this.ConnectionServiceInstance.Disconnect(new DisconnectParams(){

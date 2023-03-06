@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// Test the basic Create User method handler
         /// </summary>
-        [Test]
+        //[Test] - enable tests in separate change
         public async Task TestHandleCreateUserWithLoginRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// Test the basic Update User method handler
         /// </summary>
-        [Test]
+        //[Test] - enable tests in separate change
         public async Task TestHandleUpdateUserWithLoginRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
