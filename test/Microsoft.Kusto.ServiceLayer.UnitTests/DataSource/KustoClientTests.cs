@@ -8,14 +8,15 @@
 using System;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Kusto;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
 {
     public class KustoClientTests
     {
-        [TestCase("dstsAuth")]	
-        [TestCase("AzureMFA")]	
+        [TestCase(dstsAuth)]	
+        [TestCase(AzureMFA)]	
         public void Constructor_Throws_ArgumentException_For_MissingToken(string authType)	
         {	
             var connectionDetails = new DataSourceConnectionDetails	
@@ -37,7 +38,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
                 UserToken = "UserToken",
                 ServerName = clusterName,
                 DatabaseName = "",
-                AuthenticationType = "AzureMFA"
+                AuthenticationType = AzureMFA
             };
 
             var client = new KustoClient(connectionDetails, "ownerUri");
@@ -46,10 +47,10 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
             Assert.AreEqual("NetDefaultDB", client.DatabaseName);
         }
 
-        [TestCase("dstsAuth")]
-        [TestCase("AzureMFA")]
+        [TestCase(dstsAuth)]
+        [TestCase(AzureMFA)]
         [TestCase("NoAuth")]
-        [TestCase("SqlLogin")]
+        [TestCase(SqlLogin)]
         public void Constructor_Creates_Client_With_Valid_AuthenticationType(string authenticationType)
         {
             string clusterName = "https://fake.url.com";
@@ -59,8 +60,8 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
                 ServerName = clusterName,
                 DatabaseName = "FakeDatabaseName",
                 AuthenticationType = authenticationType,
-                UserName = authenticationType == "SqlLogin" ? "username": null,
-                Password = authenticationType == "SqlLogin" ? "password": null
+                UserName = authenticationType == SqlLogin ? "username": null,
+                Password = authenticationType == SqlLogin ? "password": null
             };
 
             var client = new KustoClient(connectionDetails, "ownerUri");

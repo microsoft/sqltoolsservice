@@ -15,18 +15,20 @@
 		<PackageReference Update="Microsoft.Extensions.DependencyModel" Version="3.1.4" />
 		<PackageReference Update="Microsoft.Extensions.FileSystemGlobbing" Version="7.0.0" />
 
+		<PackageReference Update="Microsoft.Identity.Client" Version="4.49.1" />
+		<PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="2.25.3" />
 		<PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
 		<PackageReference Update="Microsoft.Azure.Management.Sql" Version="1.41.0-preview" />
 
 		<PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="170.12.0" />
-		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="161.8085.0-preview" />
-		<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="161.8093.0-alpha" />
+		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="161.8406.0-preview" />
+		<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="161.8420.0-alpha" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230217.4" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230207.42" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230301.46" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230302.47" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="160.22524.0" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230119.40" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />

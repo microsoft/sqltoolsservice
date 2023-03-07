@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -176,7 +177,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             {
                 case SchemaCompareEndpointType.Project:
                     {
-                        return new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);
+                        return endpointInfo?.ExtractTarget != null
+                            ? new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider, (DacExtractTarget)endpointInfo?.ExtractTarget)
+                            : new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);
                     }
                 case SchemaCompareEndpointType.Dacpac:
                     {
@@ -185,7 +188,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 case SchemaCompareEndpointType.Database:
                     {
                         string connectionString = GetConnectionString(connInfo, endpointInfo.DatabaseName);
-                        return connInfo.ConnectionDetails?.AzureAccountToken != null 
+
+                        // Set Access Token only when authentication mode is not specified.
+                        return connInfo.ConnectionDetails?.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA
                             ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken))
                             : new SchemaCompareDatabaseEndpoint(connectionString);
                     }

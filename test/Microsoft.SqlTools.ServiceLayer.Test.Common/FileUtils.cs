@@ -80,13 +80,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
-        /// Normalizes Windows, Unix, and mixed paths to the same slash direction, specified by <paramref name="separatorType"/>
+        /// Normalizes Windows, Unix, and mixed paths to the same slash direction, specified by <paramref name="separatorType"/>.
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="separatorType">Win32NT for \, Unix for /</param>
+        /// <param name="separatorType">Win32NT for \, Unix for /.  If not set, path will be normalized to the current platform.</param>
         /// <returns></returns>
-        public static string NormalizePath(string path, PlatformID separatorType)
+        public static string NormalizePath(string path, PlatformID? separatorType = null)
         {
+            separatorType ??= Environment.OSVersion.Platform;
+
             return separatorType switch
             {
                 PlatformID.Win32NT => path.Contains('/')

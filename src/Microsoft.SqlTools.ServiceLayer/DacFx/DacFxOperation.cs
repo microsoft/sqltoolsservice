@@ -8,6 +8,7 @@ using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using static Microsoft.SqlTools.Shared.Utility.Constants;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Diagnostics;
@@ -86,7 +87,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 // Pass in Azure authentication token if needed
-                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) : new DacServices(this.ConnectionString);
+                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null && this.ConnInfo.ConnectionDetails.AuthenticationType == AzureMFA
+                    ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) 
+                    : new DacServices(this.ConnectionString);
                 Execute();
             }
             catch (Exception e)

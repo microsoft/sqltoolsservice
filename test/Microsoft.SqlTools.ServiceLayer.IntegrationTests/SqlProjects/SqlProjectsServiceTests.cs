@@ -30,14 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate that result indicates failure when there's an exception
             MockRequest<ResultStatus> requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = projectUri,
                 SqlProjectType = ProjectType.SdkStyle
 
             }, requestMock.Object);
 
-            Assert.IsFalse(requestMock.Result.Success, $"{nameof(service.HandleNewSqlProjectRequest)} when file already exists expected to fail");
+            Assert.IsFalse(requestMock.Result.Success, $"{nameof(service.HandleCreateSqlProjectRequest)} when file already exists expected to fail");
             Assert.IsTrue(requestMock.Result.ErrorMessage!.Contains("Cannot create a new SQL project")
                        && requestMock.Result.ErrorMessage!.Contains("a file already exists at that location"),
                        $"Error message expected to mention that a file already exists, but instead was: '{requestMock.Result.ErrorMessage}'");
@@ -59,26 +59,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate creating SDK-style project
             MockRequest<ResultStatus> requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = sdkProjectUri,
                 SqlProjectType = ProjectType.SdkStyle
             }, requestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleNewSqlProjectRequest), "SDK");
+            requestMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest), "SDK");
             Assert.AreEqual(1, service.Projects.Count, "Number of loaded projects after creating SDK not as expected");
             Assert.IsTrue(service.Projects.ContainsKey(sdkProjectUri), "Loaded project list expected to contain SDK project URI");
             Assert.AreEqual(ProjectType.SdkStyle, service.Projects[sdkProjectUri].SqlProjStyle, "SqlProj style expected to be SDK");
 
             // Validate creating Legacy-style project
             requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = legacyProjectUri,
                 SqlProjectType = ProjectType.LegacyStyle
             }, requestMock.Object);
 
-            requestMock.AssertSuccess(nameof(service.HandleNewSqlProjectRequest), "Legacy");
+            requestMock.AssertSuccess(nameof(service.HandleCreateSqlProjectRequest), "Legacy");
             Assert.AreEqual(2, service.Projects.Count, "Number of loaded projects after creating Legacy");
             Assert.IsTrue(service.Projects.ContainsKey(legacyProjectUri), "Loaded project list expected to contain Legacy project URI");
             Assert.AreEqual(service.Projects[legacyProjectUri].SqlProjStyle, ProjectType.LegacyStyle, "SqlProj style");
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestSqlObjectScriptAddDeleteExcludeMove()
+        public async Task TestSqlObjectScriptOperations()
         {
             // Setup
             SqlProjectsService service = new();
@@ -124,6 +124,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
             Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after add");
             Assert.IsTrue(service.Projects[projectUri].SqlObjectScripts.Contains(scriptRelativePath), $"SqlObjectScripts expected to contain {scriptRelativePath}");
+
+            // Validate getting a list of the SQL object scripts
+            MockRequest<GetScriptsResult> getMock = new();
+            await service.HandleGetSqlObjectScriptsRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
+            Assert.AreEqual(1, getMock.Result.Scripts.Length);
+            Assert.AreEqual(scriptRelativePath, getMock.Result.Scripts[0]);
 
             // Validate excluding a SQL object script
             requestMock = new();
@@ -150,7 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a SQL object script
             string movedScriptRelativePath = @"SubPath\MyRenamedTable.sql";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
@@ -179,7 +190,100 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestPreDeploymentScriptAddDeleteExcludeMove()
+        public async Task TestNoneItemOperations()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "Baseline number of NoneItems");
+
+            // Validate adding a None script
+            MockRequest<ResultStatus> requestMock = new();
+            string relativePath = "NoneIncludeFile.json";
+            string absolutePath = Path.Join(Path.GetDirectoryName(projectUri), relativePath);
+            
+            #pragma warning disable JSON002 // Probable JSON string detected
+            await File.WriteAllTextAsync(absolutePath, @"{""included"" : false }");
+            #pragma warning restore JSON002 // Probable JSON string detected
+            
+            Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to be on disk");
+
+            await service.HandleAddNoneItemRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNoneItemRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after add");
+            Assert.IsTrue(service.Projects[projectUri].NoneScripts.Contains(relativePath), $"NoneItems expected to contain {relativePath}");
+
+            // Validate getting a list of the None scripts
+            MockRequest<GetScriptsResult> getMock = new();
+            await service.HandleGetNoneItemsRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetNoneItemsRequest));
+            Assert.AreEqual(1, getMock.Result.Scripts.Length);
+            Assert.AreEqual(relativePath, getMock.Result.Scripts[0]);
+
+            // Validate excluding a None script
+            requestMock = new();
+            await service.HandleExcludeNoneItemRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleExcludeNoneItemRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after exclude");
+            Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to still exist on disk");
+
+            // Re-add to set up for Delete
+            requestMock = new();
+            await service.HandleAddNoneItemRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNoneItemRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after re-add");
+
+            // Validate moving a None script
+            string movedScriptRelativePath = @"SubPath\RenamedNoneIncludeFile.json";
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
+            Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
+
+            requestMock = new();
+            await service.HandleMoveNoneItemRequest(new MoveItemParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath,
+                DestinationPath = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMoveNoneItemRequest));
+            Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after move");
+
+            // Validate deleting a None script
+            requestMock = new();
+            await service.HandleDeleteNoneItemRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = movedScriptRelativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeleteNoneItemRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after delete");
+            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
+        }
+
+        [Test]
+        public async Task TestPreDeploymentScriptOperations()
         {
             // Setup
             SqlProjectsService service = new();
@@ -202,6 +306,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddPreDeploymentScriptRequest));
             Assert.AreEqual(1, service.Projects[projectUri].PreDeployScripts.Count, "PreDeployScript count after add");
             Assert.IsTrue(service.Projects[projectUri].PreDeployScripts.Contains(scriptRelativePath), $"PreDeployScripts expected to contain {scriptRelativePath}");
+
+            // Validate getting a list of the pre-deployment scripts
+            MockRequest<GetScriptsResult> getMock = new();
+            await service.HandleGetPreDeploymentScriptsRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetPreDeploymentScriptsRequest));
+            Assert.AreEqual(1, getMock.Result.Scripts.Length);
+            Assert.AreEqual(scriptRelativePath, getMock.Result.Scripts[0]);
 
             // Validate excluding a pre-deployment script
             requestMock = new();
@@ -228,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a pre-deployment object script
             string movedScriptRelativePath = @"SubPath\RenamedPreDeploymentScript.sql";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
@@ -281,6 +396,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].PostDeployScripts.Count, "PostDeployScript count after add");
             Assert.IsTrue(service.Projects[projectUri].PostDeployScripts.Contains(scriptRelativePath), $"PostDeployScripts expected to contain {scriptRelativePath}");
 
+            // Validate getting a list of the post-deployment scripts
+            MockRequest<GetScriptsResult> getMock = new();
+            await service.HandleGetPostDeploymentScriptsRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetPostDeploymentScriptsRequest));
+            Assert.AreEqual(1, getMock.Result.Scripts.Length);
+            Assert.AreEqual(scriptRelativePath, getMock.Result.Scripts[0]);
+
             // Validate excluding a Post-deployment script
             requestMock = new();
             await service.HandleExcludePostDeploymentScriptRequest(new SqlProjectScriptParams()
@@ -306,7 +432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             // Validate moving a post-deployment object script
             string movedScriptRelativePath = @"SubPath\RenamedPostDeploymentScript.sql";
-            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), movedScriptRelativePath);
+            string movedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(movedScriptRelativePath));
             Directory.CreateDirectory(Path.GetDirectoryName(movedScriptAbsolutePath)!);
 
             requestMock = new();
@@ -335,6 +461,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         #region Database reference tests
+
+        [Test]
+        public async Task TestGetDatabaseReferences()
+        {
+            var (service, projectUri, _, _) = await SetUpDatabaseReferenceTest();
+
+            // directly add some database references
+
+            SystemDatabaseReference systemDatabaseReference = new SystemDatabaseReference(SystemDatabase.MSDB, suppressMissingDependencies: true);
+            DacpacReference dacpacReference = new DacpacReference("OtherDatabaseDacpac.dacpac", suppressMissingDependencies: true);
+            SqlProjectReference sqlProjectReference = new SqlProjectReference("OtherDatabaseProject.sqlproj", projectGuid: TEST_GUID, suppressMissingDependencies: true);
+
+            service.Projects[projectUri].DatabaseReferences.Add(systemDatabaseReference);
+            service.Projects[projectUri].DatabaseReferences.Add(dacpacReference);
+            service.Projects[projectUri].DatabaseReferences.Add(sqlProjectReference);
+
+            // Validate getting a list of the post-deployment scripts
+            MockRequest<GetDatabaseReferencesResult> getMock = new();
+            await service.HandleGetDatabaseReferencesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetDatabaseReferencesRequest));
+
+            Assert.AreEqual(1, getMock.Result.SystemDatabaseReferences.Length);
+            Assert.AreEqual(systemDatabaseReference, getMock.Result.SystemDatabaseReferences[0]);
+
+            Assert.AreEqual(1, getMock.Result.DacpacReferences.Length);
+            Assert.AreEqual(dacpacReference, getMock.Result.DacpacReferences[0]);
+
+            Assert.AreEqual(1, getMock.Result.SqlProjectReferences.Length);
+            Assert.AreEqual(sqlProjectReference, getMock.Result.SqlProjectReferences[0]);
+        }
 
         [Test]
         public async Task TestDatabaseReferenceDelete()
@@ -442,6 +602,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual("DacpacLiteral", dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
+
+            // Validate adding a dacpac reference via database literal when an empty string is passed in for DatabaseVariable
+            mockReferencePath = Path.Join(Path.GetDirectoryName(projectUri), "AnotherDatabaseLiteral.dacpac");
+
+            requestMock = new();
+            await service.HandleAddDacpacReferenceRequest(new AddDacpacReferenceParams()
+            {
+                ProjectUri = projectUri,
+                DacpacPath = mockReferencePath,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = "DacpacLiteral2",
+                DatabaseVariable = ""
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest), "db literal");
+            Assert.AreEqual(4, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference with an empty string passed in for database variable(db literal)");
+            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
+            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
+            Assert.AreEqual("DacpacLiteral2", dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
+            Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
+            Assert.AreEqual(null, dacpacRef.DatabaseVariable, nameof(dacpacRef.DatabaseVariable));
         }
 
         [Test]
@@ -516,7 +697,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         #endregion
 
         [Test]
-        public async Task TestFolderAddDelete()
+        public async Task TestFolderOperations()
         {
             // Setup
             SqlProjectsService service = new();
@@ -538,6 +719,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(Directory.Exists(Path.Join(Path.GetDirectoryName(projectUri), folderParams.Path)), $"Subfolder '{folderParams.Path}' expected to exist on disk");
             Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"SqlObjectScripts expected to contain {folderParams.Path}");
 
+            // Validate getting a list of the post-deployment scripts
+            MockRequest<GetFoldersResult> getMock = new();
+            await service.HandleGetFoldersRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetFoldersRequest));
+            Assert.AreEqual(1, getMock.Result.Folders.Length);
+            Assert.AreEqual(folderParams.Path, getMock.Result.Folders[0]);
+
             // Validate deleting a folder
             requestMock = new();
             await service.HandleDeleteFolderRequest(folderParams, requestMock.Object);
@@ -547,7 +739,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestSqlCmdVariablesAddDelete()
+        public async Task TestSqlCmdVariablesOperations()
         {
             SqlProjectsService service = new();
             string projectUri = await service.CreateSqlProject();
@@ -563,17 +755,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             {
                 ProjectUri = projectUri,
                 Name = variableName,
-                DefaultValue = "$(TestVarDefaultValue)",
-                Value = "$(TestVarValue)"
+                DefaultValue = "TestVarDefaultValue",
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddSqlCmdVariableRequest));
             Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after addition not as expected");
             Assert.IsTrue(service.Projects[projectUri].SqlCmdVariables.Contains(variableName), $"List of SQLCMD variables expected to contain {variableName}");
 
+            // Validate getting a list of the SQLCMD variables
+            MockRequest<GetSqlCmdVariablesResult> getMock = new();
+            await service.HandleGetSqlCmdVariablesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetSqlCmdVariablesRequest));
+            Assert.AreEqual(1, getMock.Result.SqlCmdVariables.Length);
+            Assert.AreEqual(variableName, getMock.Result.SqlCmdVariables[0].VarName);
+
             // Validate updating a SQLCMD variable
-            const string updatedDefaultValue = "$(UpdatedDefaultValue)";
-            const string updatedValue = "$(UpdatedValue)";
+            const string updatedDefaultValue = "UpdatedDefaultValues";
 
             requestMock = new();
             await service.HandleUpdateSqlCmdVariableRequest(new AddSqlCmdVariableParams()
@@ -581,13 +782,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 ProjectUri = projectUri,
                 Name = variableName,
                 DefaultValue = updatedDefaultValue,
-                Value = updatedValue
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleUpdateSqlCmdVariableRequest));
             Assert.AreEqual(1, service.Projects[projectUri].SqlCmdVariables.Count, "Number of SQLCMD variables after update not as expected");
             Assert.AreEqual(updatedDefaultValue, service.Projects[projectUri].SqlCmdVariables.First().DefaultValue, "Updated default value");
-            Assert.AreEqual(updatedValue, service.Projects[projectUri].SqlCmdVariables.First().Value, "Updated value");
 
             // Validate deleting a SQLCMD variable
             requestMock = new();
@@ -612,7 +811,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SqlProjectsService service = new();
 
             /// Validate that the cross-platform status can be fetched
-            MockRequest<GetCrossPlatformCompatiblityResult> getRequestMock = new();
+            MockRequest<GetCrossPlatformCompatibilityResult> getRequestMock = new();
             await service.HandleGetCrossPlatformCompatibilityRequest(new SqlProjectParams()
             {
                 ProjectUri = projectPath
@@ -638,7 +837,66 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, getRequestMock.Object);
 
             getRequestMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
-            Assert.IsTrue(((GetCrossPlatformCompatiblityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
+            Assert.IsTrue(((GetCrossPlatformCompatibilityResult)getRequestMock.Result).IsCrossPlatformCompatible, "Input file should be cross-platform compatible after conversion");
+        }
+
+        [Test]
+        public async Task TestProjectProperties()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+
+            MockRequest<GetProjectPropertiesResult> getMock = new();
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+
+            Assert.IsTrue(Guid.TryParse(getMock.Result.ProjectGuid, out _), $"{getMock.Result.ProjectGuid} should be set");
+            Assert.AreEqual("AnyCPU", getMock.Result.Platform);
+            Assert.AreEqual("Debug", getMock.Result.Configuration);
+            Assert.AreEqual(@"bin\Debug\", getMock.Result.OutputPath); // default value is normalized to Windows slashes
+            Assert.AreEqual("SQL_Latin1_General_CP1_CI_AS", getMock.Result.DefaultCollation);
+            Assert.IsNull(getMock.Result.DatabaseSource, nameof(getMock.Result.DatabaseSource)); // validate DatabaseSource is null when the tag isn't present
+            Assert.AreEqual(ProjectType.SdkStyle, getMock.Result.ProjectStyle);
+            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider", getMock.Result.DatabaseSchemaProvider);
+
+            // Validate that DatabaseSource can be set when the tag doesn't exist
+
+            MockRequest<ResultStatus> setMock = new();
+            await service.HandleSetDatabaseSourceRequest(new SetDatabaseSourceParams()
+            {
+                ProjectUri = projectUri,
+                DatabaseSource = "TestSource"
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
+            Assert.AreEqual("TestSource", service.Projects[projectUri].Properties.DatabaseSource);
+
+            // Validate DatabaseSource is read when it has a value
+
+            getMock = new();
+            await service.HandleGetProjectPropertiesRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+            Assert.AreEqual("TestSource", getMock.Result.DatabaseSource);
+
+            // Validate that DatabaseSchemaProvider can be set
+
+            setMock = new();
+            await service.HandleSetDatabaseSchemaProviderRequest(new SetDatabaseSchemaProviderParams()
+            {
+                ProjectUri = projectUri,
+                DatabaseSchemaProvider = "Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider"
+            }, setMock.Object);
+
+            setMock.AssertSuccess(nameof(service.HandleSetDatabaseSchemaProviderRequest));
+            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider", service.Projects[projectUri].DatabaseSchemaProvider);
         }
 
         #region Helpers
@@ -675,7 +933,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             string projectUri = TestContext.CurrentContext.GetTestProjectPath();
 
             MockRequest<ResultStatus> requestMock = new();
-            await service.HandleNewSqlProjectRequest(new NewSqlProjectParams()
+            await service.HandleCreateSqlProjectRequest(new ServiceLayer.SqlProjects.Contracts.CreateSqlProjectParams()
             {
                 ProjectUri = projectUri,
                 SqlProjectType = ProjectType.SdkStyle

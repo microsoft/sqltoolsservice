@@ -41,7 +41,16 @@ namespace Microsoft.SqlTools.ServiceLayer
                     logFilePath = Logger.GenerateLogFilePath("sqltools");
                 }
 
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+
+                // Register PII Logging configuration change callback
+                Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
+                {
+                    Logger.IsPiiEnabled = newSettings?.MssqlTools?.PiiLogging ?? false;
+                    Logger.Information(Logger.IsPiiEnabled ? "PII Logging enabled" : "PII Logging disabled");
+                    return Task.FromResult(true);
+                });
+
                 // Only enable SQL Client logging when verbose or higher to avoid extra overhead when the
                 // detailed logging it provides isn't needed
                 if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
@@ -53,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 var hostDetails = new HostDetails(version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions);
                 serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
 
                 // If this service was started by another process, then it should shutdown when that parent process does.

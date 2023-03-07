@@ -400,7 +400,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
                         builder.InitialCatalog = node.NodeValue;
                         builder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
-                        var azureToken = session.ConnectionInfo.ConnectionDetails.AzureAccountToken;
+                        // Set Access Token only when authentication mode is not specified.
+                        var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
+                            ? session.ConnectionInfo.ConnectionDetails.AzureAccountToken : null;
                         TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
                     }
                     catch (Exception ex)

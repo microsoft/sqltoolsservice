@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Credentials
                     logFilePath = Logger.GenerateLogFilePath("credentials");
                 }
 
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "credentials", commandOptions.AutoFlushLog);
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, piiEnabled: commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "credentials", commandOptions.AutoFlushLog);
 
                 // set up the host details and profile paths
                 var hostDetails = new HostDetails(

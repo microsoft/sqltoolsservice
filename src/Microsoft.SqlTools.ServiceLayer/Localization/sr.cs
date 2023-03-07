@@ -45,11 +45,27 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
+            }
+        }
+
         public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination
         {
             get
             {
                 return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
+            }
+        }
+
+        public static string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
             }
         }
 
@@ -1266,6 +1282,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.SchemaHierarchy_Schemas);
+            }
+        }
+
+        public static string SchemaHierarchy_BuiltInSchema
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaHierarchy_BuiltInSchema);
             }
         }
 
@@ -9685,6 +9709,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string DefaultLanguagePlaceholder
+        {
+            get
+            {
+                return Keys.GetString(Keys.DefaultLanguagePlaceholder);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -9703,6 +9735,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting)
         {
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
+        }
+
+        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, secureEnclaves);
         }
 
         public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
@@ -10131,13 +10168,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
 
 
+            public const string ConnectionServiceConnStringInvalidSecureEnclaves = "ConnectionServiceConnStringInvalidSecureEnclaves";
+
+
             public const string ConnectionServiceConnStringInvalidEncryptOption = "ConnectionServiceConnStringInvalidEncryptOption";
 
 
             public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
 
 
+            public const string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = "ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol";
+
+
             public const string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = "ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination";
+
+
+            public const string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = "ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl";
 
 
             public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
@@ -10672,6 +10718,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_Schemas = "SchemaHierarchy_Schemas";
+
+
+            public const string SchemaHierarchy_BuiltInSchema = "SchemaHierarchy_BuiltInSchema";
 
 
             public const string SchemaHierarchy_Security = "SchemaHierarchy_Security";
@@ -13984,6 +14033,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
+
+
+            public const string DefaultLanguagePlaceholder = "DefaultLanguagePlaceholder";
 
 
             private Keys()

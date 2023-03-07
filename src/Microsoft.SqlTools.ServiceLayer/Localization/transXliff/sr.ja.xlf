@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS' and 'HGS'.</source>
-        <target state="translated">EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS' と 'HGS' です。</target>
+        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS'、'HGS'、'None' です。</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</source>
-        <target state="translated">構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted を Enabled に設定することが必要です。</target>
+        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
+        <target state="translated">構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted with Secure Enclaves を有効に設定する必要があります。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6543,6 +6543,32 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="GeneratedAlwaysColumnType_SequenceNumberEnd">
         <source>Sequence Number End</source>
         <target state="translated">シーケンス番号の終了</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SchemaHierarchy_BuiltInSchema">
+        <source>Built-in Schemas</source>
+        <target state="translated">組み込みスキーマ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
+        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <target state="translated">構成証明プロトコルの選択された値では、構成証明 URL を空にすることはできません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
+        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">SecureEnclaves の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</target>
+        <note>.
+ Parameters: 0 - secureEnclaves (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
+        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">エンクレーブ構成証明の URL は構成証明プロトコル 'None' で指定することはできません。 適切な構成証明プロトコルを設定するか、接続プロパティから構成証明 URL を削除します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;既定&gt;</target>
         <note></note>
       </trans-unit>
     </body>

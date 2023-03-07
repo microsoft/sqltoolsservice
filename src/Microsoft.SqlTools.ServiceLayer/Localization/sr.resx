@@ -145,18 +145,31 @@
     <comment>.
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>Invalid value &apos;{0}&apos; for SecureEnclaves. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
+    <comment>.
+ Parameters: 0 - secureEnclaves (string) </comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
     <value>Invalid value &apos;{0}&apos; for Encrypt. Valid values are &apos;Optional&apos;, &apos;Mandatory&apos;, &apos;Strict&apos;, &apos;True&apos;, &apos;False&apos;, &apos;Yes&apos; and &apos;No&apos;.</value>
     <comment>.
  Parameters: 0 - encrypt (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos; and &apos;HGS&apos;.</value>
+    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos;, &apos;HGS&apos; and &apos;None&apos;.</value>
     <comment>.
  Parameters: 0 - enclaveAttestationProtocol (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>Attestation URL cannot be empty with the selected value of Attestation Protocol.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted to be set to Enabled.</value>
+    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
+    <comment></comment>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>The Enclave Attestation URL must not be specified with Attestation Protocol &apos;None&apos;. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
@@ -895,6 +908,10 @@
   </data>
   <data name="SchemaHierarchy_Schemas" xml:space="preserve">
     <value>Schemas</value>
+    <comment></comment>
+  </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>Built-in Schemas</value>
     <comment></comment>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
@@ -5367,6 +5384,10 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>The connection could not be found</value>
+    <comment></comment>
+  </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;default&gt;</value>
     <comment></comment>
   </data>
 </root>

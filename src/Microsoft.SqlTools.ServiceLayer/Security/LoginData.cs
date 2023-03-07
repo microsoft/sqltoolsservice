@@ -864,6 +864,10 @@ INNER JOIN sys.sql_logins AS sql_logins
     internal class LoginPrototype
     {
         private SqlCollationSensitiveStringComparer comparer = null;
+        private static string AZURE_SERVER_ROLE_ALTER_QUERY =
+@"ALTER SERVER ROLE {0}
+	{1} MEMBER [{2}]";
+
 
         /// <summary>
         /// string of asterisks to display in lieu of the actual password
@@ -912,9 +916,9 @@ INNER JOIN sys.sql_logins AS sql_logins
             private bool                initialized         = false;
             private Login               login               = null;
             private Microsoft.SqlServer.Management.Smo.Server server;
-            private static string       defaultLanguageDisplay;
+            private static string       defaultLanguageDisplay = string.Empty;
             private bool                windowsAuthSupported = true;
-            private bool                aADAuthSupported = false;
+            private bool                aadAuthSupported = false;
 
             private StringCollection credentials = null;
             #endregion
@@ -1067,10 +1071,10 @@ INNER JOIN sys.sql_logins AS sql_logins
                 {
                     if (this.server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                     {
-                        this.aADAuthSupported = true;
+                        this.aadAuthSupported = true;
                     }
 
-                    return this.aADAuthSupported;
+                    return this.aadAuthSupported;
                 }
             }
 
@@ -1352,6 +1356,7 @@ INNER JOIN sys.sql_logins AS sql_logins
                 {
                     LoginType = SqlServer.Management.Smo.LoginType.SqlLogin;
                 }
+                LoadData();
             }
 
             /// <summary>
@@ -1363,6 +1368,7 @@ INNER JOIN sys.sql_logins AS sql_logins
             {
                 this.server = server;
                 this.login  = login;
+                LoadData();
             }          
 
             /// <summary>
@@ -2087,7 +2093,16 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.SqlPassword = login.Password;
             this.OldPassword = login.OldPassword;
             this.LoginType = GetLoginType(login);
-            this.DefaultLanguage = login.DefaultLanguage;
+            if (this.DefaultLanguage != null 
+            && 0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal)
+            && (server.DatabaseEngineType == DatabaseEngineType.Standalone|| server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance))
+            {
+                string[] arr = login.DefaultLanguage?.Split(" - ");
+                if (arr != null && arr.Length > 1)
+                {
+                    this.DefaultLanguage = arr[1];
+                }
+            }
             this.DefaultDatabase = login.DefaultDatabase;
             this.EnforcePolicy = login.EnforcePasswordPolicy;
             this.EnforceExpiration = login.EnforcePasswordPolicy ? login.EnforcePasswordExpiration : false;
@@ -2350,6 +2365,12 @@ INNER JOIN sys.sql_logins AS sql_logins
             // get the login
             Login login = server.Logins[this.LoginName];
 
+            if (server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                ApplyServerRoleChangesForAzure(server);
+                return;
+            }
+
             // foreach server role
             foreach (ServerRole role in server.Roles)
             {
@@ -2370,6 +2391,30 @@ INNER JOIN sys.sql_logins AS sql_logins
                     {
                         role.DropMember(this.LoginName);
                     }
+                }
+            }
+        }
+
+        private void ApplyServerRoleChangesForAzure(Microsoft.SqlServer.Management.Smo.Server server)
+        {
+            // foreach server role
+            foreach (string role in this.ServerRoles.ServerRoleNames)
+            {
+                 bool wasOriginallyARoleMember   = this.originalState.ServerRoles.IsMember(role);
+                bool isCurrentlyARoleMember     = this.currentState.ServerRoles.IsMember(role);
+
+
+                // if the login is currently a member of the role, but wasn't originally a member, add the login to the role
+                if (isCurrentlyARoleMember && !wasOriginallyARoleMember)
+                {
+                    // run query to add
+                    server.ExecutionManager.ConnectionContext.ExecuteNonQuery(string.Format(AZURE_SERVER_ROLE_ALTER_QUERY, role, "ADD", this.LoginName));
+                }
+                // if the login is not currently a member of the role, but originally was a member, remove the login from the role
+                else if (!isCurrentlyARoleMember && wasOriginallyARoleMember)
+                {
+                    //run query to drop
+                    server.ExecutionManager.ConnectionContext.ExecuteNonQuery(string.Format(AZURE_SERVER_ROLE_ALTER_QUERY, role, "DROP", this.LoginName));
                 }
             }
         }

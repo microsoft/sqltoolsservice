@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ResourceProvider
                 }
 
                 // we need to switch to Information when preparing for public preview
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "resourceprovider", commandOptions.AutoFlushLog);
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "resourceprovider", commandOptions.AutoFlushLog);
                 Logger.Write(TraceEventType.Information, "Starting SqlTools Resource Provider");
 
                 // set up the host details and profile paths 
