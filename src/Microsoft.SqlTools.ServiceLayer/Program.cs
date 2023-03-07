@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -25,6 +26,10 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// </summary>
         internal static async Task Main(string[] args)
         {
+            ThreadPool.GetMinThreads(out var minWorkerThreads, out var minCompletionThreads);
+            ThreadPool.GetMaxThreads(out var workerThreads, out var completionThreads);
+            ThreadPool.SetMinThreads(workerThreads, completionThreads);
+
             SqlClientListener? sqlClientListener = null;
             try
             {
@@ -42,6 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer
                 }
 
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
+
+                Logger.Verbose($"Configured min worker threads: {workerThreads} from {minWorkerThreads} and min completion threads: {completionThreads} from {minCompletionThreads}");
 
                 // Register PII Logging configuration change callback
                 Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
@@ -71,7 +78,16 @@ namespace Microsoft.SqlTools.ServiceLayer
                     ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
                 }
 
-                await serviceHost.WaitForExitAsync();
+                // Run background thread monitor to track thread availability.
+                Task threadMonitor = Task.Run(async () =>
+                {
+                    int workerThreads = 0, completionThreads = 0;
+                    await Task.Delay(60000); // 1 min delay to monitor thread activity.
+                    ThreadPool.GetAvailableThreads(out workerThreads, out completionThreads);
+                    Logger.Verbose($"Currently available threads in threadpool: WorkerThreds = {workerThreads}; CompletionPortThreads ={completionThreads}");
+                });
+
+                await new Task(async() => await serviceHost.WaitForExitAsync(), TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness);
             }
             catch (Exception ex)
             {
