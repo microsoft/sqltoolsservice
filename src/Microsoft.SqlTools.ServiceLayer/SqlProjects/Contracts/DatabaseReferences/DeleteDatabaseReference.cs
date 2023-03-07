@@ -26,6 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
     /// </summary>
     public class DeleteDatabaseReferenceRequest
     {
-        public static readonly RequestType<SqlProjectScriptParams, ResultStatus> Type = RequestType<SqlProjectScriptParams, ResultStatus>.Create("sqlprojects/deleteDatabaseReference");
+        public static readonly RequestType<DeleteDatabaseReferenceParams, ResultStatus> Type = RequestType<DeleteDatabaseReferenceParams, ResultStatus>.Create("sqlprojects/deleteDatabaseReference");
     }
 }
