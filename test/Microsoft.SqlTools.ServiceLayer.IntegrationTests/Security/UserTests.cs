@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 {
@@ -18,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// Test the basic Create User method handler
         /// </summary>
-        //[Test] - enable tests in separate change
+        [Test]
         public async Task TestHandleCreateUserWithLoginRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -42,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// Test the basic Update User method handler
         /// </summary>
-        //[Test] - enable tests in separate change
+        [Test]
         public async Task TestHandleUpdateUserWithLoginRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
