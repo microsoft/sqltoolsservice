@@ -6566,6 +6566,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">L'URL di attestazione dell'enclave non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;predefinita&gt;</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

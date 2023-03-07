@@ -4006,4 +4006,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
     <value>L'URL di attestazione dell'enclave non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</value>
   </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;predefinita&gt;</value>
+  </data>
 </root>

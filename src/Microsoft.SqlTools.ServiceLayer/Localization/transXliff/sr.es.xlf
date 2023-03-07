@@ -6566,6 +6566,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">La dirección URL de atestación del enclave no debe especificarse con el protocolo de atestación "none". Establezca el protocolo de atestación adecuado o quite la dirección URL de atestación de las propiedades de conexión.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;predeterminado&gt;</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -2043,13 +2043,13 @@
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <target state="translated">Valeur non valide '{0}' pour EnclaveAttestationProtocol. Les valeurs valides sont 'AAS', 'HGS' et 'Aucun'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
         <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</target>
+        <target state="translated">Le protocole d'attestation et l'URL d'attestation d'enclave nécessitent que Always Encrypted avec des enclaves sécurisées soit défini sur Activé.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6557,13 +6557,18 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
         <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <target state="translated">Valeur non valide '{0}' pour SecureEnclaves. Les valeurs valides sont 'Activé' et 'Désactivé'.</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
         <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
+        <target state="translated">L'URL d'attestation d'enclave ne doit pas être spécifiée avec le protocole d'attestation « Aucun ». Définissez le protocole d'attestation approprié ou supprimez l'URL d'attestation des propriétés de connexion.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;defaut&gt;</target>
         <note></note>
       </trans-unit>
     </body>

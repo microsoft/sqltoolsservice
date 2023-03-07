@@ -6566,6 +6566,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">不得使用证明协议“无”指定 Enclave 证明 URL。请设置适当的证明协议或从连接属性中移除证明 URL。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="DefaultLanguagePlaceholder">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;default&gt;</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

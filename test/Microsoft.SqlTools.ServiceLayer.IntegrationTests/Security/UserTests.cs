@@ -4,12 +4,9 @@
 //
 
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Security;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 {
@@ -21,56 +18,50 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// Test the basic Create User method handler
         /// </summary>
-        // [Test]
-        public async Task TestHandleCreateUserRequest()
+        //[Test] - enable tests in separate change
+        public async Task TestHandleCreateUserWithLoginRequest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 // setup
+                SecurityService service = new SecurityService();
+                UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var contextId = System.Guid.NewGuid().ToString();
 
-                var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams
-                {
-                    ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
-                    ContextId = contextId,
-                    IsNewObject = true
-                };
+                var login = await SecurityTestUtils.CreateLogin(service, connectionResult, contextId);
 
-                var loginParams = new CreateLoginParams
-                {
-                    ContextId = contextId,
-                    Login = SecurityTestUtils.GetTestLoginInfo()
-                };
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, contextId, login);
 
-                var createLoginContext = new Mock<RequestContext<object>>();
-                createLoginContext.Setup(x => x.SendResult(It.IsAny<object>()))
-                    .Returns(Task.FromResult(new object()));
-                var initializeLoginViewContext = new Mock<RequestContext<LoginViewInfo>>();
-                initializeLoginViewContext.Setup(x => x.SendResult(It.IsAny<LoginViewInfo>()))
-                    .Returns(Task.FromResult(new LoginViewInfo()));
+                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);
 
-                // call the create login method
+                await SecurityTestUtils.DeleteLogin(service, connectionResult, login);                
+            }
+        }
+
+        /// <summary>
+        /// Test the basic Update User method handler
+        /// </summary>
+        //[Test] - enable tests in separate change
+        public async Task TestHandleUpdateUserWithLoginRequest()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
                 SecurityService service = new SecurityService();
-                await service.HandleInitializeLoginViewRequest(initializeLoginViewRequestParams, initializeLoginViewContext.Object);
-                await service.HandleCreateLoginRequest(loginParams, createLoginContext.Object);
+                UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var contextId = System.Guid.NewGuid().ToString();
 
-                var userParams = new CreateUserParams
-                {
-                    ContextId = connectionResult.ConnectionInfo.OwnerUri,
-                    User = SecurityTestUtils.GetTestUserInfo(loginParams.Login.Name)
-                };
+                var login = await SecurityTestUtils.CreateLogin(service, connectionResult, contextId);
 
-                var createUserContext = new Mock<RequestContext<CreateUserResult>>();
-                createUserContext.Setup(x => x.SendResult(It.IsAny<CreateUserResult>()))
-                    .Returns(Task.FromResult(new object()));
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, contextId, login);
 
-                // call the create login method
-                await service.HandleCreateUserRequest(userParams, createUserContext.Object);
+                await SecurityTestUtils.UpdateUser(userService, connectionResult, contextId, user);
 
-                // verify the result
-                createUserContext.Verify(x => x.SendResult(It.Is<CreateUserResult>
-                    (p => p.Success && p.User.Name != string.Empty)));
+                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);
+
+                await SecurityTestUtils.DeleteLogin(service, connectionResult, login);
             }
         }
     }
