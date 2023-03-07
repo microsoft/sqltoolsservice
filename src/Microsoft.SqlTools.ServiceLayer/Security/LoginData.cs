@@ -2090,7 +2090,11 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.LoginType = GetLoginType(login);
             if (this.DefaultLanguage != null && 0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
             {
-                this.DefaultLanguage = login.DefaultLanguage.Split(" - ")[1];
+                string[] arr = login.DefaultLanguage?.Split(" - ");
+                if (arr != null && arr.Length > 1)
+                {
+                    this.DefaultLanguage = arr[1];
+                }
             }
             this.DefaultDatabase = login.DefaultDatabase;
             this.EnforcePolicy = login.EnforcePasswordPolicy;
