@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 e = e.InnerException;
             }
 
-            return res;
+            return res.TrimEnd( Environment.NewLine.ToCharArray());;
         }
 
          public void SetEventHandler<TParams>(
