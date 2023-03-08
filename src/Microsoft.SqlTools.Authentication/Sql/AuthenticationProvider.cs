@@ -5,6 +5,7 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Authentication.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Authentication.Sql
 {
@@ -27,13 +28,23 @@ namespace Microsoft.SqlTools.Authentication.Sql
         /// Instantiates AuthenticationProvider to be used for AAD authentication with MSAL.NET and MSAL.js co-ordinated.
         /// </summary>
         /// <param name="applicationName">Application Name that identifies user folder path location for reading/writing to shared cache.</param>
+        /// <param name="applicationPath">Application Path directory where application cache folder is present.</param>
         /// <param name="authCallback">Callback that handles AAD authentication when user interaction is needed.</param>
-        public AuthenticationProvider(string applicationName)
+        public AuthenticationProvider(string applicationName, string applicationPath)
         {
-            if(string.IsNullOrEmpty(applicationName)) {
+            if (string.IsNullOrEmpty(applicationName))
+            {
                 applicationName = nameof(SqlTools);
+                Logger.Warning($"Application Name not received with command options, using default application name as: {applicationName}");
             }
-            var cachePath = Path.Combine(Utils.BuildAppDirectoryPath(), applicationName, AzureTokenFolder);
+
+            if (string.IsNullOrEmpty(applicationPath))
+            {
+                applicationPath = Utils.BuildAppDirectoryPath();
+                Logger.Warning($"Application Path not received with command options, using default application path as: {applicationPath}");
+            }
+
+            var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
             this.authenticator = new Authenticator(ApplicationClientId, applicationName, cachePath, MsalCacheName);
         }
 
