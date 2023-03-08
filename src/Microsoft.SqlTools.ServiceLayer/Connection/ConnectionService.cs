@@ -1076,7 +1076,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
             {
                 // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-                var provider = new AuthenticationProvider(commandOptions.ApplicationName);
+                var provider = new AuthenticationProvider(commandOptions.ApplicationName, commandOptions.ApplicationPath);
                 SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
                 this.EnableSqlAuthenticationProvider = true;
