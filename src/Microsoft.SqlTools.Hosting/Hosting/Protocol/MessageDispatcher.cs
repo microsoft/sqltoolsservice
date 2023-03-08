@@ -159,14 +159,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     }
                     catch (Exception ex)
                     {
-                        string exceptionMessage = FormatException(ex);
-                        Logger.Error($"{requestType.MethodName} : {exceptionMessage}");
-                        await requestContext.SendError(exceptionMessage);
+                        string errorMessage = GetErrorMessage(ex);
+                        Logger.Error($"{requestType.MethodName} : {errorMessage}");
+                        await requestContext.SendError(errorMessage);
                     }
                 });
         }
 
-        private string FormatException(Exception e)
+        private string GetErrorMessage(Exception e)
         {
             string res = string.Empty;
 
