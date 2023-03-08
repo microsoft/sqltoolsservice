@@ -46,6 +46,9 @@ namespace Microsoft.SqlTools.Utility
                             case "-application-name":
                                 ApplicationName = args[++i];
                                 break;
+                            case "-data-path":
+                                ApplicationPath = args[++i];
+                                break;
                             case "-autoflush-log":
                                 AutoFlushLog = true;
                                 break;
@@ -109,6 +112,11 @@ namespace Microsoft.SqlTools.Utility
         /// Name of application that is sending command options
         /// </summary>
         public string ApplicationName { get; private set; }
+
+        /// <summary>
+        /// Path of application home directory
+        /// </summary>
+        public string ApplicationPath { get; private set; }
 
         /// <summary>
         /// Contains any error messages during execution
