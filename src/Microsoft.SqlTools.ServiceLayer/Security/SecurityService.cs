@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 SupportWindowsAuthentication = prototype.WindowsAuthSupported,
                 SupportAADAuthentication = prototype.AADAuthSupported,
                 SupportSQLAuthentication = true, // SQL Auth support for login, not necessarily mean SQL Auth support for CONNECT etc.
-                CanEditLockedOutState = parameters.IsNewObject,
+                CanEditLockedOutState = !parameters.IsNewObject && prototype.IsLockedOut,
                 Databases = databases,
                 Languages = languages,
                 ServerRoles = prototype.ServerRoles.ServerRoleNames,
