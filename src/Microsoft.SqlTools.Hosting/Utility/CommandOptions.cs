@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.Utility
                             case "-application-name":
                                 ApplicationName = args[++i];
                                 break;
-                            case "-application-path":
+                            case "-data-path":
                                 ApplicationPath = args[++i];
                                 break;
                             case "-autoflush-log":
