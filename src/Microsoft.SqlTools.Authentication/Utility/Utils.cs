@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// <exception cref="Exception">When called on unsupported platform.</exception>
         public static string BuildAppDirectoryPath()
         {
-            var homedir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var homedir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 
             // Windows
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
