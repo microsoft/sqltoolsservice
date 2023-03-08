@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             if (connInfo == null) 
             {
-                    // raise error here
+                throw new ArgumentException("Invalid ConnectionUri");
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
@@ -168,10 +168,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            // if (connInfo == null) 
-            // {
-            //     // raise an error
-            // }
+            if (connInfo == null) 
+            {
+                throw new ArgumentException("Invalid ConnectionUri");
+            }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             Login login = dataContainer.Server?.Logins[parameters.Name];
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
             if (connInfo == null) 
             {
-                    // raise error here
+                throw new ArgumentException("Invalid ConnectionUri");
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
@@ -255,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
             if (connInfo == null) 
             {
-                // raise an error
+                throw new ArgumentException("Invalid ConnectionUri");
             }
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
             LoginViewInfo loginViewInfo = new LoginViewInfo();
