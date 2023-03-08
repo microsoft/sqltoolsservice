@@ -168,15 +168,15 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private string GetErrorMessage(Exception e)
         {
-            string res = string.Empty;
+            List<string> errors = new List<string>();
 
             while (e != null)
             {
-                res += e.Message + Environment.NewLine;
+                errors.Add(e.Message);
                 e = e.InnerException;
             }
 
-            return res.TrimEnd( Environment.NewLine.ToCharArray());;
+            return errors.Count > 0 ? string.Join(" ---> ", errors) : string.Empty;
         }
 
          public void SetEventHandler<TParams>(
