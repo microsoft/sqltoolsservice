@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Security;
 
@@ -244,6 +245,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 // Alter() Resource Governor to reconfigure
                 dataContainer.Server.ResourceGovernor.Alter();
             }
+        }
+
+        public static string[] LoadSqlLogins(ServerConnection serverConnection)
+        {
+            return LoadItems(serverConnection, "Server/Login");
+        }
+
+        public static string[] LoadItems(ServerConnection serverConnection, string urn)
+        {
+            List<string> items = new List<string>();
+            Request req = new Request();
+            req.Urn = urn;
+            req.ResultType = ResultType.IDataReader;
+            req.Fields = new string[] { "Name" };
+
+            Enumerator en = new Enumerator();
+            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
+            {
+                if (reader != null)
+                {
+                    string name;
+                    while (reader.Read())
+                    {
+                        // Get the permission name
+                        name = reader.GetString(0);
+                        items.Add(name);
+                    }
+                }
+            }
+            items.Sort();
+            return items.ToArray();
         }
     }
 }
