@@ -107,6 +107,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     Urn.EscapeString(parameters.Database));
                 Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
                 existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
+
+                if (string.IsNullOrWhiteSpace(existingUser.Login))
+                {
+                    throw new ApplicationException("Only 'User with Login' user type supported");
+                }
+
                 userInfo = new UserInfo()
                 {
                     Name = parameters.Name,
