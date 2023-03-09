@@ -1422,6 +1422,7 @@ INNER JOIN sys.sql_logins AS sql_logins
                 result.isDisabled               = this.isDisabled;
                 result.enforcePolicy            = this.enforcePolicy;
                 result.enforceExpiration        = this.enforceExpiration;
+                result.isLockedOut              = this.isLockedOut;
 
                 result.certificateName          = this.certificateName;
                 result.asymmetricKeyName        = this.asymmetricKeyName;
@@ -2321,7 +2322,7 @@ INNER JOIN sys.sql_logins AS sql_logins
                         && (this.currentState.IsLockedOut != this.originalState.IsLockedOut)
                         )
                     {
-                        throw new ArgumentException("CreateLoginSR.ResetPasswordWhileUnlocking");
+                        throw new Exception(SR.ResetPasswordWhileUnlocking);
                     }
                 }
             }            
