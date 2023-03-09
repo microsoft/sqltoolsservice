@@ -9717,6 +9717,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ResetPasswordWhileUnlocking
+        {
+            get
+            {
+                return Keys.GetString(Keys.ResetPasswordWhileUnlocking);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -14036,6 +14044,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string DefaultLanguagePlaceholder = "DefaultLanguagePlaceholder";
+
+
+            public const string ResetPasswordWhileUnlocking = "ResetPasswordWhileUnlocking";
 
 
             private Keys()
