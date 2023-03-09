@@ -1044,17 +1044,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             switch (userType)
             {
-                case ExhaustiveUserTypes.AsymmetricKeyMappedUser:
-                    currentData.userType = UserType.AsymmetricKey;
-                    this.asymmetricKeyMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = asymmetricKeyMappedUser;
-                    break;                    
+                // case ExhaustiveUserTypes.AsymmetricKeyMappedUser:
+                //     currentData.userType = UserType.AsymmetricKey;
+                //     this.asymmetricKeyMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
+                //     this.currentPrototype = asymmetricKeyMappedUser;
+                //     break;                    
 
-                case ExhaustiveUserTypes.CertificateMappedUser:
-                    currentData.userType = UserType.Certificate;
-                    this.certificateMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = certificateMappedUser; 
-                    break;
+                // case ExhaustiveUserTypes.CertificateMappedUser:
+                //     currentData.userType = UserType.Certificate;
+                //     this.certificateMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
+                //     this.currentPrototype = certificateMappedUser; 
+                //     break;
 
                 case ExhaustiveUserTypes.LoginMappedUser:
                     currentData.userType = UserType.SqlUser;
@@ -1062,28 +1062,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     this.currentPrototype = loginMappedUser;
                     break;
 
-                case ExhaustiveUserTypes.SqlUserWithoutLogin:
-                    currentData.userType = UserType.NoLogin;
-                    this.noLoginUser ??= new UserPrototypeWithDefaultSchema(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = noLoginUser;
-                    break;
+                // case ExhaustiveUserTypes.SqlUserWithoutLogin:
+                //     currentData.userType = UserType.NoLogin;
+                //     this.noLoginUser ??= new UserPrototypeWithDefaultSchema(this.context, this.currentData, this.originalData);
+                //     this.currentPrototype = noLoginUser;
+                //     break;
 
-                case ExhaustiveUserTypes.SqlUserWithPassword:
-                    currentData.userType = UserType.SqlUser;
-                    this.sqlUserWithPassword ??= new UserPrototypeForSqlUserWithPassword(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = sqlUserWithPassword;
-                    break;
+                // case ExhaustiveUserTypes.SqlUserWithPassword:
+                //     currentData.userType = UserType.SqlUser;
+                //     this.sqlUserWithPassword ??= new UserPrototypeForSqlUserWithPassword(this.context, this.currentData, this.originalData);
+                //     this.currentPrototype = sqlUserWithPassword;
+                //     break;
 
-                case ExhaustiveUserTypes.WindowsUser:
-                    currentData.userType = UserType.SqlUser;
-                    this.windowsUser ??= new UserPrototypeForWindowsUser(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = windowsUser;
-                    break;
+                // case ExhaustiveUserTypes.WindowsUser:
+                //     currentData.userType = UserType.SqlUser;
+                //     this.windowsUser ??= new UserPrototypeForWindowsUser(this.context, this.currentData, this.originalData);
+                //     this.currentPrototype = windowsUser;
+                //     break;
                 
                 default:
                     System.Diagnostics.Debug.Assert(false, "Unknown UserType provided.");
                     this.currentPrototype = null;
-                    break;
+                    throw new ApplicationException("Only 'User with Login' user type support in March Preview release");
+                    //break;
             }
             return this.currentPrototype;
         }
