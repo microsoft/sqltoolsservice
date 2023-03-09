@@ -108,23 +108,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.isSchemaOwned = new Dictionary<string, bool>();
             this.isMember = new Dictionary<string, bool>();
 
+            // load user properties from SMO object
             if (!context.IsNewObject)
             {
                 this.LoadUserData(context);
             }
-            else
+     
+            // apply user properties provided by client
+            if (userInfo != null)
             {
-                if (userInfo != null)
+                this.name = userInfo.Name;
+                this.mappedLoginName = userInfo.LoginName;
+                this.defaultSchemaName = userInfo.DefaultSchema;
+                if (!string.IsNullOrEmpty(userInfo.Password))
                 {
-                    this.name = userInfo.Name;
-                    this.mappedLoginName = userInfo.LoginName;
-                    this.defaultSchemaName = userInfo.DefaultSchema;
-                    if (!string.IsNullOrEmpty(userInfo.Password))
-                    {
-                        this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
-                    }
-                }     
-            }
+                    this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
+                }
+            }     
 
             this.LoadRoleMembership(context, userInfo);
 
