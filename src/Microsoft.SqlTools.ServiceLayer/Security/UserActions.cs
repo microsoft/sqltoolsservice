@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Common;
@@ -108,6 +107,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     Urn.EscapeString(parameters.Database));
                 Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
                 existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
+
+                if (string.IsNullOrWhiteSpace(existingUser.Login))
+                {
+                    throw new ApplicationException("Only 'User with Login' user type supported");
+                }
+
                 userInfo = new UserInfo()
                 {
                     Name = parameters.Name,
@@ -199,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 SupportSQLAuthentication = true,
                 Languages = new string[] { },
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
-                Logins = LoadSqlLogins(serverConnection),
+                Logins = DatabaseUtils.LoadSqlLogins(serverConnection),
                 DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
             };
 
@@ -399,36 +404,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     throw new ApplicationException("Cannot drop user since it owns a schema");
                 }
             }
-        }
-
-        private string[] LoadSqlLogins(ServerConnection serverConnection)
-        {
-            return LoadItems(serverConnection, "Server/Login");
-        }
-
-        private string[] LoadItems(ServerConnection serverConnection, string urn)
-        {
-            List<string> items = new List<string>();
-            Request req = new Request();
-            req.Urn = urn;
-            req.ResultType = ResultType.IDataReader;
-            req.Fields = new string[] { "Name" };
-
-            Enumerator en = new Enumerator();
-            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
-            {
-                if (reader != null)
-                {
-                    string name;
-                    while (reader.Read())
-                    {
-                        // Get the permission name
-                        name = reader.GetString(0);
-                        items.Add(name);
-                    }
-                }
-            }
-            return items.ToArray();
         }
     }
 
