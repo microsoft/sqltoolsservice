@@ -8,13 +8,12 @@ steps:
 
   - script: |
       cd $(Agent.TempDirectory)/drop
+      mkdir sts
       tar -xzvf Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz -C sts
     displayName: 'Extract the files'
 
   - script: |
-      cd $(Agent.TempDirectory)/drop
-      mkdir sts
-      cd sts
+      cd $(Agent.TempDirectory)/drop/sts
       codesign -s - MicrosoftSqlToolsCredentials
       codesign -s - MicrosoftSqlToolsServiceLayer
       codesign -s - SqlToolsResourceProviderService
