@@ -5,9 +5,11 @@ steps:
     azureSubscription: 'ClientToolsInfra_670062 (88d5392f-a34f-4769-b405-f597fc533613)'
     KeyVaultName: 'ado-secrets'
     SecretsFilter: 'github-distro-mixin-password,ado-crossplatbuildscripts-password'
+
 - powershell: |
     git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
   displayName: Clone CrossPlatBuildScripts
+
 - task: DownloadBuildArtifacts@0
   displayName: 'Download build drop artifacts'
   inputs:
@@ -16,16 +18,23 @@ steps:
     artifactName: 'drop'
     itemPattern: '**/*'
     downloadPath: '$(Agent.TempDirectory)'
+
 - task: CopyFiles@2
   displayName: 'Copy build drop artifacts to: $(Build.SourcesDirectory)/artifacts/package/artifacts/package'
   inputs:
     SourceFolder: '$(Agent.TempDirectory)/drop'
     TargetFolder: '$(Build.SourcesDirectory)/artifacts/package'
+
+- script: |
+    cd $(Build.SourcesDirectory)/artifacts/package
+    rm Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz
+  displayName: 'Delete the unsigned arm64-osx package'
+
 - task: PowerShell@2
   displayName: 'Run Automated Release Script'
   inputs:
     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-    arguments: '-workspace $(Build.SourcesDirectory) -minTag 4.6.0.0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
+    arguments: '-workspace $(Build.SourcesDirectory) -minTag 5.0.0.0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
     workingDirectory: '$(Build.SourcesDirectory)'
   env:
     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
