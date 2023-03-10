@@ -3,33 +3,40 @@ steps:
     displayName: 'Download Build Artifacts'
     inputs:
       downloadType: specific
-      itemPattern: 'drop/Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz'
+      itemPattern: |
+       drop/Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz
+       drop/Microsoft.SqlTools.Migration-osx-arm64-unsigned-net7.0.tar.gz
       downloadPath: '$(Agent.TempDirectory)'
 
   - script: |
       cd $(Agent.TempDirectory)/drop
       mkdir sts
       tar -xzvf Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz -C sts
-    displayName: 'Extract the files'
+      mkdir migration
+      tar -xzvf Microsoft.SqlTools.Migration-osx-arm64-unsigned-net7.0.tar.gz -C migration
+    displayName: 'Extract files'
 
   - script: |
       cd $(Agent.TempDirectory)/drop/sts
       codesign -s - MicrosoftSqlToolsCredentials
       codesign -s - MicrosoftSqlToolsServiceLayer
       codesign -s - SqlToolsResourceProviderService
-    displayName: 'Sign the executables'
+      codesign -s - MicrosoftKustoServiceLayer
+      cd $(Agent.TempDirectory)/drop/migration
+      codesign -s - MicrosoftSqlToolsMigration
+    displayName: 'Sign executables'
 
   - script: |
       cd $(Agent.TempDirectory)/drop/sts
       tar -czvf Microsoft.SqlTools.ServiceLayer-osx-arm64-net7.0.tar.gz *
-    displayName: 'Archive the files'
+      cd $(Agent.TempDirectory)/drop/migration
+      tar -czvf Microsoft.SqlTools.Migration-osx-arm64-net7.0.tar.gz *
+    displayName: 'Archive files'
 
-  - task: CopyFiles@2
-    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-    inputs:
-      SourceFolder: '$(Agent.TempDirectory)/drop/sts'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-      Contents: 'Microsoft.SqlTools.ServiceLayer-osx-arm64-net7.0.tar.gz'
+  - script: |
+      cp $(Agent.TempDirectory)/drop/sts/Microsoft.SqlTools.ServiceLayer-osx-arm64-net7.0.tar.gz $(Build.ArtifactStagingDirectory)
+      cp $(Agent.TempDirectory)/drop/migration/Microsoft.SqlTools.Migration-osx-arm64-net7.0.tar.gz $(Build.ArtifactStagingDirectory)
+    displayName: 'Copy files to drop folder'
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact'
