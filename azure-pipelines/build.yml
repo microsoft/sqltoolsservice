@@ -9,7 +9,7 @@ parameters:
       archiveType: 'tar'
     - name: 'osx-arm64'
       displayName: 'osx arm'
-      archiveName: 'osx-arm64'
+      archiveName: 'osx-arm64-unsigned'
       archiveFileFormat: 'tar.gz'
       archiveType: 'tar'
     - name: 'rhel.7.2-x64'
@@ -204,28 +204,6 @@ steps:
        }
      ]
     SessionTimeout: 600
-    MaxConcurrency: 5
-
-- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
-  displayName: 'ESRP CodeSigning - osx-arm64'
-  inputs:
-    ConnectedServiceName: 'Code Signing'
-    FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'MicrosoftSqlToolsCredentials,MicrosoftKustoServiceLayer,MicrosoftSqlToolsMigration,SqlToolsResourceProviderService,MicrosoftSqlToolsServiceLayer'
-    signConfigType: inlineSignParams
-    inlineOperation: |
-     [
-       {
-         "keyCode": "CP-401337-Apple",
-         "operationCode": "MacAppDeveloperSign",
-         "parameters": {
-           "Hardening": "Enable"
-         },
-         "toolName": "sign",
-         "toolVersion": "1.0"
-        }
-     ]
-    SessionTimeout: 90
     MaxConcurrency: 5
 
 - task: BatchScript@1

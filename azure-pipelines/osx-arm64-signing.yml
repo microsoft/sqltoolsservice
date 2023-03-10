@@ -1,0 +1,32 @@
+steps:
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts'
+    inputs:
+      downloadType: specific
+      itemPattern: 'drop/Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz'
+      downloadPath: '$(Agent.TempDirectory)'
+
+  - script: |
+      pushd $(Agent.TempDirectory)
+      mkdir sts
+      tar -xzvf Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz -C sts
+    displayName: 'Extract the files'
+
+  - script: |
+      pushd $(Agent.TempDirectory)/sts
+      codesign -s - MicrosoftSqlToolsCredentials
+      codesign -s - MicrosoftSqlToolsServiceLayer
+      codesign -s - SqlToolsResourceProviderService
+    displayName: 'Sign the executables'
+
+  - script: |
+      pushd $(Agent.TempDirectory)/sts
+      tar -czvf Microsoft.SqlTools.ServiceLayer-osx-arm64-net7.0.tar.gz *
+    displayName: 'Archive the files'
+
+  - script: |
+      mv $(Agent.TempDirectory)/sts/Microsoft.SqlTools.ServiceLayer-osx-arm64-net7.0.tar.gz $(Build.ArtifactStagingDirectory)
+    displayName: 'Copy signed archive to drop folder'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'

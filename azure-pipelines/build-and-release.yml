@@ -24,7 +24,14 @@ stages:
     steps:
     - template: build.yml
     timeoutInMinutes: 90
-
+  - job: CodeSign_osx_arm64_executables
+    pool:
+      vmImage: 'macos-latest'
+    dependsOn:
+      - Build
+    steps:
+    - template: osx-arm64-signing.yml
+    timeoutInMinutes: 90
 - stage: Release
   variables:
   - name: skipComponentGovernanceDetection
