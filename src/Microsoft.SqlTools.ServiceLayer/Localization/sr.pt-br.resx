@@ -4009,4 +4009,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
   </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>Redefinir a senha de logon ao desbloquear.</value>
+  </data>
 </root>

@@ -6571,6 +6571,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">&lt;預設&gt;</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ResetPasswordWhileUnlocking">
+        <source>Reset password for the login while unlocking.</source>
+        <target state="translated">解除鎖定時重設登入密碼。</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

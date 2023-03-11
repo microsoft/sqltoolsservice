@@ -6571,6 +6571,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">&lt;predefinita&gt;</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ResetPasswordWhileUnlocking">
+        <source>Reset password for the login while unlocking.</source>
+        <target state="translated">Reimpostare la password per l'account di accesso durante lo sblocco.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
