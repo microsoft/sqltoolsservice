@@ -6571,6 +6571,11 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">&lt;default&gt;</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ResetPasswordWhileUnlocking">
+        <source>Reset password for the login while unlocking.</source>
+        <target state="translated">Redefinir a senha de logon ao desbloquear.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -4009,4 +4009,7 @@
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;既定&gt;</value>
   </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>ロックの解除中にログインのパスワードをリセットします。</value>
+  </data>
 </root>
