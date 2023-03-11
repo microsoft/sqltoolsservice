@@ -25,6 +25,16 @@ stages:
     - template: build.yml
     timeoutInMinutes: 90
 
+  # In order to run on arm64 macOS the executables must be at least self-signed, but dotnet publish step only does it when publishing on macOS.
+  # More information: https://github.com/dotnet/runtime/issues/49091
+  - job: CodeSign_osx_arm64_executables
+    pool:
+      vmImage: 'macos-latest'
+    dependsOn:
+      - Build
+    steps:
+    - template: osx-arm64-signing.yml
+
 - stage: Release
   variables:
   - name: skipComponentGovernanceDetection
