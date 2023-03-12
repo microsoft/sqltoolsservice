@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
 
         private bool AddGenericPassword(Credential credential)
         {            
-            IntPtr passwordPtr = Marshal.StringToCoTaskMemUni(credential.Password);
+            IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(credential.Password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero, 
               InteropUtils.GetLengthInBytes(credential.CredentialId), 
