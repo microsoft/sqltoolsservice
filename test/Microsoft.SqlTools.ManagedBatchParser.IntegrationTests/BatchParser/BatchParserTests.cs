@@ -37,8 +37,13 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             TestInitialize();
         }
 
+        /// <summary>
+        /// Verified that the parser throws an exception when the the sqlcmd script
+        /// uses a variable that is not defined. The expected exception has the
+        /// correct ErrorCode and TokenType.
+        /// </summary>
         [Test]
-        public void VerifyThrowOnUnresolvedVariable()
+        public void VerifyVariableResolverThrowsWhenVariableIsNotDefined()
         {
             string script = "print '$(NotDefined)'";
             StringBuilder output = new StringBuilder();
@@ -54,18 +59,17 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
 
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                var exc = Assert.Throws<BatchParserException>(p.Parse, "Expected exception because $(NotDefined) was not defined!");
+                Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.VariableNotDefined), "Error code should be VariableNotDefined!");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
             }
         }
 
-        /// <summary>
-        /// Variable parameter in powershell: Specifies, as a string array, a sqlcmd scripting variable
-        /// for use in the sqlcmd script, and sets a value for the variable.
-        /// </summary>
         [Test]
-        public void VerifyVariableResolverUsingVaribleParameter()
+        public void VerifyVariableResolverThrowsWhenVariableHasInvalidName_StartsWithNumber()
         {
-            string query = @" Invoke-Sqlcmd -Query ""SELECT `$(calcOne)"" -Variable ""calcOne = 10 + 20"" ";
+            // instead of using variable calcOne, I purposely use variable 0alcOne
+            string query = @"SELECT $(0alcOne)";
 
             TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
@@ -77,16 +81,18 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                var exc = Assert.Throws<BatchParserException>(p.Parse, "Expected exception because $(0alcOne) was not defined!");
+                Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidVariableName), "Error code should be InvalidVariableName!");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
+                Assert.That(exc.Text, Is.EqualTo("$(0"), "Token");
             }
         }
 
-        // Verify the starting identifier of Both parameter and variable are same.
         [Test]
-        public void VerifyVariableResolverIsStartIdentifierChar()
+        public void VerifyVariableResolverThrowsWhenVariableHasInvalidName_ContainesInvalidChar()
         {
-            // instead of using variable calcOne, I purposely used In-variable 0alcOne
-            string query = @" Invoke-Sqlcmd -Query ""SELECT `$(0alcOne)"" -Variable ""calcOne1 = 1"" ";
+            // instead of using variable calcOne, I purposely use variable ca@lcOne
+            string query = @"SELECT $(ca@lcOne)";
 
             TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
@@ -98,37 +104,24 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
             {
                 p.ThrowOnUnresolvedVariable = true;
                 handler.SetParser(p);
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                Assert.Throws<BatchParserException>(p.Parse);
             }
         }
 
-        // Verify all the characters inside variable are valid Identifier.
-        [Test]
-        public void VerifyVariableResolverIsIdentifierChar()
-        {
-            // instead of using variable calcOne, I purposely used In-variable 0alcOne
-            string query = @" Invoke-Sqlcmd -Query ""SELECT `$(ca@lcOne)"" -Variable ""calcOne = 1"" ";
-
-            TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
-            IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
-            using (Parser p = new Parser(
-                handler,
-                resolver,
-                new StringReader(query),
-                "test"))
-            {
-                p.ThrowOnUnresolvedVariable = true;
-                handler.SetParser(p);
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                var exc = Assert.Throws<BatchParserException>(p.Parse, "Expected exception because $(ca@lcOne) was not defined!");
+                Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidVariableName), "Error code should be InvalidVariableName!");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
+                Assert.That(exc.Text, Is.EqualTo("$(ca@"), "Token");
             }
         }
 
-        // Verify the execution by passing long value , Except a exception.
+        // A GO followed by a number that is greater than 2147483647 cause the parser to
+        // throw an exception.
         [Test]
-        public void VerifyInvalidNumber()
+        public void VerifyInvalidNumberExceptionThrownWhenParsingGoExceedsMaxInt32()
         {
-            string query = @" SELECT 1+1
-                           GO 999999999999999999999999999999999999999";
+            string query = $@"SELECT 1+1
+                           GO {1L + int.MaxValue}";
 
             TestCommandHandler handler = new TestCommandHandler(new StringBuilder());
             IVariableResolver resolver = new TestVariableResolver(new StringBuilder());
@@ -142,7 +135,10 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 handler.SetParser(p);
                 // This test will fail because we are passing invalid number.
                 // Exception will be raised from  ParseGo()
-                Assert.Throws<BatchParserException>(() => p.Parse());
+                var exc = Assert.Throws<BatchParserException>(p.Parse, $"Expected exception because GO is followed by a invalid number (>{int.MaxValue})");
+                Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidNumber), "Error code should be InvalidNumber!");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
+                Assert.That(exc.Text, Is.EqualTo("2147483648"), "Token");
             }
         }
 
@@ -372,7 +368,7 @@ GO";
                 string password = liveConnection.ConnectionInfo.ConnectionDetails.Password;
                 var credentials = string.IsNullOrEmpty(userName) ? string.Empty : $"-U {userName} -P {password}";
                 string sqlCmdQuery = $@"
-:Connect {serverName}{credentials}
+:Connect {serverName} {credentials}
 GO
 select * from sys.databases where name = 'master'
 GO";
