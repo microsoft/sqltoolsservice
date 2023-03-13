@@ -4009,4 +4009,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;predefinita&gt;</value>
   </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>Reimpostare la password per l'account di accesso durante lo sblocco.</value>
+  </data>
 </root>

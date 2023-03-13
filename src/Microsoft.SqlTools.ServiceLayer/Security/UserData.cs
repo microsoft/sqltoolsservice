@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -108,23 +109,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.isSchemaOwned = new Dictionary<string, bool>();
             this.isMember = new Dictionary<string, bool>();
 
+            // load user properties from SMO object
             if (!context.IsNewObject)
             {
                 this.LoadUserData(context);
             }
-            else
+     
+            // apply user properties provided by client
+            if (userInfo != null)
             {
-                if (userInfo != null)
+                this.name = userInfo.Name;
+                this.mappedLoginName = userInfo.LoginName;
+                this.defaultSchemaName = userInfo.DefaultSchema;
+                if (!string.IsNullOrEmpty(userInfo.Password))
                 {
-                    this.name = userInfo.Name;
-                    this.mappedLoginName = userInfo.LoginName;
-                    this.defaultSchemaName = userInfo.DefaultSchema;
-                    if (!string.IsNullOrEmpty(userInfo.Password))
-                    {
-                        this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
-                    }
-                }     
-            }
+                    this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
+                }
+            }     
 
             this.LoadRoleMembership(context, userInfo);
 
@@ -237,8 +238,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             if (SqlMgmtUtils.IsSql11OrLater(context.Server.ServerVersion))
             {
                 this.authenticationType = existingUser.AuthenticationType;
-                this.defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromName(existingUser.Parent.Parent,
-                                                                existingUser.DefaultLanguage.Name);
+
+                if (context.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
+                {
+                    this.defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromName(
+                                                                    existingUser.Parent.Parent,
+                                                                    existingUser.DefaultLanguage.Name);
+                }
             }
         }
 
@@ -793,7 +799,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             get
             {
                 //Default Language was not supported before Denali.
-                return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
+                return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion)
+                    && this.context.Server.ServerType != DatabaseEngineType.SqlAzureDatabase;
             }
         }
 

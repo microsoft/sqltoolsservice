@@ -159,10 +159,24 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error($"{requestType.MethodName} : {ex}");
-                        await requestContext.SendError(ex.Message);
+                        string errorMessage = GetErrorMessage(ex);
+                        Logger.Error($"{requestType.MethodName} : {errorMessage}");
+                        await requestContext.SendError(errorMessage);
                     }
                 });
+        }
+
+        private string GetErrorMessage(Exception e)
+        {
+            List<string> errors = new List<string>();
+
+            while (e != null)
+            {
+                errors.Add(e.Message);
+                e = e.InnerException;
+            }
+
+            return errors.Count > 0 ? string.Join(" ---> ", errors) : string.Empty;
         }
 
          public void SetEventHandler<TParams>(
