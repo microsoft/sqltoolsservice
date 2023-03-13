@@ -14,5 +14,8 @@ namespace Microsoft.SqlTools.Shared.Utility
         public const string dstsAuth = "dstsAuth";
         public const string ActiveDirectoryInteractive = "ActiveDirectoryInteractive";
         public const string ActiveDirectoryPassword = "ActiveDirectoryPassword";
+
+        public const string AzureAccountProviderCredentials = "azureAccountProviderCredentials";
+        public const string MsalCacheName = "azureTokenCacheMsal_azure_publicCloud";
     }
 }

@@ -19,7 +19,6 @@ namespace Microsoft.SqlTools.Authentication.Sql
     {
         private const string ApplicationClientId = "a69788c6-1d43-44ed-9ca3-b83e194da255";
         private const string AzureTokenFolder = "Azure Accounts";
-        private const string MsalCacheName = "azureTokenCacheMsal-azure_publicCloud";
         private const string s_defaultScopeSuffix = "/.default";
 
         private Authenticator authenticator;
@@ -30,7 +29,7 @@ namespace Microsoft.SqlTools.Authentication.Sql
         /// <param name="applicationName">Application Name that identifies user folder path location for reading/writing to shared cache.</param>
         /// <param name="applicationPath">Application Path directory where application cache folder is present.</param>
         /// <param name="authCallback">Callback that handles AAD authentication when user interaction is needed.</param>
-        public AuthenticationProvider(string applicationName, string applicationPath)
+        public AuthenticationProvider(string applicationName, string applicationPath, string cacheName, MSALEncryptedCacheHelper.IVKeyReadCallback callback)
         {
             if (string.IsNullOrEmpty(applicationName))
             {
@@ -45,7 +44,7 @@ namespace Microsoft.SqlTools.Authentication.Sql
             }
 
             var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
-            this.authenticator = new Authenticator(ApplicationClientId, applicationName, cachePath, MsalCacheName);
+            this.authenticator = new Authenticator(new (ApplicationClientId, applicationName, cachePath, cacheName), callback);
         }
 
         /// <summary>

@@ -5,7 +5,6 @@
 
 using System.Collections.Concurrent;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.SqlTools.Authentication.Utility;
 using SqlToolsLogger = Microsoft.SqlTools.Utility.Logger;
 
@@ -16,28 +15,18 @@ namespace Microsoft.SqlTools.Authentication
     /// </summary>
     public class Authenticator
     {
-        private string applicationClientId;
-        private string applicationName;
-        private string cacheFolderPath;
-        private string cacheFileName;
-        private MsalCacheHelper cacheHelper;
+        private AuthenticatorConfiguration configuration;
+
+        private MSALEncryptedCacheHelper msalEncryptedCacheHelper;
+
         private static ConcurrentDictionary<string, IPublicClientApplication> PublicClientAppMap
             = new ConcurrentDictionary<string, IPublicClientApplication>();
 
         #region Public APIs
-        public Authenticator(string appClientId, string appName, string cacheFolderPath, string cacheFileName)
+        public Authenticator(AuthenticatorConfiguration configuration, MSALEncryptedCacheHelper.IVKeyReadCallback callback)
         {
-            this.applicationClientId = appClientId;
-            this.applicationName = appName;
-            this.cacheFolderPath = cacheFolderPath;
-            this.cacheFileName = cacheFileName;
-
-            // Storage creation properties are used to enable file system caching with MSAL
-            var storageCreationProperties = new StorageCreationPropertiesBuilder(this.cacheFileName, this.cacheFolderPath)
-                .WithUnprotectedFile().Build();
-
-            // This hooks up the cross-platform cache into MSAL
-            this.cacheHelper = MsalCacheHelper.CreateAsync(storageCreationProperties).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.configuration = configuration;
+            this.msalEncryptedCacheHelper = new(configuration, callback);
         }
 
         /// <summary>
@@ -139,16 +128,16 @@ namespace Microsoft.SqlTools.Authentication
             if (!PublicClientAppMap.TryGetValue(authorityUrl, out IPublicClientApplication? clientApplicationInstance))
             {
                 clientApplicationInstance = CreatePublicClientAppInstance(authority, audience);
-                this.cacheHelper.RegisterCache(clientApplicationInstance.UserTokenCache);
+                this.msalEncryptedCacheHelper.RegisterCache(clientApplicationInstance.UserTokenCache);
                 PublicClientAppMap.TryAdd(authorityUrl, clientApplicationInstance);
             }
             return clientApplicationInstance;
         }
 
         private IPublicClientApplication CreatePublicClientAppInstance(string authority, string audience) =>
-            PublicClientApplicationBuilder.Create(this.applicationClientId)
+            PublicClientApplicationBuilder.Create(this.configuration.AppClientId)
                 .WithAuthority(authority, audience)
-                .WithClientName(this.applicationName)
+                .WithClientName(this.configuration.AppName)
                 .WithLogging(Utils.MSALLogCallback)
                 .WithDefaultRedirectUri()
                 .Build();

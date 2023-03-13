@@ -26,6 +26,8 @@ using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Shared.Utility.Constants;
 using System.Diagnostics;
 using Microsoft.SqlTools.Authentication.Sql;
+using Microsoft.SqlTools.Credentials;
+using Microsoft.SqlTools.Credentials.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -1076,7 +1078,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
             {
                 // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-                var provider = new AuthenticationProvider(commandOptions.ApplicationName, commandOptions.ApplicationPath);
+                var provider = new AuthenticationProvider(commandOptions.ApplicationName, commandOptions.ApplicationPath, MsalCacheName, ReadCacheIvKey);
                 SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
                 this.EnableSqlAuthenticationProvider = true;
@@ -1131,6 +1133,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             catch
             {
                 await requestContext.SendResult(false);
+            }
+        }
+
+        private void ReadCacheIvKey(out string? key, out string? iv)
+        {
+            Logger.Verbose("Reading Cached IV and Key from OS credential store.");
+
+            iv = null;
+            key = null;
+            try
+            {
+                // Read Cached Iv for MSAL cache (as Unicode) 
+                Credential ivCred = CredentialService.Instance.ReadCredential(new($"{AzureAccountProviderCredentials}|{MsalCacheName}-iv"));
+                if (!string.IsNullOrEmpty(ivCred.Password))
+                {
+                    iv = ivCred.Password;
+                }
+                else
+                {
+                    throw new Exception($"Could not read credential: {AzureAccountProviderCredentials}|{MsalCacheName}-iv");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            try
+            {
+                // Read Cached Key for MSAL cache (as Unicode)
+                Credential keyCred = CredentialService.Instance.ReadCredential(new($"{AzureAccountProviderCredentials}|{MsalCacheName}-key"));
+                if (!string.IsNullOrEmpty(keyCred.Password))
+                {
+                    key = keyCred.Password;
+                }
+                else
+                {
+                    throw new Exception($"Could not read credential: {AzureAccountProviderCredentials}|{MsalCacheName}-key");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
             }
         }
 
