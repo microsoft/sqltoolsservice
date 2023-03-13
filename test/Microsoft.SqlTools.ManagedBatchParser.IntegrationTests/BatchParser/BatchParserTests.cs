@@ -134,6 +134,33 @@ SELECT '$(VAR2)'";
         }
 
         /// <summary>
+        /// Setting DisableVariableSubstitution=true has the effect of preventing the
+        /// Parser from trying to interpret variables; without this, we would not be
+        /// able to handle T-SQL fragement (like strings) that happen to have in them
+        /// text that resemble a sqlcmd variable, e.g. "$(".
+        /// </summary>
+        /// <remarks>This test will need to be modified when issue 1938 is addressed.</remarks>
+        [Test]
+        public void WhenDisableVariableSubstitutionIsTrueNoParsingOfVariablesHappensWithMalformedVariable()
+        {
+            string script = @"SELECT N'$(X'"; // Note: $(X is a valid string in T-SQL (it is enclosed in single quotes, but it has nothing to do with a variable!)
+
+            StringBuilder output = new StringBuilder();
+
+            TestCommandHandler handler = new TestCommandHandler(output);
+
+            using (var parser = new Parser(commandHandler: handler, new TestVariableResolver(output), new StringReader(script), "test"))
+            {
+                // Explicitly disable variable substitution
+                parser.DisableVariableSubstitution = true;
+
+                parser.Parse();
+                Assert.That(output.ToString(), Is.EqualTo("*** Execute batch (1)\nBatch text:\r\nSELECT N'$(X'\r\n\r\n"), "Why are we trying to make sense of $(X ?");
+            }
+        }
+
+
+        /// <summary>
         /// Verifies that the parser throws an exception when the the sqlcmd script
         /// uses a variable that is not defined. The expected exception has the
         /// correct ErrorCode and TokenType.
