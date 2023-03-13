@@ -6571,6 +6571,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">&lt;defaut&gt;</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ResetPasswordWhileUnlocking">
+        <source>Reset password for the login while unlocking.</source>
+        <target state="translated">Réinitialiser le mot de passe pour la connexion lors du déverrouillage.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

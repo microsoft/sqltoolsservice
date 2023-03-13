@@ -4009,4 +4009,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;defaut&gt;</value>
   </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>Réinitialiser le mot de passe pour la connexion lors du déverrouillage.</value>
+  </data>
 </root>

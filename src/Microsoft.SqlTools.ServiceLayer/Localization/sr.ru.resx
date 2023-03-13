@@ -4009,4 +4009,7 @@
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
   </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>При снятии блокировки переустановите пароль для входа.</value>
+  </data>
 </root>

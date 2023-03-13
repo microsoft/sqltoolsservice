@@ -4009,4 +4009,7 @@
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;預設&gt;</value>
   </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>解除鎖定時重設登入密碼。</value>
+  </data>
 </root>
