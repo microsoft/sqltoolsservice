@@ -9,7 +9,7 @@ parameters:
       archiveType: 'tar'
     - name: 'osx-arm64'
       displayName: 'osx arm'
-      archiveName: 'osx-arm64'
+      archiveName: 'osx-arm64-unsigned'
       archiveFileFormat: 'tar.gz'
       archiveType: 'tar'
     - name: 'rhel.7.2-x64'
