@@ -19,7 +19,7 @@ using Microsoft.SqlTools.BatchParser.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 {
     /// <summary>
-    /// Execution engine class which executed the parsed batches
+    /// Execution engine class which executes the parsed batches
     /// </summary>
     public class ExecutionEngine : IDisposable
     {

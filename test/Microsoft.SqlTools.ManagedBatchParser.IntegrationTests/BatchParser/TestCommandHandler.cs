@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
             if (string.Compare(textWithVariablesUnresolved, textWithVariablesResolved, StringComparison.Ordinal) != 0)
             {
-                outputString.AppendLine("Text with variables not resolved:");
+                outputString.AppendLine("Text with variables resolved:");
                 outputString.AppendLine(textWithVariablesResolved);
                 outputString.AppendLine("Text with variables not resolved:");
                 outputString.AppendLine(textWithVariablesUnresolved);
