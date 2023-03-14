@@ -39,14 +39,13 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         /// <summary>
         /// Whether to enable or disable the variable substitution.
-        /// A null IVariableResolver implies a true value.
         /// </summary>
         public bool DisableVariableSubstitution { get; set; }
 
         /// <summary>
         /// Whether to throw an error when a variable to be substituted was not specified.
-        /// Ignored when DisableVariableSubstitution is true.
         /// </summary>
+        /// <remarks>When DisableVariableSubstitution is true, this value is ignored, i.e. no exception will be thrown.</remarks>
         public bool ThrowOnUnresolvedVariable { get; set; }
 
         private Token LookaheadToken
@@ -663,7 +662,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 // If the variableResolver is not defined (=null), then we are a little
                 // more robust and avoid throwing a NRE. It may just mean that the caller
                 // did not bother implementing the IVariableResolver interface, presumably
-                // because he/she was not interested in any variable replacement.
+                // because they were not interested in any variable replacement.
                 string value = variableResolver?.GetVariable(variablePos.Value, reference.VariableName);
                 if (value == null)
                 {

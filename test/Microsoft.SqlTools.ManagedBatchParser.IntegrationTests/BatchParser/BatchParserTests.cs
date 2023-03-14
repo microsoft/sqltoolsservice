@@ -89,6 +89,61 @@ SELECT '$(VAR2)'";
             }
         }
 
+        /// <summary>
+        /// Shows how the DisableVariableSubstitution, ThrowOnUnresolvedVariable, and the success
+        /// of failure of a substitution interact with one another.
+        /// </summary>
+        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
+        [TestCase(true, false, true)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, true)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, true)]
+        [TestCase(false, false, false)]
+        public void DisableVariableSubstitutionAndThrowOnUnresolvedVariableInteraction(bool disableVariableSubstitution, bool throwOnUnresolvedVariable, bool canResolve)
+        {
+            string script = "SELECT $(VAR1)";
+            var output_hander = new StringBuilder();
+            var output_resolver = new StringBuilder();
+            var handler = new TestCommandHandler(output_hander);
+            var resolver = new TestVariableResolver(output_resolver);
+
+            if (canResolve)
+            {
+                resolver.SetVariable(new PositionStruct(), "VAR1", "42");
+            }
+
+            using (var parser = new Parser(commandHandler: handler, variableResolver: resolver, new StringReader(script), "test"))
+            {
+                parser.DisableVariableSubstitution = disableVariableSubstitution;
+                parser.ThrowOnUnresolvedVariable = throwOnUnresolvedVariable;
+
+                if (disableVariableSubstitution || canResolve || !throwOnUnresolvedVariable)
+                {
+                    parser.Parse();
+                    if (canResolve && !disableVariableSubstitution)
+                    {
+                        // We do not really care about the whole output... a partial match is sufficient.
+                        Assert.That(output_hander.ToString(), Contains.Substring("Execute batch (1)\nText with variables resolved:\r\nSELECT 42\r\nText with variables not resolved:\r\nSELECT $(VAR1)"), "Unexpected result of parsing!");
+                    }
+                    else
+                    {
+                        // We do not really care about the whole output... a partial match is sufficient.
+                        Assert.That(output_hander.ToString(), Is.EqualTo("*** Execute batch (1)\nBatch text:\r\nSELECT $(VAR1)\r\n\r\n"), "Unexpected result of parsing!");
+                    }
+                }
+                else
+                {
+                    var exc = Assert.Throws<BatchParserException>(parser.Parse, "Expected exception because $(VAR1) was not defined!");
+                    Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.VariableNotDefined), "Error code should be VariableNotDefined!");
+                    Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
+                    Assert.That(exc.Text, Is.EqualTo("SELECT $(VAR1)"), "Unexpected Text");
+                }
+            }
+        }
+
+
         [Test]
         [Ignore("Active issue: https://github.com/microsoft/sqltoolsservice/issues/1938")]
         public void BatchParserCanHandleSqlAgentTokens()
@@ -158,7 +213,6 @@ SELECT '$(VAR2)'";
                 Assert.That(output.ToString(), Is.EqualTo("*** Execute batch (1)\nBatch text:\r\nSELECT N'$(X'\r\n\r\n"), "Why are we trying to make sense of $(X ?");
             }
         }
-
 
         /// <summary>
         /// Verifies that the parser throws an exception when the the sqlcmd script
