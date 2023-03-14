@@ -38,7 +38,184 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
         }
 
         /// <summary>
-        /// Verified that the parser throws an exception when the the sqlcmd script
+        /// Verifies that no exception is thrown when IVariableResolver passed to
+        /// the Parser ctor is null.
+        /// </summary>
+        [Test]
+        public void CanHandleNullIVariableResolver()
+        {
+            string script = @"
+SELECT '$(VAR1)'
+GO 10
+SELECT '$(VAR2)'";
+
+            StringBuilder output = new StringBuilder();
+
+            TestCommandHandler handler = new TestCommandHandler(output);
+            
+            using (var p = new Parser(
+                commandHandler: handler,
+                variableResolver: null,
+                new StringReader(script),
+                "test"))
+            {
+                p.ThrowOnUnresolvedVariable = false;
+                handler.SetParser(p);
+
+                p.Parse();
+                Assert.That(output.ToString(), Is.EqualTo("*** Execute batch (10)\nBatch text:\r\n\r\nSELECT '$(VAR1)'\r\n\r\n\r\n*** Execute batch (1)\nBatch text:\r\nSELECT '$(VAR2)'\r\n\r\n"), "Oh no!");
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the default value for DisableVariableSubstitution on the
+        /// Parser object is false, unless IVariableResolver is null.
+        /// Essentially, this means that IVariableResolver=null implies
+        /// DisableVariableSubstitution=true.
+        /// </summary>
+        [TestCase(true, Description = "IVariableResolver is null", TestName = "DisableVariableSubstitutionIsTrueWhenIVariableResolverIsNull")]
+        [TestCase(false, Description = "IVariableResolver is not null", TestName = "DisableVariableSubstitutionIsFalseWhenIVariableResolverIsNotNull")]
+        public void DisableVariableSubstitutionTests(bool p)
+        {
+            string script = "SELECT $(VAR1)";
+
+            StringBuilder output = new StringBuilder();
+
+            TestCommandHandler handler = new TestCommandHandler(output);
+
+            using (var parser = new Parser(commandHandler: handler, variableResolver: p ? null : new TestVariableResolver(output), new StringReader(script), "test"))
+            {
+                Assert.That(parser.DisableVariableSubstitution, Is.EqualTo(p), "Unexpected default value for DisableVariableSubstitution");
+            }
+        }
+
+        /// <summary>
+        /// Shows how the DisableVariableSubstitution, ThrowOnUnresolvedVariable, and the success
+        /// of failure of a substitution interact with one another.
+        /// </summary>
+        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
+        [TestCase(true, false, true)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, true)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, true)]
+        [TestCase(false, false, false)]
+        public void DisableVariableSubstitutionAndThrowOnUnresolvedVariableInteraction(bool disableVariableSubstitution, bool throwOnUnresolvedVariable, bool canResolve)
+        {
+            string script = "SELECT $(VAR1)";
+            var output_hander = new StringBuilder();
+            var output_resolver = new StringBuilder();
+            var handler = new TestCommandHandler(output_hander);
+            var resolver = new TestVariableResolver(output_resolver);
+
+            if (canResolve)
+            {
+                resolver.SetVariable(new PositionStruct(), "VAR1", "42");
+            }
+
+            using (var parser = new Parser(commandHandler: handler, variableResolver: resolver, new StringReader(script), "test"))
+            {
+                parser.DisableVariableSubstitution = disableVariableSubstitution;
+                parser.ThrowOnUnresolvedVariable = throwOnUnresolvedVariable;
+
+                if (disableVariableSubstitution || canResolve || !throwOnUnresolvedVariable)
+                {
+                    parser.Parse();
+                    if (canResolve && !disableVariableSubstitution)
+                    {
+                        // We do not really care about the whole output... a partial match is sufficient.
+                        Assert.That(output_hander.ToString(), Contains.Substring("Execute batch (1)\nText with variables resolved:\r\nSELECT 42\r\nText with variables not resolved:\r\nSELECT $(VAR1)"), "Unexpected result of parsing!");
+                    }
+                    else
+                    {
+                        // We do not really care about the whole output... a partial match is sufficient.
+                        Assert.That(output_hander.ToString(), Is.EqualTo("*** Execute batch (1)\nBatch text:\r\nSELECT $(VAR1)\r\n\r\n"), "Unexpected result of parsing!");
+                    }
+                }
+                else
+                {
+                    var exc = Assert.Throws<BatchParserException>(parser.Parse, "Expected exception because $(VAR1) was not defined!");
+                    Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.VariableNotDefined), "Error code should be VariableNotDefined!");
+                    Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
+                    Assert.That(exc.Text, Is.EqualTo("SELECT $(VAR1)"), "Unexpected Text");
+                }
+            }
+        }
+
+
+        [Test]
+        [Ignore("Active issue: https://github.com/microsoft/sqltoolsservice/issues/1938")]
+        public void BatchParserCanHandleSqlAgentTokens()
+        {
+            string script = "SELECT N'$(ESCAPE_SQUOTE(SRVR))'";
+
+            StringBuilder output = new StringBuilder();
+
+            TestCommandHandler handler = new TestCommandHandler(output);
+
+            using (var parser = new Parser(commandHandler: handler, new TestVariableResolver(output), new StringReader(script), "test"))
+            {
+                var exc = Assert.Throws<BatchParserException>(parser.Parse, "Was https://github.com/microsoft/sqltoolsservice/issues/1938 fixed? Please, update the test!");
+                Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidVariableName), "Error code should be InvalidVariableName!");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
+                Assert.That(exc.Text, Is.EqualTo("$(ESCAPE_SQUOTE("), "Unexpected Text");
+            }
+        }
+
+        /// <summary>
+        /// Setting DisableVariableSubstitution=true has the effect of preventing the
+        /// Parser from trying to interpret variables, thus allowing such variables to
+        /// remain embedded in strings within the T-SQL script (e.g. SQL Agent variables)
+        /// </summary>
+        /// <remarks>This test will need to be modified when issue 1938 is addressed.</remarks>
+        [Test]
+        public void WhenDisableVariableSubstitutionIsTrueNoParsingOfVariablesHappens()
+        {
+            string script = "SELECT N'$(ESCAPE_SQUOTE(SRVR))'";
+
+            StringBuilder output = new StringBuilder();
+
+            TestCommandHandler handler = new TestCommandHandler(output);
+
+            using (var parser = new Parser(commandHandler: handler, new TestVariableResolver(output), new StringReader(script), "test"))
+            {
+                // Explicitly disable variable substitution
+                parser.DisableVariableSubstitution = true;
+
+                parser.Parse();
+                Assert.That(output.ToString(), Is.EqualTo("*** Execute batch (1)\nBatch text:\r\nSELECT N'$(ESCAPE_SQUOTE(SRVR))'\r\n\r\n"), "How was the SQL Agent macro parsed?");
+            }
+        }
+
+        /// <summary>
+        /// Setting DisableVariableSubstitution=true has the effect of preventing the
+        /// Parser from trying to interpret variables; without this, we would not be
+        /// able to handle T-SQL fragement (like strings) that happen to have in them
+        /// text that resemble a sqlcmd variable, e.g. "$(".
+        /// </summary>
+        /// <remarks>This test will need to be modified when issue 1938 is addressed.</remarks>
+        [Test]
+        public void WhenDisableVariableSubstitutionIsTrueNoParsingOfVariablesHappensWithMalformedVariable()
+        {
+            string script = @"SELECT N'$(X'"; // Note: $(X is a valid string in T-SQL (it is enclosed in single quotes, but it has nothing to do with a variable!)
+
+            StringBuilder output = new StringBuilder();
+
+            TestCommandHandler handler = new TestCommandHandler(output);
+
+            using (var parser = new Parser(commandHandler: handler, new TestVariableResolver(output), new StringReader(script), "test"))
+            {
+                // Explicitly disable variable substitution
+                parser.DisableVariableSubstitution = true;
+
+                parser.Parse();
+                Assert.That(output.ToString(), Is.EqualTo("*** Execute batch (1)\nBatch text:\r\nSELECT N'$(X'\r\n\r\n"), "Why are we trying to make sense of $(X ?");
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the parser throws an exception when the the sqlcmd script
         /// uses a variable that is not defined. The expected exception has the
         /// correct ErrorCode and TokenType.
         /// </summary>
@@ -61,7 +238,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
                 var exc = Assert.Throws<BatchParserException>(p.Parse, "Expected exception because $(NotDefined) was not defined!");
                 Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.VariableNotDefined), "Error code should be VariableNotDefined!");
-                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
             }
         }
 
@@ -83,8 +260,8 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 handler.SetParser(p);
                 var exc = Assert.Throws<BatchParserException>(p.Parse, "Expected exception because $(0alcOne) was not defined!");
                 Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidVariableName), "Error code should be InvalidVariableName!");
-                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
-                Assert.That(exc.Text, Is.EqualTo("$(0"), "Token");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
+                Assert.That(exc.Text, Is.EqualTo("$(0"), "Unexpected Text");
             }
         }
 
@@ -107,8 +284,8 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
                 var exc = Assert.Throws<BatchParserException>(p.Parse, "Expected exception because $(ca@lcOne) was not defined!");
                 Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidVariableName), "Error code should be InvalidVariableName!");
-                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
-                Assert.That(exc.Text, Is.EqualTo("$(ca@"), "Token");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
+                Assert.That(exc.Text, Is.EqualTo("$(ca@"), "Unexpected Text");
             }
         }
 
@@ -134,8 +311,8 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
                 // Exception will be raised from  ParseGo()
                 var exc = Assert.Throws<BatchParserException>(p.Parse, $"Expected exception because GO is followed by a invalid number (>{int.MaxValue})");
                 Assert.That(exc.ErrorCode, Is.EqualTo(Microsoft.SqlTools.ServiceLayer.BatchParser.ErrorCode.InvalidNumber), "Error code should be InvalidNumber!");
-                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Token");
-                Assert.That(exc.Text, Is.EqualTo("2147483648"), "Token");
+                Assert.That(exc.TokenType, Is.EqualTo(LexerTokenType.Text), "Unexpected TokenType");
+                Assert.That(exc.Text, Is.EqualTo("2147483648"), "Unexpected Text");
             }
         }
 
