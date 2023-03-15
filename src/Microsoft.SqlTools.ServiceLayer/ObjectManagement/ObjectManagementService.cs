@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             Logger.Verbose("Handle Request in HandleProcessRenameEditRequest()");
             ConnectionInfo connInfo;
 
-            if (connectionService.TryFindConnection(
+            if (ConnectionServiceInstance.TryFindConnection(
                     requestParams.ConnectionUri,
                     out connInfo))
             {
