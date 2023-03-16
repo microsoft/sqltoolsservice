@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
     /// However - as of now msal-node-extensions does not come with pre-compiled native libraries that causes runtime issues
     /// Ref https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/3332
     /// </summary>
-    public class MSALEncryptedCacheHelper
+    public class MsalEncryptedCacheHelper
     {
         /// <summary>
         /// Callback delegate to be implemented by Services in Service Host, where authentication is performed. e.g. Connection Service.
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// </summary>
         /// <param name="key">(out) Key used for encryption/decryption</param>
         /// <param name="iv">(out) IV used for encryption/decryption</param>
-        public delegate void IVKeyReadCallback(out string key, out string iv);
+        public delegate void IvKeyReadCallback(out string key, out string iv);
 
         /// <summary>
         /// Lock objects for serialization
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
 
         private AuthenticatorConfiguration _config;
         private StorageCreationProperties _storageCreationProperties;
-        private IVKeyReadCallback _ivKeyReadCallback;
+        private IvKeyReadCallback _ivKeyReadCallback;
 
         private byte[]? _iv;
         private byte[]? _key;
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// </summary>
         /// <param name="config">Configuration containing cache location and name.</param>
         /// <param name="callback">Delegate callback to retrieve IV and Key from Credential Store when needed.</param>
-        public MSALEncryptedCacheHelper(AuthenticatorConfiguration config, IVKeyReadCallback callback)
+        public MsalEncryptedCacheHelper(AuthenticatorConfiguration config, IvKeyReadCallback callback)
         {
             this._config = config;
 
@@ -151,9 +151,9 @@ namespace Microsoft.SqlTools.Authentication.Utility
                             var encryptedData = EncryptionUtils.AesEncrypt(data, this._key!, this._iv!);
                             File.WriteAllText(this._storageCreationProperties.CacheFileName, Convert.ToBase64String(encryptedData));
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                            Logger.Error($"Could not write the token cache. Ignoring. See previous error message.");
+                            Logger.Error($"Could not write the token cache. Ignoring. {e.Message}");
                         }
                     }
                     else
@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// <param name="args">Access token cache notification arguments.</param>
         private void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
-            Logger.Verbose($"Before cache access\nAcquiring lock for token cache");
+            Logger.Verbose($"Before cache access, acquiring lock for token cache");
 
             // We have two nested locks here. We need to maintain a clear ordering to avoid deadlocks.
             // This is critical to prevent cache corruption and only 1 process accesses cache file at a time.

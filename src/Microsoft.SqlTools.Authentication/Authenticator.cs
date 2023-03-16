@@ -13,17 +13,17 @@ namespace Microsoft.SqlTools.Authentication
     /// <summary>
     /// Provides APIs to acquire access token using MSAL.NET v4 with provided <see cref="AuthenticationParams"/>.
     /// </summary>
-    public class Authenticator
+    public class Authenticator: IAuthenticator
     {
         private AuthenticatorConfiguration configuration;
 
-        private MSALEncryptedCacheHelper msalEncryptedCacheHelper;
+        private MsalEncryptedCacheHelper msalEncryptedCacheHelper;
 
         private static ConcurrentDictionary<string, IPublicClientApplication> PublicClientAppMap
             = new ConcurrentDictionary<string, IPublicClientApplication>();
 
         #region Public APIs
-        public Authenticator(AuthenticatorConfiguration configuration, MSALEncryptedCacheHelper.IVKeyReadCallback callback)
+        public Authenticator(AuthenticatorConfiguration configuration, MsalEncryptedCacheHelper.IvKeyReadCallback callback)
         {
             this.configuration = configuration;
             this.msalEncryptedCacheHelper = new(configuration, callback);
