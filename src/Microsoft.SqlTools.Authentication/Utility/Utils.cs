@@ -4,7 +4,6 @@
 //
 
 using System.Net.Mail;
-using System.Runtime.InteropServices;
 using Microsoft.Identity.Client;
 using SqlToolsLogger = Microsoft.SqlTools.Utility.Logger;
 
@@ -27,59 +26,6 @@ namespace Microsoft.SqlTools.Authentication.Utility
             catch (FormatException)
             {
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Builds directory path based on environment settings.
-        /// </summary>
-        /// <returns>Application directory path</returns>
-        /// <exception cref="Exception">When called on unsupported platform.</exception>
-        public static string BuildAppDirectoryPath()
-        {
-            var homedir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-
-            // Windows
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var appData = Environment.GetEnvironmentVariable("APPDATA");
-                var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-                if (appData != null)
-                {
-                    return appData;
-                }
-                else if (userProfile != null)
-                {
-                    return string.Join(Environment.GetEnvironmentVariable("USERPROFILE"), "AppData", "Roaming");
-                }
-                else
-                {
-                    throw new Exception("Not able to find APPDATA or USERPROFILE");
-                }
-            }
-
-            // Mac
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return string.Join(homedir, "Library", "Application Support");
-            }
-
-            // Linux
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                var xdgConfigHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
-                if (xdgConfigHome != null)
-                {
-                    return xdgConfigHome;
-                }
-                else
-                {
-                    return string.Join(homedir, ".config");
-                }
-            }
-            else
-            {
-                throw new Exception("Platform not supported");
             }
         }
 
