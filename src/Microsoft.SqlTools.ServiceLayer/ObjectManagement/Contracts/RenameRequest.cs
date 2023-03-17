@@ -26,6 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     }
     public class RenameRequest
     {
-        public static readonly RequestType<RenameRequestParams, bool> Type = RequestType<RenameRequestParams, bool>.Create("objectmanagement/rename");
+        public static readonly RequestType<RenameRequestParams, bool> Type = RequestType<RenameRequestParams, bool>.Create("objectManagement/rename");
     }
 }

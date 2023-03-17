@@ -6,7 +6,6 @@
 #nullable disable
 using System;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -62,15 +61,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             Logger.Verbose("Handle Request in HandleProcessRenameEditRequest()");
             ConnectionInfo connInfo;
 
-            if (connectionService.TryFindConnection(
+            if (ConnectionServiceInstance.TryFindConnection(
                     requestParams.ConnectionUri,
                     out connInfo))
             {
-                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, ObjectManagementServiceApplicationName))
+                ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementServiceApplicationName);
+                using (serverConnection.SqlConnectionObject)
                 {
-
-                    IRenamable renameObject = this.GetRenamable(requestParams, sqlConn);
-
+                    IRenamable renameObject = this.GetRenamable(requestParams, serverConnection);
                     renameObject.Rename(requestParams.NewName);
                 }
             }
@@ -87,12 +85,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// Method to get the sql object, which should be renamed
         /// </summary>
         /// <param name="requestParams">parameters which are required for the rename operation</param>
-        /// <param name="connection">the sqlconnection on the server to search for the sqlobject</param>
+        /// <param name="connection">the server connection on the server to search for the sqlobject</param>
         /// <returns>the sql object if implements the interface IRenamable, so they can be renamed</returns>
-        private IRenamable GetRenamable(RenameRequestParams requestParams, SqlConnection connection)
+        private IRenamable GetRenamable(RenameRequestParams requestParams, ServerConnection connection)
         {
-            ServerConnection serverConnection = new ServerConnection(connection);
-            Server server = new Server(serverConnection);
+            Server server = new Server(connection);
             SqlSmoObject dbObject = server.GetSmoObject(new Urn(requestParams.ObjectUrn));
             return (IRenamable)dbObject;
         }
