@@ -26,7 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public string NodePath { get; set; }
 
         /// <summary>
-        /// The path of the parent node.
+        /// The path of the parent node. This is going to be used by the client side to determine the parent node.
+        /// We are not referencing the parent node directly because the information needs to be passed between processes.
         /// </summary>
         public string ParentNodePath { get; set; }
 
