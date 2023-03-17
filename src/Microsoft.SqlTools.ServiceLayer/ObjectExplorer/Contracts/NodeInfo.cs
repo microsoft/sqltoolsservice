@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public string NodePath { get; set; }
 
         /// <summary>
+        /// The path of the parent node.
+        /// </summary>
+        public string ParentNodePath { get; set; }
+
+        /// <summary>
         /// The type of the node - for example Server, Database, Folder, Table
         /// </summary>
         public string NodeType { get; set; }
