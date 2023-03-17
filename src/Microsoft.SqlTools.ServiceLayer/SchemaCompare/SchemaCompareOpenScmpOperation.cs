@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
@@ -102,22 +103,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             SchemaCompareEndpointInfo endpointInfo = new SchemaCompareEndpointInfo();
 
-            // if the endpoint is a dacpac or a project, we don't need to parse the xml
+            // if the endpoint is a dacpac, we don't need to parse the xml
             if (endpoint is SchemaCompareDacpacEndpoint dacpacEndpoint)
             {
                 endpointInfo.EndpointType = SchemaCompareEndpointType.Dacpac;
                 endpointInfo.PackageFilePath = dacpacEndpoint.FilePath;
             }
-            else if (endpoint is SchemaCompareProjectEndpoint projectEndpoint)
+            else 
             {
-                endpointInfo.EndpointType = SchemaCompareEndpointType.Project;
-                endpointInfo.ProjectFilePath = projectEndpoint.ProjectFilePath;
-            }
-            else
-            {
-                // need to parse xml to get connection string of database
-                var result = this.scmpInfo.Descendants("ConnectionBasedModelProvider");
-                string searchingFor = source ? "Source" : "Target";
+                bool isProjectEndpoint = endpoint is SchemaCompareProjectEndpoint;
+                var result = isProjectEndpoint ? this.scmpInfo.Descendants("ProjectBasedModelProvider"): this.scmpInfo.Descendants("ConnectionBasedModelProvider");
+                string searchingFor = source ? "Source" : "Target"; ;
+                // need to parse xml
+                if (endpoint is SchemaCompareProjectEndpoint projectEndpoint)
+                {
+                    endpointInfo.EndpointType = SchemaCompareEndpointType.Project;
+                    endpointInfo.ProjectFilePath = projectEndpoint.ProjectFilePath;
+                }
 
                 try
                 {
@@ -127,23 +129,63 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         {
                             if (node.Parent.Name.ToString().Contains(searchingFor))
                             {
-                                endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.Value);
-                                endpointInfo.ConnectionDetails.ConnectionString = node.Value;
-                                endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
-                                endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+                                if(isProjectEndpoint)
+                                {
+                                    // get dsp information
+                                    var dsp = result.Descendants("Dsp");
+                                    if(dsp != null)
+                                    {
+                                        endpointInfo.DataSchemaProvider = dsp.FirstOrDefault().Value;
+                                    }
+
+                                    // get folder structure information
+                                    var fs = result.Descendants("FolderStructure");
+                                    if(fs != null)
+                                    {
+                                        endpointInfo.ExtractTarget = mapExtractTargetEnum(fs.FirstOrDefault().Value);
+                                    }
+                                }
+                                else
+                                {
+                                    // get connection string of database
+                                    endpointInfo.ConnectionDetails = SchemaCompareService.ConnectionServiceInstance.ParseConnectionString(node.Value);
+                                    endpointInfo.ConnectionDetails.ConnectionString = node.Value;
+                                    endpointInfo.DatabaseName = endpointInfo.ConnectionDetails.DatabaseName;
+                                    endpointInfo.EndpointType = SchemaCompareEndpointType.Database;
+                                }
                             }
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName, e.Message);
+                    string info = isProjectEndpoint ? ((SchemaCompareProjectEndpoint)endpoint).ProjectFilePath : ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName;
+                    ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, info, e.Message);
                     Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
                     throw;
                 }
             }
 
             return endpointInfo;
+        }
+
+
+        /**
+         * Function to map folder structure string to enum
+         * @param inputTarget folder structure in string
+         * @returns folder structure in enum format
+         */
+        private DacExtractTarget? mapExtractTargetEnum(string inputTarget)
+        {
+            switch (inputTarget)
+            {
+                case "File": return DacExtractTarget.File;
+                case "Flat": return DacExtractTarget.Flat;
+                case "ObjectType": return DacExtractTarget.ObjectType;
+                case "Schema": return DacExtractTarget.Schema;
+                case "SchemaObjectType":
+                default: return DacExtractTarget.SchemaObjectType;
+            }
         }
 
         private List<SchemaCompareObjectId> GetExcludedElements(IList<SchemaComparisonExcludedObjectId> excludedObjects)

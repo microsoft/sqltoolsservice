@@ -1865,6 +1865,8 @@ WITH VALUES
             {
                 SchemaCompareProjectEndpoint projectEndpoint = originalEndpoint as SchemaCompareProjectEndpoint;
                 Assert.AreEqual(projectEndpoint.ProjectFilePath, resultEndpoint.ProjectFilePath);
+                Assert.AreEqual(resultEndpoint.ExtractTarget, DacExtractTarget.ObjectType);
+                Assert.AreEqual(resultEndpoint.DataSchemaProvider, "150");
             }
             else
             {
@@ -2057,6 +2059,7 @@ WITH VALUES
                     result.ProjectFilePath = comparisonObjectPath;
                     result.TargetScripts = targetScripts;
                     result.DataSchemaProvider = "160";
+                    result.ExtractTarget = DacExtractTarget.Schema;
                     break;
                 default:
                     throw new ArgumentException($"Unexpected endpoint type: {type}");
