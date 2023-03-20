@@ -146,6 +146,8 @@ dotnet_diagnostic.CS1587.severity = none
 dotnet_diagnostic.CS1574.severity = none
 dotnet_diagnostic.CS0419.severity = none
 dotnet_diagnostic.CS1723.severity = none
+
+# XML doc compiler warnings that have been resolved
 dotnet_diagnostic.CS1711.severity = error
 
 
