@@ -88,13 +88,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // Credential request handlers
             this.ServiceHost.SetRequestHandler(CreateCredentialRequest.Type, HandleCreateCredentialRequest, true);
             this.ServiceHost.SetRequestHandler(UpdateCredentialRequest.Type, HandleUpdateCredentialRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest, true);
             this.ServiceHost.SetRequestHandler(GetCredentialsRequest.Type, HandleGetCredentialsRequest, true);
 
             // Login request handlers
             this.ServiceHost.SetRequestHandler(CreateLoginRequest.Type, HandleCreateLoginRequest, true);
             this.ServiceHost.SetRequestHandler(UpdateLoginRequest.Type, HandleUpdateLoginRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteLoginRequest.Type, HandleDeleteLoginRequest, true);
             this.ServiceHost.SetRequestHandler(InitializeLoginViewRequest.Type, HandleInitializeLoginViewRequest, true);
             this.ServiceHost.SetRequestHandler(DisposeLoginViewRequest.Type, HandleDisposeLoginViewRequest, true);
 
@@ -102,12 +100,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.ServiceHost.SetRequestHandler(InitializeUserViewRequest.Type, this.userServiceHandler.HandleInitializeUserViewRequest, true);
             this.ServiceHost.SetRequestHandler(CreateUserRequest.Type, this.userServiceHandler.HandleCreateUserRequest, true);
             this.ServiceHost.SetRequestHandler(UpdateUserRequest.Type, this.userServiceHandler.HandleUpdateUserRequest, true);
-            this.ServiceHost.SetRequestHandler(DeleteUserRequest.Type, this.userServiceHandler.HandleDeleteUserRequest, true);
             this.ServiceHost.SetRequestHandler(DisposeUserViewRequest.Type, this.userServiceHandler.HandleDisposeUserViewRequest, true);
         }
 
 
-        #region "Login Handlers"        
+        #region "Login Handlers"
 
         /// <summary>
         /// Handle request to create a login
@@ -159,31 +156,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             newPrototype.ApplyServerRoleChanges(dataContainer.Server);
             await requestContext.SendResult(new object());
-        }
-
-        /// <summary>
-        /// Handle request to delete a credential
-        /// </summary>
-        internal async Task HandleDeleteLoginRequest(DeleteLoginParams parameters, RequestContext<object> requestContext)
-        {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            if (connInfo == null) 
-            {
-                throw new ArgumentException("Invalid ConnectionUri");
-            }
-
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            Login login = dataContainer.Server?.Logins[parameters.Name];
-     
-            dataContainer.SqlDialogSubject = login;
-            DatabaseUtils.DoDropObject(dataContainer);
-
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = true,
-                ErrorMessage = string.Empty
-            });
         }
 
         internal async Task HandleUpdateLoginRequest(UpdateLoginParams parameters, RequestContext<object> requestContext)
@@ -417,24 +389,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 ErrorMessage = result.Item2
             });
         }
-
-        /// <summary>
-        /// Handle request to delete a credential
-        /// </summary>
-        internal async Task HandleDeleteCredentialRequest(DeleteCredentialParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            var result = await ConfigureCredential(parameters.OwnerUri,
-                parameters.Credential,
-                ConfigAction.Drop,
-                RunType.RunNow);
-
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = result.Item1,
-                ErrorMessage = result.Item2
-            });
-        }
-
 
         /// <summary>
         /// Handle request to get all credentials

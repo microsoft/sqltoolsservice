@@ -30,13 +30,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var service = new SecurityService();
                 var credential = SecurityTestUtils.GetTestCredentialInfo();
-                await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
 
                 // test
                 await SecurityTestUtils.CreateCredential(service, connectionResult, credential);
 
                 // cleanup
-                await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
             }
         }
 
@@ -52,14 +52,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var service = new SecurityService();
                 var credential = SecurityTestUtils.GetTestCredentialInfo();
-                await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
                 await SecurityTestUtils.CreateCredential(service, connectionResult, credential);
 
                 // test
                 await SecurityTestUtils.UpdateCredential(service, connectionResult, credential);
 
                 // cleanup
-                await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
             }
         }
 
@@ -75,11 +75,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var service = new SecurityService();
                 var credential = SecurityTestUtils.GetTestCredentialInfo();
-                await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
                 await SecurityTestUtils.CreateCredential(service, connectionResult, credential);
 
                 // test
-                await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
             }
         }
     }
