@@ -1507,13 +1507,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             ConnectionInfo? connInfo;
-
-            //DEBUG message for test failure.
-            Console.WriteLine("Original ownerUri is " + scriptFile.ClientUri);
-            foreach(KeyValuePair<string, ConnectionInfo> entry in ConnectionServiceInstance.OwnerToConnectionMap)
-            {
-                Console.WriteLine("Key Value in map is " + entry.Key);
-            }
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
