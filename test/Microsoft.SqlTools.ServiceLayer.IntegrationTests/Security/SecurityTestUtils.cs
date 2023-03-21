@@ -174,8 +174,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
         internal static async Task<UserInfo> CreateUser(
             UserServiceHandlerImpl service, 
-            TestConnectionResult connectionResult, 
-            LoginInfo login)
+            TestConnectionResult connectionResult,
+            DatabaseUserType userType,
+            string loginName = null)
         {
             string contextId = System.Guid.NewGuid().ToString();
             var initializeViewRequestParams = new InitializeUserViewParams
@@ -195,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             var userParams = new CreateUserParams
             {
                 ContextId = contextId,
-                User = SecurityTestUtils.GetTestUserInfo(login.Name)
+                User = SecurityTestUtils.GetTestUserInfo(loginName)
             };
 
             var createUserContext = new Mock<RequestContext<CreateUserResult>>();

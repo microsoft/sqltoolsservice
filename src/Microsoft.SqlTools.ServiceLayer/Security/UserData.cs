@@ -985,107 +985,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
     /// <summary>
     /// Used to create or return required UserPrototype objects for a user type.
-    /// This factory class also helps us in maintaining a single set of current data
-    /// and original data mapped to all UserPrototypes.
-    /// 
-    /// Also this UserPrototypeFactory is a Singleton object for one datacontainer object.
-    /// Making it Singleton helps us in using same factory object inside other pages too.
     /// </summary>
-    internal class UserPrototypeFactory
+    internal static class UserPrototypeFactory
     {
-        private static UserPrototypeFactory? singletonInstance;
-
-        private UserPrototypeData currentData;
-        private UserPrototypeData originalData;
-        private CDataContainer context;
-
-        private UserPrototype? asymmetricKeyMappedUser;
-        private UserPrototype? certificateMappedUser;
-        private UserPrototype? loginMappedUser;
-        private UserPrototype? noLoginUser;
-        private UserPrototype? sqlUserWithPassword;
-        private UserPrototype? windowsUser;        
-
-        private UserPrototype? currentPrototype;
-
-        public UserPrototype CurrentPrototype
+        public static UserPrototype GetUserPrototype(
+            CDataContainer context, UserInfo? user, 
+            UserPrototypeData? originalData, ExhaustiveUserTypes userType)
         {
-            get
-            {
-                currentPrototype ??= new UserPrototype(this.context,
-                                                        this.currentData,
-                                                        this.originalData);
-                return currentPrototype;
-            }
-        }
-
-        private UserPrototypeFactory(CDataContainer context, UserInfo user, UserPrototypeData? originalData)
-        {
-            this.context = context;
-
-            this.currentData = new UserPrototypeData(this.context, user);
-            this.originalData = originalData ?? this.currentData.Clone();
-        }
-
-        public static UserPrototypeFactory GetInstance(CDataContainer context, UserInfo? user, UserPrototypeData? originalData)
-        {
-            if (singletonInstance != null
-                && singletonInstance.context != context)
-            {
-                singletonInstance = null;
-            }
-
-            singletonInstance ??= new UserPrototypeFactory(context, user, originalData);
-
-            return singletonInstance;
-        }
-
-        public UserPrototype GetUserPrototype(ExhaustiveUserTypes userType)
-        {
+            UserPrototype currentPrototype = null;
+            UserPrototypeData currentData = new UserPrototypeData(context, user);
             switch (userType)
             {
                 case ExhaustiveUserTypes.AsymmetricKeyMappedUser:
-                    currentData.userType = UserType.AsymmetricKey;
-                    this.asymmetricKeyMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = asymmetricKeyMappedUser;
+                    currentPrototype ??= new UserPrototype(context, currentData, originalData);
                     break;                    
 
                 case ExhaustiveUserTypes.CertificateMappedUser:
-                    currentData.userType = UserType.Certificate;
-                    this.certificateMappedUser ??= new UserPrototype(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = certificateMappedUser; 
+                    currentPrototype ??= new UserPrototype(context, currentData, originalData);
                     break;
 
                 case ExhaustiveUserTypes.LoginMappedUser:
-                    currentData.userType = UserType.SqlUser;
-                    this.loginMappedUser ??= new UserPrototypeForSqlUserWithLogin(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = loginMappedUser;
+                    currentPrototype ??= new UserPrototypeForSqlUserWithLogin(context, currentData, originalData);
                     break;
 
                 case ExhaustiveUserTypes.SqlUserWithoutLogin:
-                    currentData.userType = UserType.NoLogin;
-                    this.noLoginUser ??= new UserPrototypeWithDefaultSchema(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = noLoginUser;
+                    currentPrototype ??= new UserPrototypeWithDefaultSchema(context, currentData, originalData);
                     break;
 
                 case ExhaustiveUserTypes.SqlUserWithPassword:
-                    currentData.userType = UserType.SqlUser;
-                    this.sqlUserWithPassword ??= new UserPrototypeForSqlUserWithPassword(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = sqlUserWithPassword;
+                    currentPrototype ??= new UserPrototypeForSqlUserWithPassword(context, currentData, originalData);
                     break;
 
                 case ExhaustiveUserTypes.WindowsUser:
-                    currentData.userType = UserType.SqlUser;
-                    this.windowsUser ??= new UserPrototypeForWindowsUser(this.context, this.currentData, this.originalData);
-                    this.currentPrototype = windowsUser;
+                    currentPrototype ??= new UserPrototypeForWindowsUser(context, currentData, originalData);
                     break;
                 
                 default:
                     System.Diagnostics.Debug.Assert(false, "Unknown UserType provided.");
-                    this.currentPrototype = null;
+                    currentPrototype = null;
                     break;
             }
-            return this.currentPrototype;
+            return currentPrototype;
         }
     }
 
