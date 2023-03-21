@@ -92,19 +92,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 try
                 {
                     dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(requestParams.ObjectUrn);
+                    DatabaseUtils.DoDropObject(dataContainer);
                 }
                 catch (FailedOperationException ex)
                 {
-                    if (ex.SmoExceptionType == SmoExceptionType.MissingObjectException && !requestParams.ThrowIfNotExist)
-                    {
-                        return;
-                    }
-                    else
+                    if (ex.InnerException is MissingObjectException && requestParams.ThrowIfNotExist)
                     {
                         throw;
                     }
                 }
-                DatabaseUtils.DoDropObject(dataContainer);
             }
             await requestContext.SendResult(true);
         }
