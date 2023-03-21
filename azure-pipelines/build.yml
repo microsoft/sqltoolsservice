@@ -32,6 +32,11 @@ parameters:
       displayName: 'Windows ARM 64 bit'
       archiveFileFormat: 'zip'
       archiveType: 'zip'
+    - name: 'linux-arm64'
+      archiveName: 'linux-arm64'
+      displayName: 'Linux ARM 64 bit'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
   - name: projects
     type: object
     default:

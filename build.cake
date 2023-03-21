@@ -136,7 +136,8 @@ Task("PopulateRuntimes")
                 "osx.10.11-x64",
                 "osx-x64",
                 "osx-arm64",
-                "linux-x64"
+                "linux-x64",
+                "linux-arm64"
             };
 });
 
