@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
 #pragma warning restore 0612
                 if (status == Interop.Security.OSStatus.ErrSecSuccess)
                 {
-                    var handle = new KeyChainItemHandle(item, passwordPtr, passwordLength);
+                    using var handle = new KeyChainItemHandle(item, passwordPtr, passwordLength);
                     // Migrate credential to 'Auto' encoding.
                     if (handle != null)
                     {
@@ -124,9 +124,10 @@ namespace Microsoft.SqlTools.Credentials.OSX
                         if (saveResult)
                         {
                             // Safe to delete old password now.
-                            this.DeletePassword(credentialId);
+                            Interop.Security.SecKeychainItemDelete(handle);
                         }
-                        return handle;
+                        // Lookup keychain again to fetch handle for new credential.
+                        return LookupKeyChainItem(credentialId);
                     }
                 }
             }
