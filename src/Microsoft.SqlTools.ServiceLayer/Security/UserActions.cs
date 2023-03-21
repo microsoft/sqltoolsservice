@@ -414,14 +414,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             ExhaustiveUserTypes currentUserType;
             if (dataContainer.IsNewObject)
             {
-                if (dataContainer.Server != null && IsParentDatabaseContained(dataContainer.ParentUrn, dataContainer.Server))
-                {
-                    currentUserType = ExhaustiveUserTypes.SqlUserWithPassword;
-                }
-                else
-                {
-                    currentUserType = ExhaustiveUserTypes.LoginMappedUser;
-                }
+                currentUserType = GetUserTypeForUserInfo(user);
             }
             else
             {
@@ -431,6 +424,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, user, originalData, currentUserType);
            return currentUserPrototype;
+        }
+
+        private ExhaustiveUserTypes GetUserTypeForUserInfo(UserInfo user)
+        {
+            ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
+            switch (user.Type)
+            {
+                case DatabaseUserType.WithLogin:
+                    userType = ExhaustiveUserTypes.LoginMappedUser;
+                    break;
+                case DatabaseUserType.WithWindowsGroupLogin:
+                    userType = ExhaustiveUserTypes.WindowsUser;
+                    break;
+                case DatabaseUserType.Contained:
+                    userType = ExhaustiveUserTypes.SqlUserWithPassword;
+                    break;
+                case DatabaseUserType.NoConnectAccess:
+                    userType = ExhaustiveUserTypes.SqlUserWithoutLogin;
+                    break;
+            }
+            return userType;
         }
 
         internal static ExhaustiveUserTypes GetCurrentUserTypeForExistingUser(User? user)

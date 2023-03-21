@@ -763,12 +763,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             base.SaveProperties(user);
 
-            if (!this.Exists || (user.Login != this.currentState.mappedLoginName))
+            bool isValidLoginName = !string.IsNullOrWhiteSpace(this.currentState.mappedLoginName);
+            bool isCreatingOrUpdatingLogin = !this.Exists || user.Login != this.currentState.mappedLoginName;
+            if (isValidLoginName && isCreatingOrUpdatingLogin)
             {
                 user.Login = this.currentState.mappedLoginName;
             }
         }
-    }    
+    }
 
     internal class UserPrototypeForWindowsUser : UserPrototypeForSqlUserWithLogin,
                                                     IUserPrototypeWithDefaultLanguage                                                    

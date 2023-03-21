@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Security;
@@ -32,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 var login = await SecurityTestUtils.CreateLogin(service, connectionResult);
 
-                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, DatabaseUserType.WithLogin, login.Name);
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, DatabaseUserType.WithLogin, null, login.Name);
 
                 await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
 
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         /// <summary>
         /// Test the basic Create User method handler
         /// </summary>
-        [Test]
+        // [Test] - Windows-only
         public async Task TestHandleCreateUserWithWindowsGroup()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
@@ -53,9 +54,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
  
-                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, DatabaseUserType.WithWindowsGroupLogin);
+                var user = await SecurityTestUtils.CreateUser(
+                    userService, 
+                    connectionResult, 
+                    DatabaseUserType.WithWindowsGroupLogin,
+                    $"{Environment.MachineName}\\Administrator");
 
-                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);       
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));  
             }
         }
 
@@ -74,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 var login = await SecurityTestUtils.CreateLogin(service, connectionResult);
 
-                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, DatabaseUserType.WithLogin, login.Name);
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, DatabaseUserType.WithLogin, null, login.Name);
 
                 await SecurityTestUtils.UpdateUser(userService, connectionResult, user);
 
