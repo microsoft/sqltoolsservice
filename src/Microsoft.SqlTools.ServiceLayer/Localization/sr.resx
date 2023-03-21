@@ -5386,11 +5386,6 @@ The Query Processor estimates that implementing the following index could improv
     <value>The connection could not be found</value>
     <comment></comment>
   </data>
-  <data name="ObjectNotFound" xml:space="preserve">
-    <value>The object does not exist. URN: &apos;{0}&apos;.</value>
-    <comment>.
- Parameters: 0 - urn (string) </comment>
-  </data>
   <data name="ObjectNotRenamable" xml:space="preserve">
     <value>The object could not be renamed. URN: &apos;{0}&apos;.</value>
     <comment>.

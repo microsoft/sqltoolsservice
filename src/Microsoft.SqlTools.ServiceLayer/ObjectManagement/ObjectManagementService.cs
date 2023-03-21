@@ -11,7 +11,9 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -84,45 +86,46 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<bool> requestContext)
         {
             Logger.Verbose("Handle Request in HandleDeleteRequest()");
-            ExecuteActionOnObject(requestParams.ConnectionUri, requestParams.ObjectUrn, (dbObject) =>
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
+            using (CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true))
             {
-                var droppable = dbObject as IDroppable;
-                if (droppable != null)
+                try
                 {
-                    droppable.Drop();
+                    dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(requestParams.ObjectUrn);
                 }
-                else
+                catch (MissingObjectException)
                 {
-                    throw new Exception(SR.ObjectNotDroppable(requestParams.ObjectUrn));
+                    if (requestParams.ThrowIfNotExist) { throw; }
+                    else { return; }
                 }
-            });
+                DatabaseUtils.DoDropObject(dataContainer);
+            }
             await requestContext.SendResult(true);
         }
 
-        private void ExecuteActionOnObject(string connectionUri, string objectUrn, Action<SqlSmoObject> action)
+        private ConnectionInfo GetConnectionInfo(string connectionUri)
         {
             ConnectionInfo connInfo;
             if (ConnectionServiceInstance.TryFindConnection(connectionUri, out connInfo))
             {
-                ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementServiceApplicationName);
-                using (serverConnection.SqlConnectionObject)
-                {
-                    Server server = new Server(serverConnection);
-                    SqlSmoObject dbObject = server.GetSmoObject(new Urn(objectUrn));
-                    if (dbObject != null)
-                    {
-                        action(dbObject);
-                    }
-                    else
-                    {
-                        throw new Exception(SR.ObjectNotFound(objectUrn));
-                    }
-                }
+                return connInfo;
             }
             else
             {
                 Logger.Error($"The connection with URI '{connectionUri}' could not be found.");
                 throw new Exception(SR.ErrorConnectionNotFound);
+            }
+        }
+
+        private void ExecuteActionOnObject(string connectionUri, string objectUrn, Action<SqlSmoObject> action)
+        {
+            ConnectionInfo connInfo = this.GetConnectionInfo(connectionUri);
+            ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementServiceApplicationName);
+            using (serverConnection.SqlConnectionObject)
+            {
+                Server server = new Server(serverConnection);
+                SqlSmoObject dbObject = server.GetSmoObject(new Urn(objectUrn));
+                action(dbObject);
             }
         }
     }

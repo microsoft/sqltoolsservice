@@ -2443,7 +2443,6 @@ GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from m
 
 #ObjectManagement Service
 ErrorConnectionNotFound = The connection could not be found
-ObjectNotFound(string urn) = The object does not exist. URN: '{0}'.
 ObjectNotRenamable(string urn) = The object could not be renamed. URN: '{0}'.
 ObjectNotDroppable(string urn) = The object could not be dropped. URN: '{0}'.
 

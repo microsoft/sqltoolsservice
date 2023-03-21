@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
 
-                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, login.Name);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
             }
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
 
-                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, login.Name);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
             }
         }
     }
