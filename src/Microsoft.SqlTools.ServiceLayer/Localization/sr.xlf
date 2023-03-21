@@ -6582,12 +6582,6 @@ The Query Processor estimates that implementing the following index could improv
         <note>.
  Parameters: 0 - urn (string) </note>
       </trans-unit>
-      <trans-unit id="ObjectNotDroppable">
-        <source>The object could not be dropped. URN: '{0}'.</source>
-        <target state="new">The object could not be dropped. URN: '{0}'.</target>
-        <note>.
- Parameters: 0 - urn (string) </note>
-      </trans-unit>
     </body>
   </file>
 </xliff>

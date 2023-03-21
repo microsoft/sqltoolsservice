@@ -5391,11 +5391,6 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - urn (string) </comment>
   </data>
-  <data name="ObjectNotDroppable" xml:space="preserve">
-    <value>The object could not be dropped. URN: &apos;{0}&apos;.</value>
-    <comment>.
- Parameters: 0 - urn (string) </comment>
-  </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
     <comment></comment>

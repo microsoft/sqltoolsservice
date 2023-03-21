@@ -10155,11 +10155,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ObjectNotRenamable, urn);
         }
 
-        public static string ObjectNotDroppable(string urn)
-        {
-            return Keys.GetString(Keys.ObjectNotDroppable, urn);
-        }
-
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -14054,9 +14049,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ObjectNotRenamable = "ObjectNotRenamable";
-
-
-            public const string ObjectNotDroppable = "ObjectNotDroppable";
 
 
             public const string DefaultLanguagePlaceholder = "DefaultLanguagePlaceholder";
