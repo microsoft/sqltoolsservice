@@ -29,14 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 SecurityService service = new SecurityService();
                 UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
- 
+
                 var login = await SecurityTestUtils.CreateLogin(service, connectionResult);
 
                 var user = await SecurityTestUtils.CreateUser(userService, connectionResult, DatabaseUserType.WithLogin, login.Name);
 
-                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
 
-                await SecurityTestUtils.DeleteLogin(service, connectionResult, login);                
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
             }
         }
 
@@ -78,9 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
                 await SecurityTestUtils.UpdateUser(userService, connectionResult, user);
 
-                await SecurityTestUtils.DeleteUser(userService, connectionResult, user);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
 
-                await SecurityTestUtils.DeleteLogin(service, connectionResult, login);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
             }
         }
     }

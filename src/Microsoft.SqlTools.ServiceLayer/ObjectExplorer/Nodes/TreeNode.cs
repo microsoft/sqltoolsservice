@@ -229,6 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 IsLeaf = this.IsAlwaysLeaf,
                 Label = this.Label,
                 NodePath = this.GetNodePath(),
+                ParentNodePath = this.Parent?.GetNodePath() ?? "",
                 NodeType = this.NodeType,
                 Metadata = this.ObjectMetadata,
                 NodeStatus = this.NodeStatus,
