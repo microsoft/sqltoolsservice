@@ -33,29 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     }
 
     /// <summary>
-    /// Delete Login params
-    /// </summary>
-    public class DeleteLoginParams
-    {
-        public string ConnectionUri { get; set; }
-
-        public string Name { get; set; }
-    }
-
-    /// <summary>
-    /// Delete Login request type
-    /// </summary>
-    public class DeleteLoginRequest
-    {
-        /// <summary>
-        /// Request definition
-        /// </summary>
-        public static readonly
-            RequestType<DeleteLoginParams, object> Type =
-            RequestType<DeleteLoginParams, object>.Create("objectManagement/deleteLogin");
-    }
-
-    /// <summary>
     /// Update Login params
     /// </summary>
     public class UpdateLoginParams

@@ -65,6 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 if (smoObject.Urn != null)
                 {
+                    ObjectMetadata.Urn = smoObject.Urn.Value;
                     ObjectMetadata.MetadataTypeName = smoObject.Urn.Type;
                 }
             }

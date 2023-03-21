@@ -8,6 +8,8 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -21,23 +23,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         public static string TestCredentialName = "Current User";
 
         internal static string GetCurrentUserIdentity()
-        {               
+        {
             return string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
+        }
+
+        internal static string GetLoginURN(string name)
+        {
+            return string.Format("Server/Login[@Name='{0}']", name);
+        }
+
+        internal static string GetUserURN(string database, string name)
+        {
+            return string.Format("Server/Database[@Name='{0}']/User[@Name='{1}']", database, name);
+        }
+
+        internal static string GetCredentialURN(string name)
+        {
+            return string.Format("Server/Credential[@Name = '{0}']", name);
         }
 
         internal static LoginInfo GetTestLoginInfo()
         {
             return new LoginInfo()
             {
-                Name = "TestLoginName_" + new Random().NextInt64(10000000,90000000).ToString(),
-                AuthenticationType= LoginAuthenticationType.Sql,
+                Name = "TestLoginName_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                AuthenticationType = LoginAuthenticationType.Sql,
                 WindowsGrantAccess = true,
                 MustChangePassword = false,
                 IsEnabled = false,
                 IsLockedOut = false,
                 EnforcePasswordPolicy = false,
                 EnforcePasswordExpiration = false,
-                Password = "placeholder",                
+                Password = "placeholder",
                 OldPassword = "placeholder",
                 DefaultLanguage = "English - us_english",
                 DefaultDatabase = "master"
@@ -49,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return new UserInfo()
             {
                 Type = DatabaseUserType.WithLogin,
-                Name = "TestUserName_" + new Random().NextInt64(10000000,90000000).ToString(),
+                Name = "TestUserName_" + new Random().NextInt64(10000000, 90000000).ToString(),
                 LoginName = loginName,
                 Password = "placeholder",
                 DefaultSchema = "dbo",
@@ -67,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         }
 
         internal static async Task CreateCredential(
-            SecurityService service, 
+            SecurityService service,
             TestConnectionResult connectionResult,
             CredentialInfo credential)
         {
@@ -81,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         }
 
         internal static async Task UpdateCredential(
-            SecurityService service, 
+            SecurityService service,
             TestConnectionResult connectionResult,
             CredentialInfo credential)
         {
@@ -94,25 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             context.VerifyAll();
         }
 
-        internal static async Task DeleteCredential(
-            SecurityService service, 
-            TestConnectionResult connectionResult, 
-            CredentialInfo credential)
-        {
-            var context = new Mock<RequestContext<ResultStatus>>();
-            await service.HandleDeleteCredentialRequest(new DeleteCredentialParams
-            {
-                OwnerUri = connectionResult.ConnectionInfo.OwnerUri,
-                Credential = credential
-            }, context.Object);
-            context.VerifyAll();
-        }
-
         public static async Task<CredentialInfo> SetupCredential(TestConnectionResult connectionResult)
         {
             var service = new SecurityService();
             var credential = SecurityTestUtils.GetTestCredentialInfo();
-            await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+            await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
             await SecurityTestUtils.CreateCredential(service, connectionResult, credential);
             return credential;
         }
@@ -122,11 +125,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             CredentialInfo credential)
         {
             var service = new SecurityService();
-            await SecurityTestUtils.DeleteCredential(service, connectionResult, credential);
+            await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
         }
 
-        internal static async Task<LoginInfo> CreateLogin(SecurityService service, TestConnectionResult connectionResult, string contextId)
+        internal static async Task<LoginInfo> CreateLogin(SecurityService service, TestConnectionResult connectionResult)
         {
+            string contextId = System.Guid.NewGuid().ToString();
             var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams
             {
                 ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
@@ -154,29 +158,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return loginParams.Login;
         }
 
-        internal static async Task DeleteLogin(SecurityService service, TestConnectionResult connectionResult, LoginInfo login)
-        {
-            // cleanup created login
-            var deleteParams = new DeleteLoginParams
-            {
-                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
-                Name = login.Name
-            };
-
-            var deleteContext = new Mock<RequestContext<object>>();
-            deleteContext.Setup(x => x.SendResult(It.IsAny<object>()))
-                .Returns(Task.FromResult(new object()));
-
-            // call the create login method
-            await service.HandleDeleteLoginRequest(deleteParams, deleteContext.Object);
-        }
-
         internal static async Task<UserInfo> CreateUser(
-            UserServiceHandlerImpl service, 
-            TestConnectionResult connectionResult, 
-            string contextId,
+            UserServiceHandlerImpl service,
+            TestConnectionResult connectionResult,
             LoginInfo login)
         {
+            string contextId = System.Guid.NewGuid().ToString();
             var initializeViewRequestParams = new InitializeUserViewParams
             {
                 ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
@@ -187,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
 
             var initializeUserViewContext = new Mock<RequestContext<UserViewInfo>>();
             initializeUserViewContext.Setup(x => x.SendResult(It.IsAny<UserViewInfo>()))
-                .Returns(Task.FromResult(new LoginViewInfo()));
+                .Returns(Task.FromResult(new UserViewInfo()));
 
             await service.HandleInitializeUserViewRequest(initializeViewRequestParams, initializeUserViewContext.Object);
 
@@ -208,17 +195,43 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             createUserContext.Verify(x => x.SendResult(It.Is<CreateUserResult>
                 (p => p.Success && p.User.Name != string.Empty)));
 
-            return userParams.User;             
+            var disposeViewRequestParams = new DisposeUserViewRequestParams
+            {
+                ContextId = contextId
+            };
+
+            var disposeUserViewContext = new Mock<RequestContext<ResultStatus>>();
+            disposeUserViewContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>()))
+                .Returns(Task.FromResult(new object()));
+
+            await service.HandleDisposeUserViewRequest(disposeViewRequestParams, disposeUserViewContext.Object);
+
+            return userParams.User;
         }
 
-        internal static async Task UpdateUser(
-            UserServiceHandlerImpl service, 
-            TestConnectionResult connectionResult, 
-            string contextId,
+        internal static async Task<UserInfo> UpdateUser(
+            UserServiceHandlerImpl service,
+            TestConnectionResult connectionResult,
             UserInfo user)
         {
+            string contextId = System.Guid.NewGuid().ToString();
+            var initializeViewRequestParams = new InitializeUserViewParams
+            {
+                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                ContextId = contextId,
+                IsNewObject = false,
+                Database = "master",
+                Name = user.Name
+            };
+
+            var initializeUserViewContext = new Mock<RequestContext<UserViewInfo>>();
+            initializeUserViewContext.Setup(x => x.SendResult(It.IsAny<UserViewInfo>()))
+                .Returns(Task.FromResult(new UserViewInfo()));
+
+            await service.HandleInitializeUserViewRequest(initializeViewRequestParams, initializeUserViewContext.Object);
+
             // update the user
-            user.OwnedSchemas = new string[] { "dbo" };
+            user.DatabaseRoles = new string[] { "db_datareader" };
             var updateParams = new UpdateUserParams
             {
                 ContextId = contextId,
@@ -228,27 +241,36 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             // call the create login method
             await service.HandleUpdateUserRequest(updateParams, updateUserContext.Object);
             // verify the result
-            updateUserContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));         
-        }
+            updateUserContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));
 
-        internal static async Task DeleteUser(UserServiceHandlerImpl service, TestConnectionResult connectionResult, UserInfo user)
-        {
-            // cleanup created user
-            var deleteParams = new DeleteUserParams
+            var disposeViewRequestParams = new DisposeUserViewRequestParams
             {
-                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
-                Name = user.Name,
-                Database = connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName
+                ContextId = contextId
             };
 
-            var deleteContext = new Mock<RequestContext<ResultStatus>>();
-            deleteContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>()))
+            var disposeUserViewContext = new Mock<RequestContext<ResultStatus>>();
+            disposeUserViewContext.Setup(x => x.SendResult(It.IsAny<ResultStatus>()))
                 .Returns(Task.FromResult(new object()));
 
-            // call the create user method
-            await service.HandleDeleteUserRequest(deleteParams, deleteContext.Object);
+            await service.HandleDisposeUserViewRequest(disposeViewRequestParams, disposeUserViewContext.Object);
 
-            deleteContext.Verify(x => x.SendResult(It.Is<ResultStatus>(p => p.Success)));
-        }       
+            return updateParams.User;
+        }
+
+        internal static async Task DropObject(string connectionUri, string objectUrn)
+        {
+            ObjectManagementService objectManagementService = new ObjectManagementService();
+            var dropParams = new DropRequestParams
+            {
+                ConnectionUri = connectionUri,
+                ObjectUrn = objectUrn
+            };
+
+            var dropRequestContext = new Mock<RequestContext<bool>>();
+            dropRequestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
+                .Returns(Task.FromResult(true));
+
+            await objectManagementService.HandleDropRequest(dropParams, dropRequestContext.Object);
+        }
     }
 }

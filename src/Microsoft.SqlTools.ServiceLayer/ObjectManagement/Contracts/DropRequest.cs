@@ -9,23 +9,24 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class RenameRequestParams : GeneralRequestDetails
+    public class DropRequestParams : GeneralRequestDetails
     {
         /// <summary>
         /// SFC (SMO) URN identifying the object  
         /// </summary>
         public string ObjectUrn { get; set; }
         /// <summary>
-        /// the new name of the object
-        /// </summary>
-        public string NewName { get; set; }
-        /// <summary>
         /// Connection uri
         /// </summary>
         public string ConnectionUri { get; set; }
+        /// <summary>
+        /// Whether to throw an error if the object does not exist. The default value is false.
+        /// </summary>
+        public bool ThrowIfNotExist { get; set; } = false;
     }
-    public class RenameRequest
+
+    public class DropRequest
     {
-        public static readonly RequestType<RenameRequestParams, bool> Type = RequestType<RenameRequestParams, bool>.Create("objectManagement/rename");
+        public static readonly RequestType<DropRequestParams, bool> Type = RequestType<DropRequestParams, bool>.Create("objectManagement/drop");
     }
 }
