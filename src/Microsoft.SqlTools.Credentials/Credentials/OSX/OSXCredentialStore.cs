@@ -48,13 +48,13 @@ namespace Microsoft.SqlTools.Credentials.OSX
         }
 
         private bool AddGenericPassword(Credential credential)
-        {            
+        {
             IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(credential.Password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
-              IntPtr.Zero, 
-              InteropUtils.GetLengthInBytes(credential.CredentialId), 
+              IntPtr.Zero,
+              InteropUtils.GetLengthInBytes(credential.CredentialId),
               credential.CredentialId,
-              0, 
+              0,
               null,
               InteropUtils.GetLengthInBytes(credential.Password),
               passwordPtr,
@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             password = null;
             using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
             {
-                if( handle == null)
+                if (handle == null)
                 {
                     return false;
                 }
@@ -96,9 +96,39 @@ namespace Microsoft.SqlTools.Credentials.OSX
                 out passwordPtr,
                 out item);
 
-            if(status == Interop.Security.OSStatus.ErrSecSuccess)
+            if (status == Interop.Security.OSStatus.ErrSecSuccess)
             {
                 return new KeyChainItemHandle(item, passwordPtr, passwordLength);
+            }
+            else
+            {
+#pragma warning disable 0612
+                // Intentional fallback to Unicode to retrieve old passwords before encoding shift
+                status = Interop.SecurityOld.SecKeychainFindGenericPassword(
+                    IntPtr.Zero,
+                    InteropUtils.GetLengthInBytes(credentialId),
+                    credentialId,
+                    0,
+                    null,
+                    out passwordLength,
+                    out passwordPtr,
+                    out item);
+#pragma warning restore 0612
+                if (status == Interop.Security.OSStatus.ErrSecSuccess)
+                {
+                    var handle = new KeyChainItemHandle(item, passwordPtr, passwordLength);
+                    // Migrate credential to 'Auto' encoding.
+                    if (handle != null)
+                    {
+                        var saveResult = this.Save(credential: new Credential(credentialId, handle.Password));
+                        if (saveResult)
+                        {
+                            // Safe to delete old password now.
+                            this.DeletePassword(credentialId);
+                        }
+                        return handle;
+                    }
+                }
             }
             return null;
         }
@@ -114,7 +144,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
                 }
                 Interop.Security.OSStatus status = Interop.Security.SecKeychainItemDelete(handle);
                 return status == Interop.Security.OSStatus.ErrSecSuccess;
-            }            
+            }
         }
 
         private class KeyChainItemHandle : SafeCreateHandle
@@ -126,22 +156,23 @@ namespace Microsoft.SqlTools.Credentials.OSX
             {
 
             }
-            
+
             public KeyChainItemHandle(IntPtr itemPtr) : this(itemPtr, IntPtr.Zero, 0)
             {
-                
+
             }
 
             public KeyChainItemHandle(IntPtr itemPtr, IntPtr passwordPtr, UInt32 passwordLength)
                 : base(itemPtr)
             {
                 this.passwordPtr = passwordPtr;
-                this.passwordLength = (int) passwordLength;
+                this.passwordLength = (int)passwordLength;
             }
-            
-            public string Password 
-            { 
-                get {
+
+            public string Password
+            {
+                get
+                {
                     if (IsInvalid)
                     {
                         return null;
