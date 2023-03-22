@@ -108,14 +108,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
             if (!parameters.IsNewObject)
             {
-                User? existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
+                User existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
                 userType = UserActions.GetCurrentUserTypeForExistingUser(existingUser);
+                DatabaseUserType databaseUserType = UserActions.GetDatabaseUserTypeForUserType(userType);
                 userInfo = new UserInfo()
                 {
+                    Type = databaseUserType,
                     Name = parameters.Name,
                     LoginName = existingUser.Login,
                     DefaultSchema = existingUser.DefaultSchema
                 };
+
+                // update the authentication type for contained users
+                if (databaseUserType == DatabaseUserType.Contained)
+                {
+                    userInfo.AuthenticationType = ServerAuthenticationType.Sql;
+                }
             }
 
             // generate a user prototype
@@ -186,7 +194,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 ObjectInfo = new UserInfo()
                 {
-                    Type = DatabaseUserType.WithLogin,
+                    Type = userInfo?.Type ?? DatabaseUserType.WithLogin,
+                    AuthenticationType = userInfo?.AuthenticationType ?? ServerAuthenticationType.Sql,
                     Name = currentUserPrototype.Name,
                     LoginName = loginName,
                     Password = string.Empty,
@@ -363,28 +372,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     internal class UserActions : ManagementActionBase
     {
         #region Variables
-        //private UserPrototypeData userData;
         private UserPrototype userPrototype;
-        private UserInfo? user;
         private ConfigAction configAction;
         #endregion
 
         #region Constructors / Dispose
         /// <summary>
-        /// required when loading from Object Explorer context
-        /// </summary>
-        /// <param name="context"></param>
+        /// Handle user create and update actions
+        /// </summary>        
         public UserActions(
-            CDataContainer context,
+            CDataContainer dataContainer,
             ConfigAction configAction,
             UserInfo? user,
             UserPrototypeData? originalData)
         {
-            this.DataContainer = context;
-            this.user = user;
+            this.DataContainer = dataContainer;
             this.configAction = configAction;
 
-            this.userPrototype = InitUserPrototype(context, user, originalData);
+            ExhaustiveUserTypes currentUserType;
+            if (dataContainer.IsNewObject)
+            {
+                currentUserType = UserActions.GetUserTypeForUserInfo(user);
+            }
+            else
+            {
+                currentUserType = UserActions.GetCurrentUserTypeForExistingUser(
+                    dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
+            }
+
+            this.userPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, user, originalData, currentUserType);
         }
 
         // /// <summary> 
@@ -409,24 +425,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
         }
 
-        private UserPrototype InitUserPrototype(CDataContainer dataContainer, UserInfo user, UserPrototypeData? originalData)
-        {
-            ExhaustiveUserTypes currentUserType;
-            if (dataContainer.IsNewObject)
-            {
-                currentUserType = GetUserTypeForUserInfo(user);
-            }
-            else
-            {
-                currentUserType = UserActions.GetCurrentUserTypeForExistingUser(
-                    dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
-            }
-
-           UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, user, originalData, currentUserType);
-           return currentUserPrototype;
-        }
-
-        private ExhaustiveUserTypes GetUserTypeForUserInfo(UserInfo user)
+        internal static ExhaustiveUserTypes GetUserTypeForUserInfo(UserInfo user)
         {
             ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
             switch (user.Type)
@@ -446,6 +445,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             return userType;
         }
+
+        internal static DatabaseUserType GetDatabaseUserTypeForUserType(ExhaustiveUserTypes userType)
+        {
+            DatabaseUserType databaseUserType = DatabaseUserType.WithLogin;
+            switch (userType)
+            {
+                case ExhaustiveUserTypes.LoginMappedUser:
+                    databaseUserType = DatabaseUserType.WithLogin;
+                    break;
+                case ExhaustiveUserTypes.WindowsUser:
+                    databaseUserType = DatabaseUserType.WithWindowsGroupLogin;
+                    break;
+                case ExhaustiveUserTypes.SqlUserWithPassword:
+                    databaseUserType = DatabaseUserType.Contained;
+                    break;
+                case ExhaustiveUserTypes.SqlUserWithoutLogin:
+                    databaseUserType = DatabaseUserType.NoConnectAccess;
+                    break;
+            }
+            return databaseUserType;
+        }        
 
         internal static ExhaustiveUserTypes GetCurrentUserTypeForExistingUser(User? user)
         {
