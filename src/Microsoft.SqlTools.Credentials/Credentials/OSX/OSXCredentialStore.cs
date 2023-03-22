@@ -3,10 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -26,7 +25,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
             return DeletePasswordImpl(credentialId);
         }
 
-        public bool TryGetPassword(string credentialId, out string password)
+        public bool TryGetPassword(string credentialId, out string? password)
         {
             Validate.IsNotNullOrEmptyString("credentialId", credentialId);
             return FindPassword(credentialId, out password);
@@ -52,11 +51,11 @@ namespace Microsoft.SqlTools.Credentials.OSX
             IntPtr passwordPtr = Marshal.StringToCoTaskMemUTF8(credential.Password);
             Interop.Security.OSStatus status = Interop.Security.SecKeychainAddGenericPassword(
               IntPtr.Zero,
-              InteropUtils.GetLengthInBytes(credential.CredentialId),
+              InteropUtils.GetLengthInBytes(credential.CredentialId, Encoding.UTF8),
               credential.CredentialId,
               0,
               null,
-              InteropUtils.GetLengthInBytes(credential.Password),
+              InteropUtils.GetLengthInBytes(credential.Password, Encoding.UTF8),
               passwordPtr,
               IntPtr.Zero);
 
@@ -66,10 +65,10 @@ namespace Microsoft.SqlTools.Credentials.OSX
         /// <summary>
         /// Finds the first password matching this credential
         /// </summary>
-        private bool FindPassword(string credentialId, out string password)
+        private bool FindPassword(string credentialId, out string? password)
         {
             password = null;
-            using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
+            using (KeyChainItemHandle? handle = LookupKeyChainItem(credentialId))
             {
                 if (handle == null)
                 {
@@ -81,14 +80,14 @@ namespace Microsoft.SqlTools.Credentials.OSX
             return true;
         }
 
-        private KeyChainItemHandle LookupKeyChainItem(string credentialId)
+        private KeyChainItemHandle? LookupKeyChainItem(string credentialId)
         {
             UInt32 passwordLength;
             IntPtr passwordPtr;
             IntPtr item;
             Interop.Security.OSStatus status = Interop.Security.SecKeychainFindGenericPassword(
                 IntPtr.Zero,
-                InteropUtils.GetLengthInBytes(credentialId),
+                InteropUtils.GetLengthInBytes(credentialId, Encoding.UTF8),
                 credentialId,
                 0,
                 null,
@@ -98,7 +97,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
 
             if (status == Interop.Security.OSStatus.ErrSecSuccess)
             {
-                return new KeyChainItemHandle(item, passwordPtr, passwordLength);
+                return new KeyChainItemHandle(item, passwordPtr, passwordLength, Encoding.UTF8);
             }
             else
             {
@@ -106,21 +105,21 @@ namespace Microsoft.SqlTools.Credentials.OSX
                 // Intentional fallback to Unicode to retrieve old passwords before encoding shift
                 status = Interop.SecurityOld.SecKeychainFindGenericPassword(
                     IntPtr.Zero,
-                    InteropUtils.GetLengthInBytes(credentialId),
+                    InteropUtils.GetLengthInBytes(credentialId, Encoding.Unicode),
                     credentialId,
                     0,
-                    null,
+                    null!,
                     out passwordLength,
                     out passwordPtr,
                     out item);
 #pragma warning restore 0612
                 if (status == Interop.Security.OSStatus.ErrSecSuccess)
                 {
-                    using var handle = new KeyChainItemHandle(item, passwordPtr, passwordLength);
+                    using var handle = new KeyChainItemHandle(item, passwordPtr, passwordLength, Encoding.Unicode);
                     // Migrate credential to 'Auto' encoding.
                     if (handle != null)
                     {
-                        var saveResult = this.Save(credential: new Credential(credentialId, handle.Password));
+                        var saveResult = this.AddGenericPassword(credential: new Credential(credentialId, handle.Password));
                         if (saveResult)
                         {
                             // Safe to delete old password now.
@@ -137,7 +136,7 @@ namespace Microsoft.SqlTools.Credentials.OSX
         private bool DeletePasswordImpl(string credentialId)
         {
             // Find password, then Delete, then cleanup
-            using (KeyChainItemHandle handle = LookupKeyChainItem(credentialId))
+            using (KeyChainItemHandle? handle = LookupKeyChainItem(credentialId))
             {
                 if (handle == null)
                 {
@@ -152,25 +151,31 @@ namespace Microsoft.SqlTools.Credentials.OSX
         {
             private IntPtr passwordPtr;
             private int passwordLength;
+            private Encoding encoding = Encoding.UTF8;
 
             public KeyChainItemHandle() : base()
             {
 
             }
 
-            public KeyChainItemHandle(IntPtr itemPtr) : this(itemPtr, IntPtr.Zero, 0)
+            public KeyChainItemHandle(IntPtr itemPtr) : this(itemPtr, IntPtr.Zero, 0, Encoding.UTF8)
             {
 
             }
 
-            public KeyChainItemHandle(IntPtr itemPtr, IntPtr passwordPtr, UInt32 passwordLength)
+            public KeyChainItemHandle(IntPtr itemPtr, IntPtr passwordPtr, UInt32 passwordLength, Encoding encoding)
                 : base(itemPtr)
             {
+                if (encoding != Encoding.UTF8 && encoding != Encoding.Unicode)
+                {
+                    throw new ArgumentException($"Encoding {encoding} not supported.");
+                }
                 this.passwordPtr = passwordPtr;
                 this.passwordLength = (int)passwordLength;
+                this.encoding = encoding;
             }
 
-            public string Password
+            public string? Password
             {
                 get
                 {
@@ -178,7 +183,8 @@ namespace Microsoft.SqlTools.Credentials.OSX
                     {
                         return null;
                     }
-                    return InteropUtils.CopyToString(passwordPtr, passwordLength);
+                    return InteropUtils.CopyToString(passwordPtr, passwordLength,
+                        this.encoding == Encoding.UTF8 ? Encoding.UTF8: Encoding.Unicode);
                 }
             }
             protected override bool ReleaseHandle()
