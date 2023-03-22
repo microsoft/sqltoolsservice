@@ -90,31 +90,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     }
 
     /// <summary>
-    /// Delete User params
-    /// </summary>
-    public class DeleteUserParams
-    {
-        public string? ConnectionUri { get; set; }
-	    
-        public string? Database { get; set; }
-	
-        public string? Name { get; set; }
-    }
-
-    /// <summary>
-    /// Delete User request type
-    /// </summary>
-    public class DeleteUserRequest
-    {
-        /// <summary>
-        /// Request definition
-        /// </summary>
-        public static readonly
-            RequestType<DeleteUserParams, ResultStatus> Type =
-            RequestType<DeleteUserParams, ResultStatus>.Create("objectManagement/deleteUser");
-    }
-
-    /// <summary>
     /// Update User params
     /// </summary>
     public class DisposeUserViewRequestParams

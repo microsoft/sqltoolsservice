@@ -58,19 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 await service.HandleInitializeLoginViewRequest(initializeLoginViewRequestParams, initializeLoginViewContext.Object);
                 await service.HandleCreateLoginRequest(loginParams, createLoginContext.Object);
 
-                // cleanup created login
-                var deleteParams = new DeleteLoginParams
-                {
-                    ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
-                    Name = loginParams.Login.Name
-                };
-
-                var deleteContext = new Mock<RequestContext<object>>();
-                deleteContext.Setup(x => x.SendResult(It.IsAny<object>()))
-                    .Returns(Task.FromResult(new object()));
-
-                // call the create login method
-                await service.HandleDeleteLoginRequest(deleteParams, deleteContext.Object);
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(loginParams.Login.Name));
             }
         }
     }
