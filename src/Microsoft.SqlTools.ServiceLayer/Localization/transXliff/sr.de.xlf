@@ -6576,6 +6576,12 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Kennwort für die Anmeldung beim Entsperren zurücksetzen.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">Das Objekt konnte nicht umbenannt werden. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

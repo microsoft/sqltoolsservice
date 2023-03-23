@@ -4012,4 +4012,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Réinitialiser le mot de passe pour la connexion lors du déverrouillage.</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>L'objet n'a pas pu être renommé. UR : '{0}'.</value>
+  </data>
 </root>

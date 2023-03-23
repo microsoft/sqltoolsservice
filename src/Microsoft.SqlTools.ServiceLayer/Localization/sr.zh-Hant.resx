@@ -4012,4 +4012,7 @@
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>解除鎖定時重設登入密碼。</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>無法重新命名物件。URN: '{0}'。</value>
+  </data>
 </root>

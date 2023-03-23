@@ -4012,4 +4012,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Kennwort für die Anmeldung beim Entsperren zurücksetzen.</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Das Objekt konnte nicht umbenannt werden. URN: '{0}'.</value>
+  </data>
 </root>

@@ -4012,4 +4012,7 @@
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>解锁时重置登录密码。</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>无法重命名对象。URN:“{0}”。</value>
+  </data>
 </root>

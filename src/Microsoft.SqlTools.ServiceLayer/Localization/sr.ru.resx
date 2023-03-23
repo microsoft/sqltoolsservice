@@ -4012,4 +4012,7 @@
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>При снятии блокировки переустановите пароль для входа.</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Не удалось переименовать объект. Унифицированное имя ресурса: "{0}".</value>
+  </data>
 </root>

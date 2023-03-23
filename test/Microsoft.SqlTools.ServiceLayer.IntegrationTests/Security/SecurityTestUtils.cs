@@ -61,12 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             };
         }
 
-        internal static UserInfo GetTestUserInfo(string loginName)
+        internal static UserInfo GetTestUserInfo(DatabaseUserType userType, string userName = null, string loginName = null)
         {
             return new UserInfo()
             {
-                Type = DatabaseUserType.WithLogin,
-                Name = "TestUserName_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                Type = userType,
+                Name = userName ?? "TestUserName_" + new Random().NextInt64(10000000, 90000000).ToString(),
                 LoginName = loginName,
                 Password = "placeholder",
                 DefaultSchema = "dbo",
@@ -161,7 +161,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         internal static async Task<UserInfo> CreateUser(
             UserServiceHandlerImpl service,
             TestConnectionResult connectionResult,
-            LoginInfo login)
+            DatabaseUserType userType,
+            string userName = null,
+            string loginName = null)
         {
             string contextId = System.Guid.NewGuid().ToString();
             var initializeViewRequestParams = new InitializeUserViewParams
@@ -181,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             var userParams = new CreateUserParams
             {
                 ContextId = contextId,
-                User = SecurityTestUtils.GetTestUserInfo(login.Name)
+                User = SecurityTestUtils.GetTestUserInfo(userType, userName, loginName)
             };
 
             var createUserContext = new Mock<RequestContext<CreateUserResult>>();
