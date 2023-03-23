@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Common;
@@ -101,10 +102,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
             string databaseUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                                                 "Server/Database[@Name='{0}']", Urn.EscapeString(parameters.Database));
-            Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database; 
-       
+            Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
+
+            var languageOptions = LanguageUtils.GetDefaultLanguageOptions(dataContainer);
+            var languageOptionsList = languageOptions.Select(SecurityService.FormatLanguageDisplay).ToList();
+            languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
+
             // if viewing an exisitng user then populate some properties
             UserInfo? userInfo = null;
+            string? defaultLanguageAlias = null;
             ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
             if (!parameters.IsNewObject)
             {
@@ -116,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     Type = databaseUserType,
                     Name = parameters.Name,
                     LoginName = existingUser.Login,
-                    DefaultSchema = existingUser.DefaultSchema
+                    DefaultSchema = existingUser.DefaultSchema,                    
                 };
 
                 // update the authentication type for contained users
@@ -124,27 +130,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     userInfo.AuthenticationType = ServerAuthenticationType.Sql;
                 }
+
+                // Default language is only applicable for users inside a contained database.
+                if (parentDb.ContainmentType != ContainmentType.None 
+                    && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
+                {
+                    defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromName(
+                        existingUser.Parent.Parent, 
+                        existingUser.DefaultLanguage.Name);                   
+                }
             }
 
             // generate a user prototype
-            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType);        
-
-            // get the default language if available
-            IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = currentUserPrototype as IUserPrototypeWithDefaultLanguage;
-            string? defaultLanguageAlias = null;
-            if (defaultLanguagePrototype != null && defaultLanguagePrototype.IsDefaultLanguageSupported)
-            {
-                string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-                defaultLanguageAlias = defaultLanguagePrototype.DefaultLanguageAlias;
-                //If engine returns default language as empty or null, that means the default language of  
-                //database will be used.
-                //Default language is not applicable for users inside an uncontained authentication.
-                if (string.IsNullOrEmpty(defaultLanguageAlias)
-                    && (dataContainer.Server.GetSmoObject(dbUrn) as Database).ContainmentType != ContainmentType.None)
-                {
-                    defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
-                }
-            }
+            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType);
 
             // get the default schema if available
             string? defaultSchema = null;
@@ -153,7 +151,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 defaultSchema = defaultSchemaPrototype.DefaultSchema;
             }
-    
+
+            // set default alias to <default> if needed
+            if (string.IsNullOrEmpty(defaultLanguageAlias) 
+                && parentDb.ContainmentType != ContainmentType.None
+                && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
+            {
+                defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
+            }
+
             // set the fake password placeholder when editing an existing user
             string? password = null;
             IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
@@ -191,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     schemaNames.Add(schema);
                 }
             }
-
+            
             ServerConnection serverConnection = dataContainer.ServerConnection;
             UserViewInfo userViewInfo = new UserViewInfo()
             {
@@ -205,13 +211,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = defaultLanguageAlias
+                    DefaultLanguage = SecurityService.FormatLanguageDisplay(
+                        languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
                 },
                 SupportContainedUser = UserActions.IsParentDatabaseContained(parentDb),  // support for these will be added later
                 SupportWindowsAuthentication = false,
                 SupportAADAuthentication = false,
                 SupportSQLAuthentication = true,
-                Languages = new string[] { },
+                Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = DatabaseUtils.LoadSqlLogins(serverConnection),
                 DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
