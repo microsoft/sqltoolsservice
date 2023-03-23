@@ -4,7 +4,6 @@
 //
 
 #nullable disable
-
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
