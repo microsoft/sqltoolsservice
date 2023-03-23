@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.False(list.Any(x => x.Name == "db2" && x.ServerInstanceInfo.Name == ""));
             Assert.True(list.Any(x => x.Name == "" && x.ServerInstanceInfo.Name == "server"));
             Assert.False(list.Any(x => x.Name == "db4" && x.ServerInstanceInfo.Name == ""));
-            Assert.True(list.Count() == 2);
+            Assert.True(list.Count == 2);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             Assert.True(list.Any(x => x.Name == "db2" && x.ServerInstanceInfo.Name == "server1"));
             Assert.True(list.Any(x => x.Name == "db4" && x.ServerInstanceInfo.Name == "server2"));
             Assert.False(list.Any(x => x.Name == "db3" && x.ServerInstanceInfo.Name == "error"));
-            Assert.True(list.Count() == 3);
+            Assert.True(list.Count == 3);
             Assert.NotNull(response.Errors);
             Assert.True(response.Errors.Count() == 1);
         }
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
                     Assert.True(result.Any(x => x.Name == databaseName && x.ServerInstanceInfo.Name == serverName));
                 }
             }
-            Assert.True(result.Count() == numberOfDatabases);
+            Assert.True(result.Count == numberOfDatabases);
         }
 
         private void AddDatabases(Dictionary<string, List<string>> subscriptionToDatabaseMap, int numberOfDatabases)

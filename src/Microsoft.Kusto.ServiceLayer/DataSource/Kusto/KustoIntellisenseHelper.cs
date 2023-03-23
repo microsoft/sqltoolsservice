@@ -4,7 +4,6 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using Kusto.Language;
 using Kusto.Language.Editor;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
@@ -59,7 +58,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
             // build a list of Kusto script file markers from the errors.
             List<ScriptFileMarker> markers = new List<ScriptFileMarker>();
-            if (parseResult != null && parseResult.Count() > 0)
+            if (parseResult != null && parseResult.Count > 0)
             {
                 foreach (var error in parseResult)
                 {

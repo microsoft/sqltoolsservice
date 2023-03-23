@@ -18,7 +18,6 @@ dotnet_analyzer_diagnostic.severity = error
 # investigated and either fixed or marked as acceptable with
 # a reason why
 dotnet_diagnostic.IDE0018.severity = none
-dotnet_diagnostic.CA1829.severity = none
 dotnet_diagnostic.CA1806.severity = none
 dotnet_diagnostic.IDE0078.severity = none
 dotnet_diagnostic.IDE0019.severity = none
@@ -150,6 +149,7 @@ dotnet_diagnostic.CS1723.severity = none
 # XML doc compiler warnings that have been resolved
 dotnet_diagnostic.CS1711.severity = error
 
+dotnet_diagnostic.CS8632.severity = none
 
 #### Core EditorConfig Options ####
 

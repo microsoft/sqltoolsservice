@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                                 //Some tests still verify the number of backup sets that are executed which in some cases can be less than the selected list
                                 if (verifyDatabase == null && selectedBackupSets != null)
                                 {
-                                    Assert.AreEqual(selectedBackupSets.Count(), restoreDataObject.RestorePlanToExecute.RestoreOperations.Count());
+                                    Assert.AreEqual(selectedBackupSets.Length, restoreDataObject.RestorePlanToExecute.RestoreOperations.Count);
                                 }
                             }
                             if (executionMode.HasFlag(TaskExecutionModeFlag.Script))
