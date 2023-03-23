@@ -6576,6 +6576,12 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <target state="translated">Reimpostare la password per l'account di accesso durante lo sblocco.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">Non è stato possibile rinominare l'oggetto. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

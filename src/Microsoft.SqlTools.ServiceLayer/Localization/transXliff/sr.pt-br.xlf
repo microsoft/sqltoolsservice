@@ -6576,6 +6576,12 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
         <target state="translated">Redefinir a senha de logon ao desbloquear.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">Não foi possível renomear o objeto. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

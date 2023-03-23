@@ -4012,4 +4012,7 @@
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>ロックの解除中にログインのパスワードをリセットします。</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>The object could not be renamed. URN: '{0}'.</value>
+  </data>
 </root>
