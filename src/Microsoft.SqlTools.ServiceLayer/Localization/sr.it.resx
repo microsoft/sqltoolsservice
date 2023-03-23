@@ -4012,4 +4012,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Reimpostare la password per l'account di accesso durante lo sblocco.</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Non è stato possibile rinominare l'oggetto. URN: '{0}'.</value>
+  </data>
 </root>

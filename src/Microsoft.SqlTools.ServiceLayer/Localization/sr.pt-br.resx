@@ -4012,4 +4012,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Redefinir a senha de logon ao desbloquear.</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Não foi possível renomear o objeto. URN: '{0}'.</value>
+  </data>
 </root>

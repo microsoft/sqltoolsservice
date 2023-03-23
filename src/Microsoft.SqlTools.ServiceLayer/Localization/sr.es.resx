@@ -4012,4 +4012,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Restablecer contraseña para el inicio de sesión durante el desbloqueo.</value>
   </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>No se pudo cambiar el nombre del objeto. URN: '{0}'.</value>
+  </data>
 </root>

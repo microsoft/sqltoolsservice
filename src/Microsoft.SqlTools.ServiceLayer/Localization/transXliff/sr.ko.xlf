@@ -6576,6 +6576,12 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">잠금을 해제하는 동안 로그인 암호를 다시 설정하십시오.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">개체의 이름을 바꿀 수 없습니다. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
