@@ -149,8 +149,8 @@ dotnet_diagnostic.CS1723.severity = none
 # XML doc compiler warnings that have been resolved
 dotnet_diagnostic.CS1711.severity = error
 
-#### Core EditorConfig Options ####
 
+#### Core EditorConfig Options ####
 
 # Indentation and spacing
 indent_size = 4
