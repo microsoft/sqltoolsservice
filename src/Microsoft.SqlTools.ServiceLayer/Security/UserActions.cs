@@ -154,12 +154,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 defaultSchema = defaultSchemaPrototype.DefaultSchema;
             }
     
-            // IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
-            // if (userWithPwdPrototype != null && !this.DataContainer.IsNewObject)
-            // {
-            //     this.passwordTextBox.Text = FAKE_PASSWORD;
-            //     this.confirmPwdTextBox.Text = FAKE_PASSWORD;                
-            // }
+            // set the fake password placeholder when editing an existing user
+            string? password = null;
+            IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
+            if (userWithPwdPrototype != null && !parameters.IsNewObject)
+            {
+                userWithPwdPrototype.Password = DatabaseUtils.GetReadOnlySecureString(LoginPrototype.fakePassword);
+                userWithPwdPrototype.PasswordConfirm = DatabaseUtils.GetReadOnlySecureString(LoginPrototype.fakePassword);
+                password = LoginPrototype.fakePassword;             
+            }
 
             // get the login name if it exists
             string? loginName = null;
@@ -198,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     AuthenticationType = userInfo?.AuthenticationType ?? ServerAuthenticationType.Sql,
                     Name = currentUserPrototype.Name,
                     LoginName = loginName,
-                    Password = string.Empty,
+                    Password = password,
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),

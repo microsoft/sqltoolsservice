@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.mappedLoginName = userInfo.LoginName;
                 this.defaultSchemaName = userInfo.DefaultSchema;
                 if (!string.IsNullOrEmpty(userInfo.Password))
-                {
+                {                    
                     this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
                 }
             }     
@@ -970,7 +970,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 user.Alter();
 
-                if (this.currentState.password != this.originalState.password)
+                if (!DatabaseUtils.IsSecureStringsEqual(this.currentState.password, this.originalState.password))
                 {
                     if (this.currentState.isOldPasswordRequired)
                     {
