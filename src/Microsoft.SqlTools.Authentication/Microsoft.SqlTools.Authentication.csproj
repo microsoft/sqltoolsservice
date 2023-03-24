@@ -13,6 +13,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Microsoft.SqlTools.Shared\Microsoft.SqlTools.Shared.csproj" />
+	  <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
 	</ItemGroup>
 </Project>

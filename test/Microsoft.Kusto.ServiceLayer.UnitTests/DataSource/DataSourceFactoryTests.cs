@@ -12,7 +12,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource

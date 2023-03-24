@@ -34,7 +34,6 @@
 		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.Core/Microsoft.SqlTools.ResourceProvider.Core.csproj" />
 		<ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.DefaultImpl/Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
 		<ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
-		<ProjectReference Include="..\..\src\Microsoft.SqlTools.Shared\Microsoft.SqlTools.Shared.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
