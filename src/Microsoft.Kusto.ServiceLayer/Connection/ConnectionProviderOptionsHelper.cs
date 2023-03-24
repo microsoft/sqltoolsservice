@@ -4,7 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Contracts;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {

@@ -25,6 +25,5 @@
     <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
     <ProjectReference Include="../../test/Microsoft.SqlTools.ServiceLayer.TestDriver/Microsoft.SqlTools.ServiceLayer.TestDriver.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.SqlTools.Shared\Microsoft.SqlTools.Shared.csproj" />
   </ItemGroup>
 </Project>
