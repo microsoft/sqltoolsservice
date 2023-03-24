@@ -45,6 +45,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+            }
+        }
+
         public static string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol
         {
             get
@@ -10188,6 +10196,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
+
+
+            public const string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = "ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves";
 
 
             public const string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = "ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol";

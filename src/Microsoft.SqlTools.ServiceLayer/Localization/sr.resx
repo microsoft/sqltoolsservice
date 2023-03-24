@@ -146,7 +146,7 @@
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for SecureEnclaves. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
+    <value>Invalid value &apos;{0}&apos; for Secure enclaves. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
     <comment>.
  Parameters: 0 - secureEnclaves (string) </comment>
   </data>
@@ -156,20 +156,24 @@
  Parameters: 0 - encrypt (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for EnclaveAttestationProtocol. Valid values are &apos;AAS&apos;, &apos;HGS&apos; and &apos;None&apos;.</value>
+    <value>Invalid value &apos;{0}&apos; for Attestation protocol. Valid values are &apos;AAS&apos;, &apos;HGS&apos; and &apos;None&apos;.</value>
     <comment>.
  Parameters: 0 - enclaveAttestationProtocol (string) </comment>
   </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Attestation protocol cannot be empty with Secure enclaves enabled.</value>
+    <comment></comment>
+  </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>Attestation URL cannot be empty with the selected value of Attestation Protocol.</value>
+    <value>Attestation URL cannot be empty with the selected value of Attestation protocol.</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</value>
+    <value>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>The Enclave Attestation URL must not be specified with Attestation Protocol &apos;None&apos;. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</value>
+    <value>The Attestation URL must not be specified with Attestation protocol &apos;None&apos;. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</value>
     <comment></comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">

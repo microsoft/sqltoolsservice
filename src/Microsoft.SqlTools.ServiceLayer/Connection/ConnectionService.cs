@@ -1428,6 +1428,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 switch (connectionDetails.SecureEnclaves.ToUpper())
                 {
                     case "ENABLED":
+                        if (string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
+                        {
+                            throw new ArgumentException(SR.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+                        }
                         break;
                     case "DISABLED":
                         break;
