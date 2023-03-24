@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -245,8 +244,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 databases[i] = dataContainer.Server.Databases[i].Name;
             }
 
-            var languageOptions = GetDefaultLanguageOptions(dataContainer);
-            var languageOptionsList = languageOptions.Select(FormatLanguageDisplay).ToList();
+            var languageOptions = LanguageUtils.GetDefaultLanguageOptions(dataContainer);
+            var languageOptionsList = languageOptions.Select(SecurityService.FormatLanguageDisplay).ToList();
             if (parameters.IsNewObject)
             {
                 languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
@@ -320,34 +319,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             await requestContext.SendResult(new object());
         }
 
-        private string FormatLanguageDisplay(LanguageDisplay? l)
+        internal static string FormatLanguageDisplay(LanguageDisplay? l)
         {
             if (l == null) return null;
              return string.Format("{0} - {1}", l.Language.Alias, l.Language.Name);
-        }
-
-        private IList<LanguageDisplay> GetDefaultLanguageOptions(CDataContainer dataContainer)
-        {
-            // sort the languages alphabetically by alias
-            SortedList sortedLanguages = new SortedList(Comparer.Default);
-
-            LanguageUtils.SetLanguageDefaultInitFieldsForDefaultLanguages(dataContainer.Server);
-            if (dataContainer.Server != null && dataContainer.Server.Languages != null)
-            {
-                foreach (Language language in dataContainer.Server.Languages)
-                {
-                    LanguageDisplay listValue = new LanguageDisplay(language);
-                    sortedLanguages.Add(language.Alias, listValue);
-                }
-            }
-
-            IList<LanguageDisplay> res = new List<LanguageDisplay>();
-            foreach (LanguageDisplay ld in sortedLanguages.Values)
-            {
-                res.Add(ld);
-            }
-
-            return res;
         }
 
         #endregion

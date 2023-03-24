@@ -7,12 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -122,8 +122,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 this.mappedLoginName = userInfo.LoginName;
                 this.defaultSchemaName = userInfo.DefaultSchema;
                 if (!string.IsNullOrEmpty(userInfo.Password))
-                {
+                {                    
                     this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
+                }
+                if (!string.IsNullOrEmpty(userInfo.DefaultLanguage)
+                    && string.Compare(userInfo.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal) != 0)
+                {
+                    this.defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromDisplayText(userInfo.DefaultLanguage);                        
                 }
             }     
 
@@ -460,7 +465,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         public void SetRoleMembership(string roleName, bool isMember)
         {
             this.currentState.isMember[roleName] = isMember;
-        }        
+        }
 
         #endregion
 
@@ -800,9 +805,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                //Default Language was not supported before Denali.
-                return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion)
-                    && this.context.Server.ServerType != DatabaseEngineType.SqlAzureDatabase;
+                return LanguageUtils.IsDefaultLanguageSupported(this.context.Server);
             }
         }
 
@@ -970,7 +973,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 user.Alter();
 
-                if (this.currentState.password != this.originalState.password)
+                if (!DatabaseUtils.IsSecureStringsEqual(this.currentState.password, this.originalState.password))
                 {
                     if (this.currentState.isOldPasswordRequired)
                     {

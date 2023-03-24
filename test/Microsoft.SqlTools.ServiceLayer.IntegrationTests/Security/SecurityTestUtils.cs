@@ -54,8 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 IsLockedOut = false,
                 EnforcePasswordPolicy = false,
                 EnforcePasswordExpiration = false,
-                Password = "placeholder",
-                OldPassword = "placeholder",
+                Password = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
+                OldPassword = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
                 DefaultLanguage = "English - us_english",
                 DefaultDatabase = "master"
             };
@@ -66,9 +66,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             return new UserInfo()
             {
                 Type = userType,
+                AuthenticationType = ServerAuthenticationType.Sql,
                 Name = userName ?? "TestUserName_" + new Random().NextInt64(10000000, 90000000).ToString(),
                 LoginName = loginName,
-                Password = "placeholder",
+                Password = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
                 DefaultSchema = "dbo",
                 OwnedSchemas = new string[] { "" }
             };
@@ -163,7 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             TestConnectionResult connectionResult,
             DatabaseUserType userType,
             string userName = null,
-            string loginName = null)
+            string loginName = null,
+            string databaseName = "master")
         {
             string contextId = System.Guid.NewGuid().ToString();
             var initializeViewRequestParams = new InitializeUserViewParams
@@ -171,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
                 ContextId = contextId,
                 IsNewObject = true,
-                Database = "master"
+                Database = databaseName
             };
 
             var initializeUserViewContext = new Mock<RequestContext<UserViewInfo>>();
