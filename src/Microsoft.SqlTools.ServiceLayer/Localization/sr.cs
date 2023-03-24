@@ -10150,6 +10150,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.UnsupportedModelType, type);
         }
 
+        public static string ObjectNotRenamable(string urn)
+        {
+            return Keys.GetString(Keys.ObjectNotRenamable, urn);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -14041,6 +14046,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
+
+
+            public const string ObjectNotRenamable = "ObjectNotRenamable";
 
 
             public const string DefaultLanguagePlaceholder = "DefaultLanguagePlaceholder";

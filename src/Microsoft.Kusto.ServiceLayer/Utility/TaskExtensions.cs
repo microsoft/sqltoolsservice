@@ -117,7 +117,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
         /// <summary>
         /// This will enforce time out to run an async task without returning result
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
         /// <param name="task">The async task to run</param>
         /// <param name="timeout">Time out in milliseconds</param>
         /// <returns></returns>

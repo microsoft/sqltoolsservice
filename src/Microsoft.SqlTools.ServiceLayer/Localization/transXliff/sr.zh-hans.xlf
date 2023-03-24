@@ -6576,6 +6576,12 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">解锁时重置登录密码。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">无法重命名对象。URN:“{0}”。</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

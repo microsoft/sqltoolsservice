@@ -6576,6 +6576,12 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <target state="translated">Réinitialiser le mot de passe pour la connexion lors du déverrouillage.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">L'objet n'a pas pu être renommé. UR : '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
