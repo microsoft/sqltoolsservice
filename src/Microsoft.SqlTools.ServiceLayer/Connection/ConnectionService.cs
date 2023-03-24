@@ -23,12 +23,12 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using System.Diagnostics;
 using Microsoft.SqlTools.Authentication.Sql;
 using Microsoft.SqlTools.Authentication;
-using Microsoft.SqlTools.Shared.Utility;
 using System.IO;
+using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -1162,7 +1162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var applicationPath = commandOptions.ApplicationPath;
             if (string.IsNullOrEmpty(applicationPath))
             {
-                applicationPath = Utils.BuildAppDirectoryPath();
+                applicationPath = CommonUtils.BuildAppDirectoryPath();
                 Logger.Warning($"Application Path not received with command options, using default application path as: {applicationPath}");
             }
 

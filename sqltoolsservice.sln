@@ -96,9 +96,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Migratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Migration.IntegrationTests", "test\Microsoft.SqlTools.Migration.IntegrationTests\Microsoft.SqlTools.Migration.IntegrationTests.csproj", "{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Authentication", "src\Microsoft.SqlTools.Authentication\Microsoft.SqlTools.Authentication.csproj", "{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Shared", "src\Microsoft.SqlTools.Shared\Microsoft.SqlTools.Shared.csproj", "{531EC0E0-F400-42C5-BCFA-6691313B5F3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Authentication", "src\Microsoft.SqlTools.Authentication\Microsoft.SqlTools.Authentication.csproj", "{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -239,12 +237,6 @@ Global
 		{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E}.Integration|Any CPU.Build.0 = Debug|Any CPU
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -273,7 +265,6 @@ Global
 		{22DB0C12-6848-4503-AD1C-DAD6A1D631AE} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 		{5C7F4DAC-F794-4C21-A031-DCAAFAF3C0A9} = {AB9CA2B8-6F70-431C-8A1D-67479D8A7BE4}
 		{2A32C3B6-3E9F-4A8E-BF98-59F9AEF6DAAC} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
-		{531EC0E0-F400-42C5-BCFA-6691313B5F3E} = {2BBD7364-054F-4693-97CD-1C395E3E84A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}

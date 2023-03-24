@@ -17,7 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting

@@ -6,6 +6,7 @@
 #nullable disable
 using System;
 using System.IO;
+
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class FileUtilities
