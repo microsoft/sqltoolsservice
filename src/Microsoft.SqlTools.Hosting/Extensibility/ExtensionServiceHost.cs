@@ -39,10 +39,9 @@ namespace Microsoft.SqlTools.Extensibility
             // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
             // is hooked up to receive the message
             this.Start().GetAwaiter().GetResult();
-            isLoaded = true;
 
             this.MessageDispatcher.ParallelMessageProcessing = options.ParallelMessageProcessing;
-
+            isLoaded = true;
         }
 
         private void Initialize()
