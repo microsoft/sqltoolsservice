@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.Extensibility
             this.Start().GetAwaiter().GetResult();
             isLoaded = true;
 
+            this.MessageDispatcher.ParallelMessageProcessing = options.ParallelMessageProcessing;
+
         }
 
         private void Initialize()
@@ -293,5 +295,10 @@ namespace Microsoft.SqlTools.Extensibility
         /// </summary>
         /// <value></value>
         public InitializeService InitializeServiceCallback { get; set; }
+
+        /// <summary>
+        /// Whether the message should be handled without blocking the main thread.
+        /// </summary>
+        public bool ParallelMessageProcessing { get; set; }
     }
 }

@@ -48,7 +48,8 @@ namespace Microsoft.SqlTools.Migration
                         HostName = "Migration",
                         HostProfileId = "SqlTools.Migration",
                         HostVersion = new Version(1, 0, 0, 0),
-                        InitializeServiceCallback = (server, serivce) => { }
+                        InitializeServiceCallback = (server, serivce) => { },
+                        ParallelMessageProcessing = commandOptions.ParallelMessageProcessing
                     });
 
                 serviceHost.RegisterAndInitializeService(new MigrationService());
