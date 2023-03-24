@@ -8,7 +8,7 @@
 using System;
 using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource.Kusto;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using NUnit.Framework;
 
 namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource
