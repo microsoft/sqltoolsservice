@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -14,8 +14,7 @@ namespace Microsoft.SqlTools.Credentials
     {
         internal partial class Security
         {
-
-            [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
+            [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Auto, SetLastError = true)]
             internal static extern OSStatus SecKeychainAddGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName,
                 UInt32 accountNameLength, string accountName, UInt32 passwordLength, IntPtr password, [Out] IntPtr itemRef);
 
@@ -43,7 +42,7 @@ namespace Microsoft.SqlTools.Credentials
             /// Most attributes are optional; you should pass only as many as you need to narrow the search sufficiently for your application's intended use.
             /// SecKeychainFindGenericPassword optionally returns a reference to the found item.
             /// </remarks>
-            [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Unicode, SetLastError = true)]
+            [DllImport(Libraries.SecurityLibrary, CharSet = CharSet.Auto, SetLastError = true)]
             internal static extern OSStatus SecKeychainFindGenericPassword(IntPtr keyChainRef, UInt32 serviceNameLength, string serviceName,
                 UInt32 accountNameLength, string accountName, out UInt32 passwordLength, out IntPtr password, out IntPtr itemRef);
 
