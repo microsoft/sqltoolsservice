@@ -1321,10 +1321,10 @@
     <value>암호화에 대한 잘못된 값 '{0}'. 유효한 값은 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' 및 'No'.입니다.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>EnclaveAttestationProtocol에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS', 'HGS', 'None'입니다.</value>
+    <value>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>증명 프로토콜 및 enclave 증명 URL을 사용하려면 보안 enclave를 사용하는 Always Encrypted를 Enabled로 설정해야 합니다.</value>
+    <value>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>일괄 처리를 실행하는 동안 오류가 발생하여 종료합니다.</value>
@@ -3998,13 +3998,13 @@
     <value>기본 제공 스키마</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>증명 URL은 증명 프로토콜의 선택된 값으로 비워 둘 수 없습니다.</value>
+    <value>Attestation URL cannot be empty with the selected value of Attestation protocol.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>SecureEnclaves에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'Enabled' 및 'Disabled'입니다.</value>
+    <value>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>enclave 증명 URL은 증명 프로토콜 'None'으로 지정될 수 없습니다. 적절한 증명 프로토콜을 설정하거나 연결 속성에서 증명 URL을 제거하세요.</value>
+    <value>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
@@ -4014,5 +4014,8 @@
   </data>
   <data name="ObjectNotRenamable" xml:space="preserve">
     <value>개체의 이름을 바꿀 수 없습니다. URN: '{0}'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Attestation protocol cannot be empty with Secure enclaves enabled.</value>
   </data>
 </root>
