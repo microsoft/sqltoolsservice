@@ -37,6 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnectionCanceled);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidColumnEncryptionSetting(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidSecureEnclaves(""));
