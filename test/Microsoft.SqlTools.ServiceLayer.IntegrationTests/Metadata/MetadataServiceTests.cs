@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 return result.Metadata == null;
             }
 
-            if(expectedMetadataList.Count() != result.Metadata.Count())
+            if(expectedMetadataList.Count != result.Metadata.Length)
             {
                 return false;
             }

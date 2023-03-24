@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.HostNameInCertificate = expectedForStrings + index++;
             details.Port = expectedForInt + index++;
 
-            if (optionMetadata.Options.Count() != details.Options.Count)
+            if (optionMetadata.Options.Length != details.Options.Count)
             {
                 var optionsNotInMetadata = details.Options.Where(o => !optionMetadata.Options.Any(m => m.Name == o.Key));
                 var optionNames = optionsNotInMetadata.Any() ? optionsNotInMetadata.Select(s => s.Key).Aggregate((i, j) => i + "," + j) : null;

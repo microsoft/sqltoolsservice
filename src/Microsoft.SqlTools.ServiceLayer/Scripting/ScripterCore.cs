@@ -399,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // extract full object name from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
             List<string> tokenList = tokens.Where(el => el.IndexOf(tokenText, caseSensitivity) >= 0).ToList();
-            return (tokenList?.Count() > 0) ? tokenList[0] : null;
+            return (tokenList?.Count > 0) ? tokenList[0] : null;
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // extract string denoting the token type from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
             List<int> indexList = tokens.Select((s, i) => new { i, s }).Where(el => (el.s).IndexOf(tokenText, caseSensitivity) >= 0).Select(el => el.i).ToList();
-            return (indexList?.Count() > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
+            return (indexList?.Count > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
         }
 
 

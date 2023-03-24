@@ -177,7 +177,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         private void DoSort()
         {
             List<TreeNode> sorted = this.OrderBy(x => x).ToList();
-            for (int i = 0; i < sorted.Count(); i++)
+            for (int i = 0; i < sorted.Count; i++)
             {
                 int index = IndexOf(sorted[i]);
                 if (index != i)
