@@ -109,6 +109,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 key += "_" + details.GroupId;
             }
 
+            if (!string.IsNullOrEmpty(details.ConnectionName))
+            {
+                key += "_" + details.ConnectionName;
+            }
+
             // Additional properties that are used to distinguish the connection (besides password)
             // These are so that multiple connections can connect to the same target, with different settings.
             foreach (KeyValuePair<string, object> entry in details.Options)
@@ -116,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 // Filter out properties we already have or don't want (password)
                 if (entry.Key != "server" && entry.Key != "database" && entry.Key != "user"
                 && entry.Key != "authenticationType" && entry.Key != "databaseDisplayName"
-                && entry.Key != "groupId" && entry.Key != "password")
+                && entry.Key != "groupId" && entry.Key != "password" && entry.Key != "connectionName")
                 {
                     // Boolean values are explicitly labeled true or false instead of undefined.
                     if (entry.Value is bool)
