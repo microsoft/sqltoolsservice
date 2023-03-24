@@ -9,6 +9,10 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
+/**
+ * !!! IMPORTANT: DO NOT MOVE THIS CLASS OUT OF MICROSOFT.SQLTOOLS.HOSTING ASSEMBLY !!!
+ * VSCode Intellicode extension depends on this class from this library, do not alter it's namespace/assembly address.
+ */
 namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
