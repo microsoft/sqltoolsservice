@@ -113,10 +113,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // These are so that multiple connections can connect to the same target, with different settings.
             foreach (KeyValuePair<string, object> entry in details.Options)
             {
-                // Filter out properties we already have or don't want (password)
+                // Filter out properties we already have or don't want (password, connectionName)
                 if (entry.Key != "server" && entry.Key != "database" && entry.Key != "user"
                 && entry.Key != "authenticationType" && entry.Key != "databaseDisplayName"
-                && entry.Key != "groupId" && entry.Key != "password")
+                && entry.Key != "groupId" && entry.Key != "password" && entry.Key != "connectionName")
                 {
                     // Boolean values are explicitly labeled true or false instead of undefined.
                     if (entry.Value is bool)
