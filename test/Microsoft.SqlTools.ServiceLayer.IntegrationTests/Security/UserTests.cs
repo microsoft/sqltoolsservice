@@ -65,6 +65,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
         }
 
         /// <summary>
+        /// Test the basic Create User method handler
+        /// </summary>
+        // [Test] - needs contained DB
+        public async Task TestHandleCreateUserWithContainedSqlPassword()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                SecurityService service = new SecurityService();
+                UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
+                string databaseName = "CRM";
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(databaseName, queryTempFile.FilePath);
+
+                var user = await SecurityTestUtils.CreateUser(
+                    userService,
+                    connectionResult,
+                    DatabaseUserType.Contained,
+                    userName: null,
+                    loginName: null,
+                    databaseName: connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName);
+
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
+            }
+        }
+
+        /// <summary>
         /// Test the basic Update User method handler
         /// </summary>
         [Test]

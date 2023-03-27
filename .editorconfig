@@ -18,7 +18,6 @@ dotnet_analyzer_diagnostic.severity = error
 # investigated and either fixed or marked as acceptable with
 # a reason why
 dotnet_diagnostic.IDE0018.severity = none
-dotnet_diagnostic.CA1829.severity = none
 dotnet_diagnostic.CA1806.severity = none
 dotnet_diagnostic.IDE0078.severity = none
 dotnet_diagnostic.IDE0019.severity = none

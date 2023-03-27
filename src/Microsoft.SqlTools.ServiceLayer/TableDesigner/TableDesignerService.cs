@@ -1033,7 +1033,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
                 indexVM.FilterPredicate.Value = index.FilterPredicate;
                 indexVM.FilterPredicate.Enabled = !index.IsClustered || index.FilterPredicate != null;
-                indexVM.IncludedColumns.Enabled = !index.IsClustered || index.IncludedColumns.Count() > 0;
+                indexVM.IncludedColumns.Enabled = !index.IsClustered || index.IncludedColumns.Count > 0;
                 indexVM.IncludedColumns.CanAddRows = !index.IsClustered;
 
                 foreach (var column in index.IncludedColumns)
@@ -1058,7 +1058,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 indexVM.IsClustered.Checked = index.IsClustered;
                 indexVM.FilterPredicate.Value = index.FilterPredicate;
                 indexVM.FilterPredicate.Enabled = !index.IsClustered || index.FilterPredicate != null;
-                indexVM.Columns.Enabled = !index.IsClustered || index.Columns.Count() > 0;
+                indexVM.Columns.Enabled = !index.IsClustered || index.Columns.Count > 0;
                 indexVM.Columns.CanAddRows = !index.IsClustered;
                 indexVM.ColumnsDisplayValue.Enabled = false;
 

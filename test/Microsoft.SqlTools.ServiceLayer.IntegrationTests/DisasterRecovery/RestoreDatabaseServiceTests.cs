@@ -240,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 string targetDbName = testDb.DatabaseName;
                 bool canRestore = true;
                 var response = await VerifyRestore(backupFiles, null, canRestore, TaskExecutionModeFlag.None, targetDbName, null, null);
-                Assert.True(response.BackupSetsToRestore.Count() >= 2);
+                Assert.True(response.BackupSetsToRestore.Length >= 2);
                 var allIds = response.BackupSetsToRestore.Select(x => x.Id).ToList();
                 if (backupSetIndexToDelete >= 0)
                 {
@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                     return true;
                 });
 
-                for (int i = 0; i < response.BackupSetsToRestore.Count(); i++)
+                for (int i = 0; i < response.BackupSetsToRestore.Length; i++)
                 {
                     DatabaseFileInfo databaseInfo = response.BackupSetsToRestore[i];
                     Assert.AreEqual(databaseInfo.IsSelected, expectedSelectedIndexes.Contains(i));
@@ -337,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
             bool canRestore = true;
             var response = await VerifyRestore(backupFileNames, null, canRestore, TaskExecutionModeFlag.None, "RestoredFromTwoBackupFile");
-            Assert.True(response.BackupSetsToRestore.Count() == 2);
+            Assert.True(response.BackupSetsToRestore.Length == 2);
         }
 
         //[Test]
@@ -347,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
             bool canRestore = true;
             var response = await VerifyRestore(backupFileNames, null, canRestore, TaskExecutionModeFlag.None, "RestoredFromTwoBackupFile");
-            Assert.True(response.BackupSetsToRestore.Count() == 2);
+            Assert.True(response.BackupSetsToRestore.Length == 2);
             var fileInfo = response.BackupSetsToRestore.FirstOrDefault(x => x.GetPropertyValueAsString(BackupSetInfo.BackupTypePropertyName) != RestoreConstants.TypeFull);
             if (fileInfo != null)
             {
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             string[] backupFileNames = new string[] { "FullBackup.bak", "DiffBackup.bak" };
             bool canRestore = true;
             var response = await VerifyRestore(backupFileNames, null, canRestore, TaskExecutionModeFlag.None, "RestoredFromTwoBackupFile");
-            Assert.True(response.BackupSetsToRestore.Count() == 2);
+            Assert.True(response.BackupSetsToRestore.Length == 2);
             var fileInfo = response.BackupSetsToRestore.FirstOrDefault(x => x.GetPropertyValueAsString(BackupSetInfo.BackupTypePropertyName) == RestoreConstants.TypeFull);
             if (fileInfo != null)
             {
@@ -662,7 +662,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                                 //Some tests still verify the number of backup sets that are executed which in some cases can be less than the selected list
                                 if (verifyDatabase == null && selectedBackupSets != null)
                                 {
-                                    Assert.That(restoreDataObject.RestorePlanToExecute.RestoreOperations.Count(), Is.EqualTo(selectedBackupSets.Count()), $"{nameof(restoreDataObject.RestorePlanToExecute.RestoreOperations)} contains different number of objects than {nameof(selectedBackupSets)}");
+                                    Assert.That(restoreDataObject.RestorePlanToExecute.RestoreOperations.Count, Is.EqualTo(selectedBackupSets.Length), $"{nameof(restoreDataObject.RestorePlanToExecute.RestoreOperations)} contains different number of objects than {nameof(selectedBackupSets)}");
                                 }
                             }
                             if (executionMode.HasFlag(TaskExecutionModeFlag.Script))

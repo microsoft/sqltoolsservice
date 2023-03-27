@@ -1321,10 +1321,10 @@
     <value>加密的值“{0}”无效。有效值为 “Optional”、“Mandatory”、“Strict”、“True”、“False”、“Yes”和“No”。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS"、"HGS" 和“无”。</value>
+    <value>Attestation 协议的值“{0}”无效。有效值为“AAS”，“HGS”和“None”。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>证明协议和 Enclave 证明 URL 需要将 Always Encrypted with Secure Enclaves 设置为“已启用”。</value>
+    <value>证明协议和证明 URL 要求启用具有安全隔离区的始终加密。</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>在执行批处理期间遇到错误。正在退出。</value>
@@ -4001,10 +4001,10 @@
     <value>证明 URL 不能为空，且所选值为证明协议。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>SecureEnclave 的值“{0}”无效。有效值为“已启用”和“已禁用”。</value>
+    <value>Secure enclave 的值“{0}”无效。有效值为“已启用”和“已禁用”。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>不得使用证明协议“无”指定 Enclave 证明 URL。请设置适当的证明协议或从连接属性中移除证明 URL。</value>
+    <value>证明 URL 不能使用“无”的证明协议指定。请设置适当的证明协议或从连接属性中删除证明 URL。</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
@@ -4014,5 +4014,8 @@
   </data>
   <data name="ObjectNotRenamable" xml:space="preserve">
     <value>无法重命名对象。URN:“{0}”。</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>证明协议不能为空且已启用安全 enclave。</value>
   </data>
 </root>

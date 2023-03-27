@@ -1801,7 +1801,7 @@ WITH VALUES
                 Assert.NotNull(schemaCompareOpenScmpOperation.Result);
                 Assert.True(schemaCompareOpenScmpOperation.Result.Success);
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements, Is.Not.Empty);
-                Assert.AreEqual(1, schemaCompareOpenScmpOperation.Result.ExcludedSourceElements.Count());
+                Assert.AreEqual(1, schemaCompareOpenScmpOperation.Result.ExcludedSourceElements.Count);
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements, Is.Empty);
 
                 if (targetEndpointType == SchemaCompareEndpointType.Project)

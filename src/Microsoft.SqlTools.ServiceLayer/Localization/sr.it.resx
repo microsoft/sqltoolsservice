@@ -1321,10 +1321,10 @@
     <value>Valore '{0}' non valido per la crittografia. I valori validi sono: 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' e 'No'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Valore '{0}' non valido per EnclaveAttestationProtocol. I valori validi sono 'AAS', 'HGS' e 'None'.</value>
+    <value>Valore '{0}' non valido per il protocollo di attestazione. I valori validi sono 'AAS', 'HGS' e 'None'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>Il protocollo di attestazione e l'URL di attestazione dell'enclave richiedono che Always Encrypted con enclavi sicure sia impostato su Abilitato.</value>
+    <value>Il protocollo di attestazione e l'URL di attestazione richiedono che Always Encrypted con enclavi sicure sia impostato su Abilitato.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>Si è verificato un errore durante l'esecuzione del batch. Chiusura in corso.</value>
@@ -4001,10 +4001,10 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
     <value>L'URL di attestazione non può essere vuoto con il valore selezionato del protocollo di attestazione.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Valore '{0}' non valido per SecureEnclaves. I valori validi sono 'Enabled' e 'Disabled'.</value>
+    <value>Valore '{0}' non valido per le enclavi sicure. I valori validi sono 'Enabled' e 'Disabled'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>L'URL di attestazione dell'enclave non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</value>
+    <value>L'URL di attestazione non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;predefinita&gt;</value>
@@ -4014,5 +4014,8 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   </data>
   <data name="ObjectNotRenamable" xml:space="preserve">
     <value>Non è stato possibile rinominare l'oggetto. URN: '{0}'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Il protocollo di attestazione non può essere vuoto con enclavi sicure abilitate.</value>
   </data>
 </root>

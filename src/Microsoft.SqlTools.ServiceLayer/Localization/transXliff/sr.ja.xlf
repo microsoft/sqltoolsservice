@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="translated">EnclaveAttestationProtocol の値 '{0}' が無効です。有効な値は、'AAS'、'HGS'、'None' です。</target>
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">構成証明プロトコルの値 '{0}' が無効です。有効な値は、'AAS'、'HGS'、および 'None' です。</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="translated">構成証明プロトコルおよびエンクレーブ構成証明の URL では、Always Encrypted with Secure Enclaves を有効に設定する必要があります。</target>
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="translated">構成証明プロトコルと構成証明 URL では、セキュリティで保護されたエンクレーブを持つAlways Encryptedを有効に設定する必要があります。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6551,19 +6551,19 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
-        <target state="translated">構成証明プロトコルの選択された値では、構成証明 URL を空にすることはできません。</target>
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
+        <target state="translated">構成証明の URL を、構成証明プロトコルの選択された値と共に空にすることはできません。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">SecureEnclaves の値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</target>
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">セキュリティで保護されたエンクレーブの値 '{0}' が無効です。有効な値は 'Enabled' と 'Disabled' です。</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="translated">エンクレーブ構成証明の URL は構成証明プロトコル 'None' で指定することはできません。 適切な構成証明プロトコルを設定するか、接続プロパティから構成証明 URL を削除します。</target>
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">構成証明 URL を構成証明プロトコル 'None' で指定することはできません。適切な構成証明プロトコルを設定するか、接続プロパティから構成証明 URL を削除します。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6578,9 +6578,14 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ObjectNotRenamable">
         <source>The object could not be renamed. URN: '{0}'.</source>
-        <target state="new">The object could not be renamed. URN: '{0}'.</target>
+        <target state="translated">オブジェクトの名前を変更できませんでした。URN: '{0}'。</target>
         <note>.
  Parameters: 0 - urn (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="translated">セキュア エンクレーブを有効にした状態で構成証明プロトコルを空にすることはできません。</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>

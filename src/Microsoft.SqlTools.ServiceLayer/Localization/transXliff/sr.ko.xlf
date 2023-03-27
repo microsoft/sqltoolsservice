@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="translated">EnclaveAttestationProtocol에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS', 'HGS', 'None'입니다.</target>
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">증명 프로토콜에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'AAS', 'HGS', 'None'입니다.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="translated">증명 프로토콜 및 enclave 증명 URL을 사용하려면 보안 enclave를 사용하는 Always Encrypted를 Enabled로 설정해야 합니다.</target>
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="translated">증명 프로토콜 및 증명 URL을 사용하려면 보안 enclave를 사용하는 Always Encrypted를 사용으로 설정해야 합니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6551,19 +6551,19 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
         <target state="translated">증명 URL은 증명 프로토콜의 선택된 값으로 비워 둘 수 없습니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">SecureEnclaves에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 'Enabled' 및 'Disabled'입니다.</target>
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">보안 Enclaves에 대한 '{0}' 값이 잘못되었습니다. 유효한 값은 '사용' 및 '사용 안 함'입니다.</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="translated">enclave 증명 URL은 증명 프로토콜 'None'으로 지정될 수 없습니다. 적절한 증명 프로토콜을 설정하거나 연결 속성에서 증명 URL을 제거하세요.</target>
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">증명 URL은 증명 프로토콜 'None'으로 지정될 수 없습니다. 적절한 증명 프로토콜을 설정하거나 연결 속성에서 증명 URL을 제거하세요.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6581,6 +6581,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">개체의 이름을 바꿀 수 없습니다. URN: '{0}'.</target>
         <note>.
  Parameters: 0 - urn (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="translated">보안 enclave를 사용하도록 설정한 상태에서는 증명 프로토콜을 비워 둘 수 없습니다.</target>
+        <note></note>
       </trans-unit>
     </body>
   </file>
