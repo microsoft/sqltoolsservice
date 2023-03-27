@@ -2043,13 +2043,13 @@
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <target state="translated">Attestation 协议的值“{0}”无效。有效值为“AAS”，“HGS”和“None”。</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
         <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</target>
+        <target state="translated">证明协议和证明 URL 要求启用具有安全隔离区的始终加密。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6552,18 +6552,18 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
         <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
-        <target state="new">Attestation URL cannot be empty with the selected value of Attestation protocol.</target>
+        <target state="translated">证明 URL 不能为空，且所选值为证明协议。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
         <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <target state="translated">Secure enclave 的值“{0}”无效。有效值为“已启用”和“已禁用”。</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
         <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</target>
+        <target state="translated">证明 URL 不能使用“无”的证明协议指定。请设置适当的证明协议或从连接属性中删除证明 URL。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6584,7 +6584,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
         <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
-        <target state="new">Attestation protocol cannot be empty with Secure enclaves enabled.</target>
+        <target state="translated">证明协议不能为空且已启用安全 enclave。</target>
         <note></note>
       </trans-unit>
     </body>

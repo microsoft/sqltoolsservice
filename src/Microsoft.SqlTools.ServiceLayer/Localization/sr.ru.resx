@@ -1321,10 +1321,10 @@
     <value>Недопустимое значение "{0}" для параметра Encrypt. Допустимые значения: "Optional" (необязательно), "Mandatory" (обязательно), "Strict" (строго), "True" (истина), "False" (ложь), "Yes" (да) и "No" (нет).</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
+    <value>Недопустимое значение "{0}" для протокола аттестации. Допустимые значения: "AAS", "HGS" и "None" (Нет).</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</value>
+    <value>Протокол аттестации и URL-адрес аттестации требуют включения Always Encrypted с безопасными анклавами.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>При выполнении пакета возникла ошибка. Выполняется выход.</value>
@@ -3998,13 +3998,13 @@
     <value>Встроенные схемы</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>Attestation URL cannot be empty with the selected value of Attestation protocol.</value>
+    <value>URL-адрес аттестации не может быть пустым с выбранным значением протокола аттестации.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+    <value>Недопустимое значение "{0}" для безопасных анклавов. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</value>
+    <value>Недопустимо задавать URL-адрес аттестации с протоколом аттестации "None". Настройте подходящий протокол или удалите URL-адрес из свойств подключения.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
@@ -4016,6 +4016,6 @@
     <value>Не удалось переименовать объект. Унифицированное имя ресурса: "{0}".</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
-    <value>Attestation protocol cannot be empty with Secure enclaves enabled.</value>
+    <value>Протокол аттестации не может быть пустым, если включены безопасные анклавы.</value>
   </data>
 </root>

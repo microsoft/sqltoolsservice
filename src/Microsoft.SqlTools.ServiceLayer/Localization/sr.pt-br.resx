@@ -1321,10 +1321,10 @@
     <value>Valor inválido '{0}' para Criptografar. Os valores válidos são 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' e 'No'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
+    <value>Valor inválido '{0}' do protocolo de atestado. Os valores válidos são 'AAS', 'HGS' e 'None'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</value>
+    <value>O protocolo de Atestado e a URL de Atestado exigem que o Always Encrypted com enclaves seguros seja definido como Habilitado.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>Erro durante a execução do lote. Saindo.</value>
@@ -3998,13 +3998,13 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Esquemas Internos</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>Attestation URL cannot be empty with the selected value of Attestation protocol.</value>
+    <value>A URL de Atestado não pode ficar vazia com o valor selecionado do Protocolo de Atestado.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+    <value>Valor inválido '{0}' dos enclaves seguros. Os valores válidos são 'Enabled' e 'Disabled'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</value>
+    <value>A URL de Atestado não deve ser especificada com o protocolo de Atestado 'None'. Defina o protocolo de Atestado apropriado ou remova a URL de Atestado das propriedades de conexão.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
@@ -4016,6 +4016,6 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Não foi possível renomear o objeto. URN: '{0}'.</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
-    <value>Attestation protocol cannot be empty with Secure enclaves enabled.</value>
+    <value>O Protocolo de Atestado não pode ficar vazio com enclaves seguros ativados.</value>
   </data>
 </root>
