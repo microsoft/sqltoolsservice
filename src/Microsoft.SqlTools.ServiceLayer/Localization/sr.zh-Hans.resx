@@ -1321,10 +1321,10 @@
     <value>加密的值“{0}”无效。有效值为 “Optional”、“Mandatory”、“Strict”、“True”、“False”、“Yes”和“No”。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</value>
+    <value>Attestation 协议的值“{0}”无效。有效值为“AAS”，“HGS”和“None”。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</value>
+    <value>证明协议和证明 URL 要求启用具有安全隔离区的始终加密。</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>在执行批处理期间遇到错误。正在退出。</value>
@@ -3998,13 +3998,13 @@
     <value>内置架构</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>Attestation URL cannot be empty with the selected value of Attestation protocol.</value>
+    <value>证明 URL 不能为空，且所选值为证明协议。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</value>
+    <value>Secure enclave 的值“{0}”无效。有效值为“已启用”和“已禁用”。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</value>
+    <value>证明 URL 不能使用“无”的证明协议指定。请设置适当的证明协议或从连接属性中删除证明 URL。</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
@@ -4016,6 +4016,6 @@
     <value>无法重命名对象。URN:“{0}”。</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
-    <value>Attestation protocol cannot be empty with Secure enclaves enabled.</value>
+    <value>证明协议不能为空且已启用安全 enclave。</value>
   </data>
 </root>

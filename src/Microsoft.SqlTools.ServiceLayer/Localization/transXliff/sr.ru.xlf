@@ -2043,13 +2043,13 @@
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <target state="translated">Недопустимое значение "{0}" для протокола аттестации. Допустимые значения: "AAS", "HGS" и "None" (Нет).</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
         <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</target>
+        <target state="translated">Протокол аттестации и URL-адрес аттестации требуют включения Always Encrypted с безопасными анклавами.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6552,18 +6552,18 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
         <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
-        <target state="new">Attestation URL cannot be empty with the selected value of Attestation protocol.</target>
+        <target state="translated">URL-адрес аттестации не может быть пустым с выбранным значением протокола аттестации.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
         <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <target state="translated">Недопустимое значение "{0}" для безопасных анклавов. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
         <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</target>
+        <target state="translated">Недопустимо задавать URL-адрес аттестации с протоколом аттестации "None". Настройте подходящий протокол или удалите URL-адрес из свойств подключения.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6584,7 +6584,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
         <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
-        <target state="new">Attestation protocol cannot be empty with Secure enclaves enabled.</target>
+        <target state="translated">Протокол аттестации не может быть пустым, если включены безопасные анклавы.</target>
         <note></note>
       </trans-unit>
     </body>

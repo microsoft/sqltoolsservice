@@ -2043,13 +2043,13 @@
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
         <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <target state="translated">Valor inválido '{0}' do protocolo de atestado. Os valores válidos são 'AAS', 'HGS' e 'None'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
         <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</target>
+        <target state="translated">O protocolo de Atestado e a URL de Atestado exigem que o Always Encrypted com enclaves seguros seja definido como Habilitado.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6552,18 +6552,18 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
         <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
-        <target state="new">Attestation URL cannot be empty with the selected value of Attestation protocol.</target>
+        <target state="translated">A URL de Atestado não pode ficar vazia com o valor selecionado do Protocolo de Atestado.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
         <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <target state="translated">Valor inválido '{0}' dos enclaves seguros. Os valores válidos são 'Enabled' e 'Disabled'.</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
         <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</target>
+        <target state="translated">A URL de Atestado não deve ser especificada com o protocolo de Atestado 'None'. Defina o protocolo de Atestado apropriado ou remova a URL de Atestado das propriedades de conexão.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6584,7 +6584,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
         <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
-        <target state="new">Attestation protocol cannot be empty with Secure enclaves enabled.</target>
+        <target state="translated">O Protocolo de Atestado não pode ficar vazio com enclaves seguros ativados.</target>
         <note></note>
       </trans-unit>
     </body>
