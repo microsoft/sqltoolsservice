@@ -13,7 +13,6 @@ using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
-using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {
