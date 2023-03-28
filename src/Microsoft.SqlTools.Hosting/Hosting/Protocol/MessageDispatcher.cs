@@ -13,6 +13,7 @@ using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {
@@ -134,7 +135,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
+                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}], Content[{requestMessage.Contents.ToString(Formatting.None)}]");
                     var requestContext =
                         new RequestContext<TResult>(
                             requestMessage,
@@ -159,29 +160,32 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     }
                     catch (Exception ex)
                     {
-                        string errorMessage = GetErrorMessage(ex);
-                        Logger.Error($"{requestType.MethodName} : {errorMessage}");
-                        await requestContext.SendError(errorMessage);
+                        Logger.Error($"{requestType.MethodName} : {GetErrorMessage(ex, true)}");
+                        await requestContext.SendError(GetErrorMessage(ex));
                     }
                 });
         }
 
-        private string GetErrorMessage(Exception e)
+        private string GetErrorMessage(Exception e, bool includeStackTrace = false)
         {
             List<string> errors = new List<string>();
 
             while (e != null)
             {
                 errors.Add(e.Message);
+                if (includeStackTrace)
+                {
+                    errors.Add(e.StackTrace);
+                }
                 e = e.InnerException;
             }
 
-            return errors.Count > 0 ? string.Join(" ---> ", errors) : string.Empty;
+            return errors.Count > 0 ? string.Join(includeStackTrace ? Environment.NewLine : " ---> ", errors) : string.Empty;
         }
 
-         public void SetEventHandler<TParams>(
-            EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler)
+        public void SetEventHandler<TParams>(
+           EventType<TParams> eventType,
+           Func<TParams, EventContext, Task> eventHandler)
         {
             this.SetEventHandler(
                 eventType,
