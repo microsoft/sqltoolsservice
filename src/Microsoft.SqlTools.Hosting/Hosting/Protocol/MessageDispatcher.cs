@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}], Content[{requestMessage.Contents.ToString(Formatting.None)}]");
+                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     var requestContext =
                         new RequestContext<TResult>(
                             requestMessage,
