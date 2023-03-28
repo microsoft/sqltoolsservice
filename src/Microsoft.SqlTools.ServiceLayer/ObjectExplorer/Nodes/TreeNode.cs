@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// Enum defining the type of the node - for example Server, Database, Folder, Table
         /// </summary>
-        public NodeTypes NodeTypeId { get; set; }
+        public NodeTypes? NodeTypeId { get; set; }
 
         /// <summary>
         /// Node Sub type - for example a key can have type as "Key" and sub type as "PrimaryKey"
