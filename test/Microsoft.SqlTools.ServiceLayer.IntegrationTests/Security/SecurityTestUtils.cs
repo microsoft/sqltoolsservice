@@ -165,7 +165,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             DatabaseUserType userType,
             string userName = null,
             string loginName = null,
-            string databaseName = "master")
+            string databaseName = "master",
+            bool scriptUser = false)
         {
             string contextId = System.Guid.NewGuid().ToString();
             var initializeViewRequestParams = new InitializeUserViewParams

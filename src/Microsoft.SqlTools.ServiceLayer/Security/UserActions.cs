@@ -298,6 +298,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
+        /// <summary>
+        /// Handle request to update a user
+        /// </summary>
+        internal async Task HandleScriptUserRequest(ScriptUserParams parameters, RequestContext<string> requestContext)
+        {
+            if (parameters.ContextId == null)
+            {
+                throw new ArgumentException("Invalid context ID");
+            }
+
+            UserViewState viewState;
+            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
+
+            if (viewState == null)
+            {
+                throw new ArgumentException("Invalid context ID view state");
+            }
+
+            Tuple<bool, string> result = ConfigureUser(
+                parameters.ContextId,
+                parameters.User,
+                ConfigAction.Update,
+                RunType.ScriptToWindow,
+                viewState.Database,
+                viewState.OriginalUserData);
+
+            await requestContext.SendResult("SELECT *");
+        }
+
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
         {
             this.ConnectionServiceInstance.Disconnect(new DisconnectParams()
