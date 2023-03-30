@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
                         {
                             fillIvKeyIfNeeded();
                             var encryptedData = EncryptionUtils.AesEncrypt(data, this._key!, this._iv!);
-                            File.WriteAllText(this._storageCreationProperties.CacheFileName, Convert.ToBase64String(encryptedData));
+                            File.WriteAllText(this._storageCreationProperties.CacheFilePath, Convert.ToBase64String(encryptedData));
                         }
                         catch (Exception e)
                         {
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
 
             try
             {
-                var text = File.ReadAllText(_storageCreationProperties.CacheFilePath);
+                var text = File.ReadAllText(this._storageCreationProperties.CacheFilePath);
                 if (text != null)
                 {
                     cachedStoreData = Convert.FromBase64String(text);
