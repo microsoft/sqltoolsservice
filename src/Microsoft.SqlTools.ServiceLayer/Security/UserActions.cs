@@ -249,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
                 ConfigAction.Create,
@@ -260,8 +260,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             await requestContext.SendResult(new CreateUserResult()
             {
                 User = parameters.User,
-                Success = result.Item1,
-                ErrorMessage = result.Item2
+                Success = true,
+                ErrorMessage = string.Empty
             });
         }
 
@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
                 ConfigAction.Update,
@@ -293,8 +293,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             await requestContext.SendResult(new ResultStatus()
             {
-                Success = result.Item1,
-                ErrorMessage = result.Item2
+                Success = true,
+                ErrorMessage = string.Empty
             });
         }
 
@@ -316,15 +316,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            // todo: check if it's an existing user
+
+            string sqlScript = ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
-                ConfigAction.Update,
+                ConfigAction.Create,
                 RunType.ScriptToWindow,
                 viewState.Database,
                 viewState.OriginalUserData);
 
-            await requestContext.SendResult("SELECT *");
+            await requestContext.SendResult(sqlScript);
         }
 
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
@@ -378,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
         }
 
-        internal Tuple<bool, string> ConfigureUser(
+        internal string ConfigureUser(
             string? ownerUri,
             UserInfo? user,
             ConfigAction configAction,
@@ -393,6 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
             }
 
+            string sqlScript = string.Empty;
             CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
             using (var actions = new UserActions(dataContainer, configAction, user, originalData))
             {
@@ -402,9 +405,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     throw executionHandler.ExecutionFailureException;
                 }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
             }
 
-            return new Tuple<bool, string>(true, string.Empty);
+            return sqlScript;
         }
     }
 
