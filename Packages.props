@@ -30,7 +30,7 @@
 		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230301.46" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230302.47" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.7.0" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230119.40" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230330.53" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.10.0" />

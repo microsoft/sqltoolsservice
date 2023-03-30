@@ -25,9 +25,14 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public string Message { get; set; }
 
         /// <summary>
-        /// Result of migration
+        /// Result of migration.
         /// </summary>
         public bool Success { get; set; }
+        
+        /// <summary>
+        /// Status code returned by migration.
+        /// </summary>
+        public string StatusCode { get; set; }
     }
 
 

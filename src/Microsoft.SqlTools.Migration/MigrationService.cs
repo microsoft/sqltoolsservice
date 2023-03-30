@@ -965,7 +965,8 @@ namespace Microsoft.SqlTools.Migration
                 {
                     Name = dbName,
                     Success = migrationResult.Success,
-                    Message = migrationResult.Message
+                    Message = migrationResult.Message,
+                    StatusCode = migrationResult.StatusCode
                 };
                 await requestContext.SendEvent(CertificateMigrationProgressEvent.Type, eventData);
 
