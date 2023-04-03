@@ -152,9 +152,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 defaultSchema = defaultSchemaPrototype.DefaultSchema;
             }
 
+            ServerConnection serverConnection = dataContainer.ServerConnection;
+            bool isSqlAzure = serverConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
+            bool supportsContainedUser = isSqlAzure || UserActions.IsParentDatabaseContained(parentDb);
+
             // set default alias to <default> if needed
             if (string.IsNullOrEmpty(defaultLanguageAlias) 
-                && parentDb.ContainmentType != ContainmentType.None
+                && supportsContainedUser
                 && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
             {
                 defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
@@ -197,8 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     schemaNames.Add(schema);
                 }
             }
-            
-            ServerConnection serverConnection = dataContainer.ServerConnection;
+         
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -214,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     DefaultLanguage = SecurityService.FormatLanguageDisplay(
                         languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
                 },
-                SupportContainedUser = UserActions.IsParentDatabaseContained(parentDb),  // support for these will be added later
+                SupportContainedUser = supportsContainedUser,
                 SupportWindowsAuthentication = false,
                 SupportAADAuthentication = false,
                 SupportSQLAuthentication = true,
