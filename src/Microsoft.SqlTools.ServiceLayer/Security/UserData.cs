@@ -870,8 +870,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                //Default Language was not supported before Denali.
-                return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
+                //Default Language was not supported before Denali or on SQL DB.
+                bool isSqlAzure = this.context.ServerConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
+                return !isSqlAzure && SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
             }
         }
 
