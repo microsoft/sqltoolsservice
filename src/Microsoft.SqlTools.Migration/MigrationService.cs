@@ -27,6 +27,7 @@ using Microsoft.SqlServer.Migration.Assessment.Common.Utils;
 using Microsoft.SqlServer.Migration.Logins;
 using Microsoft.SqlServer.Migration.Logins.Contracts;
 using Microsoft.SqlServer.Migration.Logins.Contracts.ErrorHandling;
+using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
 using Microsoft.SqlServer.Migration.Logins.ErrorHandling;
 using Microsoft.SqlServer.Migration.Logins.Helpers;
 using Microsoft.SqlServer.Migration.SkuRecommendation;
@@ -294,7 +295,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
-                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
 
                 exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
                 exceptionMap.AddExceptions(await loginMigration.MigrateLogins(CancellationToken.None));
@@ -327,7 +328,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
-                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
                 exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
@@ -360,7 +361,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
-                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
                 exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
@@ -393,7 +394,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
-                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
 
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
@@ -427,7 +428,7 @@ namespace Microsoft.SqlTools.Migration
                 ILoginsMigration loginMigration = new LoginsMigration(parameters.SourceConnectionString, parameters.TargetConnectionString,
                 null, parameters.LoginList, parameters.AADDomainName, logger);
 
-                IDictionary<string, IEnumerable<ReportableException>> exceptionMap = new Dictionary<string, IEnumerable<ReportableException>>();
+                IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap = new Dictionary<string, IEnumerable<LoginMigrationException>>();
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
                 exceptionMap.AddExceptions(await loginMigration.StartValidations(CancellationToken.None));
