@@ -28,7 +28,7 @@
 		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230301.46" />
-		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230302.47" />
+		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230321.50" />
 		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.7.0" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230119.40" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />

@@ -7,13 +7,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
+using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
 
 namespace Microsoft.SqlTools.Migration.Utils
 {
     internal static class ExtensionMethods
     {
-        public static void AddExceptions(this IDictionary<string, IEnumerable<ReportableException>> exceptionMap1, IDictionary<string, IEnumerable<ReportableException>> exceptionMap2)
+        public static void AddExceptions(this IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap1, IDictionary<string, IEnumerable<LoginMigrationException>> exceptionMap2)
         {
             if (exceptionMap1 is null || exceptionMap2 is null)
             {
