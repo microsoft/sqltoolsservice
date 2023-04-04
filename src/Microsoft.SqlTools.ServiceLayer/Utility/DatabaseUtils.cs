@@ -294,28 +294,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 
         public static string[] LoadItems(ServerConnection serverConnection, string urn)
         {
-            List<string> items = new List<string>();
-            Request req = new Request();
-            req.Urn = urn;
-            req.ResultType = ResultType.IDataReader;
-            req.Fields = new string[] { "Name" };
-
-            Enumerator en = new Enumerator();
-            using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
+            try
             {
-                if (reader != null)
+                List<string> items = new List<string>();
+                Request req = new Request();
+                req.Urn = urn;
+                req.ResultType = ResultType.IDataReader;
+                req.Fields = new string[] { "Name" };
+
+                Enumerator en = new Enumerator();
+                using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
                 {
-                    string name;
-                    while (reader.Read())
+                    if (reader != null)
                     {
-                        // Get the permission name
-                        name = reader.GetString(0);
-                        items.Add(name);
+                        string name;
+                        while (reader.Read())
+                        {
+                            // Get the permission name
+                            name = reader.GetString(0);
+                            items.Add(name);
+                        }
                     }
                 }
+                items.Sort();
+                return items.ToArray();
             }
-            items.Sort();
-            return items.ToArray();
+            catch (Microsoft.SqlServer.Management.Sdk.Sfc.EnumeratorException)
+            {
+                // reading Logins can fail when trying to create a contained/SQL DB user
+                // when the current session does not have permissions to master
+                // we can return an empty existing login list in this scenario
+                // no need to log here since this is an expected non-blocking exception that is recoverable
+                return new string[0];
+            }
         }
     }
 }
