@@ -132,8 +132,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
 
                 // Default language is only applicable for users inside a contained database.
-                if (parentDb.ContainmentType != ContainmentType.None 
-                    && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
+                if (LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server)
+                    && parentDb.ContainmentType != ContainmentType.None)
                 {
                     defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromName(
                         existingUser.Parent.Parent, 
