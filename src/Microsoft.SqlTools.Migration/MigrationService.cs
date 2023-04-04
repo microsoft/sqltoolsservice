@@ -990,11 +990,11 @@ namespace Microsoft.SqlTools.Migration
 
                 if (result is TdeExceptionResult tdeExceptionResult)
                 {
-                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message };
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = tdeExceptionResult.Exception.Message, StatusCode = tdeExceptionResult.StatusCode };
                 }
                 else 
                 {
-                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage };
+                    return new CertificateMigrationEntryResult { DbName = dbName, Success = result.IsSuccess, Message = result.UserFriendlyMessage, StatusCode = result.StatusCode };
                 }
             }
             catch (Exception ex)
