@@ -1,4 +1,11 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using System;
 using System.Reflection;
 using System.Text;
 using Microsoft.SqlServer.Management.Common;
@@ -33,11 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             _additionalParam = string.IsNullOrEmpty(additionalParamName)
                 ? String.Empty
                 : string.Format("@{0}='{1}'", additionalParamName, Urn.EscapeString(additionalParamValue.ToString()));
-            PropertyInfo urnSuffixProperty = _smoType.GetProperty("UrnSuffix", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            if (urnSuffixProperty == null)
-            {
-                throw new InvalidArgumentException(string.Format("Type {0} did not have expected UrnSuffix property defined", smoType.Name));
-            }
+            PropertyInfo urnSuffixProperty = _smoType.GetProperty("UrnSuffix", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public) ?? throw new InvalidArgumentException(string.Format("Type {0} did not have expected UrnSuffix property defined", smoType.Name));
             _urnSuffix = urnSuffixProperty.GetValue(null, null).ToString();
         }
 

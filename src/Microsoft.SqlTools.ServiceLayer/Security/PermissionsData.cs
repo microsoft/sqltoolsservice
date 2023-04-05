@@ -1,3 +1,10 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
 using System;
 using System.Text;
 using System.Data;
@@ -8,7 +15,6 @@ using System.Linq;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo.Broker;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
@@ -612,10 +618,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 get
                 {
+#pragma warning disable IDE0074 // Use compound assignment
                     if (this.relevantPermissions == null)
                     {
                         this.relevantPermissions = Securable.GetRelevantPermissions(this.SecurableType, this.serverVersion, this.DatabaseName, this.databaseEngineType, this.databaseEngineEdition);
                     }
+#pragma warning restore IDE0074 // Use compound assignment
 
                     return this.relevantPermissions;
                 }
@@ -884,10 +892,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                             //  "principal shouldn't be in the removed collection when columns are being populated");
 
                 // if the principals collection does not exist, create it
+#pragma warning disable IDE0074 // Use compound assignment
                 if (this.principals == null)
                 {
                     this.principals = new PrincipalCollection();
                 }
+#pragma warning restore IDE0074 // Use compound assignment
 
                 // add the principal to the collection if it isn't already in the collection
                 if (!this.principals.Contains(principal))
@@ -1254,10 +1264,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 // initially null because no control will have asked for the principals.  In that case
                 // we need to create the collection without fetching the collection of other principals
                 // with permissions on the securable before adding the new principal to the collection.
+#pragma warning disable IDE0074 // Use compound assignment
                 if (this.principals == null)
                 {
                     this.principals = new PrincipalCollection();
                 }
+#pragma warning restore IDE0074 // Use compound assignment
 
                 if (!this.principals.Contains(permissionState.Principal))
                 {
@@ -5750,6 +5762,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             /// <summary>
             /// Indexer, by numeric index
             /// </summary>
+#pragma warning disable IDE0026 // Use expression body for indexer
             public Principal this[int index]
             {
                 get
@@ -5757,10 +5770,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return ((Principal)this.data.GetByIndex(index));
                 }
             }
+#pragma warning restore IDE0026 // Use expression body for indexer
 
             /// <summary>
             /// Indexer, by name
             /// </summary>
+#pragma warning disable IDE0026 // Use expression body for indexer
             public Principal this[PrincipalKey principalKey]
             {
                 get
@@ -5768,6 +5783,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return ((Principal)this.data[principalKey]);
                 }
             }
+#pragma warning restore IDE0026 // Use expression body for indexer
 
             /// <summary>
             /// Update the PrincipalKey associated with this principal
@@ -7194,6 +7210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             /// <summary>
             /// Indexer, by numeric index
             /// </summary>
+#pragma warning disable IDE0026 // Use expression body for indexer
             public PermissionState this[int index]
             {
                 get
@@ -7201,10 +7218,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return ((PermissionState)this.data.GetByIndex(index));
                 }
             }
+#pragma warning restore IDE0026 // Use expression body for indexer
 
             /// <summary>
             /// Indexer, by permission
             /// </summary>
+#pragma warning disable IDE0026 // Use expression body for indexer
             public PermissionState this[string key]
             {
                 get
@@ -7212,6 +7231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return ((PermissionState)this.data[key]);
                 }
             }
+#pragma warning restore IDE0026 // Use expression body for indexer
 
             /// <summary>
             /// Add an object to the collection
@@ -10359,17 +10379,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     return new ObjectPermissionsAdapter(obj);
                 }
-                else if (obj is Column)
+                else if (obj is Column column)
                 {
-                    return new TableViewColumnPermissionsAdapter((Column)obj);
+                    return new TableViewColumnPermissionsAdapter(column);
                 }
-                else if (obj is Database)
+                else if (obj is Database database)
                 {
-                    return new DatabasePermissionsAdapter((Database)obj);
+                    return new DatabasePermissionsAdapter(database);
                 }
-                else if (obj is Microsoft.SqlServer.Management.Smo.Server)
+                else if (obj is Microsoft.SqlServer.Management.Smo.Server server)
                 {
-                    return new ServerPermissionsAdapter((Microsoft.SqlServer.Management.Smo.Server)obj);
+                    return new ServerPermissionsAdapter(server);
                 }
                 else
                 {
