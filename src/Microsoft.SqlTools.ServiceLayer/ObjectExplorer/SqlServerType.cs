@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                Logger.Information($"This exception is expected when we are trying to access a readonly database. Exception: {e.Message}");
             }
 
             return GetValidForFlag(serverType, database != null && isSqlDw);
