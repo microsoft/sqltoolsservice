@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlServer.Dac.Model;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -43,6 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             get { return instance.Value; }
         }
 
+        public bool TelemetryEnabled { get; private set; }
+
         /// <summary>
         /// Initializes the service instance
         /// </summary>
@@ -62,6 +65,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
+            Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
+        }
+
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        {
+            TelemetryEnabled = newSettings.TelemetrySettings.Telemetry != TelemetryLevel.Off;
+            return Task.FromResult(0);
         }
 
         /// <summary>
@@ -81,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                ExportOperation operation = new ExportOperation(parameters, connInfo);
+                ExportOperation operation = new ExportOperation(parameters, connInfo, TelemetryEnabled);
                 ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
             }
             return Task.CompletedTask;
@@ -99,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                ImportOperation operation = new ImportOperation(parameters, connInfo);
+                ImportOperation operation = new ImportOperation(parameters, connInfo, TelemetryEnabled);
                 ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
             }
         }
@@ -118,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                 connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
-                ExtractOperation operation = new ExtractOperation(parameters, connInfo);
+                ExtractOperation operation = new ExtractOperation(parameters, connInfo, TelemetryEnabled);
                 string taskName = parameters.ExtractTarget == DacExtractTarget.DacPac ? SR.ExtractDacpacTaskName : SR.ProjectExtractTaskName;
                 ExecuteOperation(operation, parameters, taskName, requestContext);
             }
@@ -137,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                DeployOperation operation = new DeployOperation(parameters, connInfo);
+                DeployOperation operation = new DeployOperation(parameters, connInfo, TelemetryEnabled);
                 ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
             }
             return Task.CompletedTask;
@@ -155,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
+                GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo, TelemetryEnabled);
                 SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
@@ -189,7 +199,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 await BaseService.RunWithErrorHandling(async () =>
                 {
-                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
+                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo, TelemetryEnabled);
                     operation.Execute(parameters.TaskExecutionMode);
 
                     return new GenerateDeployPlanRequestResult()

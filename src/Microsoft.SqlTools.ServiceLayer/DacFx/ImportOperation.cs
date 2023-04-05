@@ -18,7 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public ImportParams Parameters { get; }
 
-        public ImportOperation(ImportParams parameters, ConnectionInfo connInfo) : base(connInfo)
+        public ImportOperation(ImportParams parameters, ConnectionInfo connInfo, bool telemetryEnabled = false) 
+            : base(connInfo, telemetryEnabled)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;
