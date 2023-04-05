@@ -105,10 +105,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 && db.ServerVersion.Major == 12;
         }
 
-        private bool isUnknownDatabaseEdition(Database db){
+        private bool isUnknownDatabaseEdition(Database db)
+        {
             // If the database engine edition is not defined in the enum, it is an unknown edition
-            return db!= null
-                && !Enum.IsDefined(typeof(DatabaseEngineEdition),db.DatabaseEngineEdition);
+            return db != null
+                && !Enum.IsDefined(typeof(DatabaseEngineEdition), db.DatabaseEngineEdition);
         }
     }
 }
