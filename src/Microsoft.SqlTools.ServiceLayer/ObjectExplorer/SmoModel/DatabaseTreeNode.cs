@@ -79,8 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch (Exception ex)
             {
-                // IsAccessible is not set of DW Gen3 so exception is expected in this case
-                if (IsDWGen3(context?.Database) || IsDataMart(context?.Database))
+                // IsAccessible is not set of DW Gen3 and Dataverse so exception is expected in this case
+                // Incase of dataverses, isAccessible creates a temp table to check if the database is accessible, however dataverse 
+                // don't support ddl statements and therefore this check fails.
+                if (IsDWGen3(context?.Database) || IsDataverse(context?.Database))
                 {
                     return true;
                 }
@@ -103,8 +105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 && db.ServerVersion.Major == 12;
         }
 
-        private bool IsDataMart(Database db){
-            // Datamarts have a DatabaseEngineEdition of 1000. We have to cast it to int as DatabaseEngineEdition enum does not have a value for Datamarts.
+        private bool IsDataverse(Database db){
+            // Dataverses have a DatabaseEngineEdition of 1000. We have to cast it to int as DatabaseEngineEdition enum does not have a value for dataverse.
             return db!= null
                 && (int)db.DatabaseEngineEdition == 1000 
                 && db.ServerVersion.Major == 12;

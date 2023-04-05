@@ -49,6 +49,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             catch (Exception e)
             {
+                // Incase of dataverses, isSqlDw creates a temp table to check if the database is accessible, however dataverse 
+                // don't support ddl statements and therefore this check fails.
                 Logger.Information($"This exception is expected when we are trying to access a readonly database. Exception: {e.Message}");
             }
 
