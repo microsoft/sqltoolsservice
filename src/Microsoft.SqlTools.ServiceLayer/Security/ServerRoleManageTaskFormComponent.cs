@@ -52,10 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
+#pragma warning disable IDE0074 // Use compound assignment
                 if (this.instance == null)
                 {
                     this.instance = CreateSmoObjectInstance();
                 }
+#pragma warning restore IDE0074 // Use compound assignment
                 return this.instance;
             }
         }
@@ -70,10 +72,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         protected Microsoft.SqlServer.Management.Sdk.Sfc.ISfcPropertyProvider CreatePropertyProvider()
         {
+#pragma warning disable IDE0074 // Use compound assignment
             if (extender == null)
             {
                 extender = new ServerRoleExtender(this.Instance);
             }
+#pragma warning restore IDE0074 // Use compound assignment
             return extender;            
         }        
 
@@ -303,10 +307,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         protected ServerRole CreateSmoObjectInstance()
         {
+#pragma warning disable IDE0074 // Use compound assignment
             if (this.serverRole == null)
             {
                 this.serverRole = new ServerRole(this.Server, GetServerRoleName());
             }
+#pragma warning restore IDE0074 // Use compound assignment
             return this.serverRole;
         }
 
