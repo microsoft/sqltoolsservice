@@ -79,8 +79,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch (Exception ex)
             {
-                // IsAccessible is not set of DW Gen3 so exception is expected in this case
-                if (IsDWGen3(context?.Database))
+                // IsAccessible is not set of DW Gen3 and Dataverse so exception is expected in this case
+                // Incase of dataverses and other TDS endpoints isAccessible creates a temp table to check if the database  
+                // is accessible, however these endpoints may not support ddl statements and therefore the check fails.
+                if (IsDWGen3(context?.Database) || isUnknownDatabaseEdition(context?.Database))
                 {
                     return true;
                 }
@@ -101,6 +103,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return db != null
                 && db.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse
                 && db.ServerVersion.Major == 12;
+        }
+
+        private bool isUnknownDatabaseEdition(Database db)
+        {
+            // If the database engine edition is not defined in the enum, it is an unknown edition
+            return db != null
+                && !Enum.IsDefined(typeof(DatabaseEngineEdition), db.DatabaseEngineEdition);
         }
     }
 }
