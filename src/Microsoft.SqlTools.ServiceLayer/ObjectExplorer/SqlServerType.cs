@@ -9,6 +9,7 @@ using System;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -41,7 +42,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// </summary>
         public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database = null)
         {
-            return GetValidForFlag(serverType, database != null && database.IsSqlDw);
+            var isSqlDw = false;
+            try
+            {
+                isSqlDw = database.IsSqlDw;
+            }
+            catch (Exception e)
+            {
+                // Incase of dataverses, isSqlDw creates a temp table to check if the database is accessible, however dataverse 
+                // don't support ddl statements and therefore this check fails.
+                Logger.Information($"This exception is expected when we are trying to access a readonly database. Exception: {e.Message}");
+            }
+
+            return GetValidForFlag(serverType, database != null && isSqlDw);
         }
 
         /// <summary>
@@ -95,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             else if (serverInfo.IsCloud)
             {
-                if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse 
+                if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse
                     && serverVersion.StartsWith("12", StringComparison.Ordinal))
                 {
                     return SqlServerType.AzureSqlDWGen3;
