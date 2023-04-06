@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
 
             var languageOptions = LanguageUtils.GetDefaultLanguageOptions(dataContainer);
-            var languageOptionsList = languageOptions.Select(SecurityService.FormatLanguageDisplay).ToList();
+            var languageOptionsList = languageOptions.Select(LanguageUtils.FormatLanguageDisplay).ToList();
             languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
 
             // if viewing an exisitng user then populate some properties
@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = SecurityService.FormatLanguageDisplay(
+                    DefaultLanguage = LanguageUtils.FormatLanguageDisplay(
                         languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
                 },
                 SupportContainedUser = supportsContainedUser,
