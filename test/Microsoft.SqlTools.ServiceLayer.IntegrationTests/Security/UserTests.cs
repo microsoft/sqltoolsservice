@@ -122,11 +122,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 // setup
-                SecurityService service = new SecurityService();
                 UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
+                LoginServiceHandlerImpl loginService = new LoginServiceHandlerImpl();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                var login = await SecurityTestUtils.CreateLogin(service, connectionResult);
+                var login = await SecurityTestUtils.CreateLogin(loginService, connectionResult);
 
                 var user = await SecurityTestUtils.CreateUser(userService, connectionResult, 
                     DatabaseUserType.WithLogin, null, login.Name, scriptUser: true);
@@ -136,8 +136,5 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
             }
         }
-
-
-
     }
 }
