@@ -93,9 +93,14 @@ namespace Microsoft.SqlTools.Migration.Contracts
         public bool Success { get; set; }
 
         /// <summary>
-        /// Description of the success status or the error message encountered when the migration was not successful
+        /// Description of the success status or the error message encountered when the migration was not successful.
         /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// Status code returned by migration.
+        /// </summary>
+        public string StatusCode { get; set; }
     }
 
     /// <summary>

@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlServer.DataCollection.Common.Contracts.OperationsInfrastructure;
+using Microsoft.SqlServer.Migration.Logins.Contracts.Exceptions;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Collections.Generic;
 
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.Migration.Contracts
         /// <summary>
         /// Start time of the assessment
         /// </summary>
-        public IDictionary<string, IEnumerable<ReportableException>> ExceptionMap { get; set; }
+        public IDictionary<string, IEnumerable<LoginMigrationException>> ExceptionMap { get; set; }
 
         /// <summary>
         /// The login migration step that just completed

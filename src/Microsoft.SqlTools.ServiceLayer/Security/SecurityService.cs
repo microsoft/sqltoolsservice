@@ -275,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 EnforcePasswordPolicy = prototype.EnforcePolicy,
                 MustChangePassword = prototype.MustChange,
                 DefaultDatabase = prototype.DefaultDatabase,
-                DefaultLanguage = FormatLanguageDisplay(languageOptions.FirstOrDefault(o => o?.Language.Name == prototype.DefaultLanguage || o?.Language.Alias == prototype.DefaultLanguage, null)),
+                DefaultLanguage = parameters.IsNewObject ? SR.DefaultLanguagePlaceholder : FormatLanguageDisplay(languageOptions.FirstOrDefault(o => o?.Language.Name == prototype.DefaultLanguage || o?.Language.Alias == prototype.DefaultLanguage, null)),
                 ServerRoles = loginServerRoles.ToArray(),
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,

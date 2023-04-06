@@ -130,11 +130,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     this.defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromDisplayText(userInfo.DefaultLanguage);                        
                 }
+                this.userType = UserPrototypeData.GetUserTypeFromUserInfo(userInfo);
             }     
 
             this.LoadRoleMembership(context, userInfo);
 
             this.LoadSchemaData(context, userInfo);
+        }
+
+        public static UserType GetUserTypeFromUserInfo(UserInfo userInfo)
+        {
+            UserType userType = UserType.SqlLogin;
+            switch (userInfo.Type)
+            {
+                case DatabaseUserType.NoConnectAccess:
+                    userType = UserType.NoLogin;
+                    break;
+                // all the other user types are using SqlLogin
+            }
+            return userType;
         }
 
         public UserPrototypeData Clone()
@@ -870,8 +884,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                //Default Language was not supported before Denali.
-                return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
+                //Default Language was not supported before Denali or on SQL DB.
+                bool isSqlAzure = this.context.ServerConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
+                return !isSqlAzure && SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);
             }
         }
 
