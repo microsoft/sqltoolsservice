@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
 
             var languageOptions = LanguageUtils.GetDefaultLanguageOptions(dataContainer);
-            var languageOptionsList = languageOptions.Select(SecurityService.FormatLanguageDisplay).ToList();
+            var languageOptionsList = languageOptions.Select(LanguageUtils.FormatLanguageDisplay).ToList();
             languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
 
             // if viewing an exisitng user then populate some properties
@@ -132,8 +132,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
 
                 // Default language is only applicable for users inside a contained database.
-                if (parentDb.ContainmentType != ContainmentType.None 
-                    && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
+                if (LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server)
+                    && parentDb.ContainmentType != ContainmentType.None)
                 {
                     defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromName(
                         existingUser.Parent.Parent, 
@@ -152,9 +152,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 defaultSchema = defaultSchemaPrototype.DefaultSchema;
             }
 
+            ServerConnection serverConnection = dataContainer.ServerConnection;
+            bool isSqlAzure = serverConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
+            bool supportsContainedUser = isSqlAzure || UserActions.IsParentDatabaseContained(parentDb);
+
             // set default alias to <default> if needed
             if (string.IsNullOrEmpty(defaultLanguageAlias) 
-                && parentDb.ContainmentType != ContainmentType.None
+                && supportsContainedUser
                 && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
             {
                 defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
@@ -197,8 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     schemaNames.Add(schema);
                 }
             }
-            
-            ServerConnection serverConnection = dataContainer.ServerConnection;
+         
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -211,10 +214,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = SecurityService.FormatLanguageDisplay(
+                    DefaultLanguage = LanguageUtils.FormatLanguageDisplay(
                         languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
                 },
-                SupportContainedUser = UserActions.IsParentDatabaseContained(parentDb),  // support for these will be added later
+                SupportContainedUser = supportsContainedUser,
                 SupportWindowsAuthentication = false,
                 SupportAADAuthentication = false,
                 SupportSQLAuthentication = true,

@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetCredentialURN(credential.Name));
         }
 
-        internal static async Task<LoginInfo> CreateLogin(SecurityService service, TestConnectionResult connectionResult)
+        internal static async Task<LoginInfo> CreateLogin(LoginServiceHandlerImpl service, TestConnectionResult connectionResult)
         {
             string contextId = System.Guid.NewGuid().ToString();
             var initializeLoginViewRequestParams = new InitializeLoginViewRequestParams

@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 catch (FailedOperationException ex)
                 {
-                    if (ex.InnerException is MissingObjectException && requestParams.ThrowIfNotExist)
+                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && requestParams.ThrowIfNotExist))
                     {
                         throw;
                     }
