@@ -5,7 +5,6 @@
 
 #nullable disable
 using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.Dac.Extensions;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -25,9 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private CancellationTokenSource cancellation = new CancellationTokenSource();
         private bool disposed = false;
 
-        private static Version serviceVersion = LoadServiceVersion();
-        private const string TelemetryApplicationName = "sqltoolsservice";
-
         /// <summary>
         /// Gets the unique id associated with this instance.
         /// </summary>
@@ -39,18 +35,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         protected DacServices DacServices { get; private set; }
 
-        protected bool TelemetryEnabled { get; private set; }
+        public static bool TelemetryEnabled { get; set; }
 
         protected ConnectionInfo ConnInfo { get; private set; }
 
-        protected DacFxOperation(ConnectionInfo connInfo, bool telemetryEnabled = false)
+        protected DacFxOperation(ConnectionInfo connInfo)
         {
             Validate.IsNotNull("connectionInfo", connInfo);
             Validate.IsNotNull("connectionDetails", connInfo.ConnectionDetails);
             this.ConnInfo = connInfo;
             this.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
             this.OperationId = Guid.NewGuid().ToString();
-            this.TelemetryEnabled = telemetryEnabled;
         }
 
         protected CancellationToken CancellationToken { get { return this.cancellation.Token; } }
@@ -98,7 +93,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) 
                     : new DacServices(this.ConnectionString);
                 
-                UpdateTelemetryStatus();
                 Execute();
             }
             catch (Exception e)
@@ -128,31 +122,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             return options;
         }
 
-        /// <summary>
-        /// Changes telemetry status 
-        /// </summary>
-        private void UpdateTelemetryStatus()
-        {
-            try
-            {
-                DacExtensions.SetServiceSetting(this.DacServices, "TelemetryEnabled", TelemetryEnabled);
-                DacExtensions.SetServiceSetting(this.DacServices, "TelemetryApplicationName", TelemetryApplicationName);
-                DacExtensions.SetServiceSetting(this.DacServices, "TelemetryApplicationVersion", serviceVersion);
-            }
-            catch(Exception ex)
-            {
-                Logger.Write(TraceEventType.Warning, string.Format("Failed to enable DacFx telemetry", this.OperationId, ex));
-            }
-        }
-
-        private static Version LoadServiceVersion()
-        {
-            string fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
-            if (Version.TryParse(fileVersion, out Version version)) 
-            {
-                return version;
-            }   
-            return null;
-        }
+        
     }
 }

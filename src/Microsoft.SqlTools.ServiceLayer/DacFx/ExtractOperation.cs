@@ -19,8 +19,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public ExtractParams Parameters { get; }
 
-        public ExtractOperation(ExtractParams parameters, ConnectionInfo connInfo, bool telemetryEnabled = false) 
-            : base(connInfo, telemetryEnabled)
+        public ExtractOperation(ExtractParams parameters, ConnectionInfo connInfo) 
+            : base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;

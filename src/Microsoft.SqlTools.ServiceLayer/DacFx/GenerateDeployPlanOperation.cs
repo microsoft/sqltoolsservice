@@ -20,8 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public string DeployReport { get; set; }
 
-        public GenerateDeployPlanOperation(GenerateDeployPlanParams parameters, ConnectionInfo connInfo, bool telemetryEnabled = false) 
-            : base(connInfo, telemetryEnabled)
+        public GenerateDeployPlanOperation(GenerateDeployPlanParams parameters, ConnectionInfo connInfo) 
+            : base(connInfo)
         {
             Validate.IsNotNull("parameters", parameters);
             this.Parameters = parameters;

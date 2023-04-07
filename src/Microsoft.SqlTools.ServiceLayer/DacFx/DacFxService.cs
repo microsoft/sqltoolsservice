@@ -17,6 +17,8 @@ using Microsoft.SqlServer.Dac.Model;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using System.Diagnostics;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -28,6 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
+        private static Version serviceVersion = LoadServiceVersion();
+        private const string TelemetryDefaultApplicationName = "sqltoolsservice";
+        private string telemetryApplicationName;
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
         /// <summary>
@@ -44,13 +49,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             get { return instance.Value; }
         }
 
-        public bool TelemetryEnabled { get; private set; }
-
         /// <summary>
         /// Initializes the service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, ServiceLayerCommandOptions commandOptions)
         {
             serviceHost.SetRequestHandler(ExportRequest.Type, this.HandleExportRequest, true);
             serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest, true);
@@ -66,12 +69,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
+            telemetryApplicationName = string.IsNullOrEmpty(commandOptions.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
 
         internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
         {
-            TelemetryEnabled = newSettings.TelemetrySettings.Telemetry != TelemetryLevel.Off;
-            return Task.FromResult(0);
+            // Update telemetry status in DacFx service
+            UpdateTelemetryStatus(newSettings.TelemetrySettings.Telemetry != TelemetryLevel.Off);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -91,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                ExportOperation operation = new ExportOperation(parameters, connInfo, TelemetryEnabled);
+                ExportOperation operation = new ExportOperation(parameters, connInfo);
                 ExecuteOperation(operation, parameters, SR.ExportBacpacTaskName, requestContext);
             }
             return Task.CompletedTask;
@@ -109,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                ImportOperation operation = new ImportOperation(parameters, connInfo, TelemetryEnabled);
+                ImportOperation operation = new ImportOperation(parameters, connInfo);
                 ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
             }
         }
@@ -128,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 // Set connection details database name to ensure the connection string gets created correctly for DW(extract doesn't work if connection is to master)
                 connInfo.ConnectionDetails.DatabaseName = parameters.DatabaseName;
-                ExtractOperation operation = new ExtractOperation(parameters, connInfo, TelemetryEnabled);
+                ExtractOperation operation = new ExtractOperation(parameters, connInfo);
                 string taskName = parameters.ExtractTarget == DacExtractTarget.DacPac ? SR.ExtractDacpacTaskName : SR.ProjectExtractTaskName;
                 ExecuteOperation(operation, parameters, taskName, requestContext);
             }
@@ -147,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                DeployOperation operation = new DeployOperation(parameters, connInfo, TelemetryEnabled);
+                DeployOperation operation = new DeployOperation(parameters, connInfo);
                 ExecuteOperation(operation, parameters, SR.DeployDacpacTaskName, requestContext);
             }
             return Task.CompletedTask;
@@ -165,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo, TelemetryEnabled);
+                GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
                 SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
@@ -199,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             {
                 await BaseService.RunWithErrorHandling(async () =>
                 {
-                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo, TelemetryEnabled);
+                    GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
                     operation.Execute(parameters.TaskExecutionMode);
 
                     return new GenerateDeployPlanRequestResult()
@@ -426,6 +431,39 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         internal void PerformOperation(DacFxOperation operation, TaskExecutionMode taskExecutionMode)
         {
             operation.Execute(taskExecutionMode);
+        }
+
+        /// <summary>
+        /// Changes telemetry status 
+        /// </summary>
+        private void UpdateTelemetryStatus(bool telemetryEnabled)
+        {
+            try
+            {
+                if (telemetryEnabled)
+                {
+                    DacServices.EnableTelemetry(telemetryApplicationName, serviceVersion);
+                }
+                else
+                {
+                    DacServices.DisableTelemetry();
+                }
+            
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(TraceEventType.Warning, $"Failed to update DacFx telemetry status. telemetry enable: {telemetryEnabled}, error: {ex.Message}");
+            }
+        }
+
+        private static Version LoadServiceVersion()
+        {
+            string fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
+            if (Version.TryParse(fileVersion, out Version version))
+            {
+                return version;
+            }
+            return null;
         }
     }
 }
