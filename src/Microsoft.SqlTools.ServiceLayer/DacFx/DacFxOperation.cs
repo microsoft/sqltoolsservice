@@ -90,7 +90,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null && this.ConnInfo.ConnectionDetails.AuthenticationType == AzureMFA
                     ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) 
                     : new DacServices(this.ConnectionString);
-                
                 Execute();
             }
             catch (Exception e)
