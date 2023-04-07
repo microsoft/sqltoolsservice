@@ -452,18 +452,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to update DacFx telemetry status. telemetry enable: {telemetryEnabled}, error: {ex.Message}");
+                Logger.Warning($"Failed to update DacFx telemetry status. telemetry enable: {telemetryEnabled}, error: {ex.Message}");
             }
         }
 
         private static Version LoadServiceVersion()
         {
-            string fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
-            if (Version.TryParse(fileVersion, out Version version))
+            try
             {
-                return version;
+                string fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
+                if (Version.TryParse(fileVersion, out Version version))
+                {
+                    return version;
+                }
+                return null;
             }
-            return null;
+            catch(Exception ex)
+            {
+                Logger.Warning($"Failed to load assembly version:  error: {ex.Message}");
+                return null;
+            }
         }
     }
 }
