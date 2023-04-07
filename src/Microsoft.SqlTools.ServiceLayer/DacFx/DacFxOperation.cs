@@ -35,8 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         protected DacServices DacServices { get; private set; }
 
-        public static bool TelemetryEnabled { get; set; }
-
         protected ConnectionInfo ConnInfo { get; private set; }
 
         protected DacFxOperation(ConnectionInfo connInfo)
@@ -121,7 +119,5 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             return options;
         }
-
-        
     }
 }
