@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.Migration.Contracts
     public class LoginMigrationResult
     {
         /// <summary>
-        /// Start time of the assessment
+        /// Exceptions per logins
         /// </summary>
         public IDictionary<string, IEnumerable<LoginMigrationException>> ExceptionMap { get; set; }
 
