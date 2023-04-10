@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             PublishOptions publishOptions = new PublishOptions();
             publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
             publishOptions.CancelToken = this.CancellationToken;
-            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? DacFxUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
+            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? DacFxUtils.CreateDeploymentOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
             if (this.Parameters.SqlCommandVariableValues != null)
             {

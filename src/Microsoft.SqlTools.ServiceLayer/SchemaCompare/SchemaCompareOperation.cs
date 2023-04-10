@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 if (this.Parameters.DeploymentOptions != null)
                 {
-                    comparison.Options = DacFxUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
+                    comparison.Options = DacFxUtils.CreateDeploymentOptions(this.Parameters.DeploymentOptions);
                 }
 
                 // for testing

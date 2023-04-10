@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// </summary>
         /// <param name="deploymentOptions"></param>
         /// <returns>DacDeployOptions</returns
-        internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
+        internal static DacDeployOptions CreateDeploymentOptions(DeploymentOptions deploymentOptions)
         {
             try
             {

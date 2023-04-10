@@ -329,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = new DacProfile();
                     profile.TargetDatabaseName = parameters.DatabaseName;
                     profile.TargetConnectionString = parameters.ConnectionString;
-                    profile.DeployOptions = DacFxUtils.CreateSchemaCompareOptions(parameters.DeploymentOptions);
+                    profile.DeployOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions);
 
                     if (parameters.SqlCommandVariableValues != null)
                     {
