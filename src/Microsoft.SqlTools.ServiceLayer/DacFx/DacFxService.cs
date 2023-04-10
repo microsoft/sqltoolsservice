@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlServer.Dac.Model;
 using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -330,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = new DacProfile();
                     profile.TargetDatabaseName = parameters.DatabaseName;
                     profile.TargetConnectionString = parameters.ConnectionString;
-                    profile.DeployOptions = SchemaCompareUtils.CreateSchemaCompareOptions(parameters.DeploymentOptions);
+                    profile.DeployOptions = DacFxUtils.CreateSchemaCompareOptions(parameters.DeploymentOptions);
 
                     if (parameters.SqlCommandVariableValues != null)
                     {

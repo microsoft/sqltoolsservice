@@ -9,7 +9,6 @@ using System.Threading;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 
@@ -36,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             PublishOptions publishOptions = new PublishOptions();
             publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
             publishOptions.CancelToken = this.CancellationToken;
-            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
+            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? DacFxUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
             if (this.Parameters.SqlCommandVariableValues != null)
             {
