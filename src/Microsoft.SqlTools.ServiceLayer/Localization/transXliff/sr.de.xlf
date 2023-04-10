@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="translated">Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS", "HGS" und "None".</target>
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">Ungültiger Wert "{0}" für das Nachweisprotokoll. Gültige Werte sind "AAS", "HGS" und "Keine".</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="translated">Für das Nachweisprotokoll und die Enclave-Nachweis-URL muss "Always Encrypted" für Secure Enclaves auf "Enabled" festgelegt sein.</target>
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="translated">Für das Nachweisprotokoll und die Nachweis-URL muss Always Encrypted mit Secure Enclaves auf "Aktiviert" festgelegt sein.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6551,19 +6551,19 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
-        <target state="translated">Die Beglaubigungs-URL darf mit dem ausgewählten Wert des Beglaubigungsprotokolls nicht leer sein.</target>
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
+        <target state="translated">Die Nachweis-URL darf mit dem ausgewählten Wert des Nachweisprotokolls nicht leer sein.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">Ungültiger Wert "{0}" für SecureEnclaves. Gültige Werte sind "Enabled" und "Disabled".</target>
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">Ungültiger Wert "{0}" für Secure Enclaves. Gültige Werte sind "Enabled" und "Disabled".</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="translated">Die Enclave-Nachweis-URL darf nicht mit dem Nachweisprotokoll "None" angegeben werden. Legen Sie ein geeignetes Nachweisprotokoll fest, oder entfernen Sie die Nachweis-URL aus den Verbindungseigenschaften.</target>
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">Die Nachweis-URL darf nicht mit dem Nachweisprotokoll "Keine" angegeben werden. Legen Sie entweder das entsprechende Nachweisprotokoll fest, oder entfernen Sie die Nachweis-URL aus den Verbindungseigenschaften.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6574,6 +6574,17 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
       <trans-unit id="ResetPasswordWhileUnlocking">
         <source>Reset password for the login while unlocking.</source>
         <target state="translated">Kennwort für die Anmeldung beim Entsperren zurücksetzen.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">Das Objekt konnte nicht umbenannt werden. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="translated">Das Nachweisprotokoll darf nicht leer sein, wenn Secure Enclaves aktiviert ist.</target>
         <note></note>
       </trans-unit>
     </body>

@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="translated">Valore '{0}' non valido per EnclaveAttestationProtocol. I valori validi sono 'AAS', 'HGS' e 'None'.</target>
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">Valore '{0}' non valido per il protocollo di attestazione. I valori validi sono 'AAS', 'HGS' e 'None'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="translated">Il protocollo di attestazione e l'URL di attestazione dell'enclave richiedono che Always Encrypted con enclavi sicure sia impostato su Abilitato.</target>
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="translated">Il protocollo di attestazione e l'URL di attestazione richiedono che Always Encrypted con enclavi sicure sia impostato su Abilitato.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6551,19 +6551,19 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
         <target state="translated">L'URL di attestazione non può essere vuoto con il valore selezionato del protocollo di attestazione.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">Valore '{0}' non valido per SecureEnclaves. I valori validi sono 'Enabled' e 'Disabled'.</target>
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">Valore '{0}' non valido per le enclavi sicure. I valori validi sono 'Enabled' e 'Disabled'.</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="translated">L'URL di attestazione dell'enclave non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</target>
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">L'URL di attestazione non deve essere specificato con il protocollo di attestazione 'None'. Impostare il protocollo di attestazione appropriato o rimuovere l'URL di attestazione dalle proprietà della connessione.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6574,6 +6574,17 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
       <trans-unit id="ResetPasswordWhileUnlocking">
         <source>Reset password for the login while unlocking.</source>
         <target state="translated">Reimpostare la password per l'account di accesso durante lo sblocco.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">Non è stato possibile rinominare l'oggetto. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="translated">Il protocollo di attestazione non può essere vuoto con enclavi sicure abilitate.</target>
         <note></note>
       </trans-unit>
     </body>

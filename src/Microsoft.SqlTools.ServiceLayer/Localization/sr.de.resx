@@ -1321,10 +1321,10 @@
     <value>Ungültiger Wert „{0}“ für das Verschlüsseln. Gültige Werte sind „Optional“, „Obligatorisch“, „Streng", „WAHR“, „FALSCH“, „Ja“ oder „Nein“.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Ungültiger Wert "{0}" für EnclaveAttestationProtocol. Gültige Werte sind "AAS", "HGS" und "None".</value>
+    <value>Ungültiger Wert "{0}" für das Nachweisprotokoll. Gültige Werte sind "AAS", "HGS" und "Keine".</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>Für das Nachweisprotokoll und die Enclave-Nachweis-URL muss "Always Encrypted" für Secure Enclaves auf "Enabled" festgelegt sein.</value>
+    <value>Für das Nachweisprotokoll und die Nachweis-URL muss Always Encrypted mit Secure Enclaves auf "Aktiviert" festgelegt sein.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>Fehler bei der Batchausführung. Der Vorgang wird beendet.</value>
@@ -3998,18 +3998,24 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Integrierte Schemas</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>Die Beglaubigungs-URL darf mit dem ausgewählten Wert des Beglaubigungsprotokolls nicht leer sein.</value>
+    <value>Die Nachweis-URL darf mit dem ausgewählten Wert des Nachweisprotokolls nicht leer sein.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Ungültiger Wert "{0}" für SecureEnclaves. Gültige Werte sind "Enabled" und "Disabled".</value>
+    <value>Ungültiger Wert "{0}" für Secure Enclaves. Gültige Werte sind "Enabled" und "Disabled".</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>Die Enclave-Nachweis-URL darf nicht mit dem Nachweisprotokoll "None" angegeben werden. Legen Sie ein geeignetes Nachweisprotokoll fest, oder entfernen Sie die Nachweis-URL aus den Verbindungseigenschaften.</value>
+    <value>Die Nachweis-URL darf nicht mit dem Nachweisprotokoll "Keine" angegeben werden. Legen Sie entweder das entsprechende Nachweisprotokoll fest, oder entfernen Sie die Nachweis-URL aus den Verbindungseigenschaften.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
   </data>
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Kennwort für die Anmeldung beim Entsperren zurücksetzen.</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Das Objekt konnte nicht umbenannt werden. URN: '{0}'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Das Nachweisprotokoll darf nicht leer sein, wenn Secure Enclaves aktiviert ist.</value>
   </data>
 </root>

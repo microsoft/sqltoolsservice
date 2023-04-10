@@ -23,14 +23,12 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using System.Diagnostics;
 using Microsoft.SqlTools.Authentication.Sql;
-using Microsoft.SqlTools.Credentials;
-using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Authentication;
-using Microsoft.SqlTools.Shared.Utility;
 using System.IO;
+using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -68,6 +66,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// The authenticator instance for AAD MFA authentication needs.
         /// </summary>
         private IAuthenticator authenticator;
+
+        /// <summary>
+        /// IV and Key as received from Encryption Key Notification event.
+        /// </summary>
+        private (string key, string iv) encryptionKeys;
 
         /// <summary>
         /// The SQL connection factory object
@@ -1104,6 +1107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(ChangeDatabaseRequest.Type, HandleChangeDatabaseRequest, true);
             serviceHost.SetRequestHandler(GetConnectionStringRequest.Type, HandleGetConnectionStringRequest, true);
             serviceHost.SetRequestHandler(BuildConnectionInfoRequest.Type, HandleBuildConnectionInfoRequest, true);
+            serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, false);
         }
 
         /// <summary>
@@ -1158,55 +1162,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             var applicationPath = commandOptions.ApplicationPath;
             if (string.IsNullOrEmpty(applicationPath))
             {
-                applicationPath = Utils.BuildAppDirectoryPath();
+                applicationPath = CommonUtils.BuildAppDirectoryPath();
                 Logger.Warning($"Application Path not received with command options, using default application path as: {applicationPath}");
             }
 
             var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
-            return new Authenticator(new (ApplicationClientId, applicationName, cachePath, MsalCacheName), ReadCacheIvKey);
+            return new Authenticator(new (ApplicationClientId, applicationName, cachePath, MsalCacheName), () => this.encryptionKeys);
         }
 
-        private void ReadCacheIvKey(out string? key, out string? iv)
+        private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
         {
-            Logger.Verbose("Reading Cached IV and Key from OS credential store.");
-
-            iv = null;
-            key = null;
-            try
-            {
-                // Read Cached Iv for MSAL cache (as Unicode) 
-                Credential ivCred = CredentialService.Instance.ReadCredential(new($"{AzureAccountProviderCredentials}|{MsalCacheName}-iv"));
-                if (!string.IsNullOrEmpty(ivCred.Password))
-                {
-                    iv = ivCred.Password;
-                }
-                else
-                {
-                    throw new Exception($"Could not read credential: {AzureAccountProviderCredentials}|{MsalCacheName}-iv");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-
-            try
-            {
-                // Read Cached Key for MSAL cache (as Unicode)
-                Credential keyCred = CredentialService.Instance.ReadCredential(new($"{AzureAccountProviderCredentials}|{MsalCacheName}-key"));
-                if (!string.IsNullOrEmpty(keyCred.Password))
-                {
-                    key = keyCred.Password;
-                }
-                else
-                {
-                    throw new Exception($"Could not read credential: {AzureAccountProviderCredentials}|{MsalCacheName}-key");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
+            this.encryptionKeys = (@params.Key, @params.Iv);
+            return Task.FromResult(true);
         }
 
         private void RunConnectRequestHandlerTask(ConnectParams connectParams)
@@ -1461,6 +1428,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 switch (connectionDetails.SecureEnclaves.ToUpper())
                 {
                     case "ENABLED":
+                        if (string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
+                        {
+                            throw new ArgumentException(SR.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+                        }
                         break;
                     case "DISABLED":
                         break;

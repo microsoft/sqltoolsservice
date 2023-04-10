@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         /// </summary>
         /// <param name="key">(out) Key used for encryption/decryption</param>
         /// <param name="iv">(out) IV used for encryption/decryption</param>
-        public delegate void IvKeyReadCallback(out string key, out string iv);
+        public delegate (string key, string iv) IvKeyReadCallback();
 
         /// <summary>
         /// Lock objects for serialization
@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
         {
             if (this._key == null || this._iv == null)
             {
-                this._ivKeyReadCallback(out string key, out string iv);
+                (string key, string iv) = this._ivKeyReadCallback();
 
                 if (key != null)
                 {
@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
                         {
                             fillIvKeyIfNeeded();
                             var encryptedData = EncryptionUtils.AesEncrypt(data, this._key!, this._iv!);
-                            File.WriteAllText(this._storageCreationProperties.CacheFileName, Convert.ToBase64String(encryptedData));
+                            File.WriteAllText(this._storageCreationProperties.CacheFilePath, Convert.ToBase64String(encryptedData));
                         }
                         catch (Exception e)
                         {
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.Authentication.Utility
 
             try
             {
-                var text = File.ReadAllText(_storageCreationProperties.CacheFilePath);
+                var text = File.ReadAllText(this._storageCreationProperties.CacheFilePath);
                 if (text != null)
                 {
                     cachedStoreData = Convert.FromBase64String(text);

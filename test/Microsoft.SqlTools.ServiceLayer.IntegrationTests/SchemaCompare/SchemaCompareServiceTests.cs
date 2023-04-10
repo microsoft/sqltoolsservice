@@ -1801,7 +1801,7 @@ WITH VALUES
                 Assert.NotNull(schemaCompareOpenScmpOperation.Result);
                 Assert.True(schemaCompareOpenScmpOperation.Result.Success);
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedSourceElements, Is.Not.Empty);
-                Assert.AreEqual(1, schemaCompareOpenScmpOperation.Result.ExcludedSourceElements.Count());
+                Assert.AreEqual(1, schemaCompareOpenScmpOperation.Result.ExcludedSourceElements.Count);
                 Assert.That(schemaCompareOpenScmpOperation.Result.ExcludedTargetElements, Is.Empty);
 
                 if (targetEndpointType == SchemaCompareEndpointType.Project)
@@ -1859,17 +1859,19 @@ WITH VALUES
             if (resultEndpoint.EndpointType == SchemaCompareEndpointType.Dacpac)
             {
                 SchemaCompareDacpacEndpoint dacpacEndpoint = originalEndpoint as SchemaCompareDacpacEndpoint;
-                Assert.AreEqual(dacpacEndpoint.FilePath, resultEndpoint.PackageFilePath);
+                Assert.AreEqual(dacpacEndpoint.FilePath, resultEndpoint.PackageFilePath, "Package filepath didn't match");
             }
             else if (resultEndpoint.EndpointType == SchemaCompareEndpointType.Project)
             {
                 SchemaCompareProjectEndpoint projectEndpoint = originalEndpoint as SchemaCompareProjectEndpoint;
-                Assert.AreEqual(projectEndpoint.ProjectFilePath, resultEndpoint.ProjectFilePath);
+                Assert.AreEqual(projectEndpoint.ProjectFilePath, resultEndpoint.ProjectFilePath, "ProjectFilePath didn't match");
+                Assert.AreEqual(resultEndpoint.ExtractTarget, DacExtractTarget.ObjectType, "Extract target didn't match");
+                Assert.AreEqual(resultEndpoint.DataSchemaProvider, "150", "Dsp didn't match");
             }
             else
             {
                 SchemaCompareDatabaseEndpoint databaseEndpoint = originalEndpoint as SchemaCompareDatabaseEndpoint;
-                Assert.AreEqual(databaseEndpoint.DatabaseName, resultEndpoint.DatabaseName);
+                Assert.AreEqual(databaseEndpoint.DatabaseName, resultEndpoint.DatabaseName, "Database name didn't match");
             }
         }
 
@@ -2057,6 +2059,7 @@ WITH VALUES
                     result.ProjectFilePath = comparisonObjectPath;
                     result.TargetScripts = targetScripts;
                     result.DataSchemaProvider = "160";
+                    result.ExtractTarget = DacExtractTarget.Schema;
                     break;
                 default:
                     throw new ArgumentException($"Unexpected endpoint type: {type}");

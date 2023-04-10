@@ -1321,10 +1321,10 @@
     <value>Valeur non valide '{0}' pour Chiffrer. Les valeurs valides sont 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' et 'No'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Valeur non valide '{0}' pour EnclaveAttestationProtocol. Les valeurs valides sont 'AAS', 'HGS' et 'Aucun'.</value>
+    <value>Valeur non valide '{0}' pour le protocole d'attestation. Les valeurs valides sont 'AAS', 'HGS' et 'Aucun'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>Le protocole d'attestation et l'URL d'attestation d'enclave nécessitent que Always Encrypted avec des enclaves sécurisées soit défini sur Activé.</value>
+    <value>Le protocole d'attestation et l'URL d'attestation nécessitent que Always Encrypted avec Secure enclaves soit défini sur Enabled.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>Une erreur s'est produite durant l'exécution du lot. Fermeture en cours.</value>
@@ -3998,18 +3998,24 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Schémas intégrés</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>L’URL d’attestation ne peut pas être vide avec la valeur sélectionnée protocole d’attestation.</value>
+    <value>L'URL d'attestation ne peut pas être vide avec la valeur sélectionnée du protocole d'attestation.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Valeur non valide '{0}' pour SecureEnclaves. Les valeurs valides sont 'Activé' et 'Désactivé'.</value>
+    <value>Valeur non valide '{0}' pour les enclaves sécurisées. Les valeurs valides sont 'Activé' et 'Désactivé'.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>L'URL d'attestation d'enclave ne doit pas être spécifiée avec le protocole d'attestation « Aucun ». Définissez le protocole d'attestation approprié ou supprimez l'URL d'attestation des propriétés de connexion.</value>
+    <value>L'URL d'attestation ne doit pas être spécifiée avec le protocole d'attestation "Aucun". Définissez le protocole d'attestation approprié ou supprimez l'URL d'attestation des propriétés de connexion.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;defaut&gt;</value>
   </data>
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>Réinitialiser le mot de passe pour la connexion lors du déverrouillage.</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>L'objet n'a pas pu être renommé. UR : '{0}'.</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Le protocole d'attestation ne peut pas être vide avec les enclaves sécurisées activées.</value>
   </data>
 </root>

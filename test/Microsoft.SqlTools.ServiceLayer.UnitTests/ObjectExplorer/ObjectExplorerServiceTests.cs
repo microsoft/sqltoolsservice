@@ -475,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyServerNodeChildren(NodeInfo[] children)
         {
             Assert.NotNull(children);
-            Assert.True(children.Count() == 3);
+            Assert.True(children.Length == 3);
             Assert.True(children.All((x => x.NodeType == "Folder")));
         }
 

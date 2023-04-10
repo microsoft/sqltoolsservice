@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="new">Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="new">Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="new">The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</target>
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="new">The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6551,19 +6551,19 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
-        <target state="new">Attestation URL cannot be empty with the selected value of Attestation Protocol.</target>
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
+        <target state="new">Attestation URL cannot be empty with the selected value of Attestation protocol.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="new">Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</target>
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="new">Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="new">The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</target>
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="new">The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6574,6 +6574,567 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ResetPasswordWhileUnlocking">
         <source>Reset password for the login while unlocking.</source>
         <target state="new">Reset password for the login while unlocking.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="new">The object could not be renamed. URN: '{0}'.</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="new">Attestation protocol cannot be empty with Secure enclaves enabled.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Alter">
+        <source>Alter</source>
+        <target state="new">Alter</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Connect">
+        <source>Connect</source>
+        <target state="new">Connect</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Control">
+        <source>Control</source>
+        <target state="new">Control</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Delete">
+        <source>Delete</source>
+        <target state="new">Delete</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Execute">
+        <source>Execute</source>
+        <target state="new">Execute</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Impersonate">
+        <source>Impersonate</source>
+        <target state="new">Impersonate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Insert">
+        <source>Insert</source>
+        <target state="new">Insert</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Receive">
+        <source>Receive</source>
+        <target state="new">Receive</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_References">
+        <source>References</source>
+        <target state="new">References</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Select">
+        <source>Select</source>
+        <target state="new">Select</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Send">
+        <source>Send</source>
+        <target state="new">Send</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_TakeOwnership">
+        <source>Take ownership</source>
+        <target state="new">Take ownership</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Update">
+        <source>Update</source>
+        <target state="new">Update</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewDefinition">
+        <source>View definition</source>
+        <target state="new">View definition</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewChangeTracking">
+        <source>View change tracking</source>
+        <target state="new">View change tracking</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyApplicationRole">
+        <source>Alter any application role</source>
+        <target state="new">Alter any application role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAssembly">
+        <source>Alter any assembly</source>
+        <target state="new">Alter any assembly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAsymmetricKey">
+        <source>Alter any asymmetric key</source>
+        <target state="new">Alter any asymmetric key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyCertificate">
+        <source>Alter any certificate</source>
+        <target state="new">Alter any certificate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseAudit">
+        <source>Alter any database audit</source>
+        <target state="new">Alter any database audit</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyContract">
+        <source>Alter any contract</source>
+        <target state="new">Alter any contract</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseDdlTrigger">
+        <source>Alter any database DDL trigger</source>
+        <target state="new">Alter any database DDL trigger</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseEventNotification">
+        <source>Alter any database event notification</source>
+        <target state="new">Alter any database event notification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDataspace">
+        <source>Alter any dataspace</source>
+        <target state="new">Alter any dataspace</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyExternalDataSource">
+        <source>Alter any external data source</source>
+        <target state="new">Alter any external data source</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyExternalFileFormat">
+        <source>Alter any external file format</source>
+        <target state="new">Alter any external file format</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyFulltextCatalog">
+        <source>Alter any fulltext catalog</source>
+        <target state="new">Alter any fulltext catalog</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyMask">
+        <source>Alter any mask</source>
+        <target state="new">Alter any mask</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyMessageType">
+        <source>Alter any message type</source>
+        <target state="new">Alter any message type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRemoteServiceBinding">
+        <source>Alter any remote service binding</source>
+        <target state="new">Alter any remote service binding</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRole">
+        <source>Alter any role</source>
+        <target state="new">Alter any role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRoute">
+        <source>Alter any route</source>
+        <target state="new">Alter any route</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySchema">
+        <source>Alter any schema</source>
+        <target state="new">Alter any schema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySecurityPolicy">
+        <source>Alter any security policy</source>
+        <target state="new">Alter any security policy</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySensitivityClassification">
+        <source>Alter any sensitivity classification</source>
+        <target state="new">Alter any sensitivity classification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyService">
+        <source>Alter any service</source>
+        <target state="new">Alter any service</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyUser">
+        <source>Alter any user</source>
+        <target state="new">Alter any user</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySymmetricKey">
+        <source>Alter any symmetric key</source>
+        <target state="new">Alter any symmetric key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Authenticate">
+        <source>Authenticate</source>
+        <target state="new">Authenticate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_BackupDatabase">
+        <source>Backup database</source>
+        <target state="new">Backup database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_BackupLog">
+        <source>Backup log</source>
+        <target state="new">Backup log</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Checkpoint">
+        <source>Checkpoint</source>
+        <target state="new">Checkpoint</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectReplication">
+        <source>Connect replication</source>
+        <target state="new">Connect replication</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAggregate">
+        <source>Create aggregate</source>
+        <target state="new">Create aggregate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAssembly">
+        <source>Create assembly</source>
+        <target state="new">Create assembly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAsymmetricKey">
+        <source>Create asymmetric key</source>
+        <target state="new">Create asymmetric key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateCertificate">
+        <source>Create certificate</source>
+        <target state="new">Create certificate</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateContract">
+        <source>Create contract</source>
+        <target state="new">Create contract</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDatabase">
+        <source>Create database</source>
+        <target state="new">Create database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDatabaseDdlEventNotification">
+        <source>Create database DDL event notification</source>
+        <target state="new">Create database DDL event notification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDefault">
+        <source>Create default</source>
+        <target state="new">Create default</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateFulltextCatalog">
+        <source>Create fulltext catalog</source>
+        <target state="new">Create fulltext catalog</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateFunction">
+        <source>Create function</source>
+        <target state="new">Create function</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateMessageType">
+        <source>Create message type</source>
+        <target state="new">Create message type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateProcedure">
+        <source>Create procedure</source>
+        <target state="new">Create procedure</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateQueue">
+        <source>Create queue</source>
+        <target state="new">Create queue</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRemoteServiceBinding">
+        <source>Create remote service binding</source>
+        <target state="new">Create remote service binding</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRole">
+        <source>Create role</source>
+        <target state="new">Create role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRoute">
+        <source>Create route</source>
+        <target state="new">Create route</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRule">
+        <source>Create rule</source>
+        <target state="new">Create rule</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSchema">
+        <source>Create schema</source>
+        <target state="new">Create schema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateService">
+        <source>Create service</source>
+        <target state="new">Create service</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSymmetricKey">
+        <source>Create symmetric key</source>
+        <target state="new">Create symmetric key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSynonym">
+        <source>Create synonym</source>
+        <target state="new">Create synonym</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSequence">
+        <source>Create sequence</source>
+        <target state="new">Create sequence</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateTable">
+        <source>Create table</source>
+        <target state="new">Create table</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateType">
+        <source>Create type</source>
+        <target state="new">Create type</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateView">
+        <source>Create view</source>
+        <target state="new">Create view</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateXmlSchemaCollection">
+        <source>Create XML schema collection</source>
+        <target state="new">Create XML schema collection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Showplan">
+        <source>Show plan</source>
+        <target state="new">Show plan</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_SubscribeQueryNotifications">
+        <source>Subscribe query notifications</source>
+        <target state="new">Subscribe query notifications</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Unmask">
+        <source>Unmask</source>
+        <target state="new">Unmask</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyColumnEncryptionKeyDefinition">
+        <source>View any column encryption key definition</source>
+        <target state="new">View any column encryption key definition</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyColumnMasterKeyDefinition">
+        <source>View any column master key definition</source>
+        <target state="new">View any column master key definition</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnySensitivityClassification">
+        <source>View any sensitivity classification</source>
+        <target state="new">View any sensitivity classification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewDatabaseState">
+        <source>View database state</source>
+        <target state="new">View database state</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AdministerBulkOperations">
+        <source>Administer bulk operations</source>
+        <target state="new">Administer bulk operations</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyServerAudit">
+        <source>Alter any server audit</source>
+        <target state="new">Alter any server audit</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyConnection">
+        <source>Alter any connection</source>
+        <target state="new">Alter any connection</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyCredential">
+        <source>Alter any credential</source>
+        <target state="new">Alter any credential</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabase">
+        <source>Alter any database</source>
+        <target state="new">Alter any database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEndpoint">
+        <source>Alter any endpoint</source>
+        <target state="new">Alter any endpoint</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEventNotification">
+        <source>Alter any event notification</source>
+        <target state="new">Alter any event notification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEventSession">
+        <source>Alter any event session</source>
+        <target state="new">Alter any event session</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyLinkedServer">
+        <source>Alter any linked server</source>
+        <target state="new">Alter any linked server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyLogin">
+        <source>Alter any login</source>
+        <target state="new">Alter any login</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyServerRole">
+        <source>Alter any server role</source>
+        <target state="new">Alter any server role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterResources">
+        <source>Alter resources</source>
+        <target state="new">Alter resources</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterServerState">
+        <source>Alter server state</source>
+        <target state="new">Alter server state</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterSettings">
+        <source>Alter settings</source>
+        <target state="new">Alter settings</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterTrace">
+        <source>Alter trace</source>
+        <target state="new">Alter trace</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AuthenticateServer">
+        <source>Authenticate server</source>
+        <target state="new">Authenticate server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectSql">
+        <source>Connect SQL</source>
+        <target state="new">Connect SQL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ControlServer">
+        <source>Control server</source>
+        <target state="new">Control server</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAnyDatabase">
+        <source>Create any database</source>
+        <target state="new">Create any database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDdlEventNotification">
+        <source>Create DDL event notification</source>
+        <target state="new">Create DDL event notification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateEndpoint">
+        <source>Create endpoint</source>
+        <target state="new">Create endpoint</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateTraceEventNotification">
+        <source>Create trace event notification</source>
+        <target state="new">Create trace event notification</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateServerRole">
+        <source>Create server role</source>
+        <target state="new">Create server role</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ExternalAccessAssembly">
+        <source>External access assembly</source>
+        <target state="new">External access assembly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Shutdown">
+        <source>Shutdown</source>
+        <target state="new">Shutdown</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_UnsafeAssembly">
+        <source>Unsafe assembly</source>
+        <target state="new">Unsafe assembly</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyDatabase">
+        <source>View any database</source>
+        <target state="new">View any database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyDefinition">
+        <source>View any definition</source>
+        <target state="new">View any definition</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewServerState">
+        <source>View server state</source>
+        <target state="new">View server state</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAvailabilityGroup">
+        <source>Alter any availability group</source>
+        <target state="new">Alter any availability group</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAvailabilityGroup">
+        <source>Create availability group</source>
+        <target state="new">Create availability group</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_SelectAllUserSecurables">
+        <source>Select All User Securables</source>
+        <target state="new">Select All User Securables</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectAnyDatabase">
+        <source>Connect Any Database</source>
+        <target state="new">Connect Any Database</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ImpersonateAnyLogin">
+        <source>Impersonate Any Login</source>
+        <target state="new">Impersonate Any Login</target>
         <note></note>
       </trans-unit>
     </body>

@@ -19,7 +19,7 @@ using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using static Microsoft.SqlTools.Shared.Utility.Constants;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {

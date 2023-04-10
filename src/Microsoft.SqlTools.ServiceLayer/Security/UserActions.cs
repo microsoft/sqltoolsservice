@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlServer.Management.Common;
@@ -37,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private ConnectionService? connectionService;
 
         private Dictionary<string, UserViewState> contextIdToViewState = new Dictionary<string, UserViewState>();
-        
+
         /// <summary>
         /// Internal for testing purposes only
         /// </summary>
@@ -60,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         internal async Task HandleInitializeUserViewRequest(InitializeUserViewParams parameters, RequestContext<UserViewInfo> requestContext)
         {
+            // check input parameters
             if (string.IsNullOrWhiteSpace(parameters.Database))
             {
                 throw new ArgumentNullException("parameters.Database");
@@ -70,13 +72,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentNullException("parameters.ContextId");
             }
 
+            // open a connection for running the user dialog and associated task
             ConnectionInfo originalConnInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out originalConnInfo);
             if (originalConnInfo == null)
             {
                 throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
             }
-
             string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
             try
             {
@@ -93,66 +95,86 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
             }
-
             ConnectionInfo connInfo;
             this.ConnectionServiceInstance.TryFindConnection(parameters.ContextId, out connInfo);
-            CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
 
+            // create a default user data context and database object
+            CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
+            string databaseUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                                "Server/Database[@Name='{0}']", Urn.EscapeString(parameters.Database));
+            Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
+
+            var languageOptions = LanguageUtils.GetDefaultLanguageOptions(dataContainer);
+            var languageOptionsList = languageOptions.Select(LanguageUtils.FormatLanguageDisplay).ToList();
+            languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
+
+            // if viewing an exisitng user then populate some properties
             UserInfo? userInfo = null;
+            string? defaultLanguageAlias = null;
+            ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
             if (!parameters.IsNewObject)
             {
-                User? existingUser = null;
-                string databaseUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(parameters.Database));
-                Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
-                existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
-
-                if (string.IsNullOrWhiteSpace(existingUser.Login))
-                {
-                    throw new ApplicationException("Only 'User with Login' user type supported");
-                }
-
+                User existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
+                userType = UserActions.GetCurrentUserTypeForExistingUser(existingUser);
+                DatabaseUserType databaseUserType = UserActions.GetDatabaseUserTypeForUserType(userType);
                 userInfo = new UserInfo()
                 {
+                    Type = databaseUserType,
                     Name = parameters.Name,
                     LoginName = existingUser.Login,
-                    DefaultSchema = existingUser.DefaultSchema
+                    DefaultSchema = existingUser.DefaultSchema,                    
                 };
-            }
 
-            UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, userInfo, originalData: null);
-            UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(ExhaustiveUserTypes.LoginMappedUser);        
-            
-            IUserPrototypeWithDefaultLanguage defaultLanguagePrototype = currentUserPrototype as IUserPrototypeWithDefaultLanguage;
-            string? defaultLanguageAlias = null;
-            if (defaultLanguagePrototype != null && defaultLanguagePrototype.IsDefaultLanguageSupported)
-            {
-                string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-                defaultLanguageAlias = defaultLanguagePrototype.DefaultLanguageAlias;
-                //If engine returns default language as empty or null, that means the default language of  
-                //database will be used.
-                //Default language is not applicable for users inside an uncontained authentication.
-                if (string.IsNullOrEmpty(defaultLanguageAlias)
-                    && (dataContainer.Server.GetSmoObject(dbUrn) as Database).ContainmentType != ContainmentType.None)
+                // update the authentication type for contained users
+                if (databaseUserType == DatabaseUserType.Contained)
                 {
-                    defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
+                    userInfo.AuthenticationType = ServerAuthenticationType.Sql;
+                }
+
+                // Default language is only applicable for users inside a contained database.
+                if (LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server)
+                    && parentDb.ContainmentType != ContainmentType.None)
+                {
+                    defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromName(
+                        existingUser.Parent.Parent, 
+                        existingUser.DefaultLanguage.Name);                   
                 }
             }
 
+            // generate a user prototype
+            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType);
+
+            // get the default schema if available
             string? defaultSchema = null;
             IUserPrototypeWithDefaultSchema defaultSchemaPrototype = currentUserPrototype as IUserPrototypeWithDefaultSchema;
             if (defaultSchemaPrototype != null && defaultSchemaPrototype.IsDefaultSchemaSupported)
             {
                 defaultSchema = defaultSchemaPrototype.DefaultSchema;
             }
-            // IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
-            // if (userWithPwdPrototype != null && !this.DataContainer.IsNewObject)
-            // {
-            //     this.passwordTextBox.Text = FAKE_PASSWORD;
-            //     this.confirmPwdTextBox.Text = FAKE_PASSWORD;                
-            // }
 
+            ServerConnection serverConnection = dataContainer.ServerConnection;
+            bool isSqlAzure = serverConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
+            bool supportsContainedUser = isSqlAzure || UserActions.IsParentDatabaseContained(parentDb);
+
+            // set default alias to <default> if needed
+            if (string.IsNullOrEmpty(defaultLanguageAlias) 
+                && supportsContainedUser
+                && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
+            {
+                defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
+            }
+
+            // set the fake password placeholder when editing an existing user
+            string? password = null;
+            IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
+            if (userWithPwdPrototype != null && !parameters.IsNewObject)
+            {
+                userWithPwdPrototype.Password = DatabaseUtils.GetReadOnlySecureString(LoginPrototype.fakePassword);
+                userWithPwdPrototype.PasswordConfirm = DatabaseUtils.GetReadOnlySecureString(LoginPrototype.fakePassword);
+                password = LoginPrototype.fakePassword;             
+            }
+
+            // get the login name if it exists
             string? loginName = null;
             IUserPrototypeWithMappedLogin mappedLoginPrototype = currentUserPrototype as IUserPrototypeWithMappedLogin;
             if (mappedLoginPrototype != null)
@@ -160,6 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 loginName = mappedLoginPrototype.LoginName;
             }
 
+            // populate user's role assignments
             List<string> databaseRoles = new List<string>();
             foreach (string role in currentUserPrototype.DatabaseRoleNames)
             {
@@ -169,6 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
             }
 
+            // populate user's schema ownerships
             List<string> schemaNames = new List<string>();
             foreach (string schema in currentUserPrototype.SchemaNames)
             {
@@ -177,39 +201,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     schemaNames.Add(schema);
                 }
             }
-
-            // default to dbo schema, if there isn't already a default
-            if (string.IsNullOrWhiteSpace(defaultSchema) && currentUserPrototype.SchemaNames.Contains("dbo"))
-            {
-                defaultSchema = "dbo";
-            }
-
-            ServerConnection serverConnection = dataContainer.ServerConnection;
+         
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
                 {
-                    Type = DatabaseUserType.WithLogin,
+                    Type = userInfo?.Type ?? DatabaseUserType.WithLogin,
+                    AuthenticationType = userInfo?.AuthenticationType ?? ServerAuthenticationType.Sql,
                     Name = currentUserPrototype.Name,
                     LoginName = loginName,
-                    Password = string.Empty,
+                    Password = password,
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = defaultLanguageAlias
+                    DefaultLanguage = LanguageUtils.FormatLanguageDisplay(
+                        languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
                 },
-                SupportContainedUser = false,  // support for these will be added later
+                SupportContainedUser = supportsContainedUser,
                 SupportWindowsAuthentication = false,
                 SupportAADAuthentication = false,
                 SupportSQLAuthentication = true,
-                Languages = new string[] { },
+                Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = DatabaseUtils.LoadSqlLogins(serverConnection),
                 DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
             };
 
             this.contextIdToViewState.Add(
-                parameters.ContextId, 
+                parameters.ContextId,
                 new UserViewState(parameters.Database, currentUserPrototype.CurrentState));
 
             await requestContext.SendResult(userViewInfo);
@@ -282,42 +301,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             });
         }
 
-        /// <summary>
-        /// Handle request to delete a user
-        /// </summary>
-        internal async Task HandleDeleteUserRequest(DeleteUserParams parameters, RequestContext<ResultStatus> requestContext)
-        {
-            ConnectionInfo connInfo;
-            ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid ConnectionUri");
-            }
-
-            if (string.IsNullOrWhiteSpace(parameters.Name) || string.IsNullOrWhiteSpace(parameters.Database))
-            {
-                throw new ArgumentException("Invalid null parameter");
-            }
-
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            string dbUrn = "Server/Database[@Name='" + Urn.EscapeString(parameters.Database) + "']";
-            Database? parent = dataContainer.Server.GetSmoObject(new Urn(dbUrn)) as Database;
-            User user = parent.Users[parameters.Name];
-            dataContainer.SqlDialogSubject = user;
-
-            CheckForSchemaOwnerships(parent, user);
-            DatabaseUtils.DoDropObject(dataContainer);
-
-            await requestContext.SendResult(new ResultStatus()
-            {
-                Success = true,
-                ErrorMessage = string.Empty
-            });
-        }
-
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
         {
-            this.ConnectionServiceInstance.Disconnect(new DisconnectParams(){
+            this.ConnectionServiceInstance.Disconnect(new DisconnectParams()
+            {
                 OwnerUri = parameters.ContextId,
                 Type = null
             });
@@ -335,8 +322,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
 
         internal CDataContainer CreateUserDataContainer(
-            ConnectionInfo connInfo, 
-            UserInfo? user, 
+            ConnectionInfo connInfo,
+            UserInfo? user,
             ConfigAction configAction,
             string databaseName)
         {
@@ -344,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
 
-            string urn =  (configAction == ConfigAction.Update && user != null)
+            string urn = (configAction == ConfigAction.Update && user != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server/Database[@Name='{0}']/User[@Name='{1}']",
                     Urn.EscapeString(databaseName),
@@ -361,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 containerXml.AddProperty("itemtype", "User");
             }
 
-            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();                    
+            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
             return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
         }
 
@@ -381,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
-            using (var actions = new UserActions(dataContainer, user, configAction, originalData))
+            using (var actions = new UserActions(dataContainer, configAction, user, originalData))
             {
                 var executionHandler = new ExecutonHandler(actions);
                 executionHandler.RunNow(runType, this);
@@ -393,45 +380,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             return new Tuple<bool, string>(true, string.Empty);
         }
-
-        private void CheckForSchemaOwnerships(Database parentDb, User existingUser)
-        {
-            foreach (Schema sch in parentDb.Schemas)
-            {
-                var comparer = parentDb.GetStringComparer();
-                if (comparer.Compare(sch.Owner, existingUser.Name) == 0)
-                {
-                    throw new ApplicationException("Cannot drop user since it owns a schema");
-                }
-            }
-        }
     }
 
     internal class UserActions : ManagementActionBase
     {
-#region Variables
-        //private UserPrototypeData userData;
+        #region Variables
         private UserPrototype userPrototype;
-        private UserInfo? user;
         private ConfigAction configAction;
-#endregion
+        #endregion
 
-#region Constructors / Dispose
+        #region Constructors / Dispose
         /// <summary>
-        /// required when loading from Object Explorer context
-        /// </summary>
-        /// <param name="context"></param>
+        /// Handle user create and update actions
+        /// </summary>        
         public UserActions(
-            CDataContainer context,
-            UserInfo? user,
+            CDataContainer dataContainer,
             ConfigAction configAction,
+            UserInfo? user,
             UserPrototypeData? originalData)
         {
-            this.DataContainer = context;
-            this.user = user;
+            this.DataContainer = dataContainer;
             this.configAction = configAction;
 
-            this.userPrototype = InitUserPrototype(context, user, originalData);
+            ExhaustiveUserTypes currentUserType;
+            if (dataContainer.IsNewObject)
+            {
+                currentUserType = UserActions.GetUserTypeForUserInfo(user);
+            }
+            else
+            {
+                currentUserType = UserActions.GetCurrentUserTypeForExistingUser(
+                    dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
+            }
+
+            this.userPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, user, originalData, currentUserType);
         }
 
         // /// <summary> 
@@ -442,54 +424,63 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //     base.Dispose(disposing);
         // }
 
-#endregion
+        #endregion
 
         /// <summary>
-        /// called on background thread by the framework to execute the action
+        /// called by the management actions framework to execute the action
         /// </summary>
         /// <param name="node"></param>
         public override void OnRunNow(object sender)
         {
-            if (this.configAction == ConfigAction.Drop)
-            {
-                // if (this.credentialData.Credential != null)
-                // {
-                //     this.credentialData.Credential.DropIfExists();
-                // }
-            }
-            else
+            if (this.configAction != ConfigAction.Drop)
             {
                 this.userPrototype.ApplyChanges();
             }
         }
-        
-        private UserPrototype InitUserPrototype(CDataContainer dataContainer, UserInfo user, UserPrototypeData? originalData)
+
+        internal static ExhaustiveUserTypes GetUserTypeForUserInfo(UserInfo user)
         {
-            ExhaustiveUserTypes currentUserType;
-            UserPrototypeFactory userPrototypeFactory = UserPrototypeFactory.GetInstance(dataContainer, user, originalData);
-
-            if (dataContainer.IsNewObject)
+            ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
+            switch (user.Type)
             {
-                if (dataContainer.Server != null && IsParentDatabaseContained(dataContainer.ParentUrn, dataContainer.Server))
-                {
-                    currentUserType = ExhaustiveUserTypes.SqlUserWithPassword;
-                }
-                else
-                {
-                    currentUserType = ExhaustiveUserTypes.LoginMappedUser;
-                }
+                case DatabaseUserType.WithLogin:
+                    userType = ExhaustiveUserTypes.LoginMappedUser;
+                    break;
+                case DatabaseUserType.WithWindowsGroupLogin:
+                    userType = ExhaustiveUserTypes.WindowsUser;
+                    break;
+                case DatabaseUserType.Contained:
+                    userType = ExhaustiveUserTypes.SqlUserWithPassword;
+                    break;
+                case DatabaseUserType.NoConnectAccess:
+                    userType = ExhaustiveUserTypes.SqlUserWithoutLogin;
+                    break;
             }
-            else
-            {
-                currentUserType = this.GetCurrentUserTypeForExistingUser(
-                    dataContainer.Server.GetSmoObject(dataContainer.ObjectUrn) as User);
-            }
-
-           UserPrototype currentUserPrototype = userPrototypeFactory.GetUserPrototype(currentUserType);
-           return currentUserPrototype;
+            return userType;
         }
 
-        private ExhaustiveUserTypes GetCurrentUserTypeForExistingUser(User? user)
+        internal static DatabaseUserType GetDatabaseUserTypeForUserType(ExhaustiveUserTypes userType)
+        {
+            DatabaseUserType databaseUserType = DatabaseUserType.WithLogin;
+            switch (userType)
+            {
+                case ExhaustiveUserTypes.LoginMappedUser:
+                    databaseUserType = DatabaseUserType.WithLogin;
+                    break;
+                case ExhaustiveUserTypes.WindowsUser:
+                    databaseUserType = DatabaseUserType.WithWindowsGroupLogin;
+                    break;
+                case ExhaustiveUserTypes.SqlUserWithPassword:
+                    databaseUserType = DatabaseUserType.Contained;
+                    break;
+                case ExhaustiveUserTypes.SqlUserWithoutLogin:
+                    databaseUserType = DatabaseUserType.NoConnectAccess;
+                    break;
+            }
+            return databaseUserType;
+        }        
+
+        internal static ExhaustiveUserTypes GetCurrentUserTypeForExistingUser(User? user)
         {
             if (user == null)
             {
@@ -503,42 +494,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     {
                         if (user.AuthenticationType == AuthenticationType.Windows)
                         {
-                            return ExhaustiveUserTypes.WindowsUser;                            
+                            return ExhaustiveUserTypes.WindowsUser;
                         }
                         else if (user.AuthenticationType == AuthenticationType.Database)
                         {
                             return ExhaustiveUserTypes.SqlUserWithPassword;
                         }
                     }
-
                     return ExhaustiveUserTypes.LoginMappedUser;
-                    
                 case UserType.NoLogin:
                     return ExhaustiveUserTypes.SqlUserWithoutLogin;
-                    
                 case UserType.Certificate:
                     return ExhaustiveUserTypes.CertificateMappedUser;
-                    
                 case UserType.AsymmetricKey:
                     return ExhaustiveUserTypes.AsymmetricKeyMappedUser;
-                    
                 default:
                     return ExhaustiveUserTypes.Unknown;
             }
         }
 
-        private static bool IsParentDatabaseContained(Urn parentDbUrn, Server server)
+        internal static bool IsParentDatabaseContained(Urn parentDbUrn, Server server)
         {
             string parentDbName = parentDbUrn.GetNameForType("Database");
-            Database parentDatabase = server.Databases[parentDbName];
+            return IsParentDatabaseContained(server.Databases[parentDbName]);
+        }
 
-            if (parentDatabase.IsSupportedProperty("ContainmentType")
-                && parentDatabase.ContainmentType == ContainmentType.Partial)
-            {
-                return true;
-            }
-
-            return false;
+        internal static bool IsParentDatabaseContained(Database parentDatabase)
+        {
+            return parentDatabase.IsSupportedProperty("ContainmentType") 
+                && parentDatabase.ContainmentType == ContainmentType.Partial;
         }
     }
 }

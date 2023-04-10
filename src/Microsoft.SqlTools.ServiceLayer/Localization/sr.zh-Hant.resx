@@ -1321,10 +1321,10 @@
     <value>加密的值 '{0}' 無效。有效值為 'Optional'、'Mandatory'、'Strict'、'True'、'False'、'Yes' 和 'No'。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>EnclaveAttestationProtocol 的值 '{0}' 無效。有效值為 'AAS'、'HGS' 及 'None'。</value>
+    <value>證明通訊協定的無效值 '{0}'。有效的值為 'AAS'、'HGS' 及 [無]。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>證明通訊協定與 Enclave 證明 URL 需要將搭配 Secure Enclave 的 Always Encrypted 設定為 [啟用]。</value>
+    <value>證明通訊協定與證明 URL 需要將具有安全記憶體保護區的 Always Encrypted 設定為 [已啟用]。</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>執行批次期間發生錯誤，結束中。</value>
@@ -3998,18 +3998,24 @@
     <value>內建結構描述</value>
   </data>
   <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>使用證明通訊協定的選取值時，證明 URL 不可為空白。</value>
+    <value>具有證明通訊協定的選取值時，證明 URL 不可為空白。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>SecureEnclaves 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。</value>
+    <value>安全記憶體保護區的無效值 '{0}'。有效的值為 [已啟用] 和 [已停用]。</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>不得使用證明通訊協定 'None' 指定 Enclave 證明 URL。請設定適當的證明通訊協定，或從連線屬性移除證明 URL。</value>
+    <value>無法在證明通訊協定為 [無] 的情況下指定證明 URL。請設定適當的證明通訊協定，或從連線屬性移除證明 URL。</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;預設&gt;</value>
   </data>
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>解除鎖定時重設登入密碼。</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>無法重新命名物件。URN: '{0}'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>安全記憶體保護區啟用時，證明通訊協定不可為空白。</value>
   </data>
 </root>

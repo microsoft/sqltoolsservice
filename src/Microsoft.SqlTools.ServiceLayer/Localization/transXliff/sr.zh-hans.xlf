@@ -2042,14 +2042,14 @@
  Parameters: 0 - encrypt (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol">
-        <source>Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
-        <target state="translated">EnclaveAttestationProtocol 的值“{0}”无效。有效值为 "AAS"、"HGS" 和“无”。</target>
+        <source>Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.</source>
+        <target state="translated">Attestation 协议的值“{0}”无效。有效值为“AAS”，“HGS”和“None”。</target>
         <note>.
  Parameters: 0 - enclaveAttestationProtocol (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination">
-        <source>The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.</source>
-        <target state="translated">证明协议和 Enclave 证明 URL 需要将 Always Encrypted with Secure Enclaves 设置为“已启用”。</target>
+        <source>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</source>
+        <target state="translated">证明协议和证明 URL 要求启用具有安全隔离区的始终加密。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="SqlCmdExitOnError">
@@ -6551,19 +6551,19 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol">
-        <source>Attestation URL cannot be empty with the selected value of Attestation Protocol.</source>
+        <source>Attestation URL cannot be empty with the selected value of Attestation protocol.</source>
         <target state="translated">证明 URL 不能为空，且所选值为证明协议。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidSecureEnclaves">
-        <source>Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.</source>
-        <target state="translated">SecureEnclave 的值“{0}”无效。有效值为“已启用”和“已禁用”。</target>
+        <source>Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.</source>
+        <target state="translated">Secure enclave 的值“{0}”无效。有效值为“已启用”和“已禁用”。</target>
         <note>.
  Parameters: 0 - secureEnclaves (string) </note>
       </trans-unit>
       <trans-unit id="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl">
-        <source>The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.</source>
-        <target state="translated">不得使用证明协议“无”指定 Enclave 证明 URL。请设置适当的证明协议或从连接属性中移除证明 URL。</target>
+        <source>The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</source>
+        <target state="translated">证明 URL 不能使用“无”的证明协议指定。请设置适当的证明协议或从连接属性中删除证明 URL。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="DefaultLanguagePlaceholder">
@@ -6574,6 +6574,17 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ResetPasswordWhileUnlocking">
         <source>Reset password for the login while unlocking.</source>
         <target state="translated">解锁时重置登录密码。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ObjectNotRenamable">
+        <source>The object could not be renamed. URN: '{0}'.</source>
+        <target state="translated">无法重命名对象。URN:“{0}”。</target>
+        <note>.
+ Parameters: 0 - urn (string) </note>
+      </trans-unit>
+      <trans-unit id="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves">
+        <source>Attestation protocol cannot be empty with Secure enclaves enabled.</source>
+        <target state="translated">证明协议不能为空且已启用安全 enclave。</target>
         <note></note>
       </trans-unit>
     </body>

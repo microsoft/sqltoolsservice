@@ -29,6 +29,16 @@ services such as connection management or query execution.
 
 This document provides the protocol specification for all the service's JSON-RPC APIs and some useful events.
 
+### Object Explorer
+
+* :leftwards_arrow_with_hook: [objectexplorer/createSession](#objectexplorer_createsession)
+* :leftwards_arrow_with_hook: [objectexplorer/expand](#objectexplorer_expand)
+* :leftwards_arrow_with_hook: [objectexplorer/refresh](#objectexplorer_refresh)
+* :leftwards_arrow_with_hook: [objectexplorer/closeSession](#objectexplorer_closesession)
+* :leftwards_arrow_with_hook: [objectexplorer/findNodes](#objectexplorer_findnodes)
+* :arrow_left: [objectexplorer/sessionCreated](#objectexplorer_sessioncreated)
+* :arrow_left: [objectexplorer/sessionDisconnected](#objectexplorer_sessiondisconnected)
+* :arrow_left: [objectexplorer/expandCompleted](#objectexplorer_expandcompleted)
 
 ### Connection Management
 
@@ -339,8 +349,88 @@ functionality provided by the SQL Tools Service.  The message formats are descri
 C# classes.  These classes are packaged inside the common message structures documented above
 and serialized to JSON using JSON.Net.
 
-## Connection Management
+## Object Explorer
 
+### <a name="objectexplorer_createsession"></a>`objectExplorer/createSession`
+
+#### Request
+
+Typescript: [azdata.ConnectionInfo](https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.d.ts#L368)
+C#: [ConnectionDetails](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionDetails.cs#L18)
+
+#### Response
+
+Typescript: [CreateSessionResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L7)
+C#: [CreateSessionResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CreateSessionRequest.cs#L18)
+
+### <a name="objectexplorer_expand"></a>`objectExplorer/expand`
+
+#### Request
+
+Typescript: [ExpandParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L67)
+C#: [ExpandParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/ExpandRequest.cs#L43)
+
+#### Response
+
+`bool`
+
+### <a name="objectexplorer_refresh"></a>`objectExplorer/refresh`
+
+#### Request
+
+Typescript: [ExpandParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L67)
+C#: [ExpandParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/ExpandRequest.cs#L43)
+
+#### Response
+
+`bool`
+
+### <a name="objectexplorer_closesession"></a>`objectExplorer/closeSession`
+
+#### Request
+
+Typescript: [CloseSessionParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L72)
+C#: [CloseSessionParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CloseSessionRequest.cs#L34)
+
+#### Response
+
+Typescript: [CloseSessionResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L76)
+C#: [CloseSessionResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CloseSessionRequest.cs#L17)
+
+### <a name="objectexplorer_findnodes"></a>`objectExplorer/findNodes`
+
+#### Request
+
+Typescript: [FindNodesParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L81)
+C#: [FindNodesParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/FindNodesRequest.cs#L27)
+
+#### Response
+
+Typescript: [FindNodesResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L90)
+C#: [FindNodesResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/FindNodesRequest.cs#L16)
+
+### <a name="objectexplorer_sessioncreated"></a>`objectExplorer/sessionCreated`
+
+#### Notification
+
+Typescript: [SessionCreatedParameters](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L19)
+C#: [SessionCreatedParameters](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CreateSessionRequest.cs#L33)
+
+### <a name="objectexplorer_sessiondisconnected"></a>`objectExplorer/sessionDisconnected`
+
+#### Notification
+
+Typescript: [SessionDisconnectedParameters](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L42)
+C#: [SessionDisconnectedParameters](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CloseSessionRequest.cs#L47)
+
+### <a name="objectexplorer_expandcompleted"></a>`objectExplorer/expandCompleted`
+
+#### Notification
+
+Typescript: [ExpandResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L49)
+C#: [ExpandResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/ExpandRequest.cs#L16)
+
+## Connection Management
 
 ### <a name="connection_connect"></a>`connection/connect`
 

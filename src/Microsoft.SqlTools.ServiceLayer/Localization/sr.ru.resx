@@ -1321,10 +1321,10 @@
     <value>Недопустимое значение "{0}" для параметра Encrypt. Допустимые значения: "Optional" (необязательно), "Mandatory" (обязательно), "Strict" (строго), "True" (истина), "False" (ложь), "Yes" (да) и "No" (нет).</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Недопустимое значение "{0}" для EnclaveAttestationProtocol. Допустимые значения: "AAS", "HGS" и "None" (Нет).</value>
+    <value>Недопустимое значение "{0}" для протокола аттестации. Допустимые значения: "AAS", "HGS" и "None" (Нет).</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>Протокол аттестации и URL-адрес аттестации анклава требуют включения Always Encrypted с безопасными анклавами.</value>
+    <value>Протокол аттестации и URL-адрес аттестации требуют включения Always Encrypted с безопасными анклавами.</value>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
     <value>При выполнении пакета возникла ошибка. Выполняется выход.</value>
@@ -4001,15 +4001,21 @@
     <value>URL-адрес аттестации не может быть пустым с выбранным значением протокола аттестации.</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Недопустимое значение "{0}" для SecureEnclaves. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</value>
+    <value>Недопустимое значение "{0}" для безопасных анклавов. Допустимые значения: "Enabled" (Включено) и "Disabled" (Отключено).</value>
   </data>
   <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>Недопустимо задавать URL-адрес аттестации анклава с протоколом аттестации "None". Задайте подходящий протокол или удалите URL-адрес из свойств подключения.</value>
+    <value>Недопустимо задавать URL-адрес аттестации с протоколом аттестации "None". Настройте подходящий протокол или удалите URL-адрес из свойств подключения.</value>
   </data>
   <data name="DefaultLanguagePlaceholder" xml:space="preserve">
     <value>&lt;default&gt;</value>
   </data>
   <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
     <value>При снятии блокировки переустановите пароль для входа.</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>Не удалось переименовать объект. Унифицированное имя ресурса: "{0}".</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>Протокол аттестации не может быть пустым, если включены безопасные анклавы.</value>
   </data>
 </root>

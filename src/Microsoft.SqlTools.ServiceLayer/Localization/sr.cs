@@ -45,6 +45,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+            }
+        }
+
         public static string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol
         {
             get
@@ -9725,6 +9733,886 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string Permission_Alter
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Alter);
+            }
+        }
+
+        public static string Permission_Connect
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Connect);
+            }
+        }
+
+        public static string Permission_Control
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Control);
+            }
+        }
+
+        public static string Permission_Delete
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Delete);
+            }
+        }
+
+        public static string Permission_Execute
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Execute);
+            }
+        }
+
+        public static string Permission_Impersonate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Impersonate);
+            }
+        }
+
+        public static string Permission_Insert
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Insert);
+            }
+        }
+
+        public static string Permission_Receive
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Receive);
+            }
+        }
+
+        public static string Permission_References
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_References);
+            }
+        }
+
+        public static string Permission_Select
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Select);
+            }
+        }
+
+        public static string Permission_Send
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Send);
+            }
+        }
+
+        public static string Permission_TakeOwnership
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_TakeOwnership);
+            }
+        }
+
+        public static string Permission_Update
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Update);
+            }
+        }
+
+        public static string Permission_ViewDefinition
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewDefinition);
+            }
+        }
+
+        public static string Permission_ViewChangeTracking
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewChangeTracking);
+            }
+        }
+
+        public static string Permission_AlterAnyApplicationRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyApplicationRole);
+            }
+        }
+
+        public static string Permission_AlterAnyAssembly
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyAssembly);
+            }
+        }
+
+        public static string Permission_AlterAnyAsymmetricKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyAsymmetricKey);
+            }
+        }
+
+        public static string Permission_AlterAnyCertificate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyCertificate);
+            }
+        }
+
+        public static string Permission_AlterAnyDatabaseAudit
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyDatabaseAudit);
+            }
+        }
+
+        public static string Permission_AlterAnyContract
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyContract);
+            }
+        }
+
+        public static string Permission_AlterAnyDatabaseDdlTrigger
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyDatabaseDdlTrigger);
+            }
+        }
+
+        public static string Permission_AlterAnyDatabaseEventNotification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyDatabaseEventNotification);
+            }
+        }
+
+        public static string Permission_AlterAnyDataspace
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyDataspace);
+            }
+        }
+
+        public static string Permission_AlterAnyExternalDataSource
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyExternalDataSource);
+            }
+        }
+
+        public static string Permission_AlterAnyExternalFileFormat
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyExternalFileFormat);
+            }
+        }
+
+        public static string Permission_AlterAnyFulltextCatalog
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyFulltextCatalog);
+            }
+        }
+
+        public static string Permission_AlterAnyMask
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyMask);
+            }
+        }
+
+        public static string Permission_AlterAnyMessageType
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyMessageType);
+            }
+        }
+
+        public static string Permission_AlterAnyRemoteServiceBinding
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyRemoteServiceBinding);
+            }
+        }
+
+        public static string Permission_AlterAnyRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyRole);
+            }
+        }
+
+        public static string Permission_AlterAnyRoute
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyRoute);
+            }
+        }
+
+        public static string Permission_AlterAnySchema
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnySchema);
+            }
+        }
+
+        public static string Permission_AlterAnySecurityPolicy
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnySecurityPolicy);
+            }
+        }
+
+        public static string Permission_AlterAnySensitivityClassification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnySensitivityClassification);
+            }
+        }
+
+        public static string Permission_AlterAnyService
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyService);
+            }
+        }
+
+        public static string Permission_AlterAnyUser
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyUser);
+            }
+        }
+
+        public static string Permission_AlterAnySymmetricKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnySymmetricKey);
+            }
+        }
+
+        public static string Permission_Authenticate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Authenticate);
+            }
+        }
+
+        public static string Permission_BackupDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_BackupDatabase);
+            }
+        }
+
+        public static string Permission_BackupLog
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_BackupLog);
+            }
+        }
+
+        public static string Permission_Checkpoint
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Checkpoint);
+            }
+        }
+
+        public static string Permission_ConnectReplication
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ConnectReplication);
+            }
+        }
+
+        public static string Permission_CreateAggregate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateAggregate);
+            }
+        }
+
+        public static string Permission_CreateAssembly
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateAssembly);
+            }
+        }
+
+        public static string Permission_CreateAsymmetricKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateAsymmetricKey);
+            }
+        }
+
+        public static string Permission_CreateCertificate
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateCertificate);
+            }
+        }
+
+        public static string Permission_CreateContract
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateContract);
+            }
+        }
+
+        public static string Permission_CreateDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateDatabase);
+            }
+        }
+
+        public static string Permission_CreateDatabaseDdlEventNotification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateDatabaseDdlEventNotification);
+            }
+        }
+
+        public static string Permission_CreateDefault
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateDefault);
+            }
+        }
+
+        public static string Permission_CreateFulltextCatalog
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateFulltextCatalog);
+            }
+        }
+
+        public static string Permission_CreateFunction
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateFunction);
+            }
+        }
+
+        public static string Permission_CreateMessageType
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateMessageType);
+            }
+        }
+
+        public static string Permission_CreateProcedure
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateProcedure);
+            }
+        }
+
+        public static string Permission_CreateQueue
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateQueue);
+            }
+        }
+
+        public static string Permission_CreateRemoteServiceBinding
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateRemoteServiceBinding);
+            }
+        }
+
+        public static string Permission_CreateRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateRole);
+            }
+        }
+
+        public static string Permission_CreateRoute
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateRoute);
+            }
+        }
+
+        public static string Permission_CreateRule
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateRule);
+            }
+        }
+
+        public static string Permission_CreateSchema
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateSchema);
+            }
+        }
+
+        public static string Permission_CreateService
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateService);
+            }
+        }
+
+        public static string Permission_CreateSymmetricKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateSymmetricKey);
+            }
+        }
+
+        public static string Permission_CreateSynonym
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateSynonym);
+            }
+        }
+
+        public static string Permission_CreateSequence
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateSequence);
+            }
+        }
+
+        public static string Permission_CreateTable
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateTable);
+            }
+        }
+
+        public static string Permission_CreateType
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateType);
+            }
+        }
+
+        public static string Permission_CreateView
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateView);
+            }
+        }
+
+        public static string Permission_CreateXmlSchemaCollection
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateXmlSchemaCollection);
+            }
+        }
+
+        public static string Permission_Showplan
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Showplan);
+            }
+        }
+
+        public static string Permission_SubscribeQueryNotifications
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_SubscribeQueryNotifications);
+            }
+        }
+
+        public static string Permission_Unmask
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Unmask);
+            }
+        }
+
+        public static string Permission_ViewAnyColumnEncryptionKeyDefinition
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewAnyColumnEncryptionKeyDefinition);
+            }
+        }
+
+        public static string Permission_ViewAnyColumnMasterKeyDefinition
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewAnyColumnMasterKeyDefinition);
+            }
+        }
+
+        public static string Permission_ViewAnySensitivityClassification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewAnySensitivityClassification);
+            }
+        }
+
+        public static string Permission_ViewDatabaseState
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewDatabaseState);
+            }
+        }
+
+        public static string Permission_AdministerBulkOperations
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AdministerBulkOperations);
+            }
+        }
+
+        public static string Permission_AlterAnyServerAudit
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyServerAudit);
+            }
+        }
+
+        public static string Permission_AlterAnyConnection
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyConnection);
+            }
+        }
+
+        public static string Permission_AlterAnyCredential
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyCredential);
+            }
+        }
+
+        public static string Permission_AlterAnyDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyDatabase);
+            }
+        }
+
+        public static string Permission_AlterAnyEndpoint
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyEndpoint);
+            }
+        }
+
+        public static string Permission_AlterAnyEventNotification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyEventNotification);
+            }
+        }
+
+        public static string Permission_AlterAnyEventSession
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyEventSession);
+            }
+        }
+
+        public static string Permission_AlterAnyLinkedServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyLinkedServer);
+            }
+        }
+
+        public static string Permission_AlterAnyLogin
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyLogin);
+            }
+        }
+
+        public static string Permission_AlterAnyServerRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyServerRole);
+            }
+        }
+
+        public static string Permission_AlterResources
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterResources);
+            }
+        }
+
+        public static string Permission_AlterServerState
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterServerState);
+            }
+        }
+
+        public static string Permission_AlterSettings
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterSettings);
+            }
+        }
+
+        public static string Permission_AlterTrace
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterTrace);
+            }
+        }
+
+        public static string Permission_AuthenticateServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AuthenticateServer);
+            }
+        }
+
+        public static string Permission_ConnectSql
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ConnectSql);
+            }
+        }
+
+        public static string Permission_ControlServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ControlServer);
+            }
+        }
+
+        public static string Permission_CreateAnyDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateAnyDatabase);
+            }
+        }
+
+        public static string Permission_CreateDdlEventNotification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateDdlEventNotification);
+            }
+        }
+
+        public static string Permission_CreateEndpoint
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateEndpoint);
+            }
+        }
+
+        public static string Permission_CreateTraceEventNotification
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateTraceEventNotification);
+            }
+        }
+
+        public static string Permission_CreateServerRole
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateServerRole);
+            }
+        }
+
+        public static string Permission_ExternalAccessAssembly
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ExternalAccessAssembly);
+            }
+        }
+
+        public static string Permission_Shutdown
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_Shutdown);
+            }
+        }
+
+        public static string Permission_UnsafeAssembly
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_UnsafeAssembly);
+            }
+        }
+
+        public static string Permission_ViewAnyDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewAnyDatabase);
+            }
+        }
+
+        public static string Permission_ViewAnyDefinition
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewAnyDefinition);
+            }
+        }
+
+        public static string Permission_ViewServerState
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ViewServerState);
+            }
+        }
+
+        public static string Permission_AlterAnyAvailabilityGroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_AlterAnyAvailabilityGroup);
+            }
+        }
+
+        public static string Permission_CreateAvailabilityGroup
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_CreateAvailabilityGroup);
+            }
+        }
+
+        public static string Permission_SelectAllUserSecurables
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_SelectAllUserSecurables);
+            }
+        }
+
+        public static string Permission_ConnectAnyDatabase
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ConnectAnyDatabase);
+            }
+        }
+
+        public static string Permission_ImpersonateAnyLogin
+        {
+            get
+            {
+                return Keys.GetString(Keys.Permission_ImpersonateAnyLogin);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -10150,6 +11038,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.UnsupportedModelType, type);
         }
 
+        public static string ObjectNotRenamable(string urn)
+        {
+            return Keys.GetString(Keys.ObjectNotRenamable, urn);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -10183,6 +11076,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
+
+
+            public const string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = "ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves";
 
 
             public const string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = "ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol";
@@ -14043,10 +14939,343 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ErrorConnectionNotFound = "ErrorConnectionNotFound";
 
 
+            public const string ObjectNotRenamable = "ObjectNotRenamable";
+
+
             public const string DefaultLanguagePlaceholder = "DefaultLanguagePlaceholder";
 
 
             public const string ResetPasswordWhileUnlocking = "ResetPasswordWhileUnlocking";
+
+
+            public const string Permission_Alter = "Permission_Alter";
+
+
+            public const string Permission_Connect = "Permission_Connect";
+
+
+            public const string Permission_Control = "Permission_Control";
+
+
+            public const string Permission_Delete = "Permission_Delete";
+
+
+            public const string Permission_Execute = "Permission_Execute";
+
+
+            public const string Permission_Impersonate = "Permission_Impersonate";
+
+
+            public const string Permission_Insert = "Permission_Insert";
+
+
+            public const string Permission_Receive = "Permission_Receive";
+
+
+            public const string Permission_References = "Permission_References";
+
+
+            public const string Permission_Select = "Permission_Select";
+
+
+            public const string Permission_Send = "Permission_Send";
+
+
+            public const string Permission_TakeOwnership = "Permission_TakeOwnership";
+
+
+            public const string Permission_Update = "Permission_Update";
+
+
+            public const string Permission_ViewDefinition = "Permission_ViewDefinition";
+
+
+            public const string Permission_ViewChangeTracking = "Permission_ViewChangeTracking";
+
+
+            public const string Permission_AlterAnyApplicationRole = "Permission_AlterAnyApplicationRole";
+
+
+            public const string Permission_AlterAnyAssembly = "Permission_AlterAnyAssembly";
+
+
+            public const string Permission_AlterAnyAsymmetricKey = "Permission_AlterAnyAsymmetricKey";
+
+
+            public const string Permission_AlterAnyCertificate = "Permission_AlterAnyCertificate";
+
+
+            public const string Permission_AlterAnyDatabaseAudit = "Permission_AlterAnyDatabaseAudit";
+
+
+            public const string Permission_AlterAnyContract = "Permission_AlterAnyContract";
+
+
+            public const string Permission_AlterAnyDatabaseDdlTrigger = "Permission_AlterAnyDatabaseDdlTrigger";
+
+
+            public const string Permission_AlterAnyDatabaseEventNotification = "Permission_AlterAnyDatabaseEventNotification";
+
+
+            public const string Permission_AlterAnyDataspace = "Permission_AlterAnyDataspace";
+
+
+            public const string Permission_AlterAnyExternalDataSource = "Permission_AlterAnyExternalDataSource";
+
+
+            public const string Permission_AlterAnyExternalFileFormat = "Permission_AlterAnyExternalFileFormat";
+
+
+            public const string Permission_AlterAnyFulltextCatalog = "Permission_AlterAnyFulltextCatalog";
+
+
+            public const string Permission_AlterAnyMask = "Permission_AlterAnyMask";
+
+
+            public const string Permission_AlterAnyMessageType = "Permission_AlterAnyMessageType";
+
+
+            public const string Permission_AlterAnyRemoteServiceBinding = "Permission_AlterAnyRemoteServiceBinding";
+
+
+            public const string Permission_AlterAnyRole = "Permission_AlterAnyRole";
+
+
+            public const string Permission_AlterAnyRoute = "Permission_AlterAnyRoute";
+
+
+            public const string Permission_AlterAnySchema = "Permission_AlterAnySchema";
+
+
+            public const string Permission_AlterAnySecurityPolicy = "Permission_AlterAnySecurityPolicy";
+
+
+            public const string Permission_AlterAnySensitivityClassification = "Permission_AlterAnySensitivityClassification";
+
+
+            public const string Permission_AlterAnyService = "Permission_AlterAnyService";
+
+
+            public const string Permission_AlterAnyUser = "Permission_AlterAnyUser";
+
+
+            public const string Permission_AlterAnySymmetricKey = "Permission_AlterAnySymmetricKey";
+
+
+            public const string Permission_Authenticate = "Permission_Authenticate";
+
+
+            public const string Permission_BackupDatabase = "Permission_BackupDatabase";
+
+
+            public const string Permission_BackupLog = "Permission_BackupLog";
+
+
+            public const string Permission_Checkpoint = "Permission_Checkpoint";
+
+
+            public const string Permission_ConnectReplication = "Permission_ConnectReplication";
+
+
+            public const string Permission_CreateAggregate = "Permission_CreateAggregate";
+
+
+            public const string Permission_CreateAssembly = "Permission_CreateAssembly";
+
+
+            public const string Permission_CreateAsymmetricKey = "Permission_CreateAsymmetricKey";
+
+
+            public const string Permission_CreateCertificate = "Permission_CreateCertificate";
+
+
+            public const string Permission_CreateContract = "Permission_CreateContract";
+
+
+            public const string Permission_CreateDatabase = "Permission_CreateDatabase";
+
+
+            public const string Permission_CreateDatabaseDdlEventNotification = "Permission_CreateDatabaseDdlEventNotification";
+
+
+            public const string Permission_CreateDefault = "Permission_CreateDefault";
+
+
+            public const string Permission_CreateFulltextCatalog = "Permission_CreateFulltextCatalog";
+
+
+            public const string Permission_CreateFunction = "Permission_CreateFunction";
+
+
+            public const string Permission_CreateMessageType = "Permission_CreateMessageType";
+
+
+            public const string Permission_CreateProcedure = "Permission_CreateProcedure";
+
+
+            public const string Permission_CreateQueue = "Permission_CreateQueue";
+
+
+            public const string Permission_CreateRemoteServiceBinding = "Permission_CreateRemoteServiceBinding";
+
+
+            public const string Permission_CreateRole = "Permission_CreateRole";
+
+
+            public const string Permission_CreateRoute = "Permission_CreateRoute";
+
+
+            public const string Permission_CreateRule = "Permission_CreateRule";
+
+
+            public const string Permission_CreateSchema = "Permission_CreateSchema";
+
+
+            public const string Permission_CreateService = "Permission_CreateService";
+
+
+            public const string Permission_CreateSymmetricKey = "Permission_CreateSymmetricKey";
+
+
+            public const string Permission_CreateSynonym = "Permission_CreateSynonym";
+
+
+            public const string Permission_CreateSequence = "Permission_CreateSequence";
+
+
+            public const string Permission_CreateTable = "Permission_CreateTable";
+
+
+            public const string Permission_CreateType = "Permission_CreateType";
+
+
+            public const string Permission_CreateView = "Permission_CreateView";
+
+
+            public const string Permission_CreateXmlSchemaCollection = "Permission_CreateXmlSchemaCollection";
+
+
+            public const string Permission_Showplan = "Permission_Showplan";
+
+
+            public const string Permission_SubscribeQueryNotifications = "Permission_SubscribeQueryNotifications";
+
+
+            public const string Permission_Unmask = "Permission_Unmask";
+
+
+            public const string Permission_ViewAnyColumnEncryptionKeyDefinition = "Permission_ViewAnyColumnEncryptionKeyDefinition";
+
+
+            public const string Permission_ViewAnyColumnMasterKeyDefinition = "Permission_ViewAnyColumnMasterKeyDefinition";
+
+
+            public const string Permission_ViewAnySensitivityClassification = "Permission_ViewAnySensitivityClassification";
+
+
+            public const string Permission_ViewDatabaseState = "Permission_ViewDatabaseState";
+
+
+            public const string Permission_AdministerBulkOperations = "Permission_AdministerBulkOperations";
+
+
+            public const string Permission_AlterAnyServerAudit = "Permission_AlterAnyServerAudit";
+
+
+            public const string Permission_AlterAnyConnection = "Permission_AlterAnyConnection";
+
+
+            public const string Permission_AlterAnyCredential = "Permission_AlterAnyCredential";
+
+
+            public const string Permission_AlterAnyDatabase = "Permission_AlterAnyDatabase";
+
+
+            public const string Permission_AlterAnyEndpoint = "Permission_AlterAnyEndpoint";
+
+
+            public const string Permission_AlterAnyEventNotification = "Permission_AlterAnyEventNotification";
+
+
+            public const string Permission_AlterAnyEventSession = "Permission_AlterAnyEventSession";
+
+
+            public const string Permission_AlterAnyLinkedServer = "Permission_AlterAnyLinkedServer";
+
+
+            public const string Permission_AlterAnyLogin = "Permission_AlterAnyLogin";
+
+
+            public const string Permission_AlterAnyServerRole = "Permission_AlterAnyServerRole";
+
+
+            public const string Permission_AlterResources = "Permission_AlterResources";
+
+
+            public const string Permission_AlterServerState = "Permission_AlterServerState";
+
+
+            public const string Permission_AlterSettings = "Permission_AlterSettings";
+
+
+            public const string Permission_AlterTrace = "Permission_AlterTrace";
+
+
+            public const string Permission_AuthenticateServer = "Permission_AuthenticateServer";
+
+
+            public const string Permission_ConnectSql = "Permission_ConnectSql";
+
+
+            public const string Permission_ControlServer = "Permission_ControlServer";
+
+
+            public const string Permission_CreateAnyDatabase = "Permission_CreateAnyDatabase";
+
+
+            public const string Permission_CreateDdlEventNotification = "Permission_CreateDdlEventNotification";
+
+
+            public const string Permission_CreateEndpoint = "Permission_CreateEndpoint";
+
+
+            public const string Permission_CreateTraceEventNotification = "Permission_CreateTraceEventNotification";
+
+
+            public const string Permission_CreateServerRole = "Permission_CreateServerRole";
+
+
+            public const string Permission_ExternalAccessAssembly = "Permission_ExternalAccessAssembly";
+
+
+            public const string Permission_Shutdown = "Permission_Shutdown";
+
+
+            public const string Permission_UnsafeAssembly = "Permission_UnsafeAssembly";
+
+
+            public const string Permission_ViewAnyDatabase = "Permission_ViewAnyDatabase";
+
+
+            public const string Permission_ViewAnyDefinition = "Permission_ViewAnyDefinition";
+
+
+            public const string Permission_ViewServerState = "Permission_ViewServerState";
+
+
+            public const string Permission_AlterAnyAvailabilityGroup = "Permission_AlterAnyAvailabilityGroup";
+
+
+            public const string Permission_CreateAvailabilityGroup = "Permission_CreateAvailabilityGroup";
+
+
+            public const string Permission_SelectAllUserSecurables = "Permission_SelectAllUserSecurables";
+
+
+            public const string Permission_ConnectAnyDatabase = "Permission_ConnectAnyDatabase";
+
+
+            public const string Permission_ImpersonateAnyLogin = "Permission_ImpersonateAnyLogin";
 
 
             private Keys()

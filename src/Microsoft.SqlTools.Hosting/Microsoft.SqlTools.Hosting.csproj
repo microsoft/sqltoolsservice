@@ -25,7 +25,4 @@
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\Microsoft.SqlTools.Shared\Microsoft.SqlTools.Shared.csproj" />
-	</ItemGroup>
 </Project>

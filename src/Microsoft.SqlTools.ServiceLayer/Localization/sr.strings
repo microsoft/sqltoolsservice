@@ -35,17 +35,19 @@ ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}
 
 ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
 
-ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves) = Invalid value '{0}' for SecureEnclaves. Valid values are 'Enabled' and 'Disabled'.
+ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves) = Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.
 
 ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
 
-ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for EnclaveAttestationProtocol. Valid values are 'AAS', 'HGS' and 'None'.
+ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.
 
-ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = Attestation URL cannot be empty with the selected value of Attestation Protocol.
+ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = Attestation protocol cannot be empty with Secure enclaves enabled.
 
-ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation Protocol and Enclave Attestation URL requires Always Encrypted with Secure Enclaves to be set to Enabled.
+ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = Attestation URL cannot be empty with the selected value of Attestation protocol.
 
-ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = The Enclave Attestation URL must not be specified with Attestation Protocol 'None'. Either set appropriate Attestation Protocol or remove Attestation URL from connection properties.
+ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.
+
+ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.
 
 ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
 
@@ -2443,8 +2445,125 @@ GetUserDefinedObjectsFromModelFailed = Failed to get user defined objects from m
 
 #ObjectManagement Service
 ErrorConnectionNotFound = The connection could not be found
+ObjectNotRenamable(string urn) = The object could not be renamed. URN: '{0}'.
 
 ############################################################################
 # Security Service
 DefaultLanguagePlaceholder = <default>
 ResetPasswordWhileUnlocking = Reset password for the login while unlocking.
+
+#Object permission names
+Permission_Alter = Alter
+Permission_Connect = Connect
+Permission_Control = Control
+Permission_Delete = Delete
+Permission_Execute = Execute
+Permission_Impersonate = Impersonate
+Permission_Insert = Insert
+Permission_Receive = Receive
+Permission_References = References
+Permission_Select = Select
+Permission_Send = Send
+Permission_TakeOwnership = Take ownership
+Permission_Update = Update
+Permission_ViewDefinition = View definition
+Permission_ViewChangeTracking = View change tracking
+
+#Database permission names
+Permission_AlterAnyApplicationRole = Alter any application role
+Permission_AlterAnyAssembly = Alter any assembly
+Permission_AlterAnyAsymmetricKey = Alter any asymmetric key
+Permission_AlterAnyCertificate = Alter any certificate
+Permission_AlterAnyDatabaseAudit = Alter any database audit
+Permission_AlterAnyContract = Alter any contract
+Permission_AlterAnyDatabaseDdlTrigger = Alter any database DDL trigger
+Permission_AlterAnyDatabaseEventNotification = Alter any database event notification
+Permission_AlterAnyDataspace = Alter any dataspace
+Permission_AlterAnyExternalDataSource = Alter any external data source
+Permission_AlterAnyExternalFileFormat = Alter any external file format
+Permission_AlterAnyFulltextCatalog = Alter any fulltext catalog
+Permission_AlterAnyMask = Alter any mask
+Permission_AlterAnyMessageType = Alter any message type
+Permission_AlterAnyRemoteServiceBinding = Alter any remote service binding
+Permission_AlterAnyRole = Alter any role
+Permission_AlterAnyRoute = Alter any route
+Permission_AlterAnySchema = Alter any schema
+Permission_AlterAnySecurityPolicy = Alter any security policy
+Permission_AlterAnySensitivityClassification = Alter any sensitivity classification
+Permission_AlterAnyService = Alter any service
+Permission_AlterAnyUser = Alter any user
+Permission_AlterAnySymmetricKey = Alter any symmetric key
+Permission_Authenticate = Authenticate
+Permission_BackupDatabase = Backup database
+Permission_BackupLog = Backup log
+Permission_Checkpoint = Checkpoint
+Permission_ConnectReplication = Connect replication
+Permission_CreateAggregate = Create aggregate
+Permission_CreateAssembly = Create assembly
+Permission_CreateAsymmetricKey = Create asymmetric key
+Permission_CreateCertificate = Create certificate
+Permission_CreateContract = Create contract
+Permission_CreateDatabase = Create database
+Permission_CreateDatabaseDdlEventNotification = Create database DDL event notification
+Permission_CreateDefault = Create default
+Permission_CreateFulltextCatalog = Create fulltext catalog
+Permission_CreateFunction = Create function
+Permission_CreateMessageType = Create message type
+Permission_CreateProcedure = Create procedure
+Permission_CreateQueue = Create queue
+Permission_CreateRemoteServiceBinding = Create remote service binding
+Permission_CreateRole = Create role
+Permission_CreateRoute = Create route
+Permission_CreateRule = Create rule
+Permission_CreateSchema = Create schema
+Permission_CreateService = Create service
+Permission_CreateSymmetricKey = Create symmetric key
+Permission_CreateSynonym = Create synonym
+Permission_CreateSequence = Create sequence
+Permission_CreateTable = Create table
+Permission_CreateType = Create type
+Permission_CreateView = Create view
+Permission_CreateXmlSchemaCollection = Create XML schema collection
+Permission_Showplan = Show plan
+Permission_SubscribeQueryNotifications = Subscribe query notifications
+Permission_Unmask = Unmask
+Permission_ViewAnyColumnEncryptionKeyDefinition = View any column encryption key definition
+Permission_ViewAnyColumnMasterKeyDefinition = View any column master key definition
+Permission_ViewAnySensitivityClassification = View any sensitivity classification
+Permission_ViewDatabaseState = View database state
+
+#Server permissions names
+Permission_AdministerBulkOperations = Administer bulk operations
+Permission_AlterAnyServerAudit = Alter any server audit
+Permission_AlterAnyConnection = Alter any connection
+Permission_AlterAnyCredential = Alter any credential
+Permission_AlterAnyDatabase = Alter any database
+Permission_AlterAnyEndpoint = Alter any endpoint
+Permission_AlterAnyEventNotification = Alter any event notification
+Permission_AlterAnyEventSession = Alter any event session
+Permission_AlterAnyLinkedServer = Alter any linked server
+Permission_AlterAnyLogin = Alter any login
+Permission_AlterAnyServerRole = Alter any server role
+Permission_AlterResources = Alter resources
+Permission_AlterServerState = Alter server state
+Permission_AlterSettings = Alter settings
+Permission_AlterTrace = Alter trace
+Permission_AuthenticateServer = Authenticate server
+Permission_ConnectSql = Connect SQL
+Permission_ControlServer = Control server
+Permission_CreateAnyDatabase = Create any database
+Permission_CreateDdlEventNotification = Create DDL event notification
+Permission_CreateEndpoint = Create endpoint
+Permission_CreateTraceEventNotification = Create trace event notification
+Permission_CreateServerRole = Create server role
+Permission_ExternalAccessAssembly = External access assembly
+Permission_Shutdown = Shutdown
+Permission_UnsafeAssembly = Unsafe assembly
+Permission_ViewAnyDatabase = View any database
+Permission_ViewAnyDefinition = View any definition
+Permission_ViewServerState = View server state
+Permission_AlterAnyAvailabilityGroup = Alter any availability group
+Permission_CreateAvailabilityGroup = Create availability group
+Permission_SelectAllUserSecurables = Select All User Securables
+Permission_ConnectAnyDatabase = Connect Any Database
+Permission_ImpersonateAnyLogin = Impersonate Any Login

@@ -4,13 +4,16 @@
 //
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     /// <summary>
-    /// Summary description for CUtils.
+    /// Utility functions for working with server languages
     /// </summary>
     internal class LanguageUtils
     {
@@ -20,8 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="connectedServer"></param>
         /// <param name="languageName"></param>
         /// <returns>Returns string.Empty in case it doesn't find a matching languageName on the server</returns>
-        public static string GetLanguageAliasFromName(Server connectedServer,
-                                                        string languageName)
+        public static string GetLanguageAliasFromName(Server connectedServer, string languageName)
         {
             string languageAlias = string.Empty;
 
@@ -45,8 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="connectedServer"></param>
         /// <param name="languageAlias"></param>
         /// <returns>Returns string.Empty in case it doesn't find a matching languageAlias on the server</returns>
-        public static string GetLanguageNameFromAlias(Server connectedServer,
-                                                        string languageAlias)
+        public static string GetLanguageNameFromAlias(Server connectedServer, string languageAlias)
         {
             string languageName = string.Empty;
 
@@ -70,8 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="connectedServer"></param>
         /// <param name="languageAlias"></param>
         /// <returns>Throws exception in case it doesn't find a matching languageId on the server</returns>
-        public static int GetLcidFromLangId(Server connectedServer,
-                                                        int langId)
+        public static int GetLcidFromLangId(Server connectedServer, int langId)
         {
             int lcid = -1; //Unacceptable Lcid.            
 
@@ -100,8 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <param name="connectedServer"></param>
         /// <param name="languageAlias"></param>
         /// <returns>Throws exception in case it doesn't find a matching lcid on the server</returns>
-        public static int GetLangIdFromLcid(Server connectedServer,
-                                                        int lcid)
+        public static int GetLangIdFromLcid(Server connectedServer, int lcid)
         {
             int langId = -1; //Unacceptable LangId.            
 
@@ -129,8 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// </summary>
         /// <param name="langid"></param>
         /// <returns></returns>
-        public static LanguageChoice GetLanguageChoiceAlias(Server connectedServer, 
-                                                                int lcid)
+        public static LanguageChoice GetLanguageChoiceAlias(Server connectedServer, int lcid)
         {
             SetLanguageDefaultInitFieldsForDefaultLanguages(connectedServer);
 
@@ -155,17 +153,54 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             string[] fieldsNeeded = new string[] { "Alias", "Name", "LocaleID", "LangID" };
             connectedServer.SetDefaultInitFields(typeof(Language), fieldsNeeded);
         }
+
+        public static IList<LanguageDisplay> GetDefaultLanguageOptions(CDataContainer dataContainer)
+        {
+            // sort the languages alphabetically by alias
+            SortedList sortedLanguages = new SortedList(Comparer.Default);
+
+            LanguageUtils.SetLanguageDefaultInitFieldsForDefaultLanguages(dataContainer.Server);
+            if (dataContainer.Server != null && dataContainer.Server.Languages != null)
+            {
+                foreach (Language language in dataContainer.Server.Languages)
+                {
+                    LanguageDisplay listValue = new LanguageDisplay(language);
+                    sortedLanguages.Add(language.Alias, listValue);
+                }
+            }
+
+            IList<LanguageDisplay> res = new List<LanguageDisplay>();
+            foreach (LanguageDisplay ld in sortedLanguages.Values)
+            {
+                res.Add(ld);
+            }
+
+            return res;
+        }
+
+        public static string GetLanguageAliasFromDisplayText(string? displayText)
+        {
+            string[] parts = displayText?.Split(" - ");
+            return (parts != null && parts.Length > 1) ? parts[0] : displayText;            
+        }
+
+        public static bool IsDefaultLanguageSupported(Server server)
+        {
+            //Default Language was not supported before Denali.
+            return SqlMgmtUtils.IsSql11OrLater(server.ConnectionContext.ServerVersion)
+                && server.ServerType != DatabaseEngineType.SqlAzureDatabase;
+        }
+
+        public static string FormatLanguageDisplay(LanguageDisplay? l)
+        {
+            if (l == null) 
+            {
+                return null;
+            }
+            return string.Format("{0} - {1}", l.Language.Alias, l.Language.Name);
+        }
     }
 
-    #region interface - ILanguageLcidWithConnectionInfo - used by property editors to talk with data object
-    interface ILanguageLcidWithConnectionInfo
-    {
-        int Lcid { get; }
-        ServerConnection Connection { get; }
-    }
-    #endregion
-
-    #region class - LanguageChoice
     internal class LanguageChoice
     {
         public string alias;
@@ -181,5 +216,4 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return alias;
         }
     }
-    #endregion
 }
