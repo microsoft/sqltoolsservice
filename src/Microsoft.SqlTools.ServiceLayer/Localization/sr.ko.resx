@@ -4018,4 +4018,334 @@
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
     <value>보안 enclave를 사용하도록 설정한 상태에서는 증명 프로토콜을 비워 둘 수 없습니다.</value>
   </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>변경</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>연결</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>제어</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>삭제</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>실행</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>가장</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>삽입</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>받기</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>참조</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>선택</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>보내기</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>소유권 가져오기</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>업데이트</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>정의 보기</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>변경 내용 추적 보기</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>모든 애플리케이션 역할 변경</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>모든 어셈블리 변경</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>모든 비대칭 키 변경</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>모든 인증서 변경</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>모든 데이터베이스 감사 변경</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>모든 계약 변경</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>모든 데이터베이스 DDL 트리거 변경</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>모든 데이터베이스 이벤트 알림 변경</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>모든 데이터 공간 변경</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>외부 데이터 원본 변경</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>외부 파일 형식 변경</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>모든 전체 텍스트 카탈로그 변경</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>모든 마스크 변경</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>모든 메시지 유형 변경</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>모든 원격 서비스 바인딩 변경</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>모든 역할 변경</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>모든 경로 변경</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>모든 스키마 변경</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>모든 보안 정책 변경</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>민감도 분류 변경</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>모든 서비스 변경</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>모든 사용자 변경</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>모든 대칭 키 변경</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>인증</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>데이터베이스 백업</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>로그 백업</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>검사점</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>복제 연결</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>집계 만들기</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>어셈블리 만들기</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>비대칭 키 만들기</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>인증서 만들기</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>계약 만들기</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>데이터베이스 만들기</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>데이터베이스 DDL 이벤트 알림 만들기</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>기본값 만들기</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>전체 텍스트 카탈로그 만들기</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>함수 만들기</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>메시지 유형 만들기</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>프로시저 만들기</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>큐 만들기</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>원격 서비스 바인딩 만들기</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>역할 만들기</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>경로 만들기</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>규칙 만들기</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>스키마 만들기</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>서비스 만들기</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>대칭 키 만들기</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>동의어 만들기</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>시퀀스 만들기</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>테이블 만들기</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>유형 만들기</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>뷰 만들기</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>XML 스키마 컬렉션 만들기</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>실행 계획</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>쿼리 알림 구독</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>마스크 해제</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>모든 열 암호화 키 정의 보기</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>모든 열 마스터 키 정의 보기</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>민감도 분류 보기</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>데이터베이스 상태 보기</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>대량 작업 관리</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>모든 서버 감사 변경</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>모든 연결 변경</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>모든 자격 증명 변경</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>모든 데이터베이스 변경</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>모든 엔드포인트 변경</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>모든 이벤트 알림 변경</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>이벤트 세션을 변경합니다.</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>모든 연결된 서버 변경</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>모든 로그인 변경</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>모든 서버 역할 변경</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>리소스 변경</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>서버 상태 변경</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>설정 변경</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>추적 변경</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>서버 인증</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>SQL 연결</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>서버 제어</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>모든 데이터베이스 만들기</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>DDL 이벤트 알림 만들기</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>엔드포인트 만들기</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>추적 이벤트 알림 만들기</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>서버 역할 만들기</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>외부 액세스 어셈블리</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>종료</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>안전하지 않은 어셈블리</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>모든 데이터베이스 보기</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>모든 정의 보기</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>서버 상태 보기</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>가용성 그룹 변경</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>가용성 그룹 만들기</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>모든 사용자 보안 개체 선택</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>모든 데이터베이스 연결</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>모든 로그인 가장</value>
+  </data>
 </root>
