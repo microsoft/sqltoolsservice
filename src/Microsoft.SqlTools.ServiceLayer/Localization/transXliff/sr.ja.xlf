@@ -6587,6 +6587,556 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">セキュア エンクレーブを有効にした状態で構成証明プロトコルを空にすることはできません。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Permission_Alter">
+        <source>Alter</source>
+        <target state="translated">変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Connect">
+        <source>Connect</source>
+        <target state="translated">接続</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Control">
+        <source>Control</source>
+        <target state="translated">制御</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Delete">
+        <source>Delete</source>
+        <target state="translated">削除</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Execute">
+        <source>Execute</source>
+        <target state="translated">実行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Impersonate">
+        <source>Impersonate</source>
+        <target state="translated">偽装する</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Insert">
+        <source>Insert</source>
+        <target state="translated">挿入</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Receive">
+        <source>Receive</source>
+        <target state="translated">受信</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_References">
+        <source>References</source>
+        <target state="translated">リファレンス</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Select">
+        <source>Select</source>
+        <target state="translated">選択</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Send">
+        <source>Send</source>
+        <target state="translated">送信</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_TakeOwnership">
+        <source>Take ownership</source>
+        <target state="translated">所有権の取得</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Update">
+        <source>Update</source>
+        <target state="translated">更新</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewDefinition">
+        <source>View definition</source>
+        <target state="translated">定義の表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewChangeTracking">
+        <source>View change tracking</source>
+        <target state="translated">変更の追跡の表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyApplicationRole">
+        <source>Alter any application role</source>
+        <target state="translated">アプリケーション ロールの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAssembly">
+        <source>Alter any assembly</source>
+        <target state="translated">任意のアセンブリの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAsymmetricKey">
+        <source>Alter any asymmetric key</source>
+        <target state="translated">非対称キーの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyCertificate">
+        <source>Alter any certificate</source>
+        <target state="translated">証明書の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseAudit">
+        <source>Alter any database audit</source>
+        <target state="translated">データベース監査の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyContract">
+        <source>Alter any contract</source>
+        <target state="translated">任意のコントラクトの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseDdlTrigger">
+        <source>Alter any database DDL trigger</source>
+        <target state="translated">データベース DDL トリガーの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseEventNotification">
+        <source>Alter any database event notification</source>
+        <target state="translated">データベース イベント通知の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDataspace">
+        <source>Alter any dataspace</source>
+        <target state="translated">任意のデータ領域の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyExternalDataSource">
+        <source>Alter any external data source</source>
+        <target state="translated">外部データ ソースの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyExternalFileFormat">
+        <source>Alter any external file format</source>
+        <target state="translated">外部ファイル形式の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyFulltextCatalog">
+        <source>Alter any fulltext catalog</source>
+        <target state="translated">フルテキスト カタログの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyMask">
+        <source>Alter any mask</source>
+        <target state="translated">任意のマスクの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyMessageType">
+        <source>Alter any message type</source>
+        <target state="translated">メッセージ型の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRemoteServiceBinding">
+        <source>Alter any remote service binding</source>
+        <target state="translated">リモート サービス バインドの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRole">
+        <source>Alter any role</source>
+        <target state="translated">任意のロールの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRoute">
+        <source>Alter any route</source>
+        <target state="translated">任意のルートの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySchema">
+        <source>Alter any schema</source>
+        <target state="translated">任意のスキーマの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySecurityPolicy">
+        <source>Alter any security policy</source>
+        <target state="translated">セキュリティ ポリシーの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySensitivityClassification">
+        <source>Alter any sensitivity classification</source>
+        <target state="translated">任意の秘密度の分類を変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyService">
+        <source>Alter any service</source>
+        <target state="translated">サービスの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyUser">
+        <source>Alter any user</source>
+        <target state="translated">任意のユーザーの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySymmetricKey">
+        <source>Alter any symmetric key</source>
+        <target state="translated">対称キーの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Authenticate">
+        <source>Authenticate</source>
+        <target state="translated">認証</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_BackupDatabase">
+        <source>Backup database</source>
+        <target state="translated">データベースのバックアップ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_BackupLog">
+        <source>Backup log</source>
+        <target state="translated">ログのバックアップ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Checkpoint">
+        <source>Checkpoint</source>
+        <target state="translated">チェックポイント</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectReplication">
+        <source>Connect replication</source>
+        <target state="translated">レプリケーションの接続</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAggregate">
+        <source>Create aggregate</source>
+        <target state="translated">集計の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAssembly">
+        <source>Create assembly</source>
+        <target state="translated">アセンブリの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAsymmetricKey">
+        <source>Create asymmetric key</source>
+        <target state="translated">非対称キーの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateCertificate">
+        <source>Create certificate</source>
+        <target state="translated">証明書の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateContract">
+        <source>Create contract</source>
+        <target state="translated">コントラクトの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDatabase">
+        <source>Create database</source>
+        <target state="translated">データベースの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDatabaseDdlEventNotification">
+        <source>Create database DDL event notification</source>
+        <target state="translated">データベース DDL イベント通知の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDefault">
+        <source>Create default</source>
+        <target state="translated">既定値の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateFulltextCatalog">
+        <source>Create fulltext catalog</source>
+        <target state="translated">フルテキスト カタログの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateFunction">
+        <source>Create function</source>
+        <target state="translated">関数の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateMessageType">
+        <source>Create message type</source>
+        <target state="translated">メッセージ型の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateProcedure">
+        <source>Create procedure</source>
+        <target state="translated">プロシージャの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateQueue">
+        <source>Create queue</source>
+        <target state="translated">キューの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRemoteServiceBinding">
+        <source>Create remote service binding</source>
+        <target state="translated">リモート サービス バインドの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRole">
+        <source>Create role</source>
+        <target state="translated">ロールの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRoute">
+        <source>Create route</source>
+        <target state="translated">ルートの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRule">
+        <source>Create rule</source>
+        <target state="translated">ルールの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSchema">
+        <source>Create schema</source>
+        <target state="translated">スキーマの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateService">
+        <source>Create service</source>
+        <target state="translated">サービスの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSymmetricKey">
+        <source>Create symmetric key</source>
+        <target state="translated">対称キーの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSynonym">
+        <source>Create synonym</source>
+        <target state="translated">同意語の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSequence">
+        <source>Create sequence</source>
+        <target state="translated">シーケンスの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateTable">
+        <source>Create table</source>
+        <target state="translated">テーブルの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateType">
+        <source>Create type</source>
+        <target state="translated">型の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateView">
+        <source>Create view</source>
+        <target state="translated">ビューの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateXmlSchemaCollection">
+        <source>Create XML schema collection</source>
+        <target state="translated">XML スキーマ コレクションの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Showplan">
+        <source>Show plan</source>
+        <target state="translated">プラン表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_SubscribeQueryNotifications">
+        <source>Subscribe query notifications</source>
+        <target state="translated">クエリ通知のサブスクライブ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Unmask">
+        <source>Unmask</source>
+        <target state="translated">マスク解除</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyColumnEncryptionKeyDefinition">
+        <source>View any column encryption key definition</source>
+        <target state="translated">列暗号化キー定義を表示する</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyColumnMasterKeyDefinition">
+        <source>View any column master key definition</source>
+        <target state="translated">列マスター キー定義を表示する</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnySensitivityClassification">
+        <source>View any sensitivity classification</source>
+        <target state="translated">任意の秘密度の分類を表示する</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewDatabaseState">
+        <source>View database state</source>
+        <target state="translated">データベースの状態の表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AdministerBulkOperations">
+        <source>Administer bulk operations</source>
+        <target state="translated">一括操作の管理</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyServerAudit">
+        <source>Alter any server audit</source>
+        <target state="translated">サーバー監査の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyConnection">
+        <source>Alter any connection</source>
+        <target state="translated">任意の接続の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyCredential">
+        <source>Alter any credential</source>
+        <target state="translated">任意の資格情報の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabase">
+        <source>Alter any database</source>
+        <target state="translated">任意のデータベースの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEndpoint">
+        <source>Alter any endpoint</source>
+        <target state="translated">任意のエンドポイントの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEventNotification">
+        <source>Alter any event notification</source>
+        <target state="translated">イベント通知の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEventSession">
+        <source>Alter any event session</source>
+        <target state="translated">イベント セッションの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyLinkedServer">
+        <source>Alter any linked server</source>
+        <target state="translated">リンク サーバーの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyLogin">
+        <source>Alter any login</source>
+        <target state="translated">任意のログインの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyServerRole">
+        <source>Alter any server role</source>
+        <target state="translated">サーバー ロールの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterResources">
+        <source>Alter resources</source>
+        <target state="translated">リソースの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterServerState">
+        <source>Alter server state</source>
+        <target state="translated">サーバー状態の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterSettings">
+        <source>Alter settings</source>
+        <target state="translated">設定の変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterTrace">
+        <source>Alter trace</source>
+        <target state="translated">トレースの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AuthenticateServer">
+        <source>Authenticate server</source>
+        <target state="translated">サーバーの認証</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectSql">
+        <source>Connect SQL</source>
+        <target state="translated">SQL の接続</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ControlServer">
+        <source>Control server</source>
+        <target state="translated">サーバーの制御</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAnyDatabase">
+        <source>Create any database</source>
+        <target state="translated">任意のデータベースの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDdlEventNotification">
+        <source>Create DDL event notification</source>
+        <target state="translated">DDL イベント通知の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateEndpoint">
+        <source>Create endpoint</source>
+        <target state="translated">エンドポイントの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateTraceEventNotification">
+        <source>Create trace event notification</source>
+        <target state="translated">トレース イベント通知の作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateServerRole">
+        <source>Create server role</source>
+        <target state="translated">サーバー ロールの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ExternalAccessAssembly">
+        <source>External access assembly</source>
+        <target state="translated">外部アクセス アセンブリ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Shutdown">
+        <source>Shutdown</source>
+        <target state="translated">シャットダウン</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_UnsafeAssembly">
+        <source>Unsafe assembly</source>
+        <target state="translated">安全ではないアセンブリ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyDatabase">
+        <source>View any database</source>
+        <target state="translated">任意のデータベースの表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyDefinition">
+        <source>View any definition</source>
+        <target state="translated">任意の定義の表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewServerState">
+        <source>View server state</source>
+        <target state="translated">サーバー状態の表示</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAvailabilityGroup">
+        <source>Alter any availability group</source>
+        <target state="translated">可用性グループの変更</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAvailabilityGroup">
+        <source>Create availability group</source>
+        <target state="translated">可用性グループの作成</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_SelectAllUserSecurables">
+        <source>Select All User Securables</source>
+        <target state="translated">すべてのユーザーのセキュリティ保護可能なリソースを選択</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectAnyDatabase">
+        <source>Connect Any Database</source>
+        <target state="translated">任意のデータベースの接続</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ImpersonateAnyLogin">
+        <source>Impersonate Any Login</source>
+        <target state="translated">任意のログインの偽装</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

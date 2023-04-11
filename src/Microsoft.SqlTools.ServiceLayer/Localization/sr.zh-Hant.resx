@@ -4018,4 +4018,334 @@
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
     <value>安全記憶體保護區啟用時，證明通訊協定不可為空白。</value>
   </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>改變</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>連線</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>控制</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>執行</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>模擬</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>插入</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>接收</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>參考</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>選取</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>傳送</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>取得擁有權</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>檢視定義</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>檢視變更追蹤</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>改變任何應用程式角色</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>改變任何組件</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>改變任何非對稱金鑰</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>改變任何憑證</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>改變任何資料庫稽核</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>改變任何合約</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>改變任何資料庫 DDL 觸發程序</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>改變任何資料庫事件通知</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>改變任何資料空間</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>改變任何外部資料來源</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>改變任何外部檔案格式</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>改變任何全文檢索目錄</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>改變任何遮罩</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>改變任何訊息類型</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>改變任何遠端服務繫結</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>改變任何角色</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>改變任何路由</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>改變任何結構描述</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>改變任何安全性原則</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>改變所有敏感度分類</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>改變任何服務</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>改變任何使用者</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>改變任何對稱金鑰</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>驗證</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>備份資料庫</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>備份記錄檔</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>檢查點</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>連線複寫</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>建立彙總</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>建立組件</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>建立非對稱金鑰</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>建立憑證</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>建立合約</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>建立資料庫</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>建立資料庫 DDL 事件通知</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>建立預設值</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>建立全文檢索目錄</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>建立函數</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>建立訊息類型</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>建立程序</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>建立佇列</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>建立遠端服務繫結</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>建立角色</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>建立路由</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>建立規則</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>建立結構描述</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>建立服務</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>建立對稱金鑰</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>建立同義字</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>建立順序</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>建立資料表</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>建立類型</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>建立檢視</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>建立 XML 結構描述集合</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>顯示計畫</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>訂閱查詢通知</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>取消遮罩</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>檢視任何資料行的加密金鑰定義</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>檢視任何資料行的主要金鑰定義</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>檢視所有敏感度分類</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>檢視資料庫狀態</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>管理大量作業</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>改變任何伺服器稽核</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>改變任何連線</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>改變任何認證</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>改變任何資料庫</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>改變任何端點</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>改變任何事件通知</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>改變任何事件工作階段</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>改變任何連結的伺服器</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>改變任何登入</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>改變任何伺服器角色</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>改變資源</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>改變伺服器狀態</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>改變設定</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>改變追蹤</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>驗證伺服器</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>連接 SQL</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>控制伺服器</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>建立任何資料庫</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>建立 DDL 事件通知</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>建立端點</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>建立追蹤事件通知</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>建立伺服器角色</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>外部存取組件</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>關機</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>不安全的組件</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>檢視任何資料庫</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>檢視任何定義</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>檢視伺服器狀態</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>改變任何可用性群組</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>建立可用性群組</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>選取所有使用者安全性實體</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>連接任何資料庫</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>模擬任何登入</value>
+  </data>
 </root>

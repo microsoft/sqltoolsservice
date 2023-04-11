@@ -191,6 +191,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 && server.ServerType != DatabaseEngineType.SqlAzureDatabase;
         }
 
+        public static string FormatLanguageDisplay(LanguageDisplay? l)
+        {
+            if (l == null) 
+            {
+                return null;
+            }
+            return string.Format("{0} - {1}", l.Language.Alias, l.Language.Name);
+        }
     }
 
     internal class LanguageChoice
