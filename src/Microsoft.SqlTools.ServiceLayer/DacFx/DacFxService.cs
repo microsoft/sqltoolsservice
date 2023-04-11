@@ -6,19 +6,19 @@
 #nullable disable
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlServer.Dac.Model;
-using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using System.Diagnostics;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -30,9 +30,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
-        private static Version serviceVersion = LoadServiceVersion();
+        private static Version? serviceVersion = LoadServiceVersion();
         private const string TelemetryDefaultApplicationName = "sqltoolsservice";
-        private string telemetryApplicationName;
+        private string telemetryApplicationName = TelemetryDefaultApplicationName;
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
         /// <summary>
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
             Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
-            telemetryApplicationName = string.IsNullOrEmpty(commandOptions.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
+            telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
 
         internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
@@ -456,7 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
         }
 
-        private static Version LoadServiceVersion()
+        private static Version? LoadServiceVersion()
         {
             try
             {
