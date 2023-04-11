@@ -2,15 +2,9 @@
 	<Import
 		Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 	<PropertyGroup>
-		<AssemblyCompany>Microsoft</AssemblyCompany>
-		<AssemblyCopyright>� Microsoft Corporation. All rights reserved.</AssemblyCopyright>
-		<Company>Microsoft Corporation</Company>
-		<Product>Microsoft Sql Tools</Product>
-		<Authors>Microsoft</Authors>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice/</PackageProjectUrl>

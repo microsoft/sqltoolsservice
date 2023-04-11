@@ -1,5 +1,11 @@
 <Project>
   <PropertyGroup>
+    <AssemblyCompany>Microsoft</AssemblyCompany>
+    <AssemblyCopyright>� Microsoft Corporation. All rights reserved.</AssemblyCopyright>
+    <Company>Microsoft Corporation</Company>
+    <Product>Microsoft Sql Tools</Product>
+    <Authors>Microsoft</Authors>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TargetFramework>net7.0</TargetFramework>
