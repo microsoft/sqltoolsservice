@@ -20,10 +20,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// </summary>
         /// <param name="deploymentOptions"></param>
         /// <returns>DacDeployOptions</returns
-        internal static DacDeployOptions CreateDeploymentOptions(DeploymentOptions deploymentOptions)
+        internal static DacDeployOptions CreateDeploymentOptions(DeploymentOptions? deploymentOptions = null)
         {
             try
             {
+                deploymentOptions = deploymentOptions ?? new DeploymentOptions();
                 PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
 
                 DacDeployOptions dacOptions = new DacDeployOptions();
@@ -38,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     {
                         List<ObjectType> finalExcludeObjects = new List<ObjectType> { };
                         var val = deployOptionsProp.GetValue(deploymentOptions);
-                        string[] excludeObjectTypeOptionsArray = (string[])val.GetType().GetProperty("Value").GetValue(val);
+                        string[] excludeObjectTypeOptionsArray = (string[])val?.GetType()?.GetProperty("Value")?.GetValue(val);
 
                         if (excludeObjectTypeOptionsArray != null)
                         {
