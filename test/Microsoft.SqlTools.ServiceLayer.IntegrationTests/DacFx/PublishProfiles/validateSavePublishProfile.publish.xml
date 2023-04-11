@@ -3,6 +3,18 @@
   <PropertyGroup>
     <TargetDatabaseName>testDb</TargetDatabaseName>
     <TargetConnectionString>testConnString</TargetConnectionString>
+    <AllowIncompatiblePlatform>True</AllowIncompatiblePlatform>
+    <CreateNewDatabase>True</CreateNewDatabase>
+    <DropConstraintsNotInSource>False</DropConstraintsNotInSource>
+    <DropPermissionsNotInSource>True</DropPermissionsNotInSource>
+    <DropObjectsNotInSource>True</DropObjectsNotInSource>
+    <DropRoleMembersNotInSource>True</DropRoleMembersNotInSource>
+    <IgnoreKeywordCasing>False</IgnoreKeywordCasing>
+    <IgnoreSemicolonBetweenStatements>False</IgnoreSemicolonBetweenStatements>
+    <ScriptFileSize>True</ScriptFileSize>
+    <VerifyDeployment>False</VerifyDeployment>
+    <AllowDropBlockingAssemblies>True</AllowDropBlockingAssemblies>
+    <ExcludeViews>True</ExcludeViews>
     <ProfileVersionNumber>1</ProfileVersionNumber>
   </PropertyGroup>
   <ItemGroup>

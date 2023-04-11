@@ -6587,6 +6587,556 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">证明协议不能为空且已启用安全 enclave。</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="Permission_Alter">
+        <source>Alter</source>
+        <target state="translated">更改</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Connect">
+        <source>Connect</source>
+        <target state="translated">连接</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Control">
+        <source>Control</source>
+        <target state="translated">控制</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Delete">
+        <source>Delete</source>
+        <target state="translated">删除</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Execute">
+        <source>Execute</source>
+        <target state="translated">执行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Impersonate">
+        <source>Impersonate</source>
+        <target state="translated">模拟</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Insert">
+        <source>Insert</source>
+        <target state="translated">插入</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Receive">
+        <source>Receive</source>
+        <target state="translated">接收</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_References">
+        <source>References</source>
+        <target state="translated">引用</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Select">
+        <source>Select</source>
+        <target state="translated">选择</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Send">
+        <source>Send</source>
+        <target state="translated">发送​​</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_TakeOwnership">
+        <source>Take ownership</source>
+        <target state="translated">接管所有权</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Update">
+        <source>Update</source>
+        <target state="translated">更新</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewDefinition">
+        <source>View definition</source>
+        <target state="translated">查看定义</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewChangeTracking">
+        <source>View change tracking</source>
+        <target state="translated">查看更改跟踪</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyApplicationRole">
+        <source>Alter any application role</source>
+        <target state="translated">更改任意应用程序角色</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAssembly">
+        <source>Alter any assembly</source>
+        <target state="translated">更改任意程序集</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAsymmetricKey">
+        <source>Alter any asymmetric key</source>
+        <target state="translated">更改任意非对称密钥</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyCertificate">
+        <source>Alter any certificate</source>
+        <target state="translated">更改任意证书</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseAudit">
+        <source>Alter any database audit</source>
+        <target state="translated">更改任意数据库审核</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyContract">
+        <source>Alter any contract</source>
+        <target state="translated">更改任意约定</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseDdlTrigger">
+        <source>Alter any database DDL trigger</source>
+        <target state="translated">更改任意数据库 DDL 触发器</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabaseEventNotification">
+        <source>Alter any database event notification</source>
+        <target state="translated">更改任意数据库事件通知</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDataspace">
+        <source>Alter any dataspace</source>
+        <target state="translated">更改任意数据空间</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyExternalDataSource">
+        <source>Alter any external data source</source>
+        <target state="translated">更改任何外部数据源</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyExternalFileFormat">
+        <source>Alter any external file format</source>
+        <target state="translated">更改任何外部文件格式</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyFulltextCatalog">
+        <source>Alter any fulltext catalog</source>
+        <target state="translated">更改任意全文目录</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyMask">
+        <source>Alter any mask</source>
+        <target state="translated">更改任何掩码</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyMessageType">
+        <source>Alter any message type</source>
+        <target state="translated">更改任意消息类型</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRemoteServiceBinding">
+        <source>Alter any remote service binding</source>
+        <target state="translated">更改任意远程服务绑定</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRole">
+        <source>Alter any role</source>
+        <target state="translated">更改任意角色</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyRoute">
+        <source>Alter any route</source>
+        <target state="translated">更改任意路由</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySchema">
+        <source>Alter any schema</source>
+        <target state="translated">更改任意架构</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySecurityPolicy">
+        <source>Alter any security policy</source>
+        <target state="translated">更改任意安全策略</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySensitivityClassification">
+        <source>Alter any sensitivity classification</source>
+        <target state="translated">更改任何敏感度分类</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyService">
+        <source>Alter any service</source>
+        <target state="translated">更改任意服务</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyUser">
+        <source>Alter any user</source>
+        <target state="translated">更改任意用户</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnySymmetricKey">
+        <source>Alter any symmetric key</source>
+        <target state="translated">更改任意对称密钥</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Authenticate">
+        <source>Authenticate</source>
+        <target state="translated">身份验证</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_BackupDatabase">
+        <source>Backup database</source>
+        <target state="translated">备份数据库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_BackupLog">
+        <source>Backup log</source>
+        <target state="translated">备份日志</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Checkpoint">
+        <source>Checkpoint</source>
+        <target state="translated">检查点</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectReplication">
+        <source>Connect replication</source>
+        <target state="translated">连接复制</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAggregate">
+        <source>Create aggregate</source>
+        <target state="translated">控制聚合</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAssembly">
+        <source>Create assembly</source>
+        <target state="translated">创建程序集</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAsymmetricKey">
+        <source>Create asymmetric key</source>
+        <target state="translated">创建非对称密钥</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateCertificate">
+        <source>Create certificate</source>
+        <target state="translated">创建证书</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateContract">
+        <source>Create contract</source>
+        <target state="translated">创建约定</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDatabase">
+        <source>Create database</source>
+        <target state="translated">创建数据库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDatabaseDdlEventNotification">
+        <source>Create database DDL event notification</source>
+        <target state="translated">创建数据库 DDL 事件通知</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDefault">
+        <source>Create default</source>
+        <target state="translated">创建默认值</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateFulltextCatalog">
+        <source>Create fulltext catalog</source>
+        <target state="translated">创建全文目录</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateFunction">
+        <source>Create function</source>
+        <target state="translated">创建函数</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateMessageType">
+        <source>Create message type</source>
+        <target state="translated">创建消息类型</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateProcedure">
+        <source>Create procedure</source>
+        <target state="translated">创建过程</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateQueue">
+        <source>Create queue</source>
+        <target state="translated">创建队列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRemoteServiceBinding">
+        <source>Create remote service binding</source>
+        <target state="translated">创建远程服务绑定</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRole">
+        <source>Create role</source>
+        <target state="translated">创建角色</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRoute">
+        <source>Create route</source>
+        <target state="translated">创建路由</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateRule">
+        <source>Create rule</source>
+        <target state="translated">创建规则</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSchema">
+        <source>Create schema</source>
+        <target state="translated">创建架构</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateService">
+        <source>Create service</source>
+        <target state="translated">创建服务</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSymmetricKey">
+        <source>Create symmetric key</source>
+        <target state="translated">创建对称密钥</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSynonym">
+        <source>Create synonym</source>
+        <target state="translated">创建同义词</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateSequence">
+        <source>Create sequence</source>
+        <target state="translated">创建序列</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateTable">
+        <source>Create table</source>
+        <target state="translated">创建表</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateType">
+        <source>Create type</source>
+        <target state="translated">创建类型</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateView">
+        <source>Create view</source>
+        <target state="translated">创建视图</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateXmlSchemaCollection">
+        <source>Create XML schema collection</source>
+        <target state="translated">创建 XML 架构集合</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Showplan">
+        <source>Show plan</source>
+        <target state="translated">显示计划</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_SubscribeQueryNotifications">
+        <source>Subscribe query notifications</source>
+        <target state="translated">订阅查询通知</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Unmask">
+        <source>Unmask</source>
+        <target state="translated">撤消掩码</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyColumnEncryptionKeyDefinition">
+        <source>View any column encryption key definition</source>
+        <target state="translated">查看任意列加密密钥定义</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyColumnMasterKeyDefinition">
+        <source>View any column master key definition</source>
+        <target state="translated">查看任意列主密钥定义</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnySensitivityClassification">
+        <source>View any sensitivity classification</source>
+        <target state="translated">查看任何敏感度分类</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewDatabaseState">
+        <source>View database state</source>
+        <target state="translated">查看数据库状态</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AdministerBulkOperations">
+        <source>Administer bulk operations</source>
+        <target state="translated">管理大容量操作</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyServerAudit">
+        <source>Alter any server audit</source>
+        <target state="translated">更改任意服务器审核</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyConnection">
+        <source>Alter any connection</source>
+        <target state="translated">更改任意连接</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyCredential">
+        <source>Alter any credential</source>
+        <target state="translated">更改任意凭据</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyDatabase">
+        <source>Alter any database</source>
+        <target state="translated">更改任意数据库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEndpoint">
+        <source>Alter any endpoint</source>
+        <target state="translated">更改任意端点</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEventNotification">
+        <source>Alter any event notification</source>
+        <target state="translated">更改任意事件通知</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyEventSession">
+        <source>Alter any event session</source>
+        <target state="translated">更改任意事件会话</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyLinkedServer">
+        <source>Alter any linked server</source>
+        <target state="translated">更改任意链接服务器</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyLogin">
+        <source>Alter any login</source>
+        <target state="translated">更改任意登录名</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyServerRole">
+        <source>Alter any server role</source>
+        <target state="translated">更改任何服务器角色</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterResources">
+        <source>Alter resources</source>
+        <target state="translated">更改资源</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterServerState">
+        <source>Alter server state</source>
+        <target state="translated">更改服务器状态</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterSettings">
+        <source>Alter settings</source>
+        <target state="translated">更改设置</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterTrace">
+        <source>Alter trace</source>
+        <target state="translated">更改跟踪</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AuthenticateServer">
+        <source>Authenticate server</source>
+        <target state="translated">验证服务器</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectSql">
+        <source>Connect SQL</source>
+        <target state="translated">连接 SQL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ControlServer">
+        <source>Control server</source>
+        <target state="translated">控制服务器</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAnyDatabase">
+        <source>Create any database</source>
+        <target state="translated">创建任意数据库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateDdlEventNotification">
+        <source>Create DDL event notification</source>
+        <target state="translated">创建 DDL 事件通知</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateEndpoint">
+        <source>Create endpoint</source>
+        <target state="translated">创建端点</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateTraceEventNotification">
+        <source>Create trace event notification</source>
+        <target state="translated">创建跟踪事件通知</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateServerRole">
+        <source>Create server role</source>
+        <target state="translated">创建服务器角色</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ExternalAccessAssembly">
+        <source>External access assembly</source>
+        <target state="translated">外部访问程序集</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_Shutdown">
+        <source>Shutdown</source>
+        <target state="translated">关闭</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_UnsafeAssembly">
+        <source>Unsafe assembly</source>
+        <target state="translated">不安全的程序集</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyDatabase">
+        <source>View any database</source>
+        <target state="translated">查看任意数据库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewAnyDefinition">
+        <source>View any definition</source>
+        <target state="translated">查看任意定义</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ViewServerState">
+        <source>View server state</source>
+        <target state="translated">查看服务器状态</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_AlterAnyAvailabilityGroup">
+        <source>Alter any availability group</source>
+        <target state="translated">更改任何可用性组</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_CreateAvailabilityGroup">
+        <source>Create availability group</source>
+        <target state="translated">创建可用性组</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_SelectAllUserSecurables">
+        <source>Select All User Securables</source>
+        <target state="translated">选择所有用户安全对象</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ConnectAnyDatabase">
+        <source>Connect Any Database</source>
+        <target state="translated">连接任意数据库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="Permission_ImpersonateAnyLogin">
+        <source>Impersonate Any Login</source>
+        <target state="translated">模拟任何登录</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
         {
-            Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel;
+            Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel : false;
             return Task.FromResult(0);
         }
 

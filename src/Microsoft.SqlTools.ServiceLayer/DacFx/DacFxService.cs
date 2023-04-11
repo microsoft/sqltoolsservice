@@ -3,19 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlServer.Dac.Model;
-using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
+using DacTableDesigner = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner.TableDesigner;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -27,6 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static ConnectionService connectionService = null;
         private SqlTaskManager sqlTaskManagerInstance = null;
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
+        private static Version? serviceVersion = LoadServiceVersion();
+        private const string TelemetryDefaultApplicationName = "sqltoolsservice";
+        private string telemetryApplicationName = TelemetryDefaultApplicationName;
         private readonly Lazy<ConcurrentDictionary<string, DacFxOperation>> operations =
             new Lazy<ConcurrentDictionary<string, DacFxOperation>>(() => new ConcurrentDictionary<string, DacFxOperation>());
         /// <summary>
@@ -47,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Initializes the service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, ServiceLayerCommandOptions commandOptions)
         {
             serviceHost.SetRequestHandler(ExportRequest.Type, this.HandleExportRequest, true);
             serviceHost.SetRequestHandler(ImportRequest.Type, this.HandleImportRequest, true);
@@ -62,6 +67,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GenerateTSqlModelRequest.Type, this.HandleGenerateTSqlModelRequest, true);
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
+            Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
+            telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
+        }
+
+        internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
+        {
+            // Update telemetry status in DacFx service
+            UpdateTelemetryStatus(newSettings.TelemetrySettings.Telemetry != TelemetryLevel.Off);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -329,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = new DacProfile();
                     profile.TargetDatabaseName = parameters.DatabaseName;
                     profile.TargetConnectionString = parameters.ConnectionString;
-                    //TODO: Set deploy options to pass on to DacFx
+                    profile.DeployOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions);
 
                     if (parameters.SqlCommandVariableValues != null)
                     {
@@ -338,11 +352,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                             profile.DeployOptions.SqlCommandVariableValues[key] = parameters.SqlCommandVariableValues[key];
                         }
                     }
-                    //TODO: Add return from Save with success/fail status
                     profile.Save(parameters.ProfilePath);
                 }
             }, requestContext);
- 
+
             return;
         }
 
@@ -416,6 +429,47 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         internal void PerformOperation(DacFxOperation operation, TaskExecutionMode taskExecutionMode)
         {
             operation.Execute(taskExecutionMode);
+        }
+
+        /// <summary>
+        /// Changes telemetry status 
+        /// </summary>
+        private void UpdateTelemetryStatus(bool telemetryEnabled)
+        {
+            try
+            {
+                if (telemetryEnabled)
+                {
+                    DacServices.EnableTelemetry(telemetryApplicationName, serviceVersion);
+                }
+                else
+                {
+                    DacServices.DisableTelemetry();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Failed to update DacFx telemetry status. telemetry enable: {telemetryEnabled}, error: {ex.Message}");
+            }
+        }
+
+        private static Version? LoadServiceVersion()
+        {
+            try
+            {
+                string fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
+                if (Version.TryParse(fileVersion, out Version version))
+                {
+                    return version;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Failed to load assembly version:  error: {ex.Message}");
+                return null;
+            }
         }
     }
 }
