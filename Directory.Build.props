@@ -29,5 +29,7 @@
     <!-- This is required for IDE0005 to fail the build https://github.com/dotnet/roslyn/issues/41640 -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
+    <!-- add Source Link info to package/pdbs-->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 </Project>
