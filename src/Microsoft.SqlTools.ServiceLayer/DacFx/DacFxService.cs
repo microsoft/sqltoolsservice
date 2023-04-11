@@ -329,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = new DacProfile();
                     profile.TargetDatabaseName = parameters.DatabaseName;
                     profile.TargetConnectionString = parameters.ConnectionString;
-                    //TODO: Set deploy options to pass on to DacFx
+                    profile.DeployOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions);
 
                     if (parameters.SqlCommandVariableValues != null)
                     {
@@ -338,7 +338,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                             profile.DeployOptions.SqlCommandVariableValues[key] = parameters.SqlCommandVariableValues[key];
                         }
                     }
-                    //TODO: Add return from Save with success/fail status
                     profile.Save(parameters.ProfilePath);
                 }
             }, requestContext);
