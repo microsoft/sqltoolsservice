@@ -356,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     profile.Save(parameters.ProfilePath);
                 }
             }, requestContext);
- 
+
             return;
         }
 
@@ -447,7 +447,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     DacServices.DisableTelemetry();
                 }
-            
+
             }
             catch (Exception ex)
             {
@@ -466,7 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 }
                 return null;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Warning($"Failed to load assembly version:  error: {ex.Message}");
                 return null;
