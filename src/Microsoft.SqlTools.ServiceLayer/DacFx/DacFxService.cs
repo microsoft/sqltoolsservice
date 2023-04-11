@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -344,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     DacProfile profile = new DacProfile();
                     profile.TargetDatabaseName = parameters.DatabaseName;
                     profile.TargetConnectionString = parameters.ConnectionString;
-                    profile.DeployOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions);
+                    profile.DeployOptions = DacFxUtils.CreateDeploymentOptions(parameters.DeploymentOptions ?? new DeploymentOptions());
 
                     if (parameters.SqlCommandVariableValues != null)
                     {
