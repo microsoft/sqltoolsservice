@@ -1,10 +1,11 @@
 <Project>
-	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+	<Import
+		Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 	<PropertyGroup>
+		<AssemblyCompany>Microsoft</AssemblyCompany>
+		<AssemblyCopyright>� Microsoft Corporation. All rights reserved.</AssemblyCopyright>
 		<Company>Microsoft Corporation</Company>
 		<Product>Microsoft Sql Tools</Product>
-	</PropertyGroup>
-	<PropertyGroup>
 		<Authors>Microsoft</Authors>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -16,8 +17,11 @@
 		<RepositoryUrl>https://github.com/Microsoft/sqltoolsservice</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>SQL XPLAT</PackageTags>
-	</PropertyGroup>
-	<PropertyGroup>
 		<DebugType>portable</DebugType>
+		<!-- add Source Link info to package/pdbs-->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" />
+	</ItemGroup>
 </Project>
