@@ -112,5 +112,29 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
             }
         }
+
+        /// <summary>
+        /// Test the basic Create User method handler
+        /// </summary>
+        [Test]
+        public async Task TestScriptUserWithLogin()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                // setup
+                UserServiceHandlerImpl userService = new UserServiceHandlerImpl();
+                LoginServiceHandlerImpl loginService = new LoginServiceHandlerImpl();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+
+                var login = await SecurityTestUtils.CreateLogin(loginService, connectionResult);
+
+                var user = await SecurityTestUtils.CreateUser(userService, connectionResult, 
+                    DatabaseUserType.WithLogin, null, login.Name, scriptUser: true);
+
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
+
+                await SecurityTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, SecurityTestUtils.GetLoginURN(login.Name));
+            }
+        }
     }
 }
