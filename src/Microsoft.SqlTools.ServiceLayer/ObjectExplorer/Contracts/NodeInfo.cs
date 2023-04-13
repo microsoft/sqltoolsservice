@@ -71,5 +71,50 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// The object type of the node. e.g. Database, Server, Tables...
         /// </summary>
         public string ObjectType { get; set; }
+
+        public OEFilter[] DefaultFilters { get; set; }
+
+        public OEFilter[] Filters { get; set; }
+    }
+
+    public class OEFilter 
+    {
+		public string Name;
+        public string DisplayName;
+        public string Description;
+        public OEFilterOption[] Options;
+        public string Value;
+        public string Value2;
+        public NodeInfoOperators Operator;
+        public OEFilterPropertyType Type;
+    }
+
+    public enum OEFilterPropertyType
+    {
+        String = 0,
+		Number = 1,
+		Boolean = 2,
+		Date = 3,
+		PredefinedValues = 4
+    }
+
+    public enum NodeInfoOperators
+    {
+        Equals = 0,
+		NotEquals = 1,
+		LessThan = 2,
+		LessThanOrEquals = 3,
+		GreaterThan = 4,
+		GreaterThanOrEquals = 5,
+		Between = 6,
+		NotBetween = 7,
+		Contains = 8,
+		NotContains = 9,
+    }
+
+    public class OEFilterOption
+    {
+        public string Name;
+        public string DisplayName;
     }
 }

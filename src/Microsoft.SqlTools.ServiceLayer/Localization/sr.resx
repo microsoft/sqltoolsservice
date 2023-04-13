@@ -1458,6 +1458,54 @@
     <value>The database {0} is not accessible.</value>
     <comment></comment>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>Name</value>
+    <comment></comment>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>Include or exclude objects based on the name or part of a name.</value>
+    <comment></comment>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>Schema</value>
+    <comment></comment>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> Include or exclude objects based on the schema or part of a schema name.</value>
+    <comment></comment>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>Owner</value>
+    <comment></comment>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>Include or exclude objects based on the owner or part of an owner name.</value>
+    <comment></comment>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>Durability Type</value>
+    <comment></comment>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>Include or exclude objects based on the durability type.</value>
+    <comment></comment>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>Is Memory Optimized</value>
+    <comment></comment>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Include or exclude objects based on whether the object is memory optimized.</value>
+    <comment></comment>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>Create Date</value>
+    <comment></comment>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</value>
+    <comment></comment>
+  </data>
   <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error parsing ScriptingParams.ConnectionString property.</value>
     <comment></comment>

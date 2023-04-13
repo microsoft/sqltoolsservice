@@ -47,6 +47,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         public bool IsNotFilter { get; set; } = false;
 
         /// <summary>
+        /// Indicates if the values are for type datetime
+        /// </summary>
+        public bool IsDateTime { get; set; } = false;
+
+        /// <summary>
         /// Indicates the type of the filter. It can be EQUALS, DATETIME, FALSE or CONTAINS
         /// More information can be found here:
         /// https://learn.microsoft.com/en-us/sql/powershell/query-expressions-and-uniform-resource-names?view=sql-server-ver16#examples
@@ -84,7 +89,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             StringBuilder filter = new StringBuilder();
             foreach (var value in Values)
             {
+                 
                 object propertyValue = value;
+                if(IsDateTime){
+                    propertyValue = DateTime.Parse((string)propertyValue).ToString("yyyy-MM-dd hh:mm:ss.fff");
+                }
                 if (Type == typeof(string))
                 {
                     propertyValue = $"'{propertyValue}'";
@@ -93,12 +102,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 {
                     propertyValue = (int)Convert.ChangeType(value, Type);
                 }
+                if(IsDateTime){
+                    propertyValue = $"datetime({propertyValue})";
+                }
 
                 string filterText = string.Empty;
                 switch (FilterType)
                 {
                     case FilterType.EQUALS:
                         filterText = $"@{Property} = {propertyValue}";
+                        break;
+                    case FilterType.NOTEQUALS: 
+                        filterText = $"@{Property} != {propertyValue}";
+                        break;
+                    case FilterType.LESSTHAN:
+                        filterText = $"@{Property} < {propertyValue}";
+                        break;
+                    case FilterType.GREATERTHAN:
+                        filterText = $"@{Property} > {propertyValue}";
+                        break;
+                    case FilterType.LESSTHANOREQUAL:
+                        filterText = $"@{Property} <= {propertyValue}";
+                        break;
+                    case FilterType.GREATERTHANOREQUAL:
+                        filterText = $"@{Property} >= {propertyValue}";
                         break;
                     case FilterType.DATETIME:
                         filterText = $"@{Property} = datetime({propertyValue})";
@@ -139,6 +166,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         DATETIME,
         CONTAINS,
         FALSE,
-        ISNULL
+        ISNULL,
+        NOTEQUALS,
+        LESSTHAN,
+        GREATERTHAN,
+        LESSTHANOREQUAL,
+        GREATERTHANOREQUAL
     }
 }

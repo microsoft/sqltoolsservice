@@ -14,8 +14,10 @@ using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -176,6 +178,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Databases,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterDefinitions = new OEFilter[]
+        		{
+					new OEFilter
+					{
+						Name = "Name",
+						Type = OEFilterPropertyType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new OEFilter
+					{
+						Name = "Owner",
+						Type = OEFilterPropertyType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new OEFilter
+					{
+						Name = "CreateDate",
+						Type = OEFilterPropertyType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Security,
@@ -761,6 +784,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Tables,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
+            		FilterDefinitions = new OEFilter[]
+            		{
+    					new OEFilter
+    					{
+    						Name = "Name",
+    						Type = OEFilterPropertyType.String,
+    						Description = SR.FilterNameDescription,
+    					},
+    					new OEFilter
+    					{
+    						Name = "Schema",
+    						Type = OEFilterPropertyType.String,
+    						Description = SR.FilterSchemaDescription,
+    					},
+    					new OEFilter
+    					{
+    						Name = "Owner",
+    						Type = OEFilterPropertyType.String,
+    						Description = SR.FilterOwnerDescription,
+    					},
+    					new OEFilter
+    					{
+    						Name = "DurabilityType",
+    						Type = OEFilterPropertyType.PredefinedValues,
+    						Description = SR.FilterDurabilityTypeDescription,
+    						Options = new OEFilterOption[] {
+    							new OEFilterOption
+    							{
+    								Name = "SchemaAndData",
+    								DisplayName = ""
+    							},
+    							new OEFilterOption
+    							{
+    								Name = "SchemaOnly",
+    								DisplayName = ""
+    							},
+    						}
+    					},
+    					new OEFilter
+    					{
+    						Name = "IsMemoryOptimized",
+    						Type = OEFilterPropertyType.Boolean,
+    						Description = SR.FilterIsMemoryOptimizedDescription,
+    					},
+    					new OEFilter
+    					{
+    						Name = "CreateDate",
+    						Type = OEFilterPropertyType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+                	}
                 });
 			}
 			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
@@ -951,6 +1025,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Tables,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterDefinitions = new OEFilter[]
+        		{
+					new OEFilter
+					{
+						Name = "Name",
+						Type = OEFilterPropertyType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new OEFilter
+					{
+						Name = "Schema",
+						Type = OEFilterPropertyType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new OEFilter
+					{
+						Name = "Owner",
+						Type = OEFilterPropertyType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new OEFilter
+					{
+						Name = "DurabilityType",
+						Type = OEFilterPropertyType.PredefinedValues,
+						Description = SR.FilterDurabilityTypeDescription,
+						Options = new OEFilterOption[] {
+							new OEFilterOption
+							{
+								Name = "SchemaAndData",
+								DisplayName = ""
+							},
+							new OEFilterOption
+							{
+								Name = "SchemaOnly",
+								DisplayName = ""
+							},
+						}
+					},
+					new OEFilter
+					{
+						Name = "IsMemoryOptimized",
+						Type = OEFilterPropertyType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+					new OEFilter
+					{
+						Name = "CreateDate",
+						Type = OEFilterPropertyType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Views,

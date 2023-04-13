@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
@@ -20,12 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     public class SmoChildFactoryBase : ChildFactory
     {
         private IEnumerable<NodeSmoProperty> smoProperties;
+
         public override IEnumerable<string> ApplicableParents()
         {
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, OEFilter[] filters)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
@@ -33,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 if (this.PutFoldersAfterNodes)
                 {
-                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
                     OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                     RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
                 }
@@ -41,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                     RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
                 }
 
                 OnBeginAsyncOperations(parent);
@@ -110,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, OEFilter[] oeFilters)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -131,6 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
+            var filterDefinitions = this.FilterDefinitions;
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodePropertyFilter
@@ -140,6 +143,132 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Values = new List<object> { name },
                 });
             }
+            if (oeFilters != null)
+            {
+                foreach (var f in oeFilters)
+                {
+                    Type type;
+                    switch (f.Type)
+                    {
+                        case OEFilterPropertyType.String:
+                            type = typeof(string);
+                            break;
+                        case OEFilterPropertyType.Number:
+                            break;
+                        case OEFilterPropertyType.Boolean:
+                            break;
+                        case OEFilterPropertyType.Date:
+                            break;
+                        case OEFilterPropertyType.PredefinedValues:
+                            break;
+                    }
+
+                    var isNotFilter = false;
+                    if (f.Operator == NodeInfoOperators.NotEquals || f.Operator == NodeInfoOperators.NotContains || f.Operator == NodeInfoOperators.NotBetween)
+                    {
+                        isNotFilter = true;
+                    }
+
+                    FilterType filterType = FilterType.EQUALS;
+
+                    if (f.Operator == NodeInfoOperators.Equals)
+                    {
+                        filterType = FilterType.EQUALS;
+                    }
+
+                    if (f.Operator == NodeInfoOperators.NotEquals)
+                    {
+                        filterType = FilterType.NOTEQUALS;
+                    }
+
+                    if(f.Operator == NodeInfoOperators.LessThan)
+                    {
+                        filterType = FilterType.LESSTHAN;
+                    }
+
+                    if(f.Operator == NodeInfoOperators.GreaterThan)
+                    {
+                        filterType = FilterType.GREATERTHAN;
+                    }
+
+
+                    if (f.Operator == NodeInfoOperators.Contains || f.Operator == NodeInfoOperators.NotContains)
+                    {
+                        filterType = FilterType.CONTAINS;
+                    }
+
+                    if (f.Operator == NodeInfoOperators.Between)
+                    {
+                         filters.Add(new NodePropertyFilter
+                        {
+                            Property = f.Name,
+                            Type = typeof(string),
+                            Values = new List<object> { f.Value },
+                            IsNotFilter = isNotFilter,
+                            FilterType = FilterType.GREATERTHAN,
+                            IsDateTime = OEFilterPropertyType.Date == f.Type
+                        });
+                         filters.Add(new NodePropertyFilter
+                        {
+                            Property = f.Name,
+                            Type = typeof(string),
+                            Values = new List<object> { f.Value2 },
+                            IsNotFilter = isNotFilter,
+                            FilterType = FilterType.LESSTHAN,
+                            IsDateTime = OEFilterPropertyType.Date == f.Type
+                        });
+                    }
+                    else if (f.Operator == NodeInfoOperators.NotBetween)
+                    {
+                        List<NodePropertyFilter> notBetween = new List<NodePropertyFilter>();
+                        notBetween.Add(new NodePropertyFilter
+                        {
+                            Property = f.Name,
+                            Type = typeof(string),
+                            Values = new List<object> { f.Value },
+                            IsNotFilter = isNotFilter,
+                            FilterType = FilterType.LESSTHAN,
+                            IsDateTime = OEFilterPropertyType.Date == f.Type
+                        });
+                        notBetween.Add(new NodePropertyFilter
+                        {
+                            Property = f.Name,
+                            Type = typeof(string),
+                            Values = new List<object> { f.Value2 },
+                            IsNotFilter = isNotFilter,
+                            FilterType = FilterType.GREATERTHAN,
+                            IsDateTime = OEFilterPropertyType.Date == f.Type
+                        });
+
+                       var notBetweenString = INodeFilter.GetPropertyFilter(notBetween, typeof(string), ValidForFlag.All);
+
+                       filters.Add(new NodePropertyFilter
+                        {
+                            Property = f.Name,
+                            Type = typeof(string),
+                            Values = new List<object> { notBetweenString },
+                            IsNotFilter = isNotFilter,
+                            FilterType = filterType,
+                            IsDateTime = false
+                        });
+                    }
+                    else
+                    {
+                        filters.Add(new NodePropertyFilter
+                        {
+                            Property = f.Name,
+                            Type = typeof(string),
+                            Values = new List<object> { f.Value },
+                            IsNotFilter = isNotFilter,
+                            FilterType = filterType,
+                            IsDateTime = OEFilterPropertyType.Date == f.Type
+                        });
+                    }
+
+
+                }
+            }
+
             foreach (var querier in queriers)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -259,6 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
                 childAsMeItem.NodeSubType = GetNodeSubType(context, smoContext);
                 childAsMeItem.NodeStatus = GetNodeStatus(context, smoContext);
+                childAsMeItem.FilterDefinitions = FilterDefinitions.ToArray();
             }
         }
 
@@ -285,6 +415,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 return Enumerable.Empty<NodeSmoProperty>();
             }
         }
+
+        public virtual IEnumerable<OEFilter> FilterDefinitions
+        {
+            get
+            {
+                return Enumerable.Empty<OEFilter>();
+            }
+        }
+
 
         internal IEnumerable<NodeSmoProperty> CachedSmoProperties
         {

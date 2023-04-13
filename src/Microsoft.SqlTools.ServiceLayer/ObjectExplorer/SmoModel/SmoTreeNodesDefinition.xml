@@ -565,4 +565,23 @@
   <ReverseDependencyList>
     <ReverseDependency Type="SqlUser" DependsOn="SqlRole;SqlRoleMembership"/>
   </ReverseDependencyList>
+
+  <FilterDefinitions Name="Databases">
+    <FilterDefinition Name="Name" LocLabel="SR.FilterName" Type="string" Description="SR.FilterNameDescription"/>
+    <FilterDefinition Name="Owner" LocLabel="SR.FilterOwner" Type="string" Description="SR.FilterOwnerDescription"/>
+    <FilterDefinition Name="CreateDate" LocLabel="SR.FilterCreateDate" Type="date" Description="SR.FilterCreateDateDescription"/>
+  </FilterDefinitions>
+
+  <FilterDefinitions Name="Tables">
+    <FilterDefinition Name="Name" LocLabel="SR.FilterName" Type="string" Description="SR.FilterNameDescription"/>
+    <FilterDefinition Name="Schema" LocLabel="SR.FilterSchema" Type="string" Description="SR.FilterSchemaDescription"/>
+    <FilterDefinition Name="Owner" LocLabel="SR.FilterOwner" Type="string" Description="SR.FilterOwnerDescription"/>
+    <FilterDefinition Name="DurabilityType" LocLabel="SR.FilterDurabilityType" Type="enum" Description="SR.FilterDurabilityTypeDescription">
+      <Value Name="SchemaAndData" LocLabel="SR.SchemaAndData"/>
+      <Value Name="SchemaOnly" LocLabel="SR.SchemaOnly"/>
+    </FilterDefinition>
+    <FilterDefinition Name="IsMemoryOptimized" LocLabel="SR.FilterIsMemoryOptimized" Type="bool" Description="SR.FilterIsMemoryOptimizedDescription"/>
+    <FilterDefinition Name="CreateDate" LocLabel="SR.FilterCreateDate" Type="date" Description="SR.FilterCreateDateDescription"/>
+  </FilterDefinitions>
 </ServerExplorerTree>
+

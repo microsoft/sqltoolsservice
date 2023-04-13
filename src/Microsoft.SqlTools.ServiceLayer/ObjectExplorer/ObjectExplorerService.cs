@@ -378,12 +378,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, OEFilter[] filters = null)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken));
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null)
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, OEFilter[] filters = null)
         {
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
@@ -448,12 +448,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken, securityToken?.Token).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
-                                   nodes = node.Expand(cancelToken, securityToken?.Token).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
@@ -649,7 +649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
             ExpandResponse response = null;
-            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken);
+            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken, expandParams.Filters);
             if (cancellationToken.IsCancellationRequested)
             {
                 Logger.Write(TraceEventType.Verbose, "OE expand canceled");
