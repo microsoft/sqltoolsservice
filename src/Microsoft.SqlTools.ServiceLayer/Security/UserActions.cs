@@ -24,12 +24,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     {
         private class UserViewState
         {
+            public bool IsNewObject { get; set; }
+
             public string Database { get; set; }
 
             public UserPrototypeData OriginalUserData { get; set; }
 
-            public UserViewState(string database, UserPrototypeData originalUserData)
+            public UserViewState(bool isNewObject, string database, UserPrototypeData originalUserData)
             {
+                this.IsNewObject = isNewObject;
                 this.Database = database;
                 this.OriginalUserData = originalUserData;
             }
@@ -229,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             this.contextIdToViewState.Add(
                 parameters.ContextId,
-                new UserViewState(parameters.Database, currentUserPrototype.CurrentState));
+                new UserViewState(parameters.IsNewObject, parameters.Database, currentUserPrototype.CurrentState));
 
             await requestContext.SendResult(userViewInfo);
         }
@@ -324,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             string sqlScript = ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
-                ConfigAction.Create,
+                viewState.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.ScriptToWindow,
                 viewState.Database,
                 viewState.OriginalUserData);
