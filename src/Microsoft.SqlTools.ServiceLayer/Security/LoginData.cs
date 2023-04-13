@@ -773,7 +773,7 @@ INNER JOIN sys.sql_logins AS sql_logins
         /// <summary>
         /// Populate the server roles map
         /// </summary>
-        private void    PopulateServerRoles()
+        internal void PopulateServerRoles()
         {
             this.initialized = true;
             serverRoles.Clear();

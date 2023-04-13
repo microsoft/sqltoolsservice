@@ -76,20 +76,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     // raise error here
                 }
             }
-
-            prototype.ApplyGeneralChanges(dataContainer.Server);
+       
 
             // TODO move this to LoginData
             // TODO support role assignment for Azure
-            LoginPrototype newPrototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Login.Name]);
-            var _ =newPrototype.ServerRoles.ServerRoleNames;
-
+            prototype.ServerRoles.PopulateServerRoles();
             foreach (string role in parameters.Login.ServerRoles ?? Enumerable.Empty<string>())
             {
-                newPrototype.ServerRoles.SetMember(role, true);
+                prototype.ServerRoles.SetMember(role, true);
             }
 
-            newPrototype.ApplyServerRoleChanges(dataContainer.Server);
+            ConfigureLogin(
+                dataContainer,
+                ConfigAction.Create,
+                RunType.RunNow,
+                prototype);
+
             await requestContext.SendResult(new object());
         }
 
@@ -155,9 +157,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 prototype.ServerRoles.SetMember(role, true);
             }
 
-            prototype.ApplyGeneralChanges(dataContainer.Server);
-            prototype.ApplyServerRoleChanges(dataContainer.Server);
-            prototype.ApplyDatabaseRoleChanges(dataContainer.Server);
+            ConfigureLogin(
+                dataContainer,
+                ConfigAction.Update,
+                RunType.RunNow,
+                prototype);
+
             await requestContext.SendResult(new object());
         }
 
@@ -253,6 +258,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         internal async Task HandleDisposeLoginViewRequest(DisposeLoginViewRequestParams parameters, RequestContext<object> requestContext)
         {
             await requestContext.SendResult(new object());
+        }
+
+        internal Tuple<bool, string> ConfigureLogin(
+            CDataContainer dataContainer,
+            ConfigAction configAction,
+            RunType runType, 
+            LoginPrototype prototype)
+        {
+            using (var actions = new LoginActions(dataContainer, configAction, prototype))
+            {
+                var executionHandler = new ExecutonHandler(actions);
+                executionHandler.RunNow(runType, this);
+                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                {
+                    throw executionHandler.ExecutionFailureException;
+                }
+            }
+
+            return new Tuple<bool, string>(true, string.Empty);
+        }
+    }
+
+    internal class LoginActions : ManagementActionBase
+    {
+        private ConfigAction configAction;
+
+       private LoginPrototype prototype;
+
+       private CDataContainer dataContainer;
+
+        /// <summary>
+        /// Handle login create and update actions
+        /// </summary>        
+        public LoginActions(CDataContainer dataContainer, ConfigAction configAction, LoginPrototype prototype)
+        {
+            this.configAction = configAction;
+            this.prototype = prototype;
+            this.dataContainer = dataContainer;
+        }
+
+        /// <summary>
+        /// called by the management actions framework to execute the action
+        /// </summary>
+        /// <param name="node"></param>
+        public override void OnRunNow(object sender)
+        {
+            if (this.configAction != ConfigAction.Drop)
+            {
+                prototype.ApplyGeneralChanges(dataContainer.Server);
+                prototype.ApplyServerRoleChanges(dataContainer.Server);
+                prototype.ApplyDatabaseRoleChanges(dataContainer.Server);
+            }
         }
     }
 }
