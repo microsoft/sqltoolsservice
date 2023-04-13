@@ -102,4 +102,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
             RequestType<InitializeLoginViewRequestParams, LoginViewInfo> Type =
             RequestType<InitializeLoginViewRequestParams, LoginViewInfo>.Create("objectManagement/initializeLoginView");
     }
+
+    /// <summary>
+    /// Script Login params
+    /// </summary>
+    public class ScriptLoginParams
+    {
+        public string? ContextId { get; set; }
+
+        public LoginInfo? Login { get; set; }
+    }
+
+    /// <summary>
+    /// Script Login request type
+    /// </summary>
+    public class ScriptLoginRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<ScriptLoginParams, string> Type =
+            RequestType<ScriptLoginParams, string>.Create("objectManagement/scriptLogin");
+    }
 }

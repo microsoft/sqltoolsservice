@@ -20,7 +20,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 {
     internal class LoginServiceHandlerImpl
     {
-        private Dictionary<string, string> contextIdToConnectionUriMap = new Dictionary<string, string>();
+        private class ViewState
+        {
+            public bool IsNewObject { get; set; }
+
+            public string ConnectionUri { get; set; }
+
+            public ViewState(bool isNewObject, string connectionUri)
+            {
+                this.IsNewObject = isNewObject;
+
+                this.ConnectionUri = connectionUri;
+            }
+        }
+
+        private Dictionary<string, ViewState> contextIdToViewState = new Dictionary<string, ViewState>();
 
         private ConnectionService? connectionService;
 
@@ -46,10 +60,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         internal async Task HandleCreateLoginRequest(CreateLoginParams parameters, RequestContext<object> requestContext)
         {
+            DoHandleCreateLoginRequest(parameters.ContextId, parameters.Login, RunType.RunNow);
+
+            await requestContext.SendResult(new object());
+        }
+
+        private string DoHandleCreateLoginRequest(
+            string contextId, LoginInfo login, RunType runType)
+        {
+            ViewState? viewState;
+            this.contextIdToViewState.TryGetValue(contextId, out viewState);
+
             ConnectionInfo connInfo;
-            string ownerUri;
-            contextIdToConnectionUriMap.TryGetValue(parameters.ContextId, out ownerUri);
-            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            ConnectionServiceInstance.TryFindConnection(viewState?.ConnectionUri, out connInfo);
 
             if (connInfo == null) 
             {
@@ -57,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, parameters.Login);
+            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, login);
 
             if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
             {
@@ -76,42 +99,47 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     // raise error here
                 }
             }
-       
 
             // TODO move this to LoginData
             // TODO support role assignment for Azure
             prototype.ServerRoles.PopulateServerRoles();
-            foreach (string role in parameters.Login.ServerRoles ?? Enumerable.Empty<string>())
+            foreach (string role in login.ServerRoles ?? Enumerable.Empty<string>())
             {
                 prototype.ServerRoles.SetMember(role, true);
             }
 
-            ConfigureLogin(
+            return ConfigureLogin(
                 dataContainer,
                 ConfigAction.Create,
-                RunType.RunNow,
+                runType,
                 prototype);
-
-            await requestContext.SendResult(new object());
         }
 
         internal async Task HandleUpdateLoginRequest(UpdateLoginParams parameters, RequestContext<object> requestContext)
         {
+            DoHandleUpdateLoginRequest(parameters.ContextId, parameters.Login, RunType.RunNow);
+
+            await requestContext.SendResult(new object());
+        }
+
+        private string DoHandleUpdateLoginRequest(
+            string contextId, LoginInfo login, RunType runType)
+        {
+            ViewState? viewState;
+            this.contextIdToViewState.TryGetValue(contextId, out viewState);
+
             ConnectionInfo connInfo;
-            string ownerUri;
-            contextIdToConnectionUriMap.TryGetValue(parameters.ContextId, out ownerUri);
-            ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            ConnectionServiceInstance.TryFindConnection(viewState?.ConnectionUri, out connInfo);
             if (connInfo == null) 
             {
                 throw new ArgumentException("Invalid ConnectionUri");
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Login.Name]);
+            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[login.Name]);
 
-            var login = parameters.Login;
             prototype.SqlPassword = login.Password;
-            if (0 != String.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
+            if (0 != string.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
             {
                 string[] arr = login.DefaultLanguage?.Split(" - ");
                 if (arr != null && arr.Length > 1)
@@ -157,18 +185,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 prototype.ServerRoles.SetMember(role, true);
             }
 
-            ConfigureLogin(
+            return ConfigureLogin(
                 dataContainer,
                 ConfigAction.Update,
-                RunType.RunNow,
+                runType,
                 prototype);
+        }
 
-            await requestContext.SendResult(new object());
+        /// <summary>
+        /// Handle request to script a user
+        /// </summary>
+        internal async Task HandleScriptLoginRequest(ScriptLoginParams parameters, RequestContext<string> requestContext)
+        {
+            if (parameters.ContextId == null)
+            {
+                throw new ArgumentException("Invalid context ID");
+            }
+
+            ViewState viewState;
+            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
+
+            if (viewState == null)
+            {
+                throw new ArgumentException("Invalid context ID view state");
+            }
+
+            string sqlScript = (viewState.IsNewObject)
+                ? DoHandleCreateLoginRequest(parameters.ContextId, parameters.Login, RunType.ScriptToWindow)
+                : DoHandleUpdateLoginRequest(parameters.ContextId, parameters.Login, RunType.ScriptToWindow);
+
+            await requestContext.SendResult(sqlScript);
         }
 
         internal async Task HandleInitializeLoginViewRequest(InitializeLoginViewRequestParams parameters, RequestContext<LoginViewInfo> requestContext)
         {
-            contextIdToConnectionUriMap.Add(parameters.ContextId, parameters.ConnectionUri);
+            this.contextIdToViewState.Add(
+                parameters.ContextId,
+                new ViewState(parameters.IsNewObject, parameters.ConnectionUri));
+
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(parameters.ConnectionUri, out connInfo);
             if (connInfo == null) 
@@ -197,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             : new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[parameters.Name]);
 
             List<string> loginServerRoles = new List<string>();
-            foreach(string role in prototype.ServerRoles.ServerRoleNames)
+            foreach (string role in prototype.ServerRoles.ServerRoleNames)
             {
                 if (prototype.ServerRoles.IsMember(role))
                 {
@@ -260,12 +314,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             await requestContext.SendResult(new object());
         }
 
-        internal Tuple<bool, string> ConfigureLogin(
+        internal string ConfigureLogin(
             CDataContainer dataContainer,
             ConfigAction configAction,
             RunType runType, 
             LoginPrototype prototype)
         {
+            string sqlScript = string.Empty;
             using (var actions = new LoginActions(dataContainer, configAction, prototype))
             {
                 var executionHandler = new ExecutonHandler(actions);
@@ -274,9 +329,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     throw executionHandler.ExecutionFailureException;
                 }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
             }
 
-            return new Tuple<bool, string>(true, string.Empty);
+            return sqlScript;
         }
     }
 
@@ -286,16 +346,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
        private LoginPrototype prototype;
 
-       private CDataContainer dataContainer;
-
         /// <summary>
         /// Handle login create and update actions
         /// </summary>        
         public LoginActions(CDataContainer dataContainer, ConfigAction configAction, LoginPrototype prototype)
         {
+            this.DataContainer = dataContainer;
             this.configAction = configAction;
             this.prototype = prototype;
-            this.dataContainer = dataContainer;
         }
 
         /// <summary>
@@ -306,9 +364,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             if (this.configAction != ConfigAction.Drop)
             {
-                prototype.ApplyGeneralChanges(dataContainer.Server);
-                prototype.ApplyServerRoleChanges(dataContainer.Server);
-                prototype.ApplyDatabaseRoleChanges(dataContainer.Server);
+                prototype.ApplyGeneralChanges(this.DataContainer.Server);
+                prototype.ApplyServerRoleChanges(this.DataContainer.Server);
+                prototype.ApplyDatabaseRoleChanges(this.DataContainer.Server);
             }
         }
     }
