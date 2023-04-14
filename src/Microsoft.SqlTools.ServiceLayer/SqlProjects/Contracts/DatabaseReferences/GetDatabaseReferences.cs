@@ -38,5 +38,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Array of SQL project references contained in the project
         /// </summary>
         public SqlProjectReference[] SqlProjectReferences { get; set; }
+
+        /// <summary>
+        /// Array of NuGet package references contained in the project
+        /// </summary>
+        public NugetPackageReference[] NugetPackageReferences { get; set; }
     }
 }
