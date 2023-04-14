@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 {
     internal class UserServiceHandlerImpl
     {
-        private class UserViewState
+        private class ViewState
         {
             public bool IsNewObject { get; set; }
 
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             public UserPrototypeData OriginalUserData { get; set; }
 
-            public UserViewState(bool isNewObject, string database, UserPrototypeData originalUserData)
+            public ViewState(bool isNewObject, string database, UserPrototypeData originalUserData)
             {
                 this.IsNewObject = isNewObject;
                 this.Database = database;
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private ConnectionService? connectionService;
 
-        private Dictionary<string, UserViewState> contextIdToViewState = new Dictionary<string, UserViewState>();
+        private Dictionary<string, ViewState> contextIdToViewState = new Dictionary<string, ViewState>();
 
         /// <summary>
         /// Internal for testing purposes only
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             this.contextIdToViewState.Add(
                 parameters.ContextId,
-                new UserViewState(parameters.IsNewObject, parameters.Database, currentUserPrototype.CurrentState));
+                new ViewState(parameters.IsNewObject, parameters.Database, currentUserPrototype.CurrentState));
 
             await requestContext.SendResult(userViewInfo);
         }
@@ -247,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
@@ -281,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
@@ -305,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
 
         /// <summary>
-        /// Handle request to update a user
+        /// Handle request to script a user
         /// </summary>
         internal async Task HandleScriptUserRequest(ScriptUserParams parameters, RequestContext<string> requestContext)
         {
@@ -314,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
