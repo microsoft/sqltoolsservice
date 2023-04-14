@@ -109,4 +109,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
             RequestType<DisposeUserViewRequestParams, ResultStatus> Type =
             RequestType<DisposeUserViewRequestParams, ResultStatus>.Create("objectManagement/disposeUserView");
     }
+
+    /// <summary>
+    /// Script User params
+    /// </summary>
+    public class ScriptUserParams
+    {
+        public string? ContextId { get; set; }
+
+        public UserInfo? User { get; set; }
+    }
+
+    /// <summary>
+    /// Script User request type
+    /// </summary>
+    public class ScriptUserRequest
+    {
+        /// <summary>
+        /// Request definition
+        /// </summary>
+        public static readonly
+            RequestType<ScriptUserParams, string> Type =
+            RequestType<ScriptUserParams, string>.Create("objectManagement/scriptUser");
+    }
 }
