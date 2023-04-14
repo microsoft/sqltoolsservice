@@ -120,19 +120,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 User existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
                 userType = UserActions.GetCurrentUserTypeForExistingUser(existingUser);
                 DatabaseUserType databaseUserType = UserActions.GetDatabaseUserTypeForUserType(userType);
+
+                // if contained user determine if SQL or AAD auth type
+                ServerAuthenticationType authenticationType =
+                    (databaseUserType == DatabaseUserType.Contained && userType == ExhaustiveUserTypes.ExternalUser)
+                        ? ServerAuthenticationType.AzureActiveDirectory : ServerAuthenticationType.Sql;
+                
                 userInfo = new UserInfo()
                 {
                     Type = databaseUserType,
+                    AuthenticationType = authenticationType,
                     Name = parameters.Name,
                     LoginName = existingUser.Login,
                     DefaultSchema = existingUser.DefaultSchema,                    
                 };
-
-                // update the authentication type for contained users
-                if (databaseUserType == DatabaseUserType.Contained)
-                {
-                    userInfo.AuthenticationType = ServerAuthenticationType.Sql;
-                }
 
                 // Default language is only applicable for users inside a contained database.
                 if (LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server)
@@ -222,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 },
                 SupportContainedUser = supportsContainedUser,
                 SupportWindowsAuthentication = false,
-                SupportAADAuthentication = false,
+                SupportAADAuthentication = currentUserPrototype.AADAuthSupported,
                 SupportSQLAuthentication = true,
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
@@ -490,7 +491,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     userType = ExhaustiveUserTypes.WindowsUser;
                     break;
                 case DatabaseUserType.Contained:
-                    userType = ExhaustiveUserTypes.SqlUserWithPassword;
+                    if (user.AuthenticationType == ServerAuthenticationType.AzureActiveDirectory)
+                    {
+                        userType = ExhaustiveUserTypes.ExternalUser;
+                    }
+                    else
+                    {
+                        userType = ExhaustiveUserTypes.SqlUserWithPassword;
+                    }
                     break;
                 case DatabaseUserType.NoConnectAccess:
                     userType = ExhaustiveUserTypes.SqlUserWithoutLogin;
@@ -515,6 +523,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     break;
                 case ExhaustiveUserTypes.SqlUserWithoutLogin:
                     databaseUserType = DatabaseUserType.NoConnectAccess;
+                    break;
+                case ExhaustiveUserTypes.ExternalUser:
+                    databaseUserType = DatabaseUserType.Contained;
                     break;
             }
             return databaseUserType;
@@ -548,6 +559,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return ExhaustiveUserTypes.CertificateMappedUser;
                 case UserType.AsymmetricKey:
                     return ExhaustiveUserTypes.AsymmetricKeyMappedUser;
+                case UserType.External:
+                    return ExhaustiveUserTypes.ExternalUser;
                 default:
                     return ExhaustiveUserTypes.Unknown;
             }
