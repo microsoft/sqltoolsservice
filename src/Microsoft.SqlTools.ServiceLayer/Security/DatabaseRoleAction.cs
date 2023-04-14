@@ -57,6 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            DatabaseRoleGeneral databaseRoleGeneral = new DatabaseRoleGeneral(dataContainer, parameters.DatabaseRole, true);
+            databaseRoleGeneral.SendDataToServer();
             await requestContext.SendResult(new object());
         }
 
@@ -72,6 +74,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            DatabaseRoleGeneral databaseRoleGeneral = new DatabaseRoleGeneral(dataContainer, parameters.DatabaseRole, false);
+            databaseRoleGeneral.SendDataToServer();
             await requestContext.SendResult(new object());
         }
 

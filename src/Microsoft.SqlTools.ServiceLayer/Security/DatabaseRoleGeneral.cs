@@ -14,6 +14,7 @@ using System.Data;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 
@@ -69,6 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
 		//whether or not try to auto resize grid columns inside OnLoad method
 		private bool attemtGridAutoResize = true;
+
+        private bool isPropertiesMode;
 #endregion
 
 #region Trace support
@@ -159,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             get
             {
-                return(dbroleName!=null) && (dbroleName.Trim().Length != 0);
+                return isPropertiesMode;
             }
         }
 #endregion
@@ -171,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             // InitializeComponent();
         }
 
-        public DatabaseRoleGeneral(CDataContainer context)
+        public DatabaseRoleGeneral(CDataContainer context, DatabaseRoleInfo dbRole, bool isNewObject)
         {
             // InitializeComponent();
             dataContainer = context;
@@ -184,6 +187,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             {
                 document = null;
             }
+            isPropertiesMode = !isNewObject;
+            dbroleName = dbRole.Name;
+            InitProp();
         }
 
 #endregion
@@ -305,7 +311,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// 
         /// here we talk with server via smo and do the actual data changing
         /// </summary>
-        private void SendDataToServer()
+        public void SendDataToServer()
         {
             // STrace.Params(ComponentName, "SendDataToServer", "", null);
 
