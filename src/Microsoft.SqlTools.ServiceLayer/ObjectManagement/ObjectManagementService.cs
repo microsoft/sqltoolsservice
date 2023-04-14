@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
@@ -51,6 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost = serviceHost;
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
+            this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleCreateObjectRequest, true);
         }
 
         /// <summary>
@@ -103,6 +105,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             await requestContext.SendResult(true);
+        }
+
+        private async Task HandleCreateObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectResponse> requestContext)
+        {
+            Logger.Verbose("Handle Request in HandleCreateObjectRequest()");
+            LoginInfo login = requestParams.Object.ToObject<LoginInfo>();
+            await requestContext.SendResult(new SaveObjectResponse());
         }
 
         private ConnectionInfo GetConnectionInfo(string connectionUri)
