@@ -22,14 +22,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 {
     internal class UserServiceHandlerImpl
     {
-        private class UserViewState
+        private class ViewState
         {
+            public bool IsNewObject { get; set; }
+
             public string Database { get; set; }
 
             public UserPrototypeData OriginalUserData { get; set; }
 
-            public UserViewState(string database, UserPrototypeData originalUserData)
+            public ViewState(bool isNewObject, string database, UserPrototypeData originalUserData)
             {
+                this.IsNewObject = isNewObject;
                 this.Database = database;
                 this.OriginalUserData = originalUserData;
             }
@@ -37,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private ConnectionService? connectionService;
 
-        private Dictionary<string, UserViewState> contextIdToViewState = new Dictionary<string, UserViewState>();
+        private Dictionary<string, ViewState> contextIdToViewState = new Dictionary<string, ViewState>();
 
         /// <summary>
         /// Internal for testing purposes only
@@ -229,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             this.contextIdToViewState.Add(
                 parameters.ContextId,
-                new UserViewState(parameters.Database, currentUserPrototype.CurrentState));
+                new ViewState(parameters.IsNewObject, parameters.Database, currentUserPrototype.CurrentState));
 
             await requestContext.SendResult(userViewInfo);
         }
@@ -244,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
@@ -252,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
                 ConfigAction.Create,
@@ -263,8 +266,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             await requestContext.SendResult(new CreateUserResult()
             {
                 User = parameters.User,
-                Success = result.Item1,
-                ErrorMessage = result.Item2
+                Success = true,
+                ErrorMessage = string.Empty
             });
         }
 
@@ -278,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
@@ -286,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
                 ConfigAction.Update,
@@ -296,9 +299,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             await requestContext.SendResult(new ResultStatus()
             {
-                Success = result.Item1,
-                ErrorMessage = result.Item2
+                Success = true,
+                ErrorMessage = string.Empty
             });
+        }
+
+        /// <summary>
+        /// Handle request to script a user
+        /// </summary>
+        internal async Task HandleScriptUserRequest(ScriptUserParams parameters, RequestContext<string> requestContext)
+        {
+            if (parameters.ContextId == null)
+            {
+                throw new ArgumentException("Invalid context ID");
+            }
+
+            ViewState viewState;
+            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
+
+            if (viewState == null)
+            {
+                throw new ArgumentException("Invalid context ID view state");
+            }
+
+            // todo: check if it's an existing user
+
+            string sqlScript = ConfigureUser(
+                parameters.ContextId,
+                parameters.User,
+                viewState.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
+                RunType.ScriptToWindow,
+                viewState.Database,
+                viewState.OriginalUserData);
+
+            await requestContext.SendResult(sqlScript);
         }
 
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
@@ -352,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
         }
 
-        internal Tuple<bool, string> ConfigureUser(
+        internal string ConfigureUser(
             string? ownerUri,
             UserInfo? user,
             ConfigAction configAction,
@@ -367,6 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
             }
 
+            string sqlScript = string.Empty;
             CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
             using (var actions = new UserActions(dataContainer, configAction, user, originalData))
             {
@@ -376,9 +411,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     throw executionHandler.ExecutionFailureException;
                 }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
             }
 
-            return new Tuple<bool, string>(true, string.Empty);
+            return sqlScript;
         }
     }
 

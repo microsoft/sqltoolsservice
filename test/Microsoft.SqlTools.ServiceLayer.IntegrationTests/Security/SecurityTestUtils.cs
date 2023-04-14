@@ -165,7 +165,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
             DatabaseUserType userType,
             string userName = null,
             string loginName = null,
-            string databaseName = "master")
+            string databaseName = "master",
+            bool scriptUser = false)
         {
             string contextId = System.Guid.NewGuid().ToString();
             var initializeViewRequestParams = new InitializeUserViewParams
@@ -181,6 +182,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                 .Returns(Task.FromResult(new UserViewInfo()));
 
             await service.HandleInitializeUserViewRequest(initializeViewRequestParams, initializeUserViewContext.Object);
+          
+            if (scriptUser)
+            {
+                var scriptParams = new ScriptUserParams
+                {
+                    ContextId = contextId,
+                    User = SecurityTestUtils.GetTestUserInfo(userType, userName, loginName)
+                };
+
+                var scriptUserContext = new Mock<RequestContext<string>>();
+                scriptUserContext.Setup(x => x.SendResult(It.IsAny<string>()))
+                    .Returns(Task.FromResult(new object()));
+
+                await service.HandleScriptUserRequest(scriptParams, scriptUserContext.Object);
+
+                // verify the result
+                scriptUserContext.Verify(x => x.SendResult(It.Is<string>
+                    (p => p.Contains("CREATE USER"))));
+            }
 
             var userParams = new CreateUserParams
             {
