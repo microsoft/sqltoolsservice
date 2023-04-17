@@ -1,5 +1,11 @@
 <Project>
   <PropertyGroup>
+    <AssemblyCompany>Microsoft</AssemblyCompany>
+    <AssemblyCopyright>© Microsoft Corporation. All rights reserved.</AssemblyCopyright>
+    <Company>Microsoft</Company>
+    <Product>Microsoft Sql Tools</Product>
+    <Authors>Microsoft</Authors>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <HighEntropyVA>true</HighEntropyVA>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TargetFramework>net7.0</TargetFramework>
@@ -21,13 +27,22 @@
     <VersionPrefix Condition="$(StableRelease.Equals('true'))">$(Major).$(Minor).0</VersionPrefix>
     <VersionSuffix Condition="!$(StableRelease.Equals('true'))">preview</VersionSuffix>
     <AssemblyFileVersion>$(VersionPrefix)-$(VersionSuffix)</AssemblyFileVersion>
+    <Version>$(VersionPrefix)</Version>
+    <FileVersion>$(VersionPrefix)</FileVersion>
+    <InformationalVersion>$(VersionPrefix)</InformationalVersion>
     <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
-
     <ToolsServiceTargetRuntimes>win-x64;win-x86;win-arm64;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</ToolsServiceTargetRuntimes>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <!-- This is required for IDE0005 to fail the build https://github.com/dotnet/roslyn/issues/41640 -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- For official builds we want to set this so that "official build" settings such as normalized source
+    paths are applied. https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#continuousintegrationbuild
+  -->
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 </Project>

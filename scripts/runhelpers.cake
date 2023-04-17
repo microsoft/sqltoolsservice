@@ -38,7 +38,9 @@ public struct ExitStatus
     /// <summary>
     ///  Default constructor when the execution potentially timed out.
     /// </summary>
-    /// <param name="process">The process this status is for</param>
+    /// <param name="cmd">The cmd/file being executed</param>
+    /// <param name="args">The arguments passed to the command</param>
+    /// <param name="exitCode">The exit code</param>
     /// <param name="timeOut">True if the execution timed out</param>
     public ExitStatus(string cmd, string args, int exitCode, bool timeOut = false)
     {

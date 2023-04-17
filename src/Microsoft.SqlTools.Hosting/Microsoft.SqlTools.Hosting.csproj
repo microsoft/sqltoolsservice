@@ -6,10 +6,11 @@
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<AssemblyTitle>SqlTools Hosting Library</AssemblyTitle>
+		<Description>Provides hosting services for SqlTools applications.</Description>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -20,6 +21,15 @@
 		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Composition" />
 		<PackageReference Include="System.Text.Encodings.Web" />
+	</ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<!-- Workaround for SRGen issues -->
+		<InternalsVisibleTo Include="MicrosoftSqlToolsServiceLayer" />
+		<InternalsVisibleTo Include="MicrosoftKustoServiceLayer" />
+		<InternalsVisibleTo Include="MicrosoftSqlToolsCredentials" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />

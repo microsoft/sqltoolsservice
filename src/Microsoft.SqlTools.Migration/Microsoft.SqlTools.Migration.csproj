@@ -8,14 +8,14 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
     <NoWarn>NU1605</NoWarn>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-    <Nullable>enable</Nullable>
+    <AssemblyTitle>SqlTools Migration Host Protocol Library</AssemblyTitle>
+    <Description>Provides message types and client/server APIs for the SqlTools Migration Services JSON protocol.</Description>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -35,5 +35,9 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
+	</ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Microsoft.SqlTools.Migration.IntegrationTests" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 </Project>
