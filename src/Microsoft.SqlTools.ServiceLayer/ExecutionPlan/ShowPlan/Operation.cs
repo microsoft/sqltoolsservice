@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name">Operator name</param>
         /// <param name="displayNameKey">Display name resource ID</param>
@@ -118,8 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private string displayNameKey;
         private string descriptionKey;
         private string imageName;
-        private string helpKeyword;
-        private Type displayNodeType;
 
         private string image;
         private string displayName;

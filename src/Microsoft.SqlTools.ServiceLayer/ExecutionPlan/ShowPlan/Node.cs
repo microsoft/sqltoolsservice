@@ -394,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// <param name="nodeToCompare"></param>
         /// <param name="ignoreDatabaseName"></param>
         /// <returns></returns>
-        /// 
+        ///
         public bool IsLogicallyEquivalentTo(Node nodeToCompare, bool ignoreDatabaseName)
         {
             // same exact node
@@ -416,7 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 ExpandableObjectWrapper objectProp1 = (ExpandableObjectWrapper)this[objectProperty];
                 ExpandableObjectWrapper objectProp2 = (ExpandableObjectWrapper)nodeToCompare[objectProperty];
                 // object property doesn't match
-                // by default, we ignore DB name 
+                // by default, we ignore DB name
                 // for ex: "[master].[sys].[sysobjvalues].[clst] [e]" and "[master_copy].[sys].[sysobjvalues].[clst] [e]" would be same
                 if (ignoreDatabaseName)
                 {
@@ -742,8 +742,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         private ShowPlanGraph graph;
         private Edge parentEdge;
         private List<Edge> childrenEdges;
-        private string nodeType;
-
         private Node root;
 
         /// <summary>
