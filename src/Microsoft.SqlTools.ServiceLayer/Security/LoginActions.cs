@@ -101,8 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             // TODO move this to LoginData
-            // TODO support role assignment for Azure
-            prototype.ServerRoles.PopulateServerRoles();
+            // TODO support role assignment for Azure            
             foreach (string role in login.ServerRoles ?? Enumerable.Empty<string>())
             {
                 prototype.ServerRoles.SetMember(role, true);
