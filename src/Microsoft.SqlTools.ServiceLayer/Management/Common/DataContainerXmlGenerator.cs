@@ -37,14 +37,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </summary>
         private string contextUrn;
         /// <summary>
-        /// Parent node in the tree
-        /// </summary>
-        //private INodeInformation parent;
-        /// <summary>
-        /// Weak reference to the tree node this is paired with
-        /// </summary>
-        WeakReference NavigableItemReference;
-        /// <summary>
         /// Property handlers
         /// </summary>
         //private IList<IPropertyHandler> propertyHandlers;
@@ -63,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         #endregion
 
         #region constructors
-        
+
         public ActionContext(ServerConnection connection, string name, string contextUrn)
         {
             if (connection == null)
@@ -83,8 +75,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             this.name = name;
 
             properties = new NameObjectCollection();
-            //propertyHandlers = null;
-            NavigableItemReference = null;
         }
         #endregion
 
@@ -263,13 +253,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
             if (info == null || info.UrnProperties == null)
                 yield break;
-        
+
             // Special order for Schema and Name
             if (properties.Contains("Schema"))
                 yield return urn.GetAttribute("Schema");
 
             if (properties.Contains("Name"))
-                yield return urn.GetAttribute("Name");       
+                yield return urn.GetAttribute("Name");
 
             foreach (ObjectProperty obj in info.UrnProperties)
             {
@@ -440,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         #region construction
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public DataContainerXmlGenerator(ActionContext context, string mode = "new")
         {
@@ -452,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
         #region IObjectBuilder implementation
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
@@ -580,7 +570,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             System.Diagnostics.Debug.Assert(xmlWriter != null, "xmlWriter should never be null.");
 
-            // There are two ways we can add context information. 
+            // There are two ways we can add context information.
             // The first is just off of the node we were launched against. We will break the urn down
             // into it's individual components. And pass them to the dialog.
             // The second is by performing a query relative to the node we were launched against

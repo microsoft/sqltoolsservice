@@ -22,9 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
     /// </summary>
     internal class AppRoleGeneral
     {
-#region Members
-
-        private IServiceProvider serviceProvider = null;
+        #region Members
 
         /// <summary>
         /// data container member that contains data specific information like
@@ -38,40 +36,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //property by the initialization code
         private ServerConnection serverConnection;
 
-
-        /// <summary>
-        /// execution mode by default for now is success
-        /// </summary>
-        private ExecutionMode m_executionMode = ExecutionMode.Success;
-
-        /// <summary>
-        /// should UI be enabled?
-        /// </summary>
-        private bool executeEnabled = true;
-
-        /// <summary>
-        /// should script buttons be enabled?
-        /// </summary>
-        private bool scriptEnabled = true;
-
-        /// <summary>
-        /// F1 keyword to be passed to books on-line
-        /// </summary>
-        private string helpF1Keyword = null;
-        private RunType runType;
-
-        //if derived class tries to call a protected method that relies on service provider,
-        //and the service provider hasn't been set yet, we will cache the values and will
-        //propagate them when we get the provider set
-        private System.Drawing.Icon cachedIcon = null;
-        private string cachedCaption = null;
-
-		//whether or not try to auto resize grid columns inside OnLoad method
-		private bool attemtGridAutoResize = true;
-#endregion
+        #endregion
 
 
-#region Trace support
+        #region Trace support
         private const string componentName = "AppRoleGeneral";
 
         public string ComponentName
@@ -81,18 +49,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 return componentName;
             }
         }
-#endregion
+        #endregion
 
-#region Constants - urn fields, etc...
+        #region Constants - urn fields, etc...
         private const string ownerField = "Owner";
         private const string defaultSchemaField = "DefaultSchema";
         private const string schemaNameField = "Name";
         private const string schemaOwnerField = "Owner";
         private const string memberNameField = "Name";
         private const string memberUrnField = "Urn";
-#endregion
+        #endregion
 
-#region Constants - grid columns positions, etc...
+        #region Constants - grid columns positions, etc...
         private const int colSchemasChecked = 0;
         private const int colSchemasOwnedSchemas = 1;
 
@@ -101,17 +69,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private const int sizeCheckboxColumn = 20;
         private const int sizeBitmapColumn = 20;
-#endregion
+        #endregion
 
-#region Non-UI variables
+        #region Non-UI variables
         private System.Xml.XmlDocument document = null;
-        private bool panelInitialized = false;
-
 
         // info extracted from context
-        private string              serverName;
-        private string              databaseName;
-        private string              approleName;
+        private string serverName;
+        private string databaseName;
+        private string approleName;
         private bool passwordChanged = false;
 
 
@@ -119,21 +85,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private string initialDefaultSchema;
 
 
-        private bool                isYukonOrLater;
-#endregion
+        private bool isYukonOrLater;
+        #endregion
 
 
-#region Properties: CreateNew/Properties mode
+        #region Properties: CreateNew/Properties mode
         private bool IsPropertiesMode
         {
             get
             {
-                return(approleName!=null) && (approleName.Trim().Length != 0);
+                return (approleName != null) && (approleName.Trim().Length != 0);
             }
         }
-#endregion
+        #endregion
 
-#region Constructors / Dispose
+        #region Constructors / Dispose
         public AppRoleGeneral()
         {
             // This call is required by the Windows.Forms Form Designer.
@@ -142,11 +108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         public AppRoleGeneral(CDataContainer context)
         {
-            // STrace.SetDefaultLevel(ComponentName , SQLToolsCommonTraceLvl.L1);
-
-            // this.HelpF1Keyword = AssemblyVersionInfo.VersionHelpKeywordPrefix + @".swb.approle.general.f1";
-
-            // InitializeComponent();
             dataContainer = context;
 
             if (dataContainer != null)
@@ -176,9 +137,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //     base.Dispose( disposing );
         // }
 
-#endregion
+        #endregion
 
-#region Implementation: LoadData(), InitProp(), SendDataToServer()
+        #region Implementation: LoadData(), InitProp(), SendDataToServer()
 
 
         /// <summary>
@@ -191,16 +152,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             // STrace.Params(ComponentName, "LoadData", "XmlDocument doc=\"{0}\"", doc.OuterXml);
 
-            STParameters                            param;
-            bool                                    bStatus;
+            STParameters param;
+            bool bStatus;
 
-            param       = new STParameters();
+            param = new STParameters();
 
             param.SetDocument(doc);
 
-            bStatus         = param.GetParam("servername", ref this.serverName);
-            bStatus         = param.GetParam("database", ref this.databaseName);
-            bStatus         = param.GetParam("applicationrole", ref this.approleName);
+            bStatus = param.GetParam("servername", ref this.serverName);
+            bStatus = param.GetParam("database", ref this.databaseName);
+            bStatus = param.GetParam("applicationrole", ref this.approleName);
         }
 
         /// <summary>
@@ -235,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     Enumerator enumerator = new Enumerator();
                     Request request = new Request();
                     request.Urn = this.dataContainer.ObjectUrn;
-                    request.Fields = new String[] { AppRoleGeneral.defaultSchemaField};
+                    request.Fields = new String[] { AppRoleGeneral.defaultSchemaField };
 
                     DataTable dataTable = enumerator.Process(serverConnection, request);
                     // STrace.Assert(dataTable != null, "dataTable is null");
@@ -247,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     }
 
                     DataRow dataRow = dataTable.Rows[0];
-                    this.initialDefaultSchema = Convert.ToString(dataRow[AppRoleGeneral.defaultSchemaField],System.Globalization.CultureInfo.InvariantCulture);
+                    this.initialDefaultSchema = Convert.ToString(dataRow[AppRoleGeneral.defaultSchemaField], System.Globalization.CultureInfo.InvariantCulture);
 
                     // this.textBoxDefaultSchema.Text = this.initialDefaultSchema;
                 }
@@ -346,17 +307,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.databaseName), "databaseName is empty");
 
             Microsoft.SqlServer.Management.Smo.Server srv = this.dataContainer.Server;
-            System.Diagnostics.Debug.Assert(srv!=null, "server object is null");
+            System.Diagnostics.Debug.Assert(srv != null, "server object is null");
 
             Database db = srv.Databases[this.databaseName];
-            System.Diagnostics.Debug.Assert(db!=null, "database object is null");
+            System.Diagnostics.Debug.Assert(db != null, "database object is null");
 
             if (this.IsPropertiesMode == true) // in properties mode -> alter role
             {
                 System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.approleName), "approleName is empty");
 
                 ApplicationRole approle = db.ApplicationRoles[this.approleName];
-                System.Diagnostics.Debug.Assert(approle!=null, "approle object is null");
+                System.Diagnostics.Debug.Assert(approle != null, "approle object is null");
 
                 bool alterRequired = false;
 
@@ -368,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
                 if (passwordChanged == true)
                 {
-                    approle.ChangePassword((string) "_textBoxPaswordText");
+                    approle.ChangePassword((string)"_textBoxPaswordText");
                 }
 
                 if (alterRequired == true)
@@ -387,238 +348,238 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     approle.DefaultSchema = _selectedDefaultSchema;
                 }
 
-                approle.Create((string) "_textBoxPaswordText");
+                approle.Create((string)"_textBoxPaswordText");
 
-                SendToServerSchemaOwnershipChanges(db,approle);
-                SendToServerMembershipChanges(db,approle);
+                SendToServerSchemaOwnershipChanges(db, approle);
+                SendToServerMembershipChanges(db, approle);
 
                 this.dataContainer.SqlDialogSubject = approle; // needed by extended properties page
             }
 
         }
-#endregion
+        #endregion
 
 
-// #region Update UI enable/disable controls
-//         private void EnableDisableControls()
-//         {
-//             if (!this.isYukonOrLater)
-//             {
-//                 panelSchema.Enabled = false;
-//                 textBoxDefaultSchema.Enabled = false;
-//                 buttonBrowseSchema.Enabled = false;
-//             }
+        // #region Update UI enable/disable controls
+        //         private void EnableDisableControls()
+        //         {
+        //             if (!this.isYukonOrLater)
+        //             {
+        //                 panelSchema.Enabled = false;
+        //                 textBoxDefaultSchema.Enabled = false;
+        //                 buttonBrowseSchema.Enabled = false;
+        //             }
 
-//             if (this.IsPropertiesMode == true)
-//             {
-//                 System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.textBoxRoleName.Text), "textBoxRoleName is empty");
-//                 this.textBoxRoleName.Enabled = false;
+        //             if (this.IsPropertiesMode == true)
+        //             {
+        //                 System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.textBoxRoleName.Text), "textBoxRoleName is empty");
+        //                 this.textBoxRoleName.Enabled = false;
 
-//                 this.AllUIEnabled = true;
-//             }
-//             else
-//             {
-//                 this.textBoxRoleName.Enabled = true;
+        //                 this.AllUIEnabled = true;
+        //             }
+        //             else
+        //             {
+        //                 this.textBoxRoleName.Enabled = true;
 
-//                 this.AllUIEnabled = (this.textBoxRoleName.Text.Trim().Length != 0);
-//             }
+        //                 this.AllUIEnabled = (this.textBoxRoleName.Text.Trim().Length != 0);
+        //             }
 
-//             if ((passwordChanged==true) && (textBoxPasword.Text != textBoxConfirmPassword.Text))
-//             {
-//                 this.AllUIEnabled = false;
-//             }
+        //             if ((passwordChanged==true) && (textBoxPasword.Text != textBoxConfirmPassword.Text))
+        //             {
+        //                 this.AllUIEnabled = false;
+        //             }
 
-//             buttonRemove.Enabled = (gridRoleMembership.SelectedRow>=0);
+        //             buttonRemove.Enabled = (gridRoleMembership.SelectedRow>=0);
 
-//             panelMembership.Enabled = false; // app role currently doesnt support any members
-//         }
-// #endregion
+        //             panelMembership.Enabled = false; // app role currently doesnt support any members
+        //         }
+        // #endregion
 
-// #region Component Designer generated code
-//         /// <summary>
-//         /// Required method for Designer support - do not modify
-//         /// the contents of this method with the code editor.
-//         /// </summary>
-//         private void InitializeComponent()
-//         {
-//             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AppRoleGeneral));
-//             this.panelEntireUserControl = new System.Windows.Forms.Panel();
-//             this.panelGeneral = new System.Windows.Forms.Panel();
-//             this.buttonBrowseSchema = new System.Windows.Forms.Button();
-//             this.textBoxDefaultSchema = new System.Windows.Forms.TextBox();
-//             this.textBoxPasword = new System.Windows.Forms.TextBox();
-//             this.labelPassword = new System.Windows.Forms.Label();
-//             this.labelDefaultSchema = new System.Windows.Forms.Label();
-//             this.textBoxRoleName = new System.Windows.Forms.TextBox();
-//             this.labelRoleName = new System.Windows.Forms.Label();
-//             this.textBoxConfirmPassword = new System.Windows.Forms.TextBox();
-//             this.labelConfirmPassword = new System.Windows.Forms.Label();
-//             this.panelMembership = new System.Windows.Forms.Panel();
-//             this.buttonRemove = new System.Windows.Forms.Button();
-//             this.buttonAdd = new System.Windows.Forms.Button();
-//             this.gridRoleMembership = new Microsoft.SqlServer.Management.SqlManagerUI.SqlManagerUIDlgGrid();
-//             this.labelMembersOfAppRole = new System.Windows.Forms.Label();
-//             this.panelSchema = new System.Windows.Forms.Panel();
-//             this.gridSchemasOwned = new Microsoft.SqlServer.Management.SqlManagerUI.SqlManagerUIDlgGrid();
-//             this.labelSchemasOwnedByAppRole = new System.Windows.Forms.Label();
-//             this.panelEntireUserControl.SuspendLayout();
-//             this.panelGeneral.SuspendLayout();
-//             this.panelMembership.SuspendLayout();
-//             ((System.ComponentModel.ISupportInitialize)(this.gridRoleMembership)).BeginInit();
-//             this.panelSchema.SuspendLayout();
-//             ((System.ComponentModel.ISupportInitialize)(this.gridSchemasOwned)).BeginInit();
-//             this.SuspendLayout();
-//             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-//             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-//             //
-//             // panelEntireUserControl
-//             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
-//             //
-//             this.panelEntireUserControl.Controls.Add(this.panelGeneral);
-//             this.panelEntireUserControl.Controls.Add(this.panelMembership);
-//             this.panelEntireUserControl.Controls.Add(this.panelSchema);
-//             resources.ApplyResources(this.panelEntireUserControl, "panelEntireUserControl");
-//             this.panelEntireUserControl.Name = "panelEntireUserControl";
-//             //
-//             // panelGeneral
-//             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
-//             //
-//             resources.ApplyResources(this.panelGeneral, "panelGeneral");
-//             this.panelGeneral.Controls.Add(this.labelRoleName);
-//             this.panelGeneral.Controls.Add(this.textBoxRoleName);
-//             this.panelGeneral.Controls.Add(this.labelDefaultSchema);
-//             this.panelGeneral.Controls.Add(this.textBoxDefaultSchema);
-//             this.panelGeneral.Controls.Add(this.buttonBrowseSchema);
-//             this.panelGeneral.Controls.Add(this.labelPassword);
-//             this.panelGeneral.Controls.Add(this.textBoxPasword);
-//             this.panelGeneral.Controls.Add(this.labelConfirmPassword);
-//             this.panelGeneral.Controls.Add(this.textBoxConfirmPassword);
-//             this.panelGeneral.Name = "panelGeneral";
-//             //
-//             // buttonBrowseSchema
-//             //
-//             resources.ApplyResources(this.buttonBrowseSchema, "buttonBrowseSchema");
-//             this.buttonBrowseSchema.Name = "buttonBrowseSchema";
-//             this.buttonBrowseSchema.Click += new System.EventHandler(this.buttonBrowseSchema_Click);
-//             //
-//             // textBoxDefaultSchema
-//             //
-//             resources.ApplyResources(this.textBoxDefaultSchema, "textBoxDefaultSchema");
-//             this.textBoxDefaultSchema.Name = "textBoxDefaultSchema";
-//             this.textBoxDefaultSchema.TextChanged += new System.EventHandler(this.textBoxRoleName_TextChanged);
-//             //
-//             // textBoxPasword
-//             //
-//             resources.ApplyResources(this.textBoxPasword, "textBoxPasword");
-//             this.textBoxPasword.Name = "textBoxPasword";
-//             this.textBoxPasword.TextChanged += new System.EventHandler(this.textBoxPasword_TextChanged);
-//             //
-//             // labelPassword
-//             //
-//             resources.ApplyResources(this.labelPassword, "labelPassword");
-//             this.labelPassword.Name = "labelPassword";
-//             //
-//             // labelDefaultSchema
-//             //
-//             resources.ApplyResources(this.labelDefaultSchema, "labelDefaultSchema");
-//             this.labelDefaultSchema.Name = "labelDefaultSchema";
-//             //
-//             // textBoxRoleName
-//             //
-//             resources.ApplyResources(this.textBoxRoleName, "textBoxRoleName");
-//             this.textBoxRoleName.Name = "textBoxRoleName";
-//             this.textBoxRoleName.TextChanged += new System.EventHandler(this.textBoxRoleName_TextChanged);
-//             //
-//             // labelRoleName
-//             //
-//             resources.ApplyResources(this.labelRoleName, "labelRoleName");
-//             this.labelRoleName.Name = "labelRoleName";
-//             //
-//             // textBoxConfirmPassword
-//             //
-//             resources.ApplyResources(this.textBoxConfirmPassword, "textBoxConfirmPassword");
-//             this.textBoxConfirmPassword.Name = "textBoxConfirmPassword";
-//             this.textBoxConfirmPassword.TextChanged += new System.EventHandler(this.textBoxConfirmPassword_TextChanged);
-//             //
-//             // labelConfirmPassword
-//             //
-//             resources.ApplyResources(this.labelConfirmPassword, "labelConfirmPassword");
-//             this.labelConfirmPassword.Name = "labelConfirmPassword";
-//             //
-//             // panelMembership
-//             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
-//             //
-//             resources.ApplyResources(this.panelMembership, "panelMembership");
-//             this.panelMembership.Controls.Add(this.labelMembersOfAppRole);
-//             this.panelMembership.Controls.Add(this.gridRoleMembership);
-//             this.panelMembership.Controls.Add(this.buttonAdd);
-//             this.panelMembership.Controls.Add(this.buttonRemove);
-//             this.panelMembership.Name = "panelMembership";
-//             //
-//             // buttonRemove
-//             //
-//             resources.ApplyResources(this.buttonRemove, "buttonRemove");
-//             this.buttonRemove.Name = "buttonRemove";
-//             this.buttonRemove.Click += new System.EventHandler(this.buttonRemove_Click);
-//             //
-//             // buttonAdd
-//             //
-//             resources.ApplyResources(this.buttonAdd, "buttonAdd");
-//             this.buttonAdd.Name = "buttonAdd";
-//             this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
-//             //
-//             // gridRoleMembership
-//             //
-//             resources.ApplyResources(this.gridRoleMembership, "gridRoleMembership");
-//             this.gridRoleMembership.BackColor = System.Drawing.SystemColors.Window;
-//             this.gridRoleMembership.ForceEnabled = false;
-//             this.gridRoleMembership.Name = "gridRoleMembership";
-//             this.gridRoleMembership.SelectionChanged += new Microsoft.SqlServer.Management.UI.Grid.SelectionChangedEventHandler(this.gridRoleMembership_SelectionChanged);
-//             //
-//             // labelMembersOfAppRole
-//             //
-//             resources.ApplyResources(this.labelMembersOfAppRole, "labelMembersOfAppRole");
-//             this.labelMembersOfAppRole.Name = "labelMembersOfAppRole";
-//             //
-//             // panelSchema
-//             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
-//             //
-//             resources.ApplyResources(this.panelSchema, "panelSchema");
-//             this.panelSchema.Controls.Add(this.labelSchemasOwnedByAppRole);
-//             this.panelSchema.Controls.Add(this.gridSchemasOwned);
-//             this.panelSchema.Name = "panelSchema";
-//             //
-//             // gridSchemasOwned
-//             //
-//             resources.ApplyResources(this.gridSchemasOwned, "gridSchemasOwned");
-//             this.gridSchemasOwned.BackColor = System.Drawing.SystemColors.Window;
-//             this.gridSchemasOwned.ForceEnabled = false;
-//             this.gridSchemasOwned.Name = "gridSchemasOwned";
-//             this.gridSchemasOwned.MouseButtonClicked += new Microsoft.SqlServer.Management.UI.Grid.MouseButtonClickedEventHandler(this.gridSchemasOwned_MouseButtonClicked);
-//             //
-//             // labelSchemasOwnedByAppRole
-//             //
-//             resources.ApplyResources(this.labelSchemasOwnedByAppRole, "labelSchemasOwnedByAppRole");
-//             this.labelSchemasOwnedByAppRole.Name = "labelSchemasOwnedByAppRole";
-//             //
-//             // AppRoleGeneral
-//             //
-//             this.Controls.Add(this.panelEntireUserControl);
-//             this.Name = "AppRoleGeneral";
-//             resources.ApplyResources(this, "$this");
-//             this.panelEntireUserControl.ResumeLayout(false);
-//             this.panelGeneral.ResumeLayout(false);
-//             this.panelGeneral.PerformLayout();
-//             this.panelMembership.ResumeLayout(false);
-//             ((System.ComponentModel.ISupportInitialize)(this.gridRoleMembership)).EndInit();
-//             this.panelSchema.ResumeLayout(false);
-//             ((System.ComponentModel.ISupportInitialize)(this.gridSchemasOwned)).EndInit();
-//             this.ResumeLayout(false);
+        // #region Component Designer generated code
+        //         /// <summary>
+        //         /// Required method for Designer support - do not modify
+        //         /// the contents of this method with the code editor.
+        //         /// </summary>
+        //         private void InitializeComponent()
+        //         {
+        //             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AppRoleGeneral));
+        //             this.panelEntireUserControl = new System.Windows.Forms.Panel();
+        //             this.panelGeneral = new System.Windows.Forms.Panel();
+        //             this.buttonBrowseSchema = new System.Windows.Forms.Button();
+        //             this.textBoxDefaultSchema = new System.Windows.Forms.TextBox();
+        //             this.textBoxPasword = new System.Windows.Forms.TextBox();
+        //             this.labelPassword = new System.Windows.Forms.Label();
+        //             this.labelDefaultSchema = new System.Windows.Forms.Label();
+        //             this.textBoxRoleName = new System.Windows.Forms.TextBox();
+        //             this.labelRoleName = new System.Windows.Forms.Label();
+        //             this.textBoxConfirmPassword = new System.Windows.Forms.TextBox();
+        //             this.labelConfirmPassword = new System.Windows.Forms.Label();
+        //             this.panelMembership = new System.Windows.Forms.Panel();
+        //             this.buttonRemove = new System.Windows.Forms.Button();
+        //             this.buttonAdd = new System.Windows.Forms.Button();
+        //             this.gridRoleMembership = new Microsoft.SqlServer.Management.SqlManagerUI.SqlManagerUIDlgGrid();
+        //             this.labelMembersOfAppRole = new System.Windows.Forms.Label();
+        //             this.panelSchema = new System.Windows.Forms.Panel();
+        //             this.gridSchemasOwned = new Microsoft.SqlServer.Management.SqlManagerUI.SqlManagerUIDlgGrid();
+        //             this.labelSchemasOwnedByAppRole = new System.Windows.Forms.Label();
+        //             this.panelEntireUserControl.SuspendLayout();
+        //             this.panelGeneral.SuspendLayout();
+        //             this.panelMembership.SuspendLayout();
+        //             ((System.ComponentModel.ISupportInitialize)(this.gridRoleMembership)).BeginInit();
+        //             this.panelSchema.SuspendLayout();
+        //             ((System.ComponentModel.ISupportInitialize)(this.gridSchemasOwned)).BeginInit();
+        //             this.SuspendLayout();
+        //             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+        //             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        //             //
+        //             // panelEntireUserControl
+        //             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
+        //             //
+        //             this.panelEntireUserControl.Controls.Add(this.panelGeneral);
+        //             this.panelEntireUserControl.Controls.Add(this.panelMembership);
+        //             this.panelEntireUserControl.Controls.Add(this.panelSchema);
+        //             resources.ApplyResources(this.panelEntireUserControl, "panelEntireUserControl");
+        //             this.panelEntireUserControl.Name = "panelEntireUserControl";
+        //             //
+        //             // panelGeneral
+        //             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
+        //             //
+        //             resources.ApplyResources(this.panelGeneral, "panelGeneral");
+        //             this.panelGeneral.Controls.Add(this.labelRoleName);
+        //             this.panelGeneral.Controls.Add(this.textBoxRoleName);
+        //             this.panelGeneral.Controls.Add(this.labelDefaultSchema);
+        //             this.panelGeneral.Controls.Add(this.textBoxDefaultSchema);
+        //             this.panelGeneral.Controls.Add(this.buttonBrowseSchema);
+        //             this.panelGeneral.Controls.Add(this.labelPassword);
+        //             this.panelGeneral.Controls.Add(this.textBoxPasword);
+        //             this.panelGeneral.Controls.Add(this.labelConfirmPassword);
+        //             this.panelGeneral.Controls.Add(this.textBoxConfirmPassword);
+        //             this.panelGeneral.Name = "panelGeneral";
+        //             //
+        //             // buttonBrowseSchema
+        //             //
+        //             resources.ApplyResources(this.buttonBrowseSchema, "buttonBrowseSchema");
+        //             this.buttonBrowseSchema.Name = "buttonBrowseSchema";
+        //             this.buttonBrowseSchema.Click += new System.EventHandler(this.buttonBrowseSchema_Click);
+        //             //
+        //             // textBoxDefaultSchema
+        //             //
+        //             resources.ApplyResources(this.textBoxDefaultSchema, "textBoxDefaultSchema");
+        //             this.textBoxDefaultSchema.Name = "textBoxDefaultSchema";
+        //             this.textBoxDefaultSchema.TextChanged += new System.EventHandler(this.textBoxRoleName_TextChanged);
+        //             //
+        //             // textBoxPasword
+        //             //
+        //             resources.ApplyResources(this.textBoxPasword, "textBoxPasword");
+        //             this.textBoxPasword.Name = "textBoxPasword";
+        //             this.textBoxPasword.TextChanged += new System.EventHandler(this.textBoxPasword_TextChanged);
+        //             //
+        //             // labelPassword
+        //             //
+        //             resources.ApplyResources(this.labelPassword, "labelPassword");
+        //             this.labelPassword.Name = "labelPassword";
+        //             //
+        //             // labelDefaultSchema
+        //             //
+        //             resources.ApplyResources(this.labelDefaultSchema, "labelDefaultSchema");
+        //             this.labelDefaultSchema.Name = "labelDefaultSchema";
+        //             //
+        //             // textBoxRoleName
+        //             //
+        //             resources.ApplyResources(this.textBoxRoleName, "textBoxRoleName");
+        //             this.textBoxRoleName.Name = "textBoxRoleName";
+        //             this.textBoxRoleName.TextChanged += new System.EventHandler(this.textBoxRoleName_TextChanged);
+        //             //
+        //             // labelRoleName
+        //             //
+        //             resources.ApplyResources(this.labelRoleName, "labelRoleName");
+        //             this.labelRoleName.Name = "labelRoleName";
+        //             //
+        //             // textBoxConfirmPassword
+        //             //
+        //             resources.ApplyResources(this.textBoxConfirmPassword, "textBoxConfirmPassword");
+        //             this.textBoxConfirmPassword.Name = "textBoxConfirmPassword";
+        //             this.textBoxConfirmPassword.TextChanged += new System.EventHandler(this.textBoxConfirmPassword_TextChanged);
+        //             //
+        //             // labelConfirmPassword
+        //             //
+        //             resources.ApplyResources(this.labelConfirmPassword, "labelConfirmPassword");
+        //             this.labelConfirmPassword.Name = "labelConfirmPassword";
+        //             //
+        //             // panelMembership
+        //             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
+        //             //
+        //             resources.ApplyResources(this.panelMembership, "panelMembership");
+        //             this.panelMembership.Controls.Add(this.labelMembersOfAppRole);
+        //             this.panelMembership.Controls.Add(this.gridRoleMembership);
+        //             this.panelMembership.Controls.Add(this.buttonAdd);
+        //             this.panelMembership.Controls.Add(this.buttonRemove);
+        //             this.panelMembership.Name = "panelMembership";
+        //             //
+        //             // buttonRemove
+        //             //
+        //             resources.ApplyResources(this.buttonRemove, "buttonRemove");
+        //             this.buttonRemove.Name = "buttonRemove";
+        //             this.buttonRemove.Click += new System.EventHandler(this.buttonRemove_Click);
+        //             //
+        //             // buttonAdd
+        //             //
+        //             resources.ApplyResources(this.buttonAdd, "buttonAdd");
+        //             this.buttonAdd.Name = "buttonAdd";
+        //             this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+        //             //
+        //             // gridRoleMembership
+        //             //
+        //             resources.ApplyResources(this.gridRoleMembership, "gridRoleMembership");
+        //             this.gridRoleMembership.BackColor = System.Drawing.SystemColors.Window;
+        //             this.gridRoleMembership.ForceEnabled = false;
+        //             this.gridRoleMembership.Name = "gridRoleMembership";
+        //             this.gridRoleMembership.SelectionChanged += new Microsoft.SqlServer.Management.UI.Grid.SelectionChangedEventHandler(this.gridRoleMembership_SelectionChanged);
+        //             //
+        //             // labelMembersOfAppRole
+        //             //
+        //             resources.ApplyResources(this.labelMembersOfAppRole, "labelMembersOfAppRole");
+        //             this.labelMembersOfAppRole.Name = "labelMembersOfAppRole";
+        //             //
+        //             // panelSchema
+        //             // Important: For narrator accessibility please make sure all Controls.Add are in order from top to bottom, left to right
+        //             //
+        //             resources.ApplyResources(this.panelSchema, "panelSchema");
+        //             this.panelSchema.Controls.Add(this.labelSchemasOwnedByAppRole);
+        //             this.panelSchema.Controls.Add(this.gridSchemasOwned);
+        //             this.panelSchema.Name = "panelSchema";
+        //             //
+        //             // gridSchemasOwned
+        //             //
+        //             resources.ApplyResources(this.gridSchemasOwned, "gridSchemasOwned");
+        //             this.gridSchemasOwned.BackColor = System.Drawing.SystemColors.Window;
+        //             this.gridSchemasOwned.ForceEnabled = false;
+        //             this.gridSchemasOwned.Name = "gridSchemasOwned";
+        //             this.gridSchemasOwned.MouseButtonClicked += new Microsoft.SqlServer.Management.UI.Grid.MouseButtonClickedEventHandler(this.gridSchemasOwned_MouseButtonClicked);
+        //             //
+        //             // labelSchemasOwnedByAppRole
+        //             //
+        //             resources.ApplyResources(this.labelSchemasOwnedByAppRole, "labelSchemasOwnedByAppRole");
+        //             this.labelSchemasOwnedByAppRole.Name = "labelSchemasOwnedByAppRole";
+        //             //
+        //             // AppRoleGeneral
+        //             //
+        //             this.Controls.Add(this.panelEntireUserControl);
+        //             this.Name = "AppRoleGeneral";
+        //             resources.ApplyResources(this, "$this");
+        //             this.panelEntireUserControl.ResumeLayout(false);
+        //             this.panelGeneral.ResumeLayout(false);
+        //             this.panelGeneral.PerformLayout();
+        //             this.panelMembership.ResumeLayout(false);
+        //             ((System.ComponentModel.ISupportInitialize)(this.gridRoleMembership)).EndInit();
+        //             this.panelSchema.ResumeLayout(false);
+        //             ((System.ComponentModel.ISupportInitialize)(this.gridSchemasOwned)).EndInit();
+        //             this.ResumeLayout(false);
 
-//         }
-// #endregion
+        //         }
+        // #endregion
 
-#region Schemas - general operations with ...
+        #region Schemas - general operations with ...
         HybridDictionary dictSchemas = null;
         StringCollection schemaNames = null;
         /// <summary>
@@ -633,17 +594,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
                 Enumerator en = new Enumerator();
                 Request req = new Request();
-                req.Fields = new String[] { AppRoleGeneral.schemaNameField, AppRoleGeneral.schemaOwnerField};
+                req.Fields = new String[] { AppRoleGeneral.schemaNameField, AppRoleGeneral.schemaOwnerField };
                 req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/Schema";
-                req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc)};
+                req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc) };
 
                 DataTable dt = en.Process(serverConnection, req);
                 // STrace.Assert((dt != null) && (dt.Rows.Count > 0), "No rows returned from schema enumerator");
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    string name = Convert.ToString(dr[AppRoleGeneral.schemaNameField],System.Globalization.CultureInfo.InvariantCulture);
-                    string owner = Convert.ToString(dr[AppRoleGeneral.schemaOwnerField],System.Globalization.CultureInfo.InvariantCulture);
+                    string name = Convert.ToString(dr[AppRoleGeneral.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
+                    string owner = Convert.ToString(dr[AppRoleGeneral.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
 
                     dictSchemas.Add(name, owner);
                     schemaNames.Add(name);
@@ -805,9 +766,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //     }
         // }
 
-#endregion
+        #endregion
 
-#region Membership - general operations with ...
+        #region Membership - general operations with ...
         System.Collections.Specialized.HybridDictionary dictMembership = null;
 
         /// <summary>
@@ -823,20 +784,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             Enumerator en = new Enumerator();
             Request req = new Request();
-            req.Fields = new String [] {AppRoleGeneral.memberNameField, AppRoleGeneral.memberUrnField};
+            req.Fields = new String[] { AppRoleGeneral.memberNameField, AppRoleGeneral.memberUrnField };
             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/ApplicationRole[@Name='" + Urn.EscapeString(this.approleName) + "']/Member";
 
             try
             {
-                DataTable dt = en.Process(serverConnection,req);
-                System.Diagnostics.Debug.Assert(dt!=null, "No results returned from membership query");
+                DataTable dt = en.Process(serverConnection, req);
+                System.Diagnostics.Debug.Assert(dt != null, "No results returned from membership query");
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    string name = Convert.ToString(dr[AppRoleGeneral.memberNameField],System.Globalization.CultureInfo.InvariantCulture);
-                    string urn  = Convert.ToString(dr[AppRoleGeneral.memberUrnField],System.Globalization.CultureInfo.InvariantCulture);
+                    string name = Convert.ToString(dr[AppRoleGeneral.memberNameField], System.Globalization.CultureInfo.InvariantCulture);
+                    string urn = Convert.ToString(dr[AppRoleGeneral.memberUrnField], System.Globalization.CultureInfo.InvariantCulture);
 
-                    dictMembership.Add(name,urn);
+                    dictMembership.Add(name, urn);
                 }
             }
             catch (Exception e)
@@ -922,7 +883,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             if (IsPropertiesMode == true)
             {
                 // members to add
-                for (int i=0; i<1; ++i)
+                for (int i = 0; i < 1; ++i)
                 {
                     string name = "grid.GetCellInfo(i, colMembershipRoleMembers).CellData.ToString()";
                     bool nameExistedInitially = dictMembership.Contains(name);
@@ -944,7 +905,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             else
             {
                 // add only
-                for (int i=0; i<1; ++i)
+                for (int i = 0; i < 1; ++i)
                 {
                     string name = "grid.GetCellInfo(i, colMembershipRoleMembers).CellData.ToString()";
                     // need SMO for: role.Members.Add();
@@ -1034,149 +995,149 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         //     }
         // }
 
-#endregion
+        #endregion
 
 
-// #region Bitmaps and Icons
-//         private Bitmap bitmapMember = null;
-//         private Icon iconSearchUsers = null;
-//         private Icon iconSchema = null;
-//         /// <summary>
-//         /// initialize bitmaps used for membership grid
-//         /// </summary>
-//         private void InitializeBitmapAndIcons()
-//         {
-//             CUtils utils = new CUtils();
-//             bitmapMember = utils.LoadIcon("member.ico").ToBitmap();
+        // #region Bitmaps and Icons
+        //         private Bitmap bitmapMember = null;
+        //         private Icon iconSearchUsers = null;
+        //         private Icon iconSchema = null;
+        //         /// <summary>
+        //         /// initialize bitmaps used for membership grid
+        //         /// </summary>
+        //         private void InitializeBitmapAndIcons()
+        //         {
+        //             CUtils utils = new CUtils();
+        //             bitmapMember = utils.LoadIcon("member.ico").ToBitmap();
 
-//             iconSearchUsers = utils.LoadIcon("search_users_roles.ico");
-//             iconSchema = utils.LoadIcon("database_schema.ico");
-//         }
-// #endregion
-
-
-// #region General Grid operations - helpers
-
-//         /// <summary>
-//         /// gets status of checkbox
-//         /// </summary>
-//         /// <param name="grid"></param>
-//         /// <param name="rowno"></param>
-//         /// <param name="colno"></param>
-//         /// <returns></returns>
-//         bool IsEmbeededCheckboxChecked(DlgGridControl grid, int rowno, int colno)
-//         {
-//             // get the storage for the cell
-//             GridCell            cell    = grid.GetCellInfo(rowno, colno);
-//             GridCheckBoxState   state   = (GridCheckBoxState) cell.CellData;
-
-//             return(state == GridCheckBoxState.Checked);
-//         }
+        //             iconSearchUsers = utils.LoadIcon("search_users_roles.ico");
+        //             iconSchema = utils.LoadIcon("database_schema.ico");
+        //         }
+        // #endregion
 
 
-//         /// <summary>
-//         /// flips on/off checkboxes from grid
-//         /// </summary>
-//         /// <param name="rowsno"></param>
-//         /// <param name="colno"></param>
-//         void FlipCheckbox(DlgGridControl grid, int rowno, int colno)
-//         {
-//             // get the storage for the cell
-//             GridCell            cell    = grid.GetCellInfo(rowno, colno);
-//             GridCheckBoxState   state   = (GridCheckBoxState) cell.CellData;
+        // #region General Grid operations - helpers
 
-//             // explicitly invert the cell state
-//             switch (state)
-//             {
-//                 case GridCheckBoxState.Checked:
-//                     cell.CellData   = GridCheckBoxState.Unchecked;
-//                     break;
-//                 case GridCheckBoxState.Unchecked:
-//                     cell.CellData   = GridCheckBoxState.Checked;
-//                     break;
-//                 case GridCheckBoxState.Indeterminate:
-//                     // do nothing if Indeterminate - this means that entry is checked and r/o (e.g. schemas already owned)
-//                     break;
+        //         /// <summary>
+        //         /// gets status of checkbox
+        //         /// </summary>
+        //         /// <param name="grid"></param>
+        //         /// <param name="rowno"></param>
+        //         /// <param name="colno"></param>
+        //         /// <returns></returns>
+        //         bool IsEmbeededCheckboxChecked(DlgGridControl grid, int rowno, int colno)
+        //         {
+        //             // get the storage for the cell
+        //             GridCell            cell    = grid.GetCellInfo(rowno, colno);
+        //             GridCheckBoxState   state   = (GridCheckBoxState) cell.CellData;
 
-//                 case GridCheckBoxState.None:
-//                     break;
-//                 default:
-//                     System.Diagnostics.Debug.Assert(false,"unknown checkbox state");
-//                     break;
-//             }
-//         }
-// #endregion
+        //             return(state == GridCheckBoxState.Checked);
+        //         }
 
-// #region Non-Grid related Events
-//         private void textBoxRoleName_TextChanged(object sender, System.EventArgs e)
-//         {
-//             EnableDisableControls();
-//         }
 
-//         bool passwordChanged = false;
-//         private void textBoxPasword_TextChanged(object sender, System.EventArgs e)
-//         {
-//             passwordChanged = true;
-//             EnableDisableControls();
-//         }
+        //         /// <summary>
+        //         /// flips on/off checkboxes from grid
+        //         /// </summary>
+        //         /// <param name="rowsno"></param>
+        //         /// <param name="colno"></param>
+        //         void FlipCheckbox(DlgGridControl grid, int rowno, int colno)
+        //         {
+        //             // get the storage for the cell
+        //             GridCell            cell    = grid.GetCellInfo(rowno, colno);
+        //             GridCheckBoxState   state   = (GridCheckBoxState) cell.CellData;
 
-//         private void textBoxConfirmPassword_TextChanged(object sender, System.EventArgs e)
-//         {
-//             passwordChanged = true;
-//             EnableDisableControls();
-//         }
-// #endregion
+        //             // explicitly invert the cell state
+        //             switch (state)
+        //             {
+        //                 case GridCheckBoxState.Checked:
+        //                     cell.CellData   = GridCheckBoxState.Unchecked;
+        //                     break;
+        //                 case GridCheckBoxState.Unchecked:
+        //                     cell.CellData   = GridCheckBoxState.Checked;
+        //                     break;
+        //                 case GridCheckBoxState.Indeterminate:
+        //                     // do nothing if Indeterminate - this means that entry is checked and r/o (e.g. schemas already owned)
+        //                     break;
 
-// #region ISupportValidation Members
+        //                 case GridCheckBoxState.None:
+        //                     break;
+        //                 default:
+        //                     System.Diagnostics.Debug.Assert(false,"unknown checkbox state");
+        //                     break;
+        //             }
+        //         }
+        // #endregion
 
-//         bool ISupportValidation.Validate()
-//         {
-//             if (this.textBoxRoleName.Text.Trim().Length == 0)
-//             {
-//                 System.Exception e = new System.Exception(AppRoleSR.ErrorApplicationRoleNameMustBeSpecified);
-//                 this.DisplayExceptionMessage(e);
+        // #region Non-Grid related Events
+        //         private void textBoxRoleName_TextChanged(object sender, System.EventArgs e)
+        //         {
+        //             EnableDisableControls();
+        //         }
 
-//                 return false;
-//             }
-//             if (this.textBoxPasword.Text.Trim().Length == 0)
-//             {
-//                 System.Exception e = new System.Exception(AppRoleSR.ErrorPasswordIsBlank);
-//                 this.DisplayExceptionMessage(e);
+        //         bool passwordChanged = false;
+        //         private void textBoxPasword_TextChanged(object sender, System.EventArgs e)
+        //         {
+        //             passwordChanged = true;
+        //             EnableDisableControls();
+        //         }
 
-//                 return false;
-//             }
-//             if (this.textBoxPasword.Text != this.textBoxConfirmPassword.Text)
-//             {
-//                 System.Exception e = new System.Exception(AppRoleSR.ErrorPasswordMismatch);
-//                 this.DisplayExceptionMessage(e);
+        //         private void textBoxConfirmPassword_TextChanged(object sender, System.EventArgs e)
+        //         {
+        //             passwordChanged = true;
+        //             EnableDisableControls();
+        //         }
+        // #endregion
 
-//                 return false;
-//             }
-//             return true;
-//         }
+        // #region ISupportValidation Members
 
-// #endregion
+        //         bool ISupportValidation.Validate()
+        //         {
+        //             if (this.textBoxRoleName.Text.Trim().Length == 0)
+        //             {
+        //                 System.Exception e = new System.Exception(AppRoleSR.ErrorApplicationRoleNameMustBeSpecified);
+        //                 this.DisplayExceptionMessage(e);
 
-//         private void buttonBrowseSchema_Click(object sender, System.EventArgs e)
-//         {
-//             //
-//             // pop up object picker
-//             //
-//             using (SqlObjectSearch dlg = new SqlObjectSearch(this.Font,
-//                                                              this.iconSchema,
-//                                                              this.HelpProvider,
-//                                                              AppRoleSR.BrowseSchemaTitle,
-//                                                              this.DataContainer.ConnectionInfo,
-//                                                              this.databaseName,
-//                                                              new SearchableObjectTypeCollection(SearchableObjectType.Schema),
-//                                                              new SearchableObjectTypeCollection(SearchableObjectType.Schema)))
-//             {
-//                 if (DialogResult.OK == dlg.ShowDialog(this.FindForm()))
-//                 {
-//                     this.textBoxDefaultSchema.Text = dlg.SearchResults[0].Name;
-//                 }
-//             }
-//         }
+        //                 return false;
+        //             }
+        //             if (this.textBoxPasword.Text.Trim().Length == 0)
+        //             {
+        //                 System.Exception e = new System.Exception(AppRoleSR.ErrorPasswordIsBlank);
+        //                 this.DisplayExceptionMessage(e);
+
+        //                 return false;
+        //             }
+        //             if (this.textBoxPasword.Text != this.textBoxConfirmPassword.Text)
+        //             {
+        //                 System.Exception e = new System.Exception(AppRoleSR.ErrorPasswordMismatch);
+        //                 this.DisplayExceptionMessage(e);
+
+        //                 return false;
+        //             }
+        //             return true;
+        //         }
+
+        // #endregion
+
+        //         private void buttonBrowseSchema_Click(object sender, System.EventArgs e)
+        //         {
+        //             //
+        //             // pop up object picker
+        //             //
+        //             using (SqlObjectSearch dlg = new SqlObjectSearch(this.Font,
+        //                                                              this.iconSchema,
+        //                                                              this.HelpProvider,
+        //                                                              AppRoleSR.BrowseSchemaTitle,
+        //                                                              this.DataContainer.ConnectionInfo,
+        //                                                              this.databaseName,
+        //                                                              new SearchableObjectTypeCollection(SearchableObjectType.Schema),
+        //                                                              new SearchableObjectTypeCollection(SearchableObjectType.Schema)))
+        //             {
+        //                 if (DialogResult.OK == dlg.ShowDialog(this.FindForm()))
+        //                 {
+        //                     this.textBoxDefaultSchema.Text = dlg.SearchResults[0].Name;
+        //                 }
+        //             }
+        //         }
     }
 
 }
