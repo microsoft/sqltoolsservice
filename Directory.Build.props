@@ -39,6 +39,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- For official builds we want to set this so that "official build" settings such as normalized source
+    paths are applied. https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#continuousintegrationbuild
+  -->
   <PropertyGroup Condition="'$(TF_BUILD)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
