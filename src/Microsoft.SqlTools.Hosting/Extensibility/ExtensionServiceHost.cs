@@ -17,8 +17,6 @@ using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
-#nullable disable
-
 namespace Microsoft.SqlTools.Extensibility
 {
     public class ExtensionServiceHost : ServiceHostBase
