@@ -882,6 +882,17 @@ Streaming query statement contains a reference to missing output stream 'Missing
             string profileFilePath = Path.Combine(folderPath, fileName);
             string expectedFile = Path.Combine(publishProfileFolder, fileName);
 
+            DeploymentOptions deploymentOptions = DeploymentOptions.GetDefaultPublishOptions();
+
+            // a few extra options get added in the publish.xml file, because of the defaults that are set in STS for maintaining compatibility with ADS and SSDT 
+            // these defaults are defined in ..\sqltoolsservice\src\Microsoft.SqlTools.ServiceLayer\DacFx\Contracts\DeploymentOptions.cs
+            deploymentOptions.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>(new[] { nameof(ObjectType.Views) });
+            deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.CreateNewDatabase)].Value = true;
+            deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.DropConstraintsNotInSource)].Value = false;
+            deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.ScriptFileSize)].Value = true;
+            deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.VerifyDeployment)].Value = false;
+            deploymentOptions.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
+
             var savePublishProfileParams = new SavePublishProfileParams
             {
                 ProfilePath = profileFilePath,
@@ -890,7 +901,8 @@ Streaming query statement contains a reference to missing output stream 'Missing
                 SqlCommandVariableValues = new Dictionary<string, string>()
                     {
                         { "testvar", "testval" }
-                    }
+                    },
+                DeploymentOptions = deploymentOptions
             };
 
             MockRequest<ResultStatus> requestMock = new();

@@ -146,6 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 case DatabaseUserType.NoConnectAccess:
                     userType = UserType.NoLogin;
                     break;
+                case DatabaseUserType.Contained:
+                    if (userInfo.AuthenticationType == ServerAuthenticationType.AzureActiveDirectory)
+                    {
+                        userType = UserType.External;
+                    }
+                    break;
                 // all the other user types are using SqlLogin
             }
             return userType;
@@ -361,6 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private List<string> roleNames;
         private bool exists = false;
         private Database parent;
+        private CDataContainer context;
 
         public bool IsRoleMembershipChangesApplied { get; set; } //default is false
         public bool IsSchemaOwnershipChangesApplied { get; set; } //default is false
@@ -494,6 +501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.currentState = current;
             this.originalState = original;
             this.exists = !context.IsNewObject;
+            this.context = context;
 
             Database? parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database ?? throw new ArgumentException("Context ParentUrn is invalid");
             this.parent = parent;
@@ -690,6 +698,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             !this.originalState.HasSameValueAs(this.currentState);
 
             return result;
+        }
+
+        public bool AADAuthSupported
+        {
+            get
+            {
+                return context?.Server?.ServerType == DatabaseEngineType.SqlAzureDatabase;
+            }
+        }
+
+        public bool WindowsAuthSupported
+        {
+            get
+            {
+                return context?.Server?.ServerType != DatabaseEngineType.SqlAzureDatabase;
+            }
         }
     }
 
@@ -1029,6 +1053,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     break;
 
                 case ExhaustiveUserTypes.SqlUserWithoutLogin:
+                case ExhaustiveUserTypes.ExternalUser:
                     currentPrototype ??= new UserPrototypeWithDefaultSchema(context, currentData, originalData);
                     break;
 
@@ -1060,6 +1085,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         WindowsUser,
         LoginMappedUser,
         CertificateMappedUser,
-        AsymmetricKeyMappedUser
+        AsymmetricKeyMappedUser,
+        ExternalUser,
     };
 }

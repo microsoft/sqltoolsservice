@@ -4018,4 +4018,334 @@
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
     <value>セキュア エンクレーブを有効にした状態で構成証明プロトコルを空にすることはできません。</value>
   </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>変更</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>接続</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>制御</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>実行</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>偽装する</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>挿入</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>受信</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>リファレンス</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>選択</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>所有権の取得</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>定義の表示</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>変更の追跡の表示</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>アプリケーション ロールの変更</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>任意のアセンブリの変更</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>非対称キーの変更</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>証明書の変更</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>データベース監査の変更</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>任意のコントラクトの変更</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>データベース DDL トリガーの変更</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>データベース イベント通知の変更</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>任意のデータ領域の変更</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>外部データ ソースの変更</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>外部ファイル形式の変更</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>フルテキスト カタログの変更</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>任意のマスクの変更</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>メッセージ型の変更</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>リモート サービス バインドの変更</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>任意のロールの変更</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>任意のルートの変更</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>任意のスキーマの変更</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>セキュリティ ポリシーの変更</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>任意の秘密度の分類を変更</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>サービスの変更</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>任意のユーザーの変更</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>対称キーの変更</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>認証</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>データベースのバックアップ</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>ログのバックアップ</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>チェックポイント</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>レプリケーションの接続</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>集計の作成</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>アセンブリの作成</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>非対称キーの作成</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>証明書の作成</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>コントラクトの作成</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>データベースの作成</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>データベース DDL イベント通知の作成</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>既定値の作成</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>フルテキスト カタログの作成</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>関数の作成</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>メッセージ型の作成</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>プロシージャの作成</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>キューの作成</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>リモート サービス バインドの作成</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>ロールの作成</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>ルートの作成</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>ルールの作成</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>スキーマの作成</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>サービスの作成</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>対称キーの作成</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>同意語の作成</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>シーケンスの作成</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>テーブルの作成</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>型の作成</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>ビューの作成</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>XML スキーマ コレクションの作成</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>プラン表示</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>クエリ通知のサブスクライブ</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>マスク解除</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>列暗号化キー定義を表示する</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>列マスター キー定義を表示する</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>任意の秘密度の分類を表示する</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>データベースの状態の表示</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>一括操作の管理</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>サーバー監査の変更</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>任意の接続の変更</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>任意の資格情報の変更</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>任意のデータベースの変更</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>任意のエンドポイントの変更</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>イベント通知の変更</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>イベント セッションの変更</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>リンク サーバーの変更</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>任意のログインの変更</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>サーバー ロールの変更</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>リソースの変更</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>サーバー状態の変更</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>設定の変更</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>トレースの変更</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>サーバーの認証</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>SQL の接続</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>サーバーの制御</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>任意のデータベースの作成</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>DDL イベント通知の作成</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>エンドポイントの作成</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>トレース イベント通知の作成</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>サーバー ロールの作成</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>外部アクセス アセンブリ</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>シャットダウン</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>安全ではないアセンブリ</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>任意のデータベースの表示</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>任意の定義の表示</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>サーバー状態の表示</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>可用性グループの変更</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>可用性グループの作成</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>すべてのユーザーのセキュリティ保護可能なリソースを選択</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>任意のデータベースの接続</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>任意のログインの偽装</value>
+  </data>
 </root>

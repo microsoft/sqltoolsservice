@@ -22,14 +22,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 {
     internal class UserServiceHandlerImpl
     {
-        private class UserViewState
+        private class ViewState
         {
+            public bool IsNewObject { get; set; }
+
             public string Database { get; set; }
 
             public UserPrototypeData OriginalUserData { get; set; }
 
-            public UserViewState(string database, UserPrototypeData originalUserData)
+            public ViewState(bool isNewObject, string database, UserPrototypeData originalUserData)
             {
+                this.IsNewObject = isNewObject;
                 this.Database = database;
                 this.OriginalUserData = originalUserData;
             }
@@ -37,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
         private ConnectionService? connectionService;
 
-        private Dictionary<string, UserViewState> contextIdToViewState = new Dictionary<string, UserViewState>();
+        private Dictionary<string, ViewState> contextIdToViewState = new Dictionary<string, ViewState>();
 
         /// <summary>
         /// Internal for testing purposes only
@@ -105,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             Database? parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
 
             var languageOptions = LanguageUtils.GetDefaultLanguageOptions(dataContainer);
-            var languageOptionsList = languageOptions.Select(SecurityService.FormatLanguageDisplay).ToList();
+            var languageOptionsList = languageOptions.Select(LanguageUtils.FormatLanguageDisplay).ToList();
             languageOptionsList.Insert(0, SR.DefaultLanguagePlaceholder);
 
             // if viewing an exisitng user then populate some properties
@@ -117,19 +120,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 User existingUser = dataContainer.Server.Databases[parentDb.Name].Users[parameters.Name];
                 userType = UserActions.GetCurrentUserTypeForExistingUser(existingUser);
                 DatabaseUserType databaseUserType = UserActions.GetDatabaseUserTypeForUserType(userType);
+
+                // if contained user determine if SQL or AAD auth type
+                ServerAuthenticationType authenticationType =
+                    (databaseUserType == DatabaseUserType.Contained && userType == ExhaustiveUserTypes.ExternalUser)
+                        ? ServerAuthenticationType.AzureActiveDirectory : ServerAuthenticationType.Sql;
+                
                 userInfo = new UserInfo()
                 {
                     Type = databaseUserType,
+                    AuthenticationType = authenticationType,
                     Name = parameters.Name,
                     LoginName = existingUser.Login,
                     DefaultSchema = existingUser.DefaultSchema,                    
                 };
-
-                // update the authentication type for contained users
-                if (databaseUserType == DatabaseUserType.Contained)
-                {
-                    userInfo.AuthenticationType = ServerAuthenticationType.Sql;
-                }
 
                 // Default language is only applicable for users inside a contained database.
                 if (LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server)
@@ -214,12 +218,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = SecurityService.FormatLanguageDisplay(
+                    DefaultLanguage = LanguageUtils.FormatLanguageDisplay(
                         languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
                 },
                 SupportContainedUser = supportsContainedUser,
                 SupportWindowsAuthentication = false,
-                SupportAADAuthentication = false,
+                SupportAADAuthentication = currentUserPrototype.AADAuthSupported,
                 SupportSQLAuthentication = true,
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
@@ -229,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             this.contextIdToViewState.Add(
                 parameters.ContextId,
-                new UserViewState(parameters.Database, currentUserPrototype.CurrentState));
+                new ViewState(parameters.IsNewObject, parameters.Database, currentUserPrototype.CurrentState));
 
             await requestContext.SendResult(userViewInfo);
         }
@@ -244,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
@@ -252,7 +256,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
                 ConfigAction.Create,
@@ -263,8 +267,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             await requestContext.SendResult(new CreateUserResult()
             {
                 User = parameters.User,
-                Success = result.Item1,
-                ErrorMessage = result.Item2
+                Success = true,
+                ErrorMessage = string.Empty
             });
         }
 
@@ -278,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID");
             }
 
-            UserViewState viewState;
+            ViewState viewState;
             this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
 
             if (viewState == null)
@@ -286,7 +290,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid context ID view state");
             }
 
-            Tuple<bool, string> result = ConfigureUser(
+            ConfigureUser(
                 parameters.ContextId,
                 parameters.User,
                 ConfigAction.Update,
@@ -296,9 +300,40 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             await requestContext.SendResult(new ResultStatus()
             {
-                Success = result.Item1,
-                ErrorMessage = result.Item2
+                Success = true,
+                ErrorMessage = string.Empty
             });
+        }
+
+        /// <summary>
+        /// Handle request to script a user
+        /// </summary>
+        internal async Task HandleScriptUserRequest(ScriptUserParams parameters, RequestContext<string> requestContext)
+        {
+            if (parameters.ContextId == null)
+            {
+                throw new ArgumentException("Invalid context ID");
+            }
+
+            ViewState viewState;
+            this.contextIdToViewState.TryGetValue(parameters.ContextId, out viewState);
+
+            if (viewState == null)
+            {
+                throw new ArgumentException("Invalid context ID view state");
+            }
+
+            // todo: check if it's an existing user
+
+            string sqlScript = ConfigureUser(
+                parameters.ContextId,
+                parameters.User,
+                viewState.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
+                RunType.ScriptToWindow,
+                viewState.Database,
+                viewState.OriginalUserData);
+
+            await requestContext.SendResult(sqlScript);
         }
 
         internal async Task HandleDisposeUserViewRequest(DisposeUserViewRequestParams parameters, RequestContext<ResultStatus> requestContext)
@@ -352,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
         }
 
-        internal Tuple<bool, string> ConfigureUser(
+        internal string ConfigureUser(
             string? ownerUri,
             UserInfo? user,
             ConfigAction configAction,
@@ -367,6 +402,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
             }
 
+            string sqlScript = string.Empty;
             CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
             using (var actions = new UserActions(dataContainer, configAction, user, originalData))
             {
@@ -376,9 +412,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 {
                     throw executionHandler.ExecutionFailureException;
                 }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
             }
 
-            return new Tuple<bool, string>(true, string.Empty);
+            return sqlScript;
         }
     }
 
@@ -450,7 +491,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     userType = ExhaustiveUserTypes.WindowsUser;
                     break;
                 case DatabaseUserType.Contained:
-                    userType = ExhaustiveUserTypes.SqlUserWithPassword;
+                    if (user.AuthenticationType == ServerAuthenticationType.AzureActiveDirectory)
+                    {
+                        userType = ExhaustiveUserTypes.ExternalUser;
+                    }
+                    else
+                    {
+                        userType = ExhaustiveUserTypes.SqlUserWithPassword;
+                    }
                     break;
                 case DatabaseUserType.NoConnectAccess:
                     userType = ExhaustiveUserTypes.SqlUserWithoutLogin;
@@ -475,6 +523,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     break;
                 case ExhaustiveUserTypes.SqlUserWithoutLogin:
                     databaseUserType = DatabaseUserType.NoConnectAccess;
+                    break;
+                case ExhaustiveUserTypes.ExternalUser:
+                    databaseUserType = DatabaseUserType.Contained;
                     break;
             }
             return databaseUserType;
@@ -508,6 +559,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                     return ExhaustiveUserTypes.CertificateMappedUser;
                 case UserType.AsymmetricKey:
                     return ExhaustiveUserTypes.AsymmetricKeyMappedUser;
+                case UserType.External:
+                    return ExhaustiveUserTypes.ExternalUser;
                 default:
                     return ExhaustiveUserTypes.Unknown;
             }

@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             SecurityService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SecurityService.Instance);
 
-            DacFxService.Instance.InitializeService(serviceHost);
+            DacFxService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(DacFxService.Instance);
 
             CmsService.Instance.InitializeService(serviceHost);

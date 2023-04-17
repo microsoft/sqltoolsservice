@@ -93,6 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(AddSystemDatabaseReferenceRequest.Type, HandleAddSystemDatabaseReferenceRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(AddDacpacReferenceRequest.Type, HandleAddDacpacReferenceRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(AddSqlProjectReferenceRequest.Type, HandleAddSqlProjectReferenceRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(AddNugetPackageReferenceRequest.Type, HandleAddNugetPackageReferenceRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(DeleteDatabaseReferenceRequest.Type, HandleDeleteDatabaseReferenceRequest, isParallelProcessingSupported: false);
         }
 
@@ -358,7 +359,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     ErrorMessage = null,
                     SystemDatabaseReferences = GetProject(requestParams.ProjectUri).DatabaseReferences.OfType<SystemDatabaseReference>().ToArray(),
                     DacpacReferences = GetProject(requestParams.ProjectUri).DatabaseReferences.OfType<DacpacReference>().ToArray(),
-                    SqlProjectReferences = GetProject(requestParams.ProjectUri).DatabaseReferences.OfType<SqlProjectReference>().ToArray()
+                    SqlProjectReferences = GetProject(requestParams.ProjectUri).DatabaseReferences.OfType<SqlProjectReference>().ToArray(),
+                    NugetPackageReferences = GetProject(requestParams.ProjectUri).DatabaseReferences.OfType<NugetPackageReference>().ToArray()
                 };
             }, requestContext);
         }
@@ -442,6 +444,42 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 project.DatabaseReferences.Add(reference);
             }, requestContext);
         }
+
+        internal async Task HandleAddNugetPackageReferenceRequest(AddNugetPackageReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                requestParams.Validate();
+
+                SqlProject project = GetProject(requestParams.ProjectUri!);
+                NugetPackageReference reference;
+
+                if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
+                {
+                    reference = new NugetPackageReference(
+                        requestParams.PackageName,
+                        requestParams.PackageVersion,
+                        requestParams.SuppressMissingDependencies,
+                        requestParams.DatabaseLiteral);
+                }
+                else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
+                {
+                    reference = new NugetPackageReference(
+                        requestParams.PackageName,
+                        requestParams.PackageVersion,
+                        requestParams.SuppressMissingDependencies,
+                        project.SqlCmdVariables.Get(requestParams.DatabaseVariable!),
+                        requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
+                }
+                else // same database
+                {
+                    reference = new NugetPackageReference(requestParams.PackageName, requestParams.PackageVersion, requestParams.SuppressMissingDependencies);
+                }
+
+                project.DatabaseReferences.Add(reference);
+            }, requestContext);
+        }
+
 
         internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {

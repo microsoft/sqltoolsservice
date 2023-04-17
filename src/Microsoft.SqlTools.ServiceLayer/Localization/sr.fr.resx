@@ -4018,4 +4018,334 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
     <value>Le protocole d'attestation ne peut pas être vide avec les enclaves sécurisées activées.</value>
   </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>Connecter</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>Contrôler</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>Exécuter</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>Emprunter l'identité</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>Insérer</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>Recevoir</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>Références</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>Sélectionner</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>Prendre possession</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>Mettre à jour</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>Afficher la définition</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>Afficher le suivi des modifications</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>Modifier un rôle d'application</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>Modifier un assembly</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>Modifier une clé asymétrique</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>Modifier un certificat</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>Modifier un audit de base de données</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>Modifier un contrat</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>Modifier un déclencheur DDL de base de données</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>Modifier une notification d'événements de base de données</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>Modifier un espace de données</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>Modifier n'importe quelle source de données externe</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>Modifier n'importe quel format de fichier externe</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>Modifier un catalogue de recherche en texte intégral</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>Modifier les masques</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>Modifier un type de message</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>Modifier des liaisons de service distant</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>Modifier un rôle</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>Modifier un itinéraire</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>Modifier un schéma</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>Altérer toute stratégie de sécurité</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>Modifier toutes les classifications de sensibilité</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>Modifier un service</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>Modifier un utilisateur</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>Modifier une clé symétrique</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>Authentifier</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>Sauvegarder une base de données</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>Sauvegarder un journal</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>Point de contrôle</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>Connecter une réplication</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>Créer un agrégat</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>Créer un assembly</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>Créer une clé asymétrique</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>Créer un certificat</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>Créer un contrat</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>Créer une base de données</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>Créer une notification d'événements DDL de base de données</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>Créer les options par défaut</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>Créer un catalogue de recherche en texte intégral</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>Créer une fonction</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>Créer un type de message</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>Créer une procédure</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>Créer une file d'attente</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>Créer des liaisons de service distant</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>Créer un rôle</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>Créer un itinéraire</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>Créer une règle</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>Créer un schéma</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>Créer un service</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>Créer une clé symétrique</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>Créer un synonyme</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>Créer une séquence</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>Créer une table</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>Créer un type</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>Créer une vue</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>Créer une collection de schémas XML</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>Plan d'affichage</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>S'abonner aux notifications de requêtes</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>Afficher</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>Afficher une définition de clé de chiffrement de colonne</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>Afficher une définition de clé principale de colonne</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>Voir toutes les classifications de sensibilité</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>Afficher l'état de la base de données</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>Administrer Bulk Operations</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>Modifier un audit du serveur</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>Modifier une connexion</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>Modifier des informations d'identification</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>Modifier une base de données</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>Modifier un point de terminaison</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>Modifier une notification d'événements</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>Modifier toute session d'événements</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>Modifier un serveur lié</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>Modifier une connexion</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>Modifier un rôle serveur</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>Modifier des ressources</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>Modifier l'état du serveur</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>Modifier des paramètres</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>Modifier une trace</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>Authentifier un serveur</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>Connecter SQL</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>Contrôler un serveur</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>Créer une base de données</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>Créer une notification d'événements DDL</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>Créer un point de terminaison</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>Créer une notification d'événements de trace</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>Créer un rôle serveur</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>Assembly d'accès externe</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>Assembly non sécurisé</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>Afficher une base de données</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>Afficher une définition</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>Afficher l'état du serveur</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>Modifier un groupe de disponibilité</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>Créer le groupe de disponibilité</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>Sélectionner tous les éléments sécurisables d'utilisateur</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>Connecter une base données</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>Emprunter l'identité d'une connexion</value>
+  </data>
 </root>

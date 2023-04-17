@@ -4018,4 +4018,334 @@
   <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
     <value>Протокол аттестации не может быть пустым, если включены безопасные анклавы.</value>
   </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>Изменение</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>Присоединение</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>Управление</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>Удаление</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>Выполнение</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>Олицетворение</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>Вставка</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>Получение</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>Ссылки</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>Выбор</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>Отправка</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>Назначение владельцем</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>Просмотр определения</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>Просмотр отслеживания изменений</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>Изменение любой роли приложения</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>Изменение любой сборки</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>Изменение любого ассиметричного ключа</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>Изменение любого сертификата</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>Изменение любого аудита базы данных</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>Изменение любого контракта</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>Изменение любого триггера DDL базы данных</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>Изменение любого уведомления о событии базы данных</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>Изменение любого пространства данных</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>Измените любой источник внешних данных</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>Измените любой формат внешнего файла</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>Изменение любого полнотекстового каталога</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>Изменение любой маски</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>Изменение любого типа сообщений</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>Изменение любой привязки удаленной службы</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>Изменение любой роли</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>Изменение любого маршрута</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>Изменение любой схемы</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>Изменить какую-либо политику безопасности</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>Изменение любой классификации конфиденциальности</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>Изменение любой службы</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>Изменение любого пользователя</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>Изменение любого симметричного ключа</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>Проверка подлинности</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>Создание резервной копии базы данных</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>Создание резервной копии журнала</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>Контрольная точка</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>Соединение репликации</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>Создание статистического вычисления</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>Создание сборки</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>Создание асимметричного ключа</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>Создание сертификата</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>Создание контракта</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>Создание базы данных</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>Создание уведомлений о DDL- событиях базы данных</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>Создание значения по умолчанию</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>Создание полнотекстового каталога</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>Создание функции</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>Создание типа сообщения</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>Создание процедуры</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>Создание очереди</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>Создание привязки удаленной службы</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>Создание роли</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>Создание маршрута</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>Создание правила</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>Создание схемы</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>Создание службы</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>Создание симметричного ключа</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>Создание синонима</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>Создание последовательности</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>Создание таблицы</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>Создание типа</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>Создание представления</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>Создание коллекции схем XML</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>Показ плана</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>Подписка на уведомления о запросах</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>Снятие маски</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>Просмотр любого определения ключа шифрования столбца</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>Просмотр любого определения главного ключа столбца</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>Просмотр любой классификации конфиденциальности</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>Просмотр состояния базы данных</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>Администрирование массовых операций</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>Изменение любого аудита сервера</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>Изменение любого соединения</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>Изменение любых учетных данных</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>Изменение любой базы данных</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>Изменение любой конечной точки</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>Изменение любого уведомления о событии</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>Изменение любого сеанса событий</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>Изменение любого связанного сервера</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>Изменение любого имени для входа</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>Изменить роль сервера</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>Изменение ресурсов</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>Изменение состояния сервера</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>Изменение параметров</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>Изменение трассировки</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>Проверка подлинности сервера</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>Соединение SQL</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>Управление сервером</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>Создание любой базы данных</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>Создание уведомлений о DDL- событиях</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>Создание конечной точки</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>Создание уведомления о событиях трассировки</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>Создание роли сервера</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>Сборка внешнего доступа</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>Завершение работы</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>Небезопасная сборка</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>Просмотр любой базы данных</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>Просмотр любого определения</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>Просмотр состояния сервера</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>Изменение любой группы доступности</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>Создание группы доступности</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>Выделить все защищаемые объекты пользователя</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>Соединение с любой базой данных</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>Олицетворение любого имени для входа</value>
+  </data>
 </root>

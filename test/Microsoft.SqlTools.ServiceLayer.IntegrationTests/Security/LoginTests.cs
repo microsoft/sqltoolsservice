@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security
                     .Returns(Task.FromResult(new LoginViewInfo()));
 
                 // call the create login method
-                SecurityService service = new SecurityService();
+                LoginServiceHandlerImpl service = new LoginServiceHandlerImpl();
                 await service.HandleInitializeLoginViewRequest(initializeLoginViewRequestParams, initializeLoginViewContext.Object);
                 await service.HandleCreateLoginRequest(loginParams, createLoginContext.Object);
 

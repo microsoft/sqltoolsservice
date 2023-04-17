@@ -472,10 +472,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SystemDatabaseReference systemDatabaseReference = new SystemDatabaseReference(SystemDatabase.MSDB, suppressMissingDependencies: true);
             DacpacReference dacpacReference = new DacpacReference("OtherDatabaseDacpac.dacpac", suppressMissingDependencies: true);
             SqlProjectReference sqlProjectReference = new SqlProjectReference("OtherDatabaseProject.sqlproj", projectGuid: TEST_GUID, suppressMissingDependencies: true);
+            NugetPackageReference nugetPackageReference = new NugetPackageReference("Project1", "2.0.0", suppressMissingDependencies: true);
 
             service.Projects[projectUri].DatabaseReferences.Add(systemDatabaseReference);
             service.Projects[projectUri].DatabaseReferences.Add(dacpacReference);
             service.Projects[projectUri].DatabaseReferences.Add(sqlProjectReference);
+            service.Projects[projectUri].DatabaseReferences.Add(nugetPackageReference);
 
             // Validate getting a list of the post-deployment scripts
             MockRequest<GetDatabaseReferencesResult> getMock = new();
@@ -494,6 +496,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             Assert.AreEqual(1, getMock.Result.SqlProjectReferences.Length);
             Assert.AreEqual(sqlProjectReference, getMock.Result.SqlProjectReferences[0]);
+
+            Assert.AreEqual(1, getMock.Result.NugetPackageReferences.Length);
+            Assert.AreEqual(nugetPackageReference, getMock.Result.NugetPackageReferences[0]);
         }
 
         [Test]
@@ -692,6 +697,100 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
             Assert.AreEqual("ProjectLiteral", projectRef.DatabaseVariableLiteralName);
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
+        }
+
+        [Test]
+        public async Task TestNugetPackageReferenceAdd()
+        {
+            var (service, projectUri, databaseVar, serverVar) = await SetUpDatabaseReferenceTest();
+
+            // Validate adding a nupkg reference on the same server
+            string mockPackageName = "OtherDatabaseSameServer";
+            string mockPackageVersion = "2.0.0";
+
+            MockRequest<ResultStatus> requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "same server");
+            Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference (same server)");
+            NugetPackageReference nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual(mockPackageVersion, nupkgRef.Version, "Referenced nupkg version");
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+            Assert.IsNull(nupkgRef.DatabaseVariableLiteralName, nameof(nupkgRef.DatabaseVariableLiteralName));
+            Assert.IsNull(nupkgRef.DatabaseVariable, nameof(nupkgRef.DatabaseVariable));
+
+            // Validate adding a nupkg reference via SQLCMD variable
+            mockPackageName =  "OtherDatabaseSqlCmd";
+
+            requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false,
+                DatabaseVariable = databaseVar.Name,
+                ServerVariable = serverVar.Name
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "sqlcmdvar");
+            Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference (sqlcmdvar)");
+            nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual(mockPackageVersion, nupkgRef.Version, "Referenced nupkg version");
+            Assert.AreEqual(databaseVar.Name, nupkgRef.DatabaseVariable!.VarName);
+            Assert.AreEqual(serverVar.Name, nupkgRef.ServerVariable!.VarName);
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+
+            // Validate adding a nupkg reference via database literal
+            mockPackageName = "OtherDatabaseLiteral";
+
+            requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = "NupkgLiteral"
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "db literal");
+            Assert.AreEqual(3, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference (db literal)");
+            nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual(mockPackageVersion, nupkgRef.Version, "Referenced nupkg version");
+            Assert.AreEqual("NupkgLiteral", nupkgRef.DatabaseVariableLiteralName, nameof(nupkgRef.DatabaseVariableLiteralName));
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+
+            // Validate adding a nupkg reference via database literal when an empty string is passed in for DatabaseVariable
+            mockPackageName = "AnotherDatabaseLiteral";
+
+            requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = "NupkgLiteral2",
+                DatabaseVariable = ""
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "db literal");
+            Assert.AreEqual(4, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference with an empty string passed in for database variable(db literal)");
+            nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual("NupkgLiteral2", nupkgRef.DatabaseVariableLiteralName, nameof(nupkgRef.DatabaseVariableLiteralName));
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+            Assert.AreEqual(null, nupkgRef.DatabaseVariable, nameof(nupkgRef.DatabaseVariable));
         }
 
         #endregion

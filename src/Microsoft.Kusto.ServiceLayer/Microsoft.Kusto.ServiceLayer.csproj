@@ -8,7 +8,6 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -16,6 +15,8 @@
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
 	<!-- TODO FIX THESE WARNINGS ASAP -->
     <NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854</NoWarn>
+    <AssemblyTitle>SqlTools Kusto Editor Services Host Protocol Library</AssemblyTitle>
+    <Description>Provides message types and client/server APIs for the SqlTools Kusto Editor Services JSON protocol.</Description>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -57,4 +58,8 @@
     <EmbeddedResource Include="Localization\*.resx" />
     <None Include="Localization\sr.strings" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.Kusto.ServiceLayer.UnitTests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+</ItemGroup>
 </Project>
