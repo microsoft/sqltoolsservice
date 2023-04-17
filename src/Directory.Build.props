@@ -15,7 +15,4 @@
 		<!-- add Source Link info to package/pdbs-->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" />
-	</ItemGroup>
 </Project>
