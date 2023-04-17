@@ -1,11 +1,11 @@
-﻿# String resource file 
+﻿# String resource file
 #
 # When processed by the String Resource Tool, this file generates
 # both a .CS and a .RESX file with the same name as the file.
-# The .CS file contains a class which can be used to access these 
-# string resources, including the ability to format in 
+# The .CS file contains a class which can be used to access these
+# string resources, including the ability to format in
 # parameters, which are identified with the .NET {x} format
-# (see String.Format help).  
+# (see String.Format help).
 #
 # Comments below assume the file name is SR.strings.
 #
@@ -15,7 +15,7 @@
 #
 # SMO build specific comment
 # after generating the .resx file, run srgen on it and get the .resx file
-# please remember to also check that .resx in, along with the 
+# please remember to also check that .resx in, along with the
 # .strings and .cs files
 
 [strings]
@@ -166,7 +166,7 @@ QueryServiceResultSetRowCountOutOfRange = Row count must be a positive integer
 
 QueryServiceResultSetNoColumnSchema = Could not retrieve column schema for result set
 
-QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from the result set 
+QueryServiceExecutionPlanNotFound = Could not retrieve an execution plan from the result set
 
 SqlCmdExitOnError = An error was encountered during execution of batch. Exiting.
 
@@ -178,11 +178,11 @@ ParameterizationDetails (string variableName, string sqlDbType, int size, int pr
 
 ErrorMessageHeader(int lineNumber) = Line {0}
 
-ErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} 
+ErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}
 
 DateTimeErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}
 
-BinaryLiteralPrefixMissingError (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} 
+BinaryLiteralPrefixMissingError (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}
 
 ParsingErrorHeader (int lineNumber, int columnNumber) = Line {0}, column {1}
 
@@ -194,7 +194,7 @@ ScriptTooLarge (int maxChars, int currentChars) = The current script is too larg
 SerializationServiceUnsupportedFormat (string formatName) = Unsupported Save Format: {0}
 SerializationServiceRequestInProgress (string filePath) = A request for file {0} is already in progress
 SerializationServiceRequestNotFound (string filePath) = Cannot serialize more data as no request for file {0} could be found
- 
+
 ############################################################################
 # Language Service
 
@@ -826,7 +826,7 @@ CategoryLogShipping = Log Shipping
 CategoryDBEngineTuningAdvisor = Database Engine Tuning Advisor
 CategoryDataCollector = Data Collector
 
-UnknownSizeUnit(unit) = Unknown size unit {0} 
+UnknownSizeUnit(unit) = Unknown size unit {0}
 UnexpectedRunType = Unexpected run type.
 CredentialNoLongerExists = The object does no longer exist on server.
 UnknownServerType(string serverTypeName) = Unknown server type '{0}'.
@@ -857,7 +857,7 @@ JobServerIsNotAvailable = Job server is not available
 # Admin Service
 
 NeverBackedUp = Never
-Error_InvalidDirectoryName = Path {0} is not a valid directory 
+Error_InvalidDirectoryName = Path {0} is not a valid directory
 Error_ExistingDirectoryName = For directory {0} a file with name {1} already exist
 
 ############################################################################
@@ -1457,7 +1457,7 @@ ObjectSchema = Schema
 ObjectSchemaDescription = Schema name for the referenced object.
 ; Table property
 ObjectTable = Table
-; Table property description 
+; Table property description
 ObjectTableDescription = Table name for the referenced object.
 ; Alias property
 ObjectAlias = Alias
@@ -2045,7 +2045,7 @@ SwitchDescription = Switch.
 ; Operator name
 TFP = Predict
 ; Operator description
-TFPDescription = Applies a trained machine learning model to input data	
+TFPDescription = Applies a trained machine learning model to input data
 ; Operator name
 TableValueFunction = Table Valued Function
 ; Operator description
@@ -2323,7 +2323,7 @@ IndexFilterPredicatePropertyDescription = Filter predicate of the index
 IndexFilterPredicatePropertyTitle = Filter Predicate
 IndexIsHashPropertyDescription = Whether the index is a hash index
 IndexIsHashPropertyTitle = Is Hash
-IndexBucketCountPropertyDescription = Bucket count of the hash index, note the value will always automatically round up to the next power of 2. 
+IndexBucketCountPropertyDescription = Bucket count of the hash index, note the value will always automatically round up to the next power of 2.
 IndexBucketCountPropertyTitle = Bucket Count
 TableDesignerColumnsDisplayValueTitle = Columns
 ColumnStoreIndexNamePropertyTitle = Name
@@ -2567,3 +2567,6 @@ Permission_CreateAvailabilityGroup = Create availability group
 Permission_SelectAllUserSecurables = Select All User Securables
 Permission_ConnectAnyDatabase = Connect Any Database
 Permission_ImpersonateAnyLogin = Impersonate Any Login
+
+ServiceProviderNotSet = SetServiceProvider() was not called to establish the required service provider
+ServiceNotFound(string serviceName) = Service {0} was not found in the service provider

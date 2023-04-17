@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// handlers for requests, responses, and events that are
         /// transmitted through the channel.
         /// </summary>
-        internal MessageDispatcher MessageDispatcher { get; set; }
+        public MessageDispatcher MessageDispatcher { get; set; }
 
         /// <summary>
         /// Initializes an instance of the protocol server using the
@@ -158,14 +158,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="requestParams"></param>
         /// <returns></returns>
         public Task<TResult> SendRequest<TParams, TResult>(
-            RequestType<TParams, TResult> requestType, 
+            RequestType<TParams, TResult> requestType,
             TParams requestParams)
         {
             return this.SendRequest(requestType, requestParams, true);
         }
 
         public async Task<TResult> SendRequest<TParams, TResult>(
-            RequestType<TParams, TResult> requestType, 
+            RequestType<TParams, TResult> requestType,
             TParams requestParams,
             bool waitForResponse)
         {
@@ -182,13 +182,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 responseTask = new TaskCompletionSource<Message>();
                 this.pendingRequests.Add(
-                    this.currentMessageId.ToString(), 
+                    this.currentMessageId.ToString(),
                     responseTask);
             }
 
             await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
-                requestType, 
-                requestParams, 
+                requestType,
+                requestParams,
                 this.currentMessageId);
 
             if (responseTask != null)
