@@ -93,22 +93,6 @@ namespace Microsoft.SqlTools.Hosting
             }
         }
 
-        public static string ServiceProviderNotSet
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceProviderNotSet);
-            }
-        }
-
-        public static string ServiceNotFound
-        {
-            get
-            {
-                return Keys.GetString(Keys.ServiceNotFound);
-            }
-        }
-
         public static string ServiceNotOfExpectedType
         {
             get
@@ -179,12 +163,6 @@ namespace Microsoft.SqlTools.Hosting
 
 
             public const string IncompatibleServiceForExtensionLoader = "IncompatibleServiceForExtensionLoader";
-
-
-            public const string ServiceProviderNotSet = "ServiceProviderNotSet";
-
-
-            public const string ServiceNotFound = "ServiceNotFound";
 
 
             public const string ServiceNotOfExpectedType = "ServiceNotOfExpectedType";

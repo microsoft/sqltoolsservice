@@ -380,7 +380,7 @@
     <comment></comment>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Could not retrieve an execution plan from the result set </value>
+    <value>Could not retrieve an execution plan from the result set</value>
     <comment></comment>
   </data>
   <data name="SqlCmdExitOnError" xml:space="preserve">
@@ -402,7 +402,7 @@
  Parameters: 0 - lineNumber (int) </comment>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</value>
     <comment>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
   </data>
@@ -412,7 +412,7 @@
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</value>
     <comment>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </comment>
   </data>
@@ -1745,7 +1745,7 @@
     <comment></comment>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>Unknown size unit {0} </value>
+    <value>Unknown size unit {0}</value>
     <comment>.
  Parameters: 0 - unit (string) </comment>
   </data>
@@ -1844,7 +1844,7 @@
     <comment></comment>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>Path {0} is not a valid directory </value>
+    <value>Path {0} is not a valid directory</value>
     <comment></comment>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
@@ -3070,7 +3070,7 @@
   </data>
   <data name="ObjectTableDescription" xml:space="preserve">
     <value>Table name for the referenced object.</value>
-    <comment> Table property description </comment>
+    <comment> Table property description</comment>
   </data>
   <data name="ObjectAlias" xml:space="preserve">
     <value>Alias</value>
@@ -4262,7 +4262,7 @@
     <comment> Operator name</comment>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Applies a trained machine learning model to input data	</value>
+    <value>Applies a trained machine learning model to input data</value>
     <comment> Operator description</comment>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
@@ -4906,7 +4906,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </value>
+    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</value>
     <comment></comment>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
@@ -5842,5 +5842,14 @@ The Query Processor estimates that implementing the following index could improv
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Impersonate Any Login</value>
     <comment></comment>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() was not called to establish the required service provider</value>
+    <comment></comment>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Service {0} was not found in the service provider</value>
+    <comment>.
+ Parameters: 0 - serviceName (string) </comment>
   </data>
 </root>

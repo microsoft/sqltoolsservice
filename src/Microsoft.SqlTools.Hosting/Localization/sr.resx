@@ -149,14 +149,6 @@
     <value>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</value>
     <comment></comment>
   </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() was not called to establish the required service provider</value>
-    <comment></comment>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>Service {0} was not found in the service provider</value>
-    <comment></comment>
-  </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>Service of Type {0} is not compatible with registered Type {1}</value>
     <comment></comment>

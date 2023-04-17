@@ -714,11 +714,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (serviceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
             if (connectionService == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
         }
 
@@ -771,7 +771,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             /// </summary>
             public bool IsSuccessful { get; set; }
             /// <summary>
-            /// The Exception that occurred during execution, if any. 
+            /// The Exception that occurred during execution, if any.
             /// </summary>
             public Exception? Exception { get; set; }
         }
