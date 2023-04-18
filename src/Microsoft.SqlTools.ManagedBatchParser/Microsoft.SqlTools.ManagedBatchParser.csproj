@@ -1,18 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<!-- Targeting both net7.0 and net472 so that other things such as PS cmdlets can use this which need to support a wider range of machines -->
+		<!-- Targeting both net7.0 and net472 so that other things such as PS cmdlets can use this
+		which need to support a wider range of machines -->
 		<TargetFrameworks>net7.0;net472</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>disable</Nullable>
 		<AssemblyName>Microsoft.SqlTools.ManagedBatchParser</AssemblyName>
 		<Guid>82dd9738-2ad3-4eb3-9f80-18b594e03621</Guid>
 		<DelaySign>True</DelaySign>
-		<!-- Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in tests with internalsVisibleTo attribute.-->
+		<!-- Explicitly disable since it leads to compilation errors. The .NET 6.0 target is used in
+		tests with internalsVisibleTo attribute.-->
 		<SignAssembly Condition="$(TargetFramework) == 'net472'">True</SignAssembly>
 		<AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<Product>Microsoft SqlTools Managed batch parser</Product>
+		<!-- Defaults-->
+		<Major Condition="$(ManagedBatchParserMajor) != ''">$(ManagedBatchParserMajor)</Major>
+		<Minor Condition="$(ManagedBatchParserMinor) != ''">$(ManagedBatchParserMinor)</Minor>
+
+		<!-- AssemblyVersion should not change for non-major releases. -->
+		<AssemblyVersion>$(Major).0.0.0</AssemblyVersion>
+
+		<!-- AssemblyFileVersion should change for every build. -->
+		<!-- For preview releases, sample Version = 3.0.20221104.1-preview -->
+		<!-- For stable releases, sample Version = 3.0.0 -->
+		<VersionPrefix>$(Major).$(Minor).$(Build_BuildNumber)</VersionPrefix>
+		<VersionPrefix Condition="$(StableRelease.Equals('true'))">$(Major).$(Minor).0</VersionPrefix>
+		<VersionSuffix Condition="!$(StableRelease.Equals('true'))">preview</VersionSuffix>
+		<AssemblyFileVersion>$(VersionPrefix)-$(VersionSuffix)</AssemblyFileVersion>
+		<Version>$(VersionPrefix)</Version>
+		<FileVersion>$(VersionPrefix)</FileVersion>
+		<InformationalVersion>$(VersionPrefix)</InformationalVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />

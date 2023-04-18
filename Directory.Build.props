@@ -12,9 +12,9 @@
     <RootDir>$(MSBuildThisFileDirectory)</RootDir>
 
     <!-- Defaults-->
-    <Major Condition="$(Major) == ''">1</Major>
-    <Minor Condition="$(Minor) == ''">0</Minor>
-    <Build_BuildNumber Condition="'$(Build_BuildNumber)' == ''">0.0</Build_BuildNumber>
+    <Major Condition="$(Major) == ''">99</Major>
+    <Minor Condition="$(Minor) == ''">99</Minor>
+    <Build_BuildNumber Condition="'$(Build_BuildNumber)' == ''">99.99</Build_BuildNumber>
     <StableRelease Condition="$(StableRelease) == ''">false</StableRelease>
 
     <!-- AssemblyVersion should not change for non-major releases. -->
@@ -30,6 +30,7 @@
     <Version>$(VersionPrefix)</Version>
     <FileVersion>$(VersionPrefix)</FileVersion>
     <InformationalVersion>$(VersionPrefix)</InformationalVersion>
+
     <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
     <ToolsServiceTargetRuntimes>win-x64;win-x86;win-arm64;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</ToolsServiceTargetRuntimes>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
