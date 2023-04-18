@@ -26,10 +26,6 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
-		<!-- Workaround for SRGen issues -->
-		<InternalsVisibleTo Include="MicrosoftSqlToolsServiceLayer" />
-		<InternalsVisibleTo Include="MicrosoftKustoServiceLayer" />
-		<InternalsVisibleTo Include="MicrosoftSqlToolsCredentials" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />

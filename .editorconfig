@@ -14,6 +14,11 @@ dotnet_diagnostic.IDE0073.severity = none
 
 dotnet_analyzer_diagnostic.severity = error
 
+# The private field 'field' is assigned but its value is never used
+dotnet_diagnostic.CS0414.severity = error
+# The private field 'class member' is never used
+dotnet_diagnostic.CS0169.severity = error
+
 # Errors flagged when this file was added. These should be
 # investigated and either fixed or marked as acceptable with
 # a reason why

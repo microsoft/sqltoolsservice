@@ -1514,6 +1514,7 @@ INNER JOIN sys.sql_logins AS sql_logins
                 }
 
                 this.serverRoles                = new ServerRoles(server, login.Name);
+                this.serverRoles.PopulateServerRoles();
                 this.databaseRolesCollection    = new HybridDictionary();
                 if (server.Information.Version.Major == 9 && !string.IsNullOrEmpty(login.Credential))
                 {
@@ -1539,6 +1540,7 @@ INNER JOIN sys.sql_logins AS sql_logins
                 this.defaultLanguage            = LoginPrototypeData.DefaultLanguageDisplay;
 
                 this.serverRoles                = new ServerRoles(server);
+                this.serverRoles.PopulateServerRoles();
                 this.databaseRolesCollection    = new HybridDictionary();
                 this.credentials                = new StringCollection();
             }

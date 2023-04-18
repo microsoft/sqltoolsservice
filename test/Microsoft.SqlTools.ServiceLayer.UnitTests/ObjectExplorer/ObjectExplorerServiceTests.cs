@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             ConnectedBindingContext connectedBindingContext = new ConnectedBindingContext();
             connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
             connectedBindingQueue = new ConnectedBindingQueue(false);
-            connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL", connectedBindingContext);
+            connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL_persistSecurityInfo:true", connectedBindingContext);
             connectedBindingQueue.BindingContextTasks.Add(connectedBindingContext, Task.Run(() => null));
             mockConnectionOpener = new Mock<SqlConnectionOpener>();
             connectedBindingQueue.SetConnectionOpener(mockConnectionOpener.Object);

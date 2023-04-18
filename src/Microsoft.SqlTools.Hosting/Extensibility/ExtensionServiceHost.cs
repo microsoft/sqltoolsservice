@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.Extensibility
     {
 
         private ExtensibleServiceHostOptions options;
-        private static bool isLoaded;
         public ExtensionServiceProvider serviceProvider;
         private List<IHostedService> initializedServices = new List<IHostedService>();
 
@@ -39,8 +38,6 @@ namespace Microsoft.SqlTools.Extensibility
             // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
             // is hooked up to receive the message
             this.Start().GetAwaiter().GetResult();
-            isLoaded = true;
-
         }
 
         private void Initialize()
@@ -242,13 +239,13 @@ namespace Microsoft.SqlTools.Extensibility
     public class ExtensibleServiceHostOptions
     {
         /// <summary>
-        /// The folder where the extension service assemblies are located. By default it is 
+        /// The folder where the extension service assemblies are located. By default it is
         /// the folder where the current server assembly is located.
         /// </summary>
         public string ExtensionServiceAssemblyDirectory { get; set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>
-        /// The dlls that contain the extension services. 
+        /// The dlls that contain the extension services.
         /// </summary>
         public string[] ExtensionServiceAssemblyDllFileNames { get; set; } = new string[0];
 
@@ -258,7 +255,7 @@ namespace Microsoft.SqlTools.Extensibility
         public string HostName { get; set; } = HostDetails.DefaultHostName;
 
         /// <summary>
-        ///  Gets the profile ID of the host, used to determine the 
+        ///  Gets the profile ID of the host, used to determine the
         ///  host-specific profile path.
         /// </summary>
         public string HostProfileId { get; set; } = HostDetails.DefaultHostProfileId;

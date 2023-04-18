@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -41,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// The server type 
+        /// The server type
         /// </summary>
         public SqlServerType SqlServerType { get; set; }
 
@@ -116,12 +115,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             if (ServiceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
 
             return ServiceProvider.GetService<ObjectExplorerService>()
-                ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                    SqlTools.Hosting.SR.ServiceNotFound, nameof(ObjectExplorerService)));
+                ?? throw new InvalidOperationException(SR.ServiceNotFound(nameof(ObjectExplorerService)));
         }
 
         /// <summary>
@@ -196,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// Ensures the server objects connection context is open. This is used by all child objects, and 
+        /// Ensures the server objects connection context is open. This is used by all child objects, and
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>

@@ -63,11 +63,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public static ConnectionService Instance => instance.Value;
 
         /// <summary>
-        /// The authenticator instance for AAD MFA authentication needs.
-        /// </summary>
-        private IAuthenticator authenticator;
-
-        /// <summary>
         /// IV and Key as received from Encryption Key Notification event.
         /// </summary>
         private (string key, string iv) encryptionKeys;
@@ -171,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
+        /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used
         /// when user chooses 'Azure MFA'.
         /// </summary>
         public bool EnableSqlAuthenticationProvider { get; set; }
@@ -433,7 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             while (counter <= MaxServerlessReconnectTries)
             {
                 // The OpenAsync function used in TryOpenConnection does not retry when a database is sleeping.
-                // SqlClient will be implemented at a later time, which will have automatic retries.  
+                // SqlClient will be implemented at a later time, which will have automatic retries.
                 response = await TryOpenConnection(connectionInfo, connectionParams);
                 // If a serverless database is sleeping, it will return this error number and will need to be retried.
                 // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
@@ -1086,7 +1081,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public void InitializeService(IProtocolEndpoint serviceHost, ServiceLayerCommandOptions commandOptions)
         {
             this.ServiceHost = serviceHost;
-            
+
             if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
             {
 

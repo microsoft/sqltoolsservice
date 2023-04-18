@@ -1,11 +1,11 @@
-﻿# String resource file 
+﻿# String resource file
 #
 # When processed by the String Resource Tool, this file generates
 # both a .CS and a .RESX file with the same name as the file.
-# The .CS file contains a class which can be used to access these 
-# string resources, including the ability to format in 
+# The .CS file contains a class which can be used to access these
+# string resources, including the ability to format in
 # parameters, which are identified with the .NET {x} format
-# (see String.Format help).  
+# (see String.Format help).
 #
 # Comments below assume the file name is SR.strings.
 #
@@ -15,7 +15,7 @@
 #
 # SMO build specific comment
 # after generating the .resx file, run srgen on it and get the .resx file
-# please remember to also check that .resx in, along with the 
+# please remember to also check that .resx in, along with the
 # .strings and .cs files
 
 [strings]
@@ -41,10 +41,6 @@ ServiceAlreadyRegistered = Cannot register service for type {0}, one or more ser
 MultipleServicesFound = Multiple services found for type {0}, expected only 1
 
 IncompatibleServiceForExtensionLoader = Service of type {0} cannot be created by ExtensionLoader<{1}>
-
-ServiceProviderNotSet = SetServiceProvider() was not called to establish the required service provider
-
-ServiceNotFound = Service {0} was not found in the service provider
 
 ServiceNotOfExpectedType = Service of Type {0} is not compatible with registered Type {1}
 
