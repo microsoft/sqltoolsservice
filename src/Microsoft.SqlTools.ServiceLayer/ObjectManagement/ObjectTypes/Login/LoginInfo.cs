@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum LoginAuthenticationType
@@ -35,10 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
     /// <summary>
     /// a class for storing various login properties
     /// </summary>
-    public class LoginInfo
+    public class LoginInfo : SqlObject
     {
-        public string Name { get; set; }
-
         public LoginAuthenticationType AuthenticationType { get; set; }
 
         public bool WindowsGrantAccess { get; set; }
@@ -62,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
 
         public string DefaultDatabase { get; set; }
 
-        public string[] ServerRoles {get; set;}
+        public string[] ServerRoles { get; set; }
 
         public ServerLoginDatabaseUserMapping[] UserMapping;
     }

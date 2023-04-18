@@ -12,17 +12,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
     public class InitializeViewRequestParams : GeneralRequestDetails
     {
+        /// <summary>
+        /// The connection uri.
+        /// </summary>
+        public string ConnectionUri { get; set; }
+        /// <summary>
+        /// The object type.
+        /// </summary>
+        public SqlObjectType ObjectType { get; set; }
+        /// <summary>
+        /// Whether the view is for a new object.
+        /// </summary>
+        public bool IsNewObject { get; set; }
+        /// <summary>
+        /// The object view context id.
+        /// </summary>
         public string ContextId { get; set; }
-
-        public JToken Object { get; set; }
+        /// <summary>
+        /// Urn of the parent object.
+        /// </summary>
+        public string ParentUrn { get; set; }
+        /// <summary>
+        /// Urn of the object. Only set when the view is for an existing object.
+        /// </summary>
+        public string ObjectUrn { get; set; }
     }
 
-    public class InitializeViewResponse
+    public class InitializeViewRequestResponse
     {
+        public SqlObjectViewInfo viewInfo { get; set; }
     }
 
     public class InitializeViewRequest
     {
-        public static readonly RequestType<InitializeViewRequestParams, InitializeViewResponse> Type = RequestType<InitializeViewRequestParams, InitializeViewResponse>.Create("objectManagement/initializeView");
+        public static readonly RequestType<InitializeViewRequestParams, InitializeViewRequestResponse> Type = RequestType<InitializeViewRequestParams, InitializeViewRequestResponse>.Create("objectManagement/initializeView");
     }
 }

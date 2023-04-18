@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ServerAuthenticationType
@@ -60,29 +60,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Security.Contracts
         public ServerAuthenticationType AuthenticationType { get; set; }
 
         public string? DefaultLanguage { get; set; }
-    }
-
-    /// <summary>
-    /// The information required to render the user view.
-    /// </summary>
-    public class UserViewInfo
-    {
-        public UserInfo? ObjectInfo { get; set; }
-
-        public bool SupportContainedUser { get; set; }
-
-        public bool SupportWindowsAuthentication { get; set; }
-
-        public bool SupportAADAuthentication { get; set; }
-
-        public bool SupportSQLAuthentication { get; set; }
-
-        public string[]? Languages { get; set; }
-
-        public string[]? Schemas { get; set; }
-
-        public string[]? Logins { get; set; }
-
-        public string[]? DatabaseRoles { get; set; }
     }
 }

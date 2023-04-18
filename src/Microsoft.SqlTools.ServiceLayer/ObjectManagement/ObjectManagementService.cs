@@ -6,16 +6,12 @@
 #nullable disable
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -24,12 +20,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ObjectManagementService
     {
-        private const string ObjectManagementServiceApplicationName = "azdata-object-management";
+        public const string ApplicationName = "azdata-object-management";
         private static Lazy<ObjectManagementService> objectManagementServiceInstance = new Lazy<ObjectManagementService>(() => new ObjectManagementService());
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
         public static ConnectionService connectionService;
         private IProtocolEndpoint serviceHost;
-        public ObjectManagementService() { }
+        private List<ObjectTypeHandler> objectTypeHandlers = new List<ObjectTypeHandler>();
+        private ConcurrentDictionary<string, ISqlObjectViewContext> contextMap = new ConcurrentDictionary<string, ISqlObjectViewContext>();
+
+        public ObjectManagementService()
+        {
+            var CommonObjectTypeHandler = new CommonObjectTypeHandler(ConnectionService.Instance);
+            var loginHandler = new LoginHandler(ConnectionService.Instance);
+            var userHandler = new UserHandler(ConnectionService.Instance);
+            this.objectTypeHandlers.Add(CommonObjectTypeHandler);
+            this.objectTypeHandlers.Add(loginHandler);
+            this.objectTypeHandlers.Add(userHandler);
+        }
 
         /// <summary>
         /// Internal for testing purposes only
@@ -52,92 +59,98 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost = serviceHost;
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
-            this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleCreateObjectRequest, true);
+            this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
+            this.serviceHost.SetRequestHandler(CreateObjectRequest.Type, HandleCreateObjectRequest, true);
+            this.serviceHost.SetRequestHandler(UpdateObjectRequest.Type, HandleUpdateObjectRequest, true);
+            this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
+            this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
         }
 
-        /// <summary>
-        /// Method to handle the renaming operation
-        /// </summary>
-        /// <param name="requestParams">parameters which are needed to execute renaming operation</param>
-        /// <param name="requestContext">Request Context</param>
-        /// <returns></returns>
-        internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<bool> requestContext)
+        internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
         {
-            Logger.Verbose("Handle Request in HandleRenameRequest()");
-            ExecuteActionOnObject(requestParams.ConnectionUri, requestParams.ObjectUrn, (dbObject) =>
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
+            handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
+            await requestContext.SendResult(new RenameRequestResponse());
+        }
+
+        internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<DropRequestResponse> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
+            handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
+            await requestContext.SendResult(new DropRequestResponse());
+        }
+
+        private async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<InitializeViewRequestResponse> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
+            ISqlObjectViewContext context;
+            var objectView = handler.InitializeObjectView(requestParams, out context);
+            contextMap[requestParams.ContextId] = context;
+            await requestContext.SendResult(new InitializeViewRequestResponse()
             {
-                var renamable = dbObject as IRenamable;
-                if (renamable != null)
-                {
-                    renamable.Rename(requestParams.NewName);
-                }
-                else
-                {
-                    throw new Exception(SR.ObjectNotRenamable(requestParams.ObjectUrn));
-                }
+                viewInfo = objectView
             });
-            await requestContext.SendResult(true);
         }
 
-        /// <summary>
-        /// Method to handle the delete object request
-        /// </summary>
-        /// <param name="requestParams">parameters which are needed to execute deletion operation</param>
-        /// <param name="requestContext">Request Context</param>
-        /// <returns></returns>
-        internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<bool> requestContext)
+        private async Task HandleCreateObjectRequest(CreateObjectRequestParams requestParams, RequestContext<CreateObjectRequestResponse> requestContext)
         {
-            Logger.Verbose("Handle Request in HandleDeleteRequest()");
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
-            using (CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true))
+            var context = this.GetContext(requestParams.ContextId);
+            var handler = this.GetObjectTypeHandler(context.ObjectType);
+            var objectType = handler.GetObjectType();
+            var obj = requestParams.Object.ToObject(objectType);
+            handler.Create(context, obj as SqlObject);
+            await requestContext.SendResult(new CreateObjectRequestResponse());
+        }
+
+        private async Task HandleUpdateObjectRequest(UpdateObjectRequestParams requestParams, RequestContext<UpdateObjectRequestResponse> requestContext)
+        {
+            var context = this.GetContext(requestParams.ContextId);
+            var handler = this.GetObjectTypeHandler(context.ObjectType);
+            var objectType = handler.GetObjectType();
+            var obj = requestParams.Object.ToObject(objectType);
+            handler.Update(context, obj as SqlObject);
+            await requestContext.SendResult(new UpdateObjectRequestResponse());
+        }
+
+        private async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
+        {
+            var context = this.GetContext(requestParams.ContextId);
+            var handler = this.GetObjectTypeHandler(context.ObjectType);
+            var objectType = handler.GetObjectType();
+            var obj = requestParams.Object.ToObject(objectType);
+            var script = handler.Script(context, obj as SqlObject);
+            await requestContext.SendResult(script);
+        }
+
+        private async Task HandleDisposeViewRequest(DisposeObjectViewRequestParams requestParams, RequestContext<DisposeViewRequestResponse> requestContext)
+        {
+            ISqlObjectViewContext context;
+            if (contextMap.Remove(requestParams.ContextId, out context))
             {
-                try
+                context.Dispose();
+            }
+            await requestContext.SendResult(new DisposeViewRequestResponse());
+        }
+
+        private ObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)
+        {
+            foreach (var handler in objectTypeHandlers)
+            {
+                if (handler.CanHandleType(objectType))
                 {
-                    dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(requestParams.ObjectUrn);
-                    DatabaseUtils.DoDropObject(dataContainer);
-                }
-                catch (FailedOperationException ex)
-                {
-                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && requestParams.ThrowIfNotExist))
-                    {
-                        throw;
-                    }
+                    return handler;
                 }
             }
-            await requestContext.SendResult(true);
+            throw new NotSupportedException(objectType.ToString());
         }
 
-        private async Task HandleCreateObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectResponse> requestContext)
+        private ISqlObjectViewContext GetContext(string contextId)
         {
-            Logger.Verbose("Handle Request in HandleCreateObjectRequest()");
-            LoginInfo login = requestParams.Object.ToObject<LoginInfo>();
-            await requestContext.SendResult(new SaveObjectResponse());
-        }
-
-        private ConnectionInfo GetConnectionInfo(string connectionUri)
-        {
-            ConnectionInfo connInfo;
-            if (ConnectionServiceInstance.TryFindConnection(connectionUri, out connInfo))
+            if (contextMap.TryGetValue(contextId, out ISqlObjectViewContext context))
             {
-                return connInfo;
+                return context;
             }
-            else
-            {
-                Logger.Error($"The connection with URI '{connectionUri}' could not be found.");
-                throw new Exception(SR.ErrorConnectionNotFound);
-            }
-        }
-
-        private void ExecuteActionOnObject(string connectionUri, string objectUrn, Action<SqlSmoObject> action)
-        {
-            ConnectionInfo connInfo = this.GetConnectionInfo(connectionUri);
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementServiceApplicationName);
-            using (serverConnection.SqlConnectionObject)
-            {
-                Server server = new Server(serverConnection);
-                SqlSmoObject dbObject = server.GetSmoObject(new Urn(objectUrn));
-                action(dbObject);
-            }
+            throw new ArgumentException($"Context '{contextId}' not found");
         }
     }
 }

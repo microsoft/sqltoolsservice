@@ -10,19 +10,20 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class SaveObjectRequestParams : GeneralRequestDetails
+    public class ScriptObjectRequestParams : GeneralRequestDetails
     {
+        /// <summary>
+        /// The context id.
+        /// </summary>
         public string ContextId { get; set; }
-
+        /// <summary>
+        /// The object information.
+        /// </summary>
         public JToken Object { get; set; }
     }
 
-    public class SaveObjectResponse
+    public class ScriptObjectRequest
     {
-    }
-
-    public class SaveObjectRequest
-    {
-        public static readonly RequestType<SaveObjectRequestParams, SaveObjectResponse> Type = RequestType<SaveObjectRequestParams, SaveObjectResponse>.Create("objectManagement/create");
+        public static readonly RequestType<ScriptObjectRequestParams, string> Type = RequestType<ScriptObjectRequestParams, string>.Create("objectManagement/script");
     }
 }
