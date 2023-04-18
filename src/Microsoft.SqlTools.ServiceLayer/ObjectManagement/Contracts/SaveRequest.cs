@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class CreateObjectRequestParams : GeneralRequestDetails
+    public class SaveObjectRequestParams : GeneralRequestDetails
     {
         /// <summary>
         /// The context id.
@@ -22,10 +22,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         public JToken Object { get; set; }
     }
 
-    public class CreateObjectRequestResponse { }
+    public class SaveObjectRequestResponse { }
 
-    public class CreateObjectRequest
+    public class SaveObjectRequest
     {
-        public static readonly RequestType<CreateObjectRequestParams, CreateObjectRequestResponse> Type = RequestType<CreateObjectRequestParams, CreateObjectRequestResponse>.Create("objectManagement/create");
+        public static readonly RequestType<SaveObjectRequestParams, SaveObjectRequestResponse> Type = RequestType<SaveObjectRequestParams, SaveObjectRequestResponse>.Create("objectManagement/save");
     }
 }

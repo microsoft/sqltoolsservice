@@ -6,7 +6,6 @@
 #nullable disable
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
@@ -16,6 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// The connection uri.
         /// </summary>
         public string ConnectionUri { get; set; }
+        /// <summary>
+        /// The target database name.
+        /// </summary>
+        public string Database { get; set; }
         /// <summary>
         /// The object type.
         /// </summary>
@@ -38,13 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         public string ObjectUrn { get; set; }
     }
 
-    public class InitializeViewRequestResponse
-    {
-        public SqlObjectViewInfo viewInfo { get; set; }
-    }
-
     public class InitializeViewRequest
     {
-        public static readonly RequestType<InitializeViewRequestParams, InitializeViewRequestResponse> Type = RequestType<InitializeViewRequestParams, InitializeViewRequestResponse>.Create("objectManagement/initializeView");
+        public static readonly RequestType<InitializeViewRequestParams, SqlObjectViewInfo> Type = RequestType<InitializeViewRequestParams, SqlObjectViewInfo>.Create("objectManagement/initializeView");
     }
 }

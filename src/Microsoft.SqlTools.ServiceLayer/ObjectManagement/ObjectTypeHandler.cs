@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 using System;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -23,10 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         public abstract bool CanHandleType(SqlObjectType objectType);
-        public abstract SqlObjectViewInfo InitializeObjectView(Contracts.InitializeViewRequestParams requestParams, out ISqlObjectViewContext context);
-        public abstract void Create(ISqlObjectViewContext context, SqlObject obj);
-        public abstract void Update(ISqlObjectViewContext context, SqlObject obj);
-        public abstract string Script(ISqlObjectViewContext context, SqlObject obj);
+        public abstract Task<InitializeViewResult> InitializeObjectView(Contracts.InitializeViewRequestParams requestParams);
+        public abstract Task Save(SqlObjectViewContext context, SqlObject obj);
+        public abstract Task<string> Script(SqlObjectViewContext context, SqlObject obj);
         public abstract Type GetObjectType();
 
         public virtual void Rename(string connectionUri, string objectUrn, string newName)

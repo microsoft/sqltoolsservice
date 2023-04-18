@@ -15,8 +15,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
-
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
     /// DatabaseRoleGeneral - main panel for database role

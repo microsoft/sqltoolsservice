@@ -34,7 +34,6 @@ using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Security;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -129,9 +128,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ProfilerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ProfilerService.Instance);
-
-            SecurityService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(SecurityService.Instance);
 
             DacFxService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(DacFxService.Instance);

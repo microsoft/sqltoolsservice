@@ -11,10 +11,9 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
     /// Defines the common behavior of all types of database user objects.

@@ -12,7 +12,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
     /// An attribute for sqlmgmt\src\permissionsdata.cs!SecurableType that maps it to the corresponding SMO

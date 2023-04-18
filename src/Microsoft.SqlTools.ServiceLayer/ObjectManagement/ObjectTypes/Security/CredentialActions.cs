@@ -6,24 +6,24 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     internal class CredentialActions : ManagementActionBase
     {
 
-#region Constants
+        #region Constants
         private const int MAX_SQL_SYS_NAME_LENGTH = 128; // max sql sys name length
-#endregion
+        #endregion
 
-#region Variables
+        #region Variables
         private CredentialData credentialData = null;
         private CredentialInfo credential;
         private ConfigAction configAction;
-#endregion
+        #endregion
 
-#region Constructors / Dispose
+        #region Constructors / Dispose
         /// <summary>
         /// required when loading from Object Explorer context
         /// </summary>
@@ -44,9 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
-        protected override void Dispose( bool disposing )
+        protected override void Dispose(bool disposing)
         {
-            base.Dispose( disposing );
+            base.Dispose(disposing);
             if (disposing == true)
             {
                 if (this.credentialData != null)
@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 }
             }
         }
-#endregion
+        #endregion
 
         /// <summary>
         /// called on background thread by the framework to execute the action

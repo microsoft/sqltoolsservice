@@ -13,7 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 
 #endregion
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
 	/// <summary>
 	/// String comparer that uses the case sensitivity and other settings

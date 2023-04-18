@@ -14,7 +14,7 @@ using System.Collections.Specialized;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class ServerRoleManageTaskFormComponent
     {

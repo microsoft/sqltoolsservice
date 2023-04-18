@@ -41,11 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various user properties
     /// </summary>
-    public class UserInfo
+    public class UserInfo : SqlObject
     {
         public DatabaseUserType? Type { get; set; }
-
-        public string? Name { get; set; }
 
         public string? LoginName { get; set; }
 

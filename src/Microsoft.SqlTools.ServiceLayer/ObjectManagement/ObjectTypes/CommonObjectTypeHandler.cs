@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -25,12 +26,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                    objectType == SqlObjectType.View;
         }
 
-        public override void Create(ISqlObjectViewContext context, SqlObject obj)
+        public override Task Save(SqlObjectViewContext context, SqlObject obj)
         {
             throw new NotSupportedException(NotSupportedException);
         }
 
-        public override SqlObjectViewInfo InitializeObjectView(Contracts.InitializeViewRequestParams requestParams, out ISqlObjectViewContext context)
+        public override Task<InitializeViewResult> InitializeObjectView(Contracts.InitializeViewRequestParams requestParams)
         {
             throw new NotSupportedException(NotSupportedException);
         }
@@ -40,12 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             throw new NotSupportedException(NotSupportedException);
         }
 
-        public override string Script(ISqlObjectViewContext context, SqlObject obj)
-        {
-            throw new NotSupportedException(NotSupportedException);
-        }
-
-        public override void Update(ISqlObjectViewContext context, SqlObject obj)
+        public override Task<string> Script(SqlObjectViewContext context, SqlObject obj)
         {
             throw new NotSupportedException(NotSupportedException);
         }

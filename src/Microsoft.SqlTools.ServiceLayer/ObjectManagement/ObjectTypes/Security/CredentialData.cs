@@ -10,36 +10,36 @@ using System.Security;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     internal class CredentialData : IDisposable
     {
         #region Properties
         private string credentialName = string.Empty;
-        public string CredentialName 
-        { 
-            get { return credentialName; } 
-            set { credentialName = value; } 
+        public string CredentialName
+        {
+            get { return credentialName; }
+            set { credentialName = value; }
         }
 
         private string credentialIdentity = string.Empty;
-        public string CredentialIdentity 
-        { 
-            get { return credentialIdentity; } 
-            set { credentialIdentity = value; } 
+        public string CredentialIdentity
+        {
+            get { return credentialIdentity; }
+            set { credentialIdentity = value; }
         }
 
         private SecureString securePassword;
-        public SecureString SecurePassword 
-        { 
-            get { return securePassword; } 
-            set 
-            { 
-                securePassword = value; 
-                PasswordWasChanged = true; 
-            } 
+        public SecureString SecurePassword
+        {
+            get { return securePassword; }
+            set
+            {
+                securePassword = value;
+                PasswordWasChanged = true;
+            }
         }
 
         private bool isPropertiesMode = false;
@@ -52,24 +52,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         }
 
         private bool passwordWasChanged = false;
-        public bool PasswordWasChanged 
-        { 
-            get { return passwordWasChanged; } 
-            set { passwordWasChanged = value; } 
+        public bool PasswordWasChanged
+        {
+            get { return passwordWasChanged; }
+            set { passwordWasChanged = value; }
         }
 
         private bool isEncryptionByProvider = false;
-        public bool IsEncryptionByProvider 
-        { 
-            get { return isEncryptionByProvider; } 
-            set { isEncryptionByProvider = value; } 
+        public bool IsEncryptionByProvider
+        {
+            get { return isEncryptionByProvider; }
+            set { isEncryptionByProvider = value; }
         }
 
         private string providerName = string.Empty;
-        public string ProviderName 
-        { 
-            get { return providerName; } 
-            set { providerName = value; } 
+        public string ProviderName
+        {
+            get { return providerName; }
+            set { providerName = value; }
         }
 
         public Microsoft.SqlServer.Management.Smo.Credential Credential
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.CredentialIdentity = this.credential.Identity;
             this.CredentialName = this.credential.Name;
             this.SecurePassword = CDataContainer.BuildSecureStringFromPassword(string.Empty);
-   
+
             // need to update only during create time
             this.IsEncryptionByProvider = false;
             if (this.IsEncryptionByProvider)
@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
                 bool isKatmaiAndNotMatrix = (this.context.Server.Version.Major >= 10);
 
                 Urn urn = new Urn("Server/Credential[@Name='" + Urn.EscapeString(this.CredentialName) + "']");
-                string [] fields;
+                string[] fields;
                 if (isKatmaiAndNotMatrix)
                 {
                     fields = new string[] { ENUMERATOR_FIELD_IDENTITY, ENUMERATOR_FIELD_PROVIDER_NAME };
@@ -206,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         /// </summary>
         private void SendToServerCreateCredential()
         {
-            Microsoft.SqlServer.Management.Smo.Credential smoCredential = new Microsoft.SqlServer.Management.Smo.Credential (
+            Microsoft.SqlServer.Management.Smo.Credential smoCredential = new Microsoft.SqlServer.Management.Smo.Credential(
                 this.Context.Server,
                 this.CredentialName);
             if (this.isEncryptionByProvider)

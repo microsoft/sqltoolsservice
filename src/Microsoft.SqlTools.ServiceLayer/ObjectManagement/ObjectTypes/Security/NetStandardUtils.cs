@@ -10,7 +10,7 @@ using System.Globalization;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
     /// NetStandard compatible helpers

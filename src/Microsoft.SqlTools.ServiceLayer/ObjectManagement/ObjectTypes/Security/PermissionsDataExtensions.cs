@@ -9,7 +9,7 @@ using System;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Security
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     internal static class PermissionsDataExtensions
     {

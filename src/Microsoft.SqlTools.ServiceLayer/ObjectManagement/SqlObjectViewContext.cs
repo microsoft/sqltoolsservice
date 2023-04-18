@@ -2,14 +2,27 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
+#nullable disable
 using System;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    public interface ISqlObjectViewContext : IDisposable
+    public abstract class SqlObjectViewContext : IDisposable
     {
-        public SqlObjectType ObjectType { get; set; }
-        public string ConnectionUri { get; set; }
+        public SqlObjectViewContext(InitializeViewRequestParams parameters)
+        {
+            this.Parameters = parameters;
+        }
+
+        public InitializeViewRequestParams Parameters { get; }
+
+        public abstract void Dispose();
+    }
+
+    public class InitializeViewResult
+    {
+        public SqlObjectViewContext Context { get; set; }
+        public SqlObjectViewInfo ViewInfo { get; set; }
     }
 }

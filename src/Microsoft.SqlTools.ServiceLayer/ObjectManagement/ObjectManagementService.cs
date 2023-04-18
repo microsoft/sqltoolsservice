@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using Microsoft.SqlTools.Utility;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 
@@ -26,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public static ConnectionService connectionService;
         private IProtocolEndpoint serviceHost;
         private List<ObjectTypeHandler> objectTypeHandlers = new List<ObjectTypeHandler>();
-        private ConcurrentDictionary<string, ISqlObjectViewContext> contextMap = new ConcurrentDictionary<string, ISqlObjectViewContext>();
+        private ConcurrentDictionary<string, SqlObjectViewContext> contextMap = new ConcurrentDictionary<string, SqlObjectViewContext>();
 
         public ObjectManagementService()
         {
@@ -60,8 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
             this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
-            this.serviceHost.SetRequestHandler(CreateObjectRequest.Type, HandleCreateObjectRequest, true);
-            this.serviceHost.SetRequestHandler(UpdateObjectRequest.Type, HandleUpdateObjectRequest, true);
+            this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleCreateObjectRequest, true);
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
         }
@@ -80,51 +78,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(new DropRequestResponse());
         }
 
-        private async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<InitializeViewRequestResponse> requestContext)
+        private async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-            ISqlObjectViewContext context;
-            var objectView = handler.InitializeObjectView(requestParams, out context);
-            contextMap[requestParams.ContextId] = context;
-            await requestContext.SendResult(new InitializeViewRequestResponse()
-            {
-                viewInfo = objectView
-            });
+            var result = await handler.InitializeObjectView(requestParams);
+            contextMap[requestParams.ContextId] = result.Context;
+            await requestContext.SendResult(result.ViewInfo);
         }
 
-        private async Task HandleCreateObjectRequest(CreateObjectRequestParams requestParams, RequestContext<CreateObjectRequestResponse> requestContext)
+        private async Task HandleCreateObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectRequestResponse> requestContext)
         {
             var context = this.GetContext(requestParams.ContextId);
-            var handler = this.GetObjectTypeHandler(context.ObjectType);
+            var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
             var objectType = handler.GetObjectType();
             var obj = requestParams.Object.ToObject(objectType);
-            handler.Create(context, obj as SqlObject);
-            await requestContext.SendResult(new CreateObjectRequestResponse());
-        }
-
-        private async Task HandleUpdateObjectRequest(UpdateObjectRequestParams requestParams, RequestContext<UpdateObjectRequestResponse> requestContext)
-        {
-            var context = this.GetContext(requestParams.ContextId);
-            var handler = this.GetObjectTypeHandler(context.ObjectType);
-            var objectType = handler.GetObjectType();
-            var obj = requestParams.Object.ToObject(objectType);
-            handler.Update(context, obj as SqlObject);
-            await requestContext.SendResult(new UpdateObjectRequestResponse());
+            await handler.Save(context, obj as SqlObject);
+            await requestContext.SendResult(new SaveObjectRequestResponse());
         }
 
         private async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
         {
             var context = this.GetContext(requestParams.ContextId);
-            var handler = this.GetObjectTypeHandler(context.ObjectType);
+            var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
             var objectType = handler.GetObjectType();
             var obj = requestParams.Object.ToObject(objectType);
-            var script = handler.Script(context, obj as SqlObject);
+            var script = await handler.Script(context, obj as SqlObject);
             await requestContext.SendResult(script);
         }
 
         private async Task HandleDisposeViewRequest(DisposeObjectViewRequestParams requestParams, RequestContext<DisposeViewRequestResponse> requestContext)
         {
-            ISqlObjectViewContext context;
+            SqlObjectViewContext context;
             if (contextMap.Remove(requestParams.ContextId, out context))
             {
                 context.Dispose();
@@ -144,9 +128,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             throw new NotSupportedException(objectType.ToString());
         }
 
-        private ISqlObjectViewContext GetContext(string contextId)
+        private SqlObjectViewContext GetContext(string contextId)
         {
-            if (contextMap.TryGetValue(contextId, out ISqlObjectViewContext context))
+            if (contextMap.TryGetValue(contextId, out SqlObjectViewContext context))
             {
                 return context;
             }

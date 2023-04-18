@@ -6,7 +6,6 @@
 #nullable disable
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
