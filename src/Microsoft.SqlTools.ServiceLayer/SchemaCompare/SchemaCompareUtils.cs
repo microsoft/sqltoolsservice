@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// <summary>
     /// Internal class for utilities shared between multiple schema compare operations
     /// </summary>
-    internal static class SchemaCompareUtils
+    internal static partial class SchemaCompareUtils
     {
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 return null;
             }
 
-            DiffEntry diffEntry = new DiffEntry();
+            var diffEntry = new DiffEntry();
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
             diffEntry.Name = difference.Name;
@@ -86,8 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     return null;
                 }
-                ObjectIdentifier id = new ObjectIdentifier(sourceObj.NameParts);
-                SchemaComparisonExcludedObjectId excludedObjId = new SchemaComparisonExcludedObjectId(sourceObj.SqlObjectType, id);
+                var id = new ObjectIdentifier(sourceObj.NameParts);
+                var excludedObjId = new SchemaComparisonExcludedObjectId(sourceObj.SqlObjectType, id);
                 return excludedObjId;
             }
             catch (ArgumentException)
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // remove leading and trailing whitespace
                 script = script.Trim();
                 // replace all multiple spaces with single space
-                script = Regex.Replace(script, " {2,}", " ");
+                script = GetScriptRegex().Replace(script, " ");
             }
             return script;
         }
@@ -159,5 +159,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             return script;
         }
+
+        [GeneratedRegex(" {2,}")]
+        private static partial Regex GetScriptRegex();
     }
 }

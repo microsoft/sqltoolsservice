@@ -406,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
     }
 
-    internal class ServiceTestContext
+    internal sealed class ServiceTestContext
     {
         private string _validServerName = "validServerName.database.windows.net";
         private string _startIpAddressValue = "1.2.3.6";

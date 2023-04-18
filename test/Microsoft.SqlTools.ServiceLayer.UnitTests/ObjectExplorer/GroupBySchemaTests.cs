@@ -15,7 +15,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
-    class GroupBySchemaTests
+    internal sealed class GroupBySchemaTests
     {
         Mock<DatabaseChildFactory> factory;
         Mock<TreeNode> node;

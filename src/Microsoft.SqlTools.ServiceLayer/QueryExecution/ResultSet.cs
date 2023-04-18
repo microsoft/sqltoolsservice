@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// Class that represents a resultset the was generated from a query. Contains logic for
     /// storing and retrieving results. Is contained by a Batch class.
     /// </summary>
-    public class ResultSet : IDisposable
+    public partial class ResultSet : IDisposable
     {
         #region Constants
 
@@ -279,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
                         IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, 0, Columns)[0].DisplayValue);
                         string singleString = string.Join(string.Empty, rowValues);
-                        DbCellValue cellValue = new DbCellValue
+                        var cellValue = new DbCellValue
                         {
                             DisplayValue = singleString,
                             IsNull = false,
@@ -369,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Verify the request hasn't been cancelled
                 cancellationToken.ThrowIfCancellationRequested();
 
-                StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+                var dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
                 //
@@ -514,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Create the new task
-            Task saveAsTask = new Task(async () =>
+            var saveAsTask = new Task(async () =>
             {
                 try
                 {
@@ -638,7 +638,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 //
                 sendResultsSemphore.Wait();
 
-                ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+                var currentResultSetSnapshot = (ResultSet) MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.
                 {
                     // Fire off results Available task and await it
@@ -739,13 +739,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             if (Columns?.Length > 0 && RowCount != 0)
             {
-                Regex regex = new Regex(@"({.*?})");
                 var row = GetRow(0);
                 for (int i = 0; i < Columns.Length; i++)
                 {
                     if (Columns[i].DataTypeName.Equals("nvarchar"))
                     {
-                        if (regex.IsMatch(row[i].DisplayValue))
+                        if (GetJsonRegex().IsMatch(row[i].DisplayValue))
                         {
                             Columns[i].IsJson = true;
                         }
@@ -788,7 +787,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Returning false from .ReadAsync means there aren't any rows.
 
             // Create a storage data reader, read it, make sure there were results
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+            var dataReader = new StorageDataReader(dbDataReader);
             if (!await dataReader.ReadAsync(CancellationToken.None))
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
@@ -803,6 +802,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return currentFileOffset;
             }
         }
+
+        [GeneratedRegex("({.*?})")]
+        private static partial Regex GetJsonRegex();
 
         #endregion
     }

@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             if (jobData.Job != null)
             {
                 const string UrnFormatStr = "Server/JobServer[@Name='{0}']/Job[@Name='{1}']/Step[@Name='{2}']";
-                string serverName = this.DataContainer.Server.Name.ToUpper();
+                string serverName = this.DataContainer.Server.Name.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
                 string urn = string.Format(UrnFormatStr, serverName, jobData.Job.Name, stepName);
                 jobStep = jobData.Job.Parent.Parent.GetSmoObject(urn) as JobStep;
             }

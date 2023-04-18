@@ -374,7 +374,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <summary>
         /// This class is used as value in the dictionary to ensure that the type of value is correct.
         /// </summary>
-        private class AmbientValue
+        private sealed class AmbientValue
         {
             private readonly Type _type;
             private readonly bool _isTypeNullable;

@@ -12,8 +12,6 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-		<!-- TODO FIX THESE WARNINGS ASAP -->
-		<NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854;CS8600;CS8603;CS8625</NoWarn>
 		<AssemblyTitle>SqlTools Editor Services Host Protocol Library</AssemblyTitle>
 		<Description>Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.</Description>
 	</PropertyGroup>

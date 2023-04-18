@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
             var currentUserAccount = CreateAccount();
             currentUserAccount.Account.IsStale = true;
             IAzureAuthenticationManager accountManager = await CreateAccountManager(currentUserAccount, null);
-            Assert.ThrowsAsync<ExpiredTokenException>(() => accountManager.GetSelectedSubscriptionsAsync());
+            Assert.ThrowsAsync<ExpiredTokenException>(accountManager.GetSelectedSubscriptionsAsync);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
         {
             var currentUserAccount = CreateAccount();
             IAzureAuthenticationManager accountManager = await CreateAccountManager(currentUserAccount, null, true);
-            Assert.ThrowsAsync<ServiceFailedException>(() => accountManager.GetSelectedSubscriptionsAsync());
+            Assert.ThrowsAsync<ServiceFailedException>(accountManager.GetSelectedSubscriptionsAsync);
         }
 
         [Test]

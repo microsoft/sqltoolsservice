@@ -25,7 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
         /// </summary>
         public string Id
         {
-            get { return this.ClientUri.ToLower(); }
+            get { return this.ClientUri.ToLower(System.Globalization.CultureInfo.InvariantCulture); }
         }
 
         /// <summary>

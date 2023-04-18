@@ -198,11 +198,9 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             lock (this._bindingContextLock)
             {
-                if (this.BindingContextMap.ContainsKey(key))
+                if (this.BindingContextMap.TryGetValue(key, out IBindingContext? bindingContext))
                 {
                     // disconnect existing connection
-                    var bindingContext = this.BindingContextMap[key];
-
                     // remove key from the map
                     this.BindingContextMap.Remove(key);
                     this.BindingContextTasks.Remove(bindingContext);

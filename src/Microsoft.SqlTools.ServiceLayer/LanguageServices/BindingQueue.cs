@@ -191,10 +191,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             lock (this.bindingContextLock)
             {
-                if (this.BindingContextMap.ContainsKey(key))
+                if (this.BindingContextMap.TryGetValue(key, out IBindingContext? bindingContext))
                 {
                     // disconnect existing connection
-                    var bindingContext = this.BindingContextMap[key];
                     if (bindingContext.ServerConnection != null && bindingContext.ServerConnection.IsOpen)
                     {
                         // Disconnecting can take some time so run it in a separate task so that it doesn't block removal

@@ -19,10 +19,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     /// <summary>
     /// Writer for exporting results to a Markdown table.
     /// </summary>
-    public class SaveAsMarkdownFileStreamWriter : SaveAsStreamWriter
+    public partial class SaveAsMarkdownFileStreamWriter : SaveAsStreamWriter
     {
         private const string Delimiter = "|";
-        private static readonly Regex NewlineRegex = new Regex(@"(\r\n|\n|\r)", RegexOptions.Compiled);
+
+        [GeneratedRegex("(\\r\\n|\\n|\\r)", RegexOptions.Compiled)]
+        private static partial Regex GetNewLineRegex();
 
         private readonly Encoding _encoding;
         private readonly string _lineSeparator;
@@ -72,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             this.WriteLine($"{Delimiter}{rowLine}{Delimiter}");
         }
 
-        internal static string EncodeMarkdownField(string? field)
+        internal static string EncodeMarkdownField(string field)
         {
             // Special case for nulls
             if (field == null)
@@ -89,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             // @TODO: Allow option to encode multiple whitespace characters as &nbsp;
 
             // Replace newlines with br tags, since cell values must be single line
-            field = NewlineRegex.Replace(field, @"<br />");
+            field = GetNewLineRegex().Replace(field, @"<br />");
 
             return field;
         }

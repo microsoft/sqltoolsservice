@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
                 DatabaseVariable = "$(DatabaseVariable)"
             };
 
-            Assert.Throws<ArgumentException>(() => reference.Validate(), $"Validate() for a reference with both {nameof(reference.DatabaseLiteral)} and {nameof(reference.DatabaseVariable)} should have failed");
+            Assert.Throws<ArgumentException>(reference.Validate, $"Validate() for a reference with both {nameof(reference.DatabaseLiteral)} and {nameof(reference.DatabaseVariable)} should have failed");
 
             // Verify that Validate() passes any other time
             reference = new AddDacpacReferenceParams() { DatabaseLiteral = "DatabaseName" };
