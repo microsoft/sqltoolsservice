@@ -30,7 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             } 
 
             string result = name;
-            var  rx = GetNameRegex();
             string [] kustoKeywordList = {"and", "anomalychart", "areachart", "asc", "barchart", "between", "bool", "boolean", "by",
                 "columnchart", "consume", "contains", "containscs", "count", "date", "datetime", "default", "desc", "distinct",
                 "double", "dynamic", "endswith", "evaluate", "extend", "false", "filter", "find", "first", "flags", "float",
@@ -41,7 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 "take", "time", "timechart", "timeline", "timepivot", "timespan", "to", "top", "toscalar", "true", "union", 
                 "unstacked", "viewers", "where", "withsource"}; // add more keywords here
 
-            var escapeName = rx.IsMatch(name) || kustoKeywordList.Any(name.Contains) || alwaysEscape;
+            var escapeName = GetNameRegex().IsMatch(name) || kustoKeywordList.Any(name.Contains) || alwaysEscape;
             if (escapeName) 
             {
                 if (name.IndexOf('"') > -1) 

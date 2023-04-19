@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -677,13 +679,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         {
             if (Columns?.Length > 0 && RowCount != 0)
             {
-                Regex regex = GetJsonRegex();
                 var row = GetRow(0);
                 for (int i = 0; i < Columns.Length; i++)
                 {
                     if (Columns[i].DataTypeName.Equals("nvarchar"))
                     {
-                        if (regex.IsMatch(row[i].DisplayValue))
+                        if (GetJsonRegex().IsMatch(row[i].DisplayValue))
                         {
                             Columns[i].IsJson = true;
                         }
