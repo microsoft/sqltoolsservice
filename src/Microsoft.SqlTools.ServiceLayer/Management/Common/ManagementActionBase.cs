@@ -266,7 +266,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-
         protected bool IsDatabaseOperation
         {
             get
