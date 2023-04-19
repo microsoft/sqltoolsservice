@@ -29,12 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public ObjectManagementService()
         {
-            var CommonObjectTypeHandler = new CommonObjectTypeHandler(ConnectionService.Instance);
-            var loginHandler = new LoginHandler(ConnectionService.Instance);
-            var userHandler = new UserHandler(ConnectionService.Instance);
-            this.objectTypeHandlers.Add(CommonObjectTypeHandler);
-            this.objectTypeHandlers.Add(loginHandler);
-            this.objectTypeHandlers.Add(userHandler);
+            this.objectTypeHandlers.Add(new CommonObjectTypeHandler(ConnectionService.Instance));
+            this.objectTypeHandlers.Add(new LoginHandler(ConnectionService.Instance));
+            this.objectTypeHandlers.Add(new UserHandler(ConnectionService.Instance));
+            this.objectTypeHandlers.Add(new CredentialHandler(ConnectionService.Instance));
         }
 
         /// <summary>
