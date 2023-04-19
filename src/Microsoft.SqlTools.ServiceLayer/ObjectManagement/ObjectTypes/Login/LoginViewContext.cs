@@ -5,7 +5,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    internal class LoginViewContext : SqlObjectViewContext
+    public class LoginViewContext : SqlObjectViewContext
     {
         public LoginViewContext(Contracts.InitializeViewRequestParams parameters) : base(parameters)
         {

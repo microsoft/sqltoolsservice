@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// Credential object type handler
     /// </summary>
-    public class CredentialHandler : ObjectTypeHandler
+    public class CredentialHandler : ObjectTypeHandler<CredentialInfo, CredentialViewContext>
     {
         public CredentialHandler(ConnectionService connectionService) : base(connectionService)
         {
@@ -24,11 +24,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override bool CanHandleType(SqlObjectType objectType)
         {
             return objectType == SqlObjectType.Credential;
-        }
-
-        public override Type GetObjectType()
-        {
-            return typeof(CredentialInfo);
         }
 
         public override Task<InitializeViewResult> InitializeObjectView(Contracts.InitializeViewRequestParams parameters)
@@ -55,13 +50,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(result);
         }
 
-        public override async Task Save(SqlObjectViewContext context, SqlObject obj)
+        public override async Task Save(CredentialViewContext context, CredentialInfo obj)
         {
-            var credential = obj as CredentialInfo;
-            await ConfigureCredential(context.Parameters.ConnectionUri, credential, ConfigAction.Update, RunType.RunNow);
+            await ConfigureCredential(context.Parameters.ConnectionUri, obj, ConfigAction.Update, RunType.RunNow);
         }
 
-        public override Task<string> Script(SqlObjectViewContext context, SqlObject obj)
+        public override Task<string> Script(CredentialViewContext context, CredentialInfo obj)
         {
             throw new NotImplementedException();
         }

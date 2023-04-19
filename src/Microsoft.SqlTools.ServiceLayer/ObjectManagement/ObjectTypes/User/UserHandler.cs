@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// User object type handler
     /// </summary>
-    public class UserHandler : ObjectTypeHandler
+    public class UserHandler : ObjectTypeHandler<UserInfo, UserViewContext>
     {
         public UserHandler(ConnectionService connectionService) : base(connectionService)
         {
@@ -31,11 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override bool CanHandleType(SqlObjectType objectType)
         {
             return objectType == SqlObjectType.User;
-        }
-
-        public override Type GetObjectType()
-        {
-            return typeof(UserInfo);
         }
 
         public override async Task<InitializeViewResult> InitializeObjectView(Contracts.InitializeViewRequestParams parameters)
@@ -205,29 +200,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return new InitializeViewResult { ViewInfo = userViewInfo, Context = context };
         }
 
-        public override Task Save(SqlObjectViewContext context, SqlObject obj)
+        public override Task Save(UserViewContext context, UserInfo obj)
         {
-            var userContext = context as UserViewContext;
             ConfigureUser(
                 context.Parameters.ContextId,
-                obj as UserInfo,
+                obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow,
-                userContext.Parameters.Database,
-                userContext.OriginalUserData);
+                context.Parameters.Database,
+                context.OriginalUserData);
             return Task.CompletedTask;
         }
 
-        public override Task<string> Script(SqlObjectViewContext context, SqlObject obj)
+        public override Task<string> Script(UserViewContext context, UserInfo obj)
         {
-            var userContext = context as UserViewContext;
             var script = ConfigureUser(
                 context.Parameters.ContextId,
-                obj as UserInfo,
+                obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow,
-                userContext.Parameters.Database,
-                userContext.OriginalUserData);
+                context.Parameters.Database,
+                context.OriginalUserData);
             return Task.FromResult(script);
         }
 

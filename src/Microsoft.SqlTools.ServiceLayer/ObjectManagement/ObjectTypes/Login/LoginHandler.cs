@@ -20,18 +20,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// Login object type handler
     /// </summary>
-    public class LoginHandler : ObjectTypeHandler
+    public class LoginHandler : ObjectTypeHandler<LoginInfo, LoginViewContext>
     {
         public LoginHandler(ConnectionService connectionService) : base(connectionService) { }
 
         public override bool CanHandleType(SqlObjectType objectType)
         {
             return objectType == SqlObjectType.ServerLevelLogin;
-        }
-
-        public override Type GetObjectType()
-        {
-            return typeof(LoginInfo);
         }
 
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams parameters)
@@ -111,33 +106,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             });
         }
 
-        public override Task Save(SqlObjectViewContext context, SqlObject obj)
+        public override Task Save(LoginViewContext context, LoginInfo obj)
         {
-            var loginContext = context as LoginViewContext;
-            var loginInfo = obj as LoginInfo;
             if (context.Parameters.IsNewObject)
             {
-                this.DoHandleCreateLoginRequest(loginContext, loginInfo, RunType.RunNow);
+                this.DoHandleCreateLoginRequest(context, obj, RunType.RunNow);
             }
             else
             {
-                this.DoHandleUpdateLoginRequest(loginContext, loginInfo, RunType.RunNow);
+                this.DoHandleUpdateLoginRequest(context, obj, RunType.RunNow);
             }
             return Task.CompletedTask;
         }
 
-        public override Task<string> Script(SqlObjectViewContext context, SqlObject obj)
+        public override Task<string> Script(LoginViewContext context, LoginInfo obj)
         {
-            var loginContext = context as LoginViewContext;
-            var loginInfo = obj as LoginInfo;
             string script;
             if (context.Parameters.IsNewObject)
             {
-                script = this.DoHandleCreateLoginRequest(loginContext, loginInfo, RunType.ScriptToWindow);
+                script = this.DoHandleCreateLoginRequest(context, obj, RunType.ScriptToWindow);
             }
             else
             {
-                script = this.DoHandleUpdateLoginRequest(loginContext, loginInfo, RunType.ScriptToWindow);
+                script = this.DoHandleUpdateLoginRequest(context, obj, RunType.ScriptToWindow);
             }
             return Task.FromResult(script);
         }

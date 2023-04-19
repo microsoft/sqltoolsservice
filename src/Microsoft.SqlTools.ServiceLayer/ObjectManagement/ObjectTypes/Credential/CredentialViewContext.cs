@@ -7,7 +7,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    internal class CredentialViewContext : SqlObjectViewContext
+    public class CredentialViewContext : SqlObjectViewContext
     {
         public CredentialViewContext(InitializeViewRequestParams parameters) : base(parameters) { }
 

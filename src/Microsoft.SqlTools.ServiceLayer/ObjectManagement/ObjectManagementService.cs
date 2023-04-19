@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
         public static ConnectionService connectionService;
         private IProtocolEndpoint serviceHost;
-        private List<ObjectTypeHandler> objectTypeHandlers = new List<ObjectTypeHandler>();
+        private List<IObjectTypeHandler> objectTypeHandlers = new List<IObjectTypeHandler>();
         private ConcurrentDictionary<string, SqlObjectViewContext> contextMap = new ConcurrentDictionary<string, SqlObjectViewContext>();
 
         public ObjectManagementService()
@@ -65,14 +65,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-            handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
+            await handler.Rename(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.NewName);
             await requestContext.SendResult(new RenameRequestResponse());
         }
 
         internal async Task HandleDropRequest(DropRequestParams requestParams, RequestContext<DropRequestResponse> requestContext)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
-            handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
+            await handler.Drop(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
             await requestContext.SendResult(new DropRequestResponse());
         }
 
@@ -88,8 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
-            var objectType = handler.GetObjectType();
-            var obj = requestParams.Object.ToObject(objectType);
+            var obj = requestParams.Object.ToObject(handler.GetObjectType());
             await handler.Save(context, obj as SqlObject);
             await requestContext.SendResult(new SaveObjectRequestResponse());
         }
@@ -98,8 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
-            var objectType = handler.GetObjectType();
-            var obj = requestParams.Object.ToObject(objectType);
+            var obj = requestParams.Object.ToObject(handler.GetObjectType());
             var script = await handler.Script(context, obj as SqlObject);
             await requestContext.SendResult(script);
         }
@@ -114,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(new DisposeViewRequestResponse());
         }
 
-        private ObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)
+        private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)
         {
             foreach (var handler in objectTypeHandlers)
             {

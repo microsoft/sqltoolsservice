@@ -8,7 +8,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    internal class UserViewContext : SqlObjectViewContext
+    public class UserViewContext : SqlObjectViewContext
     {
         public UserViewContext(InitializeViewRequestParams parameters, ServerConnection connection, UserPrototypeData originalUserData) : base(parameters)
         {

@@ -6,13 +6,23 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
+    public class CommonObjectType : SqlObject { }
+
+    public class CommonObjectTypeViewContext : SqlObjectViewContext
+    {
+        public CommonObjectTypeViewContext(InitializeViewRequestParams parameters) : base(parameters) { }
+
+        public override void Dispose() { }
+    }
+
     /// <summary>
     /// A handler for the object types that only has rename/drop support
     /// </summary>
-    public class CommonObjectTypeHandler : ObjectTypeHandler
+    public class CommonObjectTypeHandler : ObjectTypeHandler<CommonObjectType, CommonObjectTypeViewContext>
     {
         // The message is only used in developing time, no need to be localized.
         private const string NotSupportedException = "This operation is not supported for this object type";
@@ -26,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                    objectType == SqlObjectType.View;
         }
 
-        public override Task Save(SqlObjectViewContext context, SqlObject obj)
+        public override Task Save(CommonObjectTypeViewContext context, CommonObjectType obj)
         {
             throw new NotSupportedException(NotSupportedException);
         }
@@ -36,12 +46,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             throw new NotSupportedException(NotSupportedException);
         }
 
-        public override Type GetObjectType()
-        {
-            throw new NotSupportedException(NotSupportedException);
-        }
-
-        public override Task<string> Script(SqlObjectViewContext context, SqlObject obj)
+        public override Task<string> Script(CommonObjectTypeViewContext context, CommonObjectType obj)
         {
             throw new NotSupportedException(NotSupportedException);
         }
