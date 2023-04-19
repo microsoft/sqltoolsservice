@@ -32,6 +32,8 @@
 		<Version>$(VersionPrefix)</Version>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<InformationalVersion>$(VersionPrefix)</InformationalVersion>
+		<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
+		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
