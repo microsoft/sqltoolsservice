@@ -7,16 +7,15 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
     /// a class for storing various credential properties
     /// </summary>
-    public class CredentialInfo
+    public class CredentialInfo : SqlObject
     {
         public int Id { get; set; }
         public string Identity { get; set; }
-        public string Name { get; set; }
         public DateTime DateLastModified { get; set; }
         public DateTime CreateDate { get; set; }
         public string ProviderName { get; set; }

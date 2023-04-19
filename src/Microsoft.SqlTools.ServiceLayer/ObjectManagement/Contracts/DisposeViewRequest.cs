@@ -9,7 +9,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class DisposeObjectViewRequestParams : GeneralRequestDetails
+    public class DisposeViewRequestParams : GeneralRequestDetails
     {
         public string ContextId { get; set; }
     }
@@ -18,6 +18,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 
     public class DisposeViewRequest
     {
-        public static readonly RequestType<DisposeObjectViewRequestParams, DisposeViewRequestResponse> Type = RequestType<DisposeObjectViewRequestParams, DisposeViewRequestResponse>.Create("objectManagement/disposeView");
+        public static readonly RequestType<DisposeViewRequestParams, DisposeViewRequestResponse> Type = RequestType<DisposeViewRequestParams, DisposeViewRequestResponse>.Create("objectManagement/disposeView");
     }
 }

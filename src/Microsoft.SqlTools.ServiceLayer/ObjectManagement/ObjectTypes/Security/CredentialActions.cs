@@ -6,7 +6,6 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.Management;
-using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {

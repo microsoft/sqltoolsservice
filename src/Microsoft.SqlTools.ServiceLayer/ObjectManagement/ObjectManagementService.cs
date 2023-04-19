@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(RenameRequest.Type, HandleRenameRequest, true);
             this.serviceHost.SetRequestHandler(DropRequest.Type, HandleDropRequest, true);
             this.serviceHost.SetRequestHandler(InitializeViewRequest.Type, HandleInitializeViewRequest, true);
-            this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleCreateObjectRequest, true);
+            this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest, true);
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
         }
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(new DropRequestResponse());
         }
 
-        private async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
+        internal async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
         {
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             var result = await handler.InitializeObjectView(requestParams);
@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(result.ViewInfo);
         }
 
-        private async Task HandleCreateObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectRequestResponse> requestContext)
+        internal async Task HandleSaveObjectRequest(SaveObjectRequestParams requestParams, RequestContext<SaveObjectRequestResponse> requestContext)
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(new SaveObjectRequestResponse());
         }
 
-        private async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task HandleScriptObjectRequest(ScriptObjectRequestParams requestParams, RequestContext<string> requestContext)
         {
             var context = this.GetContext(requestParams.ContextId);
             var handler = this.GetObjectTypeHandler(context.Parameters.ObjectType);
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(script);
         }
 
-        private async Task HandleDisposeViewRequest(DisposeObjectViewRequestParams requestParams, RequestContext<DisposeViewRequestResponse> requestContext)
+        internal async Task HandleDisposeViewRequest(DisposeViewRequestParams requestParams, RequestContext<DisposeViewRequestResponse> requestContext)
         {
             SqlObjectViewContext context;
             if (contextMap.Remove(requestParams.ContextId, out context))

@@ -14,6 +14,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         [EnumMember(Value = "Column")]
         Column,
+        [EnumMember(Value = "Credential")]
+        Credential,
         [EnumMember(Value = "ServerLevelLogin")]
         ServerLevelLogin,
         [EnumMember(Value = "Table")]

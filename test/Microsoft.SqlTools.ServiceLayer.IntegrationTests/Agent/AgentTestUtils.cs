@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
@@ -81,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             return new AgentProxyInfo()
             {
                 AccountName = "Test Proxy",
-                CredentialName = SecurityTestUtils.TestCredentialName,
+                CredentialName = ObjectManagementTestUtils.TestCredentialName,
                 Description = "Test proxy description",
                 IsEnabled = true
             };
