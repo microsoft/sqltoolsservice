@@ -1,19 +1,21 @@
 trigger: none
 pr: none
 
+variables:
+  # Major version number for the release
+- name: Major
+  value: '4'
+  # Minor version number for the release (should be incremented post a stable release)
+- name: Minor
+  value: '7'
+
 stages:
 - stage: Build
   variables:
   - name: buildConfiguration
     value: 'Release'
-    # Major version number for the release
-  - name: Major
-    value: '4'
   - name: ManagedBatchParserMajor
     value: '3'
-    # Minor version number for the release (should be incremented post a stable release)
-  - name: Minor
-    value: '7'
   - name: ManagedBatchParserMinor
     value: '0'
     # Set to true to build a stable release.
