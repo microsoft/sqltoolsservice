@@ -10,38 +10,33 @@ steps:
     git clone https://$(ado-crossplatbuildscripts-password)@dev.azure.com/mssqltools/_git/CrossPlatBuildScripts
   displayName: Clone CrossPlatBuildScripts
 
-# - task: DownloadBuildArtifacts@0
-#   displayName: 'Download build drop artifacts'
-#   inputs:
-#     buildType: 'current'
-#     downloadType: 'single'
-#     artifactName: 'drop'
-#     itemPattern: '**/*'
-#     downloadPath: '$(Agent.TempDirectory)'
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download build drop artifacts'
+  inputs:
+    buildType: 'current'
+    downloadType: 'single'
+    artifactName: 'drop'
+    itemPattern: '**/*'
+    downloadPath: '$(Agent.TempDirectory)'
 
-# - task: CopyFiles@2
-#   displayName: 'Copy build drop artifacts to: $(Build.SourcesDirectory)/artifacts/package/artifacts/package'
-#   inputs:
-#     SourceFolder: '$(Agent.TempDirectory)/drop'
-#     TargetFolder: '$(Build.SourcesDirectory)/artifacts/package'
+- task: CopyFiles@2
+  displayName: 'Copy build drop artifacts to: $(Build.SourcesDirectory)/artifacts/package/artifacts/package'
+  inputs:
+    SourceFolder: '$(Agent.TempDirectory)/drop'
+    TargetFolder: '$(Build.SourcesDirectory)/artifacts/package'
 
-# - script: |
-#     cd $(Build.SourcesDirectory)/artifacts/package
-#     rm Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz
-#     rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net7.0.tar.gz
-#   displayName: 'Delete the unsigned arm64-osx packages'
+- script: |
+    cd $(Build.SourcesDirectory)/artifacts/package
+    rm Microsoft.SqlTools.ServiceLayer-osx-arm64-unsigned-net7.0.tar.gz
+    rm Microsoft.SqlTools.Migration-osx-arm64-unsigned-net7.0.tar.gz
+  displayName: 'Delete the unsigned arm64-osx packages'
 
-- powershell: |
-    Write-Host $(Major)
-    Write-Host $ENV:Major
-  displayName: Clone CrossPlatBuildScripts
-
-# - task: PowerShell@2
-#   displayName: 'Run Automated Release Script'
-#   inputs:
-#     filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
-#     arguments: '-workspace $(Build.SourcesDirectory) -minTag $(Major).$(Minor).0.0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
-#     workingDirectory: '$(Build.SourcesDirectory)'
-#   env:
-#     GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
-#     ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
+- task: PowerShell@2
+  displayName: 'Run Automated Release Script'
+  inputs:
+    filePath: '$(System.DefaultWorkingDirectory)/CrossPlatBuildScripts/AutomatedReleases/sqltoolsserviceRelease.ps1'
+    arguments: '-workspace $(Build.SourcesDirectory) -minTag $(Major).$(Minor).0.0 -target $(Build.SourceBranch) -isPrerelease $false -artifactsBuildId $(Build.BuildId)'
+    workingDirectory: '$(Build.SourcesDirectory)'
+  env:
+    GITHUB_DISTRO_MIXIN_PASSWORD: $(github-distro-mixin-password)
+    ADO_CROSSPLATBUILDSCRIPTS_PASSWORD: $(ado-crossplatbuildscripts-password)
