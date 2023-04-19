@@ -441,8 +441,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             UserPrototypeData? originalData)
         {
             this.DataContainer = dataContainer;
+            this.IsDatabaseOperation = true;
             this.configAction = configAction;
-
+            
             ExhaustiveUserTypes currentUserType;
             if (dataContainer.IsNewObject)
             {
@@ -474,8 +475,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         public override void OnRunNow(object sender)
         {
             if (this.configAction != ConfigAction.Drop)
-            {
-                this.userPrototype.ApplyChanges();
+            {              
+                this.userPrototype.ApplyChanges(this.ParentDb);
             }
         }
 
