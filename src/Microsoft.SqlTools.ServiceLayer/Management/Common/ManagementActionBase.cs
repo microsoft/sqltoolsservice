@@ -417,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
 
             // for SQL DB database-level operations the script could be on the database object's execution manager
-            if (sc.Count == 0 && this.isDatabaseOperation 
+            if (sc.Count == 0 && this.isDatabaseOperation && this.parentDb != null
                 && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
             {
                 sc = this.parentDb.ExecutionManager.ConnectionContext.CapturedSql.Text;
@@ -493,7 +493,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 if (this.isDatabaseOperation)
                 {
                     this.parentDb = this.DataContainer.Server.GetSmoObject(this.DataContainer.ParentUrn) as Database;
-                    if (this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                    if (this.parentDb != null && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                     {
                         this.parentDb.ExecutionManager.ConnectionContext.SqlExecutionModes = newMode;
                     }
@@ -512,7 +512,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             finally
             {
                 GetServerConnectionForScript().SqlExecutionModes = executionModeOriginal;
-                if (this.isDatabaseOperation && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                if (this.parentDb != null && this.isDatabaseOperation && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                 {
                     this.parentDb.ExecutionManager.ConnectionContext.SqlExecutionModes = executionModeOriginal;
                 }
@@ -520,7 +520,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 if (isScripting)
                 {
                     GetServerConnectionForScript().CapturedSql.Clear();
-                    if (this.isDatabaseOperation && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                    if (this.parentDb != null && this.isDatabaseOperation && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                     {
                         this.parentDb.ExecutionManager.ConnectionContext.CapturedSql.Clear();
                     }
