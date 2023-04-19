@@ -23,12 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override bool CanHandleType(SqlObjectType objectType)
         {
-            return objectType == SqlObjectType.User;
+            return objectType == SqlObjectType.Credential;
         }
 
         public override Type GetObjectType()
         {
-            return typeof(UserInfo);
+            return typeof(CredentialInfo);
         }
 
         public override Task<InitializeViewResult> InitializeObjectView(Contracts.InitializeViewRequestParams parameters)
