@@ -12,6 +12,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     public class DropRequestParams : GeneralRequestDetails
     {
         /// <summary>
+        /// The object type.
+        /// </summary>
+        public SqlObjectType ObjectType { get; set; }
+        /// <summary>
         /// SFC (SMO) URN identifying the object  
         /// </summary>
         public string ObjectUrn { get; set; }
@@ -25,8 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         public bool ThrowIfNotExist { get; set; } = false;
     }
 
+    public class DropRequestResponse { }
+
     public class DropRequest
     {
-        public static readonly RequestType<DropRequestParams, bool> Type = RequestType<DropRequestParams, bool>.Create("objectManagement/drop");
+        public static readonly RequestType<DropRequestParams, DropRequestResponse> Type = RequestType<DropRequestParams, DropRequestResponse>.Create("objectManagement/drop");
     }
 }

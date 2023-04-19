@@ -12,6 +12,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     public class RenameRequestParams : GeneralRequestDetails
     {
         /// <summary>
+        /// The object type.
+        /// </summary>
+        public SqlObjectType ObjectType { get; set; }
+        /// <summary>
         /// SFC (SMO) URN identifying the object  
         /// </summary>
         public string ObjectUrn { get; set; }
@@ -24,8 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// </summary>
         public string ConnectionUri { get; set; }
     }
+
+    public class RenameRequestResponse { }
+
     public class RenameRequest
     {
-        public static readonly RequestType<RenameRequestParams, bool> Type = RequestType<RenameRequestParams, bool>.Create("objectManagement/rename");
+        public static readonly RequestType<RenameRequestParams, RenameRequestResponse> Type = RequestType<RenameRequestParams, RenameRequestResponse>.Create("objectManagement/rename");
     }
 }
