@@ -1869,10 +1869,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             lock (this.parseMapLock)
             {
-                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                if (this.ScriptParseInfoMap.TryGetValue(uri, out ScriptParseInfo value))
                 {
                     Logger.Verbose($"Found ScriptParseInfo for uri {uri}");
-                    return this.ScriptParseInfoMap[uri];
+                    return value;
                 }
                 else if (createIfNotExists)
                 {

@@ -28,7 +28,7 @@ using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerServic
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {
-    public class ObjectExplorerServiceTests
+    public partial class ObjectExplorerServiceTests
     {
         private ObjectExplorerService _service = TestServiceProvider.Instance.ObjectExplorerService;
 
@@ -124,10 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             var query = "";
             string databaseName = "#testDb#";
-            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
-            {
-                await ExpandAndVerifyDatabaseNode(testDbName, session);
-            });
+            await RunTest(databaseName, query, "TestDb", ExpandAndVerifyDatabaseNode);
         }
 
         [Test]
@@ -376,7 +373,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
             //connectParams.Connection.Pooling = false;
             ConnectionDetails details = connectParams.Connection;
-            string uri = ObjectExplorerService.GenerateUri(details);
+            string uri = GenerateUri(details);
 
             var session = await _service.DoCreateSession(details, uri);
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "OE session created for database: {0}", databaseName));
@@ -387,10 +384,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             Assert.That(session, Is.Not.Null, nameof(session));
             Assert.That(session.Root, Is.Not.Null, nameof(session.Root));
-            NodeInfo nodeInfo = session.Root.ToNodeInfo();
+            var nodeInfo = session.Root.ToNodeInfo();
             Assert.That(nodeInfo.IsLeaf, Is.False, "Should not be a leaf node");
 
-            NodeInfo? databaseNode = null;
+            NodeInfo databaseNode = null;
 
             if (serverNode)
             {
@@ -435,7 +432,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
-            NodeInfo nodeInfo = session.Root.ToNodeInfo();
+            var nodeInfo = session.Root.ToNodeInfo();
             Assert.AreEqual(false, nodeInfo.IsLeaf);
             Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
@@ -457,7 +454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             Console.WriteLine($"Session closed uri:{uri}");
         }
 
-        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session, StringBuilder? stringBuilder = null, bool verifySystemObjects = false)
+        private async Task ExpandTree(NodeInfo node, ObjectExplorerSession session, StringBuilder stringBuilder = null, bool verifySystemObjects = false)
         {
             if (node != null && !node.IsLeaf)
             {
@@ -552,7 +549,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         private async Task<bool> VerifyObjectExplorerTest(string databaseName, string testDbPrefix, string queryFileName, string baselineFileName, bool verifySystemObjects = false)
         {
             var query = string.IsNullOrEmpty(queryFileName) ? string.Empty : LoadScript(queryFileName);
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             await RunTest(databaseName, query, testDbPrefix, async (testDbName, session) =>
             {
                 await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session, false);
@@ -564,7 +561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
                     // Dropped ledger objects have a randomly generated GUID appended to their name when they are deleted
                     // For testing purposes, those guids need to be replaced with a deterministic string
-                    actual = Regex.Replace(actual, "[A-Z0-9]{32}", "<<NonDeterministic>>");
+                    actual = GetBaselineRegex().Replace(actual, "<<NonDeterministic>>");
 
                     // Write output to a bin directory for easier comparison
                     string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
@@ -640,5 +637,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             FileInfo inputFile = GetBaseLineFile(fileName);
             return TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
         }
+
+        [GeneratedRegex("[A-Z0-9]{32}")]
+        private static partial Regex GetBaselineRegex();
     }
 }

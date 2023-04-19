@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,9 +49,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 return Name.GetHashCode();
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                return obj is AzureEdition && ((AzureEdition)obj).Name.Equals(Name);
+                return obj is AzureEdition edition && edition.Name.Equals(Name);
             }
 
             public static bool operator ==(AzureEdition left, AzureEdition right)
@@ -82,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             var azureEdition =
                 AzureServiceObjectiveInfo.Keys.FirstOrDefault(
                     key => key.Name.ToLowerInvariant().Equals(edition.ToLowerInvariant()));
-            if (azureEdition != null)
+            if (azureEdition! != null)
             {
                 return azureEdition;
             }
@@ -358,9 +356,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// <returns>StorageAccountType string value for the current storageType</returns>
         public static string GetStorageAccountTypeFromString(string storageAccountType)
         {
-            if (bsrAPIToUIValueMapping.ContainsKey(storageAccountType))
+            if (bsrAPIToUIValueMapping.TryGetValue(storageAccountType, out string? value))
             {
-                return bsrAPIToUIValueMapping[storageAccountType];
+                return value;
             }
             return storageAccountType;
         }

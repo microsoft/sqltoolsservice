@@ -14,11 +14,11 @@ namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters
     /// <summary>
     /// Provides utilities for converting from SQL script syntax into POCOs.
     /// </summary>
-    public static class FromSqlScript
+    public static partial class FromSqlScript
     {
         // Regex: optionally starts with N, captures string wrapped in single quotes
-        private static readonly Regex StringRegex = new Regex("^N?'(.*)'$", RegexOptions.Compiled);
-        private static readonly Regex BracketRegex = new Regex(@"^\[(.*)\]$", RegexOptions.Compiled);
+        private static readonly Regex StringRegex = GetStringRegex();
+        private static readonly Regex BracketRegex = GetBracketRegex();
 
         /// <summary>
         /// Decodes a multipart identifier as used in a SQL script into an array of the multiple
@@ -33,8 +33,8 @@ namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters
         /// </exception>
         public static string[] DecodeMultipartIdentifier(string multipartIdentifier)
         {
-            StringBuilder sb = new StringBuilder();
-            List<string> namedParts = new List<string>();
+            var sb = new StringBuilder();
+            var namedParts = new List<string>();
             bool insideBrackets = false;
             bool bracketsClosed = false;
             for (int i = 0; i < multipartIdentifier.Length; i++)
@@ -151,6 +151,11 @@ namespace Microsoft.Kusto.ServiceLayer.Utility.SqlScriptFormatters
             // Replace 2x of the escape character with 1x of the escape character
             return value.Replace(new string(escapeCharacter, 2), escapeCharacter.ToString());
         }
+
+        [GeneratedRegex("^N?'(.*)'$", RegexOptions.Compiled)]
+        private static partial Regex GetStringRegex();
+        [GeneratedRegex("^\\[(.*)\\]$", RegexOptions.Compiled)]
+        private static partial Regex GetBracketRegex();
 
         #endregion
     }

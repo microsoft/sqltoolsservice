@@ -368,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
                     Uri = scriptFile.ClientUri,
-                    Language = LanguageService.SQL_LANG.ToLower(),
+                    Language = LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                     Flavor = "MSSQL"
                 }, eventContextSql.Object);
                 await langService.DelayedDiagnosticsTask; // to ensure completion and validation before moveing to next step
@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
                     Uri = scriptFile.ClientUri,
-                    Language = LanguageService.SQL_CMD_LANG.ToLower(),
+                    Language = LanguageService.SQL_CMD_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                     Flavor = "MSSQL"
                 }, eventContextSqlCmd.Object);
                 await langService.DelayedDiagnosticsTask;

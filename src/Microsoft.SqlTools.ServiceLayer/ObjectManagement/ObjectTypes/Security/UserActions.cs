@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             UserPrototypeData? originalData)
         {
             this.DataContainer = dataContainer;
+            this.IsDatabaseOperation = true;
             this.configAction = configAction;
 
             ExhaustiveUserTypes currentUserType;
@@ -60,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (this.configAction != ConfigAction.Drop)
             {
-                this.userPrototype.ApplyChanges();
+                this.userPrototype.ApplyChanges(this.ParentDb);
             }
         }
 

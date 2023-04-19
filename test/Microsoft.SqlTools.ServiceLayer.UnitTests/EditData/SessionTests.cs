@@ -26,7 +26,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
-    public class SessionTests
+    public partial class SessionTests
     {
         #region Construction Tests
 
@@ -42,8 +42,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         public void SessionConstructionValid()
         {
             // If: I create a session object with a proper arguments
-            Mock<IEditMetadataFactory> mockFactory = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(mockFactory.Object);
+            var mockFactory = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(mockFactory.Object);
 
             // Then:
             // ... The edit cache should not exist
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             ConnectionService.Instance.OwnerToConnectionMap[ci.OwnerUri] = ci;
 
             var fsf = MemoryFileSystem.GetFileStreamFactory();
-            Query query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), fsf);
+            var query = new Query(Constants.StandardQuery, ci, new QueryExecutionSettings(), fsf);
             query.Execute();
             query.ExecutionTask.Wait();
 
@@ -116,8 +116,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to create a row without initializing
             // Then: I should get an exception
@@ -292,8 +292,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session and fake that it has been initialized
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object) {IsInitialized = true};
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object) {IsInitialized = true};
 
             // If: I initialize it
             // Then: I should get an exception
@@ -305,8 +305,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session and fake that it is in progress of initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object) {InitializeTask = new Task(() => {})};
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object) {InitializeTask = new Task(() => {})};
 
             // If: I initialize it
             // Then: I should get an exception
@@ -320,8 +320,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session that hasn't been initialized
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             Assert.Catch<ArgumentException>(() => s.Initialize(initParams, c, qr, sh, fh), "I initialize it with a missing parameter. It should throw an exception");
         }
@@ -381,12 +381,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a metadata factory that throws
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            var emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Throws<Exception>();
 
             // ... Create a session that hasn't been initialized
-            EditSession s = new EditSession(emf.Object);
+            var s = new EditSession(emf.Object);
 
             // ... Create a mock for verifying the failure handler will be called
             var successHandler = DoNothingSuccessMock;
@@ -414,15 +414,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a metadata factory that will return some generic column information
             var b = QueryExecution.Common.GetBasicExecutedBatch();
             var etm = Common.GetCustomEditTableMetadata(b.ResultSets[0].Columns.Cast<DbColumn>().ToArray());
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            var emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
-            EditSession s = new EditSession(emf.Object);
+            var s = new EditSession(emf.Object);
 
             // ... Create a query runner that will fail via exception
-            Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
+            var qr = new Mock<EditSession.QueryRunner>();
             qr.Setup(r => r(It.IsAny<string>())).Throws(new Exception("qqq"));
 
             // ... Create a mock for verifying the failure handler will be called
@@ -451,15 +451,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a metadata factory that will return some generic column information
             var b = QueryExecution.Common.GetBasicExecutedBatch();
             var etm = Common.GetCustomEditTableMetadata(b.ResultSets[0].Columns.Cast<DbColumn>().ToArray());
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            var emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
-            EditSession s = new EditSession(emf.Object);
+            var s = new EditSession(emf.Object);
 
             // ... Create a query runner that will fail via returning a null query
-            Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
+            var qr = new Mock<EditSession.QueryRunner>();
             qr.Setup(r => r(It.IsAny<string>()))
                 .Returns(Task.FromResult(new EditSession.EditSessionQueryExecutionState(null, message)));
 
@@ -490,15 +490,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var q = QueryExecution.Common.GetBasicExecutedQuery();
             var rs = q.Batches[0].ResultSets[0];
             var etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
+            var emf = new Mock<IEditMetadataFactory>();
             emf.Setup(f => f.GetObjectMetadata(It.IsAny<DbConnection>(), It.IsAny<string[]>(), It.IsAny<string>()))
                 .Returns(etm);
 
             // ... Create a session that hasn't been initialized
-            EditSession s = new EditSession(emf.Object);
+            var s = new EditSession(emf.Object);
 
             // ... Create a query runner that will return a successful query
-            Mock<EditSession.QueryRunner> qr = new Mock<EditSession.QueryRunner>();
+            var qr = new Mock<EditSession.QueryRunner>();
             qr.Setup(r => r(It.IsAny<string>()))
                 .Returns(Task.FromResult(new EditSession.EditSessionQueryExecutionState(q)));
 
@@ -533,8 +533,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to delete a row without initializing
             // Then: I should get an exception
@@ -583,8 +583,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to revert a row without initializing
             // Then: I should get an exception
@@ -683,8 +683,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to revert a cell without initializing
             // Then: I should get an exception
@@ -724,8 +724,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to update a cell without initializing
             // Then: I should get an exception
@@ -807,8 +807,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to update a cell without initializing
             // Then: I should get an exception
@@ -974,8 +974,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to script edits without initializing
             // Then: I should get an exception
@@ -1001,12 +1001,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditSession s = await GetBasicSession();
 
             // ... Add two mock edits that will generate a script
-            Mock<RowEditBase> edit = new Mock<RowEditBase>();
+            var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.GetScript()).Returns("test");
             s.EditCache[0] = edit.Object;
             s.EditCache[1] = edit.Object;
 
-            using (SelfCleaningTempFile file = new SelfCleaningTempFile())
+            using (var file = new SelfCleaningTempFile())
             {
                 // If: I script the edit cache to a local output path
                 string outputPath = s.ScriptEdits(file.FilePath);
@@ -1029,8 +1029,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup:
             // ... Create a session without initializing
-            Mock<IEditMetadataFactory> emf = new Mock<IEditMetadataFactory>();
-            EditSession s = new EditSession(emf.Object);
+            var emf = new Mock<IEditMetadataFactory>();
+            var s = new EditSession(emf.Object);
 
             // If: I ask to script edits without initializing
             // Then: I should get an exception
@@ -1088,7 +1088,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             DbConnection conn = new TestSqlConnection(null);
 
             // ... Mock a task that has not completed
-            Task notCompleted = new Task(() => {});
+            var notCompleted = new Task(() => {});
             s.CommitTask = notCompleted;
 
             // If: I attempt to commit while a task is in progress
@@ -1106,7 +1106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             DbConnection conn = new TestSqlConnection(null);
 
             // ... Add a mock commands for fun
-            Mock<RowEditBase> edit = new Mock<RowEditBase>();
+            var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.GetCommand(It.IsAny<DbConnection>())).Returns<DbConnection>(dbc => dbc.CreateCommand());
             edit.Setup(e => e.ApplyChanges(It.IsAny<DbDataReader>())).Returns(Task.FromResult(0));
             s.EditCache[0] = edit.Object;
@@ -1150,7 +1150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             DbConnection conn = new TestSqlConnection(null);
 
             // ... Add a mock edit that will explode on generating a command
-            Mock<RowEditBase> edit = new Mock<RowEditBase>();
+            var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.GetCommand(It.IsAny<DbConnection>())).Throws<Exception>();
             s.EditCache[0] = edit.Object;
 
@@ -1194,7 +1194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
 
             // If: I generate a query for selecting rows without a limit
-            EditInitializeFiltering eif = new EditInitializeFiltering
+            var eif = new EditInitializeFiltering
             {
                 LimitResults = null
             };
@@ -1202,7 +1202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... The query should look like a select statement
-            Regex selectRegex = new Regex("SELECT (.+) FROM (.+)", RegexOptions.IgnoreCase);
+            Regex selectRegex = GetSelectRegex();
             var match = selectRegex.Match(query);
             Assert.True(match.Success);
 
@@ -1223,7 +1223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I generate a query for selecting rows with a negative limit
             // Then: An exception should be thrown
-            EditInitializeFiltering eif = new EditInitializeFiltering
+            var eif = new EditInitializeFiltering
             {
                 LimitResults = -1
             };
@@ -1237,7 +1237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
 
             // If: I generate a query for selecting rows without a limit
-            EditInitializeFiltering eif = new EditInitializeFiltering
+            var eif = new EditInitializeFiltering
             {
                 LimitResults = limit
             };
@@ -1245,7 +1245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // Then:
             // ... The query should look like a select statement
-            Regex selectRegex = new Regex(@"SELECT TOP (\d+) (.+) FROM (.+)", RegexOptions.IgnoreCase);
+            var selectRegex = GetSelectTopRegex();
             var match = selectRegex.Match(query);
             Assert.True(match.Success);
 
@@ -1286,7 +1286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         private static Mock<Func<Task>> DoNothingSuccessMock
         {
             get {
-                Mock<Func<Task>> successHandler = new Mock<Func<Task>>();
+                var successHandler = new Mock<Func<Task>>();
                 successHandler.Setup(f => f()).Returns(Task.FromResult(0));
                 return successHandler;
             }
@@ -1296,7 +1296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             get
             {
-                Mock<Func<Exception, Task>> failureHandler = new Mock<Func<Exception, Task>>();
+                var failureHandler = new Mock<Func<Exception, Task>>();
                 failureHandler.Setup(f => f(It.IsAny<Exception>())).Returns(Task.FromResult(0));
                 return failureHandler;
             }
@@ -1309,5 +1309,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditTableMetadata etm = Common.GetCustomEditTableMetadata(rs.Columns.Cast<DbColumn>().ToArray());
             return await Common.GetCustomSession(q, etm);
         }
+
+        [GeneratedRegex("SELECT (.+) FROM (.+)", RegexOptions.IgnoreCase)]
+        private static partial Regex GetSelectRegex();
+
+        [GeneratedRegex("SELECT TOP (\\d+) (.+) FROM (.+)", RegexOptions.IgnoreCase)]
+        private static partial Regex GetSelectTopRegex();
     }
 }

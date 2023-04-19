@@ -1420,7 +1420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 // Secure Enclaves is not mapped to SqlConnection, it's only used for throwing validation errors
                 // when Enclave Attestation Protocol is missing.
-                switch (connectionDetails.SecureEnclaves.ToUpper())
+                switch (connectionDetails.SecureEnclaves.ToUpper(CultureInfo.InvariantCulture))
                 {
                     case "ENABLED":
                         if (string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
@@ -1437,7 +1437,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
             {
                 if (connectionBuilder.ColumnEncryptionSetting != SqlConnectionColumnEncryptionSetting.Enabled
-                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper() == "DISABLED")
+                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper(CultureInfo.InvariantCulture) == "DISABLED")
                 {
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }
@@ -1454,7 +1454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationUrl))
             {
                 if (connectionBuilder.ColumnEncryptionSetting != SqlConnectionColumnEncryptionSetting.Enabled
-                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper() == "DISABLED")
+                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper(CultureInfo.InvariantCulture) == "DISABLED")
                 {
                     throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
                 }

@@ -251,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return resultSet;
         }
 
-        private class RowEditTester : RowEditBase
+        private sealed class RowEditTester : RowEditBase
         {
             public RowEditTester(ResultSet rs, EditTableMetadata meta) : base(0, rs, meta) { }
 

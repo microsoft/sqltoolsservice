@@ -408,7 +408,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <summary>
         /// Internal implementation class to implement IBatchEventHandlers
         /// </summary>
-        internal class BatchEventNotificationHandler : IBatchEventsHandler
+        internal sealed class BatchEventNotificationHandler : IBatchEventsHandler
         {
             public void OnBatchError(object sender, BatchErrorEventArgs args)
             {
@@ -477,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         }
         #endregion
 
-        private class BatchInfo
+        private sealed class BatchInfo
         {
             public BatchInfo(int startLine, int startColumn, string batchText, SqlCmdCommand sqlCmdCommand, int repeatCount = 1)
             {

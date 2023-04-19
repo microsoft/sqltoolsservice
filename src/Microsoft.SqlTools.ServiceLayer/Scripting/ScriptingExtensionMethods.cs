@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
             StringBuilder urnBuilder = new StringBuilder();
-            urnBuilder.AppendFormat("Server[@Name='{0}']/", server.ToUpper());
+            urnBuilder.AppendFormat("Server[@Name='{0}']/", server.ToUpper(System.Globalization.CultureInfo.InvariantCulture));
             urnBuilder.AppendFormat("Database[@Name='{0}']/", Urn.EscapeString(database));
 
             bool hasParentObject = !string.IsNullOrWhiteSpace(scriptingObject.ParentName) 

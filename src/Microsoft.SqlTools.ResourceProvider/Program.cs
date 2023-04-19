@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ResourceProvider
     /// <summary>
     /// Main application class for the executable that supports the resource provider and identity services
     /// </summary>
-    internal class Program
+    internal sealed class Program
     {
         private const string ServiceName = "SqlToolsResourceProviderService.exe";
 

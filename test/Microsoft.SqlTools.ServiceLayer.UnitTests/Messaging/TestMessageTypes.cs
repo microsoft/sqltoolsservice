@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 {
     #region Request Types
 
-    internal class TestRequest 
+    internal sealed class TestRequest 
     {
         public Task ProcessMessage(MessageWriter messageWriter)
         {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
         }
     }
 
-    internal class TestRequestArguments
+    internal sealed class TestRequestArguments
     {
         public string SomeString { get; set; }
     }
@@ -29,11 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 
     #region Response Types
 
-    internal class TestResponse
+    internal sealed class TestResponse
     {
     }
 
-    internal class TestResponseBody
+    internal sealed class TestResponseBody
     {
         public string SomeString { get; set; }
     }
@@ -42,11 +42,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 
     #region Event Types
 
-    internal class TestEvent
+    internal sealed class TestEvent
     {
     }
 
-    internal class TestEventBody
+    internal sealed class TestEventBody
     {
         public string SomeString { get; set; }
     }

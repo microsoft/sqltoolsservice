@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// <summary>
         /// Test DbColumn derived class
         /// </summary>
-        private class TestColumn : DbColumn
+        private sealed class TestColumn : DbColumn
         {
             public TestColumn(
                 string dataTypeName = null, 

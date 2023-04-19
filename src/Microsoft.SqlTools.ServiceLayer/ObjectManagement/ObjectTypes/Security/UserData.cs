@@ -549,9 +549,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public User ApplyChanges()
+        public User ApplyChanges(Database parentDb)
         {
-            User user = this.GetUser();
+            User user = this.GetUser(parentDb);
 
             if (this.ChangesExist())
             {
@@ -563,10 +563,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 //it will again generate the script corresponding to that.
                 user.Refresh();
 
-                this.ApplySchemaOwnershipChanges(user);
+                this.ApplySchemaOwnershipChanges(parentDb, user);
                 this.IsSchemaOwnershipChangesApplied = true;
 
-                this.ApplyRoleMembershipChanges(user);
+                this.ApplyRoleMembershipChanges(parentDb, user);
                 this.IsRoleMembershipChangesApplied = true;
             }
 
@@ -585,7 +585,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        private void ApplySchemaOwnershipChanges(User user)
+        private void ApplySchemaOwnershipChanges(Database parentDb, User user)
         {
             IEnumerator<KeyValuePair<string, bool>>? enumerator = this.currentState.isSchemaOwned?.GetEnumerator();
             if (enumerator != null)
@@ -603,7 +603,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         System.Diagnostics.Debug.Assert(!this.Exists || userIsOwner, "shouldn't have to unset ownership for new users");
 
-                        Schema schema = this.parent.Schemas[schemaName];
+                        Schema schema = parentDb.Schemas[schemaName];
                         schema.Owner = userIsOwner ? user.Name : nullString;
                         schema.Alter();
                     }
@@ -611,7 +611,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        private void ApplyRoleMembershipChanges(User user)
+        private void ApplyRoleMembershipChanges(Database parentDb, User user)
         {
             IEnumerator<KeyValuePair<string, bool>>? enumerator = this.currentState.isMember?.GetEnumerator();
             if (enumerator != null)
@@ -627,7 +627,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         System.Diagnostics.Debug.Assert(this.Exists || userIsMember, "shouldn't have to unset membership for new users");
 
-                        DatabaseRole role = this.parent.Roles[roleName];
+                        DatabaseRole role = parentDb.Roles[roleName];
 
                         if (userIsMember)
                         {
@@ -662,14 +662,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public User GetUser()
+        public User GetUser(Database parentDb)
         {
             User result;
 
             // if we think we exist, get the SMO user object
             if (this.Exists)
             {
-                result = this.parent.Users[this.originalState.name];
+                result = parentDb.Users[this.originalState.name];
                 result?.Refresh();
 
                 System.Diagnostics.Debug.Assert(0 == string.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing user has changed");
@@ -680,7 +680,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             else
             {
-                result = new User(this.parent, this.Name);
+                result = new User(parentDb, this.Name);
             }
 
             return result;
@@ -823,8 +823,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                //Default Schema was not supported before Denali for windows group.
-                User user = this.GetUser();
+                Database? parentDb = this.context.Server.GetSmoObject(this.context.ParentUrn) as Database;
+                User user = this.GetUser(parentDb);
+
+                // Default Schema was not supported before Denali for windows group.
                 if (this.Exists && user.LoginType == Microsoft.SqlServer.Management.Smo.LoginType.WindowsGroup)
                 {
                     return SqlMgmtUtils.IsSql11OrLater(this.context.Server.ConnectionContext.ServerVersion);

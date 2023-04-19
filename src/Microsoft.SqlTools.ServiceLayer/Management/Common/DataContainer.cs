@@ -1191,7 +1191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <urn>Server[@Name='{0}']</urn>
                 <itemtype>Database</itemtype>                
                 </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(),
+                connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
                 connInfo.ConnectionDetails.UserName);
             }
             else
@@ -1205,7 +1205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 <urn>Server[@Name='{0}']</urn>
                 <database>{2}</database>                
                 </params></formdescription> ",
-                connInfo.ConnectionDetails.ServerName.ToUpper(),
+                connInfo.ConnectionDetails.ServerName.ToUpper(CultureInfo.InvariantCulture),
                 connInfo.ConnectionDetails.UserName,
                 connInfo.ConnectionDetails.DatabaseName);
             }

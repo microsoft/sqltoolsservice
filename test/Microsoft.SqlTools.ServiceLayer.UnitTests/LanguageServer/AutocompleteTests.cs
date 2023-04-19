@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
             {
                 Uri = textDocument.TextDocument.Uri,
-                Language = LanguageService.SQL_LANG.ToLower(),
+                Language = LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                 Flavor = "NotMSSQL"
             }, null);
             await langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object);

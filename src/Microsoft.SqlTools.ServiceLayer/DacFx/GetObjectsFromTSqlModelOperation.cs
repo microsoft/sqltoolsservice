@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// </summary>
         public static ModelTypeClass MapType(string type)
         {
-            switch (type.ToLower())
+            switch (type.ToLower(System.Globalization.CultureInfo.InvariantCulture))
             {
                 case "table":
                     return ModelSchema.Table;

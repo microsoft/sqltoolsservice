@@ -15,7 +15,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
 {
-    public class ToSqlScriptTests
+    public partial class ToSqlScriptTests
     {
         #region FormatValue Tests
 
@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the integer type column
             DbColumn column = new FormatterTestDbColumn(dataType);
-            DbCellValue cell = new DbCellValue { RawObject = (long)123 };
+            var cell = new DbCellValue { RawObject = (long)123 };
 
             // If: I attempt to format an integer type column
             string output = ToSqlScript.FormatValue(cell, column);
@@ -82,13 +82,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the decimal type column
             DbColumn column = new FormatterTestDbColumn(dataType, precision, scale);
-            DbCellValue cell = new DbCellValue { RawObject = 123.45m };
+            var cell = new DbCellValue { RawObject = 123.45m };
 
             // If: I attempt to format a decimal type column
             string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: It should match a something like CAST(123.45 AS MONEY)
-            Regex castRegex = new Regex($@"CAST\([\d\.]+ AS {regex}", RegexOptions.IgnoreCase);
+            var castRegex = new Regex($@"CAST\([\d\.]+ AS {regex}", RegexOptions.IgnoreCase);
             Assert.True(castRegex.IsMatch(output));
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the approx numeric type column
             DbColumn column = new FormatterTestDbColumn("FLOAT");
-            DbCellValue cell = new DbCellValue { RawObject = 3.14159d };
+            var cell = new DbCellValue { RawObject = 3.14159d };
 
             // If: I attempt to format a approx numeric type column
             string output = ToSqlScript.FormatValue(cell, column);
@@ -111,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the approx numeric type column
             DbColumn column = new FormatterTestDbColumn("REAL");
-            DbCellValue cell = new DbCellValue { RawObject = (float)3.14159 };
+            var cell = new DbCellValue { RawObject = (float)3.14159 };
 
             // If: I attempt to format a approx numeric type column
             string output = ToSqlScript.FormatValue(cell, column);
@@ -129,15 +129,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the datetime type column
             DbColumn column = new FormatterTestDbColumn(dataType);
-            DbCellValue cell = new DbCellValue { RawObject = DateTime.Now };
+            var cell = new DbCellValue { RawObject = DateTime.Now };
 
             // If: I attempt to format a datetime type column
             string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a datetime
-            Regex dateTimeRegex = new Regex("N'(.*)'");
             DateTime outputDateTime;
-            Assert.True(DateTime.TryParse(dateTimeRegex.Match(output).Groups[1].Value, out outputDateTime));
+            Assert.True(DateTime.TryParse(GetDateTimeRegex().Match(output).Groups[1].Value, out outputDateTime));
         }
 
         [Test]
@@ -145,15 +144,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the datetime offset type column
             DbColumn column = new FormatterTestDbColumn("DATETIMEOFFSET");
-            DbCellValue cell = new DbCellValue { RawObject = DateTimeOffset.Now };
+            var cell = new DbCellValue { RawObject = DateTimeOffset.Now };
 
             // If: I attempt to format a datetime offset type column
             string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a datetime offset
-            Regex dateTimeRegex = new Regex("N'(.*)'");
             DateTimeOffset outputDateTime;
-            Assert.True(DateTimeOffset.TryParse(dateTimeRegex.Match(output).Groups[1].Value, out outputDateTime));
+            Assert.True(DateTimeOffset.TryParse(GetDateTimeRegex().Match(output).Groups[1].Value, out outputDateTime));
         }
 
         [Test]
@@ -161,15 +159,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the time type column
             DbColumn column = new FormatterTestDbColumn("TIME");
-            DbCellValue cell = new DbCellValue { RawObject = TimeSpan.FromHours(12) };
+            var cell = new DbCellValue { RawObject = TimeSpan.FromHours(12) };
 
             // If: I attempt to format a time type column
             string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should be able to be converted back into a timespan
-            Regex dateTimeRegex = new Regex("N'(.*)'");
             TimeSpan outputDateTime;
-            Assert.True(TimeSpan.TryParse(dateTimeRegex.Match(output).Groups[1].Value, out outputDateTime));
+            Assert.True(TimeSpan.TryParse(GetDateTimeRegex().Match(output).Groups[1].Value, out outputDateTime));
         }
 
         private static readonly object[] stringFormats = 
@@ -186,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
             // Setup: Build a column and cell for the string type column
             // NOTE: We're using VARCHAR because it's very general purpose.
             DbColumn column = new FormatterTestDbColumn("VARCHAR");
-            DbCellValue cell = new DbCellValue { RawObject = input };
+            var cell = new DbCellValue { RawObject = input };
 
             // If: I attempt to format a string type column
             string output = ToSqlScript.FormatValue(cell, column);
@@ -208,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the string type column
             DbColumn column = new FormatterTestDbColumn(datatype);
-            DbCellValue cell = new DbCellValue { RawObject = "test string" };
+            var cell = new DbCellValue { RawObject = "test string" };
 
             // If: I attempt to format a string type column
             string output = ToSqlScript.FormatValue(cell, column);
@@ -222,17 +219,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the string type column
             DbColumn column = new FormatterTestDbColumn(datatype);
-            DbCellValue cell = new DbCellValue
+            var cell = new DbCellValue
             {
-                RawObject = new byte[] { 0x42, 0x45, 0x4e, 0x49, 0x53, 0x43, 0x4f, 0x4f, 0x4c }
+                RawObject = "BENISCOOL"u8.ToArray()
             };
 
             // If: I attempt to format a string type column
             string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should match the output string
-            Regex regex = new Regex("0x[0-9A-F]+", RegexOptions.IgnoreCase);
-            Assert.True(regex.IsMatch(output));
+            Assert.True(GetOuputRegex().IsMatch(output));
         }
 
         [Test]
@@ -240,13 +236,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
         {
             // Setup: Build a column and cell for the string type column
             DbColumn column = new FormatterTestDbColumn("UNIQUEIDENTIFIER");
-            DbCellValue cell = new DbCellValue { RawObject = Guid.NewGuid() };
+            var cell = new DbCellValue { RawObject = Guid.NewGuid() };
 
             // If: I attempt to format a string type column
             string output = ToSqlScript.FormatValue(cell, column);
 
             // Then: The output string should match the output string
-            Regex regex = new Regex(@"N'[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}'", RegexOptions.IgnoreCase);
+            var regex = GetGuidRegex();
             Assert.True(regex.IsMatch(output));
         }
 
@@ -391,7 +387,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
 
         #endregion
         
-        private class FormatterTestDbColumn : DbColumn
+        private sealed class FormatterTestDbColumn : DbColumn
         {
             public FormatterTestDbColumn(string dataType, int? precision = null, int? scale = null, int? size = null)
             {
@@ -401,5 +397,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.UtilityTests
                 ColumnSize = size;
             }
         }
+
+        [GeneratedRegex("0x[0-9A-F]+", RegexOptions.IgnoreCase, "en-CA")]
+        private static partial Regex GetOuputRegex();
+
+        [GeneratedRegex("N'[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}'", RegexOptions.IgnoreCase, "en-CA")]
+        private static partial Regex GetGuidRegex();
+
+        [GeneratedRegex("N'(.*)'")]
+        private static partial Regex GetDateTimeRegex();
     }
 }
