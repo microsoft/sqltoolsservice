@@ -17,7 +17,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
-    public class SaveAsCsvFileStreamWriterTests
+    public partial class SaveAsCsvFileStreamWriterTests
     {
         [Test]
         public void Constructor_NullStream()
@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, "^\".*\"$", RegexOptions.Singleline));
+            Assert.True(GetCsvRegexSingleLine().IsMatch(output));
         }
 
         [TestCase("Something\rElse")] // Contains carriage return [TODO: Don't support this]
@@ -165,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, @"^\[.*\[$", RegexOptions.Singleline));
+            Assert.True(GetCsvBracketRegex().IsMatch(output));
         }
 
         [TestCase("\tSomething")] // Starts with tab
@@ -186,7 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should wrap it in quotes
-            Assert.True(Regex.IsMatch(output, "^\".*\"$", RegexOptions.Singleline));
+            Assert.True(GetCsvRegexSingleLine().IsMatch(output));
         }
 
         [TestCase("Something")]
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             string output = writer.EncodeCsvField(field);
 
             // Then: It should not wrap it in quotes
-            Assert.False(Regex.IsMatch(output, "^\".*\"$"));
+            Assert.False(GetCsvRegex().IsMatch(output));
         }
 
         [TestCase(null, "Some\"thing", "\"Some\"\"thing\"")] // Default identifier
@@ -277,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             byte[] output = new byte[8192];
 
             // If: I write a row
-            SaveAsCsvFileStreamWriter writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns);
+            var writer = new SaveAsCsvFileStreamWriter(new MemoryStream(output), requestParams, columns);
             using (writer)
             {
                 writer.WriteRow(data, columns);
@@ -425,5 +425,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.IsEmpty(lines[lines.Length - 1]);
             return lines.Take(lines.Length - 1).ToArray();
         }
+
+        [GeneratedRegex("^\\[.*\\[$", RegexOptions.Singleline)]
+        private static partial Regex GetCsvBracketRegex();
+
+        [GeneratedRegex("^\".*\"$")]
+        private static partial Regex GetCsvRegex();
+
+        [GeneratedRegex("^\".*\"$", RegexOptions.Singleline)]
+        private static partial Regex GetCsvRegexSingleLine();
     }
 }

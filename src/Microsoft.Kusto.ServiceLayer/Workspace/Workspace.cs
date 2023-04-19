@@ -21,7 +21,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
     /// Manages a "workspace" of script files that are open for a particular
     /// editing session.  Also helps to navigate references between ScriptFiles.
     /// </summary>
-    public class Workspace : IDisposable
+    public partial class Workspace : IDisposable
     {
         #region Private Fields
 
@@ -115,8 +115,8 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
                 }
                 // This method allows FileNotFoundException to bubble up 
                 // if the file isn't found.
-                using (FileStream fileStream = new FileStream(resolvedFile.FilePath, FileMode.Open, FileAccess.Read))
-                using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
+                using (var fileStream = new FileStream(resolvedFile.FilePath, FileMode.Open, FileAccess.Read))
+                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
                     scriptFile = new ScriptFile(resolvedFile.FilePath, resolvedFile.ClientUri,streamReader);
 
@@ -148,7 +148,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
 
                     // Client sent the path in URI format, extract the local path and trim
                     // any extraneous slashes
-                    Uri fileUri = new Uri(clientUri);
+                    var fileUri = new Uri(clientUri);
                     filePath = fileUri.LocalPath;
                     if (filePath.StartsWith("//") || filePath.StartsWith("\\\\") || filePath.StartsWith("/")) 
                     {
@@ -206,7 +206,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
                 return path;
             }
 
-            return Regex.Replace(path, @"`(?=[ \[\]])", "");
+            return GetEscapeRegex().Replace(path, "");
         }
 
          /// <summary>
@@ -360,6 +360,9 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
         public void Dispose()
         {
         }
+
+        [GeneratedRegex("`(?=[ \\[\\]])")]
+        private static partial Regex GetEscapeRegex();
 
         #endregion
     }

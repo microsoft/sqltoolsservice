@@ -21,18 +21,18 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
-    public class RowCreateTests
+    public partial class RowCreateTests
     {
         [Test]
         public async Task RowCreateConstruction()
         {
             // Setup: Create the values to store
             const long rowId = 100;
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I create a RowCreate instance
-            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
+            var rc = new RowCreate(rowId, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
             Assert.AreEqual(rowId, rc.RowId);
@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Generate the parameters for the row create
             var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
             var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
-            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
 
             // If: I ask for a script to be generated without setting any values
             // Then: An exception should be thrown for missing cells
@@ -116,11 +116,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, colsWithDefaultConstraints, colsThatAllowNull);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, colsWithDefaultConstraints, colsThatAllowNull);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
             
             // ... Create a row create and set the appropriate number of cells 
-            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
             Common.AddCells(rc, valuesToSkipSetting);
             
             // If: I ask for the script for the row insert
@@ -139,8 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             if (expectedOutput == null)
             {
                 // If expected output was null make sure we match the default values reges
-                Regex r = new Regex(@"INSERT INTO (.+) DEFAULT VALUES");
-                Match m = r.Match(sql);
+                Match m = GetInsert1Regex().Match(sql);
                 Assert.True(m.Success);
                 
                 // Table name matches
@@ -149,8 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             else
             {
                 // Do the whole validation
-                Regex r = new Regex(@"INSERT INTO (.+)\((.+)\) VALUES \((.+)\)");
-                Match m = r.Match(sql);
+                Match m = GetInsert2Regex().Match(sql);
                 Assert.True(m.Success);
                 
                 // Table name matches
@@ -174,14 +172,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: 
             // ... Generate the parameters for the row create
             const long rowId = 100;
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, 0, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
 
             // ... Setup a db reader for the result of an insert
             var newRowReader = Common.GetNewRowDataReader(data.DbColumns, includeIdentity);
 
             // If: I ask for the change to be applied
-            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
+            var rc = new RowCreate(rowId, rs, data.TableMetadata);
             await rc.ApplyChanges(newRowReader);
 
             // Then: The result set should have an additional row in it
@@ -226,9 +224,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate the row create object
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
-            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
             
             // ... Create a mock db connection for building the command
             var mockConn = new TestSqlConnection();
@@ -280,14 +278,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, defaultCols, nullableCols);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
             
             // ... Mock db connection for building the command
             var mockConn = new TestSqlConnection(null);
             
             // ... Create a row create and set the appropriate number of cells 
-            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
             Common.AddCells(rc, valuesToSkip);
             
             // If: I ask for the command for the row insert
@@ -311,8 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.AreEqual(3, splitSql.Length);
             
             // Check the declare statement first
-            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
-            Match declareMatch = declareRegex.Match(splitSql[0]);
+            Match declareMatch = GetDeclareRegex().Match(splitSql[0]);
             Assert.True(declareMatch.Success);
             
             // Declared table name matches
@@ -327,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             if (expectedOutput.ExpectedInColumns == 0 || expectedOutput.ExpectedInValues == 0)
             {
                 // If expected output was null make sure we match the default values reges
-                Regex insertRegex = new Regex(@"^INSERT INTO (.+) OUTPUT (.+) INTO @(.+) DEFAULT VALUES$");
+                var insertRegex = GetInsertRegex();
                 Match insertMatch = insertRegex.Match(splitSql[1]);
                 Assert.True(insertMatch.Success);
                 
@@ -347,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             else
             {
                 // Do the whole validation
-                Regex insertRegex = new Regex(@"^INSERT INTO (.+)\((.+)\) OUTPUT (.+) INTO @(.+) VALUES \((.+)\)$");
+                var insertRegex = GetInsertFullRegex();
                 Match insertMatch = insertRegex.Match(splitSql[1]);
                 Assert.True(insertMatch.Success);
                 
@@ -380,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
             
             // Check the select statement last
-            Regex selectRegex = new Regex(@"^SELECT (.+) FROM @(.+)$");
+            var selectRegex = GetSelectRegex();
             Match selectMatch = selectRegex.Match(splitSql[2]);
             Assert.True(selectMatch.Success);
             
@@ -425,9 +422,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate a row create with default values
             const long rowId = 100;
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, 3, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, 3, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
-            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
+            var rc = new RowCreate(rowId, rs, data.TableMetadata);
             
             // If: I request an edit row from the row create
             EditRow er = rc.GetEditRow(null);
@@ -451,9 +448,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: Generate a row create with an identity column
             const long rowId = 100;
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
-            RowCreate rc = new RowCreate(rowId, rs, data.TableMetadata);
+            var rc = new RowCreate(rowId, rs, data.TableMetadata);
             
             // If: I request an edit row from the row created
             EditRow er = rc.GetEditRow(null);
@@ -573,7 +570,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var etm = Common.GetCustomEditTableMetadata(cols);
 
             // ... Create the row create
-            RowCreate rc = new RowCreate(100, rs, etm);
+            var rc = new RowCreate(100, rs, etm);
 
             // If: I set a cell in the newly created row to something that will be corrected
             EditUpdateCellResult eucr = rc.SetCell(0, "1000");
@@ -644,9 +641,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, defaultCols, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, defaultCols, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
-            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
 
             // If: I attempt to revert a cell that has not been set
             EditRevertCellResult result = rc.RevertCell(0);
@@ -673,9 +670,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         {
             // Setup: 
             // ... Generate the parameters for the row create
-            Common.TestDbColumnsWithTableMetadata data = new Common.TestDbColumnsWithTableMetadata(false, false, defaultCols, 0);
+            var data = new Common.TestDbColumnsWithTableMetadata(false, false, defaultCols, 0);
             ResultSet rs = await Common.GetResultSet(data.DbColumns, false);
-            RowCreate rc = new RowCreate(100, rs, data.TableMetadata);
+            var rc = new RowCreate(100, rs, data.TableMetadata);
             rc.SetCell(0, "1");
 
             // If: I attempt to revert a cell that was set
@@ -720,5 +717,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             public int ExpectedInValues { get; }
             public int ExpectedOutColumns { get; }
         }
+
+        #region Generated Regex
+        [GeneratedRegex("INSERT INTO (.+) DEFAULT VALUES")]
+        private static partial Regex GetInsert1Regex();
+
+        [GeneratedRegex("INSERT INTO (.+)\\((.+)\\) VALUES \\((.+)\\)")]
+        private static partial Regex GetInsert2Regex();
+
+        [GeneratedRegex("^DECLARE @(.+) TABLE \\((.+)\\)$")]
+        private static partial Regex GetDeclareRegex();
+
+        [GeneratedRegex("^INSERT INTO (.+) OUTPUT (.+) INTO @(.+) DEFAULT VALUES$")]
+        private static partial Regex GetInsertRegex();
+
+        [GeneratedRegex("^INSERT INTO (.+)\\((.+)\\) OUTPUT (.+) INTO @(.+) VALUES \\((.+)\\)$")]
+        private static partial Regex GetInsertFullRegex();
+
+        [GeneratedRegex("^SELECT (.+) FROM @(.+)$")]
+        private static partial Regex GetSelectRegex();
+        #endregion
     }
 }

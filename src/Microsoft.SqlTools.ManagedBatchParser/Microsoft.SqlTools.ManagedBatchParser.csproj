@@ -32,7 +32,7 @@
 		<Version>$(VersionPrefix)</Version>
 		<FileVersion>$(VersionPrefix)</FileVersion>
 		<InformationalVersion>$(VersionPrefix)</InformationalVersion>
-		<!-- TODO FIX THESE WARNINGS ASAP -->
+		<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
 		<NoWarn>$(NoWarn);CA1852</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>

@@ -19,9 +19,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
     /// <summary>
     /// Creates a completion item from SQL parser declaration item
     /// </summary>
-    public class SqlCompletionItem
+    public partial class SqlCompletionItem
     {
-        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@#][\p{L}\p{N}@$#_]{0,127}$");
+        [GeneratedRegex("^[\\p{L}_@#][\\p{L}\\p{N}@$#_]{0,127}$")]
+        private static partial Regex GetValidSqlNameRegex();
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]" };
         private static DelimitedIdentifier FunctionPostfix = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
@@ -79,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.Schema:
                         // Only quote if we need to - i.e. if this isn't a valid name (has characters that need escaping such as [) 
                         // or if it's a reserved word
-                        if (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
+                        if (!GetValidSqlNameRegex().IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
                         {
                             InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
                         }
@@ -197,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
            int startColumn,
            int endColumn)
         {
-            CompletionItem item = new CompletionItem()
+            var item = new CompletionItem()
             {
                 Label = label,
                 Kind = kind,

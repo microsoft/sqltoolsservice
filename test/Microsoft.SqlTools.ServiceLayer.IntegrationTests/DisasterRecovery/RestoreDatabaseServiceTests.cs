@@ -574,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
             string backUpFilePath = string.Empty;
             if (backupFileNames != null)
             {
-                var filePaths = backupFileNames.Select(x => GetBackupFilePath(x));
+                var filePaths = backupFileNames.Select(GetBackupFilePath);
                 backUpFilePath = filePaths.Aggregate((current, next) => current + " ," + next);
             }
 

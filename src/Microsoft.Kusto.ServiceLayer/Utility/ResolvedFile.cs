@@ -32,12 +32,6 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
 
         public bool CanReadFromDisk { get; private set; }
 
-        public string LowercaseClientUri
-        {
-            get
-            {
-                return ClientUri?.ToLower();
-            }
-        }
+        public string LowercaseClientUri => ClientUri?.ToLower(System.Globalization.CultureInfo.InvariantCulture);
     }
 }

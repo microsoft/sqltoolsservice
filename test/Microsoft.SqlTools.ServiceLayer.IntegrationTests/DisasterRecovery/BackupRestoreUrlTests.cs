@@ -30,7 +30,7 @@ using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnec
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
 {
-    class BackupRestoreUrlTests
+    internal sealed class BackupRestoreUrlTests
     {
         /// <summary>
         /// Create simple backup test

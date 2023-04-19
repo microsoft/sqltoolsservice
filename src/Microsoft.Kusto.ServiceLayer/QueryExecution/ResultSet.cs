@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.Kusto.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -24,7 +26,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
     /// Class that represents a resultset the was generated from a query. Contains logic for
     /// storing and retrieving results. Is contained by a Batch class.
     /// </summary>
-    public class ResultSet : IDisposable
+    public partial class ResultSet : IDisposable
     {
         #region Constants
 
@@ -343,7 +345,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 // Verify the request hasn't been cancelled
                 cancellationToken.ThrowIfCancellationRequested();
 
-                StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+                var dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
                 //
@@ -478,7 +480,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             }
 
             // Create the new task
-            Task saveAsTask = new Task(async () =>
+            var saveAsTask = new Task(async () =>
             {
                 try
                 {
@@ -602,7 +604,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 //
                 sendResultsSemphore.Wait();
 
-                ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+                var currentResultSetSnapshot = (ResultSet) MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.
                 {
                     // Fire off results Available task and await it
@@ -677,13 +679,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         {
             if (Columns?.Length > 0 && RowCount != 0)
             {
-                Regex regex = new Regex(@"({.*?})");
                 var row = GetRow(0);
                 for (int i = 0; i < Columns.Length; i++)
                 {
                     if (Columns[i].DataTypeName.Equals("nvarchar"))
                     {
-                        if (regex.IsMatch(row[i].DisplayValue))
+                        if (GetJsonRegex().IsMatch(row[i].DisplayValue))
                         {
                             Columns[i].IsJson = true;
                         }
@@ -726,7 +727,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             // Returning false from .ReadAsync means there aren't any rows.
 
             // Create a storage data reader, read it, make sure there were results
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+            var dataReader = new StorageDataReader(dbDataReader);
             if (!await dataReader.ReadAsync(CancellationToken.None))
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
@@ -741,6 +742,9 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 return currentFileOffset;
             }
         }
+
+        [GeneratedRegex("({.*?})")]
+        private static partial Regex GetJsonRegex();
 
         #endregion
     }

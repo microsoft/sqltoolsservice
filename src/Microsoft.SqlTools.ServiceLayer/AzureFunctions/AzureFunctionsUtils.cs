@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             return a.ArgumentList
                 ?.Arguments
                 .Where(a => a.Expression.Kind() == SyntaxKind.StringLiteralExpression && a.NameEquals == null) // Operations are string literals who don't have a name (Route is always a named param)
-                .Select(a => a.ToString().TrimStringQuotes().ToUpper()) // upper case for consistent naming
+                .Select(a => a.ToString().TrimStringQuotes().ToUpper(System.Globalization.CultureInfo.InvariantCulture)) // upper case for consistent naming
                 .ToArray();
         }
 

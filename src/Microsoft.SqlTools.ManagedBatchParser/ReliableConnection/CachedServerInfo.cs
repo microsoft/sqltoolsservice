@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         #region CacheKey implementation
-        internal class CacheKey : IEquatable<CacheKey>
+        internal sealed class CacheKey : IEquatable<CacheKey>
         {
             private string dataSource;
             private string dbName;

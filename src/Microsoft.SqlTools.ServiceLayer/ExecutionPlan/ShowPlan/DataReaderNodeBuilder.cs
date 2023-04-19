@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
     /// <summary>
     /// Base class for building hierarchy of Graph objects from ShowPlan Record Set
     /// </summary>
-	internal abstract class DataReaderNodeBuilder: INodeBuilder
+	internal abstract partial class DataReaderNodeBuilder: INodeBuilder
     {
         #region Constructor
 
@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
         /// <returns>An array of AnalysisServices Graph objects.</returns>
         public ShowPlanGraph[] Execute(object dataSource)
 		{
-            IDataReader reader = dataSource as IDataReader;
+            var reader = dataSource as IDataReader;
 
             if (reader == null)
             {
@@ -49,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 throw new ArgumentException(SR.Keys.UnknownShowPlanSource);
             }
 
-            List<ShowPlanGraph> graphs = new List<ShowPlanGraph>();
+            var graphs = new List<ShowPlanGraph>();
             Dictionary<int, Node> currentGraphNodes = null;
             NodeBuilderContext context = null;
 
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
             for (int i = 0; i < count; i++)
             {
-                if (names[i] != null && !((values[i] is DBNull) || values[i] == null))
+                if (names[i] != null && !(values[i] is DBNull || values[i] == null))
                 {
                     node[names[i]] = values[i];
                 }
@@ -220,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 string argument = node["Argument"] as string;
                 if (argument != null)
                 {
-                    Match match = argumentObjectExpression.Match(argument);
+                    Match match = GetargumentObjectExpressionRegex().Match(argument);
                     if (match != Match.Empty)
                     {
                         node["Object"] = match.Groups["Object"].Value;
@@ -236,8 +236,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
                 }
 
                 // Remove spaces and other special characters from physical and logical names
-                physicalOpType = operatorReplaceExpression.Replace(physicalOpType, "");
-                logicalOpType = operatorReplaceExpression.Replace(logicalOpType, "");
+                physicalOpType = GetOperatorReplaceExpressionRegex().Replace(physicalOpType, "");
+                logicalOpType = GetOperatorReplaceExpressionRegex().Replace(logicalOpType, "");
 
                 Operation physicalOp = OperationTable.GetPhysicalOperation(physicalOpType);
                 Operation logicalOp = OperationTable.GetLogicalOperation(logicalOpType);
@@ -290,8 +290,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan
 
         #region Private members
 
-        private static Regex operatorReplaceExpression = new Regex(@"[ \-]", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-        private static Regex argumentObjectExpression = new Regex(@"OBJECT:\((?<Object>[^\)]*)\)", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        [GeneratedRegex("[ \\-]", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+        private static partial Regex GetOperatorReplaceExpressionRegex();
+
+        [GeneratedRegex("OBJECT:\\((?<Object>[^\\)]*)\\)", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+        private static partial Regex GetargumentObjectExpressionRegex();
 
         #endregion
     }

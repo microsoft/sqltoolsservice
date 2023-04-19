@@ -189,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
             if (tokenType != null)
             {
-                if (sqlObjectTypesFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
+                if (sqlObjectTypesFromQuickInfo.TryGetValue(tokenType.ToLowerInvariant(), out string sqlObjectType))
                 {
                     // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                     // This workaround ensures that a schema name is present by attempting
@@ -203,8 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     Location[] locations = GetSqlObjectDefinition(
                                 tokenText,
                                 schemaName,
-                                sqlObjectTypesFromQuickInfo[tokenType.ToLowerInvariant()]
-                            );
+                                sqlObjectType);
                     DefinitionResult result = new DefinitionResult
                     {
                         IsErrorResult = this.error,
@@ -232,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <returns></returns>
         internal DefinitionResult GetDefinitionUsingDeclarationType(DeclarationType type, string databaseQualifiedName, string tokenText, string schemaName)
         {
-            if (sqlObjectTypes.ContainsKey(type))
+            if (sqlObjectTypes.TryGetValue(type, out string sqlObjectType))
             {
                 // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                 // This workaround ensures that a schema name is present by attempting
@@ -246,8 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 Location[] locations = GetSqlObjectDefinition(
                             tokenText,
                             schemaName,
-                            sqlObjectTypes[type]
-                        );
+                            sqlObjectType);
                 DefinitionResult result = new DefinitionResult
                 {
                     IsErrorResult = this.error,
@@ -288,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string[] lines = File.ReadAllLines(tempFileName);
             int lineCount = 0;
             string createSyntax = null;
-            if (objectScriptMap.ContainsKey(objectType.ToLower()))
+            if (objectScriptMap.ContainsKey(objectType.ToLower(System.Globalization.CultureInfo.InvariantCulture)))
             {
                 createSyntax = string.Format("CREATE");
                 foreach (string line in lines)

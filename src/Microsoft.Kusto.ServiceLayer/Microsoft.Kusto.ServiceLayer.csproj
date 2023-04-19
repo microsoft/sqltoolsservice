@@ -13,8 +13,8 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <DebugType>portable</DebugType>
     <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-	<!-- TODO FIX THESE WARNINGS ASAP -->
-    <NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854</NoWarn>
+	<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
+	<NoWarn>$(NoWarn);CS8795</NoWarn>
     <AssemblyTitle>SqlTools Kusto Editor Services Host Protocol Library</AssemblyTitle>
     <Description>Provides message types and client/server APIs for the SqlTools Kusto Editor Services JSON protocol.</Description>
   </PropertyGroup>

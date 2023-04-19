@@ -38,9 +38,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 
         public T GetValue(string displayName)
         {
-            if (this.Mapping.ContainsKey(displayName))
+            if (this.Mapping.TryGetValue(displayName, out T value))
             {
-                return this.Mapping[displayName];
+                return value;
             }
             else
             {

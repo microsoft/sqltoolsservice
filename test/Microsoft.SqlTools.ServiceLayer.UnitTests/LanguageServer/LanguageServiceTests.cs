@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.AreEqual(0, AutoCompleteHelper.EmptyCompletionList.Length);
         }
 
-        internal class TestScriptDocumentInfo : ScriptDocumentInfo
+        internal sealed class TestScriptDocumentInfo : ScriptDocumentInfo
         {
             public TestScriptDocumentInfo(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ScriptParseInfo scriptParseInfo, 
                 string tokenText = null)
