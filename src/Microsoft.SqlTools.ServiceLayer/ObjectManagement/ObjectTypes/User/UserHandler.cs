@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 context.Parameters.ContextId,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
-                RunType.RunNow,
+                RunType.ScriptToWindow,
                 context.Parameters.Database,
                 context.OriginalUserData);
             return Task.FromResult(script);
