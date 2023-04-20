@@ -153,12 +153,6 @@
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>Не удается создать службу типа {0} с помощью ExtensionLoader&lt;{1}&gt;</value>
   </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() не был вызван для установки требуемого поставщика услуг</value>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>Служба {0} не найдена в поставщике служб</value>
-  </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>Служба типа {0} несовместима с зарегистрированным типом {1}</value>
   </data>

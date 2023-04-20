@@ -238,7 +238,7 @@
     <value>无法从结果集检索列架构</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>无法从结果集检索执行计划 </value>
+    <value>无法从结果集检索执行计划</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>Azure SQL DB 和数据仓库目前不支持此功能: {0}</value>
@@ -1258,7 +1258,7 @@
     <value>从不</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>路径 {0} 不是有效的目录 </value>
+    <value>路径 {0} 不是有效的目录</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>对于目录 {0}，已存在名为 {1} 的文件</value>
@@ -1357,7 +1357,7 @@
     <value>无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为它使用了不受支持的日期/时间格式。请使用受支持的日期/时间格式之一。文本值: {2} </value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为前缀 0x 应该用于二进制文本。文本值: {2} </value>
+    <value>无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为前缀 0x 应该用于二进制文本。文本值: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>行 {0}，列 {1}</value>
@@ -3127,7 +3127,7 @@
     <value>预测</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>将经过定型的机器学习模型应用于输入数据	</value>
+    <value>将经过定型的机器学习模型应用于输入数据</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>表值函数</value>
@@ -3905,7 +3905,7 @@
     <value>是哈希</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>哈希索引的桶计数，请注意，该值将始终自动向上舍入到 2 的下一次幂。 </value>
+    <value>哈希索引的桶计数，请注意，该值将始终自动向上舍入到 2 的下一次幂。</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>桶计数</value>
@@ -4347,5 +4347,11 @@
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>模拟任何登录</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>未调用 SetServiceProvider() 来建立所需的服务提供程序</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>在服务提供程序中找不到服务 {0}</value>
   </data>
 </root>

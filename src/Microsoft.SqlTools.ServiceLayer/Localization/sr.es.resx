@@ -238,7 +238,7 @@
     <value>No se pudo recuperar el esquema de columna para el conjunto de resultados.</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>No se pudo recuperar un plan de ejecución del conjunto de resultados. </value>
+    <value>No se pudo recuperar un plan de ejecución del conjunto de resultados.</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>Azure SQL DB y Data Warehouse no admiten esta característica actualmente: {0}</value>
@@ -1210,7 +1210,7 @@
     <value>Tipo de ejecución inesperado.</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>Tamaño de la unidad desconocido {0} </value>
+    <value>Tamaño de unidad desconocido {0}</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>No se encuentra la sesión de XEvent solicitada.</value>
@@ -1258,7 +1258,7 @@
     <value>Nunca</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>La ruta de acceso [{0}] no es un directorio válido. </value>
+    <value>La ruta de acceso [{0}] no es un directorio válido.</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>Ya existe un archivo con el nombre {1} para el directorio {0}.</value>
@@ -1351,13 +1351,13 @@
     <value>Línea {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>No se puede convertir {0} en un objeto Microsoft.Data.SqlClient.SqlParameter. El literal especificado no se puede convertir en {1}(Microsoft.Data.SqlDbType). Valor del literal: {2}. </value>
+    <value>No se puede convertir {0} en un objeto Microsoft.Data.SqlClient.SqlParameter. El literal especificado no se puede convertir en {1}(Microsoft.Data.SqlDbType). Valor del literal: {2}.</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>No se puede convertir {0} en un objeto Microsoft.Data.SqlClient.SqlParameter. El literal especificado no se puede convertir en {1}(Microsoft.Data.SqlDbType), ya que usa un formato de fecha y hora no admitido. Use uno de los formatos de fecha y hora admitidos. Valor del literal: {2}.</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>No se puede convertir {0} en un objeto Microsoft.Data.SqlClient.SqlParameter. El literal especificado no se puede convertir en {1}(Microsoft.Data.SqlDbType), ya que se espera un prefijo 0x en los literales binarios. Valor del literal: {2}. </value>
+    <value>No se puede convertir {0} en un objeto Microsoft.Data.SqlClient.SqlParameter. El literal especificado no se puede convertir en {1}(Microsoft.Data.SqlDbType), ya que se espera un prefijo 0x en los literales binarios. Valor del literal: {2}.</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>Línea {0}, columna {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Predicción</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Aplica un modelo de aprendizaje automático entrenado para la entrada de datos.	</value>
+    <value>Aplica un modelo de aprendizaje automático entrenado para la entrada de datos.</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Función con valores de tabla</value>
@@ -3905,7 +3905,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>Es hash</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Recuento de depósitos del índice hash. Tenga en cuenta que el valor siempre se redondeará automáticamente a la siguiente potencia de 2. </value>
+    <value>Recuento de depósitos del índice hash. Tenga en cuenta que el valor siempre se redondeará automáticamente a la siguiente potencia de 2.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Número de cubos</value>
@@ -4347,5 +4347,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Suplantar cualquier inicio de sesión</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>No se llamó a SetServiceProvider() para establecer el proveedor de servicios necesario</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>El servicio {0} no se ha encontrado en el proveedor de servicios</value>
   </data>
 </root>

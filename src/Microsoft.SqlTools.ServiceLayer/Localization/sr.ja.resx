@@ -238,7 +238,7 @@
     <value>結果セットの列のスキーマを取得できませんでした</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>結果セットから実行プランを取得できませんでした </value>
+    <value>結果セットから実行プランを取得できませんでした</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>Azure SQL DB と Data Warehouse では、この機能は現在サポートされていません: {0}</value>
@@ -1210,7 +1210,7 @@
     <value>予期しない実行の種類です。</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>{0} は不明なサイズの単位です</value>
+    <value>不明なサイズの単位 {0}</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>要求された XEvent セッションが見つかりません</value>
@@ -1351,13 +1351,13 @@
     <value>行 {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2} </value>
+    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。サポートされていない日付/時間の形式が使用されているため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。サポートされている日付/時間の形式のいずれかをお使いください。リテラル値: {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。プレフィックス 0x をバイナリ リテラルにする必要があるため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2}</value>
+    <value>{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。プレフィックス 0x をバイナリ リテラルにする必要があるため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。 リテラル値: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>行 {0}、列 {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Predict</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>トレーニング済みの機械学習モデルを入力データに適用します	</value>
+    <value>トレーニング済みの機械学習モデルを入力データに適用します</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Table Valued Function</value>
@@ -3905,7 +3905,7 @@
     <value>ハッシュ</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>ハッシュ インデックスのバケット数。値は常に次の二乗に自動的に切り上げられます。 </value>
+    <value>ハッシュ インデックスのバケット数。値は常に次の二乗に自動的に切り上げられます。</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>バケット数</value>
@@ -4347,5 +4347,11 @@
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>任意のログインの偽装</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>サービス {0} がサービス プロバイダーに見つかりませんでした</value>
   </data>
 </root>

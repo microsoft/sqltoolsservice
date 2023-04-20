@@ -211,7 +211,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="QueryServiceExecutionPlanNotFound">
-        <source>Could not retrieve an execution plan from the result set </source>
+        <source>Could not retrieve an execution plan from the result set</source>
         <target state="translated">Es konnte kein Ausführungsplan für das Resultset abgerufen werden.</target>
         <note></note>
       </trans-unit>
@@ -1845,7 +1845,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="UnknownSizeUnit">
-        <source>Unknown size unit {0} </source>
+        <source>Unknown size unit {0}</source>
         <target state="translated">Unbekannte Größeneinheit "{0}". </target>
         <note>.
  Parameters: 0 - unit (string) </note>
@@ -1932,7 +1932,7 @@
         <note></note>
       </trans-unit>
       <trans-unit id="Error_InvalidDirectoryName">
-        <source>Path {0} is not a valid directory </source>
+        <source>Path {0} is not a valid directory</source>
         <target state="translated">Der Pfad "{0}" ist kein gültiges Verzeichnis.</target>
         <note></note>
       </trans-unit>
@@ -2096,8 +2096,8 @@
  Parameters: 0 - lineNumber (int) </note>
       </trans-unit>
       <trans-unit id="ErrorMessage">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} </source>
-        <target state="translated">"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden. Literalwert: {2} </target>
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</source>
+        <target state="translated">"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden. Literalwert: {2}</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -2108,8 +2108,8 @@
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
       <trans-unit id="BinaryLiteralPrefixMissingError">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </source>
-        <target state="translated">"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2} </target>
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</source>
+        <target state="translated">"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2}</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -5070,8 +5070,8 @@
         <note> Operator name</note>
       </trans-unit>
       <trans-unit id="TFPDescription">
-        <source>Applies a trained machine learning model to input data	</source>
-        <target state="translated">Wendet ein trainiertes Machine Learning-Modell auf Eingabedaten an.	</target>
+        <source>Applies a trained machine learning model to input data</source>
+        <target state="translated">Wendet ein trainiertes Machine Learning-Modell auf Eingabedaten an.</target>
         <note> Operator description</note>
       </trans-unit>
       <trans-unit id="TableValueFunction">
@@ -6394,8 +6394,8 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <note></note>
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyDescription">
-        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </source>
-        <target state="translated">Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird. </target>
+        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</source>
+        <target state="translated">Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyTitle">
@@ -7135,6 +7135,16 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
       <trans-unit id="Permission_ImpersonateAnyLogin">
         <source>Impersonate Any Login</source>
         <target state="translated">Identität einer beliebigen Anmeldung annehmen</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceProviderNotSet">
+        <source>SetServiceProvider() was not called to establish the required service provider</source>
+        <target state="translated">SetServiceProvider() wurde nicht aufgerufen, um den erforderlichen Dienstanbieter einzurichten.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceNotFound">
+        <source>Service {0} was not found in the service provider</source>
+        <target state="translated">Der Dienst {0} wurde im Dienstanbieter nicht gefunden.</target>
         <note></note>
       </trans-unit>
     </body>

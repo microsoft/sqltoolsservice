@@ -753,10 +753,13 @@
       </Item>
       <Item ItemId=";BinaryLiteralPrefixMissingError" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} ]]></Val>
+          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType), pois o prefixo 0x é esperado para um literal binário. Valor do literal: {2} ]]></Val>
+            <Val><![CDATA[Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType), pois o prefixo 0x é esperado para um literal binário. Valor do literal: {2}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2721,10 +2724,13 @@
       </Item>
       <Item ItemId=";ErrorMessage" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} ]]></Val>
+          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType). Valor do literal: {2} ]]></Val>
+            <Val><![CDATA[Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType). Valor do literal: {2}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2748,10 +2754,13 @@
       </Item>
       <Item ItemId=";Error_InvalidDirectoryName" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Path {0} is not a valid directory ]]></Val>
+          <Val><![CDATA[Path {0} is not a valid directory]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[O caminho {0} não é um diretório válido]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Path {0} is not a valid directory ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3864,10 +3873,13 @@
       </Item>
       <Item ItemId=";IndexBucketCountPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2. ]]></Val>
+          <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Número de buckets do índice de hash, observe que o valor sempre será arredondado automaticamente para a próxima potência de 2. ]]></Val>
+            <Val><![CDATA[Número de buckets do índice de hash, observe que o valor sempre será arredondado automaticamente para a próxima potência de 2.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2. ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7881,10 +7893,13 @@
       </Item>
       <Item ItemId=";QueryServiceExecutionPlanNotFound" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Could not retrieve an execution plan from the result set ]]></Val>
+          <Val><![CDATA[Could not retrieve an execution plan from the result set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não foi possível recuperar um plano de execução do conjunto de resultados ]]></Val>
+            <Val><![CDATA[Não foi possível recuperar um plano de execução do conjunto de resultados]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Could not retrieve an execution plan from the result set ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10696,6 +10711,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ServiceNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Service {0} was not found in the service provider]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O serviço {0} não foi encontrado no provedor de serviços]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ServiceProviderNotSet" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[SetServiceProvider() was not called to establish the required service provider]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SetServiceProvider() não foi chamado para estabelecer o provedor de serviços necessário]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SessionAlreadyExists" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[An XEvent session named {0} already exists]]></Val>
@@ -11391,10 +11424,13 @@
       </Item>
       <Item ItemId=";TFPDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Applies a trained machine learning model to input data	]]></Val>
+          <Val><![CDATA[Applies a trained machine learning model to input data]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplica um modelo de machine learning treinado a dados de entrada	]]></Val>
+            <Val><![CDATA[Aplica um modelo de machine learning treinado a dados de entrada]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Applies a trained machine learning model to input data	]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -12462,10 +12498,13 @@
       </Item>
       <Item ItemId=";UnknownSizeUnit" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unknown size unit {0} ]]></Val>
+          <Val><![CDATA[Unknown size unit {0}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tamanho desconhecido da unidade {0}]]></Val>
+            <Val><![CDATA[Unidade de tamanho desconhecido {0}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unknown size unit {0} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
