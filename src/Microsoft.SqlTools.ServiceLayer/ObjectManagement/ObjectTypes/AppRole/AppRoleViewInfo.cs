@@ -8,8 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various application role properties
     /// </summary>
-    public class AppRoleViewInfo
+    public class AppRoleViewInfo : SqlObjectViewInfo
     {
-        public AppRoleInfo? AppRole { get; set; }
     }
 }

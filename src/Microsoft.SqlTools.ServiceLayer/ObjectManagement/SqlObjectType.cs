@@ -23,6 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         [EnumMember(Value = "User")]
         User,
         [EnumMember(Value = "View")]
-        View
+        View,
+        [EnumMember(Value = "ServerRole")]
+        ServerRole,
+        [EnumMember(Value = "DatabaseRole")]
+        DatabaseRole,
+        [EnumMember(Value = "ApplicationRole")]
+        ApplicationRole
     }
 }
