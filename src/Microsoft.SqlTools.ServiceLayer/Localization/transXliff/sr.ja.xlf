@@ -212,7 +212,7 @@
       </trans-unit>
       <trans-unit id="QueryServiceExecutionPlanNotFound">
         <source>Could not retrieve an execution plan from the result set</source>
-        <target state="new">Could not retrieve an execution plan from the result set</target>
+        <target state="translated">結果セットから実行プランを取得できませんでした</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PeekDefinitionAzureError">
@@ -1846,7 +1846,7 @@
       </trans-unit>
       <trans-unit id="UnknownSizeUnit">
         <source>Unknown size unit {0}</source>
-        <target state="new">Unknown size unit {0}</target>
+        <target state="translated">不明なサイズの単位 {0}</target>
         <note>.
  Parameters: 0 - unit (string) </note>
       </trans-unit>
@@ -1933,7 +1933,7 @@
       </trans-unit>
       <trans-unit id="Error_InvalidDirectoryName">
         <source>Path {0} is not a valid directory</source>
-        <target state="new">Path {0} is not a valid directory</target>
+        <target state="translated">パス {0} は有効なディレクトリではありません</target>
         <note></note>
       </trans-unit>
       <trans-unit id="Error_ExistingDirectoryName">
@@ -2097,7 +2097,7 @@
       </trans-unit>
       <trans-unit id="ErrorMessage">
         <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</target>
+        <target state="translated">{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。リテラル値: {2}</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -2109,7 +2109,7 @@
       </trans-unit>
       <trans-unit id="BinaryLiteralPrefixMissingError">
         <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</target>
+        <target state="translated">{0} を Microsoft.Data.SqlClient.SqlParameter オブジェクトに変換できません。プレフィックス 0x をバイナリ リテラルにする必要があるため、指定されたリテラルを {1}(Microsoft.Data.SqlDbType) に変換できません。 リテラル値: {2}</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -5071,7 +5071,7 @@
       </trans-unit>
       <trans-unit id="TFPDescription">
         <source>Applies a trained machine learning model to input data</source>
-        <target state="new">Applies a trained machine learning model to input data</target>
+        <target state="translated">トレーニング済みの機械学習モデルを入力データに適用します</target>
         <note> Operator description</note>
       </trans-unit>
       <trans-unit id="TableValueFunction">
@@ -6395,7 +6395,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyDescription">
         <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</source>
-        <target state="new">Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</target>
+        <target state="translated">ハッシュ インデックスのバケット数。値は常に次の二乗に自動的に切り上げられます。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyTitle">
@@ -7139,12 +7139,12 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ServiceProviderNotSet">
         <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="new">SetServiceProvider() was not called to establish the required service provider</target>
+        <target state="translated">必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
-        <target state="new">Service {0} was not found in the service provider</target>
+        <target state="translated">サービス {0} がサービス プロバイダーに見つかりませんでした</target>
         <note></note>
       </trans-unit>
     </body>

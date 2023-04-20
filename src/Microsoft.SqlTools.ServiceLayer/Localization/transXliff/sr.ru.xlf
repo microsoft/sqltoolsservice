@@ -212,7 +212,7 @@
       </trans-unit>
       <trans-unit id="QueryServiceExecutionPlanNotFound">
         <source>Could not retrieve an execution plan from the result set</source>
-        <target state="new">Could not retrieve an execution plan from the result set</target>
+        <target state="translated">Не удалось получить план выполнения из результирующего набора</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PeekDefinitionAzureError">
@@ -1846,7 +1846,7 @@
       </trans-unit>
       <trans-unit id="UnknownSizeUnit">
         <source>Unknown size unit {0}</source>
-        <target state="new">Unknown size unit {0}</target>
+        <target state="translated">Неизвестная единица размера: {0}</target>
         <note>.
  Parameters: 0 - unit (string) </note>
       </trans-unit>
@@ -1933,7 +1933,7 @@
       </trans-unit>
       <trans-unit id="Error_InvalidDirectoryName">
         <source>Path {0} is not a valid directory</source>
-        <target state="new">Path {0} is not a valid directory</target>
+        <target state="translated">Путь {0} не является допустимым каталогом</target>
         <note></note>
       </trans-unit>
       <trans-unit id="Error_ExistingDirectoryName">
@@ -2097,7 +2097,7 @@
       </trans-unit>
       <trans-unit id="ErrorMessage">
         <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</target>
+        <target state="translated">Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType). Значение литерала: {2}.</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -2109,7 +2109,7 @@
       </trans-unit>
       <trans-unit id="BinaryLiteralPrefixMissingError">
         <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</source>
-        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</target>
+        <target state="translated">Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType), так как для двоичных литералов ожидается префикс 0x. Значение литерала: {2}.</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -5071,7 +5071,7 @@
       </trans-unit>
       <trans-unit id="TFPDescription">
         <source>Applies a trained machine learning model to input data</source>
-        <target state="new">Applies a trained machine learning model to input data</target>
+        <target state="translated">Применяет подготовленную модель машинного обучения для ввода данных.</target>
         <note> Operator description</note>
       </trans-unit>
       <trans-unit id="TableValueFunction">
@@ -6395,7 +6395,7 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyDescription">
         <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</source>
-        <target state="new">Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</target>
+        <target state="translated">Число контейнеров хэш-индекса. Обратите внимание, что значение всегда будет автоматически округляться до следующей степени 2.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyTitle">
@@ -7139,12 +7139,12 @@ The Query Processor estimates that implementing the following index could improv
       </trans-unit>
       <trans-unit id="ServiceProviderNotSet">
         <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="new">SetServiceProvider() was not called to establish the required service provider</target>
+        <target state="translated">SetServiceProvider() не был вызван для установки требуемого поставщика услуг</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
-        <target state="new">Service {0} was not found in the service provider</target>
+        <target state="translated">Служба {0} не найдена в поставщике служб</target>
         <note></note>
       </trans-unit>
     </body>
