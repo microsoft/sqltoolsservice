@@ -63,7 +63,7 @@ steps:
   inputs:
     filename: build.cmd
     arguments: '-target=all -mono'
-
+    
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
@@ -108,11 +108,11 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
+      $propsFile = '$(Build.SourcesDirectory)\Directory.Build.Props'
       $props = New-Object XML
-      $props.Load($projectFile)
+      $props.Load($propsFile)
       $propGroup = $props.Project.PropertyGroup;
-      $versionPre = $env:ManagedBatchParserMajor + '.' + $env:ManagedBatchParserMinor + '.'
+      $versionPre = $env:Major + '.' + $env:Minor + '.'
       if($env:StableRelease.Equals('true')) {
           $version = $versionPre + '0';
       } else {
@@ -216,7 +216,7 @@ steps:
   inputs:
     filename: build.cmd
     arguments: '-target=dotnetpackpublished -mono'
-
+    
 - task: BatchScript@1
   displayName: "Build and Package service tool projects"
   env:
@@ -262,7 +262,7 @@ steps:
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
         archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net7.0.${{ platform.archiveFileFormat }}'
-
+    
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: build archives'
   inputs:
