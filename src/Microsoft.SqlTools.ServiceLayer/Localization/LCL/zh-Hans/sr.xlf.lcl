@@ -753,10 +753,13 @@
       </Item>
       <Item ItemId=";BinaryLiteralPrefixMissingError" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} ]]></Val>
+          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为前缀 0x 应该用于二进制文本。文本值: {2} ]]></Val>
+            <Val><![CDATA[无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)，因为前缀 0x 应该用于二进制文本。文本值: {2}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2721,10 +2724,13 @@
       </Item>
       <Item ItemId=";ErrorMessage" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} ]]></Val>
+          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[无法将 {0} 转换为 Microsoft.Data.SqlClient.SqlParameter 对象。指定的文本无法转换为 {1}(Microsoft.Data.SqlDbType)。文本值: {2}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2748,10 +2754,13 @@
       </Item>
       <Item ItemId=";Error_InvalidDirectoryName" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Path {0} is not a valid directory ]]></Val>
+          <Val><![CDATA[Path {0} is not a valid directory]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[路径 {0} 不是有效的目录 ]]></Val>
+            <Val><![CDATA[路径 {0} 不是有效的目录]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Path {0} is not a valid directory ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3864,10 +3873,13 @@
       </Item>
       <Item ItemId=";IndexBucketCountPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2. ]]></Val>
+          <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[哈希索引的桶计数，请注意，该值将始终自动向上舍入到 2 的下一次幂。 ]]></Val>
+            <Val><![CDATA[哈希索引的桶计数，请注意，该值将始终自动向上舍入到 2 的下一次幂。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2. ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7881,10 +7893,13 @@
       </Item>
       <Item ItemId=";QueryServiceExecutionPlanNotFound" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Could not retrieve an execution plan from the result set ]]></Val>
+          <Val><![CDATA[Could not retrieve an execution plan from the result set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法从结果集检索执行计划 ]]></Val>
+            <Val><![CDATA[无法从结果集检索执行计划]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Could not retrieve an execution plan from the result set ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10696,6 +10711,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ServiceNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Service {0} was not found in the service provider]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在服务提供程序中找不到服务 {0}]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ServiceProviderNotSet" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[SetServiceProvider() was not called to establish the required service provider]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[未调用 SetServiceProvider() 来建立所需的服务提供程序]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SessionAlreadyExists" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[An XEvent session named {0} already exists]]></Val>
@@ -11391,10 +11424,13 @@
       </Item>
       <Item ItemId=";TFPDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Applies a trained machine learning model to input data	]]></Val>
+          <Val><![CDATA[Applies a trained machine learning model to input data]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[将经过定型的机器学习模型应用于输入数据	]]></Val>
+            <Val><![CDATA[将经过定型的机器学习模型应用于输入数据]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Applies a trained machine learning model to input data	]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -12462,10 +12498,13 @@
       </Item>
       <Item ItemId=";UnknownSizeUnit" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unknown size unit {0} ]]></Val>
+          <Val><![CDATA[Unknown size unit {0}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[未知大小单位 {0} ]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unknown size unit {0} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
