@@ -1377,7 +1377,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         break;
                     case SqlLogin:
                         connectionBuilder.UserID = connectionDetails.UserName;
-                        connectionBuilder.Password = connectionDetails.Password;
+                        if (!string.IsNullOrEmpty(connectionDetails.Password))
+                        {
+                            connectionBuilder.Password = connectionDetails.Password;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         break;
                     case AzureMFA:
