@@ -469,8 +469,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
-        static readonly object[] noUserNameOrPassword =
+        static readonly object[] noPassword =
         {
+            new object[] {"sa", null},
+            new object[] {"sa", ""},
+        };
+
+      
+        /// <summary>
+        /// Verify that when using integrated authentication, the username and/or password can be empty.
+        /// </summary>
+        [Test, TestCaseSource(nameof(noPassword))]
+        public void ConnectingWithNoPasswordWorksForSqlLogin(string userName, string password)
+        {
+            // Connect
+            var connectionResult = 
+                ConnectionService.CreateConnectionStringBuilder(new ConnectionDetails()
+                    {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = userName,
+                        Password = password,
+                        AuthenticationType = SqlLogin
+                    });
+
+            Assert.That(connectionResult, Is.Not.Null.Or.Empty, "check that the connection was successful");
+        }
+
+        static readonly object[] noUserNameOrPassword =
+    {
             new object[] {null, null},
             new object[] {null, ""},
             new object[] {"", null},
@@ -480,7 +507,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {null, "12345678"},
             new object[] {"", "12345678"},
         };
-
         /// <summary>
         /// Verify that when using integrated authentication, the username and/or password can be empty.
         /// </summary>
