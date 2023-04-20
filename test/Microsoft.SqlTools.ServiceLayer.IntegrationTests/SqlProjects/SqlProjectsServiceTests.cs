@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             // Setup
             SqlProjectsService service = new();
             string projectUri = await service.CreateSqlProject();
-            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "Baseline number of NoneItems");
+            Assert.AreEqual(0, service.Projects[projectUri].NoneItems.Count, "Baseline number of NoneItems");
 
             // Validate adding a None script
             MockRequest<ResultStatus> requestMock = new();
@@ -215,8 +215,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddNoneItemRequest));
-            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after add");
-            Assert.IsTrue(service.Projects[projectUri].NoneScripts.Contains(relativePath), $"NoneItems expected to contain {relativePath}");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneItems.Count, "NoneItems count after add");
+            Assert.IsTrue(service.Projects[projectUri].NoneItems.Contains(relativePath), $"NoneItems expected to contain {relativePath}");
 
             // Validate getting a list of the None scripts
             MockRequest<GetScriptsResult> getMock = new();
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleExcludeNoneItemRequest));
-            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after exclude");
+            Assert.AreEqual(0, service.Projects[projectUri].NoneItems.Count, "NoneItems count after exclude");
             Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to still exist on disk");
 
             // Re-add to set up for Delete
@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddNoneItemRequest));
-            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after re-add");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneItems.Count, "NoneItems count after re-add");
 
             // Validate moving a None script
             string movedScriptRelativePath = @"SubPath\RenamedNoneIncludeFile.json";
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleMoveNoneItemRequest));
             Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
-            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after move");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneItems.Count, "NoneItems count after move");
 
             // Validate deleting a None script
             requestMock = new();
@@ -278,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteNoneItemRequest));
-            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after delete");
+            Assert.AreEqual(0, service.Projects[projectUri].NoneItems.Count, "NoneItems count after delete");
             Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
         }
 
