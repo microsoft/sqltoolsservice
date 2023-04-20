@@ -477,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
       
         /// <summary>
-        /// Verify that when using integrated authentication, the username and/or password can be empty.
+        /// Verify that when using sql logins, the password can be empty.
         /// </summary>
         [Test, TestCaseSource(nameof(noPassword))]
         public void ConnectingWithNoPasswordWorksForSqlLogin(string userName, string password)
