@@ -189,6 +189,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             isPropertiesMode = !isNewObject;
             dbroleName = dbRole.Name;
+            serverName = dataContainer.ServerName;
+            databaseName = "TriggerTest";
+            serverConnection = dataContainer.Server.ConnectionContext;
             InitProp();
         }
 
@@ -214,11 +217,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
             param.SetDocument(doc);
 
-            bStatus         = param.GetParam("servername", ref this.serverName);
-            bStatus         = param.GetParam("database", ref this.databaseName);
+            // bStatus         = param.GetParam("servername", ref this.serverName);
+            // bStatus         = param.GetParam("database", ref this.databaseName);
 
-            bStatus         = param.GetParam("role", ref this.dbroleName);
-            bStatus         = param.GetParam("urn", ref this.dbroleUrn);
+            // bStatus         = param.GetParam("role", ref this.dbroleName);
+            // bStatus         = param.GetParam("urn", ref this.dbroleUrn);
         }
 
 
@@ -338,7 +341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             else // not in properties mode -> create role
             {
-                role = new DatabaseRole(database, this.roleName);
+                role = new DatabaseRole(database, this.dbroleName);
                 if (this.ownerName.Length != 0)
                 {
                     role.Owner = this.ownerName;

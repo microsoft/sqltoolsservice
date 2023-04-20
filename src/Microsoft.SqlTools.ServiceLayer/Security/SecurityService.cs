@@ -25,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         private UserServiceHandlerImpl userServiceHandler;
 
         private LoginServiceHandlerImpl loginServiceHandler;
+        private AppRoleServiceHandlerImpl appRoleServiceHandlerImpl;
+        private DatabaseRoleServiceHandlerImpl databaseRoleServiceHandlerImpl;
 
         private static readonly Lazy<SecurityService> instance = new Lazy<SecurityService>(() => new SecurityService());
 
@@ -36,6 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             userServiceHandler = new UserServiceHandlerImpl();
             loginServiceHandler = new LoginServiceHandlerImpl();
+            appRoleServiceHandlerImpl = new AppRoleServiceHandlerImpl();
+            databaseRoleServiceHandlerImpl = new DatabaseRoleServiceHandlerImpl();
         }
 
         /// <summary>

@@ -164,6 +164,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             this.isYukonOrLater = (9 <= context.Server.ConnectionContext.ServerVersion.Major);
             isPropertiesMode = !isNewObject;
             approleName = appRole.Name;
+            serverName = dataContainer.ServerName;
+            databaseName = "TriggerTest";
+            serverConnection = dataContainer.Server.ConnectionContext;
             InitProp();
         }
 
@@ -197,16 +200,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
         {
             // STrace.Params(ComponentName, "LoadData", "XmlDocument doc=\"{0}\"", doc.OuterXml);
 
-            STParameters                            param;
-            bool                                    bStatus;
+            // STParameters                            param;
+            // bool                                    bStatus;
 
-            param       = new STParameters();
+            // param       = new STParameters();
 
-            param.SetDocument(doc);
+            // param.SetDocument(doc);
 
-            bStatus         = param.GetParam("servername", ref this.serverName);
-            bStatus         = param.GetParam("database", ref this.databaseName);
-            bStatus         = param.GetParam("applicationrole", ref this.approleName);
+            // bStatus         = param.GetParam("servername", ref this.serverName);
+            // bStatus         = param.GetParam("database", ref this.databaseName);
+            // bStatus         = param.GetParam("applicationrole", ref this.approleName);
         }
 
         /// <summary>
@@ -374,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
 
                 if (passwordChanged == true)
                 {
-                    approle.ChangePassword((string) "_textBoxPaswordText");
+                    approle.ChangePassword((string) "Random123456!");
                 }
 
                 if (alterRequired == true)
@@ -387,13 +390,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
             else // not in properties mode -> create role
             {
-                ApplicationRole approle = new ApplicationRole(db, _textBoxRoleNameText);
-                if (this.isYukonOrLater && _selectedDefaultSchema.Length > 0)
+                ApplicationRole approle = new ApplicationRole(db, approleName);
+                if (this.isYukonOrLater && _selectedDefaultSchema!=null && _selectedDefaultSchema.Length > 0)
                 {
                     approle.DefaultSchema = _selectedDefaultSchema;
                 }
 
-                approle.Create((string) "_textBoxPaswordText");
+                approle.Create((string) "Random123dafsa456!");
 
                 SendToServerSchemaOwnershipChanges(db,approle);
                 SendToServerMembershipChanges(db,approle);

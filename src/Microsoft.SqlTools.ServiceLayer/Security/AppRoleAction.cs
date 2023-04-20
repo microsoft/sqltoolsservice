@@ -5,16 +5,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Security.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Security
 {
@@ -57,7 +52,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Security
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            AppRoleGeneral appRoleGeneral = new AppRoleGeneral(dataContainer, parameters.AppRole, true);
+            // AppRoleGeneral appRoleGeneral = new AppRoleGeneral(dataContainer, parameters.AppRole, true);
+            AppRoleInfo appRole = new AppRoleInfo();
+            appRole.Name = "test app role";
+            AppRoleGeneral appRoleGeneral = new AppRoleGeneral(dataContainer, appRole, true);
             appRoleGeneral.SendDataToServer();
             await requestContext.SendResult(new object());
         }
