@@ -22,6 +22,8 @@
     <Minor Condition="$(Minor) == ''">99</Minor>
     <Patch Condition="$(Patch) == ''">99</Patch>
 
+    <!-- AssemblyVersion should not change for non-major releases. -->
+    <AssemblyVersion>$(Major).0.0.0</AssemblyVersion>
     <Version>$(Major).$(Minor).$(Patch).$(Revision)</Version>
     <FileVersion>$(Version)</FileVersion>
     <InformationalVersion>$(Version)</InformationalVersion>
