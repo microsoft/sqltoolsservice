@@ -753,10 +753,13 @@
       </Item>
       <Item ItemId=";BinaryLiteralPrefixMissingError" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} ]]></Val>
+          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA["{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2} ]]></Val>
+            <Val><![CDATA["{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2721,10 +2724,13 @@
       </Item>
       <Item ItemId=";ErrorMessage" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} ]]></Val>
+          <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA["{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden. Literalwert: {2} ]]></Val>
+            <Val><![CDATA["{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden. Literalwert: {2}]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2748,10 +2754,13 @@
       </Item>
       <Item ItemId=";Error_InvalidDirectoryName" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Path {0} is not a valid directory ]]></Val>
+          <Val><![CDATA[Path {0} is not a valid directory]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Der Pfad "{0}" ist kein gültiges Verzeichnis.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Path {0} is not a valid directory ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3864,10 +3873,13 @@
       </Item>
       <Item ItemId=";IndexBucketCountPropertyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2. ]]></Val>
+          <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird. ]]></Val>
+            <Val><![CDATA[Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Bucket count of the hash index, note the value will always automatically round up to the next power of 2. ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7881,10 +7893,13 @@
       </Item>
       <Item ItemId=";QueryServiceExecutionPlanNotFound" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Could not retrieve an execution plan from the result set ]]></Val>
+          <Val><![CDATA[Could not retrieve an execution plan from the result set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Es konnte kein Ausführungsplan für das Resultset abgerufen werden.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Could not retrieve an execution plan from the result set ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10696,6 +10711,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ServiceNotFound" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Service {0} was not found in the service provider]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Der Dienst {0} wurde im Dienstanbieter nicht gefunden.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ServiceProviderNotSet" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[SetServiceProvider() was not called to establish the required service provider]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SetServiceProvider() wurde nicht aufgerufen, um den erforderlichen Dienstanbieter einzurichten.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";SessionAlreadyExists" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[An XEvent session named {0} already exists]]></Val>
@@ -11391,10 +11424,13 @@
       </Item>
       <Item ItemId=";TFPDescription" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Applies a trained machine learning model to input data	]]></Val>
+          <Val><![CDATA[Applies a trained machine learning model to input data]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Wendet ein trainiertes Machine Learning-Modell auf Eingabedaten an.	]]></Val>
+            <Val><![CDATA[Wendet ein trainiertes Machine Learning-Modell auf Eingabedaten an.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Applies a trained machine learning model to input data	]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -12462,10 +12498,13 @@
       </Item>
       <Item ItemId=";UnknownSizeUnit" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unknown size unit {0} ]]></Val>
+          <Val><![CDATA[Unknown size unit {0}]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Unbekannte Größeneinheit "{0}". ]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unknown size unit {0} ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
