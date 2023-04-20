@@ -109,7 +109,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
                 ObjectMetadata dbChildInfo = new ObjectMetadata();
                 dbChildInfo.Name = childDetail.PrettyName;
                 dbChildInfo.MetadataTypeName = childDetail.MetadataTypeName;
-                dbChildInfo.MetadataType = MetadataType.Table; // Add mapping here.
+                dbChildInfo.MetadataType = childDetail.MetadataType == DataSourceMetadataType.MaterializedView ?
+                    MetadataType.View :
+                    MetadataType.Table;
                 databaseChildDetails.Add(dbChildInfo);
             }
 

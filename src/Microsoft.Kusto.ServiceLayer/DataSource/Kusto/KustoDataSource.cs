@@ -47,15 +47,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         private ConcurrentDictionary<string, IEnumerable<TableMetadata>> _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
 
         /// <summary>
+        /// List of materialized views per database. Key - Parent Folder or Database Urn
+        /// </summary>
+        private ConcurrentDictionary<string, IEnumerable<TableMetadata>> _materializedViewMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
+
+        /// <summary>
         /// List of columns per table. Key - DatabaseName.TableName
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>> _columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
-        
+
         /// <summary>
         /// List of tables per database. Key - Parent Folder or Database Urn
         /// </summary>
         private ConcurrentDictionary<string, IEnumerable<FolderMetadata>> _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
-        
+
         /// <summary>
         /// List of functions per database. Key - Parent Folder or Database Urn
         /// </summary>
@@ -70,7 +75,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         public override string ClusterName => _kustoClient.ClusterName;
 
         // Some clusters have this signature. Queries might slightly differ for Aria
-        private const string AriaProxyURL = "kusto.aria.microsoft.com"; 
+        private const string AriaProxyURL = "kusto.aria.microsoft.com";
 
         /// <summary>
         /// The database schema query.  Performance: ".show database schema" is more efficient than ".show schema",
@@ -82,7 +87,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// The dashboard needs a list of all tables regardless of the folder structure of the table. The
         /// tables are stored with the key in the following format: OnlyTables.ClusterName.DatabaseName
         /// </summary>
-        private const string DatabaseKeyPrefix = "OnlyTables";
+        private const string DatabaseKeyPrefix = "OnlyTablesAndViews";
 
         /// <summary>
         /// Prevents a default instance of the <see cref="IDataSource"/> class from being created.
@@ -95,7 +100,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             ValidationUtils.IsTrue<ArgumentException>(Exists().Result,
                 $"Unable to connect. ClusterName = {ClusterName}, DatabaseName = {DatabaseName}");
         }
-        
+
         /// <summary>
         /// Disposes resources.
         /// </summary>
@@ -134,10 +139,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 if (ClusterName.Contains(AriaProxyURL, StringComparison.OrdinalIgnoreCase))
                 {
 
-                    var result = await ExecuteScalarQueryAsync<string>(".show databases | take 1 | project DatabaseName", source.Token); 
+                    var result = await ExecuteScalarQueryAsync<string>(".show databases | take 1 | project DatabaseName", source.Token);
                     return !string.IsNullOrWhiteSpace(result);
                 }
-                
+
                 var count = await ExecuteScalarQueryAsync<long>(".show databases | count", source.Token);
                 return count >= 0;
             }
@@ -148,7 +153,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         }
 
         #endregion
-        
+
         #region IDataSource
 
         private DiagnosticsInfo GetClusterDiagnostics()
@@ -157,11 +162,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 return new DiagnosticsInfo();
             }
-            
+
             var source = new CancellationTokenSource();
             var clusterDiagnostics = new DiagnosticsInfo();
 
-            var query =  ".show diagnostics | extend Passed= (IsHealthy) and not(IsScaleOutRequired) | extend Summary = strcat('Cluster is ', iif(Passed, '', 'NOT'), 'healthy.'),Details=pack('MachinesTotal', MachinesTotal, 'DiskCacheCapacity', round(ClusterDataCapacityFactor,1)) | project Action = 'Cluster Diagnostics', Category='Info', Summary, Details;";
+            var query = ".show diagnostics | extend Passed= (IsHealthy) and not(IsScaleOutRequired) | extend Summary = strcat('Cluster is ', iif(Passed, '', 'NOT'), 'healthy.'),Details=pack('MachinesTotal', MachinesTotal, 'DiskCacheCapacity', round(ClusterDataCapacityFactor,1)) | project Action = 'Cluster Diagnostics', Category='Info', Summary, Details;";
             using (var reader = _kustoClient.ExecuteQuery(query, source.Token))
             {
                 while (reader.Read())
@@ -193,7 +198,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 includeSizeDetails = false;
             }
-            
+
             CancellationTokenSource source = new CancellationTokenSource();
             CancellationToken token = source.Token;
 
@@ -215,7 +220,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                         MetadataTypeName = DataSourceMetadataType.Database.ToString(),
                         SizeInMB = includeSizeDetails ? row["sum_OriginalSize"].ToString() : "",
                         Name = row["DatabaseName"].ToString(),
-                        PrettyName = includeSizeDetails ? row["DatabaseName"].ToString(): (string.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
+                        PrettyName = includeSizeDetails ? row["DatabaseName"].ToString() : (string.IsNullOrEmpty(row["PrettyName"]?.ToString()) ? row["DatabaseName"].ToString() : row["PrettyName"].ToString()),
                         Urn = $"{ClusterName}.{row["DatabaseName"]}"
                     })
                     .Materialize()
@@ -228,7 +233,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         {
             ValidationUtils.IsNotNull(objectMetadata, "Need a datasource object");
 
-            switch(objectMetadata.MetadataType)
+            switch (objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Database: return DatabaseExists(objectMetadata.Name).Result;
                 default: throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
@@ -261,7 +266,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             _kustoClient.UpdateDatabase(parsedDatabase);
             _intellisenseClient.UpdateDatabase(parsedDatabase);
         }
-        
+
         /// <summary>
         /// Clears everything
         /// </summary>
@@ -274,7 +279,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 _databaseMetadata = null;
             }
             _tableMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
-            _columnMetadata  = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
+            _materializedViewMetadata = new ConcurrentDictionary<string, IEnumerable<TableMetadata>>();
+            _columnMetadata = new ConcurrentDictionary<string, IEnumerable<DataSourceObjectMetadata>>();
             _folderMetadata = new ConcurrentDictionary<string, IEnumerable<FolderMetadata>>();
             _functionMetadata = new ConcurrentDictionary<string, IEnumerable<FunctionMetadata>>();
         }
@@ -284,17 +290,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         {
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
-            switch(objectMetadata.MetadataType)
+            switch (objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster:
                     Refresh(true);
                     SetDatabaseMetadata(false);
                     break;
-                
+
                 case DataSourceMetadataType.Database:
                     Refresh(false);
                     LoadTableSchema(objectMetadata);
                     LoadFunctionSchema(objectMetadata);
+                    LoadMaterializedViewSchema(objectMetadata);
                     break;
 
                 case DataSourceMetadataType.Table:
@@ -303,13 +310,20 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                     SetTableSchema(table);
                     break;
 
+                case DataSourceMetadataType.MaterializedView:
+                    var materializedView = objectMetadata as TableMetadata;
+                    _columnMetadata.TryRemove(GenerateMetadataKey(materializedView.DatabaseName, materializedView.Name), out _);
+                    SetMaterializedViewSchema(materializedView);
+                    break;
+
                 case DataSourceMetadataType.Folder:
                     Refresh(false);
                     var folder = objectMetadata as FolderMetadata;
                     LoadTableSchema(folder.ParentMetadata);
                     LoadFunctionSchema(folder.ParentMetadata);
+                    LoadMaterializedViewSchema(folder.ParentMetadata);
                     break;
-                
+
                 default:
                     throw new ArgumentException($"Unexpected type {objectMetadata.MetadataType}.");
             }
@@ -328,12 +342,16 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
                 case DataSourceMetadataType.Database: // show folders, tables, and functions
                     return includeSizeDetails
-                        ? GetTablesForDashboard(objectMetadata)
+                        ? GetTablesAndViewsForDashboard(objectMetadata)
                         : GetDatabaseSchema(objectMetadata);
 
                 case DataSourceMetadataType.Table: // show columns
                     var table = objectMetadata as TableMetadata;
                     return GetTableSchema(table);
+
+                case DataSourceMetadataType.MaterializedView: // show materialized view columns
+                    var materializedView = objectMetadata as TableMetadata;
+                    return GetMaterializedViewSchema(materializedView);
 
                 case DataSourceMetadataType.Folder: // show subfolders, functions, and tables
                     var folder = objectMetadata as FolderMetadata;
@@ -349,7 +367,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             ValidationUtils.IsNotNull(objectMetadata, nameof(objectMetadata));
 
             // Add more cases when required.
-            switch(objectMetadata.MetadataType)
+            switch (objectMetadata.MetadataType)
             {
                 case DataSourceMetadataType.Cluster:
                     return GetClusterDiagnostics();
@@ -376,7 +394,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 return false;
             }
         }
-        
+
         /// <inheritdoc/>
         private IEnumerable<DataSourceObjectMetadata> GetDatabaseSchema(DataSourceObjectMetadata objectMetadata)
         {
@@ -384,7 +402,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             ValidationUtils.IsTrue<ArgumentException>(DatabaseExists(objectMetadata.Name).Result, $"Database '{objectMetadata}' does not exist.");
 
             var allMetadata = GetAllMetadata(objectMetadata.Urn);
-            
+
             // if the records have already been loaded them return them
             if (allMetadata.Any())
             {
@@ -393,20 +411,28 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
             LoadTableSchema(objectMetadata);
             LoadFunctionSchema(objectMetadata);
-            
+            LoadMaterializedViewSchema(objectMetadata);
+
             return GetAllMetadata(objectMetadata.Urn);
         }
 
-        private IEnumerable<DataSourceObjectMetadata> GetTablesForDashboard(DataSourceObjectMetadata objectMetadata)
+        private IEnumerable<DataSourceObjectMetadata> GetTablesAndViewsForDashboard(DataSourceObjectMetadata objectMetadata)
         {
             string newKey = $"{DatabaseKeyPrefix}.{objectMetadata.Urn}";
 
             if (!_tableMetadata.ContainsKey(newKey) || !_tableMetadata[newKey].Any())
             {
-                 LoadTableSchema(objectMetadata);   
+                LoadTableSchema(objectMetadata);
             }
-            
-            return _tableMetadata[newKey].OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase);
+
+            if (!_materializedViewMetadata.ContainsKey(newKey) || !_materializedViewMetadata[newKey].Any())
+            {
+                LoadMaterializedViewSchema(objectMetadata);
+            }
+
+            return _tableMetadata[newKey]
+                .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase)
+                .Concat(_materializedViewMetadata[newKey].OrderBy(x => x.PrettyName));
         }
 
         private IEnumerable<DataSourceObjectMetadata> GetAllMetadata(string key)
@@ -421,6 +447,11 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             if (_tableMetadata.TryGetValue(key, out IEnumerable<TableMetadata>? tableMetadata))
             {
                 returnList.AddRange(tableMetadata.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+            }
+
+            if (_materializedViewMetadata.TryGetValue(key, out IEnumerable<TableMetadata>? materializedViewMetadata))
+            {
+                returnList.AddRange(materializedViewMetadata.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
             }
 
             if (_functionMetadata.TryGetValue(key, out IEnumerable<FunctionMetadata>? functionMetadata))
@@ -467,6 +498,41 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             }
         }
 
+        private IEnumerable<ColumnInfo> GetMaterializedViewColumnInfos(string databaseName, string materializedViewName)
+        {
+            ValidationUtils.IsNotNullOrWhitespace(databaseName, nameof(databaseName));
+
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            const string systemPrefix = "System.";
+            var query = new StringBuilder(string.Format(CultureInfo.InvariantCulture, ".show materialized-view [{0}] schema as json",
+                materializedViewName));
+            query.Append(" | project TableName, Schema, Folder");
+
+            using (var reader = _kustoClient.ExecuteQuery(query.ToString(), token, databaseName))
+            {
+                var result = reader.ToEnumerable()
+                    .FirstOrDefault();
+                if (result == null || result["Schema"] == null)
+                    return Enumerable.Empty<ColumnInfo>();
+
+                var columns = JsonConvert.DeserializeObject<MaterializedViewSchemaInfo>(result["Schema"].ToString())
+                    .OrderedColumns
+                    .Select(column => new ColumnInfo
+                    {
+                        Table = result["TableName"]?.ToString(),
+                        Name = column.Name?.ToString(),
+                        DataType = column.Type?.ToString().TrimPrefix(systemPrefix),
+                        Folder = result["Folder"]?.ToString()
+                    })
+                    .Materialize()
+                    .OrderBy(column => column.Name, StringComparer.Ordinal); // case-sensitive
+
+                return columns;
+            }
+        }
+
         private IEnumerable<TableInfo> GetTableInfos(string databaseName)
         {
             CancellationTokenSource source = new CancellationTokenSource();
@@ -494,19 +560,61 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 return;
             }
-            
+
             var rootTableFolderKey = new StringBuilder($"{databaseMetadata.Urn}");
             if (tableInfos.Any(x => !string.IsNullOrWhiteSpace(x.Folder)))
             {
-                // create Table folder to hold functions tables
+                // create Table folder to hold tables folders
                 var tableFolder = MetadataFactory.CreateFolderMetadata(databaseMetadata, rootTableFolderKey.ToString(), "Tables");
-                _folderMetadata.AddRange(rootTableFolderKey.ToString(), new List<FolderMetadata> {tableFolder});
+                _folderMetadata.AddRange(rootTableFolderKey.ToString(), new List<FolderMetadata> { tableFolder });
                 rootTableFolderKey.Append($".{tableFolder.Name}");
-                
+
                 SetFolderMetadataForTables(databaseMetadata, tableInfos, rootTableFolderKey.ToString());
             }
-            
+
             SetTableMetadata(databaseMetadata, tableInfos, rootTableFolderKey.ToString());
+        }
+
+        private IEnumerable<TableInfo> GetMaterializedViewsInfos(string databaseName)
+        {
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken token = source.Token;
+
+            string query = $".show materialized-views";
+
+            using (var reader = _kustoClient.ExecuteQuery(query, token, databaseName))
+            {
+                return reader.ToEnumerable()
+                    .Select(row => new TableInfo
+                    {
+                        TableName = row["Name"]?.ToString(),
+                        Folder = row["Folder"]?.ToString()
+                    })
+                    .Materialize();
+            }
+        }
+
+        private void LoadMaterializedViewSchema(DataSourceObjectMetadata databaseMetadata)
+        {
+            var materializedViewInfos = GetMaterializedViewsInfos(databaseMetadata.Name);
+
+            if (!materializedViewInfos.Any())
+            {
+                return;
+            }
+
+            var rootMaterializedViewFolderKey = new StringBuilder($"{databaseMetadata.Urn}");
+            if (materializedViewInfos.Any(x => !string.IsNullOrWhiteSpace(x.Folder)))
+            {
+                // create Materialized views folder to hold materialized views folders
+                var materializedViewFolder = MetadataFactory.CreateFolderMetadata(databaseMetadata, rootMaterializedViewFolderKey.ToString(), "Materialized views");
+                _folderMetadata.AddRange(rootMaterializedViewFolderKey.ToString(), new List<FolderMetadata> { materializedViewFolder });
+                rootMaterializedViewFolderKey.Append($".{materializedViewFolder.Name}");
+
+                SetFolderMetadataForTables(databaseMetadata, materializedViewInfos, rootMaterializedViewFolderKey.ToString());
+            }
+
+            SetMaterializedViewMetadata(databaseMetadata, materializedViewInfos, rootMaterializedViewFolderKey.ToString());
         }
 
         private IEnumerable<DataSourceObjectMetadata> GetTableSchema(TableMetadata tableMetadata)
@@ -516,10 +624,10 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 return metadata;
             }
-            
+
             SetTableSchema(tableMetadata);
 
-            return _columnMetadata.TryGetValue(key, out IEnumerable<DataSourceObjectMetadata>? columnMetadata) 
+            return _columnMetadata.TryGetValue(key, out IEnumerable<DataSourceObjectMetadata>? columnMetadata)
                 ? columnMetadata : Enumerable.Empty<DataSourceObjectMetadata>();
         }
 
@@ -531,8 +639,34 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 return;
             }
-            
+
             SetColumnMetadata(tableMetadata.DatabaseName, tableMetadata.Name, columnInfos);
+        }
+
+        private IEnumerable<DataSourceObjectMetadata> GetMaterializedViewSchema(TableMetadata materializedViewMetadata)
+        {
+            var key = GenerateMetadataKey(materializedViewMetadata.DatabaseName, materializedViewMetadata.Name);
+            if (_columnMetadata.TryGetValue(key, out IEnumerable<DataSourceObjectMetadata>? metadata))
+            {
+                return metadata;
+            }
+
+            SetMaterializedViewSchema(materializedViewMetadata);
+
+            return _columnMetadata.TryGetValue(key, out IEnumerable<DataSourceObjectMetadata>? columnMetadata)
+                ? columnMetadata : Enumerable.Empty<DataSourceObjectMetadata>();
+        }
+
+        private void SetMaterializedViewSchema(TableMetadata materializedViewMetadata)
+        {
+            IEnumerable<ColumnInfo> columnInfos = GetMaterializedViewColumnInfos(materializedViewMetadata.DatabaseName, materializedViewMetadata.Name);
+
+            if (!columnInfos.Any())
+            {
+                return;
+            }
+
+            SetColumnMetadata(materializedViewMetadata.DatabaseName, materializedViewMetadata.Name, columnInfos);
         }
 
         private void SetFolderMetadataForTables(DataSourceObjectMetadata objectMetadata, IEnumerable<TableInfo> tableInfos, string rootTableFolderKey)
@@ -540,7 +674,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             var tablesByFolder = tableInfos
                 .GroupBy(x => x.Folder, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-            
+
             var tableFolders = new List<FolderMetadata>();
 
             foreach (var columnGroup in tablesByFolder)
@@ -570,7 +704,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             // create Functions folder to hold functions folders
             var rootFunctionFolderKey = $"{databaseMetadata.Urn}";
             var rootFunctionFolder = MetadataFactory.CreateFolderMetadata(databaseMetadata, rootFunctionFolderKey, "Functions");
-            _folderMetadata.AddRange(rootFunctionFolderKey, new List<FolderMetadata> {rootFunctionFolder});
+            _folderMetadata.AddRange(rootFunctionFolderKey, new List<FolderMetadata> { rootFunctionFolder });
 
             // create each folder to hold functions
             var functionsGroupByFolder = functionInfos
@@ -579,7 +713,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
             if (functionsGroupByFolder.Any())
             {
-                SetFolderMetadataForFunctions(databaseMetadata, functionsGroupByFolder, rootFunctionFolder);    
+                SetFolderMetadataForFunctions(databaseMetadata, functionsGroupByFolder, rootFunctionFolder);
             }
 
             SetFunctionMetadata(databaseMetadata.Name, rootFunctionFolder.Name, functionsGroupByFolder);
@@ -628,8 +762,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                     && !string.IsNullOrWhiteSpace(row.Name)
                     && !string.IsNullOrWhiteSpace(row.DataType));
 
-            var columnMetadatas = new SortedList<string, ColumnMetadata>();
-            
+            var columnMetadata = new SortedList<string, ColumnMetadata>();
+
             foreach (ColumnInfo columnInfo in columns)
             {
                 var column = new ColumnMetadata
@@ -645,10 +779,58 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                     DataType = columnInfo.DataType
                 };
 
-                columnMetadatas.Add(column.PrettyName, column);
+                columnMetadata.Add(column.PrettyName, column);
             }
 
-            _columnMetadata[GenerateMetadataKey(databaseName, tableName)] = columnMetadatas.Values;
+            _columnMetadata[GenerateMetadataKey(databaseName, tableName)] = columnMetadata.Values;
+        }
+
+        private void SetMaterializedViewMetadata(DataSourceObjectMetadata databaseName, IEnumerable<TableInfo> materializedViewInfos, string rootTableFolderKey)
+        {
+            var materializedViewFolders = new Dictionary<string, List<TableMetadata>>
+            {
+                {$"{DatabaseKeyPrefix}.{databaseName.Urn}", new List<TableMetadata>()}
+            };
+
+            foreach (var materializedView in materializedViewInfos)
+            {
+                var tableKey = new StringBuilder(rootTableFolderKey);
+
+                if (!string.IsNullOrWhiteSpace(materializedView.Folder))
+                {
+                    tableKey.Append($".{materializedView.Folder}");
+                }
+
+                var materializedViewMetadata = new TableMetadata
+                {
+                    ClusterName = ClusterName,
+                    DatabaseName = databaseName.Name,
+                    MetadataType = DataSourceMetadataType.MaterializedView,
+                    MetadataTypeName = DataSourceMetadataType.MaterializedView.ToString(),
+                    Name = materializedView.TableName,
+                    PrettyName = materializedView.TableName,
+                    Folder = materializedView.Folder,
+                    Urn = $"{tableKey}.{materializedView.TableName}"
+                };
+
+                if (materializedViewFolders.TryGetValue(tableKey.ToString(), out List<TableMetadata>? tableMetadataList))
+                {
+                    tableMetadataList.Add(materializedViewMetadata);
+                }
+                else
+                {
+                    materializedViewFolders[tableKey.ToString()] = new List<TableMetadata> { materializedViewMetadata };
+                }
+
+                // keep a list of all tables for the database
+                // this is used for the dashboard
+                materializedViewFolders[$"{DatabaseKeyPrefix}.{databaseName.Urn}"].Add(materializedViewMetadata);
+            }
+
+            foreach (var table in materializedViewFolders)
+            {
+                _materializedViewMetadata.AddRange(table.Key, table.Value);
+            }
         }
 
         private void SetTableMetadata(DataSourceObjectMetadata databaseName, IEnumerable<TableInfo> tableInfos, string rootTableFolderKey)
@@ -657,7 +839,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             {
                 {$"{DatabaseKeyPrefix}.{databaseName.Urn}", new List<TableMetadata>()}
             };
-            
+
             foreach (var table in tableInfos)
             {
                 var tableKey = new StringBuilder(rootTableFolderKey);
@@ -685,14 +867,14 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 }
                 else
                 {
-                    tableFolders[tableKey.ToString()] = new List<TableMetadata>{tableMetadata};
+                    tableFolders[tableKey.ToString()] = new List<TableMetadata> { tableMetadata };
                 }
-                
+
                 // keep a list of all tables for the database
                 // this is used for the dashboard
                 tableFolders[$"{DatabaseKeyPrefix}.{databaseName.Urn}"].Add(tableMetadata);
             }
-            
+
             foreach (var table in tableFolders)
             {
                 _tableMetadata.AddRange(table.Key, table.Value);
@@ -705,22 +887,22 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             foreach (var functionGroup in functionGroupByFolder)
             {
                 var stringBuilder = new StringBuilder(rootFunctionFolderKey);
-                
+
                 if (!string.IsNullOrWhiteSpace(functionGroup.Key))
                 {
                     stringBuilder.Append(".");
-                    
+
                     // folders are in the following format: folder1/folder2/folder3/folder4
                     var folderKey = functionGroup.Key
                         .Replace(@"\", ".")
                         .Replace(@"/", ".");
-                    
+
                     stringBuilder.Append(folderKey);
                 }
 
                 var functionKey = $"{ClusterName}.{databaseName}.{stringBuilder}";
                 var functions = new List<FunctionMetadata>();
-                
+
                 foreach (FunctionInfo functionInfo in functionGroup)
                 {
                     var function = new FunctionMetadata
@@ -789,12 +971,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         public override string GenerateAlterFunctionScript(string functionName)
         {
             var functionInfo = GetFunctionInfo(functionName);
-            
+
             if (functionInfo == null)
             {
                 return string.Empty;
             }
-            
+
             var alterCommand = new StringBuilder();
 
             alterCommand.Append(".alter function with ");
@@ -808,12 +990,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         public override string GenerateExecuteFunctionScript(string functionName)
         {
             var functionInfo = GetFunctionInfo(functionName);
-            
-            return functionInfo == null 
-                ? string.Empty 
+
+            return functionInfo == null
+                ? string.Empty
                 : $"{functionInfo.Name}{functionInfo.Parameters}";
         }
-        
+
         private string GenerateMetadataKey(string databaseName, string objectName)
         {
             return string.IsNullOrWhiteSpace(objectName) ? databaseName : $"{databaseName}.{objectName}";
@@ -866,9 +1048,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 };
             }
 
-            return new ListDatabasesResponse();;
+            return new ListDatabasesResponse(); ;
         }
-        
+
         public override DatabaseInfo GetDatabaseInfo(string serverName, string databaseName)
         {
             DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(serverName);
