@@ -238,7 +238,7 @@
     <value>Не удалось получить столбец схемы для результирующего набора</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Не удалось получить план выполнения из результирующего набора </value>
+    <value>Could not retrieve an execution plan from the result set</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>В настоящее время эта функция не поддерживается Azure SQL DB и Data Warehouse: {0}</value>
@@ -1210,7 +1210,7 @@
     <value>Непредвиденный тип запуска.</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>Неизвестная единица размера: {0} </value>
+    <value>Unknown size unit {0}</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>Не удается найти запрошенный сеанс XEvent</value>
@@ -1258,7 +1258,7 @@
     <value>Никогда</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>Путь {0} не является допустимым каталогом </value>
+    <value>Path {0} is not a valid directory</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>Для каталога {0} файл с именем {1} уже существует</value>
@@ -1351,13 +1351,13 @@
     <value>Строка {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType). Значение литерала: {2}. </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType), так как он использует неподдерживаемый формат даты и времени. Используйте один из поддерживаемых форматов. Значение литерала: {2}.</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>Невозможно преобразовать {0} в объект Microsoft.Data.SqlClient.SqlParameter. Указанный литерал не может быть преобразован в {1}(Microsoft.Data.SqlDbType), так как для двоичных литералов ожидается префикс 0x. Значение литерала: {2}. </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>Строка {0}, столбец {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Прогноз</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Применяет подготовленную модель машинного обучения для ввода данных.	</value>
+    <value>Applies a trained machine learning model to input data</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Функция, возвращающая табличное значение</value>
@@ -3905,7 +3905,7 @@
     <value>В хэше</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Число контейнеров хэш-индекса. Обратите внимание, что значение всегда будет автоматически округляться до следующей степени 2. </value>
+    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Число контейнеров</value>
@@ -4347,5 +4347,11 @@
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Олицетворение любого имени для входа</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() was not called to establish the required service provider</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Service {0} was not found in the service provider</value>
   </data>
 </root>

@@ -62,16 +62,6 @@
         <target state="translated">Impossibile creare il servizio di tipo {0} da ExtensionLoader&lt;{1}&gt;</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ServiceProviderNotSet">
-        <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="translated">SetServiceProvider() non è stato chiamato per stabilire il provider dei servizi richiesto</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotFound">
-        <source>Service {0} was not found in the service provider</source>
-        <target state="translated">Il servizio {0} non è stato trovato nel provider di servizi</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ServiceNotOfExpectedType">
         <source>Service of Type {0} is not compatible with registered Type {1}</source>
         <target state="translated">Il servizio di tipo {0} non è compatibile con il tipo registrato {1}</target>

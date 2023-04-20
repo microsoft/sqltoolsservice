@@ -211,8 +211,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="QueryServiceExecutionPlanNotFound">
-        <source>Could not retrieve an execution plan from the result set </source>
-        <target state="translated">결과 집합에서 실행 계획을 검색할 수 없습니다. </target>
+        <source>Could not retrieve an execution plan from the result set</source>
+        <target state="new">Could not retrieve an execution plan from the result set</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PeekDefinitionAzureError">
@@ -1845,8 +1845,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="UnknownSizeUnit">
-        <source>Unknown size unit {0} </source>
-        <target state="translated">알 수 없는 크기 단위 {0} </target>
+        <source>Unknown size unit {0}</source>
+        <target state="new">Unknown size unit {0}</target>
         <note>.
  Parameters: 0 - unit (string) </note>
       </trans-unit>
@@ -1932,8 +1932,8 @@
         <note></note>
       </trans-unit>
       <trans-unit id="Error_InvalidDirectoryName">
-        <source>Path {0} is not a valid directory </source>
-        <target state="translated">경로 {0}은(는) 유효한 디렉터리가 아닙니다. </target>
+        <source>Path {0} is not a valid directory</source>
+        <target state="new">Path {0} is not a valid directory</target>
         <note></note>
       </trans-unit>
       <trans-unit id="Error_ExistingDirectoryName">
@@ -2096,8 +2096,8 @@
  Parameters: 0 - lineNumber (int) </note>
       </trans-unit>
       <trans-unit id="ErrorMessage">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2} </source>
-        <target state="translated">{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 지정한 리터럴은 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 리터럴 값: {2} </target>
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</source>
+        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -2108,8 +2108,8 @@
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
       <trans-unit id="BinaryLiteralPrefixMissingError">
-        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2} </source>
-        <target state="translated">{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 이진 리터럴에는 접두사 0x가 필요하므로 지정한 리터럴은 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 리터럴 값: {2} </target>
+        <source>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</source>
+        <target state="new">Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</target>
         <note>.
  Parameters: 0 - variableName (string), 1 - sqlDataType (string), 2 - literalValue (string) </note>
       </trans-unit>
@@ -5070,8 +5070,8 @@
         <note> Operator name</note>
       </trans-unit>
       <trans-unit id="TFPDescription">
-        <source>Applies a trained machine learning model to input data	</source>
-        <target state="translated">입력 데이터에 학습된 기계 학습 모델을 적용합니다.	</target>
+        <source>Applies a trained machine learning model to input data</source>
+        <target state="new">Applies a trained machine learning model to input data</target>
         <note> Operator description</note>
       </trans-unit>
       <trans-unit id="TableValueFunction">
@@ -6394,8 +6394,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyDescription">
-        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2. </source>
-        <target state="translated">해시 인덱스의 버킷 수입니다. 값은 항상 다음 2의 거듭제곱으로 자동으로 반올림됩니다. </target>
+        <source>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</source>
+        <target state="new">Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="IndexBucketCountPropertyTitle">
@@ -7135,6 +7135,16 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="Permission_ImpersonateAnyLogin">
         <source>Impersonate Any Login</source>
         <target state="translated">모든 로그인 가장</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceProviderNotSet">
+        <source>SetServiceProvider() was not called to establish the required service provider</source>
+        <target state="new">SetServiceProvider() was not called to establish the required service provider</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ServiceNotFound">
+        <source>Service {0} was not found in the service provider</source>
+        <target state="new">Service {0} was not found in the service provider</target>
         <note></note>
       </trans-unit>
     </body>

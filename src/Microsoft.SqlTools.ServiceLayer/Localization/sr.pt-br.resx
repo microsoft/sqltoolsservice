@@ -238,7 +238,7 @@
     <value>Não foi possível recuperar o esquema de colunas para o conjunto de resultados</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Não foi possível recuperar um plano de execução do conjunto de resultados </value>
+    <value>Could not retrieve an execution plan from the result set</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>No momento, esse recurso não é compatível com o Banco de Dados SQL do Azure e com o Data Warehouse: {0}</value>
@@ -1210,7 +1210,7 @@
     <value>Tipo de execução inesperado.</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>Tamanho desconhecido da unidade {0}</value>
+    <value>Unknown size unit {0}</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>Não foi possível encontrar a sessão XEvent solicitada</value>
@@ -1258,7 +1258,7 @@
     <value>Nunca</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>O caminho {0} não é um diretório válido</value>
+    <value>Path {0} is not a valid directory</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>Já existe um arquivo com o nome {1} para o diretório {0}</value>
@@ -1351,13 +1351,13 @@
     <value>Linha {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType). Valor do literal: {2} </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType), pois ele usou um formato de data/hora sem suporte. Use um dos formatos de data/hora com suporte. Valor do literal: {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>Não é possível converter {0} em um objeto Microsoft.Data.SqlClient.SqlParameter. O literal especificado não pode ser convertido em {1}(Microsoft.Data.SqlDbType), pois o prefixo 0x é esperado para um literal binário. Valor do literal: {2} </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>Linha {0}, coluna {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Prever</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Aplica um modelo de machine learning treinado a dados de entrada	</value>
+    <value>Applies a trained machine learning model to input data</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Função com Valor de Tabela</value>
@@ -3905,7 +3905,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>É hash</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Número de buckets do índice de hash, observe que o valor sempre será arredondado automaticamente para a próxima potência de 2. </value>
+    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Número de buckets</value>
@@ -4347,5 +4347,11 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Representar Qualquer Logon</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() was not called to establish the required service provider</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Service {0} was not found in the service provider</value>
   </data>
 </root>

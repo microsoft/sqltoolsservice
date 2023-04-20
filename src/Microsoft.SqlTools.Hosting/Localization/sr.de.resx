@@ -153,12 +153,6 @@
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>Der Dienst vom Typ {0} kann nicht von ExtensionLoader&lt;{1}&gt; erstellt werden.</value>
   </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() wurde nicht aufgerufen, um den erforderlichen Dienstanbieter einzurichten.</value>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>Der Dienst {0} wurde im Dienstanbieter nicht gefunden.</value>
-  </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>Der Dienst vom Typ {0} ist nicht mit dem registrierten Typ {1} kompatibel.</value>
   </data>
