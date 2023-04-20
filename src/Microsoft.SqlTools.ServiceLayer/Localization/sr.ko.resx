@@ -238,7 +238,7 @@
     <value>결과 집합의 열 스키마를 검색할 수 없습니다.</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>결과 집합에서 실행 계획을 검색할 수 없습니다. </value>
+    <value>Could not retrieve an execution plan from the result set</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>현재 이 기능은 Azure SQL DB 및 Data Warehouse에서 지원되지 않습니다. {0}</value>
@@ -1210,7 +1210,7 @@
     <value>예기치 않은 실행 유형입니다.</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>알 수 없는 크기 단위 {0} </value>
+    <value>Unknown size unit {0}</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>요청된 XEvent 세션을 찾을 수 없습니다.</value>
@@ -1258,7 +1258,7 @@
     <value>안 함</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>경로 {0}은(는) 유효한 디렉터리가 아닙니다. </value>
+    <value>Path {0} is not a valid directory</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>디렉터리 {0}에 이름이 {1}인 파일이 이미 있습니다.</value>
@@ -1351,13 +1351,13 @@
     <value>줄 {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 지정한 리터럴은 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 리터럴 값: {2} </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 지정한 리터럴은 지원되지 않는 날짜/시간 형식이 사용되었기 때문에 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 지원되는 날짜/시간 형식 중 하나를 사용하세요. 리터럴 값: {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>{0}을(를) Microsoft.Data.SqlClient.SqlParameter 개체로 변환할 수 없습니다. 이진 리터럴에는 접두사 0x가 필요하므로 지정한 리터럴은 {1}(Microsoft.Data.SqlDbType)(으)로 변환할 수 없습니다. 리터럴 값: {2} </value>
+    <value>Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>줄 {0}, 열 {1}</value>
@@ -3127,7 +3127,7 @@
     <value>예측</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>입력 데이터에 학습된 기계 학습 모델을 적용합니다.	</value>
+    <value>Applies a trained machine learning model to input data</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>테이블 반환 함수</value>
@@ -3905,7 +3905,7 @@
     <value>해시 여부</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>해시 인덱스의 버킷 수입니다. 값은 항상 다음 2의 거듭제곱으로 자동으로 반올림됩니다. </value>
+    <value>Bucket count of the hash index, note the value will always automatically round up to the next power of 2.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>버킷 수</value>
@@ -4347,5 +4347,11 @@
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>모든 로그인 가장</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() was not called to establish the required service provider</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Service {0} was not found in the service provider</value>
   </data>
 </root>

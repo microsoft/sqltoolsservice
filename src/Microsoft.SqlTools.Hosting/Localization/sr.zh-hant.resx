@@ -153,12 +153,6 @@
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>類型 {0} 的服務不能由　ExtensionLoader&lt;{1}&gt;　建立</value>
   </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>未呼叫 SetServiceProvider() 來建立必要的服務提供者</value>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>在服務提供者中找不到服務 {0}</value>
-  </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>類型　{0}　的服務與註冊的類型　{1}　不相容</value>
   </data>

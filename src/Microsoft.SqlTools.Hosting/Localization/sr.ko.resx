@@ -153,12 +153,6 @@
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>ExtensionLoader&lt;{1}&gt;에서 {0} 유형의 서비스를 만들 수 없습니다</value>
   </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>필요한 서비스 공급자를 설정하기 위해 SetServiceProvider()가 호출되지 않았습니다</value>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>서비스 공급자에서 {0} 서비스를 찾을 수 없습니다</value>
-  </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>{0} 유형 서비스가 등록된 {1} 유형과 호환되지 않습니다</value>
   </data>
