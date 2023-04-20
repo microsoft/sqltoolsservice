@@ -112,7 +112,7 @@ steps:
       $props = New-Object XML
       $props.Load($projectFile)
       $propGroup = $props.Project.PropertyGroup;
-      $versionPre = $env:Major + '.' + $env:Minor + '.'
+      $versionPre = $env:ManagedBatchParserMajor + '.' + $env:ManagedBatchParserMinor + '.'
       if($env:StableRelease.Equals('true')) {
           $version = $versionPre + '0';
       } else {
