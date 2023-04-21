@@ -35,6 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         //property by the initialization code
         private ServerConnection serverConnection;
 
+        private bool isPropertiesMode;
+
         #endregion
 
         #region Trace support
@@ -136,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // InitializeComponent();
         }
 
-        public DatabaseRoleGeneral(CDataContainer context)
+        public DatabaseRoleGeneral(CDataContainer context, DatabaseRoleInfo dbRole, bool isNewObject)
         {
             // InitializeComponent();
             dataContainer = context;
@@ -149,6 +151,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 document = null;
             }
+            isPropertiesMode = !isNewObject;
+            dbroleName = dbRole.Name;
+            serverName = dataContainer.ServerName;
+            databaseName = "TriggerTest";
+            serverConnection = dataContainer.Server.ConnectionContext;
+            InitProp();
         }
 
         #endregion
@@ -166,18 +174,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             // STrace.Params(ComponentName, "LoadData", "XmlDocument doc=\"{0}\"", doc.OuterXml);
 
-            STParameters param;
-            bool bStatus;
+            // STParameters param;
+            // bool bStatus;
 
-            param = new STParameters();
+            // param = new STParameters();
 
-            param.SetDocument(doc);
+            // param.SetDocument(doc);
 
-            bStatus = param.GetParam("servername", ref this.serverName);
-            bStatus = param.GetParam("database", ref this.databaseName);
+            // bStatus = param.GetParam("servername", ref this.serverName);
+            // bStatus = param.GetParam("database", ref this.databaseName);
 
-            bStatus = param.GetParam("role", ref this.dbroleName);
-            bStatus = param.GetParam("urn", ref this.dbroleUrn);
+            // bStatus = param.GetParam("role", ref this.dbroleName);
+            // bStatus = param.GetParam("urn", ref this.dbroleUrn);
         }
 
 
@@ -297,7 +305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             else // not in properties mode -> create role
             {
-                role = new DatabaseRole(database, this.roleName);
+                role = new DatabaseRole(database, this.dbroleName);
                 if (this.ownerName.Length != 0)
                 {
                     role.Owner = this.ownerName;

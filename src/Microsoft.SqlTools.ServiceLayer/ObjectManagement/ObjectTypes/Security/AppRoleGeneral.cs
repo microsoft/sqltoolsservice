@@ -36,6 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         //property by the initialization code
         private ServerConnection serverConnection;
 
+        private bool isPropertiesMode;
+
         #endregion
 
 
@@ -94,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return (approleName != null) && (approleName.Trim().Length != 0);
+                return isPropertiesMode;
             }
         }
         #endregion
@@ -106,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // InitializeComponent();
         }
 
-        public AppRoleGeneral(CDataContainer context)
+        public AppRoleGeneral(CDataContainer context, AppRoleInfo dbRole, bool isNewObject)
         {
             dataContainer = context;
 
@@ -120,6 +122,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             this.isYukonOrLater = (9 <= context.Server.ConnectionContext.ServerVersion.Major);
+            isPropertiesMode = !isNewObject;
+            approleName = dbRole.Name;
+            serverName = dataContainer.ServerName;
+            databaseName = "TriggerTest";
+            serverConnection = dataContainer.Server.ConnectionContext;
+            InitProp();
         }
 
         /// <summary>
@@ -152,16 +160,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             // STrace.Params(ComponentName, "LoadData", "XmlDocument doc=\"{0}\"", doc.OuterXml);
 
-            STParameters param;
-            bool bStatus;
+            // STParameters param;
+            // bool bStatus;
 
-            param = new STParameters();
+            // param = new STParameters();
 
-            param.SetDocument(doc);
+            // param.SetDocument(doc);
 
-            bStatus = param.GetParam("servername", ref this.serverName);
-            bStatus = param.GetParam("database", ref this.databaseName);
-            bStatus = param.GetParam("applicationrole", ref this.approleName);
+            // bStatus = param.GetParam("servername", ref this.serverName);
+            // bStatus = param.GetParam("database", ref this.databaseName);
+            // bStatus = param.GetParam("applicationrole", ref this.approleName);
         }
 
         /// <summary>
@@ -300,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         ///
         /// here we talk with server via smo and do the actual data changing
         /// </summary>
-        private void SendDataToServer()
+        public void SendDataToServer()
         {
             // STrace.Params(ComponentName, "SendDataToServer", "", null);
 
@@ -329,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 if (passwordChanged == true)
                 {
-                    approle.ChangePassword((string)"_textBoxPaswordText");
+                    approle.ChangePassword((string)"Random123456!");
                 }
 
                 if (alterRequired == true)
@@ -348,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     approle.DefaultSchema = _selectedDefaultSchema;
                 }
 
-                approle.Create((string)"_textBoxPaswordText");
+                approle.Create((string)"Random123456");
 
                 SendToServerSchemaOwnershipChanges(db, approle);
                 SendToServerMembershipChanges(db, approle);

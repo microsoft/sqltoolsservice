@@ -5,15 +5,10 @@
 
 #nullable disable
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -85,10 +80,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        private string ConfigureAppRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, LoginPrototype prototype)
+        private string ConfigureAppRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, AppRoleGeneral prototype)
         {
             string sqlScript = string.Empty;
-            using (var actions = new LoginActions(dataContainer, configAction, prototype))
+            using (var actions = new AppRoleActions(dataContainer, configAction, prototype))
             {
                 var executionHandler = new ExecutonHandler(actions);
                 executionHandler.RunNow(runType, this);
