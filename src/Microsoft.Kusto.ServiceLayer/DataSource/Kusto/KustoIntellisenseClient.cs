@@ -35,7 +35,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         {
             IEnumerable<ShowDatabaseSchemaResult> tableSchemas = Enumerable.Empty<ShowDatabaseSchemaResult>();
             IEnumerable<ShowFunctionsResult> functionSchemas = Enumerable.Empty<ShowFunctionsResult>();
-            var materializedViewSchemas = new ConcurrentBag<ShowMaterializedViewSchemaResult>();
+            var materializedViewSchemasAndQueries = new ConcurrentBag<(ShowMaterializedViewSchemaResult Schema, string Query)>();
 
             if (!string.IsNullOrWhiteSpace(databaseName))
             {
@@ -62,13 +62,13 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
                             if (materializedViewSchema != null)
                             {
-                                materializedViewSchemas.Add(materializedViewSchema);
+                                materializedViewSchemasAndQueries.Add((materializedViewSchema, materializedView.Query));
                             }
                         });
                     });
             }
 
-            return AddOrUpdateDatabase(tableSchemas, functionSchemas, materializedViewSchemas, GlobalState.Default, databaseName,
+            return AddOrUpdateDatabase(tableSchemas, functionSchemas, materializedViewSchemasAndQueries, GlobalState.Default, databaseName,
                 clusterName);
         }
 
@@ -76,7 +76,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// Loads the schema for the specified database and returns a new <see cref="GlobalState"/> with the database added or updated.
         /// </summary>
         private GlobalState AddOrUpdateDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
-            IEnumerable<ShowFunctionsResult> functionSchemas, IEnumerable<ShowMaterializedViewSchemaResult> materializedViewSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas, IEnumerable<(ShowMaterializedViewSchemaResult Schema, string Query)> materializedViewSchemasAndQueries,
             GlobalState globals, string databaseName, string clusterName)
         {
             // try and show error from here.
@@ -84,7 +84,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
 
             if (databaseName != null)
             {
-                databaseSymbol = LoadDatabase(tableSchemas, functionSchemas, materializedViewSchemas, databaseName);
+                databaseSymbol = LoadDatabase(tableSchemas, functionSchemas, materializedViewSchemasAndQueries, databaseName);
             }
 
             if (databaseSymbol == null)
@@ -96,12 +96,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
             if (cluster == null)
             {
                 cluster = new ClusterSymbol(clusterName, new[] { databaseSymbol }, isOpen: true);
-                globals = globals.AddOrUpdateCluster(cluster);
+                globals = globals.AddOrReplaceCluster(cluster);
             }
             else
             {
                 cluster = cluster.AddOrUpdateDatabase(databaseSymbol);
-                globals = globals.AddOrUpdateCluster(cluster);
+                globals = globals.AddOrReplaceCluster(cluster);
             }
 
             return globals.WithCluster(cluster).WithDatabase(databaseSymbol);
@@ -111,7 +111,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         /// Loads the schema for the specified database into a <see cref="DatabaseSymbol"/>.
         /// </summary>
         private DatabaseSymbol LoadDatabase(IEnumerable<ShowDatabaseSchemaResult> tableSchemas,
-            IEnumerable<ShowFunctionsResult> functionSchemas, IEnumerable<ShowMaterializedViewSchemaResult> materializedViewSchemas,
+            IEnumerable<ShowFunctionsResult> functionSchemas, IEnumerable<(ShowMaterializedViewSchemaResult Schema, string Query)> materializedViewSchemasAndQueries,
             string databaseName)
         {
             if (tableSchemas == null)
@@ -141,17 +141,17 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                 }
             }
 
-            if (materializedViewSchemas != null)
+            if (materializedViewSchemasAndQueries != null)
             {
-                foreach (var view in materializedViewSchemas)
+                foreach ((ShowMaterializedViewSchemaResult schema, string query) in materializedViewSchemasAndQueries)
                 {
-                    var columns = view.Schema.Split(',')
+                    var columns = schema.Schema.Split(',')
                         .Select(col =>
                         {
                             var nameType = col.Split(':');
                             return new ColumnSymbol(nameType[0], ScalarTypes.GetSymbol(nameType[1]));
                         });
-                    var viewSymbol = new TableSymbol(view.TableName, columns);
+                    var viewSymbol = new MaterializedViewSymbol(schema.TableName, columns, query);
                     members.Add(viewSymbol);
                 }
             }

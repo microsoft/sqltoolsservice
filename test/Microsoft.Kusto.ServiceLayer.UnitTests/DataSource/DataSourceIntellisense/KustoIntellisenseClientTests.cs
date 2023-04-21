@@ -131,7 +131,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
             var documentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
             var items = client.GetAutoCompleteSuggestions(documentInfo, position);
             
-            Assert.AreEqual(20, items.Length);
+            Assert.AreEqual(23, items.Length);
         }
         [Test]
         public void UpdateDatabase_Updates_SchemaState()
@@ -169,7 +169,7 @@ namespace Microsoft.Kusto.ServiceLayer.UnitTests.DataSource.DataSourceIntellisen
             var documentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
             var items = client.GetAutoCompleteSuggestions(documentInfo, position);
             
-            Assert.AreEqual(19, items.Length);
+            Assert.AreEqual(22, items.Length);
             var tableItem = items.FirstOrDefault(x => x.Detail == "Table");
 
             // assert new table is being returned to show database has changed

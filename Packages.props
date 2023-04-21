@@ -25,7 +25,7 @@
 		<PackageReference Update="Microsoft.SqlServer.DacFx" Version="162.0.15-preview" />
 		<PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="162.0.28-alpha" />
 		<PackageReference Update="Microsoft.Azure.Kusto.Data" Version="9.0.4" />
-		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
+		<PackageReference Update="Microsoft.Azure.Kusto.Language" Version="11.3.0" />
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230301.46" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230407.56" />
