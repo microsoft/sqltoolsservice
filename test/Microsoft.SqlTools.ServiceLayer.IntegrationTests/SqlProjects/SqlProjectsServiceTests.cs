@@ -372,7 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestPostDeploymentScriptAddDeleteExcludeMove()
+        public async Task TestPostDeploymentScriptOperations()
         {
             // Setup
             SqlProjectsService service = new();
@@ -816,9 +816,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddFolderRequest));
             Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after add");
             Assert.IsTrue(Directory.Exists(Path.Join(Path.GetDirectoryName(projectUri), folderParams.Path)), $"Subfolder '{folderParams.Path}' expected to exist on disk");
-            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"SqlObjectScripts expected to contain {folderParams.Path}");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"Folders expected to contain {folderParams.Path}");
 
-            // Validate getting a list of the post-deployment scripts
+            // Validate getting a list of the folders
             MockRequest<GetFoldersResult> getMock = new();
             await service.HandleGetFoldersRequest(new SqlProjectParams()
             {
@@ -829,12 +829,48 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, getMock.Result.Folders.Length);
             Assert.AreEqual(folderParams.Path, getMock.Result.Folders[0]);
 
+            // Validate moving a folder
+            requestMock = new();
+            const string parentFolder = "NewParentFolder";
+            MoveFolderParams moveFolderParams = new MoveFolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = folderParams.Path,
+                DestinationPath = $@"{parentFolder}\{folderParams.Path}"
+            };
+
+            await service.HandleMoveFolderRequest(moveFolderParams, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMoveFolderRequest));
+            Assert.AreEqual(2, service.Projects[projectUri].Folders.Count, "Folder count after move");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(parentFolder), $"Folders expected to contain '{parentFolder}' after move");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(moveFolderParams.DestinationPath), $"Folders expected to contain '{moveFolderParams.DestinationPath}' after move");
+
+            // Validate excluding a folder
+            requestMock = new();
+            await service.HandleExcludeFolderRequest(new FolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = moveFolderParams.DestinationPath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleExcludeFolderRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after exclude");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(parentFolder), $"Folders expected to still contain '{parentFolder}' after exclude");
+            Assert.IsFalse(service.Projects[projectUri].Folders.Contains(moveFolderParams.DestinationPath), $"Folders expected to no longer contain '{moveFolderParams.DestinationPath}' after exclude");
+            Assert.IsTrue(Directory.Exists(Path.Join(service.Projects[projectUri].DirectoryPath, moveFolderParams.DestinationPath)), "Folder should still exist on disk after exclude");
+
             // Validate deleting a folder
             requestMock = new();
-            await service.HandleDeleteFolderRequest(folderParams, requestMock.Object);
+            await service.HandleDeleteFolderRequest(new FolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = parentFolder
+            }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteFolderRequest));
             Assert.AreEqual(0, service.Projects[projectUri].Folders.Count, "Folder count after delete");
+            Assert.IsFalse(Directory.Exists(Path.Join(service.Projects[projectUri].DirectoryPath, parentFolder)), "Folder should have been deleted from disk");
         }
 
         [Test]
