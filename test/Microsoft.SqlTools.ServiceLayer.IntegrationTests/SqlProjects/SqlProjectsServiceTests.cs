@@ -858,7 +858,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after exclude");
             Assert.IsTrue(service.Projects[projectUri].Folders.Contains(parentFolder), $"Folders expected to still contain '{parentFolder}' after exclude");
             Assert.IsFalse(service.Projects[projectUri].Folders.Contains(moveFolderParams.DestinationPath), $"Folders expected to no longer contain '{moveFolderParams.DestinationPath}' after exclude");
-            Assert.IsTrue(Directory.Exists(Path.Join(service.Projects[projectUri].DirectoryPath, moveFolderParams.DestinationPath)), "Folder should still exist on disk after exclude");
+            Assert.IsTrue(Directory.Exists(Path.Join(service.Projects[projectUri].DirectoryPath, parentFolder, folderParams.Path)), "Folder should still exist on disk after exclude");
 
             // Validate deleting a folder
             requestMock = new();
