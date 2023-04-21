@@ -212,10 +212,10 @@ steps:
     MaxConcurrency: 5
 
 - task: BatchScript@1
-  displayName: 'Package published projects'
+  displayName: 'Package nuspec projects'
   inputs:
     filename: build.cmd
-    arguments: '-target=dotnetpackpublished -mono'
+    arguments: '-target=DotnetPackNuspec -mono'
     
 - task: BatchScript@1
   displayName: "Build and Package service tool projects"
