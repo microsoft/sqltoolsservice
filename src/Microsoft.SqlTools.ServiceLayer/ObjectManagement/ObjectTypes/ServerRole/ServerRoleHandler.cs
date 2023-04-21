@@ -13,11 +13,11 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
-    /// AppRole object type handler
+    /// ServerRole object type handler
     /// </summary>
-    public class AppRoleHandler : ObjectTypeHandler<AppRoleInfo, AppRoleViewContext>
+    public class ServerRoleHandler : ObjectTypeHandler<ServerRoleInfo, ServerRoleViewContext>
     {
-        public AppRoleHandler(ConnectionService connectionService) : base(connectionService) { }
+        public ServerRoleHandler(ConnectionService connectionService) : base(connectionService) { }
 
         public override bool CanHandleType(SqlObjectType objectType)
         {
@@ -33,19 +33,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid ConnectionUri");
             }
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            AppRoleViewInfo AppRoleViewInfo = new AppRoleViewInfo();
+            ServerRoleViewInfo ServerRoleViewInfo = new ServerRoleViewInfo();
 
-            AppRoleInfo AppRoleInfo = new AppRoleInfo()
+            ServerRoleInfo ServerRoleInfo = new ServerRoleInfo()
             {
                 Name = "test",
             };
 
-            var viewInfo = new AppRoleViewInfo()
+            var viewInfo = new ServerRoleViewInfo()
             {
-                ObjectInfo = AppRoleInfo,
+                ObjectInfo = ServerRoleInfo,
             };
 
-            var context = new AppRoleViewContext(parameters);
+            var context = new ServerRoleViewContext(parameters);
             return Task.FromResult(new InitializeViewResult()
             {
                 ViewInfo = viewInfo,
@@ -53,37 +53,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             });
         }
 
-        public override Task Save(AppRoleViewContext context, AppRoleInfo obj)
+        public override Task Save(ServerRoleViewContext context, ServerRoleInfo obj)
         {
             if (context.Parameters.IsNewObject)
             {
-                this.DoHandleCreateAppRoleRequest(context, obj, RunType.RunNow);
+                this.DoHandleCreateServerRoleRequest(context, obj, RunType.RunNow);
             }
             else
             {
-                this.DoHandleUpdateAppRoleRequest(context, obj, RunType.RunNow);
+                this.DoHandleUpdateServerRoleRequest(context, obj, RunType.RunNow);
             }
             return Task.CompletedTask;
         }
 
-        public override Task<string> Script(AppRoleViewContext context, AppRoleInfo obj)
+        public override Task<string> Script(ServerRoleViewContext context, ServerRoleInfo obj)
         {
             string script;
             if (context.Parameters.IsNewObject)
             {
-                script = this.DoHandleCreateAppRoleRequest(context, obj, RunType.ScriptToWindow);
+                script = this.DoHandleCreateServerRoleRequest(context, obj, RunType.ScriptToWindow);
             }
             else
             {
-                script = this.DoHandleUpdateAppRoleRequest(context, obj, RunType.ScriptToWindow);
+                script = this.DoHandleUpdateServerRoleRequest(context, obj, RunType.ScriptToWindow);
             }
             return Task.FromResult(script);
         }
 
-        private string ConfigureAppRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, AppRoleData prototype)
+        private string ConfigureServerRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerRoleData prototype)
         {
             string sqlScript = string.Empty;
-            using (var actions = new AppRoleActions(dataContainer, configAction, prototype))
+            using (var actions = new ServerRoleActions(dataContainer, configAction, prototype))
             {
                 var executionHandler = new ExecutonHandler(actions);
                 executionHandler.RunNow(runType, this);
@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sqlScript;
         }
 
-        private string DoHandleUpdateAppRoleRequest(AppRoleViewContext context, AppRoleInfo AppRole, RunType runType)
+        private string DoHandleUpdateServerRoleRequest(ServerRoleViewContext context, ServerRoleInfo ServerRole, RunType runType)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -111,11 +111,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            return ConfigureAppRole(dataContainer, ConfigAction.Update, runType, null);
+            return ConfigureServerRole(dataContainer, ConfigAction.Update, runType, null);
 
         }
 
-        private string DoHandleCreateAppRoleRequest(AppRoleViewContext context, AppRoleInfo AppRole, RunType runType)
+        private string DoHandleCreateServerRoleRequest(ServerRoleViewContext context, ServerRoleInfo ServerRole, RunType runType)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
 
-            return ConfigureAppRole(dataContainer, ConfigAction.Create, runType, null);
+            return ConfigureServerRole(dataContainer, ConfigAction.Create, runType, null);
         }
 
     }

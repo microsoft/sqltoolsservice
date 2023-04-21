@@ -7,16 +7,16 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    internal class AppRoleActions : ManagementActionBase
+    internal class ServerRoleActions : ManagementActionBase
     {
         private ConfigAction configAction;
 
-        private AppRoleGeneral prototype;
+        private ServerRoleData prototype;
 
         /// <summary>
         /// Handle login create and update actions
         /// </summary>        
-        public AppRoleActions(CDataContainer dataContainer, ConfigAction configAction, AppRoleGeneral prototype)
+        public ServerRoleActions(CDataContainer dataContainer, ConfigAction configAction, ServerRoleData prototype)
         {
             this.DataContainer = dataContainer;
             this.configAction = configAction;

@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// AppRoleGeneral - main app role page
     /// </summary>
-    internal class AppRoleGeneral
+    internal class AppRoleData
     {
         #region Members
 
@@ -102,13 +102,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         #endregion
 
         #region Constructors / Dispose
-        public AppRoleGeneral()
+        public AppRoleData()
         {
             // This call is required by the Windows.Forms Form Designer.
             // InitializeComponent();
         }
 
-        public AppRoleGeneral(CDataContainer context, AppRoleInfo dbRole, bool isNewObject)
+        public AppRoleData(CDataContainer context, AppRoleInfo dbRole, bool isNewObject)
         {
             dataContainer = context;
 
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Enumerator enumerator = new Enumerator();
                     Request request = new Request();
                     request.Urn = this.dataContainer.ObjectUrn;
-                    request.Fields = new String[] { AppRoleGeneral.defaultSchemaField };
+                    request.Fields = new String[] { AppRoleData.defaultSchemaField };
 
                     DataTable dataTable = enumerator.Process(serverConnection, request);
                     // STrace.Assert(dataTable != null, "dataTable is null");
@@ -216,7 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
 
                     DataRow dataRow = dataTable.Rows[0];
-                    this.initialDefaultSchema = Convert.ToString(dataRow[AppRoleGeneral.defaultSchemaField], System.Globalization.CultureInfo.InvariantCulture);
+                    this.initialDefaultSchema = Convert.ToString(dataRow[AppRoleData.defaultSchemaField], System.Globalization.CultureInfo.InvariantCulture);
 
                     // this.textBoxDefaultSchema.Text = this.initialDefaultSchema;
                 }
@@ -382,7 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 Enumerator en = new Enumerator();
                 Request req = new Request();
-                req.Fields = new String[] { AppRoleGeneral.schemaNameField, AppRoleGeneral.schemaOwnerField };
+                req.Fields = new String[] { AppRoleData.schemaNameField, AppRoleData.schemaOwnerField };
                 req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/Schema";
                 req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc) };
 
@@ -391,8 +391,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    string name = Convert.ToString(dr[AppRoleGeneral.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
-                    string owner = Convert.ToString(dr[AppRoleGeneral.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
+                    string name = Convert.ToString(dr[AppRoleData.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
+                    string owner = Convert.ToString(dr[AppRoleData.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
 
                     dictSchemas.Add(name, owner);
                     schemaNames.Add(name);
@@ -496,7 +496,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             Enumerator en = new Enumerator();
             Request req = new Request();
-            req.Fields = new String[] { AppRoleGeneral.memberNameField, AppRoleGeneral.memberUrnField };
+            req.Fields = new String[] { AppRoleData.memberNameField, AppRoleData.memberUrnField };
             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/ApplicationRole[@Name='" + Urn.EscapeString(this.approleName) + "']/Member";
 
             try
@@ -506,8 +506,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    string name = Convert.ToString(dr[AppRoleGeneral.memberNameField], System.Globalization.CultureInfo.InvariantCulture);
-                    string urn = Convert.ToString(dr[AppRoleGeneral.memberUrnField], System.Globalization.CultureInfo.InvariantCulture);
+                    string name = Convert.ToString(dr[AppRoleData.memberNameField], System.Globalization.CultureInfo.InvariantCulture);
+                    string urn = Convert.ToString(dr[AppRoleData.memberUrnField], System.Globalization.CultureInfo.InvariantCulture);
 
                     dictMembership.Add(name, urn);
                 }

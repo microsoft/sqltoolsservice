@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// DatabaseRoleGeneral - main panel for database role
     /// </summary>
-    internal class DatabaseRoleGeneral
+    internal class DatabaseRoleData
     {
         #region Members
         /// <summary>
@@ -132,13 +132,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         #endregion
 
         #region Constructors / Dispose
-        public DatabaseRoleGeneral()
+        public DatabaseRoleData()
         {
             // This call is required by the Windows.Forms Form Designer.
             // InitializeComponent();
         }
 
-        public DatabaseRoleGeneral(CDataContainer context, DatabaseRoleInfo dbRole, bool isNewObject)
+        public DatabaseRoleData(CDataContainer context, DatabaseRoleInfo dbRole, bool isNewObject)
         {
             // InitializeComponent();
             dataContainer = context;
@@ -229,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 Enumerator en = new Enumerator();
                 Request req = new Request();
-                req.Fields = new String[] { DatabaseRoleGeneral.ownerField };
+                req.Fields = new String[] { DatabaseRoleData.ownerField };
 
                 if ((this.dbroleUrn != null) && (this.dbroleUrn.Trim().Length != 0))
                 {
@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
 
                 DataRow dr = dt.Rows[0];
-                this.initialOwner = Convert.ToString(dr[DatabaseRoleGeneral.ownerField], System.Globalization.CultureInfo.InvariantCulture);
+                this.initialOwner = Convert.ToString(dr[DatabaseRoleData.ownerField], System.Globalization.CultureInfo.InvariantCulture);
                 // this.textBoxOwner.Text = this.initialOwner;
             }
             else
@@ -526,7 +526,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             Enumerator en = new Enumerator();
             Request req = new Request();
-            req.Fields = new String[] { DatabaseRoleGeneral.schemaNameField, DatabaseRoleGeneral.schemaOwnerField };
+            req.Fields = new String[] { DatabaseRoleData.schemaNameField, DatabaseRoleData.schemaOwnerField };
             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/Schema";
 
             DataTable dt = en.Process(serverConnection, req);
@@ -535,8 +535,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             foreach (DataRow dr in dt.Rows)
             {
-                string schemaName = Convert.ToString(dr[DatabaseRoleGeneral.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
-                string schemaOwner = Convert.ToString(dr[DatabaseRoleGeneral.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
+                string schemaName = Convert.ToString(dr[DatabaseRoleData.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
+                string schemaOwner = Convert.ToString(dr[DatabaseRoleData.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
                 bool roleOwnsSchema =
                     this.IsPropertiesMode &&
                     (0 == String.Compare(this.dbroleName, schemaOwner, StringComparison.Ordinal));
@@ -683,14 +683,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                                         "Server/Database[@Name='{0}']/Role[@Name='{1}']/Member",
                                                         Urn.EscapeString(this.databaseName),
                                                         Urn.EscapeString(this.dbroleName));
-                string[] fields = new string[] { DatabaseRoleGeneral.memberNameField };
-                OrderBy[] orderBy = new OrderBy[] { new OrderBy(DatabaseRoleGeneral.memberNameField, OrderBy.Direction.Asc) };
+                string[] fields = new string[] { DatabaseRoleData.memberNameField };
+                OrderBy[] orderBy = new OrderBy[] { new OrderBy(DatabaseRoleData.memberNameField, OrderBy.Direction.Asc) };
                 Request request = new Request(urn, fields, orderBy);
                 DataTable dt = enumerator.Process(this.serverConnection, request);
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    string memberName = dr[DatabaseRoleGeneral.memberNameField].ToString();
+                    string memberName = dr[DatabaseRoleData.memberNameField].ToString();
                     this.roleMembers[memberName] = new RoleMembership(true);
                 }
             }

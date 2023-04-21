@@ -16,7 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    public class ServerRoleManageTaskFormComponent
+    public class ServerRoleData
     {
         protected ServerRole serverRole;
         ServerRoleExtender extender;
@@ -29,12 +29,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             components = new System.ComponentModel.Container();
         }
 
-        public ServerRoleManageTaskFormComponent()
+        public ServerRoleData()
         {
             InitializeComponent();
         }
 
-        public ServerRoleManageTaskFormComponent(IContainer container)
+        public ServerRoleData(IContainer container)
         {
             // container.Add(this);
             InitializeComponent();
@@ -293,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
     }
 
-    public class ServerRoleCreateTaskFormComponent : ServerRoleManageTaskFormComponent
+    public class ServerRoleCreateTaskFormComponent : ServerRoleData
     {
         public ServerRoleCreateTaskFormComponent()
             : base()
