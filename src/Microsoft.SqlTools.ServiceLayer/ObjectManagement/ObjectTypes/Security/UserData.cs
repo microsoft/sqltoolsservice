@@ -124,11 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {                    
                     this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
                 }
-                if (!string.IsNullOrEmpty(userInfo.DefaultLanguage)
+
+                this.defaultLanguageAlias = (!string.IsNullOrEmpty(userInfo.DefaultLanguage)
                     && string.Compare(userInfo.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal) != 0)
-                {
-                    this.defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromDisplayText(userInfo.DefaultLanguage);                        
-                }
+                    ? LanguageUtils.GetLanguageAliasFromDisplayText(userInfo.DefaultLanguage) : string.Empty;
+
                 this.userType = UserPrototypeData.GetUserTypeFromUserInfo(userInfo);
             }     
 

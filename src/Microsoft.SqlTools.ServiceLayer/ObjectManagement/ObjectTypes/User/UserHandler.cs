@@ -126,14 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             bool isSqlAzure = serverConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
             bool supportsContainedUser = isSqlAzure || UserActions.IsParentDatabaseContained(parentDb);
 
-            // set default alias to <default> if needed
-            if (string.IsNullOrEmpty(defaultLanguageAlias)
-                && supportsContainedUser
-                && LanguageUtils.IsDefaultLanguageSupported(dataContainer.Server))
-            {
-                defaultLanguageAlias = SR.DefaultLanguagePlaceholder;
-            }
-
             // set the fake password placeholder when editing an existing user
             string password = null;
             IUserPrototypeWithPassword userWithPwdPrototype = currentUserPrototype as IUserPrototypeWithPassword;
@@ -172,6 +164,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+            string defaultLanguage = null;
+            if (!parameters.IsNewObject)
+            {
+                defaultLanguage = LanguageUtils.FormatLanguageDisplay(
+                    languageOptions.FirstOrDefault(
+                        o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null));
+            }
+            if (string.IsNullOrEmpty(defaultLanguage))
+            {
+                defaultLanguage = SR.DefaultLanguagePlaceholder;
+            }
+
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -184,8 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = LanguageUtils.FormatLanguageDisplay(
-                        languageOptions.FirstOrDefault(o => o?.Language.Name == defaultLanguageAlias || o?.Language.Alias == defaultLanguageAlias, null)),
+                    DefaultLanguage = defaultLanguage
                 },
                 SupportContainedUser = supportsContainedUser,
                 SupportWindowsAuthentication = false,
