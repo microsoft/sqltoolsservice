@@ -7,20 +7,19 @@
 
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System;
-using System.Collections;
-using System.Collections.Specialized;
-using System.Xml;
 using System.Data;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
     /// AppRoleGeneral - main app role page
     /// </summary>
-    internal class AppRoleData
+    internal class AppRolePrototype
     {
         #region Members
 
@@ -31,15 +30,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         private CDataContainer dataContainer = null;
 
-        //SMO Server connection that MUST be used for all enumerator calls
-        //We'll get this object out of CDataContainer, that must be initialized
-        //property by the initialization code
-        private ServerConnection serverConnection;
-
-        private bool isPropertiesMode;
+        private bool exists;
+        private AppRolePrototypeData currentState;
+        private AppRolePrototypeData originalState;
 
         #endregion
-
 
         #region Trace support
         private const string componentName = "AppRoleGeneral";
@@ -62,17 +57,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private const string memberUrnField = "Urn";
         #endregion
 
-        #region Constants - grid columns positions, etc...
-        private const int colSchemasChecked = 0;
-        private const int colSchemasOwnedSchemas = 1;
-
-        private const int colMembershipBitmap = 0;
-        private const int colMembershipRoleMembers = 1;
-
-        private const int sizeCheckboxColumn = 20;
-        private const int sizeBitmapColumn = 20;
-        #endregion
-
         #region Non-UI variables
         private System.Xml.XmlDocument document = null;
 
@@ -80,8 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private string serverName;
         private string databaseName;
         private string approleName;
+        private SecureString password;
         private bool passwordChanged = false;
-
+        private List<ExtendedPropertyInfo> extendedProperties;
 
         // initial values loaded from server
         private string initialDefaultSchema;
@@ -92,217 +77,107 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
 
         #region Properties: CreateNew/Properties mode
-        private bool IsPropertiesMode
+        public string Name
         {
             get
             {
-                return isPropertiesMode;
+                return this.currentState.AppRoleName;
+            }
+            set
+            {
+                this.currentState.AppRoleName = value;
+            }
+        }
+
+        public string DefaultSchema
+        {
+            get
+            {
+                return this.currentState.DefaultSchema;
+            }
+            set
+            {
+                this.currentState.DefaultSchema = value;
+            }
+        }
+
+        public string[] Schemas
+        {
+            get
+            {
+                return this.originalState.Schemas;
+            }
+        }
+
+        public string[] SchemasOwned
+        {
+            get
+            {
+                return this.originalState.SchemasOwned;
+            }
+            set
+            {
+                this.originalState.SchemasOwned = value;
+            }
+        }
+
+        public string Password
+        {
+            get
+            {
+                return this.currentState.Password.ToString();
+            }
+        }
+
+        public Dictionary<string, string> ExtendedProperties
+        {
+            get
+            {
+                return this.currentState.ExtendedProperties;
+            }
+            set
+            {
+                this.currentState.ExtendedProperties = value;
             }
         }
         #endregion
 
         #region Constructors / Dispose
-        public AppRoleData()
+        public AppRolePrototype(CDataContainer context, string database)
         {
-            // This call is required by the Windows.Forms Form Designer.
-            // InitializeComponent();
-        }
-
-        public AppRoleData(CDataContainer context, AppRoleInfo dbRole, bool isNewObject)
-        {
-            dataContainer = context;
-
-            if (dataContainer != null)
-            {
-                document = dataContainer.Document;
-            }
-            else
-            {
-                document = null;
-            }
-
-            this.isYukonOrLater = (9 <= context.Server.ConnectionContext.ServerVersion.Major);
-            isPropertiesMode = !isNewObject;
-            approleName = dbRole.Name;
-            serverName = dataContainer.ServerName;
-            databaseName = "TriggerTest";
-            serverConnection = dataContainer.Server.ConnectionContext;
-            InitProp();
+            this.exists = false;
+            this.dataContainer = context;
+            this.currentState = new AppRolePrototypeData(context, database);
+            this.originalState = (AppRolePrototypeData)this.currentState.Clone();
         }
 
         /// <summary>
-        /// Clean up any resources being used.
+        /// AppRoleData for creating a new app role
         /// </summary>
-        // protected override void Dispose( bool disposing )
-        // {
-        //     if ( disposing )
-        //     {
-        //         if (components != null)
-        //         {
-        //             components.Dispose();
-        //         }
-        //     }
-        //     base.Dispose( disposing );
-        // }
+        public AppRolePrototype(CDataContainer context, string database, AppRoleInfo roleInfo)
+        {
+            this.exists = false;
+            this.dataContainer = context;
+            this.currentState = new AppRolePrototypeData(context, database);
+            this.originalState = (AppRolePrototypeData)this.currentState.Clone();
+
+            this.ApplyInfoToPrototype(roleInfo);
+        }
+
+        /// <summary>
+        /// AppRoleData for editing an existing app role
+        /// </summary>
+        public AppRolePrototype(CDataContainer context, string database, ApplicationRole role)
+        {
+            this.exists = true;
+            this.dataContainer = context;
+            this.currentState = new AppRolePrototypeData(context, database, role);
+            this.originalState = (AppRolePrototypeData)this.currentState.Clone();
+        }
 
         #endregion
 
-        #region Implementation: LoadData(), InitProp(), SendDataToServer()
-
-
-        /// <summary>
-        /// LoadData
-        ///
-        /// loads connection parameters from an xml
-        /// </summary>
-        /// <param name="doc"></param>
-        private void LoadData(XmlDocument doc)
-        {
-            // STrace.Params(ComponentName, "LoadData", "XmlDocument doc=\"{0}\"", doc.OuterXml);
-
-            // STParameters param;
-            // bool bStatus;
-
-            // param = new STParameters();
-
-            // param.SetDocument(doc);
-
-            // bStatus = param.GetParam("servername", ref this.serverName);
-            // bStatus = param.GetParam("database", ref this.databaseName);
-            // bStatus = param.GetParam("applicationrole", ref this.approleName);
-        }
-
-        /// <summary>
-        ///  InitProp
-        ///
-        ///  talks with enumerator an retrieves info
-        /// </summary>
-        private void InitProp()
-        {
-            // STrace.Params(ComponentName, "InitProp", "", null);
-
-            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.serverName), "serverName is empty");
-            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.databaseName), "databaseName is empty");
-
-            passwordChanged = false;
-
-            // InitializeBitmapAndIcons(); // bitmapMember
-
-            if (this.IsPropertiesMode == true)
-            {
-                // initialize from enumerator in properties mode
-                // STrace.Assert(!string.IsNullOrWhiteSpace(this.approleName), "approleName is empty");
-
-                // this.textBoxRoleName.Text = this.approleName;
-
-                if (this.isYukonOrLater)
-                {
-                    // get the default schema
-
-                    // STrace.Assert(this.DataContainer.ObjectUrn.Length != 0, "object urn is empty");
-
-                    Enumerator enumerator = new Enumerator();
-                    Request request = new Request();
-                    request.Urn = this.dataContainer.ObjectUrn;
-                    request.Fields = new String[] { AppRoleData.defaultSchemaField };
-
-                    DataTable dataTable = enumerator.Process(serverConnection, request);
-                    // STrace.Assert(dataTable != null, "dataTable is null");
-                    // STrace.Assert(dataTable.Rows.Count == 1, "unexpected number of rows in dataTable");
-
-                    if (dataTable.Rows.Count == 0)
-                    {
-                        throw new Exception("AppRoleSR.ErrorAppRoleNotFound");
-                    }
-
-                    DataRow dataRow = dataTable.Rows[0];
-                    this.initialDefaultSchema = Convert.ToString(dataRow[AppRoleData.defaultSchemaField], System.Globalization.CultureInfo.InvariantCulture);
-
-                    // this.textBoxDefaultSchema.Text = this.initialDefaultSchema;
-                }
-            }
-            else
-            {
-                // initialize with empty values in create new mode
-                // this.textBoxRoleName.Text = String.Empty;
-                // this.textBoxDefaultSchema.Text = this.initialDefaultSchema;
-
-                // this.textBoxPasword.Text = String.Empty;
-                // this.textBoxConfirmPassword.Text = String.Empty;
-            }
-
-            LoadSchemas();
-            // InitializeSchemasGridColumns();
-            // FillSchemasGrid();
-
-            LoadMembership();
-            // InitializeMembershipGridColumns();
-            // FillMembershipGrid();
-
-            // dont display the membership controls - app roles dont support members
-            // HideMembership();
-
-            // update UI enable/disable controls
-            // EnableDisableControls();
-        }
-
-        // private void HideMembership()
-        // {
-        //     try
-        //     {
-        //         this.SuspendLayout();
-        //         this.panelSchema.SuspendLayout();
-
-        //         this.panelSchema.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right | AnchorStyles.Left;
-        //         this.panelSchema.Size = new Size
-        //                                 (
-        //                                 this.panelSchema.Size.Width
-        //                                 ,
-        //                                 this.panelMembership.Location.Y + this.panelMembership.Size.Height -
-        //                                 this.panelSchema.Location.Y
-        //                                 );
-
-        //         this.panelMembership.Visible = false;
-        //     }
-        //     finally
-        //     {
-        //         this.panelSchema.ResumeLayout();
-        //         this.ResumeLayout();
-
-        //         this.gridSchemasOwned.Refresh();
-        //     }
-        // }
-
-
-        private string _selectedDefaultSchema;
-        // private SqlSecureString _textBoxPaswordText;
-        // private SqlSecureString _textBoxConfirmPasswordText;
-        private string _textBoxRoleNameText;
-
-        /// <summary>
-        /// Called to validate all date in controls and save them in
-        /// temproary storage to be used when OnRunNow is called
-        /// </summary>
-        // public override void OnGatherUiInformation(RunType runType)
-        // {
-        //     base.OnGatherUiInformation(runType);
-
-        //     try
-        //     {
-        //         base.ExecutionMode = ExecutionMode.Success;
-
-        //         _selectedDefaultSchema = this.textBoxDefaultSchema.Text;
-        //         _textBoxPaswordText = textBoxPasword.Text;
-        //         _textBoxConfirmPasswordText = textBoxConfirmPassword.Text;
-        //         _textBoxRoleNameText = textBoxRoleName.Text;
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         DisplayExceptionMessage(exception);
-        //         base.ExecutionMode = ExecutionMode.Failure;
-        //     }
-        // }
-
+        #region Implementation: SendDataToServer()
         /// <summary>
         /// SendDataToServer
         ///
@@ -320,24 +195,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             Database db = srv.Databases[this.databaseName];
             System.Diagnostics.Debug.Assert(db != null, "database object is null");
 
-            if (this.IsPropertiesMode == true) // in properties mode -> alter role
+            if (this.exists) // in properties mode -> alter role
             {
-                System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.approleName), "approleName is empty");
+                System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.Name), "approleName is empty");
 
-                ApplicationRole approle = db.ApplicationRoles[this.approleName];
+                ApplicationRole approle = db.ApplicationRoles[this.Name];
                 System.Diagnostics.Debug.Assert(approle != null, "approle object is null");
 
                 bool alterRequired = false;
 
-                if (this.isYukonOrLater && _selectedDefaultSchema != this.initialDefaultSchema)
+                if (this.isYukonOrLater && this.originalState.DefaultSchema != this.currentState.DefaultSchema)
                 {
-                    approle.DefaultSchema = _selectedDefaultSchema;
+                    approle.DefaultSchema = this.currentState.DefaultSchema;
                     alterRequired = true;
                 }
 
-                if (passwordChanged == true)
+                if (this.originalState.Password != this.currentState.Password)
                 {
-                    approle.ChangePassword((string)"Random123456!");
+                    approle.ChangePassword(this.Password);
+                    alterRequired = true;
                 }
 
                 if (alterRequired == true)
@@ -346,60 +222,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
 
                 SendToServerSchemaOwnershipChanges(db, approle);
-                SendToServerMembershipChanges(db, approle);
+                SendToServerExtendedPropertiesChange();
             }
             else // not in properties mode -> create role
             {
-                ApplicationRole approle = new ApplicationRole(db, _textBoxRoleNameText);
-                if (this.isYukonOrLater && _selectedDefaultSchema.Length > 0)
+                ApplicationRole approle = new ApplicationRole(db, this.Name);
+                if (this.isYukonOrLater && this.currentState.DefaultSchema.Length > 0)
                 {
-                    approle.DefaultSchema = _selectedDefaultSchema;
+                    approle.DefaultSchema = this.currentState.DefaultSchema;
                 }
 
-                approle.Create((string)"Random123456");
+                approle.Create(this.Password);
 
                 SendToServerSchemaOwnershipChanges(db, approle);
-                SendToServerMembershipChanges(db, approle);
-
-                this.dataContainer.SqlDialogSubject = approle; // needed by extended properties page
+                SendToServerExtendedPropertiesChange();
             }
 
         }
         #endregion
 
         #region Schemas - general operations with ...
-        HybridDictionary dictSchemas = null;
-        StringCollection schemaNames = null;
-        /// <summary>
-        /// loads initial schemas from server together with information about the schema owner
-        /// </summary>
-        private void LoadSchemas()
-        {
-            if (this.isYukonOrLater)
-            {
-                this.dictSchemas = new HybridDictionary();
-                this.schemaNames = new StringCollection();
-
-                Enumerator en = new Enumerator();
-                Request req = new Request();
-                req.Fields = new String[] { AppRoleData.schemaNameField, AppRoleData.schemaOwnerField };
-                req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/Schema";
-                req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc) };
-
-                DataTable dt = en.Process(serverConnection, req);
-                // STrace.Assert((dt != null) && (dt.Rows.Count > 0), "No rows returned from schema enumerator");
-
-                foreach (DataRow dr in dt.Rows)
-                {
-                    string name = Convert.ToString(dr[AppRoleData.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
-                    string owner = Convert.ToString(dr[AppRoleData.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
-
-                    dictSchemas.Add(name, owner);
-                    schemaNames.Add(name);
-                }
-            }
-        }
-
         /// <summary>
         /// sends to server changes related to schema ownership
         /// </summary>
@@ -407,27 +249,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (this.isYukonOrLater)
             {
-                // DlgGridControl grid = this.gridSchemasOwned;
-
-                for (int i = 0; i < 1; ++i)
+                foreach (string schemaName in this.Schemas)
                 {
-                    string name = "grid.GetCellInfo(i, colSchemasOwnedSchemas).CellData.ToString()";
-                    object o = dictSchemas[name];
+                    bool currentlyOwned = this.currentState.SchemasOwned.Contains(schemaName);
 
-                    System.Diagnostics.Debug.Assert(o != null, "schema object is null");
-
-                    // bool currentlyOwned = IsEmbeededCheckboxChecked(grid, i, colSchemasChecked);
-                    bool currentlyOwned = false;
-
-                    if (IsPropertiesMode == true)
+                    if (this.exists)
                     {
-                        bool wasOwned = (o.ToString() == approleName);
+                        bool wasOwned = this.originalState.SchemasOwned.Contains(schemaName);
 
                         if (currentlyOwned != wasOwned)
                         {
                             if (currentlyOwned == true)
                             {
-                                Schema schema = db.Schemas[name];
+                                Schema schema = db.Schemas[schemaName];
                                 schema.Owner = approle.Name;
                                 schema.Alter();
                             }
@@ -438,10 +272,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             schema.Owner = null;
                             schema.Alter();
                             */
-
-
-
-
                             }
                         }
                     }
@@ -449,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         if (currentlyOwned == true)
                         {
-                            Schema schema = db.Schemas[name];
+                            Schema schema = db.Schemas[schemaName];
                             schema.Owner = approle.Name;
                             schema.Alter();
                         }
@@ -457,205 +287,367 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
         }
-
-        // private void gridSchemasOwned_MouseButtonClicked(object sender, Microsoft.SqlServer.Management.UI.Grid.MouseButtonClickedEventArgs args)
-        // {
-        //     if (args.Button != MouseButtons.Left)
-        //     {
-        //         return;
-        //     }
-
-        //     int rowno = Convert.ToInt32(args.RowIndex);
-        //     int colno = Convert.ToInt32(args.ColumnIndex);
-
-        //     switch (colno)
-        //     {
-        //         case colSchemasChecked:
-        //             FlipCheckbox(gridSchemasOwned, rowno, colno);
-        //             break;
-        //         default: // else do default action: e.g. edit - open combo - etc ...
-        //             break;
-        //     }
-        // }
-
         #endregion
 
-        #region Membership - general operations with ...
-        System.Collections.Specialized.HybridDictionary dictMembership = null;
-
-        /// <summary>
-        /// loads from server initial membership information
-        /// </summary>
-        private void LoadMembership()
+        private void SendToServerExtendedPropertiesChange()
         {
-            dictMembership = new System.Collections.Specialized.HybridDictionary();
-            if (IsPropertiesMode == false)
+            // add or alter the extended properties
+            foreach (var item in this.ExtendedProperties)
             {
-                return;
-            }
-
-            Enumerator en = new Enumerator();
-            Request req = new Request();
-            req.Fields = new String[] { AppRoleData.memberNameField, AppRoleData.memberUrnField };
-            req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.databaseName) + "']/ApplicationRole[@Name='" + Urn.EscapeString(this.approleName) + "']/Member";
-
-            try
-            {
-                DataTable dt = en.Process(serverConnection, req);
-                System.Diagnostics.Debug.Assert(dt != null, "No results returned from membership query");
-
-                foreach (DataRow dr in dt.Rows)
+                if (this.originalState.ExtendedProperties.ContainsKey(item.Key))
                 {
-                    string name = Convert.ToString(dr[AppRoleData.memberNameField], System.Globalization.CultureInfo.InvariantCulture);
-                    string urn = Convert.ToString(dr[AppRoleData.memberUrnField], System.Globalization.CultureInfo.InvariantCulture);
-
-                    dictMembership.Add(name, urn);
+                    // alter the existing extended property
+                    ExtendedProperty ep = this.originalState.ApplicationRole.ExtendedProperties[item.Key];
+                    ep.Value = item.Value;
+                    ep.Alter();
+                }
+                else
+                {
+                    // create the extended property
+                    ExtendedProperty ep = new ExtendedProperty(this.originalState.ApplicationRole, item.Key, item.Value);
+                    ep.Create();
                 }
             }
-            catch (Exception e)
+
+            // remove the extended properties that are not in the current list
+            foreach (var item in this.originalState.ExtendedProperties)
             {
-                System.Diagnostics.Debug.WriteLine(e.Message);
+                if (!this.ExtendedProperties.ContainsKey(item.Key))
+                {
+                    ExtendedProperty ep = this.originalState.ApplicationRole.ExtendedProperties[item.Key];
+                    ep.Drop();
+                }
             }
         }
 
-        /// <summary>
-        /// initialize grid column headers, but not the content
-        /// </summary>
-        // private void InitializeMembershipGridColumns()
-        // {
-        //     Microsoft.SqlServer.Management.UI.Grid.DlgGridControl grid = this.gridRoleMembership;
-
-        //     if (grid.RowsNumber != 0)
-        //     {
-        //         grid.DeleteAllRows();
-        //     }
-
-        //     while (grid.ColumnsNumber != 0)
-        //     {
-        //         grid.DeleteColumn(0);
-        //     }
-
-        //     GridColumnInfo      colInfo     = null;
-
-        //     // bitmap member type
-        //     colInfo             = new GridColumnInfo();
-        //     colInfo.ColumnWidth = sizeBitmapColumn;
-        //     colInfo.WidthType   = GridColumnWidthType.InPixels;
-        //     colInfo.ColumnType  = GridColumnType.Bitmap;
-        //     grid.AddColumn(colInfo);
-
-        //     // member name
-        //     colInfo             = new GridColumnInfo();
-        //     colInfo.ColumnWidth = grid.Width - sizeBitmapColumn - 2;
-        //     colInfo.WidthType   = GridColumnWidthType.InPixels;
-        //     grid.AddColumn(colInfo);
-
-        //     grid.SetHeaderInfo(colMembershipRoleMembers, AppRoleSR.HeaderRoleMembers,       null);
-
-        //     grid.SelectionType          = GridSelectionType.SingleRow;
-        //     grid.UpdateGrid();
-        // }
-
-        /// <summary>
-        /// fills the membership grid with data (bitmaps, names, etc)
-        /// </summary>
-        // private void FillMembershipGrid()
-        // {
-        //     Microsoft.SqlServer.Management.UI.Grid.DlgGridControl grid = this.gridRoleMembership;
-
-        //     grid.DeleteAllRows();
-        //     foreach (DictionaryEntry de in dictMembership)
-        //     {
-        //         GridCellCollection row = new GridCellCollection();
-        //         GridCell cell = null;
-
-        //         string name = de.Key.ToString();
-
-        //         cell = new GridCell(bitmapMember); row.Add(cell); // compute type based on urn
-        //         cell = new GridCell(name); row.Add(cell);
-
-        //         // row.Tag = urn == de.Value.ToString();
-
-        //         grid.AddRow(row);
-        //     }
-
-        //     if (grid.RowsNumber > 0)
-        //     {
-        //         grid.SelectedRow = 0;
-        //     }
-        // }
-
-        /// <summary>
-        /// sends to server user changes related to membership
-        /// </summary>
-        private void SendToServerMembershipChanges(Database db, ApplicationRole approle)
+        public void ApplyInfoToPrototype(AppRoleInfo roleInfo)
         {
-            // DlgGridControl grid = this.gridRoleMembership;
+            this.Name = roleInfo.Name;
+            this.DefaultSchema = roleInfo.DefaultSchema;
+            this.SchemasOwned = roleInfo.SchemasOwned;
+            this.ExtendedProperties = roleInfo.ExtendedProperties.Select(ep => new KeyValuePair<string, string>(ep.Name, ep.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
 
-            if (IsPropertiesMode == true)
+        private class AppRolePrototypeData : ICloneable
+        {
+            #region data members
+            private string appRoleName = string.Empty;
+            private string defaultSchema = String.Empty;
+            private string password = String.Empty;
+            private bool initialized = false;
+            private List<string> schemaNames = null;
+            private Dictionary<string, string> dictSchemas = null;
+            private Dictionary<string, string> dictExtendedProperties = null;
+            private ApplicationRole role = null;
+            private Server server = null;
+            private string database = string.Empty;
+            private CDataContainer context = null;
+            private bool isYukonOrLater = false;
+            #endregion
+
+            #region Properties
+
+            // General properties
+
+
+            public string AppRoleName
             {
-                // members to add
-                for (int i = 0; i < 1; ++i)
+                get
                 {
-                    string name = "grid.GetCellInfo(i, colMembershipRoleMembers).CellData.ToString()";
-                    bool nameExistedInitially = dictMembership.Contains(name);
-
-                    if (nameExistedInitially == false)
+                    if (!this.initialized)
                     {
-                        // need SMO for: role.Members.Add();
+                        LoadData();
                     }
+
+                    return this.appRoleName;
                 }
-                // members to drop
-                foreach (DictionaryEntry de in dictMembership)
+
+                set
                 {
-                    if (FoundInMembershipGrid(de.Key.ToString(), de.Value.ToString()) == false)
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.appRoleName = value;
+                }
+            }
+
+            public ApplicationRole ApplicationRole
+            {
+                get
+                {
+                    return this.role;
+                }
+            }
+
+            public string DefaultSchema
+            {
+                get
+                {
+                    if (!this.initialized)
                     {
-                        // need SMO for: role.Members.Remove();
+                        LoadData();
+                    }
+
+                    return this.defaultSchema;
+                }
+
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.defaultSchema = value;
+                }
+            }
+            public string[] SchemasOwned
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+                    return this.dictSchemas.Keys.Where(s => dictSchemas[s] == this.appRoleName).ToArray();
+                }
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    foreach (string schema in value)
+                    {
+                        // cannot renounce ownership
+                        this.dictSchemas[schema] = this.AppRoleName;
                     }
                 }
             }
-            else
+
+            public string[] Schemas
             {
-                // add only
-                for (int i = 0; i < 1; ++i)
+                get
                 {
-                    string name = "grid.GetCellInfo(i, colMembershipRoleMembers).CellData.ToString()";
-                    // need SMO for: role.Members.Add();
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.schemaNames.ToArray();
+                }
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.schemaNames = value.ToList();
+                }
+            }
+
+            public Dictionary<string, string> ExtendedProperties
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+                    return this.dictExtendedProperties;
+                }
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.dictExtendedProperties = value;
+                }
+            }
+
+            public bool Exists
+            {
+                get
+                {
+                    return (this.role != null);
+                }
+            }
+
+            public Microsoft.SqlServer.Management.Smo.Server Server
+            {
+                get
+                {
+                    return this.server;
+                }
+            }
+
+            public ApplicationRole AppRole
+            {
+                get
+                {
+                    return this.role;
+                }
+            }
+
+            public string Password
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.password;
+                }
+
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.password = value;
+                }
+            }
+
+            #endregion
+
+            /// <summary>
+            /// private default constructor - used by Clone()
+            /// </summary>
+            private AppRolePrototypeData()
+            {
+            }
+
+            /// <summary>
+            /// constructor
+            /// </summary>
+            /// <param name="server">The server on which we are creating a new login</param>
+            public AppRolePrototypeData(CDataContainer context, string databaseName)
+            {
+                this.server = context.Server;
+                this.database = databaseName;
+                this.context = context;
+                this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
+                LoadData();
+            }
+
+            /// <summary>
+            /// constructor
+            /// </summary>
+            /// <param name="server">The server on which we are modifying a login</param>
+            /// <param name="login">The login we are modifying</param>
+            public AppRolePrototypeData(CDataContainer context, string databaseName, ApplicationRole appRole)
+            {
+                this.server = context.Server;
+                this.database = databaseName;
+                this.context = context;
+                this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
+                this.role = appRole;
+                LoadData();
+            }
+
+            /// <summary>
+            /// Create a clone of this AppRolePrototypeData object
+            /// </summary>
+            /// <returns>The clone AppRolePrototypeData object</returns>
+            public object Clone()
+            {
+                AppRolePrototypeData result = new AppRolePrototypeData();
+                result.appRoleName = this.appRoleName;
+                result.defaultSchema = this.defaultSchema;
+                result.password = this.password;
+                result.initialized = this.initialized;
+                result.schemaNames = new List<string>(this.schemaNames);
+                result.dictSchemas = new Dictionary<string, string>(this.dictSchemas);
+                result.dictExtendedProperties = new Dictionary<string, string>(this.dictExtendedProperties);
+                result.role = this.role;
+                result.server = this.server;
+                return result;
+            }
+
+            private void LoadData()
+            {
+                this.initialized = true;
+
+                if (this.Exists)
+                {
+                    LoadExisting();
+                }
+                else
+                {
+                    LoadNew();
+                }
+            }
+
+            private void LoadExisting()
+            {
+                System.Diagnostics.Debug.Assert(server != null, "server is null");
+                System.Diagnostics.Debug.Assert(role != null, "app role is null");
+                this.appRoleName = role.Name;
+                // this.defaultSchema = role.DefaultSchema; // load via query
+                this.password = LoginPrototype.fakePassword;
+                LoadSchemas();
+                LoadDefaultSchema();
+                LoadExtendProperties();
+            }
+
+            private void LoadNew()
+            {
+                LoadSchemas();
+            }
+
+            /// <summary>
+            /// loads initial schemas from server together with information about the schema owner
+            /// </summary>
+            private void LoadSchemas()
+            {
+                if (this.isYukonOrLater)
+                {
+                    this.dictSchemas = new Dictionary<string, string>();
+                    this.schemaNames = new List<string>();
+
+                    Enumerator en = new Enumerator();
+                    Request req = new Request();
+                    req.Fields = new String[] { AppRolePrototype.schemaNameField, AppRolePrototype.schemaOwnerField };
+                    req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.database) + "']/Schema";
+                    req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc) };
+
+                    DataTable dt = en.Process(server, req);
+                    System.Diagnostics.Debug.Assert((dt != null) && (dt.Rows.Count > 0), "No rows returned from schema enumerator");
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string name = Convert.ToString(dr[AppRolePrototype.schemaNameField], System.Globalization.CultureInfo.InvariantCulture);
+                        string owner = Convert.ToString(dr[AppRolePrototype.schemaOwnerField], System.Globalization.CultureInfo.InvariantCulture);
+
+                        dictSchemas.Add(name, owner);
+                        schemaNames.Add(name);
+                    }
+                }
+            }
+
+            private void LoadDefaultSchema()
+            {
+                if (this.isYukonOrLater)
+                {
+                    // get the default schema
+
+                    System.Diagnostics.Debug.Assert(this.context.ObjectUrn.Length != 0, "object urn is empty");
+
+                    Enumerator enumerator = new Enumerator();
+                    Request request = new Request();
+                    request.Urn = this.context.ObjectUrn;
+                    request.Fields = new String[] { AppRolePrototype.defaultSchemaField };
+
+                    DataTable dataTable = enumerator.Process(server, request);
+                    System.Diagnostics.Debug.Assert(dataTable != null, "dataTable is null");
+                    System.Diagnostics.Debug.Assert(dataTable.Rows.Count == 1, "unexpected number of rows in dataTable");
+
+                    if (dataTable.Rows.Count == 0)
+                    {
+                        throw new Exception("AppRoleSR.ErrorAppRoleNotFound");
+                    }
+
+                    DataRow dataRow = dataTable.Rows[0];
+                    this.defaultSchema = Convert.ToString(dataRow[AppRolePrototype.defaultSchemaField], System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
+
+            private void LoadExtendProperties()
+            {
+                if (this.isYukonOrLater)
+                {
+                    foreach (ExtendedProperty ep in this.role.ExtendedProperties)
+                    {
+                        this.dictExtendedProperties.Add(ep.Name, (string)ep.Value);
+                    }
                 }
             }
         }
-
-        /// <summary>
-        /// lookup in membership grid to see if user added a name
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="urn"></param>
-        /// <returns></returns>
-        private bool FoundInMembershipGrid(string name, string urn)
-        {
-            // DlgGridControl grid = this.gridRoleMembership;
-
-            // for (int i = 0; i < grid.RowsNumber; ++i)
-            // {
-            //     string currentName = grid.GetCellInfo(i, colMembershipRoleMembers).CellData.ToString();
-            //     if (name == currentName)
-            //     {
-            //         return true;
-            //     }
-            // }
-
-            return false;
-        }
-        #endregion
     }
-
 }
-
-
-
-
-
-
-
-
-

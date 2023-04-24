@@ -5,8 +5,14 @@
 
 #nullable disable
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 
@@ -24,33 +30,70 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return objectType == SqlObjectType.ApplicationRole;
         }
 
-        public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams parameters)
+        public override async Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams parameters)
         {
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(parameters.ConnectionUri, out connInfo);
-            if (connInfo == null)
+            // check input parameters
+            if (string.IsNullOrWhiteSpace(parameters.Database))
             {
-                throw new ArgumentException("Invalid ConnectionUri");
+                throw new ArgumentNullException("parameters.Database");
             }
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            AppRoleViewInfo AppRoleViewInfo = new AppRoleViewInfo();
 
-            AppRoleInfo AppRoleInfo = new AppRoleInfo()
+            // open a connection for running the AppRole associated tasks
+            ConnectionInfo originalConnInfo;
+            this.ConnectionService.TryFindConnection(parameters.ConnectionUri, out originalConnInfo);
+            if (originalConnInfo == null)
             {
-                Name = "test",
+                throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
+            }
+            string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
+            try
+            {
+                originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
+                ConnectParams connectParams = new ConnectParams
+                {
+                    OwnerUri = parameters.ContextId,
+                    Connection = originalConnInfo.ConnectionDetails,
+                    Type = Connection.ConnectionType.Default
+                };
+                await this.ConnectionService.Connect(connectParams);
+            }
+            finally
+            {
+                originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
+            }
+
+            ConnectionInfo connInfo;
+            this.ConnectionService.TryFindConnection(parameters.ContextId, out connInfo);
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+            AppRolePrototype prototype = parameters.IsNewObject
+            ? new AppRolePrototype(dataContainer, parameters.Database)
+            : new AppRolePrototype(dataContainer, parameters.Database, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as ApplicationRole);
+
+            AppRoleInfo appRoleInfo = new AppRoleInfo()
+            {
+                Name = prototype.Name,
+                DefaultSchema = prototype.DefaultSchema,
+                Password = prototype.Password,
+                ExtendedProperties = prototype.ExtendedProperties.Select(item => new ExtendedPropertyInfo()
+                    {
+                        Name = item.Key,
+                        Value = item.Value
+                    }).ToArray()
             };
 
             var viewInfo = new AppRoleViewInfo()
             {
-                ObjectInfo = AppRoleInfo,
+                ObjectInfo = appRoleInfo,
             };
 
             var context = new AppRoleViewContext(parameters);
-            return Task.FromResult(new InitializeViewResult()
+            return new InitializeViewResult()
             {
                 ViewInfo = viewInfo,
                 Context = context
-            });
+            };
         }
 
         public override Task Save(AppRoleViewContext context, AppRoleInfo obj)
@@ -80,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        private string ConfigureAppRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, AppRoleData prototype)
+        private string ConfigureAppRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, AppRolePrototype prototype)
         {
             string sqlScript = string.Empty;
             using (var actions = new AppRoleActions(dataContainer, configAction, prototype))
@@ -101,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sqlScript;
         }
 
-        private string DoHandleUpdateAppRoleRequest(AppRoleViewContext context, AppRoleInfo AppRole, RunType runType)
+        private string DoHandleUpdateAppRoleRequest(AppRoleViewContext context, AppRoleInfo appRoleInfo, RunType runType)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -111,11 +154,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            return ConfigureAppRole(dataContainer, ConfigAction.Update, runType, null);
-
+            AppRolePrototype prototype = new AppRolePrototype(dataContainer, context.Parameters.Database, dataContainer.Server.Databases[context.Parameters.Database].ApplicationRoles[appRoleInfo.Name]);
+            prototype.ApplyInfoToPrototype(appRoleInfo);
+            return ConfigureAppRole(dataContainer, ConfigAction.Update, runType, prototype);
         }
 
-        private string DoHandleCreateAppRoleRequest(AppRoleViewContext context, AppRoleInfo AppRole, RunType runType)
+        private string DoHandleCreateAppRoleRequest(AppRoleViewContext context, AppRoleInfo appRoleInfo, RunType runType)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -127,9 +171,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-
-            return ConfigureAppRole(dataContainer, ConfigAction.Create, runType, null);
+            AppRolePrototype prototype = new AppRolePrototype(dataContainer, context.Parameters.Database, appRoleInfo);
+            return ConfigureAppRole(dataContainer, ConfigAction.Create, runType, prototype);
         }
 
+        internal CDataContainer CreateAppRoleDataContainer(ConnectionInfo connInfo, AppRoleInfo role, ConfigAction configAction, string databaseName)
+        {
+            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
+            var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
+            connectionInfoWithConnection.ServerConnection = serverConnection;
+
+            string urn = (configAction == ConfigAction.Update && role != null)
+                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "Server/Database[@Name='{0}']/ApplicationRole[@Name='{1}']",
+                    Urn.EscapeString(databaseName),
+                    Urn.EscapeString(role.Name))
+                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "Server/Database[@Name='{0}']",
+                    Urn.EscapeString(databaseName));
+
+            ActionContext context = new ActionContext(serverConnection, "ApplicationRole", urn);
+            DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
+
+            if (configAction == ConfigAction.Create)
+            {
+                containerXml.AddProperty("itemtype", "ApplicationRole");
+            }
+
+            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
+            return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
+        }
     }
 }
