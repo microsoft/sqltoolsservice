@@ -35,6 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.objectTypeHandlers.Add(new CredentialHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new AppRoleHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new DatabaseRoleHandler(ConnectionService.Instance));
+            this.objectTypeHandlers.Add(new ServerRoleHandler(ConnectionService.Instance));
         }
 
         /// <summary>
