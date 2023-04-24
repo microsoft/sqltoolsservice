@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Schemas = prototype.Schemas
             };
 
-            var context = new AppRoleViewContext(parameters);
+            var context = new AppRoleViewContext(parameters, dataContainer.ServerConnection);
             return new InitializeViewResult()
             {
                 ViewInfo = viewInfo,
