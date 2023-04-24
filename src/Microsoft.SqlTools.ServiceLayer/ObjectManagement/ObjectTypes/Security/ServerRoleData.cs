@@ -6,321 +6,494 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
-using System.ComponentModel;
-using System.Collections.Specialized;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    public class ServerRoleData
+    /// <summary>
+    /// ServerRoleGeneral - main app role page
+    /// </summary>
+    internal class ServerRolePrototype
     {
-        protected ServerRole serverRole;
-        ServerRoleExtender extender;
+        #region Members
 
-        ServerRole instance;
-        Server server;
+        /// <summary>
+        /// data container member that contains data specific information like
+        /// connection infor, SMO server object or an AMO server object as well
+        /// as a hash table where one can manipulate custom data
+        /// </summary>
+        private CDataContainer dataContainer = null;
 
-        private void InitializeComponent()
-        {
-            components = new System.ComponentModel.Container();
-        }
+        private bool exists;
+        private ServerRolePrototypeData currentState;
+        private ServerRolePrototypeData originalState;
 
-        public ServerRoleData()
-        {
-            InitializeComponent();
-        }
+        #endregion
 
-        public ServerRoleData(IContainer container)
-        {
-            // container.Add(this);
-            InitializeComponent();
-        }
+        #region Trace support
+        private const string componentName = "ServerRoleGeneral";
 
-        protected string MethodName
+        public string ComponentName
         {
             get
             {
-                return "Alter";
+                return componentName;
             }
         }
+        #endregion
 
-        protected ServerRole Instance
+        #region Properties: CreateNew/Properties mode
+        public string Name
         {
             get
             {
-#pragma warning disable IDE0074 // Use compound assignment
-                if (this.instance == null)
-                {
-                    this.instance = CreateSmoObjectInstance();
-                }
-#pragma warning restore IDE0074 // Use compound assignment
-                return this.instance;
+                return this.currentState.ServerRoleName;
+            }
+            set
+            {
+                this.currentState.ServerRoleName = value;
             }
         }
 
-        protected Server Server
+        public string Owner
         {
             get
             {
-                return this.server;
+                return this.currentState.Owner;
+            }
+            set
+            {
+                this.currentState.Owner = value;
             }
         }
 
-        protected Microsoft.SqlServer.Management.Sdk.Sfc.ISfcPropertyProvider CreatePropertyProvider()
+        public List<string> Members
         {
-#pragma warning disable IDE0074 // Use compound assignment
-            if (extender == null)
+            get
             {
-                extender = new ServerRoleExtender(this.Instance);
+                return this.currentState.Members;
             }
-#pragma warning restore IDE0074 // Use compound assignment
-            return extender;            
-        }        
-
-        protected ServerRole CreateSmoObjectInstance()
-        {
-            if (this.serverRole == null)
+            set
             {
-                Urn urn;
-                // if (!SmoTaskHelper.TryGetUrn(this.TaskManager.Context, out urn))
-                if (true) // TODO new server role
+                this.currentState.Members = value;
+            }
+        }
+
+        public List<string> Memberships
+        {
+            get
+            {
+                return this.currentState.Memberships;
+            }
+            set
+            {
+                this.currentState.Memberships = value;
+            }
+        }
+
+        public bool IsYukonOrLater
+        {
+            get
+            {
+                return this.dataContainer.Server.VersionMajor >= 9;
+            }
+        }
+
+        public bool IsFixedRole
+        {
+            get
+            {
+                return this.currentState.IsFixedRole;
+            }
+        }
+        #endregion
+
+        #region Constructors / Dispose
+        public ServerRolePrototype(CDataContainer context)
+        {
+            this.exists = false;
+            this.dataContainer = context;
+            this.currentState = new ServerRolePrototypeData(context);
+            this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+        }
+
+        /// <summary>
+        /// ServerRoleData for creating a new app role
+        /// </summary>
+        public ServerRolePrototype(CDataContainer context, ServerRoleInfo roleInfo)
+        {
+            this.exists = false;
+            this.dataContainer = context;
+            this.currentState = new ServerRolePrototypeData(context);
+            this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+
+            this.ApplyInfoToPrototype(roleInfo);
+        }
+
+        /// <summary>
+        /// ServerRoleData for editing an existing app role
+        /// </summary>
+        public ServerRolePrototype(CDataContainer context, ServerRole role)
+        {
+            this.exists = true;
+            this.dataContainer = context;
+            this.currentState = new ServerRolePrototypeData(context, role);
+            this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+        }
+
+        #endregion
+
+        #region Implementation: SendDataToServer()
+        /// <summary>
+        /// SendDataToServer
+        ///
+        /// here we talk with server via smo and do the actual data changing
+        /// </summary>
+        public void SendDataToServer()
+        {
+            Microsoft.SqlServer.Management.Smo.Server srv = this.dataContainer.Server;
+            System.Diagnostics.Debug.Assert(srv != null, "server object is null");
+
+            ServerRole serverRole = null;
+            if (this.exists) // in properties mode -> alter role
+            {
+                System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.Name), "serverRoleName is empty");
+
+                serverRole = srv.Roles[this.Name];
+                System.Diagnostics.Debug.Assert(serverRole != null, "serverRole object is null");
+
+                if (0 != String.Compare(this.currentState.Owner, this.originalState.Owner, StringComparison.Ordinal))
                 {
-                    this.serverRole = new ServerRole(this.Server, GetServerRoleName());
+                    serverRole.Owner = this.Owner;
+                    serverRole.Alter();
                 }
-                else
+            }
+            else // not in properties mode -> create role
+            {
+                serverRole = new ServerRole(srv, this.Name);
+                if (this.Owner.Length != 0)
                 {
-                    this.serverRole = this.Server.GetSmoObject(urn) as ServerRole;
+                    serverRole.Owner = this.Owner;
+                }
+                serverRole.Create();
+            }
+
+            SendToServerMemberChanges(serverRole);
+            SendToServerMembershipChanges(serverRole);
+        }
+        #endregion
+
+        /// <summary>
+        /// sends to server user changes related to members
+        /// </summary>
+        private void SendToServerMemberChanges(ServerRole serverRole)
+        {
+            if (!this.exists)
+            {
+                foreach (string member in this.Members)
+                {
+                    serverRole.AddMember(member);
                 }
             }
-            return this.serverRole;
-        }
-
-        protected void PerformTask()
-        {
-            this.CreateOrManage();
-
-            //General Page Permissions Related actions
-            EventHandler tempEventHandler = (EventHandler)this.extender.GeneralPageOnRunNow;
-            if (tempEventHandler != null)
+            else
             {
-                tempEventHandler(this, new EventArgs());
-            }
-
-            //Disposing DataContainer object as it has a dedicated server connection.
-            if (this.extender.GeneralPageDataContainer != null)
-            {
-                ((CDataContainer)this.extender.GeneralPageDataContainer).Dispose();
-            }
-        }
-
-        private void CreateOrManage()
-        {
-            //General Page Actions
-            if (Utils.IsSql11OrLater(this.Instance.ServerVersion.Major))
-            {
-                if (this.Instance.State == SqlSmoState.Creating)
+                foreach (string member in this.Members)
                 {
-                    if (this.extender.OwnerForUI == string.Empty) //In order to avoid scripting Authorization part of ddl.
+                    if (!this.originalState.Members.Contains(member))
                     {
-                        this.extender.OwnerForUI = null;
+                        serverRole.AddMember(member);
                     }
-                    this.Instance.Create();
+                }
+
+                foreach (string member in this.originalState.Members)
+                {
+                    if (!this.Members.Contains(member))
+                    {
+                        serverRole.DropMember(member);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// sends to server user changes related to memberships
+        /// </summary>
+        private void SendToServerMembershipChanges(ServerRole serverRole)
+        {
+            if (!this.exists)
+            {
+                foreach (string role in this.Memberships)
+                {
+                    serverRole.AddMembershipToRole(this.dataContainer.Server.Roles[role].Name);
+                }
+            }
+            else
+            {
+                foreach (string role in this.Memberships)
+                {
+                    if (!this.originalState.Memberships.Contains(role))
+                    {
+                        serverRole.AddMembershipToRole(this.dataContainer.Server.Roles[role].Name);
+                    }
+                }
+
+                foreach (string role in this.originalState.Memberships)
+                {
+                    if (!this.Memberships.Contains(role))
+                    {
+                        serverRole.DropMembershipFromRole(this.dataContainer.Server.Roles[role].Name);
+                    }
+                }
+            }
+        }
+
+
+        public void ApplyInfoToPrototype(ServerRoleInfo roleInfo)
+        {
+            this.Name = roleInfo.Name;
+            this.Owner = roleInfo.Owner;
+            this.Members = roleInfo.Members.ToList();
+            this.Memberships = roleInfo.Memberships.ToList();
+        }
+
+        private class ServerRolePrototypeData : ICloneable
+        {
+            #region data members
+            private string serverRoleName = string.Empty;
+            private string owner = String.Empty;
+            private bool initialized = false;
+            private List<string> members = null;
+            private List<string> memberships = null;
+            private ServerRole role = null;
+            private ServerRoleExtender extender = null;
+            private Server server = null;
+            private CDataContainer context = null;
+            private bool isYukonOrLater = false;
+            #endregion
+
+            #region Properties
+
+            // General properties
+
+
+            public string ServerRoleName
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.serverRoleName;
+                }
+
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.serverRoleName = value;
+                }
+            }
+
+            public ServerRole ServerRole
+            {
+                get
+                {
+                    return this.role;
+                }
+            }
+
+            public string Owner
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.owner;
+                }
+
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.owner = value;
+                }
+            }
+
+            public List<string> Members
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+                    return this.members;
+                }
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.members = value;
+                }
+            }
+
+            public List<string> Memberships
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+                    return this.memberships;
+                }
+                set
+                {
+                    System.Diagnostics.Debug.Assert(this.initialized, "unexpected property set before initialization");
+                    this.memberships = value;
+                }
+            }
+
+            public bool Exists
+            {
+                get
+                {
+                    return (this.role != null);
+                }
+            }
+
+            public Microsoft.SqlServer.Management.Smo.Server Server
+            {
+                get
+                {
+                    return this.server;
+                }
+            }
+
+            public bool IsYukonOrLater
+            {
+                get
+                {
+                    return this.isYukonOrLater;
+                }
+            }
+
+            public bool IsFixedRole
+            {
+                get
+                {
+                    return this.role != null && this.role.IsFixedRole;
+                }
+            }
+
+            #endregion
+
+            /// <summary>
+            /// private default constructor - used by Clone()
+            /// </summary>
+            private ServerRolePrototypeData()
+            {
+            }
+
+            /// <summary>
+            /// constructor
+            /// </summary>
+            /// <param name="server">The server on which we are creating a new login</param>
+            public ServerRolePrototypeData(CDataContainer context)
+            {
+                this.server = context.Server;
+                this.context = context;
+                this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
+                LoadData();
+            }
+
+            /// <summary>
+            /// constructor
+            /// </summary>
+            /// <param name="server">The server on which we are modifying a login</param>
+            /// <param name="login">The login we are modifying</param>
+            public ServerRolePrototypeData(CDataContainer context, ServerRole serverRole)
+            {
+                this.server = context.Server;
+                this.context = context;
+                this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
+                this.role = serverRole;
+                this.extender = new ServerRoleExtender(this.role);
+                LoadData();
+            }
+
+            /// <summary>
+            /// Create a clone of this ServerRolePrototypeData object
+            /// </summary>
+            /// <returns>The clone ServerRolePrototypeData object</returns>
+            public object Clone()
+            {
+                ServerRolePrototypeData result = new ServerRolePrototypeData();
+                result.serverRoleName = this.serverRoleName;
+                result.initialized = this.initialized;
+                result.members = new List<string>(this.members);
+                result.memberships = new List<string>(this.memberships);
+                result.role = this.role;
+                result.extender = this.extender;
+                result.owner = this.owner;
+                result.server = this.server;
+                return result;
+            }
+
+            private void LoadData()
+            {
+                this.initialized = true;
+
+                if (this.Exists)
+                {
+                    LoadExisting();
                 }
                 else
                 {
-                    this.Instance.Alter();
+                    LoadNew();
                 }
             }
 
-            //Members Page Related actions
-            this.extender.RefreshRoleMembersHash();
-            Dictionary<string, bool> memberNameIsMemberHash = this.extender.MemberNameIsMemberHash;
-
-            StringCollection membersToBeDropped = new StringCollection();
-            StringCollection membersToBeAdded = new StringCollection();
-
-            StringCollection membershipsToBeDropped = new StringCollection();
-            StringCollection membershipsToBeAdded = new StringCollection();
-
-            foreach (string memberName in memberNameIsMemberHash.Keys)
+            private void LoadExisting()
             {
-                if (memberNameIsMemberHash[memberName]) //if added as member
+                System.Diagnostics.Debug.Assert(server != null, "server is null");
+                System.Diagnostics.Debug.Assert(role != null, "app role is null");
+                this.serverRoleName = role.Name;
+                this.owner = role.Owner;
+                LoadMembers();
+                LoadMemberships();
+            }
+
+            private void LoadNew()
+            {
+            }
+
+            private void LoadMembers()
+            {
+                if (this.Exists)
                 {
-                    membersToBeAdded.Add(memberName);
+                    this.members = new List<string>();
+                    foreach (string memberName in this.role.EnumMemberNames())
+                    {
+                        this.members.Add(memberName);
+                    }
                 }
-                else //if dropped from members
+            }
+
+            private void LoadMemberships()
+            {
+                foreach (ServerRole srvRole in this.server.Roles)
                 {
-                    membersToBeDropped.Add(memberName);
+                    if (srvRole.EnumMemberNames().Contains(this.role.Name))
+                    {
+                        this.memberships.Add(srvRole.Name);
+                    }
                 }
-            }
-
-            //Membership page Related actions
-            this.extender.RefreshServerRoleNameHasMembershipHash();
-            Dictionary<string, bool> membershipInfoHash = this.extender.ServerRoleNameHasMembershipHash;
-
-            foreach (string serverRoleName in membershipInfoHash.Keys)
-            {
-                if (membershipInfoHash[serverRoleName]) //If new membership added
-                {
-                    membershipsToBeAdded.Add(serverRoleName);
-                }
-                else //If now not a member of
-                {
-                    membershipsToBeDropped.Add(serverRoleName);
-                }
-            }
-
-            //First dropping members and memberships
-            foreach (string member in membersToBeDropped)
-            {
-                this.serverRole.DropMember(member);
-            }
-
-            foreach (string containingRole in membershipsToBeDropped)
-            {
-                this.serverRole.DropMembershipFromRole(containingRole);
-            }
-
-            //Now adding members and memberships.
-            foreach (string member in membersToBeAdded)
-            {
-                this.serverRole.AddMember(member);
-            }
-
-            foreach (string containingRole in membershipsToBeAdded)
-            {
-                this.serverRole.AddMembershipToRole(containingRole);
-            }
-        }
-
-        // protected System.Collections.Specialized.StringCollection GetScriptStrings(ITaskExecutionContext context)
-        // {
-        //     StringCollection script = this.GetScriptForCreateOrManage();
-
-        //     StringCollection permissionScript = this.GetPermissionRelatedScripts();
-
-        //     foreach (string str in permissionScript)
-        //     {
-        //         script.Add(str);
-        //     }
-
-        //     if (script.Count == 0)
-        //     {
-        //         //When the user tries to script and no changes have been made.                
-        //         // throw new SsmsException(SR.NoActionToBeScripted);
-        //     }
-        //     return script;
-        // }
-
-        private StringCollection GetPermissionRelatedScripts()
-        {
-            StringCollection script = new StringCollection();
-
-            if (this.extender.GeneralPageDataContainer != null) //Permission controls have been initialized.
-            {
-                //For General Page permissions
-                ServerConnection permControlConn = ((CDataContainer)this.extender.GeneralPageDataContainer).ServerConnection;
-                SqlExecutionModes em = permControlConn.SqlExecutionModes;
-
-                //PermissionUI has a cloned connection.                        
-                permControlConn.CapturedSql.Clear();
-                permControlConn.SqlExecutionModes = SqlExecutionModes.CaptureSql;
-
-                //This will run General page's permission related actions.
-                EventHandler tempEventHandler = (EventHandler)this.extender.GeneralPageOnRunNow;
-                if (tempEventHandler != null)
-                {
-                    tempEventHandler(this, new EventArgs());
-                }
-
-                script = permControlConn.CapturedSql.Text;
-                permControlConn.SqlExecutionModes = em;
-            }
-
-            return script;
-        }
-
-        /// <summary>
-        /// Generates script for Create and Properties.
-        /// </summary>
-        /// <returns></returns>
-        private StringCollection GetScriptForCreateOrManage()
-        {
-            StringCollection script = new StringCollection();
-
-            Server svr = this.Instance.Parent;
-            svr.ConnectionContext.CapturedSql.Clear();
-            SqlExecutionModes em = svr.ConnectionContext.SqlExecutionModes;
-
-            svr.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
-
-            //T-SQL Capturing starts.
-
-            this.CreateOrManage();
-
-            //T-SQL capturing ends
-            script = svr.ConnectionContext.CapturedSql.Text;
-            svr.ConnectionContext.SqlExecutionModes = em;
-
-            return script;
-        }
-
-        protected string GetServerRoleName()
-        {
-            return "ServerRole-" + DateTime.Now.ToString("yyyyMMdd-HHmmss",SmoApplication.DefaultCulture);
-        }
-
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
-
-        /// <summary> 
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected void Dispose(bool disposing)
-        {
-            // if (disposing && (components != null))
-            // {
-            //     components.Dispose();
-            // }
-            // base.Dispose(disposing);
-        }
-    }
-
-    public class ServerRoleCreateTaskFormComponent : ServerRoleData
-    {
-        public ServerRoleCreateTaskFormComponent()
-            : base()
-        {
-        }
-
-        public ServerRoleCreateTaskFormComponent(IContainer container)
-            : base(container)
-        {
-        }
-
-        protected ServerRole CreateSmoObjectInstance()
-        {
-#pragma warning disable IDE0074 // Use compound assignment
-            if (this.serverRole == null)
-            {
-                this.serverRole = new ServerRole(this.Server, GetServerRoleName());
-            }
-#pragma warning restore IDE0074 // Use compound assignment
-            return this.serverRole;
-        }
-
-        protected string MethodName
-        {
-            get
-            {
-                return "Create";
             }
         }
     }

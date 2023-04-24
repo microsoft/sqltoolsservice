@@ -10,6 +10,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ServerRoleInfo : SqlObject
     {
-
+        public string? Owner { get; set; }
+        public string[]? Members { get; set; }
+        public string[]? Memberships { get; set; }
+        public bool IsFixedRole { get; set; }
     }
 }

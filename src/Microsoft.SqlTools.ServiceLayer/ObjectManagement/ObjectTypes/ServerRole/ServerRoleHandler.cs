@@ -6,6 +6,7 @@
 #nullable disable
 using System;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
@@ -33,11 +34,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid ConnectionUri");
             }
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            ServerRoleViewInfo ServerRoleViewInfo = new ServerRoleViewInfo();
+
+            ServerRolePrototype prototype = parameters.IsNewObject
+                ? new ServerRolePrototype(dataContainer)
+                : new ServerRolePrototype(dataContainer, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as ServerRole);
 
             ServerRoleInfo ServerRoleInfo = new ServerRoleInfo()
             {
-                Name = "test",
+                Name = prototype.Name,
+                Owner = prototype.Owner,
+                Members = prototype.Members.ToArray(),
+                Memberships = prototype.Memberships.ToArray(),
+                IsFixedRole = prototype.IsFixedRole
             };
 
             var viewInfo = new ServerRoleViewInfo()
@@ -80,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        private string ConfigureServerRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerRoleData prototype)
+        private string ConfigureServerRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerRolePrototype prototype)
         {
             string sqlScript = string.Empty;
             using (var actions = new ServerRoleActions(dataContainer, configAction, prototype))
@@ -101,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sqlScript;
         }
 
-        private string DoHandleUpdateServerRoleRequest(ServerRoleViewContext context, ServerRoleInfo ServerRole, RunType runType)
+        private string DoHandleUpdateServerRoleRequest(ServerRoleViewContext context, ServerRoleInfo serverRoleInfo, RunType runType)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -111,11 +119,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            ServerRolePrototype prototype = new ServerRolePrototype(dataContainer, dataContainer.Server.Roles[serverRoleInfo.Name]);
+            prototype.ApplyInfoToPrototype(serverRoleInfo);
             return ConfigureServerRole(dataContainer, ConfigAction.Update, runType, null);
 
         }
 
-        private string DoHandleCreateServerRoleRequest(ServerRoleViewContext context, ServerRoleInfo ServerRole, RunType runType)
+        private string DoHandleCreateServerRoleRequest(ServerRoleViewContext context, ServerRoleInfo serverRoleInfo, RunType runType)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -127,9 +137,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-
+            ServerRolePrototype prototype = new ServerRolePrototype(dataContainer, serverRoleInfo);
             return ConfigureServerRole(dataContainer, ConfigAction.Create, runType, null);
         }
-
     }
 }
