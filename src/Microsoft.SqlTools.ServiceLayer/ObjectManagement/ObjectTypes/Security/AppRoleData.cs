@@ -511,7 +511,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <summary>
             /// constructor
             /// </summary>
-            /// <param name="server">The server on which we are creating a new login</param>
+            /// <param name="context">The context in which we are creating a new appRole</param>
+            /// <param name="databaseName">The database in which we are creating a new appRole</param>
             public AppRolePrototypeData(CDataContainer context, string databaseName)
             {
                 this.server = context.Server;
@@ -524,8 +525,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <summary>
             /// constructor
             /// </summary>
-            /// <param name="server">The server on which we are modifying a login</param>
-            /// <param name="login">The login we are modifying</param>
+            /// <param name="context">The context in which we are modifying a appRole</param>
+            /// <param name="databaseName">The database in which we are modifying a appRole</param>
+            /// <param name="appRole">The appRole we are modifying</param>
             public AppRolePrototypeData(CDataContainer context, string databaseName, ApplicationRole appRole)
             {
                 this.server = context.Server;

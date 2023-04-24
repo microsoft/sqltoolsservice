@@ -515,7 +515,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <summary>
             /// constructor
             /// </summary>
-            /// <param name="server">The server on which we are creating a new login</param>
+            /// <param name="server">The server on which we are creating a new databaseRole</param>
+            /// <param name="databaseName">The database on which we are creating a new databaseRole</param>
             public DatabaseRolePrototypeData(CDataContainer context, string databaseName)
             {
                 this.server = context.Server;
@@ -528,8 +529,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// <summary>
             /// constructor
             /// </summary>
-            /// <param name="server">The server on which we are modifying a login</param>
-            /// <param name="login">The login we are modifying</param>
+            /// <param name="server">The server on which we are modifying a databaseRole</param>
+            /// <param name="databaseName">The database on which we are modifying a databaseRole</param>
+            /// <param name="databaseRole">The databaseRole we are modifying</param>
             public DatabaseRolePrototypeData(CDataContainer context, string databaseName, DatabaseRole databaseRole)
             {
                 this.server = context.Server;

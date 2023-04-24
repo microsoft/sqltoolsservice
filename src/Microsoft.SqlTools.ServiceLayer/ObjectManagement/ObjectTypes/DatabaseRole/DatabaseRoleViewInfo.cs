@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
-    /// a class for storing various database role properties
+    /// a class for storing various database role view properties
     /// </summary>
     public class DatabaseRoleViewInfo : SqlObjectViewInfo
     {
