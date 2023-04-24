@@ -1227,7 +1227,7 @@ WITH VALUES
                 string filePath = Path.Combine(folderPath, string.Format("SchemaCompareOpenScmpTest{0}.scmp", DateTime.Now.ToFileTime()));
                 compare.SaveToFile(filePath);
 
-                await VerifyContentAndCleanupAsync(filePath, folderPath, "<FolderStructure>ObjectType</FolderStructure>");
+                await VerifyContentAndCleanupAsync(filePath, "<FolderStructure>ObjectType</FolderStructure>");
             }
             finally
             {
@@ -1680,7 +1680,7 @@ WITH VALUES
             }
         }
 
-        private async Task VerifyContentAndCleanupAsync(string outputFilePath, string outputFolderPath, string textToMatch)
+        private async Task VerifyContentAndCleanupAsync(string outputFilePath, string textToMatch)
         {
             // Verify it was created
             Assert.True(File.Exists(outputFilePath), "The output file did not get generated.");
@@ -1694,12 +1694,6 @@ WITH VALUES
             if (File.Exists(outputFilePath))
             {
                 File.Delete(outputFilePath);
-            }
-
-            // Remove the folder
-            if (Directory.Exists(outputFolderPath))
-            {
-                Directory.Delete(outputFolderPath);
             }
         }
 
