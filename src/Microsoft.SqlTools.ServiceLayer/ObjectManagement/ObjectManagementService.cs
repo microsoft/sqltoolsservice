@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.objectTypeHandlers.Add(new LoginHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new UserHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new CredentialHandler(ConnectionService.Instance));
+            this.objectTypeHandlers.Add(new DatabaseHandler(ConnectionService.Instance));
         }
 
         /// <summary>
