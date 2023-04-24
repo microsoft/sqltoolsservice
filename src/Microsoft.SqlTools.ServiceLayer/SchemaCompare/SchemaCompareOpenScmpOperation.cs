@@ -173,9 +173,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             if (fs != null)
             {
                 DacExtractTarget extractTarget;
-                if (Enum.TryParse<DacExtractTarget>(fs.FirstOrDefault().Value, out extractTarget))
+                if(fs.FirstOrDefault() != null)     // it is possible that this value is not set
                 {
-                    endpointInfo.ExtractTarget = extractTarget;
+                    if (Enum.TryParse<DacExtractTarget>(fs.FirstOrDefault().Value, out extractTarget))
+                    {
+                        endpointInfo.ExtractTarget = extractTarget;
+                    } else
+                    {
+                        endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set default but log an error
+                        Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed during xml parsing with unknown ExtractTarget"));
+                    }
+                } else
+                {
+                    endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set the default if this value doesn't already exist in the scmp file
                 }
             }
 
