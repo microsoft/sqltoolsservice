@@ -10,5 +10,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class AppRoleViewInfo : SqlObjectViewInfo
     {
+        public string[]? Schemas { get; set; }
     }
 }

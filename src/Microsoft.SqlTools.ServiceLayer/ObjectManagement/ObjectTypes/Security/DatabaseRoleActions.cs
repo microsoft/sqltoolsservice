@@ -11,12 +11,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         private ConfigAction configAction;
 
-        private DatabaseRoleData prototype;
+        private DatabaseRolePrototype prototype;
 
         /// <summary>
         /// Handle database role create and update actions
         /// </summary>        
-        public DatabaseRoleActions(CDataContainer dataContainer, ConfigAction configAction, DatabaseRoleData prototype)
+        public DatabaseRoleActions(CDataContainer dataContainer, ConfigAction configAction, DatabaseRolePrototype prototype)
         {
             this.DataContainer = dataContainer;
             this.configAction = configAction;
@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (this.configAction != ConfigAction.Drop)
             {
-                // TODO
+                this.prototype.SendDataToServer();
             }
         }
     }

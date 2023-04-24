@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.originalState.Schemas;
+                return this.currentState.Schemas;
             }
         }
 
@@ -113,11 +113,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.originalState.SchemasOwned;
+                return this.currentState.SchemasOwned;
             }
             set
             {
-                this.originalState.SchemasOwned = value;
+                this.currentState.SchemasOwned = value;
             }
         }
 
@@ -126,6 +126,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             get
             {
                 return this.currentState.Password.ToString();
+            }
+            set
+            {
+                this.currentState.Password = value;
             }
         }
 
@@ -185,8 +189,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         public void SendDataToServer()
         {
-            // STrace.Params(ComponentName, "SendDataToServer", "", null);
-
             System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(this.databaseName), "databaseName is empty");
 
             Microsoft.SqlServer.Management.Smo.Server srv = this.dataContainer.Server;
@@ -324,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             this.Name = roleInfo.Name;
             this.DefaultSchema = roleInfo.DefaultSchema;
-            this.SchemasOwned = roleInfo.SchemasOwned;
+            this.SchemasOwned = roleInfo.SchemasOwned.ToArray();
             this.ExtendedProperties = roleInfo.ExtendedProperties.Select(ep => new KeyValuePair<string, string>(ep.Name, ep.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 

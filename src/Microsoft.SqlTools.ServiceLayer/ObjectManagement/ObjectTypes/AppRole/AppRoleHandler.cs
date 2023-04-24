@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(parameters.ContextId, out connInfo);
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            CDataContainer dataContainer = CreateAppRoleDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
 
             AppRolePrototype prototype = parameters.IsNewObject
             ? new AppRolePrototype(dataContainer, parameters.Database)
@@ -80,12 +80,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         Name = item.Key,
                         Value = item.Value
-                    }).ToArray()
+                    }).ToArray(),
+                SchemasOwned = prototype.SchemasOwned,
             };
 
             var viewInfo = new AppRoleViewInfo()
             {
                 ObjectInfo = appRoleInfo,
+                Schemas = prototype.Schemas
             };
 
             var context = new AppRoleViewContext(parameters);
@@ -153,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid ConnectionUri");
             }
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            CDataContainer dataContainer = CreateAppRoleDataContainer(connInfo, null, ConfigAction.Create, context.Parameters.Database);
             AppRolePrototype prototype = new AppRolePrototype(dataContainer, context.Parameters.Database, dataContainer.Server.Databases[context.Parameters.Database].ApplicationRoles[appRoleInfo.Name]);
             prototype.ApplyInfoToPrototype(appRoleInfo);
             return ConfigureAppRole(dataContainer, ConfigAction.Update, runType, prototype);
@@ -169,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid ConnectionUri");
             }
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            CDataContainer dataContainer = CreateAppRoleDataContainer(connInfo, null, ConfigAction.Create, context.Parameters.Database);
 
             AppRolePrototype prototype = new AppRolePrototype(dataContainer, context.Parameters.Database, appRoleInfo);
             return ConfigureAppRole(dataContainer, ConfigAction.Create, runType, prototype);
