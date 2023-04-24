@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -58,21 +57,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         #endregion
 
         #region Non-UI variables
-        private System.Xml.XmlDocument document = null;
 
         // info extracted from context
-        private string serverName;
         private string databaseName;
-        private string approleName;
-        private SecureString password;
-        private bool passwordChanged = false;
-        private List<ExtendedPropertyInfo> extendedProperties;
-
-        // initial values loaded from server
-        private string initialDefaultSchema;
-
-
-        private bool isYukonOrLater;
         #endregion
 
 
@@ -130,6 +117,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             set
             {
                 this.currentState.Password = value;
+            }
+        }
+
+        public bool IsYukonOrLater
+        {
+            get
+            {
+                return this.currentState.IsYukonOrLater;
             }
         }
 
@@ -206,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 bool alterRequired = false;
 
-                if (this.isYukonOrLater && this.originalState.DefaultSchema != this.currentState.DefaultSchema)
+                if (this.IsYukonOrLater && this.originalState.DefaultSchema != this.currentState.DefaultSchema)
                 {
                     approle.DefaultSchema = this.currentState.DefaultSchema;
                     alterRequired = true;
@@ -229,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             else // not in properties mode -> create role
             {
                 ApplicationRole approle = new ApplicationRole(db, this.Name);
-                if (this.isYukonOrLater && this.currentState.DefaultSchema.Length > 0)
+                if (this.IsYukonOrLater && this.currentState.DefaultSchema.Length > 0)
                 {
                     approle.DefaultSchema = this.currentState.DefaultSchema;
                 }
@@ -249,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         private void SendToServerSchemaOwnershipChanges(Database db, ApplicationRole approle)
         {
-            if (this.isYukonOrLater)
+            if (this.IsYukonOrLater)
             {
                 foreach (string schemaName in this.Schemas)
                 {
@@ -458,6 +453,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 get
                 {
                     return (this.role != null);
+                }
+            }
+
+            public bool IsYukonOrLater
+            {
+                get
+                {
+                    return this.isYukonOrLater;
                 }
             }
 

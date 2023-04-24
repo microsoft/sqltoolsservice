@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -57,21 +56,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         #endregion
 
         #region Non-UI variables
-        private System.Xml.XmlDocument document = null;
 
         // info extracted from context
-        private string serverName;
         private string databaseName;
-        private string databaseRoleName;
-        private SecureString password;
-        private bool passwordChanged = false;
-        private List<ExtendedPropertyInfo> extendedProperties;
-
-        // initial values loaded from server
-        private string initialDefaultSchema;
-
-
-        private bool isYukonOrLater;
         #endregion
 
 
@@ -136,11 +123,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             get
             {
-                return this.originalState.Members;
+                return this.currentState.Members;
             }
             set
             {
-                this.originalState.Members = value;
+                this.currentState.Members = value;
+            }
+        }
+
+        public bool IsYukonOrLater
+        {
+            get
+            {
+                return this.dataContainer.Server.VersionMajor >= 9;
             }
         }
         #endregion
@@ -230,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         private void SendToServerSchemaOwnershipChanges(Database db, DatabaseRole databaseRole)
         {
-            if (this.isYukonOrLater)
+            if (this.IsYukonOrLater)
             {
                 foreach (string schemaName in this.Schemas)
                 {
@@ -500,6 +495,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+            public bool IsYukonOrLater
+            {
+                get
+                {
+                    return this.isYukonOrLater;
+                }
+            }
+
             #endregion
 
             /// <summary>
@@ -622,8 +625,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     this.members = new List<string>();
                     Enumerator enumerator = new Enumerator();
-                    Urn urn = String.Format(System.Globalization.CultureInfo.  InvariantCulture,
-                                                            "Server/Database[@Name='{0']/  Role  [@Name='{1}']Member",
+                    Urn urn = String.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                                            "Server/Database[@Name='{0}']/Role[@Name='{1}']Member",
                                                             Urn.EscapeString(this.database),
                                                             Urn.EscapeString(this.databaseRoleName));
                     string[] fields = new string[] { DatabaseRolePrototype.memberNameField };
