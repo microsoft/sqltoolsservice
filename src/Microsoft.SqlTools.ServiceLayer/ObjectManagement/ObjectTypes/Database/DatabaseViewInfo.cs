@@ -13,5 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] LoginNames { get; set; }
         public string[] CollationNames { get; set; }
         public string[] CompatibilityLevels { get; set; }
+        public string[] ContainmentTypes { get; set; }
+        public string[] RecoveryModels { get; set; }
     }
 }
