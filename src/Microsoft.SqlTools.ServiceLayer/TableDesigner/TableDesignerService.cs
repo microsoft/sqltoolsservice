@@ -1831,10 +1831,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var td = GetTableDesigner(tableInfo);
             var advancedOpsIndex = tableInfo.Tooltip.LastIndexOf('[');
-            var advancedOps = tableInfo.Tooltip.Substring(advancedOpsIndex);
+            var advancedOps = "";
+            if(advancedOpsIndex > -1){
+                advancedOps = " " + tableInfo.Tooltip.Substring(advancedOpsIndex);
+            }
             tableInfo.Title = td.TableViewModel.FullName;
             var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
-            tableInfo.Tooltip = string.Format("{0} - {1} {2}", tableParent, tableInfo.Title, advancedOps);
+            tableInfo.Tooltip = string.Format("{0} - {1}{2}", tableParent, tableInfo.Title, advancedOps);
         }
 
         private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
