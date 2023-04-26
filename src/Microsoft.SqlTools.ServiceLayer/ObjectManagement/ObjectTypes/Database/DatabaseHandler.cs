@@ -14,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -33,12 +32,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public async override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
-            // check input parameters
-            if (string.IsNullOrWhiteSpace(requestParams.Database))
-            {
-                throw new ArgumentNullException("requestParams.Database");
-            }
-
             // open a connection for running the user dialog and associated task
             ConnectionInfo originalConnInfo;
             this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out originalConnInfo);
@@ -69,7 +62,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, null, ConfigAction.Create, requestParams.Database);
             var parentServer = dataContainer.Server;
 
-            var databaseViewInfo = new DatabaseViewInfo();
+            var databaseViewInfo = new DatabaseViewInfo()
+            {
+                ObjectInfo = new DatabaseInfo()
+                {
+                    IsAzure = parentServer.ServerType == DatabaseEngineType.SqlAzureDatabase
+                }
+            };
 
             var databases = new List<string>();
             foreach (Database database in parentServer.Databases)
@@ -85,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             databaseViewInfo.LoginNames = logins.ToArray();
 
-            databaseViewInfo.CollationNames = this.GetCollations();
+            databaseViewInfo.CollationNames = this.GetCollations(parentServer);
             databaseViewInfo.CompatibilityLevels = this.GetCompatibilityLevels();
             databaseViewInfo.ContainmentTypes = this.GetContainmentTypes();
             databaseViewInfo.RecoveryModels = this.GetRecoveryModels();
@@ -94,24 +93,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context };
         }
 
-        private string[] GetCollations()
+        private string[] GetCollations(Server server)
         {
-            return null;
+            var collations = new List<string>();
+            foreach (var collationRow in server.EnumCollations().Rows)
+            {
+                collations.Add(collationRow.ToString());
+            }
+            return collations.ToArray();
         }
 
         private string[] GetCompatibilityLevels()
         {
-            return null;
+            return new string[] { "Test" };
         }
 
         private string[] GetContainmentTypes()
         {
-            return null;
+            return new string[] { "Test" };
         }
 
         private string[] GetRecoveryModels()
         {
-            return null;
+            return new string[] { "Test" };
         }
 
         private CDataContainer CreateDatabaseDataContainer(ConnectionInfo connInfo, DatabaseInfo database, ConfigAction configAction, string databaseName)

@@ -16,6 +16,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? CompatibilityLevel { get; set; }
         public string? ContainmentType { get; set; }
         public bool IsAzure { get; set; }
-        public bool IsDW { get; set; }
     }
 }
