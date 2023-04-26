@@ -1380,8 +1380,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         if (!string.IsNullOrEmpty(connectionDetails.Password))
                         {
                             connectionBuilder.Password = connectionDetails.Password;
+                            connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         break;
                     case AzureMFA:
                         if (Instance.EnableSqlAuthenticationProvider)
