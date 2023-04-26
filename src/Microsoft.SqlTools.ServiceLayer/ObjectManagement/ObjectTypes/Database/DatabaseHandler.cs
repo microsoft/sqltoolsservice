@@ -15,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using System.Collections.Generic;
-using System.Data;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
