@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -95,12 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string[] GetCollations(Server server)
         {
-            var collations = new List<string>();
-            foreach (var collationRow in server.EnumCollations().Rows)
-            {
-                collations.Add(collationRow.ToString());
-            }
-            return collations.ToArray();
+            return new string[] { "Test" };
         }
 
         private string[] GetCompatibilityLevels()
