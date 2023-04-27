@@ -10,5 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ServerRoleViewInfo : SqlObjectViewInfo
     {
+        public bool IsFixedRole { get; set; }
+        public string[]? ServerRoles { get; set; }
     }
 }

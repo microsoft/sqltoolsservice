@@ -145,6 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public AppRolePrototype(CDataContainer context, string database)
         {
             this.exists = false;
+            this.databaseName = database;
             this.dataContainer = context;
             this.currentState = new AppRolePrototypeData(context, database);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
@@ -157,6 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             this.exists = false;
             this.dataContainer = context;
+            this.databaseName = database;
             this.currentState = new AppRolePrototypeData(context, database);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
 
@@ -170,6 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             this.exists = true;
             this.dataContainer = context;
+            this.databaseName = database;
             this.currentState = new AppRolePrototypeData(context, database, role);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
         }
@@ -321,7 +324,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             this.Name = roleInfo.Name;
             this.DefaultSchema = roleInfo.DefaultSchema;
-            this.SchemasOwned = roleInfo.SchemasOwned.ToArray();
+            this.SchemasOwned = roleInfo.OwnedSchemas.ToArray();
             this.ExtendedProperties = roleInfo.ExtendedProperties.Select(ep => new KeyValuePair<string, string>(ep.Name, ep.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
@@ -332,9 +335,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string defaultSchema = String.Empty;
             private string password = String.Empty;
             private bool initialized = false;
-            private List<string> schemaNames = null;
-            private Dictionary<string, string> dictSchemas = null;
-            private Dictionary<string, string> dictExtendedProperties = null;
+            private List<string> schemaNames = new List<string>();
+            private Dictionary<string, string> dictSchemas = new Dictionary<string, string>();
+            private Dictionary<string, string> dictExtendedProperties = new Dictionary<string, string>();
             private ApplicationRole role = null;
             private Server server = null;
             private string database = string.Empty;
@@ -578,8 +581,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.appRoleName = role.Name;
                 // this.defaultSchema = role.DefaultSchema; // load via query
                 this.password = LoginPrototype.fakePassword;
+                this.defaultSchema = role.DefaultSchema;
                 LoadSchemas();
-                LoadDefaultSchema();
                 LoadExtendProperties();
             }
 
@@ -604,7 +607,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.database) + "']/Schema";
                     req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc) };
 
-                    DataTable dt = en.Process(server, req);
+                    DataTable dt = en.Process(server.ConnectionContext, req);
                     System.Diagnostics.Debug.Assert((dt != null) && (dt.Rows.Count > 0), "No rows returned from schema enumerator");
 
                     foreach (DataRow dr in dt.Rows)
@@ -615,33 +618,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         dictSchemas.Add(name, owner);
                         schemaNames.Add(name);
                     }
-                }
-            }
-
-            private void LoadDefaultSchema()
-            {
-                if (this.isYukonOrLater)
-                {
-                    // get the default schema
-
-                    System.Diagnostics.Debug.Assert(this.context.ObjectUrn.Length != 0, "object urn is empty");
-
-                    Enumerator enumerator = new Enumerator();
-                    Request request = new Request();
-                    request.Urn = this.context.ObjectUrn;
-                    request.Fields = new String[] { AppRolePrototype.defaultSchemaField };
-
-                    DataTable dataTable = enumerator.Process(server, request);
-                    System.Diagnostics.Debug.Assert(dataTable != null, "dataTable is null");
-                    System.Diagnostics.Debug.Assert(dataTable.Rows.Count == 1, "unexpected number of rows in dataTable");
-
-                    if (dataTable.Rows.Count == 0)
-                    {
-                        throw new Exception("AppRoleSR.ErrorAppRoleNotFound");
-                    }
-
-                    DataRow dataRow = dataTable.Rows[0];
-                    this.defaultSchema = Convert.ToString(dataRow[AppRolePrototype.defaultSchemaField], System.Globalization.CultureInfo.InvariantCulture);
                 }
             }
 

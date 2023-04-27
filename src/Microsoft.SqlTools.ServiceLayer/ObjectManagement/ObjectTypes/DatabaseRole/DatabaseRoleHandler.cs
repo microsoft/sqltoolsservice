@@ -76,12 +76,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Name = prototype.Name,
                 Owner = prototype.Owner,
                 ExtendedProperties = prototype.ExtendedProperties.Select(item => new ExtendedPropertyInfo()
-                    {
-                        Name = item.Key,
-                        Value = item.Value
-                    }).ToArray(),
+                {
+                    Name = item.Key,
+                    Value = item.Value
+                }).ToArray(),
                 Members = prototype.Members.ToArray(),
-                SchemasOwned = prototype.SchemasOwned.ToArray(),
+                OwnedSchemas = prototype.SchemasOwned.ToArray(),
             };
 
             var viewInfo = new DatabaseRoleViewInfo()

@@ -76,12 +76,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Name = prototype.Name,
                 DefaultSchema = prototype.DefaultSchema,
                 Password = prototype.Password,
-                ExtendedProperties = prototype.ExtendedProperties.Select(item => new ExtendedPropertyInfo()
+                ExtendedProperties = prototype.ExtendedProperties.Select(
+                    item => new ExtendedPropertyInfo()
                     {
                         Name = item.Key,
                         Value = item.Value
                     }).ToArray(),
-                SchemasOwned = prototype.SchemasOwned,
+                OwnedSchemas = prototype.SchemasOwned,
             };
 
             var viewInfo = new AppRoleViewInfo()

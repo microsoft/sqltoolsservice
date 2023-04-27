@@ -265,8 +265,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string serverRoleName = string.Empty;
             private string owner = String.Empty;
             private bool initialized = false;
-            private List<string> members = null;
-            private List<string> memberships = null;
+            private List<string> members = new List<string>();
+            private List<string> memberships = new List<string>();
             private ServerRole role = null;
             private ServerRoleExtender extender = null;
             private Server server = null;
@@ -477,7 +477,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 if (this.Exists)
                 {
-                    this.members = new List<string>();
                     foreach (string memberName in this.role.EnumMemberNames())
                     {
                         this.members.Add(memberName);

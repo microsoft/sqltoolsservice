@@ -346,9 +346,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string owner = String.Empty;
             private bool initialized = false;
             private List<string> schemaNames = null;
-            private Dictionary<string, string> dictSchemas = null;
-            private Dictionary<string, string> dictExtendedProperties = null;
-            private List<string> members = null;
+            private Dictionary<string, string> dictSchemas = new Dictionary<string, string>();
+            private Dictionary<string, string> dictExtendedProperties = new Dictionary<string, string>();
+            private List<string> members = new List<string>();
             private DatabaseRole role = null;
             private Server server = null;
             private string database = string.Empty;
@@ -607,7 +607,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     req.Urn = "Server/Database[@Name='" + Urn.EscapeString(this.database) + "']/Schema";
                     req.OrderByList = new OrderBy[] { new OrderBy("Name", OrderBy.Direction.Asc) };
 
-                    DataTable dt = en.Process(server, req);
+                    DataTable dt = en.Process(server.ConnectionContext, req);
                     System.Diagnostics.Debug.Assert((dt != null) && (dt.Rows.Count > 0), "No rows returned from schema enumerator");
 
                     foreach (DataRow dr in dt.Rows)
@@ -628,13 +628,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     this.members = new List<string>();
                     Enumerator enumerator = new Enumerator();
                     Urn urn = String.Format(System.Globalization.CultureInfo.InvariantCulture,
-                                                            "Server/Database[@Name='{0}']/Role[@Name='{1}']Member",
+                                                            "Server/Database[@Name='{0}']/Role[@Name='{1}']/Member",
                                                             Urn.EscapeString(this.database),
                                                             Urn.EscapeString(this.databaseRoleName));
                     string[] fields = new string[] { DatabaseRolePrototype.memberNameField };
                     OrderBy[] orderBy = new OrderBy[] { new OrderBy(DatabaseRolePrototype.memberNameField, OrderBy.Direction.Asc) };
                     Request request = new Request(urn, fields, orderBy);
-                    DataTable dt = enumerator.Process(this.server, request);
+                    DataTable dt = enumerator.Process(this.server.ConnectionContext, request);
                     foreach (DataRow dr in dt.Rows)
                     {
                         string memberName = dr[DatabaseRolePrototype.memberNameField].ToString();

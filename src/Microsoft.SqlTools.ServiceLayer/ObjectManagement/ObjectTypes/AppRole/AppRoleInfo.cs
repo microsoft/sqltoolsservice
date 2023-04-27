@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public string? DefaultSchema { get; set; }
         public string? Password { get; set; }
-        public string[]? SchemasOwned { get; set; }
+        public string[]? OwnedSchemas { get; set; }
         public ExtendedPropertyInfo[]? ExtendedProperties { get; set; }
     }
 }

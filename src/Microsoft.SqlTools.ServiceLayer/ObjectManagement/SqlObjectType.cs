@@ -12,23 +12,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     [JsonConverter(typeof(StringEnumConverter))]
     public enum SqlObjectType
     {
+        [EnumMember(Value = "ApplicationRole")]
+        ApplicationRole,
         [EnumMember(Value = "Column")]
         Column,
         [EnumMember(Value = "Credential")]
         Credential,
+        [EnumMember(Value = "DatabaseRole")]
+        DatabaseRole,
         [EnumMember(Value = "ServerLevelLogin")]
         ServerLevelLogin,
+        [EnumMember(Value = "ServerLevelServerRole")]
+        ServerRole,
         [EnumMember(Value = "Table")]
         Table,
         [EnumMember(Value = "User")]
         User,
         [EnumMember(Value = "View")]
-        View,
-        [EnumMember(Value = "ServerRole")]
-        ServerRole,
-        [EnumMember(Value = "DatabaseRole")]
-        DatabaseRole,
-        [EnumMember(Value = "ApplicationRole")]
-        ApplicationRole
+        View
     }
 }

@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     return handler;
                 }
             }
-            throw new NotSupportedException(objectType.ToString());
+            throw new NotSupportedException($"No handler found for object type '{objectType.ToString()}'");
         }
 
         private SqlObjectViewContext GetContext(string contextId)

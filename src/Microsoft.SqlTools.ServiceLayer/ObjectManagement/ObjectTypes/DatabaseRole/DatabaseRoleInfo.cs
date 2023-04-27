@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public class DatabaseRoleInfo : SqlObject
     {
         public string? Owner { get; set; }
-        public string[]? SchemasOwned { get; set; }
+        public string[]? OwnedSchemas { get; set; }
         public ExtendedPropertyInfo[]? ExtendedProperties { get; set; }
         public string[]? Members { get; set; }
     }
