@@ -13,7 +13,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -49,26 +48,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
             }
             string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
+            originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
+
+            // create a default user data context and database object
+            CDataContainer dataContainer;
             try
             {
-                originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
-                ConnectParams connectParams = new ConnectParams
-                {
-                    OwnerUri = parameters.ContextId,
-                    Connection = originalConnInfo.ConnectionDetails,
-                    Type = Connection.ConnectionType.Default
-                };
-                await this.ConnectionService.Connect(connectParams);
+                ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
+                dataContainer = CreateUserDataContainer(serverConnection, null, ConfigAction.Create, parameters.Database);
             }
             finally
             {
                 originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
             }
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(parameters.ContextId, out connInfo);
 
-            // create a default user data context and database object
-            CDataContainer dataContainer = CreateUserDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
             string databaseUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                                                 "Server/Database[@Name='{0}']", Urn.EscapeString(parameters.Database));
             Database parentDb = dataContainer.Server.GetSmoObject(databaseUrn) as Database;
@@ -122,8 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 defaultSchema = defaultSchemaPrototype.DefaultSchema;
             }
 
-            ServerConnection serverConnection = dataContainer.ServerConnection;
-            bool isSqlAzure = serverConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
+            bool isSqlAzure = dataContainer.ServerConnection.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase;
             bool supportsContainedUser = isSqlAzure || UserActions.IsParentDatabaseContained(parentDb);
 
             // set the fake password placeholder when editing an existing user
@@ -196,17 +188,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 SupportSQLAuthentication = true,
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
-                Logins = DatabaseUtils.LoadSqlLogins(serverConnection),
+                Logins = DatabaseUtils.LoadSqlLogins(dataContainer.ServerConnection),
                 DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
             };
-            var context = new UserViewContext(parameters, serverConnection, currentUserPrototype.CurrentState);
+            var context = new UserViewContext(parameters, dataContainer.ServerConnection, currentUserPrototype.CurrentState);
             return new InitializeViewResult { ViewInfo = userViewInfo, Context = context };
         }
 
         public override Task Save(UserViewContext context, UserInfo obj)
         {
             ConfigureUser(
-                context.Parameters.ContextId,
+                context.Connection,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow,
@@ -218,7 +210,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<string> Script(UserViewContext context, UserInfo obj)
         {
             var script = ConfigureUser(
-                context.Parameters.ContextId,
+                context.Connection,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.ScriptToWindow,
@@ -227,9 +219,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        internal CDataContainer CreateUserDataContainer(ConnectionInfo connInfo, UserInfo user, ConfigAction configAction, string databaseName)
+        internal CDataContainer CreateUserDataContainer(ServerConnection serverConnection, UserInfo user, ConfigAction configAction, string databaseName)
         {
-            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
 
@@ -254,17 +245,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
         }
 
-        internal string ConfigureUser(string ownerUri, UserInfo user, ConfigAction configAction, RunType runType, string databaseName, UserPrototypeData originalData)
-        {
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(ownerUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
-            }
-
+        internal string ConfigureUser(ServerConnection serverConnection, UserInfo user, ConfigAction configAction, RunType runType, string databaseName, UserPrototypeData originalData)
+        {            
             string sqlScript = string.Empty;
-            CDataContainer dataContainer = CreateUserDataContainer(connInfo, user, configAction, databaseName);
+            CDataContainer dataContainer = CreateUserDataContainer(serverConnection, user, configAction, databaseName);
             using (var actions = new UserActions(dataContainer, configAction, user, originalData))
             {
                 var executionHandler = new ExecutonHandler(actions);
