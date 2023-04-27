@@ -144,6 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseRolePrototype(CDataContainer context, string database)
         {
             this.exists = false;
+            this.databaseName = database;
             this.dataContainer = context;
             this.currentState = new DatabaseRolePrototypeData(context, database);
             this.originalState = (DatabaseRolePrototypeData)this.currentState.Clone();
@@ -155,6 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseRolePrototype(CDataContainer context, string database, DatabaseRoleInfo roleInfo)
         {
             this.exists = false;
+            this.databaseName = database;
             this.dataContainer = context;
             this.currentState = new DatabaseRolePrototypeData(context, database);
             this.originalState = (DatabaseRolePrototypeData)this.currentState.Clone();
@@ -168,6 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseRolePrototype(CDataContainer context, string database, DatabaseRole role)
         {
             this.exists = true;
+            this.databaseName = database;
             this.dataContainer = context;
             this.currentState = new DatabaseRolePrototypeData(context, database, role);
             this.originalState = (DatabaseRolePrototypeData)this.currentState.Clone();
