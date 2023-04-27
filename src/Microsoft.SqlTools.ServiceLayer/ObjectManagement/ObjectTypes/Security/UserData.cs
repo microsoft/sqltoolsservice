@@ -124,11 +124,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {                    
                     this.password = DatabaseUtils.GetReadOnlySecureString(userInfo.Password);
                 }
-                if (!string.IsNullOrEmpty(userInfo.DefaultLanguage)
+
+                this.defaultLanguageAlias = (!string.IsNullOrEmpty(userInfo.DefaultLanguage)
                     && string.Compare(userInfo.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal) != 0)
-                {
-                    this.defaultLanguageAlias = LanguageUtils.GetLanguageAliasFromDisplayText(userInfo.DefaultLanguage);                        
-                }
+                    ? LanguageUtils.GetLanguageAliasFromDisplayText(userInfo.DefaultLanguage) : string.Empty;
+
                 this.userType = UserPrototypeData.GetUserTypeFromUserInfo(userInfo);
             }     
 
@@ -278,17 +278,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="context"></param>
         private void LoadRoleMembership(CDataContainer context, UserInfo? userInfo)
         {
-            Urn objUrn = new Urn(context.ObjectUrn);
-            Urn databaseUrn = objUrn.Parent;
-
-            Database? parentDb = context.Server.GetSmoObject(databaseUrn) as Database;
+            Database? parentDb = context.Server.GetSmoObject(context.ParentUrn) as Database;
             if (parentDb == null)
             {
                 return;
             }
 
-            string userName = userInfo?.Name ?? objUrn.GetNameForType("User");
-            User existingUser = context.Server.Databases[parentDb.Name].Users[userName];
+            User? existingUser = null;
+            if (!string.IsNullOrEmpty(userInfo?.Name))
+            {
+                existingUser = context.Server.Databases[parentDb.Name].Users[userInfo?.Name];
+            }
 
             foreach (DatabaseRole dbRole in parentDb.Roles)
             {
@@ -316,18 +316,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         /// <param name="context"></param>
         private void LoadSchemaData(CDataContainer context, UserInfo? userInfo)
-        {
-            Urn objUrn = new Urn(context.ObjectUrn);
-            Urn databaseUrn = objUrn.Parent;
-
-            Database? parentDb = context.Server.GetSmoObject(databaseUrn) as Database;
+        {            
+            Database? parentDb = context.Server.GetSmoObject(context.ParentUrn) as Database;
             if (parentDb == null)
             {
                 return;
             }
 
-            string userName = userInfo?.Name ?? objUrn.GetNameForType("User");
-            User existingUser = context.Server.Databases[parentDb.Name].Users[userName];
+            User? existingUser = null;
+            if (!string.IsNullOrEmpty(userInfo?.Name))
+            {
+                existingUser = context.Server.Databases[parentDb.Name].Users[userInfo?.Name];
+            }
 
             if (!SqlMgmtUtils.IsYukonOrAbove(context.Server)
                 || parentDb.CompatibilityLevel <= CompatibilityLevel.Version80)

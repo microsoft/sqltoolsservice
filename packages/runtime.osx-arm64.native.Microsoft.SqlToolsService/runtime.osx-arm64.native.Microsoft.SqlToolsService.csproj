@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets">
-  <PropertyGroup>
-    <PackageDescription>SQL Tools Service application for the osx-arm64 runtime. This package is intended to be used by internal applications only and should not be referenced directly.</PackageDescription>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="../../artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx-arm64/$(TargetFramework)/**" Pack="true" PackagePath="runtimes/osx-arm64/native" />
-  </ItemGroup>
-</Project>
