@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -43,6 +44,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {CompatibilityLevel.Version140, "SQL Server 2017 (140)"},
             {CompatibilityLevel.Version150, "SQL Server 2019 (150)"},
             {CompatibilityLevel.Version160, "SQL Server 2022 (160)"},
+        };
+
+        private Dictionary<string, CompatibilityLevel> displayCompatLevels = new Dictionary<string, CompatibilityLevel>()
+        {
+            {"SQL Server 7.0 (70)", CompatibilityLevel.Version70},
+            {"SQL Server 2000 (80)", CompatibilityLevel.Version80},
+            {"SQL Server 2005 (90)", CompatibilityLevel.Version90},
+            {"SQL Server 2008 (100)", CompatibilityLevel.Version100},
+            {"SQL Server 2012 (110)", CompatibilityLevel.Version110},
+            {"SQL Server 2014 (120)", CompatibilityLevel.Version120},
+            {"SQL Server 2016 (130)", CompatibilityLevel.Version130},
+            {"SQL Server 2017 (140)", CompatibilityLevel.Version140},
+            {"SQL Server 2019 (150)", CompatibilityLevel.Version150},
+            {"SQL Server 2022 (160)", CompatibilityLevel.Version160},
         };
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService) { }
@@ -212,8 +227,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var types = new List<string>();
             if (server.VersionMajor >= 11 && !IsAnyManagedInstance(server))
             {
-                types.Add("None");
-                types.Add("Partial");
+                types.Add(ContainmentType.None.ToString());
+                types.Add(ContainmentType.Partial.ToString());
             }
             return types.ToArray();
         }
@@ -223,11 +238,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var models = new List<string>();
             if (!server.GetDisabledProperties().Contains("RecoveryModel") && (server.VersionMajor >= minimumVersionForRecoveryModel) && !IsAnyManagedInstance(server))
             {
-                models.Add("Full");
+                models.Add(RecoveryModel.Full.ToString());
                 if (!IsAnyManagedInstance(server))
                 {
-                    models.Add("Bulk Logged");
-                    models.Add("Simple");
+                    models.Add(RecoveryModel.BulkLogged.ToString());
+                    models.Add(RecoveryModel.Simple.ToString());
                 }
             }
             return models.ToArray();
@@ -259,12 +274,91 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
-            throw new NotImplementedException();
+            if (context.Parameters.IsNewObject)
+            {
+                this.DoHandleCreateDatabaseRequest(context, RunType.RunNow);
+            }
+            else
+            {
+                this.DoHandleUpdateDatabaseRequest(context, obj, RunType.RunNow);
+            }
+            return Task.CompletedTask;
         }
 
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
-            throw new NotImplementedException();
+            string script;
+            if (context.Parameters.IsNewObject)
+            {
+                script = this.DoHandleCreateDatabaseRequest(context, RunType.ScriptToWindow);
+            }
+            else
+            {
+                script = this.DoHandleUpdateDatabaseRequest(context, obj, RunType.ScriptToWindow);
+            }
+            return Task.FromResult(script);
+        }
+
+        private string DoHandleCreateDatabaseRequest(DatabaseViewContext context, RunType runType)
+        {
+            ConnectionInfo connInfo;
+            this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+
+            if (connInfo == null)
+            {
+                throw new ArgumentException("Invalid ConnectionUri");
+            }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            DatabasePrototype prototype = new DatabasePrototype(dataContainer);
+
+            return ConfigureDatabase(dataContainer, ConfigAction.Create, runType, prototype);
+        }
+
+        private string DoHandleUpdateDatabaseRequest(DatabaseViewContext context, DatabaseInfo database, RunType runType)
+        {
+            ConnectionInfo connInfo;
+            this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+            if (connInfo == null)
+            {
+                throw new ArgumentException("Invalid ConnectionUri");
+            }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            DatabasePrototype prototype = new DatabasePrototype(dataContainer);
+
+            prototype.Name = database.Name;
+            prototype.Collation = database.CollationName;
+            prototype.RecoveryModel = Enum.Parse<RecoveryModel>(database.RecoveryModel);
+            prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
+            prototype.ContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
+
+            return ConfigureDatabase(
+                dataContainer,
+                ConfigAction.Update,
+                runType,
+                prototype);
+        }
+
+        private string ConfigureDatabase(CDataContainer dataContainer, ConfigAction configAction, RunType runType, DatabasePrototype prototype)
+        {
+            string sqlScript = string.Empty;
+            using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
+            {
+                var executionHandler = new ExecutonHandler(actions);
+                executionHandler.RunNow(runType, this);
+                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                {
+                    throw executionHandler.ExecutionFailureException;
+                }
+
+                if (runType == RunType.ScriptToWindow)
+                {
+                    sqlScript = executionHandler.ScriptTextFromLastRun;
+                }
+            }
+
+            return sqlScript;
         }
 
         private bool IsManagedInstance(Server server)

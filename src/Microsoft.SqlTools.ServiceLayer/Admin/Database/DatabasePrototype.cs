@@ -933,6 +933,23 @@ WHERE do.database_id = @DbID
         }
 
         /// <summary>
+        /// The containment type for the database
+        /// </summary>
+        [Browsable(false)]
+        public ContainmentType ContainmentType
+        {
+            get
+            {
+                return this.currentState.databaseContainmentType;
+            }
+            set
+            {
+                this.currentState.databaseContainmentType = value;
+                this.NotifyObservers();
+            }
+        }
+
+        /// <summary>
         /// Property return true for System DB
         /// </summary>
         [Browsable(false)]
