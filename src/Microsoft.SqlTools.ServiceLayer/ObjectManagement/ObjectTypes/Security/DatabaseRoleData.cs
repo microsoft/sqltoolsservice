@@ -339,6 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.Name = roleInfo.Name;
             this.Owner = roleInfo.Owner;
             this.Members = roleInfo.Members.ToList();
+            this.SchemasOwned = roleInfo.OwnedSchemas.ToArray();
             this.ExtendedProperties = roleInfo.ExtendedProperties.Select(ep => new KeyValuePair<string, string>(ep.Name, ep.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
