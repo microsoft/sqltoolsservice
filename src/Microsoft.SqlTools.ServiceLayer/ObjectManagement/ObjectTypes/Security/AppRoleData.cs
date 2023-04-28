@@ -325,6 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.Name = roleInfo.Name;
             this.DefaultSchema = roleInfo.DefaultSchema;
             this.SchemasOwned = roleInfo.OwnedSchemas.ToArray();
+            this.Password = roleInfo.Password;
             this.ExtendedProperties = roleInfo.ExtendedProperties.Select(ep => new KeyValuePair<string, string>(ep.Name, ep.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
@@ -579,7 +580,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 System.Diagnostics.Debug.Assert(server != null, "server is null");
                 System.Diagnostics.Debug.Assert(role != null, "app role is null");
                 this.appRoleName = role.Name;
-                // this.defaultSchema = role.DefaultSchema; // load via query
                 this.password = LoginPrototype.fakePassword;
                 this.defaultSchema = role.DefaultSchema;
                 LoadSchemas();
