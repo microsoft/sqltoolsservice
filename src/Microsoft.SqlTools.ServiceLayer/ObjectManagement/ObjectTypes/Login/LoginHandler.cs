@@ -85,12 +85,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 UserMapping = new ServerLoginDatabaseUserMapping[0]
             };
 
+            var supportedAuthTypes = new List<LoginAuthenticationType>();
+            supportedAuthTypes.Add(LoginAuthenticationType.Sql);
+            if (prototype.WindowsAuthSupported)
+            {
+                supportedAuthTypes.Add(LoginAuthenticationType.Windows);
+            }
+            if (prototype.AADAuthSupported)
+            {
+                supportedAuthTypes.Add(LoginAuthenticationType.AAD);
+            }
             var viewInfo = new LoginViewInfo()
             {
                 ObjectInfo = loginInfo,
-                SupportWindowsAuthentication = prototype.WindowsAuthSupported,
-                SupportAADAuthentication = prototype.AADAuthSupported,
-                SupportSQLAuthentication = true, // SQL Auth support for login, not necessarily mean SQL Auth support for CONNECT etc.
+                AuthenticationTypes = supportedAuthTypes.ToArray(),
                 CanEditLockedOutState = !parameters.IsNewObject && prototype.IsLockedOut,
                 Databases = databases,
                 Languages = languages,

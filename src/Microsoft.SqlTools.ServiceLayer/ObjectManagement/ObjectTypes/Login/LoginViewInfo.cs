@@ -8,9 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class LoginViewInfo : SqlObjectViewInfo
     {
-        public bool SupportWindowsAuthentication { get; set; }
-        public bool SupportAADAuthentication { get; set; }
-        public bool SupportSQLAuthentication { get; set; }
+        public LoginAuthenticationType[] AuthenticationTypes { get; set; }
         public bool CanEditLockedOutState { get; set; }
         public string[] Databases;
         public string[] Languages;

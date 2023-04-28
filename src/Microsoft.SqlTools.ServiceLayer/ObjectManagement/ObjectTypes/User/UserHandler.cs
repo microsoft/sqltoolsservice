@@ -78,17 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 User existingUser = dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as User;
                 userType = UserActions.GetCurrentUserTypeForExistingUser(existingUser);
-                DatabaseUserType databaseUserType = UserActions.GetDatabaseUserTypeForUserType(userType);
-
-                // if contained user determine if SQL or AAD auth type
-                ServerAuthenticationType authenticationType =
-                    (databaseUserType == DatabaseUserType.Contained && userType == ExhaustiveUserTypes.ExternalUser)
-                        ? ServerAuthenticationType.AzureActiveDirectory : ServerAuthenticationType.Sql;
 
                 userInfo = new UserInfo()
                 {
-                    Type = databaseUserType,
-                    AuthenticationType = authenticationType,
+                    Type = UserActions.GetDatabaseUserTypeForUserType(userType),
                     Name = existingUser.Name,
                     LoginName = existingUser.Login,
                     DefaultSchema = existingUser.DefaultSchema,
@@ -168,12 +161,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 defaultLanguage = SR.DefaultLanguagePlaceholder;
             }
 
+            var supportedUserTypes = new List<DatabaseUserType>();
+            supportedUserTypes.Add(DatabaseUserType.LoginMapped);
+            if (currentUserPrototype.WindowsAuthSupported)
+            {
+                supportedUserTypes.Add(DatabaseUserType.WindowsUser);
+            }
+            if (supportsContainedUser)
+            {
+                supportedUserTypes.Add(DatabaseUserType.SqlAuthentication);
+            }
+            if (currentUserPrototype.AADAuthSupported)
+            {
+                supportedUserTypes.Add(DatabaseUserType.AADAuthentication);
+            }
+            supportedUserTypes.Add(DatabaseUserType.NoLoginAccess);
+
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
                 {
-                    Type = userInfo?.Type ?? DatabaseUserType.WithLogin,
-                    AuthenticationType = userInfo?.AuthenticationType ?? ServerAuthenticationType.Sql,
+                    Type = userInfo?.Type ?? DatabaseUserType.LoginMapped,
                     Name = currentUserPrototype.Name,
                     LoginName = loginName,
                     Password = password,
@@ -182,10 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     DatabaseRoles = databaseRoles.ToArray(),
                     DefaultLanguage = defaultLanguage
                 },
-                SupportContainedUser = supportsContainedUser,
-                SupportWindowsAuthentication = false,
-                SupportAADAuthentication = currentUserPrototype.AADAuthSupported,
-                SupportSQLAuthentication = true,
+                UserTypes = supportedUserTypes.ToArray(),
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = DatabaseUtils.LoadSqlLogins(dataContainer.ServerConnection),
@@ -246,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         internal string ConfigureUser(ServerConnection serverConnection, UserInfo user, ConfigAction configAction, RunType runType, string databaseName, UserPrototypeData originalData)
-        {            
+        {
             string sqlScript = string.Empty;
             CDataContainer dataContainer = CreateUserDataContainer(serverConnection, user, configAction, databaseName);
             using (var actions = new UserActions(dataContainer, configAction, user, originalData))

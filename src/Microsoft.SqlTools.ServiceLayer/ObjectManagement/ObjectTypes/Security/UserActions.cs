@@ -70,23 +70,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ExhaustiveUserTypes userType = ExhaustiveUserTypes.LoginMappedUser;
             switch (user.Type)
             {
-                case DatabaseUserType.WithLogin:
+                case DatabaseUserType.LoginMapped:
                     userType = ExhaustiveUserTypes.LoginMappedUser;
                     break;
-                case DatabaseUserType.WithWindowsGroupLogin:
+                case DatabaseUserType.WindowsUser:
                     userType = ExhaustiveUserTypes.WindowsUser;
                     break;
-                case DatabaseUserType.Contained:
-                    if (user.AuthenticationType == ServerAuthenticationType.AzureActiveDirectory)
-                    {
-                        userType = ExhaustiveUserTypes.ExternalUser;
-                    }
-                    else
-                    {
-                        userType = ExhaustiveUserTypes.SqlUserWithPassword;
-                    }
+                case DatabaseUserType.SqlAuthentication:
+                    userType = ExhaustiveUserTypes.SqlUserWithPassword;
                     break;
-                case DatabaseUserType.NoConnectAccess:
+                case DatabaseUserType.AADAuthentication:
+                    userType = ExhaustiveUserTypes.ExternalUser;
+                    break;
+                case DatabaseUserType.NoLoginAccess:
                     userType = ExhaustiveUserTypes.SqlUserWithoutLogin;
                     break;
             }
@@ -95,23 +91,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal static DatabaseUserType GetDatabaseUserTypeForUserType(ExhaustiveUserTypes userType)
         {
-            DatabaseUserType databaseUserType = DatabaseUserType.WithLogin;
+            DatabaseUserType databaseUserType = DatabaseUserType.LoginMapped;
             switch (userType)
             {
                 case ExhaustiveUserTypes.LoginMappedUser:
-                    databaseUserType = DatabaseUserType.WithLogin;
+                    databaseUserType = DatabaseUserType.LoginMapped;
                     break;
                 case ExhaustiveUserTypes.WindowsUser:
-                    databaseUserType = DatabaseUserType.WithWindowsGroupLogin;
+                    databaseUserType = DatabaseUserType.WindowsUser;
                     break;
                 case ExhaustiveUserTypes.SqlUserWithPassword:
-                    databaseUserType = DatabaseUserType.Contained;
+                    databaseUserType = DatabaseUserType.SqlAuthentication;
                     break;
                 case ExhaustiveUserTypes.SqlUserWithoutLogin:
-                    databaseUserType = DatabaseUserType.NoConnectAccess;
+                    databaseUserType = DatabaseUserType.NoLoginAccess;
                     break;
                 case ExhaustiveUserTypes.ExternalUser:
-                    databaseUserType = DatabaseUserType.Contained;
+                    databaseUserType = DatabaseUserType.AADAuthentication;
                     break;
             }
             return databaseUserType;
