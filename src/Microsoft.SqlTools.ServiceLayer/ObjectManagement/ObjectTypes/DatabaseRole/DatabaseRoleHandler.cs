@@ -46,26 +46,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid connection URI '{0}'", parameters.ConnectionUri);
             }
             string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
+            originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
+
+            // create a default database role data context and database object
+            CDataContainer dataContainer;
             try
             {
-                originalConnInfo.ConnectionDetails.DatabaseName = parameters.Database;
-                ConnectParams connectParams = new ConnectParams
-                {
-                    OwnerUri = parameters.ContextId,
-                    Connection = originalConnInfo.ConnectionDetails,
-                    Type = Connection.ConnectionType.Default
-                };
-                await this.ConnectionService.Connect(connectParams);
+                ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
+                dataContainer = CreateDatabaseRoleDataContainer(serverConnection, null, ConfigAction.Create, parameters.Database);
             }
             finally
             {
                 originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
             }
-
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(parameters.ContextId, out connInfo);
-
-            CDataContainer dataContainer = CreateDatabaseRoleDataContainer(connInfo, null, ConfigAction.Create, parameters.Database);
 
             DatabaseRolePrototype prototype = parameters.IsNewObject
             ? new DatabaseRolePrototype(dataContainer, parameters.Database)
@@ -148,14 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string DoHandleUpdateDatabaseRoleRequest(DatabaseRoleViewContext context, DatabaseRoleInfo DatabaseRoleInfo, RunType runType)
         {
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid ConnectionUri");
-            }
-
-            CDataContainer dataContainer = CreateDatabaseRoleDataContainer(connInfo, null, ConfigAction.Create, context.Parameters.Database);
+            CDataContainer dataContainer = CreateDatabaseRoleDataContainer(context.Connection, null, ConfigAction.Create, context.Parameters.Database);
             DatabaseRolePrototype prototype = new DatabaseRolePrototype(dataContainer, context.Parameters.Database, dataContainer.Server.Databases[context.Parameters.Database].Roles[DatabaseRoleInfo.Name]);
             prototype.ApplyInfoToPrototype(DatabaseRoleInfo);
             return ConfigureDatabaseRole(dataContainer, ConfigAction.Update, runType, prototype);
@@ -163,23 +149,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string DoHandleCreateDatabaseRoleRequest(DatabaseRoleViewContext context, DatabaseRoleInfo DatabaseRoleInfo, RunType runType)
         {
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
-
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid ConnectionUri");
-            }
-
-            CDataContainer dataContainer = CreateDatabaseRoleDataContainer(connInfo, null, ConfigAction.Create, context.Parameters.Database);
+            CDataContainer dataContainer = CreateDatabaseRoleDataContainer(context.Connection, null, ConfigAction.Create, context.Parameters.Database);
 
             DatabaseRolePrototype prototype = new DatabaseRolePrototype(dataContainer, context.Parameters.Database, DatabaseRoleInfo);
             return ConfigureDatabaseRole(dataContainer, ConfigAction.Create, runType, prototype);
         }
 
-        internal CDataContainer CreateDatabaseRoleDataContainer(ConnectionInfo connInfo, DatabaseRoleInfo role, ConfigAction configAction, string databaseName)
+        internal CDataContainer CreateDatabaseRoleDataContainer(ServerConnection serverConnection, DatabaseRoleInfo role, ConfigAction configAction, string databaseName)
         {
-            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
 
