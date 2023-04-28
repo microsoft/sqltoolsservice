@@ -399,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     {
                         var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
                         builder.InitialCatalog = node.NodeValue;
-                        builder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
+                        builder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(builder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                         // Set Access Token only when authentication mode is not specified.
                         var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
                             ? session.ConnectionInfo.ConnectionDetails.AzureAccountToken : null;
