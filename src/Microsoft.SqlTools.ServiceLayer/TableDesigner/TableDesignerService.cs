@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        public const string TableDesignerApplicationNameSuffix = "table-designer";
+        public const string TableDesignerApplicationNameSuffix = "TableDesigner";
 
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
@@ -1798,7 +1799,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
-                connectionStringBuilder.ApplicationName = connectionStringBuilder.ApplicationName + TableDesignerApplicationNameSuffix;
+                connectionStringBuilder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(connectionStringBuilder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                 var connectionString = connectionStringBuilder.ToString();
 
                 // Set Access Token only when authentication mode is not specified.
