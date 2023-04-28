@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ObjectManagementService
     {
-        public const string ApplicationName = "azdata-object-management";
+        public const string ApplicationName = "object-management";
         private static Lazy<ObjectManagementService> objectManagementServiceInstance = new Lazy<ObjectManagementService>(() => new ObjectManagementService());
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
         public static ConnectionService connectionService;

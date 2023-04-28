@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        public const string TableDesignerApplicationName = "azdata-table-designer";
+        public const string TableDesignerApplicationNameSuffix = "table-designer";
 
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
@@ -1798,7 +1798,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
-                connectionStringBuilder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
+                connectionStringBuilder.ApplicationName = connectionStringBuilder.ApplicationName + TableDesignerApplicationNameSuffix;
                 var connectionString = connectionStringBuilder.ToString();
 
                 // Set Access Token only when authentication mode is not specified.
