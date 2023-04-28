@@ -272,32 +272,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
-            if (context.Parameters.IsNewObject)
-            {
-                this.DoHandleCreateDatabaseRequest(context, RunType.RunNow);
-            }
-            else
-            {
-                this.DoHandleUpdateDatabaseRequest(context, obj, RunType.RunNow);
-            }
+            var updateExistingDB = !context.Parameters.IsNewObject;
+            var script = this.HandleDatabaseRequest(context, obj, RunType.RunNow, updateExistingDB);
             return Task.CompletedTask;
         }
 
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
-            string script;
-            if (context.Parameters.IsNewObject)
-            {
-                script = this.DoHandleCreateDatabaseRequest(context, RunType.ScriptToWindow);
-            }
-            else
-            {
-                script = this.DoHandleUpdateDatabaseRequest(context, obj, RunType.ScriptToWindow);
-            }
+            var updateExistingDB = !context.Parameters.IsNewObject;
+            var script = this.HandleDatabaseRequest(context, obj, RunType.ScriptToWindow, updateExistingDB);
             return Task.FromResult(script);
         }
 
-        private string DoHandleCreateDatabaseRequest(DatabaseViewContext context, RunType runType)
+        private string HandleDatabaseRequest(DatabaseViewContext context, DatabaseInfo database, RunType runType, bool updateExistingDB)
         {
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
@@ -307,22 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid ConnectionUri");
             }
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            DatabasePrototype prototype = new DatabasePrototype(dataContainer);
-
-            return ConfigureDatabase(dataContainer, ConfigAction.Create, runType, prototype);
-        }
-
-        private string DoHandleUpdateDatabaseRequest(DatabaseViewContext context, DatabaseInfo database, RunType runType)
-        {
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException("Invalid ConnectionUri");
-            }
-
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: updateExistingDB);
             DatabasePrototype prototype = new DatabasePrototype(dataContainer);
 
             prototype.Name = database.Name;
@@ -331,11 +303,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
             prototype.ContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
 
-            return ConfigureDatabase(
-                dataContainer,
-                ConfigAction.Update,
-                runType,
-                prototype);
+            var action = updateExistingDB ? ConfigAction.Update : ConfigAction.Create;
+            return ConfigureDatabase(dataContainer, ConfigAction.Create, runType, prototype);
         }
 
         private string ConfigureDatabase(CDataContainer dataContainer, ConfigAction configAction, RunType runType, DatabasePrototype prototype)
