@@ -159,63 +159,61 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 switch (server.VersionMajor)
                 {
                     case 8:     // Shiloh
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version70]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version80]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version70]);
                         break;
                     case 9:     // Yukon
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version70]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version80]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version90]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version80]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version70]);
                         break;
                     case 10:    // Katmai
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version80]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version90]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version90]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version80]);
                         break;
                     case 11:    // Denali
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version90]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version90]);
                         break;
                     case 12:    // SQL2014
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
                         break;
                     case 13:    // SQL2016
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
                         break;
                     case 14:    // SQL2017
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version140]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
                         break;
                     case 15:    // SQL2019
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version140]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version150]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version140]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
                         break;
-                    /* SQL_VBUMP_REVIEW */
                     default:
                         // It is either the latest SQL we know about, or some future version of SQL we
                         // do not know about. We play conservative and only add the compat level we know
                         // about so far.
-                        // At vBump, add a new case and move the 'default' label there.
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version140]);
-                        levels.Add(this.compatLevels[CompatibilityLevel.Version150]);
                         levels.Add(this.compatLevels[CompatibilityLevel.Version160]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version150]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version140]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version130]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version120]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                        levels.Add(this.compatLevels[CompatibilityLevel.Version100]);
                         break;
                 }
             }
@@ -238,12 +236,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var models = new List<string>();
             if (!server.GetDisabledProperties().Contains("RecoveryModel") && (server.VersionMajor >= minimumVersionForRecoveryModel) && !IsAnyManagedInstance(server))
             {
-                models.Add(RecoveryModel.Full.ToString());
                 if (!IsAnyManagedInstance(server))
                 {
-                    models.Add(RecoveryModel.BulkLogged.ToString());
                     models.Add(RecoveryModel.Simple.ToString());
+                    models.Add(RecoveryModel.BulkLogged.ToString());
                 }
+                models.Add(RecoveryModel.Full.ToString());
             }
             return models.ToArray();
         }
