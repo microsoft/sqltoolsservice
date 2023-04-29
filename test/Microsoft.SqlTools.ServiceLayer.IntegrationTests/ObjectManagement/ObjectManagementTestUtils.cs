@@ -80,7 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return new UserInfo()
             {
                 Type = userType,
-                AuthenticationType = ServerAuthenticationType.Sql,
                 Name = userName ?? "TestUserName_" + new Random().NextInt64(10000000, 90000000).ToString(),
                 LoginName = loginName,
                 Password = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
