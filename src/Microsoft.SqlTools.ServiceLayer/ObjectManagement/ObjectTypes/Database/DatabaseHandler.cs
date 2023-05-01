@@ -298,11 +298,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             DatabasePrototype prototype = new DatabasePrototype(dataContainer);
 
             prototype.Name = database.Name;
+            prototype.Owner = database.Owner;
             prototype.Collation = database.CollationName;
             prototype.RecoveryModel = Enum.Parse<RecoveryModel>(database.RecoveryModel);
             prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
-            prototype.ContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
-
+            if (prototype is DatabasePrototype110 db110) {
+                db110.DatabaseContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
+            }
             var action = updateExistingDB ? ConfigAction.Update : ConfigAction.Create;
             return ConfigureDatabase(dataContainer, ConfigAction.Create, runType, prototype);
         }
