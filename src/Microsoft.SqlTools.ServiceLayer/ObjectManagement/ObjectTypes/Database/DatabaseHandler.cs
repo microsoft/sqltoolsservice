@@ -104,7 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // create a default user data context and database object
             CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, null, ConfigAction.Create, requestParams.Database);
-            var parentServer = dataContainer.Server;
             var prototype = CreateDatabasePrototype(dataContainer);
             var azurePrototype = prototype as DatabasePrototypeAzure;
             bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
@@ -157,14 +156,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             var databases = new List<string>();
-            foreach (Database database in parentServer.Databases)
+            foreach (Database database in dataContainer.Server.Databases)
             {
                 databases.Add(database.Name);
             }
             databaseViewInfo.DatabaseNames = databases.ToArray();
 
             var logins = new List<string>();
-            foreach (Login login in parentServer.Logins)
+            foreach (Login login in dataContainer.Server.Logins)
             {
                 logins.Add(login.Name);
             }
