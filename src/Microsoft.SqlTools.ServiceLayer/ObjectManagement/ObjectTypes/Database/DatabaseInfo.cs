@@ -15,6 +15,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? RecoveryModel { get; set; }
         public string? CompatibilityLevel { get; set; }
         public string? ContainmentType { get; set; }
-        public bool IsAzure { get; set; }
     }
 }
