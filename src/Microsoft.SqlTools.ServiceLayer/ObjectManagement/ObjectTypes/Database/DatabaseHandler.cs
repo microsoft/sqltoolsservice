@@ -591,20 +591,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // set the compatability level for this combo box based on the prototype
-            int swapIndex = 0;
-            foreach (var level in this.compatLevels.Keys)
+            for (var i = 0; i < compatibilityLevels.Count; i++)
             {
-                if (level == prototype.DatabaseCompatibilityLevel)
+                var level = compatibilityLevels[i];
+                var prototypeLevel = this.compatLevels[prototype.DatabaseCompatibilityLevel];
+                if (level == prototypeLevel)
                 {
-                    if (swapIndex > 0)
+                    if (i > 0)
                     {
-                        var value = compatibilityLevels[swapIndex];
-                        compatibilityLevels.RemoveAt(swapIndex);
-                        compatibilityLevels.Prepend(value);
+                        compatibilityLevels.RemoveAt(i);
+                        compatibilityLevels.Prepend(level);
                     }
                     return compatibilityLevels.ToArray();
                 }
-                swapIndex++;
             }
 
             // previous loop did not find the prototype compatibility level in this server's compatability options
