@@ -342,10 +342,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var collationItems = new List<string>();
             bool isSphinxServer = (dataContainer.Server.VersionMajor < minimumVersionForWritableCollation);
 
-            // if we're creating a new database or this is a Sphinx Server, add "<Default>" to the dropdown
+            // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
             if (dataContainer.IsNewObject || isSphinxServer)
             {
-                collationItems.Add(this.resourceManager.GetString("general.default"));
+                collationItems.Add("<default>");
             }
 
             // if the server is shiloh or later, add specific collations to the dropdown
