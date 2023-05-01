@@ -295,14 +295,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: updateExistingDB);
-            DatabasePrototype prototype = new DatabasePrototype(dataContainer);
+            DatabasePrototype prototype = CreateDatabasePrototype(dataContainer);
 
             prototype.Name = database.Name;
             prototype.Owner = database.Owner;
             prototype.Collation = database.CollationName;
             prototype.RecoveryModel = Enum.Parse<RecoveryModel>(database.RecoveryModel);
             prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
-            if (prototype is DatabasePrototype110 db110) {
+            if (prototype is DatabasePrototype110 db110)
+            {
                 db110.DatabaseContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
             }
             var action = updateExistingDB ? ConfigAction.Update : ConfigAction.Create;
@@ -343,6 +344,67 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private bool IsAnyManagedInstance(Server server)
         {
             return (IsManagedInstance(server) || IsArcEnabledManagedInstance(server));
+        }
+
+        private DatabasePrototype CreateDatabasePrototype(CDataContainer context)
+        {
+            if (context == null)
+            {
+                throw new ArgumentException("Context not provided");
+            }
+            DatabasePrototype prototype = null;
+
+            int majorVersionNumber = context.Server.Information.Version.Major;
+            Version sql2000sp3 = new Version(8, 0, 760);
+            Version sql2005sp2 = new Version(9, 0, 3000);
+            if (context.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand)
+            {
+                prototype = new DatabasePrototypeAzure(context, DatabaseEngineEdition.SqlOnDemand);
+            }
+            else if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                prototype = new DatabasePrototypeAzure(context);
+            }
+            else if (VersionUtils.IsSql16OrLater(context.Server.ServerVersion))
+            {
+                prototype = new DatabasePrototype160(context);
+            }
+            else if (VersionUtils.IsSql14OrLater(context.Server.ServerVersion))
+            {
+                prototype = new DatabasePrototype140(context);
+            }
+            else if (VersionUtils.IsSql11OrLater(context.Server.ServerVersion))
+            {
+                prototype = new DatabasePrototype110(context);
+            }
+            else if (majorVersionNumber == 10)
+            {
+                prototype = new DatabasePrototype100(context);
+            }
+            else if ((sql2005sp2 <= context.Server.Information.Version) &&
+                (context.Server.Information.EngineEdition == Edition.EnterpriseOrDeveloper))
+            {
+                prototype = new DatabasePrototype90EnterpriseSP2(context);
+            }
+            else if (8 < majorVersionNumber)
+            {
+                prototype = new DatabasePrototype90(context);
+            }
+            else if (sql2000sp3 <= context.Server.Information.Version)
+            {
+                prototype = new DatabasePrototype80SP3(context);
+            }
+            else if (7 < majorVersionNumber)
+            {
+                prototype = new DatabasePrototype80(context);
+            }
+            else
+            {
+                prototype = new DatabasePrototype(context);
+            }
+
+            prototype.Initialize();
+            return prototype;
         }
     }
 }
