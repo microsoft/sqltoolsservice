@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
                 var login = await ObjectManagementTestUtils.CreateTestLogin(connectionUri);
-                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.WithLogin, null, login.Name);
+                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.LoginMapped, null, login.Name);
                 var userUrn = ObjectManagementTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name);
                 var parameters = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionUri, "master", false, SqlObjectType.User, "", userUrn);
                 await ObjectManagementTestUtils.SaveObject(parameters, user);
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             {
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
-                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.WithWindowsGroupLogin, $"{Environment.MachineName}\\Administrator");
+                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.WindowsUser, $"{Environment.MachineName}\\Administrator");
                 await ObjectManagementTestUtils.DropObject(connectionUri, ObjectManagementTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name));
             }
         }
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 string databaseName = "CRM";
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(databaseName, queryTempFile.FilePath);
                 var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
-                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.Contained,
+                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.SqlAuthentication,
                     userName: null,
                     loginName: null,
                     databaseName: connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName);
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
                 var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
                 var login = await ObjectManagementTestUtils.CreateTestLogin(connectionUri);
-                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.WithLogin, null, login.Name);
+                var user = await ObjectManagementTestUtils.CreateTestUser(connectionUri, DatabaseUserType.LoginMapped, null, login.Name);
                 var userUrn = ObjectManagementTestUtils.GetUserURN(connectionResult.ConnectionInfo.ConnectionDetails.DatabaseName, user.Name);
                 var parameters = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionUri, "master", false, SqlObjectType.User, "", userUrn);
                 await ObjectManagementTestUtils.ScriptObject(parameters, user);

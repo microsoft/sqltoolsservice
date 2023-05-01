@@ -142,16 +142,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             UserType userType = UserType.SqlLogin;
             switch (userInfo.Type)
             {
-                case DatabaseUserType.NoConnectAccess:
+                case DatabaseUserType.NoLoginAccess:
                     userType = UserType.NoLogin;
                     break;
-                case DatabaseUserType.Contained:
-                    if (userInfo.AuthenticationType == ServerAuthenticationType.AzureActiveDirectory)
-                    {
-                        userType = UserType.External;
-                    }
+                case DatabaseUserType.AADAuthentication:
+                    userType = UserType.External;
                     break;
-                // all the other user types are using SqlLogin
             }
             return userType;
         }

@@ -10,13 +10,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class UserViewInfo : SqlObjectViewInfo
     {
-        public bool SupportContainedUser { get; set; }
-
-        public bool SupportWindowsAuthentication { get; set; }
-
-        public bool SupportAADAuthentication { get; set; }
-
-        public bool SupportSQLAuthentication { get; set; }
+        public DatabaseUserType[]? UserTypes { get; set; }
 
         public string[]? Languages { get; set; }
 
