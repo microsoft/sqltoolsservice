@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 SupportSQLAuthentication = true,
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
-                Logins = DatabaseUtils.LoadSqlLogins(dataContainer.ServerConnection),
+                Logins = DatabaseUtils.LoadSqlLogins(dataContainer.Server),
                 DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
             };
             var context = new UserViewContext(parameters, dataContainer.ServerConnection, currentUserPrototype.CurrentState);

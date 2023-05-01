@@ -12,7 +12,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -287,44 +286,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             }
         }
 
-        public static string[] LoadSqlLogins(ServerConnection serverConnection)
-        {
-            return LoadItems(serverConnection, "Server/Login");
-        }
-
-        public static string[] LoadItems(ServerConnection serverConnection, string urn)
+        public static string[] LoadSqlLogins(Server server)
         {
             try
             {
                 List<string> items = new List<string>();
-                Request req = new Request();
-                req.Urn = urn;
-                req.ResultType = ResultType.IDataReader;
-                req.Fields = new string[] { "Name" };
-
-                Enumerator en = new Enumerator();
-                using (IDataReader reader = en.Process(serverConnection, req).Data as IDataReader)
+                foreach (Login login in server.Logins)
                 {
-                    if (reader != null)
-                    {
-                        string name;
-                        while (reader.Read())
-                        {
-                            // Get the permission name
-                            name = reader.GetString(0);
-                            items.Add(name);
-                        }
-                    }
+                    items.Add(login.Name);
                 }
-                items.Sort();
                 return items.ToArray();
             }
-            catch (Microsoft.SqlServer.Management.Sdk.Sfc.EnumeratorException)
+            catch
             {
-                // reading Logins can fail when trying to create a contained/SQL DB user
+                // reading logins can fail when trying to create a contained/SQL DB user
                 // when the current session does not have permissions to master
-                // we can return an empty existing login list in this scenario
-                // no need to log here since this is an expected non-blocking exception that is recoverable
+                // we can return an empty existing list in this scenario
                 return new string[0];
             }
         }
