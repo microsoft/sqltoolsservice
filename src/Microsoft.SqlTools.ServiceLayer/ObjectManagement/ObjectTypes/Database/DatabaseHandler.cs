@@ -406,8 +406,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 dbContainmentType = dp110.DatabaseContainmentType;
             }
 
-            containmentTypes.Add(this.resourceManager.GetString("general.containmentType.None"));
-            containmentTypes.Add(this.resourceManager.GetString("general.containmentType.Partial"));
+            containmentTypes.Add(ContainmentType.None.ToString());
+            containmentTypes.Add(ContainmentType.Partial.ToString());
 
             var swapIndex = 0;
             switch (dbContainmentType)
@@ -450,21 +450,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (!IsAnyManagedInstance(dataContainer.Server))
             {
                 // add recovery model options to the dropdown
-                recoveryModels.Add(this.resourceManager.GetString("general.recoveryModel.full"));
-                recoveryModels.Add(this.resourceManager.GetString("general.recoveryModel.bulkLogged"));
-                recoveryModels.Add(this.resourceManager.GetString("general.recoveryModel.simple"));
+                recoveryModels.Add(RecoveryModel.Full.ToString());
+                recoveryModels.Add(RecoveryModel.BulkLogged.ToString());
+                recoveryModels.Add(RecoveryModel.Simple.ToString());
             }
             else
             {
                 if (prototype.OriginalName.Equals("tempdb", StringComparison.CurrentCultureIgnoreCase) && prototype.IsSystemDB)
                 {
                     // tempdb supports 'simple recovery' only
-                    recoveryModels.Add(this.resourceManager.GetString("general.recoveryModel.simple"));
+                    recoveryModels.Add(RecoveryModel.Simple.ToString());
                 }
                 else
                 {
                     // non-tempdb supports only 'full recovery' model
-                    recoveryModels.Add(this.resourceManager.GetString("general.recoveryModel.full"));
+                    recoveryModels.Add(RecoveryModel.Full.ToString());
                 }
             }
 
