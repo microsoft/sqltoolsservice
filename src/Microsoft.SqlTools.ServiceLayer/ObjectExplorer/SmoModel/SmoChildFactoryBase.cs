@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                             break;
                         case NodeFilterPropertyDataType.Boolean:
                             type = typeof(bool);
-                            filterValue = f.Value.ToObject<bool>();
+                            filterValue = f.Value.ToObject<bool>() ? 1 : 0;
                             break;
                     }
 
