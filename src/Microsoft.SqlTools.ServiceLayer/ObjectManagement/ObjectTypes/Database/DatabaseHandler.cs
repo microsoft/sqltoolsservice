@@ -328,7 +328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 if (index > 0)
                 {
                     collationItems.RemoveAt(index);
-                    collationItems.Prepend(prototype.Collation);
+                    collationItems.Insert(0, prototype.Collation);
                 }
             }
             return collationItems.ToArray();
@@ -380,7 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 var value = containmentTypes[swapIndex];
                 containmentTypes.RemoveAt(swapIndex);
-                containmentTypes.Prepend(value);
+                containmentTypes.Insert(0, value);
             }
 
             return containmentTypes.ToArray();
@@ -444,7 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     var value = recoveryModels[swapIndex];
                     recoveryModels.RemoveAt(swapIndex);
-                    recoveryModels.Prepend(value);
+                    recoveryModels.Insert(0, value);
                 }
             }
             return recoveryModels.ToArray();
@@ -555,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     if (i > 0)
                     {
                         compatibilityLevels.RemoveAt(i);
-                        compatibilityLevels.Prepend(level);
+                        compatibilityLevels.Insert(0, level);
                     }
                     return compatibilityLevels.ToArray();
                 }
