@@ -103,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.ConnectionService.TryFindConnection(requestParams.ContextId, out connInfo);
 
             // create a default user data context and database object
-            CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, null, ConfigAction.Create, requestParams.Database);
+            CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, requestParams.Database, ConfigAction.Create);
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             var azurePrototype = prototype as DatabasePrototypeAzure;
             bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
@@ -174,13 +174,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context };
         }
 
-        private CDataContainer CreateDatabaseDataContainer(ConnectionInfo connInfo, DatabaseInfo database, ConfigAction configAction, string databaseName)
+        private CDataContainer CreateDatabaseDataContainer(ConnectionInfo connInfo, string databaseName, ConfigAction configAction)
         {
             var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
 
-            string urn = (configAction == ConfigAction.Update && database != null)
+            string urn = (configAction == ConfigAction.Update)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server/Database[@Name='{0}']",
                     Urn.EscapeString(databaseName))
@@ -200,19 +200,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
-            var updateExistingDB = !context.Parameters.IsNewObject;
-            var script = this.HandleDatabaseRequest(context, obj, RunType.RunNow, updateExistingDB);
+            ConfigureDatabase(
+                context.Parameters.ContextId,
+                obj,
+                context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
+                RunType.RunNow);
             return Task.CompletedTask;
         }
 
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
-            var updateExistingDB = !context.Parameters.IsNewObject;
-            var script = this.HandleDatabaseRequest(context, obj, RunType.ScriptToWindow, updateExistingDB);
+            var script = ConfigureDatabase(
+                context.Parameters.ContextId,
+                obj,
+                context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
+                RunType.ScriptToWindow);
             return Task.FromResult(script);
         }
 
-        private string HandleDatabaseRequest(DatabaseViewContext context, DatabaseInfo database, RunType runType, bool updateExistingDB)
+        private string ConfigureDatabase(string ownerUri, DatabaseInfo database, ConfigAction configAction, RunType runType)
         {
             if (database.Name == null)
             {
@@ -220,15 +226,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+            this.ConnectionService.TryFindConnection(ownerUri, out connInfo);
             if (connInfo == null)
             {
-                throw new ArgumentException("Invalid ConnectionUri");
+                throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
             }
 
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: updateExistingDB);
+            CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, database.Name, configAction);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
-
             prototype.Name = database.Name;
             if (database.Owner != null)
             {
@@ -250,12 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 db110.DatabaseContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
             }
-            var action = updateExistingDB ? ConfigAction.Update : ConfigAction.Create;
-            return ConfigureDatabase(dataContainer, ConfigAction.Create, runType, prototype);
-        }
 
-        private string ConfigureDatabase(CDataContainer dataContainer, ConfigAction configAction, RunType runType, DatabasePrototype prototype)
-        {
             string sqlScript = string.Empty;
             using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
             {
