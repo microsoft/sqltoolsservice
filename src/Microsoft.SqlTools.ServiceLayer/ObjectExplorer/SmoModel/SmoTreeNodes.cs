@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Databases,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
-        		FilterDefinitions = new NodeFilterProperty[]
+        		FilterProperties = new NodeFilterProperty[]
         		{
 					new NodeFilterProperty
 					{
@@ -784,7 +784,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Tables,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
-            		FilterDefinitions = new NodeFilterProperty[]
+            		FilterProperties = new NodeFilterProperty[]
             		{
     					new NodeFilterProperty
     					{
@@ -1017,7 +1017,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Tables,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
-        		FilterDefinitions = new NodeFilterProperty[]
+        		FilterProperties = new NodeFilterProperty[]
         		{
 					new NodeFilterProperty
 					{

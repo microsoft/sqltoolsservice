@@ -1506,6 +1506,14 @@
     <value>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</value>
     <comment></comment>
   </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>Is Natively Compiled</value>
+    <comment></comment>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>Include or exclude objects based on whether the object is natively compiled.</value>
+    <comment></comment>
+  </data>
   <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error parsing ScriptingParams.ConnectionString property.</value>
     <comment></comment>

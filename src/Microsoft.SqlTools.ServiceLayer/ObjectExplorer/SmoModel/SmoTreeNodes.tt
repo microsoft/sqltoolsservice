@@ -300,12 +300,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 														WriteLine("                ValidFor = {0},", GetValidForFlags(validFor));
 												}
 												WriteLine("                SortPriority = {0},", sortPriority);
-												List<XmlElement> filterDefinitions = GetFilterDefintions(xmlFile, childName);
-												if(filterDefinitions.Count > 0)
+												List<XmlElement> filterProperties = GetFilterProperties(xmlFile, childName);
+												if(filterProperties.Count > 0)
 												{
-														WriteLine("        		FilterDefinitions = new NodeFilterProperty[]");
+														WriteLine("        		FilterProperties = new NodeFilterProperty[]");
 														WriteLine("        		{");
-														foreach (var filterDef in filterDefinitions)
+														foreach (var filterDef in filterProperties)
 														{
 																var filterName = filterDef.GetAttribute("Name");
 																var filterType = filterDef.GetAttribute("Type");
@@ -631,21 +631,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		}
 
 
-		public static List<XmlElement> GetFilterDefintions(string xmlFile, string nodeType)
+		public static List<XmlElement> GetFilterProperties(string xmlFile, string nodeType)
 		{
 				XmlElement nodeElement = GetNodeElement(xmlFile, nodeType);
 				XmlDocument doc = new XmlDocument();
 				doc.Load(xmlFile);
 
 				List<XmlElement> retElements = new List<XmlElement>();
-				XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/FilterDefinitions[@Name='{0}']/FilterDefinition", nodeType));
-				foreach (var item in nodeList)
+				XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/FilterProperties[@NodeName='{0}']/Property", nodeType));
+				foreach (XmlNode item in nodeList)
 				{
-						XmlElement itemAsElement = item as XmlElement;
+					var filterName = item.InnerText;
+					XmlNodeList filterPropertyList = doc.SelectNodes(string.Format("/ServerExplorerTree/FilterProperty[@Name='{0}']", filterName));
+					foreach (var filterProperty in filterPropertyList)
+					{
+						XmlElement itemAsElement = filterProperty as XmlElement;
 						if (itemAsElement != null)
 						{
 								retElements.Add(itemAsElement);
 						}
+					}
 				}
 				return retElements;
 		}

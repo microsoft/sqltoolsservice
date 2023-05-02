@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
-            var filterDefinitions = parent.FilterDefinitions;
+            var filterDefinitions = parent.FilterProperties;
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodePropertyFilter
@@ -356,7 +356,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
                 childAsMeItem.NodeSubType = GetNodeSubType(context, smoContext);
                 childAsMeItem.NodeStatus = GetNodeStatus(context, smoContext);
-                childAsMeItem.FilterDefinitions = FilterDefinitions.ToArray();
             }
         }
 
@@ -383,15 +382,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 return Enumerable.Empty<NodeSmoProperty>();
             }
         }
-
-        public virtual IEnumerable<NodeFilterProperty> FilterDefinitions
-        {
-            get
-            {
-                return Enumerable.Empty<NodeFilterProperty>();
-            }
-        }
-
 
         internal IEnumerable<NodeSmoProperty> CachedSmoProperties
         {

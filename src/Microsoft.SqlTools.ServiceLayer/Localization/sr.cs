@@ -2477,6 +2477,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FilterIsNativelyCompiled
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterIsNativelyCompiled);
+            }
+        }
+
+        public static string FilterIsNativelyCompiledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterIsNativelyCompiledDescription);
+            }
+        }
+
         public static string ScriptingParams_ConnectionString_Property_Invalid
         {
             get
@@ -12162,6 +12178,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string FilterCreateDateDescription = "FilterCreateDateDescription";
+
+
+            public const string FilterIsNativelyCompiled = "FilterIsNativelyCompiled";
+
+
+            public const string FilterIsNativelyCompiledDescription = "FilterIsNativelyCompiledDescription";
 
 
             public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";

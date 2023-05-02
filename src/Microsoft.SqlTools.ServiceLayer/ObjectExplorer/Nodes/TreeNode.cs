@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public string NodeStatus { get; set; }
 
-        public NodeFilterProperty[] FilterDefinitions { get; set; }
+        public NodeFilterProperty[] FilterProperties { get; set; }
 
         /// <summary>
         /// Label to display to the user, describing this node.
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 NodeSubType = this.NodeSubType,
                 ErrorMessage = this.ErrorMessage,
                 ObjectType = this.NodeTypeId.ToString(),
-                FilterableProperties = this.FilterDefinitions
+                FilterableProperties = this.FilterProperties
             };
         }
 

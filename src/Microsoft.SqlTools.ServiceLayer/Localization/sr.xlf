@@ -7197,6 +7197,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiled">
+        <source>Is Natively Compiled</source>
+        <target state="new">Is Natively Compiled</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiledDescription">
+        <source>Include or exclude objects based on whether the object is natively compiled.</source>
+        <target state="new">Include or exclude objects based on whether the object is natively compiled.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
