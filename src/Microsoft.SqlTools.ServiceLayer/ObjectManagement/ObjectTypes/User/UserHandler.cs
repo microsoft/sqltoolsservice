@@ -177,6 +177,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             supportedUserTypes.Add(DatabaseUserType.NoLoginAccess);
 
+            string[] logins = DatabaseUtils.LoadSqlLogins(dataContainer.ServerConnection);
+
+            // If we couldn't load logins on current connection and this is a SQL DB connection 
+			// not to master then try to connect to master.  The "sys.sql_logins" DMV is not visible to user databases.  
+            if (logins.Length == 0 && isSqlAzure 
+                && string.Compare(parameters.Database, "master", true) != 0)
+            {
+                ServerConnection masterServerConnection = null;
+                try
+                {
+                    originalConnInfo.ConnectionDetails.DatabaseName = "master";
+                    masterServerConnection = ConnectionService.OpenServerConnection(originalConnInfo, "MasterDataContainer");
+                    logins = DatabaseUtils.LoadSqlLogins(masterServerConnection);
+                }
+                finally
+                {
+                    originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
+                    if (masterServerConnection != null)
+                    {
+                        masterServerConnection.Disconnect();
+                    }
+                }
+            }
+
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -193,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 UserTypes = supportedUserTypes.ToArray(),
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
-                Logins = DatabaseUtils.LoadSqlLogins(dataContainer.ServerConnection),
+                Logins = logins,
                 DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
             };
             var context = new UserViewContext(parameters, dataContainer.ServerConnection, currentUserPrototype.CurrentState);
