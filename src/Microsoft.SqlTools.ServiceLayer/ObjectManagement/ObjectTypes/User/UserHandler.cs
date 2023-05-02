@@ -184,19 +184,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (logins.Length == 0 && isSqlAzure 
                 && string.Compare(parameters.Database, "master", true) != 0)
             {
-                ServerConnection orgServerConnection = null;
+                ServerConnection masterServerConnection = null;
                 try
                 {
                     originalConnInfo.ConnectionDetails.DatabaseName = "master";
-                    orgServerConnection = ConnectionService.OpenServerConnection(originalConnInfo, "MasterDataContainer");
-                    logins = DatabaseUtils.LoadSqlLogins(orgServerConnection);
+                    masterServerConnection = ConnectionService.OpenServerConnection(originalConnInfo, "MasterDataContainer");
+                    logins = DatabaseUtils.LoadSqlLogins(masterServerConnection);
                 }
                 finally
                 {
                     originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
-                    if (orgServerConnection != null)
+                    if (masterServerConnection != null)
                     {
-                        orgServerConnection.Disconnect();
+                        masterServerConnection.Disconnect();
                     }
                 }
             }
