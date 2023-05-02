@@ -163,6 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             databaseViewInfo.DatabaseNames = databases.ToArray();
 
             var logins = new List<string>();
+            logins.Add("<default>");
             foreach (Login login in dataContainer.Server.Logins)
             {
                 logins.Add(login.Name);
