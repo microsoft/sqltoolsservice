@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <param name="refresh">force to refresh</param>
         /// <param name="refresh">name of the sql object to filter</param>
         /// <returns></returns>
-        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, OEFilter[] filters);
+        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, NodeFilter[] filters);
 
         /// <summary>
         /// The list of filters that should be applied on the smo object list

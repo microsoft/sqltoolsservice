@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -72,33 +73,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// </summary>
         public string ObjectType { get; set; }
 
-        public OEFilter[] DefaultFilters { get; set; }
-
-        public OEFilter[] Filters { get; set; }
+        public NodeFilterProperty[] FilterableProperties { get; set; }
     }
 
-    public class OEFilter 
+    public class NodeFilterProperty 
     {
-		public string Name;
-        public string DisplayName;
-        public string Description;
-        public OEFilterOption[] Options;
-        public string Value;
-        public string Value2;
-        public NodeInfoOperators Operator;
-        public OEFilterPropertyType Type;
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+        public NodeFilterPropertyDataType Type { get; set; }
+        public string[] Choices { get; set; }
     }
 
-    public enum OEFilterPropertyType
+    public enum NodeFilterPropertyDataType
     {
         String = 0,
 		Number = 1,
 		Boolean = 2,
 		Date = 3,
-		PredefinedValues = 4
+		Choice = 4
     }
 
-    public enum NodeInfoOperators
+    public enum NodeFilterOperator
     {
         Equals = 0,
 		NotEquals = 1,
@@ -112,9 +107,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 		NotContains = 9,
     }
 
-    public class OEFilterOption
-    {
-        public string Name;
-        public string DisplayName;
+    public class NodeFilter
+    {		
+        /**
+		 * The name of the filter property
+		 */
+        public string Name { get; set; }
+		/**
+		 * The operator of the filter property
+		 */
+        public NodeFilterOperator Operator { get; set; }
+		/**
+		 * The applied values of the filter property
+		 */
+        public JToken Value { get; set; }
     }
 }

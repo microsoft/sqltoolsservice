@@ -60,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         ///<summary>
         /// Filters to apply to the expand request
         ///</summary>
-        public OEFilter?[] Filters { get; set; }
+        public NodeFilter?[] Filters { get; set; }
     }
 
     /// <summary>

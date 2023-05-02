@@ -378,12 +378,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, OEFilter[] filters = null)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[] filters = null)
         {
             return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, OEFilter[] filters = null)
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[] filters = null)
         {
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);

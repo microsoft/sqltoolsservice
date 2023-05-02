@@ -87,58 +87,132 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
 
             StringBuilder filter = new StringBuilder();
+
+
             foreach (var value in Values)
             {
-                 
-                object propertyValue = value;
-                if(IsDateTime){
-                    propertyValue = DateTime.Parse((string)propertyValue).ToString("yyyy-MM-dd hh:mm:ss.fff");
-                }
-                if (Type == typeof(string))
-                {
-                    propertyValue = $"'{propertyValue}'";
-                }
-                else if (Type == typeof(Enum))
-                {
-                    propertyValue = (int)Convert.ChangeType(value, Type);
-                }
-                if(IsDateTime){
-                    propertyValue = $"datetime({propertyValue})";
-                }
-
                 string filterText = string.Empty;
-                switch (FilterType)
+                if (IsDateTime)
                 {
-                    case FilterType.EQUALS:
-                        filterText = $"@{Property} = {propertyValue}";
-                        break;
-                    case FilterType.NOTEQUALS: 
-                        filterText = $"@{Property} != {propertyValue}";
-                        break;
-                    case FilterType.LESSTHAN:
-                        filterText = $"@{Property} < {propertyValue}";
-                        break;
-                    case FilterType.GREATERTHAN:
-                        filterText = $"@{Property} > {propertyValue}";
-                        break;
-                    case FilterType.LESSTHANOREQUAL:
-                        filterText = $"@{Property} <= {propertyValue}";
-                        break;
-                    case FilterType.GREATERTHANOREQUAL:
-                        filterText = $"@{Property} >= {propertyValue}";
-                        break;
-                    case FilterType.DATETIME:
-                        filterText = $"@{Property} = datetime({propertyValue})";
-                        break;
-                    case FilterType.CONTAINS:
-                        filterText = $"contains(@{Property}, {propertyValue})";
-                        break;
-                    case FilterType.FALSE:
-                        filterText = $"@{Property} = false()";
-                        break;
-                    case FilterType.ISNULL:
-                        filterText = $"isnull(@{Property})";
-                        break;
+                    string Value1;
+                    string Value2;
+                    switch (FilterType)
+                    {
+                        case FilterType.BETWEEN:
+                            string[] betweenValues = (string[])value;
+                            Value1 = DateTime.Parse((string)betweenValues[0]).ToString("yyyy-MM-dd 00:00:00.000");
+                            Value2 = DateTime.Parse((string)betweenValues[1]).ToString("yyyy-MM-dd 23:59:59.999");
+                            filterText = $"@{Property} >= datetime('{Value1}') and @{Property} <= datetime('{Value2}')";
+                            break;
+                        case FilterType.NOTBETWEEN:
+                            IsNotFilter = true;
+                            string[] notBetweenValues = (string[])value;
+                            Value1 = DateTime.Parse((string)notBetweenValues[0]).ToString("yyyy-MM-dd 00:00:00.000");
+                            Value2 = DateTime.Parse((string)notBetweenValues[1]).ToString("yyyy-MM-dd 23:59:59.999");
+                            filterText = $"@{Property} >= datetime('{Value1}') and @{Property} <= datetime('{Value2}')";
+                            break;
+                        case FilterType.EQUALS:
+                            Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 00:00:00.000");
+                            Value2 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 23:59:59.999");
+                            filterText = $"@{Property} >= datetime('{Value1}') and @{Property} <= datetime('{Value2}')";
+                            break;
+                        case FilterType.GREATERTHAN:
+                            Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 23:59:59.999");
+                            filterText = $"@{Property} > datetime('{Value1}')";
+                            break;
+                        case FilterType.LESSTHAN:
+                            Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 00:00:00.000");
+                            filterText = $"@{Property} < datetime('{Value1}')";
+                            break;
+                        case FilterType.GREATERTHANOREQUAL:
+                            Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 00:00:00.000");
+                            filterText = $"@{Property} >= datetime('{Value1}')";
+                            break;
+                        case FilterType.LESSTHANOREQUAL:
+                            Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 23:59:59.999");
+                            filterText = $"@{Property} <= datetime('{Value1}')";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if (InNumericType(Type))
+                {
+                    int val = (int)value;
+                    switch (FilterType)
+                    {
+                        case FilterType.BETWEEN:
+                            int[] betweenValues = (int[])value;
+                            filterText = $"@{Property} >= {betweenValues[0]} and @{Property} <= {betweenValues[1]}";
+                            break;
+                        case FilterType.NOTBETWEEN:
+                            IsNotFilter = true;
+                            int[] notBetweenValues = (int[])value;
+                            filterText =  $"@{Property} >= {notBetweenValues[0]} and @{Property} <= {notBetweenValues[1]}";
+                            break;
+                        case FilterType.EQUALS:
+                            filterText = $"@{Property} = {val}";
+                            break;
+                        case FilterType.GREATERTHAN:
+                            filterText = $"@{Property} > {val}";
+                            break;
+                        case FilterType.LESSTHAN:
+                            filterText = $"@{Property} < {val}";
+                            break;
+                        case FilterType.GREATERTHANOREQUAL:
+                            filterText = $"@{Property} >= {val}";
+                            break;
+                        case FilterType.LESSTHANOREQUAL:
+                            filterText = $"@{Property} <= {val}";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    object propertyValue = value;
+                    if (Type == typeof(string))
+                    {
+                        propertyValue = $"'{propertyValue}'";
+                    }
+                    else if (Type == typeof(Enum))
+                    {
+                        propertyValue = (int)Convert.ChangeType(value, Type);
+                    }
+                    switch (FilterType)
+                    {
+                        case FilterType.EQUALS:
+                            filterText = $"@{Property} = {propertyValue}";
+                            break;
+                        case FilterType.NOTEQUALS:
+                            filterText = $"@{Property} != {propertyValue}";
+                            break;
+                        case FilterType.LESSTHAN:
+                            filterText = $"@{Property} < {propertyValue}";
+                            break;
+                        case FilterType.GREATERTHAN:
+                            filterText = $"@{Property} > {propertyValue}";
+                            break;
+                        case FilterType.LESSTHANOREQUAL:
+                            filterText = $"@{Property} <= {propertyValue}";
+                            break;
+                        case FilterType.GREATERTHANOREQUAL:
+                            filterText = $"@{Property} >= {propertyValue}";
+                            break;
+                        case FilterType.DATETIME:
+                            filterText = $"@{Property} = datetime({propertyValue})";
+                            break;
+                        case FilterType.CONTAINS:
+                            filterText = $"contains(@{Property}, {propertyValue})";
+                            break;
+                        case FilterType.FALSE:
+                            filterText = $"@{Property} = false()";
+                            break;
+                        case FilterType.ISNULL:
+                            filterText = $"isnull(@{Property})";
+                            break;
+                    }
                 }
 
                 string orPrefix = filter.Length == 0 ? string.Empty : " or ";
@@ -158,6 +232,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             return string.Empty;
         }
+
+        public static bool InNumericType(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 
     public enum FilterType
@@ -171,6 +266,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         LESSTHAN,
         GREATERTHAN,
         LESSTHANOREQUAL,
-        GREATERTHANOREQUAL
+        GREATERTHANOREQUAL,
+        BETWEEN,
+        NOTBETWEEN
     }
 }

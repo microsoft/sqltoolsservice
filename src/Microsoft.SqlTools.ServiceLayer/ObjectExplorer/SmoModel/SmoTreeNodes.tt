@@ -303,13 +303,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 												List<XmlElement> filterDefinitions = GetFilterDefintions(xmlFile, childName);
 												if(filterDefinitions.Count > 0)
 												{
-														WriteLine("        		FilterDefinitions = new OEFilter[]");
+														WriteLine("        		FilterDefinitions = new NodeFilterProperty[]");
 														WriteLine("        		{");
 														foreach (var filterDef in filterDefinitions)
 														{
 																var filterName = filterDef.GetAttribute("Name");
 																var filterType = filterDef.GetAttribute("Type");
-																var enumString = "OEFilterPropertyType";
+																var enumString = "NodeFilterPropertyDataType";
 																switch (filterType)
 																{
 																	case "string":
@@ -321,29 +321,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 																	case "date":
 																		enumString += ".Date";
 																		break;
-																	case "enum":
-																		enumString += ".PredefinedValues";
+																	case "choice":
+																		enumString += ".Choice";
 																		break;
 																}
 																var filterDescription = filterDef.GetAttribute("Description");
-																WriteLine("					new OEFilter");
+																WriteLine("					new NodeFilterProperty");
 																WriteLine("					{");
-																WriteLine("						Name = \"{0}\",", filterName);
+																WriteLine("						DisplayName = \"{0}\",", filterName);
 																WriteLine("						Type = {0},", enumString);
 																WriteLine("						Description = {0},", filterDescription);
-																if(filterType == "enum")
+																if(filterType == "choice")
 																{
 																		var enumValues = filterDef.ChildNodes;
-																		WriteLine("						Options = new OEFilterOption[] {");
+																		WriteLine("						Choices = new string[] {");
 																		foreach (XmlElement enumValue in enumValues)
 																		{
 																				var enumValueName = enumValue.GetAttribute("Name");
-																				var enumValueDescription = enumValue.GetAttribute("Description");
-																				WriteLine("							new OEFilterOption");
-																				WriteLine("							{");
-																				WriteLine("								Name = \"{0}\",", enumValueName);
-																				WriteLine("								DisplayName = \"{0}\"", enumValueDescription);
-																				WriteLine("							},");
+																				WriteLine("							\"{0}\",", enumValueName);
 																				
 																		}
 																		WriteLine("						}");

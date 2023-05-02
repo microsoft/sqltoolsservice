@@ -178,24 +178,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Databases,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
-        		FilterDefinitions = new OEFilter[]
+        		FilterDefinitions = new NodeFilterProperty[]
         		{
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "Name",
-						Type = OEFilterPropertyType.String,
+						DisplayName = "Name",
+						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterNameDescription,
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "Owner",
-						Type = OEFilterPropertyType.String,
+						DisplayName = "Owner",
+						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "CreateDate",
-						Type = OEFilterPropertyType.Date,
+						DisplayName = "CreateDate",
+						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
 					},
             	}
@@ -784,54 +784,46 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Tables,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
-            		FilterDefinitions = new OEFilter[]
+            		FilterDefinitions = new NodeFilterProperty[]
             		{
-    					new OEFilter
+    					new NodeFilterProperty
     					{
-    						Name = "Name",
-    						Type = OEFilterPropertyType.String,
+    						DisplayName = "Name",
+    						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterNameDescription,
     					},
-    					new OEFilter
+    					new NodeFilterProperty
     					{
-    						Name = "Schema",
-    						Type = OEFilterPropertyType.String,
+    						DisplayName = "Schema",
+    						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterSchemaDescription,
     					},
-    					new OEFilter
+    					new NodeFilterProperty
     					{
-    						Name = "Owner",
-    						Type = OEFilterPropertyType.String,
+    						DisplayName = "Owner",
+    						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterOwnerDescription,
     					},
-    					new OEFilter
+    					new NodeFilterProperty
     					{
-    						Name = "DurabilityType",
-    						Type = OEFilterPropertyType.PredefinedValues,
+    						DisplayName = "DurabilityType",
+    						Type = NodeFilterPropertyDataType.Choice,
     						Description = SR.FilterDurabilityTypeDescription,
-    						Options = new OEFilterOption[] {
-    							new OEFilterOption
-    							{
-    								Name = "SchemaAndData",
-    								DisplayName = ""
-    							},
-    							new OEFilterOption
-    							{
-    								Name = "SchemaOnly",
-    								DisplayName = ""
-    							},
+    						Choices = new string[] {
+    							"SchemaAndData",
+    							"SchemaOnly",
     						}
     					},
-    					new OEFilter
+    					new NodeFilterProperty
     					{
-    						Name = "IsMemoryOptimized",
-    						Type = OEFilterPropertyType.Boolean,
+    						DisplayName = "IsMemoryOptimized",
+    						Type = NodeFilterPropertyDataType.Boolean,
     						Description = SR.FilterIsMemoryOptimizedDescription,
     					},
-    					new OEFilter
+    					new NodeFilterProperty
     					{
-    						Name = "CreateDate",
-    						Type = OEFilterPropertyType.Date,
+    						DisplayName = "CreateDate",
+    						Type = NodeFilterPropertyDataType.Date,
     						Description = SR.FilterCreateDateDescription,
     					},
                 	}
@@ -1025,54 +1017,46 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Tables,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
-        		FilterDefinitions = new OEFilter[]
+        		FilterDefinitions = new NodeFilterProperty[]
         		{
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "Name",
-						Type = OEFilterPropertyType.String,
+						DisplayName = "Name",
+						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterNameDescription,
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "Schema",
-						Type = OEFilterPropertyType.String,
+						DisplayName = "Schema",
+						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterSchemaDescription,
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "Owner",
-						Type = OEFilterPropertyType.String,
+						DisplayName = "Owner",
+						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "DurabilityType",
-						Type = OEFilterPropertyType.PredefinedValues,
+						DisplayName = "DurabilityType",
+						Type = NodeFilterPropertyDataType.Choice,
 						Description = SR.FilterDurabilityTypeDescription,
-						Options = new OEFilterOption[] {
-							new OEFilterOption
-							{
-								Name = "SchemaAndData",
-								DisplayName = ""
-							},
-							new OEFilterOption
-							{
-								Name = "SchemaOnly",
-								DisplayName = ""
-							},
+						Choices = new string[] {
+							"SchemaAndData",
+							"SchemaOnly",
 						}
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "IsMemoryOptimized",
-						Type = OEFilterPropertyType.Boolean,
+						DisplayName = "IsMemoryOptimized",
+						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsMemoryOptimizedDescription,
 					},
-					new OEFilter
+					new NodeFilterProperty
 					{
-						Name = "CreateDate",
-						Type = OEFilterPropertyType.Date,
+						DisplayName = "CreateDate",
+						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
 					},
             	}

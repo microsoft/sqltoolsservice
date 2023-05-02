@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public string NodeStatus { get; set; }
 
-        public OEFilter[] FilterDefinitions { get; set; }
+        public NodeFilterProperty[] FilterDefinitions { get; set; }
 
         /// <summary>
         /// Label to display to the user, describing this node.
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 NodeSubType = this.NodeSubType,
                 ErrorMessage = this.ErrorMessage,
                 ObjectType = this.NodeTypeId.ToString(),
-                DefaultFilters = this.FilterDefinitions
+                FilterableProperties = this.FilterDefinitions
             };
         }
 
@@ -246,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand(string name, CancellationToken cancellationToken, string? accessToken = null, OEFilter[] filters = null)
+        public IList<TreeNode> Expand(string name, CancellationToken cancellationToken, string? accessToken = null, NodeFilter[] filters = null)
         {
             // TODO consider why solution explorer has separate Children and Items options
             if (children.IsInitialized)
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand(CancellationToken cancellationToken, string? accessToken = null, OEFilter[] filters = null)
+        public IList<TreeNode> Expand(CancellationToken cancellationToken, string? accessToken = null, NodeFilter[] filters = null)
         {
             return Expand(null, cancellationToken, accessToken, filters);
         }
@@ -270,7 +270,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Refresh this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public virtual IList<TreeNode> Refresh(CancellationToken cancellationToken, string? accessToken = null, OEFilter[] filters = null)
+        public virtual IList<TreeNode> Refresh(CancellationToken cancellationToken, string? accessToken = null, NodeFilter[] filters = null)
         {
             // TODO consider why solution explorer has separate Children and Items options
             PopulateChildren(true, null, cancellationToken, accessToken, filters);
@@ -325,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, OEFilter[] filters = null)
+        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, NodeFilter[] filters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);

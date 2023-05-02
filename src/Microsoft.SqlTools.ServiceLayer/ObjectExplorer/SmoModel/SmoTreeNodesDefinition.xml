@@ -576,7 +576,7 @@
     <FilterDefinition Name="Name" LocLabel="SR.FilterName" Type="string" Description="SR.FilterNameDescription"/>
     <FilterDefinition Name="Schema" LocLabel="SR.FilterSchema" Type="string" Description="SR.FilterSchemaDescription"/>
     <FilterDefinition Name="Owner" LocLabel="SR.FilterOwner" Type="string" Description="SR.FilterOwnerDescription"/>
-    <FilterDefinition Name="DurabilityType" LocLabel="SR.FilterDurabilityType" Type="enum" Description="SR.FilterDurabilityTypeDescription">
+    <FilterDefinition Name="DurabilityType" LocLabel="SR.FilterDurabilityType" Type="choice" Description="SR.FilterDurabilityTypeDescription">
       <Value Name="SchemaAndData" LocLabel="SR.SchemaAndData"/>
       <Value Name="SchemaOnly" LocLabel="SR.SchemaOnly"/>
     </FilterDefinition>
