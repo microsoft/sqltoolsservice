@@ -213,9 +213,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string HandleDatabaseRequest(DatabaseViewContext context, DatabaseInfo database, RunType runType, bool updateExistingDB)
         {
+            if (database.Name == null)
+            {
+                throw new ArgumentException("Database name not provided");
+            }
+
             ConnectionInfo connInfo;
             this.ConnectionService.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
-
             if (connInfo == null)
             {
                 throw new ArgumentException("Invalid ConnectionUri");
@@ -225,11 +229,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             DatabasePrototype prototype = CreateDatabasePrototype(dataContainer);
 
             prototype.Name = database.Name;
-            prototype.Owner = database.Owner;
-            prototype.Collation = database.CollationName;
-            prototype.RecoveryModel = Enum.Parse<RecoveryModel>(database.RecoveryModel);
-            prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
-            if (prototype is DatabasePrototype110 db110)
+            if (database.Owner != null)
+            {
+                prototype.Owner = database.Owner;
+            }
+            if (database.CollationName != null)
+            {
+                prototype.Collation = database.CollationName;
+            }
+            if (database.RecoveryModel != null)
+            {
+                prototype.RecoveryModel = Enum.Parse<RecoveryModel>(database.RecoveryModel);
+            }
+            if (database.CompatibilityLevel != null)
+            {
+                prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
+            }
+            if (prototype is DatabasePrototype110 db110 && database.ContainmentType != null)
             {
                 db110.DatabaseContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
             }
