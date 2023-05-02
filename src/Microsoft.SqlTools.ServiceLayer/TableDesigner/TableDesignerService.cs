@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.TableDesigner.Contracts;
 using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -25,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
     /// </summary>
     public sealed class TableDesignerService : IDisposable
     {
-        public const string TableDesignerApplicationName = "azdata-table-designer";
+        public const string TableDesignerApplicationNameSuffix = "TableDesigner";
 
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
@@ -1798,7 +1799,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             {
                 var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
-                connectionStringBuilder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
+                connectionStringBuilder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(connectionStringBuilder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                 var connectionString = connectionStringBuilder.ToString();
 
                 // Set Access Token only when authentication mode is not specified.
@@ -1831,10 +1832,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             var td = GetTableDesigner(tableInfo);
             var advancedOpsIndex = tableInfo.Tooltip.LastIndexOf('[');
-            var advancedOps = tableInfo.Tooltip.Substring(advancedOpsIndex);
+            var advancedOps = "";
+            if(advancedOpsIndex > -1){
+                advancedOps = " " + tableInfo.Tooltip.Substring(advancedOpsIndex);
+            }
             tableInfo.Title = td.TableViewModel.FullName;
             var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
-            tableInfo.Tooltip = string.Format("{0} - {1} {2}", tableParent, tableInfo.Title, advancedOps);
+            tableInfo.Tooltip = string.Format("{0} - {1}{2}", tableParent, tableInfo.Title, advancedOps);
         }
 
         private Dictionary<string, string> GetMetadata(TableInfo tableInfo)

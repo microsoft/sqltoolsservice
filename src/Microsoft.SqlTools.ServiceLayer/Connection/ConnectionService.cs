@@ -29,6 +29,7 @@ using Microsoft.SqlTools.Authentication.Sql;
 using Microsoft.SqlTools.Authentication;
 using System.IO;
 using Microsoft.SqlTools.Hosting.Utility;
+using Constants = Microsoft.SqlTools.Hosting.Protocol.Constants;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -470,19 +471,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
         }
 
-        private static string GetApplicationNameWithFeature(string applicationName, string featureName)
+        internal static string GetApplicationNameWithFeature(string applicationName, string featureName)
         {
             string appNameWithFeature = applicationName;
 
-            if (!string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName))
+            if (!string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
             {
-                int index = applicationName.IndexOf('-');
-                string appName = applicationName;
-                if (index > 0)
-                {
-                    appName = applicationName.Substring(0, index);
-                }
-                appNameWithFeature = $"{appName}-{featureName}";
+                int azdataStartIndex = applicationName.IndexOf(Constants.DefaultApplicationName);
+                string originalAppName = azdataStartIndex != -1
+                    ? applicationName.Substring(0, azdataStartIndex + Constants.DefaultApplicationName.Length)
+                    : applicationName; // Reset to default if azdata not found.
+                appNameWithFeature = $"{originalAppName}-{featureName}";
             }
 
             return appNameWithFeature;
@@ -1162,7 +1161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
-            return new Authenticator(new (ApplicationClientId, applicationName, cachePath, MsalCacheName), () => this.encryptionKeys);
+            return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName), () => this.encryptionKeys);
         }
 
         private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
@@ -1377,10 +1376,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         break;
                     case SqlLogin:
                         connectionBuilder.UserID = connectionDetails.UserName;
-                        if (!string.IsNullOrEmpty(connectionDetails.Password))
-                        {
-                            connectionBuilder.Password = connectionDetails.Password;
-                        }
+                        connectionBuilder.Password = string.IsNullOrEmpty(connectionDetails.Password)
+                            ? string.Empty // Support empty password for accounts without password
+                            : connectionDetails.Password;
                         connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         break;
                     case AzureMFA:
@@ -1597,9 +1595,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectionInfo info;
             SqlConnectionStringBuilder connStringBuilder;
             // set connection string using connection uri if connection details are undefined
-            if (connStringParams.ConnectionDetails == null)
+            if (connStringParams.ConnectionDetails == null && TryFindConnection(connStringParams.OwnerUri, out info))
             {
-                TryFindConnection(connStringParams.OwnerUri, out info);
                 connStringBuilder = CreateConnectionStringBuilder(info.ConnectionDetails);
             }
             // set connection string using connection details
@@ -1612,9 +1609,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connStringBuilder.Password = ConnectionService.PasswordPlaceholder;
             }
             // default connection string application name to always be included unless set to false
-            if (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true)
+            if (connStringBuilder.ApplicationName == null && (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true))
             {
-                connStringBuilder.ApplicationName = "sqlops-connection-string";
+                connStringBuilder.ApplicationName = Constants.DefaultApplicationName;
             }
             connectionString = connStringBuilder.ConnectionString;
 

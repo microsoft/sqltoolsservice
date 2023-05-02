@@ -81,6 +81,8 @@ WITH VALUES
     ADD FILEGROUP [MyFileGroup] CONTAINS MEMORY_OPTIMIZED_DATA;
     GO";
 
+        private string scmpFolder = Path.Combine("..", "..", "..", "SchemaCompare", "SchemaCompare");
+
         /// <summary>
         /// Verify the schema compare request comparing two dacpacs
         /// </summary>
@@ -1225,7 +1227,6 @@ WITH VALUES
                 string filePath = Path.Combine(folderPath, string.Format("SchemaCompareOpenScmpTest{0}.scmp", DateTime.Now.ToFileTime()));
                 compare.SaveToFile(filePath);
 
-                SchemaCompareTestUtils.VerifyAndCleanup(Directory.GetParent((targetEndpoint as SchemaCompareProjectEndpoint).ProjectFilePath).FullName);
                 await VerifyContentAndCleanupAsync(filePath, "<FolderStructure>ObjectType</FolderStructure>");
             }
             finally
@@ -1233,6 +1234,56 @@ WITH VALUES
                 sourceDb.Cleanup();
                 targetDb.Cleanup();
             }
+        }
+
+        /// <summary>
+        /// Verifies https://github.com/microsoft/azuredatastudio/issues/22728 -- Schema compare open scmp file not backward compatible
+        /// </summary>
+        [Test]
+        public void VerifyOpenScmpIsBackwardCompatible()
+        {
+            string testFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SchemaCompareTest", $"{TestContext.CurrentContext?.Test?.Name}_{DateTime.Now.Ticks.ToString()}");
+            Directory.CreateDirectory(testFolderPath);
+            string testScmpFileTemplate = Path.Combine(testFolderPath, "TestScmpFileTemplate.scmp");
+            File.Copy(Path.Combine(scmpFolder, "TestScmpFileTemplate.scmp"), testScmpFileTemplate);
+
+            string testScmpFile = LoadScmpFileTemplate(testTemplateFolderPath: scmpFolder, testWorkingFolderPath: testFolderPath, templateFileName: "TestScmpFileTemplate.scmp", fileName: "TestScmpFile.scmp");
+            var schemaCompareOpenScmpParams = new SchemaCompareOpenScmpParams
+            {
+                FilePath = testScmpFile
+            };
+
+            SchemaCompareOpenScmpOperation schemaCompareOpenScmpOperation = new SchemaCompareOpenScmpOperation(schemaCompareOpenScmpParams);
+            schemaCompareOpenScmpOperation.Execute(TaskExecutionMode.Execute);
+
+            Assert.NotNull(schemaCompareOpenScmpOperation.Result);
+            Assert.True(schemaCompareOpenScmpOperation.Result.Success);
+            Assert.AreEqual(schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.ProjectFilePath, Path.Combine(testFolderPath, "SourceProject.sqlproj"), "Source project was expected to exist but did not");
+            Assert.AreEqual(schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.ExtractTarget, DacExtractTarget.SchemaObjectType, $"Source project was expected to have SchemaObjectType as extract target but {schemaCompareOpenScmpOperation.Result.SourceEndpointInfo.ExtractTarget} was set instead");
+            Assert.AreEqual(schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.ProjectFilePath, Path.Combine(testFolderPath, "TargetProject.sqlproj"), "Target project was expected to exist but did not");
+            Assert.AreEqual(schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.ExtractTarget, DacExtractTarget.SchemaObjectType, $"Target project was expected to have SchemaObjectType as extract target but {schemaCompareOpenScmpOperation.Result.TargetEndpointInfo.ExtractTarget} was set instead");
+
+            SchemaCompareTestUtils.VerifyAndCleanup(testFolderPath);
+        }
+
+        private string LoadScmpFileTemplate(string testTemplateFolderPath, string testWorkingFolderPath, string templateFileName, string fileName)
+        {
+            string templatePath = Path.Combine(testTemplateFolderPath, templateFileName);
+            string text = File.ReadAllText(templatePath);
+
+            string sourceDummyProject = Path.Combine(testWorkingFolderPath, "SourceProject.sqlproj");
+            string targetDummyProject = Path.Combine(testWorkingFolderPath, "TargetProject.sqlproj");
+
+            text = text.Replace($"@@SourceProjectFilePath@@", sourceDummyProject);
+            text = text.Replace($"@@TargetProjectFilePath@@", targetDummyProject);
+
+            File.Create(sourceDummyProject).Close();
+            File.Create(targetDummyProject).Close();
+
+            string scmpPath = Path.Combine(testWorkingFolderPath, fileName);
+            File.WriteAllText(scmpPath, text);
+
+            return scmpPath;
         }
 
         /// <summary>
