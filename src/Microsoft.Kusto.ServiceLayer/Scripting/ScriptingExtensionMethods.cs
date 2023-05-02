@@ -99,7 +99,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
             string urn = string.Format(
                 "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
-                server.ToUpper(),
+                server.ToUpper(System.Globalization.CultureInfo.InvariantCulture),
                 Urn.EscapeString(database),
                 scriptingObject.Type,
                 Urn.EscapeString(scriptingObject.Name),

@@ -413,22 +413,19 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         {
             var returnList = new List<DataSourceObjectMetadata>();
 
-            if (_folderMetadata.ContainsKey(key))
+            if (_folderMetadata.TryGetValue(key, out IEnumerable<FolderMetadata>? folderMetadata))
             {
-                returnList.AddRange(_folderMetadata[key]
-                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+                returnList.AddRange(folderMetadata.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
             }
 
-            if (_tableMetadata.ContainsKey(key))
+            if (_tableMetadata.TryGetValue(key, out IEnumerable<TableMetadata>? tableMetadata))
             {
-                returnList.AddRange(_tableMetadata[key]
-                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+                returnList.AddRange(tableMetadata.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
             }
 
-            if (_functionMetadata.ContainsKey(key))
+            if (_functionMetadata.TryGetValue(key, out IEnumerable<FunctionMetadata>? functionMetadata))
             {
-                returnList.AddRange(_functionMetadata[key]
-                    .OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
+                returnList.AddRange(functionMetadata.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase));
             }
 
             return returnList;
@@ -515,16 +512,15 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
         private IEnumerable<DataSourceObjectMetadata> GetTableSchema(TableMetadata tableMetadata)
         {
             var key = GenerateMetadataKey(tableMetadata.DatabaseName, tableMetadata.Name);
-            if (_columnMetadata.ContainsKey(key))
+            if (_columnMetadata.TryGetValue(key, out IEnumerable<DataSourceObjectMetadata>? metadata))
             {
-                return _columnMetadata[key];
+                return metadata;
             }
             
             SetTableSchema(tableMetadata);
 
-            return _columnMetadata.ContainsKey(key)
-                ? _columnMetadata[key]
-                : Enumerable.Empty<DataSourceObjectMetadata>();
+            return _columnMetadata.TryGetValue(key, out IEnumerable<DataSourceObjectMetadata>? columnMetadata) 
+                ? columnMetadata : Enumerable.Empty<DataSourceObjectMetadata>();
         }
 
         private void SetTableSchema(TableMetadata tableMetadata)
@@ -683,9 +679,9 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Kusto
                     Urn = $"{tableKey}.{table.TableName}"
                 };
 
-                if (tableFolders.ContainsKey(tableKey.ToString()))
+                if (tableFolders.TryGetValue(tableKey.ToString(), out List<TableMetadata>? tableMetadataList))
                 {
-                    tableFolders[tableKey.ToString()].Add(tableMetadata);
+                    tableMetadataList.Add(tableMetadata);
                 }
                 else
                 {

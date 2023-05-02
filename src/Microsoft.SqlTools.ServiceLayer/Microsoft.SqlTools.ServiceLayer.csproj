@@ -8,13 +8,14 @@
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
-		<!-- TODO FIX THESE WARNINGS ASAP -->
-		<NoWarn>$(NoWarn);SYSLIB1045;CA1311;CA1854;CS8600;CS8603;CS8625</NoWarn>
+		<AssemblyTitle>SqlTools Editor Services Host Protocol Library</AssemblyTitle>
+		<Description>Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.</Description>
+		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
+		<NoWarn>$(NoWarn);CS8795</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -29,7 +30,7 @@
 		<ToolCommandName>$(AssemblyName)</ToolCommandName>
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<Compile Include="**/*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
@@ -70,13 +71,11 @@
 	<ItemGroup>
 		<EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
 	</ItemGroup>
-	<!-- this target enables dependency files to be copied as part of the output of ProjectReference.
-	https://github.com/dotnet/sdk/issues/1675
-	 -->
-	<Target Name="AddRuntimeDependenciesToContent" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" BeforeTargets="GetCopyToOutputDirectoryItems" DependsOnTargets="GenerateBuildDependencyFile;&#xD;&#xA;							GenerateBuildRuntimeConfigurationFiles">
-		<ItemGroup>
-			<ContentWithTargetPath Include="$(ProjectDepsFilePath)" Condition="'$(GenerateDependencyFile)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
-			<ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
-		</ItemGroup>
-	</Target>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+	</ItemGroup>
 </Project>

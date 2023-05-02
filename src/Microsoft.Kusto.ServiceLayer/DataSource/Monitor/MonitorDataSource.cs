@@ -22,7 +22,7 @@ using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
 {
-    public class MonitorDataSource : DataSourceBase
+    public partial class MonitorDataSource : DataSourceBase
     {
         private readonly MonitorClient _monitorClient;
         private readonly IntellisenseClientBase _intellisenseClient;
@@ -158,7 +158,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
         
         private string ParseWorkspaceId(string workspace)
         {
-            var regex = new Regex(@"(?<=\().+?(?=\))");
+            var regex = GetWorkspaceIdRegex();
             
             return regex.IsMatch(workspace)
                 ? regex.Match(workspace).Value
@@ -227,5 +227,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Monitor
                 }
             };
         }
+
+        [GeneratedRegex("(?<=\\().+?(?=\\))")]
+        private static partial Regex GetWorkspaceIdRegex();
     }
 }

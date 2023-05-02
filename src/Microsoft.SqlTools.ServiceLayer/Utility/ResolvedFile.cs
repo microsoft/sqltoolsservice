@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         {
             get
             {
-                return ClientUri?.ToLower();
+                return ClientUri?.ToLower(System.Globalization.CultureInfo.InvariantCulture);
             }
         }
     }

@@ -21,7 +21,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 {
-    public class RowUpdateTests
+    public partial class RowUpdateTests
     {
         [Test]
         public async Task RowUpdateConstruction()
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var rs = await Common.GetResultSet(data.DbColumns, false);
 
             // If: I create a RowUpdate instance
-            RowUpdate rc = new RowUpdate(rowId, rs, data.TableMetadata);
+            var rc = new RowUpdate(rowId, rs, data.TableMetadata);
 
             // Then: The values I provided should be available
             Assert.AreEqual(rowId, rc.RowId);
@@ -61,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: 
             // ... I add updates to all the cells in the row
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             Common.AddCells(ru, 1);
 
             // ... Then I update a cell back to it's old value
@@ -83,8 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(eucr.IsRowDirty);
 
             // ... It should be formatted as an update script
-            Regex r = new Regex(@"UPDATE .+ SET (.*) WHERE");
-            var m = r.Match(ru.GetScript());
+            var m = GetUpdateRegex().Match(ru.GetScript());
 
             // ... It should have 2 updates
             string updates = m.Groups[1].Value;
@@ -102,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If:
             // ... I add updates to one cell in the row
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(1, "qqq");
 
             // ... Then I update the cell to its original value
@@ -149,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var etm = Common.GetCustomEditTableMetadata(cols);
 
             // ... Create the row update
-            RowUpdate ru = new RowUpdate(0, rs, etm);
+            var ru = new RowUpdate(0, rs, etm);
 
             // If: I set a cell in the newly created row to something that will be corrected
             EditUpdateCellResult eucr = ru.SetCell(0, "1000");
@@ -214,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             ResultSet rs = await Common.GetResultSet(data.DbColumns, true);
 
             // If: I ask for a script to be generated for update
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             Common.AddCells(ru, 1);
             string script = ru.GetScript();
 
@@ -226,7 +225,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             string regexString = isMemoryOptimized
                 ? @"UPDATE (.+) WITH \(SNAPSHOT\) SET (.*) WHERE .+"
                 : @"UPDATE (.+) SET (.*) WHERE .+";
-            Regex r = new Regex(regexString);
+            var r = new Regex(regexString);
             var m = r.Match(script);
             Assert.True(m.Success);
 
@@ -248,7 +247,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update with cell updates
             var data = new Common.TestDbColumnsWithTableMetadata(isMemoryOptimized, includeIdentity, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             Common.AddCells(ru, includeIdentity ? 1 : 0);
 
             // ... Mock db connection for building the command
@@ -267,8 +266,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.True(splitSql.Length >= 3);
             
             // Check the declare statement first
-            Regex declareRegex = new Regex(@"^DECLARE @(.+) TABLE \((.+)\)$");
-            Match declareMatch = declareRegex.Match(splitSql[0]);
+            Match declareMatch = GetDeclareTableRegex().Match(splitSql[0]);
             Assert.True(declareMatch.Success);
             
             // Declared table name matches
@@ -283,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             string regex = isMemoryOptimized
                 ? @"^UPDATE (.+) WITH \(SNAPSHOT\) SET (.+) OUTPUT (.+) INTO @(.+) WHERE .+$"
                 : @"^UPDATE (.+) SET (.+) OUTPUT (.+) INTO @(.+) WHERE .+$";
-            Regex updateRegex = new Regex(regex);
+            var updateRegex = new Regex(regex);
             Match updateMatch = updateRegex.Match(splitSql[10]);
             Assert.True(updateMatch.Success);
             
@@ -304,8 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             Assert.That(updateMatch.Groups[4].Value, Does.EndWith("Output"));
             
             // Check the select statement last
-            Regex selectRegex = new Regex(@"^SELECT (.+) FROM @(.+)$");
-            Match selectMatch = selectRegex.Match(splitSql[11]);
+            Match selectMatch = GetSelectRegex().Match(splitSql[11]);
             Assert.True(selectMatch.Success);
             
             // Correct number of columns in select statement
@@ -343,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // Setup: Create a row update with a cell set
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(0, "foo");
 
             // If: I attempt to get an edit row
@@ -399,7 +396,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var data = new Common.TestDbColumnsWithTableMetadata(false, includeIdentity, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, includeIdentity);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             long oldBytesWritten = rs.totalBytesWritten;
 
             // ... Setup a db reader for the result of an update
@@ -421,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, true);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
 
             // If: I  ask for the changes to be applied with a null db reader
             // Then: I should get an exception
@@ -439,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
 
             // If: I attempt to revert a cell that is out of range
             // Then: I should get an exception
@@ -453,7 +450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update (no cell updates needed)
             var data = new Common.TestDbColumnsWithTableMetadata(false, true, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, true);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
 
             // If: I attempt to revert a cell that has not been set
             EditRevertCellResult result = ru.RevertCell(0);
@@ -480,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(0, "qqq");
             ru.SetCell(1, "qqq");
 
@@ -509,7 +506,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Create a row update
             var data = new Common.TestDbColumnsWithTableMetadata(false, false, 0, 0);
             var rs = await Common.GetResultSet(data.DbColumns, false);
-            RowUpdate ru = new RowUpdate(0, rs, data.TableMetadata);
+            var ru = new RowUpdate(0, rs, data.TableMetadata);
             ru.SetCell(0, "qqq");
 
             // If: I attempt to revert a cell that was set
@@ -538,5 +535,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var rs = await Common.GetResultSet(data.DbColumns, false);
             return new RowUpdate(0, rs, data.TableMetadata);
         }
+
+        [GeneratedRegex("^DECLARE @(.+) TABLE \\((.+)\\)$")]
+        private static partial Regex GetDeclareTableRegex();
+
+        [GeneratedRegex("^SELECT (.+) FROM @(.+)$")]
+        private static partial Regex GetSelectRegex();
+
+        [GeneratedRegex("UPDATE .+ SET (.*) WHERE")]
+        private static partial Regex GetUpdateRegex();
     }
 }

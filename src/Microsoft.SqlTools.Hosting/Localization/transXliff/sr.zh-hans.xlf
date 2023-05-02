@@ -62,16 +62,6 @@
         <target state="translated">ExtensionLoader&lt;{1}&gt; 无法创建类型 {0} 的服务</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ServiceProviderNotSet">
-        <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="translated">未调用 SetServiceProvider() 来建立所需的服务提供程序</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotFound">
-        <source>Service {0} was not found in the service provider</source>
-        <target state="translated">在服务提供程序中找不到服务 {0}</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ServiceNotOfExpectedType">
         <source>Service of Type {0} is not compatible with registered Type {1}</source>
         <target state="translated">类型 {0} 的服务与已注册的类型 {1} 不兼容</target>

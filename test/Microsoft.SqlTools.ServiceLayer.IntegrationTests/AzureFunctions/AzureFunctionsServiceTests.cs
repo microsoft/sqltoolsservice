@@ -15,7 +15,7 @@ using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.AzureFunctions
 {
-    class AzureFunctionsServiceTests
+    internal sealed class AzureFunctionsServiceTests
     {
         private string testAzureFunctionsFolder = Path.Combine("..", "..", "..", "AzureFunctions", "AzureFunctionTestFiles");
 

@@ -10725,6 +10725,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string ServiceProviderNotSet
+        {
+            get
+            {
+                return Keys.GetString(Keys.ServiceProviderNotSet);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -11153,6 +11161,11 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string ObjectNotRenamable(string urn)
         {
             return Keys.GetString(Keys.ObjectNotRenamable, urn);
+        }
+
+        public static string ServiceNotFound(string serviceName)
+        {
+            return Keys.GetString(Keys.ServiceNotFound, serviceName);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -15430,6 +15443,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string Permission_ImpersonateAnyLogin = "Permission_ImpersonateAnyLogin";
+
+
+            public const string ServiceProviderNotSet = "ServiceProviderNotSet";
+
+
+            public const string ServiceNotFound = "ServiceNotFound";
 
 
             private Keys()

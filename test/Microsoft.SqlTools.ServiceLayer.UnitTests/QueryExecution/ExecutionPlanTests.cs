@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... It should throw an exception
-            Assert.ThrowsAsync<Exception>(() => planResultSet.GetExecutionPlan());
+            Assert.ThrowsAsync<Exception>(planResultSet.GetExecutionPlan);
         }
 
         #endregion

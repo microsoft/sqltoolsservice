@@ -238,7 +238,7 @@
     <value>Non è stato possibile recuperare lo schema della colonna per il set di risultati</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Non è stato possibile recuperare un piano di esecuzione dal set di risultati </value>
+    <value>Non è stato possibile recuperare un piano di esecuzione dal set di risultati</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>Questa funzionalità non è attualmente supportata nel database SQL di Azure e Data Warehouse: {0}</value>
@@ -1210,7 +1210,7 @@
     <value>Tipo di esecuzione imprevisto.</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>L'unità di misura {0} è sconosciuta </value>
+    <value>Unità di misura {0} sconosciuta</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>Non è possibile trovare la sessione XEvent richiesta</value>
@@ -1258,7 +1258,7 @@
     <value>Mai</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>Il percorso {0} non è una directory valida </value>
+    <value>Il percorso {0} non è una directory valida</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>Per la directory {0} esiste già un file denominato {1}</value>
@@ -1351,13 +1351,13 @@
     <value>Riga {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType). Valore letterale: {2} </value>
+    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType). Valore letterale: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType), perché è stato usato un formato di data/ora non supportato. Usare uno dei formati di data/ora supportati. Valore letterale: {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType), perché per un valore letterale binario è previsto il prefisso 0x. Valore letterale: {2} </value>
+    <value>Non è possibile convertire {0} in un oggetto Microsoft.Data.SqlClient.SqlParameter. Il valore letterale specificato non può essere convertito in {1}(Microsoft.Data.SqlDbType), perché per un valore letterale binario è previsto il prefisso 0x. Valore letterale: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>Riga {0}, colonna {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Stima</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Applica un modello di Machine Learning con training ai dati di input	</value>
+    <value>Applicare un modello di Machine Learning con training ai dati di input</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Funzione con valori di tabella</value>
@@ -3905,7 +3905,7 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
     <value>È hash</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Numero di bucket dell'indice hash. Si noti che il valore verrà sempre arrotondato automaticamente alla potenza successiva di 2. </value>
+    <value>Numero di bucket dell'indice hash. Si noti che il valore verrà sempre arrotondato automaticamente alla potenza successiva di 2.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Numero di bucket</value>
@@ -4347,5 +4347,11 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Rappresenta qualsiasi accesso</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() non è stato chiamato per stabilire il provider dei servizi richiesto</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Il servizio {0} non è stato trovato nel provider di servizi</value>
   </data>
 </root>

@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private ISqlToolsSettingsValues sqlTools = null; 
         private SqlToolsSettingsValues mssqlTools = null; 
         private SqlToolsSettingsValues allSqlTools = null; 
+        private TelemetrySettingsValues telemetrySettings = null;
 
         public ISqlToolsSettingsValues SqlTools 
         { 
@@ -62,6 +63,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set
             {
                 this.sqlTools = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the underlying settings value object
+        /// </summary>
+        [JsonProperty("telemetry")]
+        public TelemetrySettingsValues TelemetrySettings
+        {
+            get
+            {
+                this.telemetrySettings ??= new TelemetrySettingsValues();
+                return this.telemetrySettings;
+            }
+            set
+            {
+                this.telemetrySettings = value;
             }
         }
 

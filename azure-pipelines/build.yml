@@ -108,11 +108,11 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $propsFile = '$(Build.SourcesDirectory)\Directory.Build.Props'
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
       $props = New-Object XML
-      $props.Load($propsFile)
+      $props.Load($projectFile)
       $propGroup = $props.Project.PropertyGroup;
-      $versionPre = $env:Major + '.' + $env:Minor + '.'
+      $versionPre = $env:ManagedBatchParserMajor + '.' + $env:ManagedBatchParserMinor + '.'
       if($env:StableRelease.Equals('true')) {
           $version = $versionPre + '0';
       } else {
@@ -212,10 +212,10 @@ steps:
     MaxConcurrency: 5
 
 - task: BatchScript@1
-  displayName: 'Package published projects'
+  displayName: 'Package nuspec projects'
   inputs:
     filename: build.cmd
-    arguments: '-target=dotnetpackpublished -mono'
+    arguments: '-target=DotnetPackNuspec -mono'
     
 - task: BatchScript@1
   displayName: "Build and Package service tool projects"

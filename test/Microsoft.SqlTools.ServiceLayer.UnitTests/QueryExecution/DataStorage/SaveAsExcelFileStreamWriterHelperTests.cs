@@ -16,7 +16,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
-    public class SaveAsExcelFileStreamWriterHelperTests : IDisposable
+    public partial class SaveAsExcelFileStreamWriterHelperTests : IDisposable
     {
         private Stream _stream;
         public SaveAsExcelFileStreamWriterHelperTests()
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             using (var helper = new SaveAsExcelFileStreamWriterHelper(_stream, true))
             using (var sheet = helper.AddSheet())
             {
-                DbCellValue value = new DbCellValue();
+                var value = new DbCellValue();
                 sheet.AddRow();
 
                 value.IsNull = true;
@@ -71,7 +71,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 sheet.AddCell(value);
             }
         }
-        Regex contentRemoveLinebreakLeadingSpace = new Regex(@"\r?\n\s*");
+        
+        [GeneratedRegex("\\r?\\n\\s*")]
+        private static partial Regex GetContentRemoveLinebreakLeadingSpaceRegex();
+
         private void ContentMatch(string fileName)
         {
             string referencePath = Path.Combine(RunEnvironmentInfo.GetTestDataLocation(),
@@ -79,11 +82,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 "SaveAsExcelFileStreamWriterHelperTests",
                 fileName);
             string referenceContent = File.ReadAllText(referencePath);
-            referenceContent = contentRemoveLinebreakLeadingSpace.Replace(referenceContent, "");
+            referenceContent = GetContentRemoveLinebreakLeadingSpaceRegex().Replace(referenceContent, "");
 
-            using (ZipArchive zip = new ZipArchive(_stream, ZipArchiveMode.Read, true))
+            using (var zip = new ZipArchive(_stream, ZipArchiveMode.Read, true))
             {
-                using (var reader = new StreamReader(zip.GetEntry(fileName).Open()))
+                using (var reader = new StreamReader(zip?.GetEntry(fileName)?.Open()!))
                 {
                     string realContent = reader.ReadToEnd();
                     Assert.AreEqual(referenceContent, realContent);
@@ -130,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
     public class SaveAsExcelFileStreamWriterHelperReferenceManagerTests
     {
         private Mock<XmlWriter> _xmlWriterMock;
-        private string LastWrittenReference { get; set; }
+        private string? LastWrittenReference { get; set; }
         private int LastWrittenRow { get; set; }
 
         public SaveAsExcelFileStreamWriterHelperReferenceManagerTests()
@@ -145,7 +148,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             _xmlWriterMock.Setup(a => a.WriteEndAttribute());
             _xmlWriterMock.Setup(a => a.WriteValue(It.IsAny<int>()))
                 .Callback<int>(row => LastWrittenRow = row);
-
         }
 
         [Test]
@@ -203,8 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             manager.AssureColumnReference();
             manager.WriteAndIncreaseColumnReference();
             Assert.AreEqual("XFD1", LastWrittenReference);
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => manager.AssureColumnReference());
+            var ex = Assert.Throws<InvalidOperationException>(manager.AssureColumnReference);
             Assert.That(ex.Message, Does.Contain("max column number is 16384"));
         }
         [Test]
@@ -232,8 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             var xmlWriter = _xmlWriterMock.Object;
             var manager = new SaveAsExcelFileStreamWriterHelper.ReferenceManager(xmlWriter);
 
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => manager.AssureColumnReference());
+            var ex = Assert.Throws<InvalidOperationException>(manager.AssureColumnReference);
             Assert.That(ex.Message, Does.Contain("AddRow must be called before AddCell"));
         }
 

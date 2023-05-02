@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,54 +30,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             this.data = data;
             var availableSystems =
-                dataContainer.Server.JobServer.EnumSubSystems()
+                dataContainer.Server?.JobServer.EnumSubSystems()
                     .Rows.OfType<DataRow>()
                     .Select(r => (AgentSubSystem)Convert.ToInt32(r["subsystem_id"]));
-
-            foreach (var agentSubSystemId in availableSystems)
+            if (availableSystems != null)
             {
-                var agentSubSystem = CreateJobStepSubSystem(agentSubSystemId, dataContainer, data);
-                // The server might have some new subsystem we don't know about, just ignore it.
-                if (agentSubSystem != null)
+                foreach (var agentSubSystemId in availableSystems)
                 {
-                    subSystems[agentSubSystemId] = agentSubSystem;
+                    var agentSubSystem = CreateJobStepSubSystem(agentSubSystemId, dataContainer, data);
+                    // The server might have some new subsystem we don't know about, just ignore it.
+                    if (agentSubSystem != null)
+                    {
+                        subSystems[agentSubSystemId] = agentSubSystem;
+                    }
                 }
-            }            
+            }
         }
 
         public JobStepSubSystem[] AvailableSubSystems
         {
-            get { return this.subSystems.Keys.OrderBy(k => (int) k).Select(k => this.subSystems[k]).ToArray(); }
+            get { return this.subSystems.Keys.OrderBy(k => (int)k).Select(k => this.subSystems[k]).ToArray(); }
         }
 
         public JobStepSubSystem Lookup(AgentSubSystem key)
         {
             JobStepSubSystem rv = null;
-            if (this.subSystems.ContainsKey(key))
+            if (this.subSystems.TryGetValue(key, out JobStepSubSystem? value))
             {
-                return this.subSystems[key];
+                return value;
             }
             return rv;
         }
 
-        private static TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof (AgentSubSystem));
+        private static TypeConverter typeConverter = TypeDescriptor.GetConverter(typeof(AgentSubSystem));
         // Returns name of the subsystem for a given enum value
         public static string LookupFriendlyName(AgentSubSystem key)
         {
             return (string)typeConverter.ConvertToString((Enum)key);
         }
-        
+
         // Returns name of the subsystem for a given enum value
         public static string LookupName(AgentSubSystem key)
         {
             // Have to subtract first enum value to bring the 
             // index to 0-based index
-            return typeConverter.ConvertToInvariantString((Enum) key);
+            return typeConverter.ConvertToInvariantString((Enum)key);
         }
 
         private static JobStepSubSystem CreateJobStepSubSystem(
-            AgentSubSystem agentSubSystem, 
-            CDataContainer dataContainer, 
+            AgentSubSystem agentSubSystem,
+            CDataContainer dataContainer,
             JobStepData data)
         {
             switch (agentSubSystem)

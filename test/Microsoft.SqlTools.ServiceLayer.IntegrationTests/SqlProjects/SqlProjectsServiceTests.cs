@@ -195,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             // Setup
             SqlProjectsService service = new();
             string projectUri = await service.CreateSqlProject();
-            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "Baseline number of NoneItems");
+            Assert.AreEqual(0, service.Projects[projectUri].NoneItems.Count, "Baseline number of NoneItems");
 
             // Validate adding a None script
             MockRequest<ResultStatus> requestMock = new();
@@ -215,8 +215,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddNoneItemRequest));
-            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after add");
-            Assert.IsTrue(service.Projects[projectUri].NoneScripts.Contains(relativePath), $"NoneItems expected to contain {relativePath}");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneItems.Count, "NoneItems count after add");
+            Assert.IsTrue(service.Projects[projectUri].NoneItems.Contains(relativePath), $"NoneItems expected to contain {relativePath}");
 
             // Validate getting a list of the None scripts
             MockRequest<GetScriptsResult> getMock = new();
@@ -238,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleExcludeNoneItemRequest));
-            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after exclude");
+            Assert.AreEqual(0, service.Projects[projectUri].NoneItems.Count, "NoneItems count after exclude");
             Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to still exist on disk");
 
             // Re-add to set up for Delete
@@ -250,7 +250,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddNoneItemRequest));
-            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after re-add");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneItems.Count, "NoneItems count after re-add");
 
             // Validate moving a None script
             string movedScriptRelativePath = @"SubPath\RenamedNoneIncludeFile.json";
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleMoveNoneItemRequest));
             Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
-            Assert.AreEqual(1, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after move");
+            Assert.AreEqual(1, service.Projects[projectUri].NoneItems.Count, "NoneItems count after move");
 
             // Validate deleting a None script
             requestMock = new();
@@ -278,7 +278,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteNoneItemRequest));
-            Assert.AreEqual(0, service.Projects[projectUri].NoneScripts.Count, "NoneItems count after delete");
+            Assert.AreEqual(0, service.Projects[projectUri].NoneItems.Count, "NoneItems count after delete");
             Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
         }
 
@@ -372,7 +372,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestPostDeploymentScriptAddDeleteExcludeMove()
+        public async Task TestPostDeploymentScriptOperations()
         {
             // Setup
             SqlProjectsService service = new();
@@ -472,10 +472,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SystemDatabaseReference systemDatabaseReference = new SystemDatabaseReference(SystemDatabase.MSDB, suppressMissingDependencies: true);
             DacpacReference dacpacReference = new DacpacReference("OtherDatabaseDacpac.dacpac", suppressMissingDependencies: true);
             SqlProjectReference sqlProjectReference = new SqlProjectReference("OtherDatabaseProject.sqlproj", projectGuid: TEST_GUID, suppressMissingDependencies: true);
+            NugetPackageReference nugetPackageReference = new NugetPackageReference("Project1", "2.0.0", suppressMissingDependencies: true);
 
             service.Projects[projectUri].DatabaseReferences.Add(systemDatabaseReference);
             service.Projects[projectUri].DatabaseReferences.Add(dacpacReference);
             service.Projects[projectUri].DatabaseReferences.Add(sqlProjectReference);
+            service.Projects[projectUri].DatabaseReferences.Add(nugetPackageReference);
 
             // Validate getting a list of the post-deployment scripts
             MockRequest<GetDatabaseReferencesResult> getMock = new();
@@ -494,6 +496,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             Assert.AreEqual(1, getMock.Result.SqlProjectReferences.Length);
             Assert.AreEqual(sqlProjectReference, getMock.Result.SqlProjectReferences[0]);
+
+            Assert.AreEqual(1, getMock.Result.NugetPackageReferences.Length);
+            Assert.AreEqual(nugetPackageReference, getMock.Result.NugetPackageReferences[0]);
         }
 
         [Test]
@@ -694,6 +699,100 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
         }
 
+        [Test]
+        public async Task TestNugetPackageReferenceAdd()
+        {
+            var (service, projectUri, databaseVar, serverVar) = await SetUpDatabaseReferenceTest();
+
+            // Validate adding a nupkg reference on the same server
+            string mockPackageName = "OtherDatabaseSameServer";
+            string mockPackageVersion = "2.0.0";
+
+            MockRequest<ResultStatus> requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "same server");
+            Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference (same server)");
+            NugetPackageReference nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual(mockPackageVersion, nupkgRef.Version, "Referenced nupkg version");
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+            Assert.IsNull(nupkgRef.DatabaseVariableLiteralName, nameof(nupkgRef.DatabaseVariableLiteralName));
+            Assert.IsNull(nupkgRef.DatabaseVariable, nameof(nupkgRef.DatabaseVariable));
+
+            // Validate adding a nupkg reference via SQLCMD variable
+            mockPackageName =  "OtherDatabaseSqlCmd";
+
+            requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false,
+                DatabaseVariable = databaseVar.Name,
+                ServerVariable = serverVar.Name
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "sqlcmdvar");
+            Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference (sqlcmdvar)");
+            nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual(mockPackageVersion, nupkgRef.Version, "Referenced nupkg version");
+            Assert.AreEqual(databaseVar.Name, nupkgRef.DatabaseVariable!.VarName);
+            Assert.AreEqual(serverVar.Name, nupkgRef.ServerVariable!.VarName);
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+
+            // Validate adding a nupkg reference via database literal
+            mockPackageName = "OtherDatabaseLiteral";
+
+            requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = "NupkgLiteral"
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "db literal");
+            Assert.AreEqual(3, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference (db literal)");
+            nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual(mockPackageVersion, nupkgRef.Version, "Referenced nupkg version");
+            Assert.AreEqual("NupkgLiteral", nupkgRef.DatabaseVariableLiteralName, nameof(nupkgRef.DatabaseVariableLiteralName));
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+
+            // Validate adding a nupkg reference via database literal when an empty string is passed in for DatabaseVariable
+            mockPackageName = "AnotherDatabaseLiteral";
+
+            requestMock = new();
+            await service.HandleAddNugetPackageReferenceRequest(new AddNugetPackageReferenceParams()
+            {
+                ProjectUri = projectUri,
+                PackageName = mockPackageName,
+                PackageVersion = mockPackageVersion,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = "NupkgLiteral2",
+                DatabaseVariable = ""
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddNugetPackageReferenceRequest), "db literal");
+            Assert.AreEqual(4, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding nupkg reference with an empty string passed in for database variable(db literal)");
+            nupkgRef = (NugetPackageReference)service.Projects[projectUri].DatabaseReferences.Get(mockPackageName);
+            Assert.AreEqual(mockPackageName, nupkgRef.PackageName, "Referenced nupkg");
+            Assert.AreEqual("NupkgLiteral2", nupkgRef.DatabaseVariableLiteralName, nameof(nupkgRef.DatabaseVariableLiteralName));
+            Assert.IsFalse(nupkgRef.SuppressMissingDependencies, nameof(nupkgRef.SuppressMissingDependencies));
+            Assert.AreEqual(null, nupkgRef.DatabaseVariable, nameof(nupkgRef.DatabaseVariable));
+        }
+
         #endregion
 
         [Test]
@@ -717,9 +816,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             requestMock.AssertSuccess(nameof(service.HandleAddFolderRequest));
             Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after add");
             Assert.IsTrue(Directory.Exists(Path.Join(Path.GetDirectoryName(projectUri), folderParams.Path)), $"Subfolder '{folderParams.Path}' expected to exist on disk");
-            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"SqlObjectScripts expected to contain {folderParams.Path}");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"Folders expected to contain {folderParams.Path}");
 
-            // Validate getting a list of the post-deployment scripts
+            // Validate getting a list of the folders
             MockRequest<GetFoldersResult> getMock = new();
             await service.HandleGetFoldersRequest(new SqlProjectParams()
             {
@@ -730,12 +829,48 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(1, getMock.Result.Folders.Length);
             Assert.AreEqual(folderParams.Path, getMock.Result.Folders[0]);
 
+            // Validate moving a folder
+            requestMock = new();
+            const string parentFolder = "NewParentFolder";
+            MoveFolderParams moveFolderParams = new MoveFolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = folderParams.Path,
+                DestinationPath = $@"{parentFolder}\{folderParams.Path}"
+            };
+
+            await service.HandleMoveFolderRequest(moveFolderParams, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMoveFolderRequest));
+            Assert.AreEqual(2, service.Projects[projectUri].Folders.Count, "Folder count after move");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(parentFolder), $"Folders expected to contain '{parentFolder}' after move");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(moveFolderParams.DestinationPath), $"Folders expected to contain '{moveFolderParams.DestinationPath}' after move");
+
+            // Validate excluding a folder
+            requestMock = new();
+            await service.HandleExcludeFolderRequest(new FolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = moveFolderParams.DestinationPath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleExcludeFolderRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].Folders.Count, "Folder count after exclude");
+            Assert.IsTrue(service.Projects[projectUri].Folders.Contains(parentFolder), $"Folders expected to still contain '{parentFolder}' after exclude");
+            Assert.IsFalse(service.Projects[projectUri].Folders.Contains(moveFolderParams.DestinationPath), $"Folders expected to no longer contain '{moveFolderParams.DestinationPath}' after exclude");
+            Assert.IsTrue(Directory.Exists(Path.Join(service.Projects[projectUri].DirectoryPath, parentFolder, folderParams.Path)), "Folder should still exist on disk after exclude");
+
             // Validate deleting a folder
             requestMock = new();
-            await service.HandleDeleteFolderRequest(folderParams, requestMock.Object);
+            await service.HandleDeleteFolderRequest(new FolderParams()
+            {
+                ProjectUri = projectUri,
+                Path = parentFolder
+            }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteFolderRequest));
             Assert.AreEqual(0, service.Projects[projectUri].Folders.Count, "Folder count after delete");
+            Assert.IsFalse(Directory.Exists(Path.Join(service.Projects[projectUri].DirectoryPath, parentFolder)), "Folder should have been deleted from disk");
         }
 
         [Test]

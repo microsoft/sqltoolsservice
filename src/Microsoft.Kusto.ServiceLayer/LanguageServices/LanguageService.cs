@@ -1011,13 +1011,13 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>
-        internal ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        internal ScriptParseInfo? GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
             lock (this.parseMapLock)
             {
-                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                if (this.ScriptParseInfoMap.TryGetValue(uri, out ScriptParseInfo? scriptParseInfo))
                 {
-                    return this.ScriptParseInfoMap[uri];
+                    return scriptParseInfo;
                 }
                 else if (createIfNotExists)
                 {
@@ -1091,7 +1091,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
 
                     // If there is a single statement on the line, track it so that we can return it regardless of where the user's cursor is
-                    SqlStatement lineStatement = null;
+                    SqlStatement? lineStatement = null;
                     bool? lineHasSingleStatement = null;
 
                     // check if the batch matches parameters
@@ -1125,7 +1125,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                     if (lineHasSingleStatement == true)
                     {
-                        return lineStatement.Sql;
+                        return lineStatement?.Sql ?? string.Empty;
                     }
                 }
             }

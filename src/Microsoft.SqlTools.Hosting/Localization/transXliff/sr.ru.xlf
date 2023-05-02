@@ -62,16 +62,6 @@
         <target state="translated">Не удается создать службу типа {0} с помощью ExtensionLoader&lt;{1}&gt;</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ServiceProviderNotSet">
-        <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="translated">SetServiceProvider() не был вызван для установки требуемого поставщика услуг</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotFound">
-        <source>Service {0} was not found in the service provider</source>
-        <target state="translated">Служба {0} не найдена в поставщике служб</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ServiceNotOfExpectedType">
         <source>Service of Type {0} is not compatible with registered Type {1}</source>
         <target state="translated">Служба типа {0} несовместима с зарегистрированным типом {1}</target>

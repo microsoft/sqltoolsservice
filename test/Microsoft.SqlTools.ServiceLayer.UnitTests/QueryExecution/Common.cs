@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         {
             await service.HandleExecuteRequest(qeParams, requestContext);
             await service.WorkTask;
-            if (service.ActiveQueries.ContainsKey(qeParams.OwnerUri) && service.ActiveQueries[qeParams.OwnerUri].ExecutionTask != null)
+            if (service.ActiveQueries.TryGetValue(qeParams.OwnerUri, out Query? query) && query.ExecutionTask != null)
             {
                 await service.ActiveQueries[qeParams.OwnerUri].ExecutionTask;
             }

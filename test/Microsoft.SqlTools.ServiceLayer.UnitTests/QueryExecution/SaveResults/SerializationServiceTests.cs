@@ -375,11 +375,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             }
             else if (column.DataTypeName == "Int")
             {
-                return Int64.Parse(value.DisplayValue.ToLower());
+                return Int64.Parse(value.DisplayValue.ToLower(System.Globalization.CultureInfo.InvariantCulture));
             }
             else if (column.DataTypeName == "Bit")
             {
-                return Boolean.Parse(value.DisplayValue.ToLower());
+                return Boolean.Parse(value.DisplayValue.ToLower(System.Globalization.CultureInfo.InvariantCulture));
             }
             return value.DisplayValue;
         }

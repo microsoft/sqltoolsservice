@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                m => messages.Add(m),
+                messages.Add,
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(Common.CreateTestConnectionInfo(null, false, false)), CancellationToken.None);
 
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                m => messages.Add(m),
+                messages.Add,
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                m => messages.Add(m),
+                messages.Add,
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                m => messages.Add(m),
+                messages.Add,
                 r => resultSetCalls++);
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                m => messages.Add(m),
+                messages.Add,
                 r => { throw new Exception("ResultSet callback was called when it should not have been."); });
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 
@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(batch,
                 b => batchStartCalls++,
                 b => batchEndCalls++,
-                m => messages.Add(m),
+                messages.Add,
                 r => { throw new Exception("ResultSet callback was called when it should not have been."); });
             await batch.Execute(GetConnection(ci), CancellationToken.None);
 

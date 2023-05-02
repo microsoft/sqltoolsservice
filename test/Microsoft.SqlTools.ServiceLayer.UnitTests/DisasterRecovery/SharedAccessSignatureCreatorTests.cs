@@ -15,7 +15,7 @@ using Azure.Storage.Sas;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DisasterRecovery
 {
-    class SharedAccessSignatureCreatorTests
+    internal sealed class SharedAccessSignatureCreatorTests
     {
         [Test]
         public void GetServiceSasUriForContainerReturnsNullWhenCannotGenerateSasUri()

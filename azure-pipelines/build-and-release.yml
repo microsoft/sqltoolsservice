@@ -1,23 +1,32 @@
 trigger: none
 pr: none
 
+variables:
+  # Major version number for the release
+- name: Major
+  value: '4'
+  # Minor version number for the release (should be incremented post a stable release)
+- name: Minor
+  value: '7'
+  # Patch version number for the release (should be incremented in release branch once one is created)
+- name: Patch
+  value: '0'
+
 stages:
 - stage: Build
   variables:
   - name: buildConfiguration
     value: 'Release'
-    # Major version number for the release
-  - name: Major
+  - name: ManagedBatchParserMajor
     value: '3'
-    # Minor version number for the release (should be incremented post a stable release)
-  - name: Minor
+  - name: ManagedBatchParserMinor
     value: '0'
     # Set to true to build a stable release.
   - name: StableRelease
     value: 'false'
   jobs:
   - job: Build
-    pool: 
+    pool:
       name: 'ads-build-1es-hosted-pool'
       demands:
       - ImageOverride -equals ADS-Windows_Image
@@ -42,7 +51,7 @@ stages:
   dependsOn:
   - Build
   condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
-  pool: 
+  pool:
     name: 'ads-build-1es-hosted-pool'
     demands:
     - ImageOverride -equals ADS-Linux_Image

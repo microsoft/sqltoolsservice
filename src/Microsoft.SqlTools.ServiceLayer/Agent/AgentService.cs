@@ -1100,7 +1100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     }
 
                     const string UrnFormatStr = "Server/JobServer[@Name='{0}']/Job[@Name='{1}']/Schedule[@Name='{2}']";
-                    string serverName = dataContainer.Server.Name.ToUpper();
+                    string serverName = dataContainer.Server.Name.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
                     string scheduleUrn = string.Format(UrnFormatStr, serverName, jobData.Job.Name, schedule.Name);
 
                     STParameters param = new STParameters(dataContainer.Document);
@@ -1132,7 +1132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
             dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-            XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(), jobName);
+            XmlDocument jobDoc = CreateJobXmlDocument(dataContainer.Server.Name.ToUpper(System.Globalization.CultureInfo.InvariantCulture), jobName);
             dataContainer.Init(jobDoc.InnerXml);
 
             STParameters param = new STParameters(dataContainer.Document);
@@ -1487,9 +1487,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 {
                     string jobRuntime = jobHistory.RunDate.ToString("yyyyMMddHHmmss");
                     AgentNotebookHistoryInfo notebookHistory = jobHistory;
-                    if (notebookHistoriesDict.ContainsKey(jobRuntime))
+                    if (notebookHistoriesDict.TryGetValue(jobRuntime, out DataRow dataRow))
                     {
-                        notebookHistory.MaterializedNotebookId = (int)notebookHistoriesDict[jobRuntime]["materialized_id"];
+                        notebookHistory.MaterializedNotebookId = (int)dataRow["materialized_id"];
                         notebookHistory.MaterializedNotebookErrorInfo = notebookHistoriesDict[jobRuntime]["notebook_error"] as string;
                         notebookHistory.MaterializedNotebookName = notebookHistoriesDict[jobRuntime]["notebook_name"] as string;
                         notebookHistory.MaterializedNotebookPin = (bool)notebookHistoriesDict[jobRuntime]["pin"];

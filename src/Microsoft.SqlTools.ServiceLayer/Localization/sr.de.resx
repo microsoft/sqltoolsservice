@@ -1351,13 +1351,13 @@
     <value>Zeile {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden. Literalwert: {2} </value>
+    <value>"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden. Literalwert: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil es sich um ein nicht unterstütztes Datums-/Uhrzeitformat handelt. Verwenden Sie eines der unterstützten Datums-/Uhrzeitformate. Literalwert: {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2} </value>
+    <value>"{0}" kann nicht in ein Microsoft.Data.SqlClient.SqlParameter-Objekt konvertiert werden. Das angegebene Literal kann nicht in {1}(Microsoft.Data.SqlDbType) konvertiert werden, weil für binäre Literale das Präfix 0x erwartet wird. Literalwert: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>Zeile {0}, Spalte {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Vorhersagen</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Wendet ein trainiertes Machine Learning-Modell auf Eingabedaten an.	</value>
+    <value>Wendet ein trainiertes Machine Learning-Modell auf Eingabedaten an.</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Tabellenwertfunktion</value>
@@ -3905,7 +3905,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Ist Hash</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird. </value>
+    <value>Bucketanzahl des Hashindexes. Beachten Sie, dass der Wert immer automatisch auf die nächste Potenz von 2 aufgerundet wird.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Bucketanzahl</value>
@@ -4347,5 +4347,11 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Identität einer beliebigen Anmeldung annehmen</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() wurde nicht aufgerufen, um den erforderlichen Dienstanbieter einzurichten.</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Der Dienst {0} wurde im Dienstanbieter nicht gefunden.</value>
   </data>
 </root>

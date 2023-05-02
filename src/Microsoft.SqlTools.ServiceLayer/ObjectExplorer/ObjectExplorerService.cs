@@ -399,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     {
                         var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
                         builder.InitialCatalog = node.NodeValue;
-                        builder.ApplicationName = TableDesignerService.TableDesignerApplicationName;
+                        builder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(builder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                         // Set Access Token only when authentication mode is not specified.
                         var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
                             ? session.ConnectionInfo.ConnectionDetails.AzureAccountToken : null;
@@ -714,11 +714,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (serviceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
             if (connectionService == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
         }
 
@@ -771,7 +771,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             /// </summary>
             public bool IsSuccessful { get; set; }
             /// <summary>
-            /// The Exception that occurred during execution, if any. 
+            /// The Exception that occurred during execution, if any.
             /// </summary>
             public Exception? Exception { get; set; }
         }

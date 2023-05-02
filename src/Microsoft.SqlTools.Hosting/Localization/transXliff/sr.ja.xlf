@@ -62,16 +62,6 @@
         <target state="translated">ExtensionLoader&lt;{1}&gt; では、種類 {0} のサービスを作成できません</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ServiceProviderNotSet">
-        <source>SetServiceProvider() was not called to establish the required service provider</source>
-        <target state="translated">必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</target>
-        <note></note>
-      </trans-unit>
-      <trans-unit id="ServiceNotFound">
-        <source>Service {0} was not found in the service provider</source>
-        <target state="translated">サービス {0} がサービス プロバイダーに見つかりませんでした</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="ServiceNotOfExpectedType">
         <source>Service of Type {0} is not compatible with registered Type {1}</source>
         <target state="translated">型 {0} のサービスは、登録済みの型 {1} と互換性がありません</target>

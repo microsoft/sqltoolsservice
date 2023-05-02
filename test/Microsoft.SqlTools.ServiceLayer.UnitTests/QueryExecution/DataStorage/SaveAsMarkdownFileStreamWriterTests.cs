@@ -18,10 +18,11 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
-    public class SaveAsMarkdownFileStreamWriterTests
+    public partial class SaveAsMarkdownFileStreamWriterTests
     {
         // Regex: Matches '|' not preceded by a '\'
-        private static readonly Regex UnescapedPipe = new Regex(@"(?<!\\)\|", RegexOptions.Compiled);
+        [GeneratedRegex("(?<!\\\\)\\|", RegexOptions.Compiled)]
+        private static partial Regex GetUnescapedPipeRegex();
 
         [Test]
         public void Constructor_NullStream()
@@ -362,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
         private static void ValidateLine(string line, IEnumerable<string> expectedCells)
         {
-            string[] cells = UnescapedPipe.Split(line);
+            string[] cells = GetUnescapedPipeRegex().Split(line);
             string[] expectedCellsArray = expectedCells as string[] ?? expectedCells.ToArray();
             Assert.That(cells.Length - 2, Is.EqualTo(expectedCellsArray.Length), "Wrong number of cells in output");
 

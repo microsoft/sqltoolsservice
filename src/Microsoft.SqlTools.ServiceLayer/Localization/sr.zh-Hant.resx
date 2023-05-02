@@ -1351,13 +1351,13 @@
     <value>第 {0} 行</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)。常值: {2} </value>
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)。常值: {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為其使用了不支援的日期/時間格式。請使用支援的日期/時間格式。常值: {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為前置的 0x 應為二進位常值。常值: {2} </value>
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為前置的 0x 應為二進位常值。常值: {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>第 {0} 行，第 {1} 欄</value>
@@ -3127,7 +3127,7 @@
     <value>預測</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>將訓練後的機器學習模型套用至輸入資料	</value>
+    <value>將訓練後的機器學習模型套用至輸入資料</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>資料表值函式</value>
@@ -3905,7 +3905,7 @@
     <value>是雜湊</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>雜湊索引的貯體計數，請注意，值一律會自動四捨五入到下一個 2 次方。 </value>
+    <value>雜湊索引的貯體計數，請注意，值一律會自動四捨五入到下一個 2 次方。</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>貯體計數</value>
@@ -4347,5 +4347,11 @@
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>模擬任何登入</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>未呼叫 SetServiceProvider() 來建立必要的服務提供者</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>在服務提供者中找不到服務 {0}</value>
   </data>
 </root>

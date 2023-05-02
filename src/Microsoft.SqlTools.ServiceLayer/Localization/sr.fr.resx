@@ -238,7 +238,7 @@
     <value>Impossible de récupérer le schéma de colonne du jeu de résultats</value>
   </data>
   <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
-    <value>Impossible de récupérer un plan d'exécution du jeu de résultats </value>
+    <value>Impossible de récupérer un plan d'exécution du jeu de résultats</value>
   </data>
   <data name="PeekDefinitionAzureError" xml:space="preserve">
     <value>Cette fonctionnalité n'est actuellement pas prise en charge sur Azure SQL DB et Data Warehouse : {0}</value>
@@ -1210,7 +1210,7 @@
     <value>Type d'exécution inattendu.</value>
   </data>
   <data name="UnknownSizeUnit" xml:space="preserve">
-    <value>Unité de taille inconnue {0} </value>
+    <value>Unité de taille inconnue {0}</value>
   </data>
   <data name="SessionNotFound" xml:space="preserve">
     <value>Session XEvent demandée introuvable</value>
@@ -1258,7 +1258,7 @@
     <value>Jamais</value>
   </data>
   <data name="Error_InvalidDirectoryName" xml:space="preserve">
-    <value>Le chemin {0} n'est pas un répertoire valide </value>
+    <value>Le chemin {0} n'est pas un répertoire valide</value>
   </data>
   <data name="Error_ExistingDirectoryName" xml:space="preserve">
     <value>Pour le répertoire {0}, un fichier nommé {1} existe déjà</value>
@@ -1351,13 +1351,13 @@
     <value>Ligne {0}</value>
   </data>
   <data name="ErrorMessage" xml:space="preserve">
-    <value>Impossible de convertir {0} en objet Microsoft.Data.SqlClient.SqlParameter. Le littéral spécifié ne peut pas être converti en {1}(Microsoft.Data.SqlDbType). Valeur du littéral : {2} </value>
+    <value>Impossible de convertir {0} en objet Microsoft.Data.SqlClient.SqlParameter. Le littéral spécifié ne peut pas être converti en {1}(Microsoft.Data.SqlDbType). Valeur du littéral : {2}</value>
   </data>
   <data name="DateTimeErrorMessage" xml:space="preserve">
     <value>Impossible de convertir {0} en objet Microsoft.Data.SqlClient.SqlParameter. Le littéral spécifié ne peut pas être converti en {1}(Microsoft.Data.SqlDbType), car il utilise un format date/heure non pris en charge. Utilisez l'un des formats date/heure pris en charge. Valeur du littéral : {2}</value>
   </data>
   <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
-    <value>Impossible de convertir {0} en objet Microsoft.Data.SqlClient.SqlParameter. Le littéral spécifié ne peut pas être converti en {1}(Microsoft.Data.SqlDbType), car un préfixe 0x est attendu pour un littéral binaire. Valeur du littéral : {2} </value>
+    <value>Impossible de convertir {0} en objet Microsoft.Data.SqlClient.SqlParameter. Le littéral spécifié ne peut pas être converti en {1}(Microsoft.Data.SqlDbType), car un préfixe 0x est attendu pour un littéral binaire. Valeur du littéral : {2}</value>
   </data>
   <data name="ParsingErrorHeader" xml:space="preserve">
     <value>Ligne {0}, colonne {1}</value>
@@ -3127,7 +3127,7 @@
     <value>Prédire</value>
   </data>
   <data name="TFPDescription" xml:space="preserve">
-    <value>Applique aux données d'entrée un modèle Machine Learning entraîné	</value>
+    <value>Applique aux données d'entrée un modèle Machine Learning entraîné</value>
   </data>
   <data name="TableValueFunction" xml:space="preserve">
     <value>Table Valued Function</value>
@@ -3905,7 +3905,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Est un code de hachage</value>
   </data>
   <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
-    <value>Nombre de compartiments de l’index de hachage, notez que la valeur arrondit toujours automatiquement jusqu’à la puissance suivante de 2. </value>
+    <value>Nombre de compartiments de l’index de hachage, notez que la valeur arrondit toujours automatiquement jusqu’à la puissance suivante de 2.</value>
   </data>
   <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
     <value>Nombre de compartiments</value>
@@ -4347,5 +4347,11 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Emprunter l'identité d'une connexion</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>SetServiceProvider() n’a pas été appelé pour établir le fournisseur de services requis</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>Service {0} introuvable dans le fournisseur de services</value>
   </data>
 </root>

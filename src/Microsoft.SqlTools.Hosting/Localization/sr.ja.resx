@@ -153,12 +153,6 @@
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>ExtensionLoader&lt;{1}&gt; では、種類 {0} のサービスを作成できません</value>
   </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</value>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>サービス {0} がサービス プロバイダーに見つかりませんでした</value>
-  </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">
     <value>型 {0} のサービスは、登録済みの型 {1} と互換性がありません</value>
   </data>

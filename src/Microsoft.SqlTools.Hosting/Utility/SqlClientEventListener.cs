@@ -10,10 +10,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
 
     /// <summary>
-    /// This listener class will listen for events from the SqlClientEventSource class 
+    /// This listener class will listen for events from the SqlClientEventSource class
     /// and forward them to the logger.
     /// </summary>
-    internal class SqlClientListener : EventListener
+    public class SqlClientListener : EventListener
     {
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
