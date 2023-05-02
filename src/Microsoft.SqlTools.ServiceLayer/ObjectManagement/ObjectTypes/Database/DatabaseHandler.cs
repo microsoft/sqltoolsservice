@@ -6,7 +6,6 @@
 #nullable disable
 using System;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
@@ -103,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.ConnectionService.TryFindConnection(requestParams.ContextId, out connInfo);
 
             // create a default user data context and database object
-            CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, requestParams.Database, ConfigAction.Create);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             var azurePrototype = prototype as DatabasePrototypeAzure;
             bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
@@ -174,31 +173,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context };
         }
 
-        private CDataContainer CreateDatabaseDataContainer(ConnectionInfo connInfo, string databaseName, ConfigAction configAction)
-        {
-            var serverConnection = ConnectionService.OpenServerConnection(connInfo, "DataContainer");
-            var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
-            connectionInfoWithConnection.ServerConnection = serverConnection;
-
-            string urn = (configAction == ConfigAction.Update && databaseName != null)
-                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(databaseName))
-                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server");
-
-            ActionContext context = new ActionContext(serverConnection, "Database", urn);
-            DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
-
-            if (configAction == ConfigAction.Create)
-            {
-                containerXml.AddProperty("itemtype", "Database");
-            }
-
-            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
-            return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
-        }
-
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
             ConfigureDatabase(
@@ -233,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Invalid connection URI '{0}'", ownerUri);
             }
 
-            CDataContainer dataContainer = CreateDatabaseDataContainer(connInfo, database.Name, configAction);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: configAction != ConfigAction.Create);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
             if (database.Owner != null)
