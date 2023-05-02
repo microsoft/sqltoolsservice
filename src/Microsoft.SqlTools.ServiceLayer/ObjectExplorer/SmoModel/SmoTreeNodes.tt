@@ -306,8 +306,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 														WriteLine("        		FilterProperties = new NodeFilterProperty[]");
 														WriteLine("        		{");
 														foreach (var filterDef in filterProperties)
-														{
+														{		
 																var filterName = filterDef.GetAttribute("Name");
+																var filterDisplayName = filterDef.GetAttribute("LocLabel");
 																var filterType = filterDef.GetAttribute("Type");
 																var enumString = "NodeFilterPropertyDataType";
 																switch (filterType)
@@ -328,7 +329,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 																var filterDescription = filterDef.GetAttribute("Description");
 																WriteLine("					new NodeFilterProperty");
 																WriteLine("					{");
-																WriteLine("						DisplayName = \"{0}\",", filterName);
+																WriteLine("						Name = \"{0}\",", filterName);
+																WriteLine("						DisplayName = {0},", filterDisplayName);
 																WriteLine("						Type = {0},", enumString);
 																WriteLine("						Description = {0},", filterDescription);
 																if(filterType == "choice")

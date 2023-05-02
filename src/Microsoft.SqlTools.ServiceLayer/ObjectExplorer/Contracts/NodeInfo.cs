@@ -72,12 +72,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// The object type of the node. e.g. Database, Server, Tables...
         /// </summary>
         public string ObjectType { get; set; }
-
+        /// <summary>
+        /// Filterable properties that this node supports
+        /// </summary>
         public NodeFilterProperty[] FilterableProperties { get; set; }
     }
 
     public class NodeFilterProperty 
     {
+        public string Name { get; set; }
         public string DisplayName { get; set; }
         public string Description { get; set; }
         public NodeFilterPropertyDataType Type { get; set; }
@@ -112,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /**
 		 * The name of the filter property
 		 */
-        public string Name { get; set; }
+        public string DisplayName { get; set; }
 		/**
 		 * The operator of the filter property
 		 */

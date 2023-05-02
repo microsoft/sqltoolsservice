@@ -182,19 +182,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         		{
 					new NodeFilterProperty
 					{
-						DisplayName = "Name",
+						Name = "Name",
+						DisplayName = SR.FilterName,
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterNameDescription,
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "Owner",
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "CreateDate",
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
 						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
 					},
@@ -788,25 +791,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             		{
     					new NodeFilterProperty
     					{
-    						DisplayName = "Name",
+    						Name = "Name",
+    						DisplayName = SR.FilterName,
     						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterNameDescription,
     					},
     					new NodeFilterProperty
     					{
-    						DisplayName = "Schema",
+    						Name = "Schema",
+    						DisplayName = SR.FilterSchema,
     						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterSchemaDescription,
     					},
     					new NodeFilterProperty
     					{
-    						DisplayName = "Owner",
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
     						Type = NodeFilterPropertyDataType.String,
     						Description = SR.FilterOwnerDescription,
     					},
     					new NodeFilterProperty
     					{
-    						DisplayName = "DurabilityType",
+    						Name = "DurabilityType",
+    						DisplayName = SR.FilterDurabilityType,
     						Type = NodeFilterPropertyDataType.Choice,
     						Description = SR.FilterDurabilityTypeDescription,
     						Choices = new string[] {
@@ -816,13 +823,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     					},
     					new NodeFilterProperty
     					{
-    						DisplayName = "IsMemoryOptimized",
+    						Name = "IsMemoryOptimized",
+    						DisplayName = SR.FilterIsMemoryOptimized,
     						Type = NodeFilterPropertyDataType.Boolean,
     						Description = SR.FilterIsMemoryOptimizedDescription,
     					},
     					new NodeFilterProperty
     					{
-    						DisplayName = "CreateDate",
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
     						Type = NodeFilterPropertyDataType.Date,
     						Description = SR.FilterCreateDateDescription,
     					},
@@ -1021,25 +1030,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         		{
 					new NodeFilterProperty
 					{
-						DisplayName = "Name",
+						Name = "Name",
+						DisplayName = SR.FilterName,
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterNameDescription,
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "Schema",
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterSchemaDescription,
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "Owner",
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
 						Type = NodeFilterPropertyDataType.String,
 						Description = SR.FilterOwnerDescription,
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "DurabilityType",
+						Name = "DurabilityType",
+						DisplayName = SR.FilterDurabilityType,
 						Type = NodeFilterPropertyDataType.Choice,
 						Description = SR.FilterDurabilityTypeDescription,
 						Choices = new string[] {
@@ -1049,13 +1062,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "IsMemoryOptimized",
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
 						Type = NodeFilterPropertyDataType.Boolean,
 						Description = SR.FilterIsMemoryOptimizedDescription,
 					},
 					new NodeFilterProperty
 					{
-						DisplayName = "CreateDate",
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
 						Type = NodeFilterPropertyDataType.Date,
 						Description = SR.FilterCreateDateDescription,
 					},

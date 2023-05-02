@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 foreach (var f in appliedFilters)
                 {
-                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.DisplayName == f.Name);
+                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.DisplayName == f.DisplayName);
                     Type type = typeof(string);
 
                     var IsDateTime = filterProperty.Type == NodeFilterPropertyDataType.Date;
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
                     filters.Add(new NodePropertyFilter
                     {
-                        Property = f.Name,
+                        Property = filterProperty.Name,
                         Type = type,
                         Values = new List<object> { filterValue },
                         IsNotFilter = isNotFilter,
