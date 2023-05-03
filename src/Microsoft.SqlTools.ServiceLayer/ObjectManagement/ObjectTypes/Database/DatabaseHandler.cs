@@ -76,33 +76,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
-            // check input parameters
-            if (string.IsNullOrWhiteSpace(requestParams.Database))
-            {
-                throw new ArgumentNullException("requestParams.Database");
-            }
-
-            // open a connection for running the user dialog and associated task
+            // open a connection for running the database dialog and associated task
             ConnectionInfo originalConnInfo;
             this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out originalConnInfo);
             if (originalConnInfo == null)
             {
                 throw new ArgumentException("Invalid connection URI '{0}'", requestParams.ConnectionUri);
             }
-            string originalDatabaseName = originalConnInfo.ConnectionDetails.DatabaseName;
-            originalConnInfo.ConnectionDetails.DatabaseName = requestParams.Database;
 
             // create a default data context and database object
-            CDataContainer dataContainer;
-            try
-            {
-                ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
-                dataContainer = CreateDatabaseDataContainer(serverConnection, null, ConfigAction.Create, requestParams.Database);
-            }
-            finally
-            {
-                originalConnInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
-            }
+            ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
+            CDataContainer dataContainer = CreateDatabaseDataContainer(serverConnection, null, ConfigAction.Create, requestParams.Database);
 
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             var azurePrototype = prototype as DatabasePrototypeAzure;
@@ -204,8 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     "Server/Database[@Name='{0}']",
                     Urn.EscapeString(databaseName))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(databaseName));
+                    "Server/Database");
 
             ActionContext context = new ActionContext(serverConnection, "Database", urn);
             DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
