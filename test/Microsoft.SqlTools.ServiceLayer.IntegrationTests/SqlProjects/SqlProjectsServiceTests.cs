@@ -1031,7 +1031,41 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             }, setMock.Object);
 
             setMock.AssertSuccess(nameof(service.HandleSetDatabaseSchemaProviderRequest));
-            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider", service.Projects[projectUri].DatabaseSchemaProvider);
+            Assert.AreEqual("Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider", service.Projects[projectUri].Properties.DatabaseSchemaProvider);
+        }
+
+        [Test]
+        public async Task TestLoadOnlyProperties()
+        {
+            // Verify new project results in full-load
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially created.");
+
+            // Verify metadata calls only load properties
+            service.Projects.Clear();
+            SqlProjectParams projParams = new SqlProjectParams() { ProjectUri = projectUri };
+            await service.HandleGetProjectPropertiesRequest(projParams, new MockRequest<GetProjectPropertiesResult>().Object);
+            await service.HandleGetSqlCmdVariablesRequest(projParams, new MockRequest<GetSqlCmdVariablesResult>().Object);
+            await service.HandleGetDatabaseReferencesRequest(projParams, new MockRequest<GetDatabaseReferencesResult>().Object);
+
+            Assert.IsTrue(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be partially-loaded after only property/metadata actions");
+
+            // Verify file call on already-opened project results in full-load
+            MockRequest<GetScriptsResult> scriptsMock = new();
+            await service.HandleGetSqlObjectScriptsRequest(projParams, scriptsMock.Object);
+
+            scriptsMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
+            Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded after getting a list of files");
+
+            // Verify file call on unopened project results in full-load
+            service.Projects.Clear();
+            scriptsMock = new();
+            await service.HandleGetPreDeploymentScriptsRequest(projParams, scriptsMock.Object);
+
+            scriptsMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
+            Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially opened for a list of files");
+
         }
 
         #region Helpers
