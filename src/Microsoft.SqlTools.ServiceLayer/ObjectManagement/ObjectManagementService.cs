@@ -11,6 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -63,6 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(SaveObjectRequest.Type, HandleSaveObjectRequest, true);
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
+            this.serviceHost.SetRequestHandler(SearchRequest.Type, HandleSearchRequest, true);
         }
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
@@ -84,6 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             var result = await handler.InitializeObjectView(requestParams);
             contextMap[requestParams.ContextId] = result.Context;
+            await HandleSearchRequest(new SearchRequestParams { ContextId = requestParams.ContextId }, null);
             await requestContext.SendResult(result.ViewInfo);
         }
 
@@ -113,6 +116,61 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 context.Dispose();
             }
             await requestContext.SendResult(new DisposeViewRequestResponse());
+        }
+
+        internal async Task HandleSearchRequest(SearchRequestParams requestParams, RequestContext<SearchResultItem[]> requestContext)
+        {
+            var context = this.GetContext(requestParams.ContextId);
+            ConnectionInfo connInfo;
+            ConnectionService.Instance.TryFindConnection(context.Parameters.ConnectionUri, out connInfo);
+            if (connInfo == null)
+            {
+                throw new ArgumentException("Invalid ConnectionUri");
+            }
+
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+            List<SearchResultItem> res = new List<SearchResultItem>();
+
+            foreach (SqlObjectType type in requestParams.ObjectTypes)
+            {
+                SearchableObjectCollection result = new SearchableObjectCollection();
+                SearchableObject.Search(result, ConvertSqlObjectTypeToSearchableObjectType(type), dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
+                foreach (SearchableObject obj in result)
+                {
+                    res.Add(new SearchResultItem
+                    {
+                        Name = obj.Name,
+                        Type = type
+                    });
+                }
+            }
+            await requestContext.SendResult(res.ToArray());
+        }
+
+        private SearchableObjectType ConvertSqlObjectTypeToSearchableObjectType(SqlObjectType nodeType)
+        {
+            switch (nodeType)
+            {
+                case SqlObjectType.ApplicationRole:
+                    return SearchableObjectType.ApplicationRole;
+                case SqlObjectType.Credential:
+                    return SearchableObjectType.Credential;
+                case SqlObjectType.DatabaseRole:
+                    return SearchableObjectType.DatabaseRole;
+                case SqlObjectType.ServerLevelLogin:
+                    return SearchableObjectType.Login;
+                case SqlObjectType.ServerRole:
+                    return SearchableObjectType.ServerRole;
+                case SqlObjectType.Table:
+                    return SearchableObjectType.Table;
+                case SqlObjectType.User:
+                    return SearchableObjectType.User;
+                case SqlObjectType.View:
+                    return SearchableObjectType.View;
+                default:
+                    return SearchableObjectType.LastType;
+            }
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)
