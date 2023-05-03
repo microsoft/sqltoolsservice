@@ -187,12 +187,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
             connectionInfoWithConnection.ServerConnection = serverConnection;
 
-            string urn = (configAction == ConfigAction.Update && database != null)
+            string urn = (database != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
+                    "Server[@Name='{0}']/Database[@Name='{1}']",
+                    Urn.EscapeString(serverConnection.ServerInstance),
                     Urn.EscapeString(databaseName))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server");
+                    "Server[@Name='{0}']",
+                    Urn.EscapeString(serverConnection.ServerInstance));
 
             ActionContext context = new ActionContext(serverConnection, "Database", urn);
             DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
