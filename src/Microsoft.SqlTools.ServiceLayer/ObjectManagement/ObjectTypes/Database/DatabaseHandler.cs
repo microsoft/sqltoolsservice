@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     "Server/Database[@Name='{0}']",
                     Urn.EscapeString(databaseName))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database");
+                    "Server");
 
             ActionContext context = new ActionContext(serverConnection, "Database", urn);
             DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
