@@ -9,7 +9,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabaseViewInfo : SqlObjectViewInfo
     {
-        public string[] DatabaseNames { get; set; }
         public string[] LoginNames { get; set; }
         public string[] CollationNames { get; set; }
         public string[] CompatibilityLevels { get; set; }

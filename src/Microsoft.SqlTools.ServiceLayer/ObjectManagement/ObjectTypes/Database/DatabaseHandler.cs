@@ -139,13 +139,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 databaseViewInfo.ContainmentTypes = PopulateContainmentTypeDropdown(dataContainer, prototype);
             }
 
-            var databases = new List<string>();
-            foreach (Database database in dataContainer.Server.Databases)
-            {
-                databases.Add(database.Name);
-            }
-            databaseViewInfo.DatabaseNames = databases.ToArray();
-
             // Skip adding logins for the Owner field if running against an Azure SQL DB
             if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
             {
