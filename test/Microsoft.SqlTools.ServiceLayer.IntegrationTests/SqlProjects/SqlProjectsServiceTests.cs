@@ -1065,7 +1065,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             scriptsMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially opened for a list of files");
-
         }
 
         #region Helpers
