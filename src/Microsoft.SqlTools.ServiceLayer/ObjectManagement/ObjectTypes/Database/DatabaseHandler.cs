@@ -146,13 +146,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             databaseViewInfo.DatabaseNames = databases.ToArray();
 
-            var logins = new List<string>();
-            logins.Add(DefaultValue);
-            foreach (Login login in dataContainer.Server.Logins)
+            // Skip adding logins for the Owner field if running against an Azure SQL DB
+            if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
             {
-                logins.Add(login.Name);
+                var logins = new List<string>();
+                logins.Add(DefaultValue);
+                foreach (Login login in dataContainer.Server.Logins)
+                {
+                    logins.Add(login.Name);
+                }
+                databaseViewInfo.LoginNames = logins.ToArray();
             }
-            databaseViewInfo.LoginNames = logins.ToArray();
 
             var context = new DatabaseViewContext(requestParams, dataContainer.ServerConnection);
             return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
