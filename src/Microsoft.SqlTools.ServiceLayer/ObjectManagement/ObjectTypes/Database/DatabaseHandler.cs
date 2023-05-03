@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private const int minimumVersionForWritableCollation = 8;
         private const int minimumVersionForRecoveryModel = 8;
         private readonly ResourceManager resourceManager;
+        private const string DefaultValue = "<default>";
 
         /// <summary>
         /// Set of valid compatibility levels and their display strings
@@ -162,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             databaseViewInfo.DatabaseNames = databases.ToArray();
 
             var logins = new List<string>();
-            logins.Add("<default>");
+            logins.Add(DefaultValue);
             foreach (Login login in dataContainer.Server.Logins)
             {
                 logins.Add(login.Name);
@@ -210,11 +211,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: configAction != ConfigAction.Create);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
-            if (database.Owner != null)
+            if (database.Owner != null && database.Owner != DefaultValue)
             {
                 prototype.Owner = database.Owner;
             }
-            if (database.CollationName != null)
+            if (database.CollationName != null && database.CollationName != DefaultValue)
             {
                 prototype.Collation = database.CollationName;
             }
@@ -276,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
             if (dataContainer.IsNewObject || isSphinxServer)
             {
-                collationItems.Add("<default>");
+                collationItems.Add(DefaultValue);
             }
 
             // if the server is shiloh or later, add specific collations to the dropdown
