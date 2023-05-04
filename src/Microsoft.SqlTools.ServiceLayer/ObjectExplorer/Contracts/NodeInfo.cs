@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public NodeFilterProperty[] FilterableProperties { get; set; }
     }
 
-    public class NodeFilterProperty 
+    public class NodeFilterProperty
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
@@ -87,40 +87,46 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public string[] Choices { get; set; }
     }
 
+    /// <summary>
+    /// The data type of the filter property. Enum in ads: https://github.com/microsoft/azuredatastudio/blob/9c68043137f58c182eec9925c025fd48747e6ccc/src/sql/azdata.proposed.d.ts#L1847-L1853
+    /// </summary>
     public enum NodeFilterPropertyDataType
     {
         String = 0,
-		Number = 1,
-		Boolean = 2,
-		Date = 3,
-		Choice = 4
+        Number = 1,
+        Boolean = 2,
+        Date = 3,
+        Choice = 4
     }
 
+    /// <summary>
+    /// The operator of the filter property. Enum in ads: https://github.com/microsoft/azuredatastudio/blob/9c68043137f58c182eec9925c025fd48747e6ccc/src/sql/azdata.proposed.d.ts#L1855-L1868
+    /// </summary>
     public enum NodeFilterOperator
     {
         Equals = 0,
-		NotEquals = 1,
-		LessThan = 2,
-		LessThanOrEquals = 3,
-		GreaterThan = 4,
-		GreaterThanOrEquals = 5,
-		Between = 6,
-		NotBetween = 7,
-		Contains = 8,
-		NotContains = 9,
+        NotEquals = 1,
+        LessThan = 2,
+        LessThanOrEquals = 3,
+        GreaterThan = 4,
+        GreaterThanOrEquals = 5,
+        Between = 6,
+        NotBetween = 7,
+        Contains = 8,
+        NotContains = 9,
     }
 
     public class NodeFilter
-    {		
+    {
         /**
 		 * The name of the filter property
 		 */
         public string DisplayName { get; set; }
-		/**
+        /**
 		 * The operator of the filter property
 		 */
         public NodeFilterOperator Operator { get; set; }
-		/**
+        /**
 		 * The applied values of the filter property
 		 */
         public JToken Value { get; set; }
