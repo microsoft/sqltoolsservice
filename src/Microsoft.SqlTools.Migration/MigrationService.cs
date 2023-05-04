@@ -114,6 +114,7 @@ namespace Microsoft.SqlTools.Migration
             this.ServiceHost.SetRequestHandler(EstablishUserMappingRequest.Type, HandleEstablishUserMapping, true);
             this.ServiceHost.SetRequestHandler(MigrateServerRolesAndSetPermissionsRequest.Type, HandleMigrateServerRolesAndSetPermissions, true);
             this.ServiceHost.SetRequestHandler(CertificateMigrationRequest.Type, HandleTdeCertificateMigrationRequest);
+            this.ServiceHost.SetEventHandler(RunQueryEvent.Type, HandleRunQueryEvent, false);
             Logger.Verbose("Migration Service initialized");
         }
 
@@ -976,6 +977,32 @@ namespace Microsoft.SqlTools.Migration
 
             await requestContext.SendResult(result);
         }
+        /// <summary>
+        /// Handle request to start a migration session
+        /// </summary>
+        internal async Task HandleRunQueryEvent(
+            RunQueryParams parameters,
+            EventContext eventContext)
+        {
+            try
+            {
+                if (parameters.Databases != null && parameters.Databases.Length != 0)
+                {
+                    foreach (string database in parameters.Databases)
+                    {
+                        ExecuteQueryAndSendEventAsync(eventContext, database, parameters);
+                    }
+                }
+                else {
+                    ExecuteQueryAndSendEventAsync(eventContext, null, parameters);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                await eventContext.SendEvent(RunQueryErrorEvent.Type, new RunQueryError{error = e.Message});
+            }
+        }
 
         /// <summary>
         /// Individual certificate migration operation
@@ -1012,6 +1039,72 @@ namespace Microsoft.SqlTools.Migration
             return new DefaultLoginsMigrationLogger();
         }
 
+        private async Task ExecuteQueryAndSendEventAsync(EventContext eventContext, string databaseName, RunQueryParams parameters)
+        {
+            try 
+            {
+                string query;
+                IQueryResult queryResult = GetQueryInfoBasedOnType(parameters.queryResultType, databaseName, out query);
+                SqlConnectionStringBuilder connStringBuilder = new SqlConnectionStringBuilder(parameters.ConnectionString);
+                // Utilize connection pooling if enabled on connection string and target is not azure sql db
+                if (!parameters.isAzureSqlDb) {
+                    query = "USE [" + databaseName.Replace("]","]]") + "]\n" + query;
+                }
+                else {
+                    connStringBuilder.InitialCatalog = databaseName;
+                }
+                queryResult.isAzureSqlDb = parameters.isAzureSqlDb;
+                using (SqlConnection connection = new SqlConnection(connStringBuilder.ConnectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    await connection.OpenAsync();
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        await queryResult.ReadQueryResultAsync(reader);
+                    }
+                }
+                await eventContext.SendEvent<IQueryResult>(RunQueryResultEvent.Type, queryResult);
+            }
+            catch (SqlException e)
+            {
+                Logger.Error(e);
+                await eventContext.SendEvent(RunQueryErrorEvent.Type, new RunQueryError{ databaseName = databaseName, error = e.Message, isAzureSqlDb = parameters.isAzureSqlDb});
+            }
+            
+        }
+
+        /// <summary>
+        /// Decide query and result type based on input
+        /// </summary>
+        private IQueryResult GetQueryInfoBasedOnType(QueryResultType queryResultType, string databaseName, out string query)
+        {
+            IQueryResult resultObject;
+            switch (queryResultType){
+                case QueryResultType.DatabaseTableInfo:
+                    query = MigrationSqlQueries.queryDatabaseTableInfo;
+                    resultObject = new DatabaseTableInfoDatabaseResult();
+                    break;
+                default:
+                    throw new Exception(message: "Invalid query result type");
+            }
+            resultObject.databaseName = databaseName;
+            return resultObject;
+        }
+
+                /// <summary>
+        /// Decide class to store query result in based on input
+        /// </summary>
+        private async Task SendQueryResultBasedOnType(EventContext eventContext, IQueryResult queryResult, QueryResultType queryResultType)
+        {
+            switch (queryResultType){
+                case QueryResultType.DatabaseTableInfo:
+                    await eventContext.SendEvent<DatabaseTableInfoDatabaseResult>(RunQueryDatabaseTableInfoResultEvent.Type, (DatabaseTableInfoDatabaseResult)queryResult);
+                    break;
+                default:
+                    throw new Exception(message: "Invalid query result type");
+            }
+        }
+        
         /// <summary>
         /// Disposes the Migration Service
         /// </summary>
