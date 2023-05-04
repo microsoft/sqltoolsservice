@@ -10,23 +10,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabaseViewContext : SqlObjectViewContext
     {
-        public DatabaseViewContext(InitializeViewRequestParams parameters, ServerConnection connection) : base(parameters)
+        public DatabaseViewContext(InitializeViewRequestParams parameters) : base(parameters)
         {
-            this.Connection = connection;
         }
-
-        public ServerConnection Connection { get; }
 
         public override void Dispose()
         {
-            try
-            {
-                this.Connection.Disconnect();
-            }
-            catch
-            {
-                // ignore
-            }
         }
     }
 }
