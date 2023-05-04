@@ -86,7 +86,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             var result = await handler.InitializeObjectView(requestParams);
             contextMap[requestParams.ContextId] = result.Context;
-            await HandleSearchRequest(new SearchRequestParams { ContextId = requestParams.ContextId }, null);
             await requestContext.SendResult(result.ViewInfo);
         }
 
