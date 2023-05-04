@@ -19,7 +19,6 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using System.Resources;
 using System.Globalization;
-using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -86,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // create a default data context and database object
             ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
-            CDataContainer dataContainer = CreateDatabaseDataContainer(serverConnection, null, ConfigAction.Create, requestParams.Database);
+            CDataContainer dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, null, ConfigAction.Create, requestParams.Database);
 
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             var azurePrototype = prototype as DatabasePrototypeAzure;
@@ -158,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
             ConfigureDatabase(
-                context.Connection,
+                context.Parameters.ConnectionUri,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow);
@@ -168,47 +167,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
             var script = ConfigureDatabase(
-                context.Connection,
+                context.Parameters.ConnectionUri,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.ScriptToWindow);
             return Task.FromResult(script);
         }
 
-        private CDataContainer CreateDatabaseDataContainer(ServerConnection serverConnection, DatabaseInfo database, ConfigAction configAction, string databaseName)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, DatabaseInfo database, ConfigAction configAction, string databaseName)
         {
-            var connectionInfoWithConnection = new SqlConnectionInfoWithConnection();
-            connectionInfoWithConnection.ServerConnection = serverConnection;
-
-            string urn = (database != null)
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true);
+            string objectUrn = (configAction == ConfigAction.Update && database != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server[@Name='{0}']/Database[@Name='{1}']",
-                    Urn.EscapeString(serverConnection.ServerInstance),
+                    "Server/Database[@Name='{0}']",
                     Urn.EscapeString(databaseName))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server[@Name='{0}']",
-                    Urn.EscapeString(serverConnection.ServerInstance));
-
-            ActionContext context = new ActionContext(serverConnection, "Database", urn);
-            DataContainerXmlGenerator containerXml = new DataContainerXmlGenerator(context);
-
-            if (configAction == ConfigAction.Create)
-            {
-                containerXml.AddProperty("itemtype", "Database");
-            }
-
-            XmlDocument xmlDoc = containerXml.GenerateXmlDocument();
-            return CDataContainer.CreateDataContainer(connectionInfoWithConnection, xmlDoc);
+                    Urn.EscapeString(dataContainer.ServerName));
+            dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
+            return dataContainer;
         }
 
-        private string ConfigureDatabase(ServerConnection serverConnection, DatabaseInfo database, ConfigAction configAction, RunType runType)
+        private string ConfigureDatabase(string connectionUri, DatabaseInfo database, ConfigAction configAction, RunType runType)
         {
             if (database.Name == null)
             {
                 throw new ArgumentException("Database name not provided");
             }
 
-            CDataContainer dataContainer = CreateDatabaseDataContainer(serverConnection, database, configAction, database.Name);
+            CDataContainer dataContainer = CreateDatabaseDataContainer(connectionUri, database, configAction, database.Name);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
             if (database.Owner != null && database.Owner != DefaultValue)
