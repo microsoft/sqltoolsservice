@@ -23,7 +23,7 @@ using System.Xml;
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
-    /// Login object type handler
+    /// Database object type handler
     /// </summary>
     public class DatabaseHandler : ObjectTypeHandler<DatabaseInfo, DatabaseViewContext>
     {
