@@ -209,6 +209,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CreateDatabaseDataContainer(serverConnection, database, configAction, database.Name);
+            dataContainer.ObjectName = database.Name;
+            dataContainer.SqlDialogSubject = dataContainer.Server;
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
             if (database.Owner != null && database.Owner != DefaultValue)
