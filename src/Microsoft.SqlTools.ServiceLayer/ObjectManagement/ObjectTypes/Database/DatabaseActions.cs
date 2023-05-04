@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         /// <summary>
         /// Handle Database create and update actions
-        /// </summary>        
+        /// </summary>
         public DatabaseActions(CDataContainer dataContainer, ConfigAction configAction, DatabasePrototype prototype)
         {
             this.DataContainer = dataContainer;
