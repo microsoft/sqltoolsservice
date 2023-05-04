@@ -55,12 +55,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, NodeFilter[] filters = null)
+        protected override void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, NodeFilter[]? filters = null)
         {
             var smoQueryContext = this.GetContextAs<SmoQueryContext>();
             if (IsAccessible(smoQueryContext))
             {
-                base.PopulateChildren(refresh, name, cancellationToken, accessToken);
+                base.PopulateChildren(refresh, name, cancellationToken, accessToken, filters);
             }
             else
             {
