@@ -6,7 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
-    /// a class for storing various login properties
+    /// A class for storing various properties needed for Saving & Scripting a database
     /// </summary>
     public class DatabaseInfo : SqlObject
     {

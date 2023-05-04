@@ -7,6 +7,9 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
+    /// <summary>
+    /// A class for storing various properties needed for initializing New Database dialog
+    /// </summary>
     public class DatabaseViewInfo : SqlObjectViewInfo
     {
         public string[] LoginNames { get; set; }
