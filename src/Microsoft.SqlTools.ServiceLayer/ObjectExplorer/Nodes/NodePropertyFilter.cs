@@ -136,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                             break;
                     }
                 }
-                else if (InNumericType(Type))
+                else if (IsNumericType(Type))
                 {
                     int val = (int)value;
                     switch (FilterType)
@@ -233,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return string.Empty;
         }
 
-        public static bool InNumericType(Type type)
+        public static bool IsNumericType(Type type)
         {
             switch (Type.GetTypeCode(type))
             {
