@@ -101,7 +101,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     }
 
     /// <summary>
-    /// The operator of the filter property. Enum in ads: https://github.com/microsoft/azuredatastudio/blob/9c68043137f58c182eec9925c025fd48747e6ccc/src/sql/azdata.proposed.d.ts#L1855-L1868
+    /// The operator of the filter property. Matches NodeFilterOperator  enum in ADS: https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.proposed.d.ts#L1855-L1868
+
     /// </summary>
     public enum NodeFilterOperator
     {
