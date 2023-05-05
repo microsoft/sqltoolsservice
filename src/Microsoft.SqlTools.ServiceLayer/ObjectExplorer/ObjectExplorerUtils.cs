@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             var IsDateTime = filterProperty.Type == NodeFilterPropertyDataType.Date;
 
             FilterType filterType = FilterType.EQUALS;
-            Boolean isNotFilter = false;
+            bool isNotFilter = false;
 
             object filterValue = null;
 
