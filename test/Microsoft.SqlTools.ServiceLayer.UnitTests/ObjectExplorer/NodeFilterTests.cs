@@ -376,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = true
                 }
             };
-            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid date value");
+            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for creating a date sfc filter with invalid date");
 
             // Testing date filter with invalid date for between operator
             filterList = new List<NodePropertyFilter>
@@ -391,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = true
                 }
             };
-            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid date value for between operator");
+            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown when value array contains invalid date value for between operator");
             filterList = new List<NodePropertyFilter>
             {
                 new NodePropertyFilter()
@@ -404,7 +404,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = true
                 }
             };
-            Assert.Throws<InvalidCastException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid date value for between operator");
+            Assert.Throws<InvalidCastException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown when only one date value is provided for between operator");
             filterList = new List<NodePropertyFilter>
             {
                 new NodePropertyFilter()
@@ -417,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = true
                 }
             };
-            Assert.Throws<IndexOutOfRangeException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid date value for between operator");
+            Assert.Throws<IndexOutOfRangeException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown when only one value is provided in date array for between operator");
         }
 
         [Test]
@@ -567,7 +567,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = false
                 }
             };
-            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid numeric value");
+            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for creating a numeric sfc filter with invalid number");
 
             // Testing numeric filter with invalid value for between operator
             filterList = new List<NodePropertyFilter>
@@ -582,7 +582,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = false
                 }
             };
-            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid numeric value for between operator");
+            Assert.Throws<FormatException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for creating a numberic sfc filter with invalid array for between operator");
             filterList = new List<NodePropertyFilter>
             {
                 new NodePropertyFilter()
@@ -595,7 +595,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = false
                 }
             };
-            Assert.Throws<InvalidCastException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid numeric value for between operator");
+            Assert.Throws<InvalidCastException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown when a single value is passed for between operator");
              filterList = new List<NodePropertyFilter>
             {
                 new NodePropertyFilter()
@@ -608,7 +608,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     IsDateTime = false
                 }
             };
-            Assert.Throws<IndexOutOfRangeException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown for invalid numeric value for between operator");
+            Assert.Throws<IndexOutOfRangeException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown when the array contains single value for between operator");
         }
     }
 }
