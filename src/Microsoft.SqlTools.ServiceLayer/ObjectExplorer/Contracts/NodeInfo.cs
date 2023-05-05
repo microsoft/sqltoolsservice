@@ -78,6 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public NodeFilterProperty[] FilterableProperties { get; set; }
     }
 
+    /// <summary>
+    /// The filterable properties that a node supports
+    /// </summary>
     public class NodeFilterProperty
     {
         /// <summary>
@@ -131,6 +134,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         NotContains = 9,
     }
 
+    /// <summary>
+    /// The filters that can be used to filter the nodes in an expand request. 
+    /// </summary>
     public class NodeFilter
     {
         /// <summary>
