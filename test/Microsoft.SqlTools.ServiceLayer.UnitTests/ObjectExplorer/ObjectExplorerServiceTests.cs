@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -297,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void FindNodeCanExpandParentNodes()
         {
             var mockTreeNode = new Mock<TreeNode>();
-            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>() };
+            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>(), ItExpr.IsNull<IEnumerable<NodeFilter>>() };
             mockTreeNode.Protected().Setup("PopulateChildren", populateChildrenArguments);
             mockTreeNode.Object.IsAlwaysLeaf = false;
 

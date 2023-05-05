@@ -734,6 +734,8 @@ FilterCreateDate = Create Date
 FilterCreateDateDescription = Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.
 FilterIsNativelyCompiled = Is Natively Compiled
 FilterIsNativelyCompiledDescription = Include or exclude objects based on whether the object is natively compiled.
+FilterInPrimaryKey = In Primary Key
+FilterInPrimaryKeyDescription = Include or exclude objects based on whether the column is in a primary key.
 
 ############################################################################
 # Scripting Service

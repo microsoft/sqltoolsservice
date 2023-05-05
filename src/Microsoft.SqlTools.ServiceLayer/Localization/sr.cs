@@ -2493,6 +2493,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FilterInPrimaryKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterInPrimaryKey);
+            }
+        }
+
+        public static string FilterInPrimaryKeyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterInPrimaryKeyDescription);
+            }
+        }
+
         public static string ScriptingParams_ConnectionString_Property_Invalid
         {
             get
@@ -12197,6 +12213,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string FilterIsNativelyCompiledDescription = "FilterIsNativelyCompiledDescription";
+
+
+            public const string FilterInPrimaryKey = "FilterInPrimaryKey";
+
+
+            public const string FilterInPrimaryKeyDescription = "FilterInPrimaryKeyDescription";
 
 
             public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";

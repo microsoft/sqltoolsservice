@@ -581,6 +581,87 @@
     <Property>CreateDate</Property>
   </FilterProperties>
 
+  <FilterProperties NodeName="SystemTables">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>DurabilityType</Property>
+    <Property>IsMemoryOptimized</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="DroppedLedgerTables">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>DurabilityType</Property>
+    <Property>IsMemoryOptimized</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+  
+  <FilterProperties NodeName="Views">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="DroppedLedgerViews">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="StoredProcedures">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>IsNativelyCompiled</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="TableValuedFunctions">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>IsNativelyCompiled</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="ScalarValuedFunctions">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>IsNativelyCompiled</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="AggregateFunctions">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="Sequences">
+    <Property>Name</Property>
+    <Property>Schema</Property>
+    <Property>Owner</Property>
+    <Property>CreateDate</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="Indexes">
+    <Property>Name</Property>
+    <Property>IsMemoryOptimized</Property>
+  </FilterProperties>
+
+  <FilterProperties NodeName="Columns">
+    <Property>Name</Property>
+    <Property>InPrimaryKey</Property>
+  </FilterProperties>
+
+
   <FilterProperty Name="Name" LocLabel="SR.FilterName" Type="string" Description="SR.FilterNameDescription"/>
   <FilterProperty Name="Schema" LocLabel="SR.FilterSchema" Type="string" Description="SR.FilterSchemaDescription"/>
   <FilterProperty Name="Owner" LocLabel="SR.FilterOwner" Type="string" Description="SR.FilterOwnerDescription"/>
@@ -591,5 +672,6 @@
   <FilterProperty Name="IsMemoryOptimized" LocLabel="SR.FilterIsMemoryOptimized" Type="bool" Description="SR.FilterIsMemoryOptimizedDescription"/>
   <FilterProperty Name="CreateDate" LocLabel="SR.FilterCreateDate" Type="date" Description="SR.FilterCreateDateDescription"/>
   <FilterProperty Name="IsNativelyCompiled" LocLabel="SR.FilterIsNativelyCompiled" Type="bool" Description="SR.FilterIsNativelyCompiledDescription"/>
+  <FilterProperty Name="InPrimaryKey" LocLabel="SR.FilterInPrimaryKey" Type="bool" Description="SR.FilterInPrimaryKeyDescription"/>
 </ServerExplorerTree>
 

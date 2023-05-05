@@ -1514,6 +1514,14 @@
     <value>Include or exclude objects based on whether the object is natively compiled.</value>
     <comment></comment>
   </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>In Primary Key</value>
+    <comment></comment>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>Include or exclude objects based on whether the column is in a primary key.</value>
+    <comment></comment>
+  </data>
   <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
     <value>Error parsing ScriptingParams.ConnectionString property.</value>
     <comment></comment>

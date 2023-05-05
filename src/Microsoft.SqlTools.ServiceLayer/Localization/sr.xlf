@@ -7217,6 +7217,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Service {0} was not found in the service provider</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FilterInPrimaryKey">
+        <source>In Primary Key</source>
+        <target state="new">In Primary Key</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKeyDescription">
+        <source>Include or exclude objects based on whether the column is in a primary key.</source>
+        <target state="new">Include or exclude objects based on whether the column is in a primary key.</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
