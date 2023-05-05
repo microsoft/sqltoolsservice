@@ -88,7 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     }
 
     /// <summary>
-    /// The data type of the filter property. Enum in ads: https://github.com/microsoft/azuredatastudio/blob/9c68043137f58c182eec9925c025fd48747e6ccc/src/sql/azdata.proposed.d.ts#L1847-L1853
+    /// The data type of the filter property. Matches NodeFilterPropertyDataType enum in ADS : https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.proposed.d.ts#L1847-L1853
+
     /// </summary>
     public enum NodeFilterPropertyDataType
     {
