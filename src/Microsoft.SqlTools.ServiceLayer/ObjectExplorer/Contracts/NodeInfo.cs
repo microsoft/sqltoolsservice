@@ -80,16 +80,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 
     public class NodeFilterProperty
     {
+        /// <summary>
+        /// The name of the filter property
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The name of the filter property displayed to the user
+        /// </summary>
         public string DisplayName { get; set; }
+        /// <summary>
+        /// The description of the filter property
+        /// </summary>
         public string Description { get; set; }
+        /// <summary>
+        /// The data type of the filter property
+        /// </summary>
         public NodeFilterPropertyDataType Type { get; set; }
+        /// <summary>
+        /// The list of choices for the filter property if the type is choice
+        /// </summary>
         public string[] Choices { get; set; }
     }
 
     /// <summary>
     /// The data type of the filter property. Matches NodeFilterPropertyDataType enum in ADS : https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.proposed.d.ts#L1847-L1853
-
     /// </summary>
     public enum NodeFilterPropertyDataType
     {
@@ -102,7 +116,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 
     /// <summary>
     /// The operator of the filter property. Matches NodeFilterOperator  enum in ADS: https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.proposed.d.ts#L1855-L1868
-
     /// </summary>
     public enum NodeFilterOperator
     {
@@ -120,17 +133,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 
     public class NodeFilter
     {
-        /**
-		 * The name of the filter property
-		 */
+        /// <summary>
+        /// The name of the filter property
+        /// </summary>
         public string DisplayName { get; set; }
-        /**
-		 * The operator of the filter property
-		 */
+
+        /// <summary>
+        /// The operator of the filter property
+        /// </summary>
         public NodeFilterOperator Operator { get; set; }
-        /**
-		 * The applied values of the filter property
-		 */
+
+        /// <summary>
+        /// The applied values of the filter property
+        /// </summary>
         public JToken Value { get; set; }
     }
 }
