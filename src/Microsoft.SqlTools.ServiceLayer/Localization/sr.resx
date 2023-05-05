@@ -1490,6 +1490,14 @@
     <value>Include or exclude objects based on the durability type.</value>
     <comment></comment>
   </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>Schema Only</value>
+    <comment></comment>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>Schema and Data</value>
+    <comment></comment>
+  </data>
   <data name="FilterIsMemoryOptimized" xml:space="preserve">
     <value>Is Memory Optimized</value>
     <comment></comment>

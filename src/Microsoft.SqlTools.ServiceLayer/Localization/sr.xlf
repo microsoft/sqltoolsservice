@@ -7227,6 +7227,16 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Include or exclude objects based on whether the column is in a primary key.</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaOnly">
+        <source>Schema Only</source>
+        <target state="new">Schema Only</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaAndData">
+        <source>Schema and Data</source>
+        <target state="new">Schema and Data</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
