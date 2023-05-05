@@ -5404,291 +5404,291 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="objectType_functionTable_plural" xml:space="preserve">
-    <value>Table-valued functions;</value>
+    <value>Table-valued functions</value>
     <comment></comment>
   </data>
   <data name="objectType_externalDataSource_singular" xml:space="preserve">
-    <value>External Data Source;</value>
+    <value>External Data Source</value>
     <comment></comment>
   </data>
   <data name="objectType_serverRole_singular" xml:space="preserve">
-    <value>Server role;</value>
+    <value>Server role</value>
     <comment></comment>
   </data>
   <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
-    <value>XML schema collection;</value>
+    <value>XML schema collection</value>
     <comment></comment>
   </data>
   <data name="objectType_storedProcedure_plural" xml:space="preserve">
-    <value>Stored procedures;</value>
+    <value>Stored procedures</value>
     <comment></comment>
   </data>
   <data name="objectType_endpoint_plural" xml:space="preserve">
-    <value>Endpoints;</value>
+    <value>Endpoints</value>
     <comment></comment>
   </data>
   <data name="objectType_sequence_singular" xml:space="preserve">
-    <value>Sequence;</value>
+    <value>Sequence</value>
     <comment></comment>
   </data>
   <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
-    <value>User-defined data type;</value>
+    <value>User-defined data type</value>
     <comment></comment>
   </data>
   <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
-    <value>Full-text catalogs;</value>
+    <value>Full-text catalogs</value>
     <comment></comment>
   </data>
   <data name="objectType_credential_singular" xml:space="preserve">
-    <value>Credential;</value>
+    <value>Credential</value>
     <comment></comment>
   </data>
   <data name="objectType_databaseRole_plural" xml:space="preserve">
-    <value>Database roles;</value>
+    <value>Database roles</value>
     <comment></comment>
   </data>
   <data name="objectType_endpoint_singular" xml:space="preserve">
-    <value>Endpoint;</value>
+    <value>Endpoint</value>
     <comment></comment>
   </data>
   <data name="objectType_view_plural" xml:space="preserve">
-    <value>Views;</value>
+    <value>Views</value>
     <comment></comment>
   </data>
   <data name="objectType_assembly_singular" xml:space="preserve">
-    <value>Assembly;</value>
+    <value>Assembly</value>
     <comment></comment>
   </data>
   <data name="objectType_functionScalar_singular" xml:space="preserve">
-    <value>Scalar function;</value>
+    <value>Scalar function</value>
     <comment></comment>
   </data>
   <data name="objectType_server_plural" xml:space="preserve">
-    <value>Servers;</value>
+    <value>Servers</value>
     <comment></comment>
   </data>
   <data name="objectType_table_singular" xml:space="preserve">
-    <value>Table;</value>
+    <value>Table</value>
     <comment></comment>
   </data>
   <data name="objectType_serviceQueue_singular" xml:space="preserve">
-    <value>Queue;</value>
+    <value>Queue</value>
     <comment></comment>
   </data>
   <data name="objectType_login_plural" xml:space="preserve">
-    <value>Logins;</value>
+    <value>Logins</value>
     <comment></comment>
   </data>
   <data name="objectType_storedProcedure_singular" xml:space="preserve">
-    <value>Stored procedure;</value>
+    <value>Stored procedure</value>
     <comment></comment>
   </data>
   <data name="objectType_default_plural" xml:space="preserve">
-    <value>Defaults;</value>
+    <value>Defaults</value>
     <comment></comment>
   </data>
   <data name="objectType_symmetricKey_singular" xml:space="preserve">
-    <value>Symmetric key;</value>
+    <value>Symmetric key</value>
     <comment></comment>
   </data>
   <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
-    <value>User-defined table type;</value>
+    <value>User-defined table type</value>
     <comment></comment>
   </data>
   <data name="objectType_functionInline_singular" xml:space="preserve">
-    <value>Inline function;</value>
+    <value>Inline function</value>
     <comment></comment>
   </data>
   <data name="objectType_serverRole_plural" xml:space="preserve">
-    <value>Server roles;</value>
+    <value>Server roles</value>
     <comment></comment>
   </data>
   <data name="objectType_agentjob_singular" xml:space="preserve">
-    <value>Agent job;</value>
+    <value>Agent job</value>
     <comment></comment>
   </data>
   <data name="objectType_databaseRole_singular" xml:space="preserve">
-    <value>Database role;</value>
+    <value>Database role</value>
     <comment></comment>
   </data>
   <data name="objectType_synonym_singular" xml:space="preserve">
-    <value>Synonym;</value>
+    <value>Synonym</value>
     <comment></comment>
   </data>
   <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
-    <value>Availability Group;</value>
+    <value>Availability Group</value>
     <comment></comment>
   </data>
   <data name="objectType_externalFileFormat_plural" xml:space="preserve">
-    <value>External File Formats;</value>
+    <value>External File Formats</value>
     <comment></comment>
   </data>
   <data name="objectType_database_singular" xml:space="preserve">
-    <value>Database;</value>
+    <value>Database</value>
     <comment></comment>
   </data>
   <data name="objectType_symmetricKey_plural" xml:space="preserve">
-    <value>Symmetric keys;</value>
+    <value>Symmetric keys</value>
     <comment></comment>
   </data>
   <data name="objectType_securityPolicy_singular" xml:space="preserve">
-    <value>Security Policy;</value>
+    <value>Security Policy</value>
     <comment></comment>
   </data>
   <data name="objectType_externalFileFormat_singular" xml:space="preserve">
-    <value>External File Format;</value>
+    <value>External File Format</value>
     <comment></comment>
   </data>
   <data name="objectType_applicationRole_singular" xml:space="preserve">
-    <value>Application role;</value>
+    <value>Application role</value>
     <comment></comment>
   </data>
   <data name="objectType_assembly_plural" xml:space="preserve">
-    <value>Assemblies;</value>
+    <value>Assemblies</value>
     <comment></comment>
   </data>
   <data name="objectType_sequence_plural" xml:space="preserve">
-    <value>Sequences;</value>
+    <value>Sequences</value>
     <comment></comment>
   </data>
   <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
-    <value>User-defined data types;</value>
+    <value>User-defined data types</value>
     <comment></comment>
   </data>
   <data name="objectType_server_singular" xml:space="preserve">
-    <value>Server;</value>
+    <value>Server</value>
     <comment></comment>
   </data>
   <data name="objectType_aggregateFunction_singular" xml:space="preserve">
-    <value>Aggregate function;</value>
+    <value>Aggregate function</value>
     <comment></comment>
   </data>
   <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
-    <value>Full-text catalog;</value>
+    <value>Full-text catalog</value>
     <comment></comment>
   </data>
   <data name="objectType_certificate_plural" xml:space="preserve">
-    <value>Certificates;</value>
+    <value>Certificates</value>
     <comment></comment>
   </data>
   <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
-    <value>Availability Groups;</value>
+    <value>Availability Groups</value>
     <comment></comment>
   </data>
   <data name="objectType_database_plural" xml:space="preserve">
-    <value>Databases;</value>
+    <value>Databases</value>
     <comment></comment>
   </data>
   <data name="objectType_view_singular" xml:space="preserve">
-    <value>View;</value>
+    <value>View</value>
     <comment></comment>
   </data>
   <data name="objectType_schema_plural" xml:space="preserve">
-    <value>Schemas;</value>
+    <value>Schemas</value>
     <comment></comment>
   </data>
   <data name="objectType_rule_plural" xml:space="preserve">
-    <value>Rules;</value>
+    <value>Rules</value>
     <comment></comment>
   </data>
   <data name="objectType_certificate_singular" xml:space="preserve">
-    <value>Certificate;</value>
+    <value>Certificate</value>
     <comment></comment>
   </data>
   <data name="objectType_user_singular" xml:space="preserve">
-    <value>User;</value>
+    <value>User</value>
     <comment></comment>
   </data>
   <data name="objectType_agentjob_plural" xml:space="preserve">
-    <value>Agent jobs;</value>
+    <value>Agent jobs</value>
     <comment></comment>
   </data>
   <data name="objectType_synonym_plural" xml:space="preserve">
-    <value>Synonyms;</value>
+    <value>Synonyms</value>
     <comment></comment>
   </data>
   <data name="objectType_aggregateFunction_plural" xml:space="preserve">
-    <value>Aggregate functions;</value>
+    <value>Aggregate functions</value>
     <comment></comment>
   </data>
   <data name="objectType_functionTable_singular" xml:space="preserve">
-    <value>Table-valued function;</value>
+    <value>Table-valued function</value>
     <comment></comment>
   </data>
   <data name="objectType_rule_singular" xml:space="preserve">
-    <value>Rule;</value>
+    <value>Rule</value>
     <comment></comment>
   </data>
   <data name="objectType_serviceQueue_plural" xml:space="preserve">
-    <value>Queues;</value>
+    <value>Queues</value>
     <comment></comment>
   </data>
   <data name="objectType_asymmetricKey_plural" xml:space="preserve">
-    <value>Asymmetric keys;</value>
+    <value>Asymmetric keys</value>
     <comment></comment>
   </data>
   <data name="objectType_applicationRole_plural" xml:space="preserve">
-    <value>Application roles;</value>
+    <value>Application roles</value>
     <comment></comment>
   </data>
   <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
-    <value>Extended stored procedure;</value>
+    <value>Extended stored procedure</value>
     <comment></comment>
   </data>
   <data name="objectType_login_singular" xml:space="preserve">
-    <value>Login;</value>
+    <value>Login</value>
     <comment></comment>
   </data>
   <data name="objectType_functionInline_plural" xml:space="preserve">
-    <value>Inline functions;</value>
+    <value>Inline functions</value>
     <comment></comment>
   </data>
   <data name="objectType_user_plural" xml:space="preserve">
-    <value>Users;</value>
+    <value>Users</value>
     <comment></comment>
   </data>
   <data name="objectType_externalDataSource_plural" xml:space="preserve">
-    <value>External Data Sources;</value>
+    <value>External Data Sources</value>
     <comment></comment>
   </data>
   <data name="objectType_functionScalar_plural" xml:space="preserve">
-    <value>Scalar functions;</value>
+    <value>Scalar functions</value>
     <comment></comment>
   </data>
   <data name="objectType_table_plural" xml:space="preserve">
-    <value>Tables;</value>
+    <value>Tables</value>
     <comment></comment>
   </data>
   <data name="objectType_credential_plural" xml:space="preserve">
-    <value>Credentials;</value>
+    <value>Credentials</value>
     <comment></comment>
   </data>
   <data name="objectType_schema_singular" xml:space="preserve">
-    <value>Schema;</value>
+    <value>Schema</value>
     <comment></comment>
   </data>
   <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
-    <value>User-defined table types;</value>
+    <value>User-defined table types</value>
     <comment></comment>
   </data>
   <data name="objectType_securityPolicy_plural" xml:space="preserve">
-    <value>Security Policies;</value>
+    <value>Security Policies</value>
     <comment></comment>
   </data>
   <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
-    <value>XML schema collections;</value>
+    <value>XML schema collections</value>
     <comment></comment>
   </data>
   <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
-    <value>Extended stored procedures;</value>
+    <value>Extended stored procedures</value>
     <comment></comment>
   </data>
   <data name="objectType_asymmetricKey_singular" xml:space="preserve">
-    <value>Asymmetric key;</value>
+    <value>Asymmetric key</value>
     <comment></comment>
   </data>
   <data name="objectType_default_singular" xml:space="preserve">
-    <value>Default;</value>
+    <value>Default</value>
     <comment></comment>
   </data>
   <data name="Permission_Alter" xml:space="preserve">

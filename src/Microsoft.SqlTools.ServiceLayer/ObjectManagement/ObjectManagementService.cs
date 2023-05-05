@@ -134,7 +134,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             foreach (SqlObjectType type in requestParams.ObjectTypes)
             {
                 SearchableObjectCollection result = new SearchableObjectCollection();
-                SearchableObject.Search(result, ConvertSqlObjectTypeToSearchableObjectType(type), dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
+                if (requestParams.SearchText != null)
+                {
+                    SearchableObject.Search(result, ConvertSqlObjectTypeToSearchableObjectType(type), dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
+                }
+                else
+                {
+                    SearchableObject.Search(result, ConvertSqlObjectTypeToSearchableObjectType(type), dataContainer.ConnectionInfo, true);
+                }
                 foreach (SearchableObject obj in result)
                 {
                     res.Add(new SearchResultItem

@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Owner = prototype.Owner,
                 Members = prototype.Members.ToArray(),
                 Memberships = prototype.Memberships.ToArray(),
-                SecurablePermissions = new SecurablePermissions[0]
+                SecurablePermissions = prototype.SecurablePermissions
             };
 
             var viewInfo = new ServerRoleViewInfo()
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 ObjectInfo = ServerRoleInfo,
                 IsFixedRole = prototype.IsFixedRole,
                 ServerRoles = serverRoles.ToArray(),
-                SupportedSecurableTypes = new SecurableTypeMetadata[0]
+                SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.ServerRole, dataContainer.Server.Version, "", dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
 
             var context = new ServerRoleViewContext(parameters);

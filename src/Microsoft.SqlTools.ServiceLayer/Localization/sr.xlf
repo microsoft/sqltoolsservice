@@ -7148,363 +7148,363 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_functionTable_plural">
-        <source>Table-valued functions;</source>
-        <target state="new">Table-valued functions;</target>
+        <source>Table-valued functions</source>
+        <target state="new">Table-valued functions</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_externalDataSource_singular">
-        <source>External Data Source;</source>
-        <target state="new">External Data Source;</target>
+        <source>External Data Source</source>
+        <target state="new">External Data Source</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_serverRole_singular">
-        <source>Server role;</source>
-        <target state="new">Server role;</target>
+        <source>Server role</source>
+        <target state="new">Server role</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_xmlSchemaCollection_singular">
-        <source>XML schema collection;</source>
-        <target state="new">XML schema collection;</target>
+        <source>XML schema collection</source>
+        <target state="new">XML schema collection</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_storedProcedure_plural">
-        <source>Stored procedures;</source>
-        <target state="new">Stored procedures;</target>
+        <source>Stored procedures</source>
+        <target state="new">Stored procedures</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_endpoint_plural">
-        <source>Endpoints;</source>
-        <target state="new">Endpoints;</target>
+        <source>Endpoints</source>
+        <target state="new">Endpoints</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_sequence_singular">
-        <source>Sequence;</source>
-        <target state="new">Sequence;</target>
+        <source>Sequence</source>
+        <target state="new">Sequence</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_userDefinedDataType_singular">
-        <source>User-defined data type;</source>
-        <target state="new">User-defined data type;</target>
+        <source>User-defined data type</source>
+        <target state="new">User-defined data type</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_fullTextCatalog_plural">
-        <source>Full-text catalogs;</source>
-        <target state="new">Full-text catalogs;</target>
+        <source>Full-text catalogs</source>
+        <target state="new">Full-text catalogs</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_credential_singular">
-        <source>Credential;</source>
-        <target state="new">Credential;</target>
+        <source>Credential</source>
+        <target state="new">Credential</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_databaseRole_plural">
-        <source>Database roles;</source>
-        <target state="new">Database roles;</target>
+        <source>Database roles</source>
+        <target state="new">Database roles</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_endpoint_singular">
-        <source>Endpoint;</source>
-        <target state="new">Endpoint;</target>
+        <source>Endpoint</source>
+        <target state="new">Endpoint</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_view_plural">
-        <source>Views;</source>
-        <target state="new">Views;</target>
+        <source>Views</source>
+        <target state="new">Views</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_assembly_singular">
-        <source>Assembly;</source>
-        <target state="new">Assembly;</target>
+        <source>Assembly</source>
+        <target state="new">Assembly</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_functionScalar_singular">
-        <source>Scalar function;</source>
-        <target state="new">Scalar function;</target>
+        <source>Scalar function</source>
+        <target state="new">Scalar function</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_server_plural">
-        <source>Servers;</source>
-        <target state="new">Servers;</target>
+        <source>Servers</source>
+        <target state="new">Servers</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_table_singular">
-        <source>Table;</source>
-        <target state="new">Table;</target>
+        <source>Table</source>
+        <target state="new">Table</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_serviceQueue_singular">
-        <source>Queue;</source>
-        <target state="new">Queue;</target>
+        <source>Queue</source>
+        <target state="new">Queue</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_login_plural">
-        <source>Logins;</source>
-        <target state="new">Logins;</target>
+        <source>Logins</source>
+        <target state="new">Logins</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_storedProcedure_singular">
-        <source>Stored procedure;</source>
-        <target state="new">Stored procedure;</target>
+        <source>Stored procedure</source>
+        <target state="new">Stored procedure</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_default_plural">
-        <source>Defaults;</source>
-        <target state="new">Defaults;</target>
+        <source>Defaults</source>
+        <target state="new">Defaults</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_symmetricKey_singular">
-        <source>Symmetric key;</source>
-        <target state="new">Symmetric key;</target>
+        <source>Symmetric key</source>
+        <target state="new">Symmetric key</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_userDefinedTableType_singular">
-        <source>User-defined table type;</source>
-        <target state="new">User-defined table type;</target>
+        <source>User-defined table type</source>
+        <target state="new">User-defined table type</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_functionInline_singular">
-        <source>Inline function;</source>
-        <target state="new">Inline function;</target>
+        <source>Inline function</source>
+        <target state="new">Inline function</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_serverRole_plural">
-        <source>Server roles;</source>
-        <target state="new">Server roles;</target>
+        <source>Server roles</source>
+        <target state="new">Server roles</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_agentjob_singular">
-        <source>Agent job;</source>
-        <target state="new">Agent job;</target>
+        <source>Agent job</source>
+        <target state="new">Agent job</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_databaseRole_singular">
-        <source>Database role;</source>
-        <target state="new">Database role;</target>
+        <source>Database role</source>
+        <target state="new">Database role</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_synonym_singular">
-        <source>Synonym;</source>
-        <target state="new">Synonym;</target>
+        <source>Synonym</source>
+        <target state="new">Synonym</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_AvailabilityGroup_singular">
-        <source>Availability Group;</source>
-        <target state="new">Availability Group;</target>
+        <source>Availability Group</source>
+        <target state="new">Availability Group</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_externalFileFormat_plural">
-        <source>External File Formats;</source>
-        <target state="new">External File Formats;</target>
+        <source>External File Formats</source>
+        <target state="new">External File Formats</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_database_singular">
-        <source>Database;</source>
-        <target state="new">Database;</target>
+        <source>Database</source>
+        <target state="new">Database</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_symmetricKey_plural">
-        <source>Symmetric keys;</source>
-        <target state="new">Symmetric keys;</target>
+        <source>Symmetric keys</source>
+        <target state="new">Symmetric keys</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_securityPolicy_singular">
-        <source>Security Policy;</source>
-        <target state="new">Security Policy;</target>
+        <source>Security Policy</source>
+        <target state="new">Security Policy</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_externalFileFormat_singular">
-        <source>External File Format;</source>
-        <target state="new">External File Format;</target>
+        <source>External File Format</source>
+        <target state="new">External File Format</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_applicationRole_singular">
-        <source>Application role;</source>
-        <target state="new">Application role;</target>
+        <source>Application role</source>
+        <target state="new">Application role</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_assembly_plural">
-        <source>Assemblies;</source>
-        <target state="new">Assemblies;</target>
+        <source>Assemblies</source>
+        <target state="new">Assemblies</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_sequence_plural">
-        <source>Sequences;</source>
-        <target state="new">Sequences;</target>
+        <source>Sequences</source>
+        <target state="new">Sequences</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_userDefinedDataType_plural">
-        <source>User-defined data types;</source>
-        <target state="new">User-defined data types;</target>
+        <source>User-defined data types</source>
+        <target state="new">User-defined data types</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_server_singular">
-        <source>Server;</source>
-        <target state="new">Server;</target>
+        <source>Server</source>
+        <target state="new">Server</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_aggregateFunction_singular">
-        <source>Aggregate function;</source>
-        <target state="new">Aggregate function;</target>
+        <source>Aggregate function</source>
+        <target state="new">Aggregate function</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_fullTextCatalog_singular">
-        <source>Full-text catalog;</source>
-        <target state="new">Full-text catalog;</target>
+        <source>Full-text catalog</source>
+        <target state="new">Full-text catalog</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_certificate_plural">
-        <source>Certificates;</source>
-        <target state="new">Certificates;</target>
+        <source>Certificates</source>
+        <target state="new">Certificates</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_AvailabilityGroup_plural">
-        <source>Availability Groups;</source>
-        <target state="new">Availability Groups;</target>
+        <source>Availability Groups</source>
+        <target state="new">Availability Groups</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_database_plural">
-        <source>Databases;</source>
-        <target state="new">Databases;</target>
+        <source>Databases</source>
+        <target state="new">Databases</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_view_singular">
-        <source>View;</source>
-        <target state="new">View;</target>
+        <source>View</source>
+        <target state="new">View</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_schema_plural">
-        <source>Schemas;</source>
-        <target state="new">Schemas;</target>
+        <source>Schemas</source>
+        <target state="new">Schemas</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_rule_plural">
-        <source>Rules;</source>
-        <target state="new">Rules;</target>
+        <source>Rules</source>
+        <target state="new">Rules</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_certificate_singular">
-        <source>Certificate;</source>
-        <target state="new">Certificate;</target>
+        <source>Certificate</source>
+        <target state="new">Certificate</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_user_singular">
-        <source>User;</source>
-        <target state="new">User;</target>
+        <source>User</source>
+        <target state="new">User</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_agentjob_plural">
-        <source>Agent jobs;</source>
-        <target state="new">Agent jobs;</target>
+        <source>Agent jobs</source>
+        <target state="new">Agent jobs</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_synonym_plural">
-        <source>Synonyms;</source>
-        <target state="new">Synonyms;</target>
+        <source>Synonyms</source>
+        <target state="new">Synonyms</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_aggregateFunction_plural">
-        <source>Aggregate functions;</source>
-        <target state="new">Aggregate functions;</target>
+        <source>Aggregate functions</source>
+        <target state="new">Aggregate functions</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_functionTable_singular">
-        <source>Table-valued function;</source>
-        <target state="new">Table-valued function;</target>
+        <source>Table-valued function</source>
+        <target state="new">Table-valued function</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_rule_singular">
-        <source>Rule;</source>
-        <target state="new">Rule;</target>
+        <source>Rule</source>
+        <target state="new">Rule</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_serviceQueue_plural">
-        <source>Queues;</source>
-        <target state="new">Queues;</target>
+        <source>Queues</source>
+        <target state="new">Queues</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_asymmetricKey_plural">
-        <source>Asymmetric keys;</source>
-        <target state="new">Asymmetric keys;</target>
+        <source>Asymmetric keys</source>
+        <target state="new">Asymmetric keys</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_applicationRole_plural">
-        <source>Application roles;</source>
-        <target state="new">Application roles;</target>
+        <source>Application roles</source>
+        <target state="new">Application roles</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_extendedStoredProcedure_singular">
-        <source>Extended stored procedure;</source>
-        <target state="new">Extended stored procedure;</target>
+        <source>Extended stored procedure</source>
+        <target state="new">Extended stored procedure</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_login_singular">
-        <source>Login;</source>
-        <target state="new">Login;</target>
+        <source>Login</source>
+        <target state="new">Login</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_functionInline_plural">
-        <source>Inline functions;</source>
-        <target state="new">Inline functions;</target>
+        <source>Inline functions</source>
+        <target state="new">Inline functions</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_user_plural">
-        <source>Users;</source>
-        <target state="new">Users;</target>
+        <source>Users</source>
+        <target state="new">Users</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_externalDataSource_plural">
-        <source>External Data Sources;</source>
-        <target state="new">External Data Sources;</target>
+        <source>External Data Sources</source>
+        <target state="new">External Data Sources</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_functionScalar_plural">
-        <source>Scalar functions;</source>
-        <target state="new">Scalar functions;</target>
+        <source>Scalar functions</source>
+        <target state="new">Scalar functions</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_table_plural">
-        <source>Tables;</source>
-        <target state="new">Tables;</target>
+        <source>Tables</source>
+        <target state="new">Tables</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_credential_plural">
-        <source>Credentials;</source>
-        <target state="new">Credentials;</target>
+        <source>Credentials</source>
+        <target state="new">Credentials</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_schema_singular">
-        <source>Schema;</source>
-        <target state="new">Schema;</target>
+        <source>Schema</source>
+        <target state="new">Schema</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_userDefinedTableType_plural">
-        <source>User-defined table types;</source>
-        <target state="new">User-defined table types;</target>
+        <source>User-defined table types</source>
+        <target state="new">User-defined table types</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_securityPolicy_plural">
-        <source>Security Policies;</source>
-        <target state="new">Security Policies;</target>
+        <source>Security Policies</source>
+        <target state="new">Security Policies</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_xmlSchemaCollection_plural">
-        <source>XML schema collections;</source>
-        <target state="new">XML schema collections;</target>
+        <source>XML schema collections</source>
+        <target state="new">XML schema collections</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_extendedStoredProcedure_plural">
-        <source>Extended stored procedures;</source>
-        <target state="new">Extended stored procedures;</target>
+        <source>Extended stored procedures</source>
+        <target state="new">Extended stored procedures</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_asymmetricKey_singular">
-        <source>Asymmetric key;</source>
-        <target state="new">Asymmetric key;</target>
+        <source>Asymmetric key</source>
+        <target state="new">Asymmetric key</target>
         <note></note>
       </trans-unit>
       <trans-unit id="objectType_default_singular">
-        <source>Default;</source>
-        <target state="new">Default;</target>
+        <source>Default</source>
+        <target state="new">Default</target>
         <note></note>
       </trans-unit>
     </body>

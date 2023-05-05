@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -26,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// as a hash table where one can manipulate custom data
         /// </summary>
         private CDataContainer dataContainer = null;
+        private Principal principal = null;
+        private SecurablePermissions[] securablePermissions = null;
 
         private bool exists;
         private ServerRolePrototypeData currentState;
@@ -109,6 +112,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 return this.currentState.IsFixedRole;
             }
         }
+
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return securablePermissions;
+            }
+            set
+            {
+
+            }
+        }
         #endregion
 
         #region Constructors / Dispose
@@ -142,6 +157,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context, role);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+            this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.ServerRole, role, context);
+            securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.ServerRole, role, this.dataContainer);
         }
 
         #endregion
