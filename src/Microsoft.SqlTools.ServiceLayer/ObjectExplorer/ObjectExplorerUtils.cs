@@ -168,7 +168,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 IsDateTime = IsDateTime
             };
         }
-
-
     }
 }
