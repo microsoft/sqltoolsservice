@@ -155,6 +155,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public JToken Value { get; set; }
     }
 
+    /// <summary>
+    /// The choice for the filter property if the type is choice
+    /// </summary>
     public class NodeFilterPropertyChoice
     {
         /// <summary>
