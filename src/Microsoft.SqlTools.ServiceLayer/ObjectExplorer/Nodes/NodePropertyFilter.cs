@@ -132,38 +132,46 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                             Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 23:59:59.999");
                             filterText = $"@{Property} <= datetime('{Value1}')";
                             break;
+                        case FilterType.NOTEQUALS:
+                            IsNotFilter = true;
+                            Value1 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 00:00:00.000");
+                            Value2 = DateTime.Parse((string)value).ToString("yyyy-MM-dd 23:59:59.999");
+                            filterText = $"@{Property} >= datetime('{Value1}') and @{Property} <= datetime('{Value2}')";
+                            break;
                         default:
                             break;
                     }
                 }
                 else if (IsNumericType(Type))
                 {
-                    int val = (int)value;
                     switch (FilterType)
                     {
                         case FilterType.BETWEEN:
-                            int[] betweenValues = (int[])value;
-                            filterText = $"@{Property} >= {betweenValues[0]} and @{Property} <= {betweenValues[1]}";
+                            object[] betweenValues = (object[])value;
+                            filterText = $"@{Property} >= {Decimal.Parse(betweenValues[0].ToString())} and @{Property} <= {Decimal.Parse(betweenValues[1].ToString())}";
                             break;
                         case FilterType.NOTBETWEEN:
                             IsNotFilter = true;
-                            int[] notBetweenValues = (int[])value;
-                            filterText =  $"@{Property} >= {notBetweenValues[0]} and @{Property} <= {notBetweenValues[1]}";
+                            object[] notBetweenValues = (object[])value;
+                            filterText = $"@{Property} >= {Decimal.Parse(notBetweenValues[0].ToString())} and @{Property} <= {Decimal.Parse(notBetweenValues[1].ToString())}";
                             break;
                         case FilterType.EQUALS:
-                            filterText = $"@{Property} = {val}";
+                            filterText = $"@{Property} = {Decimal.Parse(value.ToString())}";
                             break;
                         case FilterType.GREATERTHAN:
-                            filterText = $"@{Property} > {val}";
+                            filterText = $"@{Property} > {Decimal.Parse(value.ToString())}";
                             break;
                         case FilterType.LESSTHAN:
-                            filterText = $"@{Property} < {val}";
+                            filterText = $"@{Property} < {Decimal.Parse(value.ToString())}";
                             break;
                         case FilterType.GREATERTHANOREQUAL:
-                            filterText = $"@{Property} >= {val}";
+                            filterText = $"@{Property} >= {Decimal.Parse(value.ToString())}";
                             break;
                         case FilterType.LESSTHANOREQUAL:
-                            filterText = $"@{Property} <= {val}";
+                            filterText = $"@{Property} <= {Decimal.Parse(value.ToString())}";
+                            break;
+                        case FilterType.NOTEQUALS:
+                            filterText = $"@{Property} != {Decimal.Parse(value.ToString())}";
                             break;
                         default:
                             break;
