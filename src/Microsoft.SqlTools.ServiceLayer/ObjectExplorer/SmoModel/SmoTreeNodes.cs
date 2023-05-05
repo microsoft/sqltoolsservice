@@ -14,8 +14,10 @@ using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -176,6 +178,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Databases,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Security,
@@ -761,6 +787,55 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Tables,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
+            		FilterProperties = new NodeFilterProperty[]
+            		{
+    					new NodeFilterProperty
+    					{
+    						Name = "Name",
+    						DisplayName = SR.FilterName,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterNameDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Schema",
+    						DisplayName = SR.FilterSchema,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterSchemaDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterOwnerDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "DurabilityType",
+    						DisplayName = SR.FilterDurabilityType,
+    						Type = NodeFilterPropertyDataType.Choice,
+    						Description = SR.FilterDurabilityTypeDescription,
+    						Choices = new string[] {
+    							"SchemaAndData",
+    							"SchemaOnly",
+    						}
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "IsMemoryOptimized",
+    						DisplayName = SR.FilterIsMemoryOptimized,
+    						Type = NodeFilterPropertyDataType.Boolean,
+    						Description = SR.FilterIsMemoryOptimizedDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
+    						Type = NodeFilterPropertyDataType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+                	}
                 });
 			}
 			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
@@ -770,6 +845,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.Views,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
+            		FilterProperties = new NodeFilterProperty[]
+            		{
+    					new NodeFilterProperty
+    					{
+    						Name = "Name",
+    						DisplayName = SR.FilterName,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterNameDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Schema",
+    						DisplayName = SR.FilterSchema,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterSchemaDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterOwnerDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
+    						Type = NodeFilterPropertyDataType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+                	}
                 });
 			}
 			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
@@ -951,12 +1057,92 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Tables,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "DurabilityType",
+						DisplayName = SR.FilterDurabilityType,
+						Type = NodeFilterPropertyDataType.Choice,
+						Description = SR.FilterDurabilityTypeDescription,
+						Choices = new string[] {
+							"SchemaAndData",
+							"SchemaOnly",
+						}
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Views,
                 NodeTypeId = NodeTypes.Views,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Synonyms,
@@ -1094,6 +1280,55 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = true,
                 IsMsShippedOwned = true,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "DurabilityType",
+						DisplayName = SR.FilterDurabilityType,
+						Type = NodeFilterPropertyDataType.Choice,
+						Description = SR.FilterDurabilityTypeDescription,
+						Choices = new string[] {
+							"SchemaAndData",
+							"SchemaOnly",
+						}
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_DroppedLedgerTables,
@@ -1101,6 +1336,55 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
                 SortPriority = Int32.MaxValue,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "DurabilityType",
+						DisplayName = SR.FilterDurabilityType,
+						Type = NodeFilterPropertyDataType.Choice,
+						Description = SR.FilterDurabilityTypeDescription,
+						Choices = new string[] {
+							"SchemaAndData",
+							"SchemaOnly",
+						}
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
         }
 
@@ -1178,6 +1462,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsMsShippedOwned = true,
                 ValidFor = ValidForFlag.Sql2022OrHigher|ValidForFlag.AzureV12,
                 SortPriority = Int32.MaxValue,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
         }
 
@@ -1236,6 +1551,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     NodeTypeId = NodeTypes.StoredProcedures,
                     IsSystemObject = false,
                     SortPriority = SmoTreeNode.NextSortPriority,
+            		FilterProperties = new NodeFilterProperty[]
+            		{
+    					new NodeFilterProperty
+    					{
+    						Name = "Name",
+    						DisplayName = SR.FilterName,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterNameDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Schema",
+    						DisplayName = SR.FilterSchema,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterSchemaDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterOwnerDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "IsNativelyCompiled",
+    						DisplayName = SR.FilterIsNativelyCompiled,
+    						Type = NodeFilterPropertyDataType.Boolean,
+    						Description = SR.FilterIsNativelyCompiledDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
+    						Type = NodeFilterPropertyDataType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+                	}
                 });
 			}
 			if (!WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
@@ -1280,6 +1633,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     IsSystemObject = false,
                     ValidFor = ValidForFlag.Sql2012OrHigher|ValidForFlag.AzureV12,
                     SortPriority = SmoTreeNode.NextSortPriority,
+            		FilterProperties = new NodeFilterProperty[]
+            		{
+    					new NodeFilterProperty
+    					{
+    						Name = "Name",
+    						DisplayName = SR.FilterName,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterNameDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Schema",
+    						DisplayName = SR.FilterSchema,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterSchemaDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "Owner",
+    						DisplayName = SR.FilterOwner,
+    						Type = NodeFilterPropertyDataType.String,
+    						Description = SR.FilterOwnerDescription,
+    					},
+    					new NodeFilterProperty
+    					{
+    						Name = "CreateDate",
+    						DisplayName = SR.FilterCreateDate,
+    						Type = NodeFilterPropertyDataType.Date,
+    						Description = SR.FilterCreateDateDescription,
+    					},
+                	}
                 });
 			}
         }
@@ -1306,6 +1690,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.StoredProcedures,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsNativelyCompiled",
+						DisplayName = SR.FilterIsNativelyCompiled,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsNativelyCompiledDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Functions,
@@ -1327,6 +1749,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.Sql2012OrHigher|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
         }
 
@@ -1747,6 +2200,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Columns,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "InPrimaryKey",
+						DisplayName = SR.FilterInPrimaryKey,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterInPrimaryKeyDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Keys,
@@ -1774,6 +2244,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.NotSqlDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
@@ -1813,6 +2300,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Columns,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "InPrimaryKey",
+						DisplayName = SR.FilterInPrimaryKey,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterInPrimaryKeyDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Constraints,
@@ -1826,6 +2330,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.NotSqlDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
@@ -1867,6 +2388,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Columns,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "InPrimaryKey",
+						DisplayName = SR.FilterInPrimaryKey,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterInPrimaryKeyDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
@@ -2238,6 +2776,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 NodeTypeId = NodeTypes.Columns,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "InPrimaryKey",
+						DisplayName = SR.FilterInPrimaryKey,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterInPrimaryKeyDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Triggers,
@@ -2252,6 +2807,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.NotSqlDemand,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsMemoryOptimized",
+						DisplayName = SR.FilterIsMemoryOptimized,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsMemoryOptimizedDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Statistics,
@@ -2301,12 +2873,88 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.NotSqlDw,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsNativelyCompiled",
+						DisplayName = SR.FilterIsNativelyCompiled,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsNativelyCompiledDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_ScalarValuedFunctions,
                 NodeTypeId = NodeTypes.ScalarValuedFunctions,
                 IsSystemObject = false,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "IsNativelyCompiled",
+						DisplayName = SR.FilterIsNativelyCompiled,
+						Type = NodeFilterPropertyDataType.Boolean,
+						Description = SR.FilterIsNativelyCompiledDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
             currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_AggregateFunctions,
@@ -2314,6 +2962,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 IsSystemObject = false,
                 ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
+        		FilterProperties = new NodeFilterProperty[]
+        		{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Schema",
+						DisplayName = SR.FilterSchema,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterSchemaDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "CreateDate",
+						DisplayName = SR.FilterCreateDate,
+						Type = NodeFilterPropertyDataType.Date,
+						Description = SR.FilterCreateDateDescription,
+					},
+            	}
             });
         }
 

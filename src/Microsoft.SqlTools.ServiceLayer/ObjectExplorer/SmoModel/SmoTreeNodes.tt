@@ -25,8 +25,10 @@ using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -128,7 +130,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
 						List<XmlElement> children = GetChildren(xmlFile, type);
 						List<XmlElement> smoProperties = GetNodeSmoProperties(xmlFile, type);
-
 						// Load and parse Filters node
 						// A <Filters> node is comprised of <Or> and <Filter> nodes
 						//   - A <Filter> node defines the properties to construct a NodePropertyFilter object
@@ -299,6 +300,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 														WriteLine("                ValidFor = {0},", GetValidForFlags(validFor));
 												}
 												WriteLine("                SortPriority = {0},", sortPriority);
+												List<XmlElement> filterProperties = GetFilterProperties(xmlFile, childName);
+												if(filterProperties.Count > 0)
+												{
+														WriteLine("        		FilterProperties = new NodeFilterProperty[]");
+														WriteLine("        		{");
+														foreach (var filterDef in filterProperties)
+														{		
+																var filterName = filterDef.GetAttribute("Name");
+																var filterDisplayName = filterDef.GetAttribute("LocLabel");
+																var filterType = filterDef.GetAttribute("Type");
+																var enumString = "NodeFilterPropertyDataType";
+																switch (filterType)
+																{
+																	case "string":
+																		enumString += ".String";
+																		break;
+																	case "bool":
+																		enumString += ".Boolean";
+																		break;
+																	case "date":
+																		enumString += ".Date";
+																		break;
+																	case "choice":
+																		enumString += ".Choice";
+																		break;
+																}
+																var filterDescription = filterDef.GetAttribute("Description");
+																WriteLine("					new NodeFilterProperty");
+																WriteLine("					{");
+																WriteLine("						Name = \"{0}\",", filterName);
+																WriteLine("						DisplayName = {0},", filterDisplayName);
+																WriteLine("						Type = {0},", enumString);
+																WriteLine("						Description = {0},", filterDescription);
+																if(filterType == "choice")
+																{
+																		var enumValues = filterDef.ChildNodes;
+																		WriteLine("						Choices = new string[] {");
+																		foreach (XmlElement enumValue in enumValues)
+																		{
+																				var enumValueName = enumValue.GetAttribute("Name");
+																				WriteLine("							\"{0}\",", enumValueName);
+																				
+																		}
+																		WriteLine("						}");
+																}
+																WriteLine("					},");
+																
+														}
+														WriteLine("            	}");
+													}
+
 												WriteLine("            });");
 										}
 
@@ -579,6 +631,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				}
 				return retElements;
 		}
+
+
+		public static List<XmlElement> GetFilterProperties(string xmlFile, string nodeType)
+		{
+				XmlElement nodeElement = GetNodeElement(xmlFile, nodeType);
+				XmlDocument doc = new XmlDocument();
+				doc.Load(xmlFile);
+
+				List<XmlElement> retElements = new List<XmlElement>();
+				XmlNodeList nodeList = doc.SelectNodes(string.Format("/ServerExplorerTree/FilterProperties[@NodeName='{0}']/Property", nodeType));
+				foreach (XmlNode item in nodeList)
+				{
+					var filterName = item.InnerText;
+					XmlNodeList filterPropertyList = doc.SelectNodes(string.Format("/ServerExplorerTree/FilterProperty[@Name='{0}']", filterName));
+					foreach (var filterProperty in filterPropertyList)
+					{
+						XmlElement itemAsElement = filterProperty as XmlElement;
+						if (itemAsElement != null)
+						{
+								retElements.Add(itemAsElement);
+						}
+					}
+				}
+				return retElements;
+		}
+
+
 
 		public static List<XmlElement> GetNodeFilterValues(string xmlFile, string parentName, string filterProperty, bool orFilter = false)
 		{
