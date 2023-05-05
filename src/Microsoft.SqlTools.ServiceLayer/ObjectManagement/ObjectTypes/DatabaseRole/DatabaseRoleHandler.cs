@@ -74,12 +74,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }).ToArray(),
                 Members = prototype.Members.ToArray(),
                 OwnedSchemas = prototype.SchemasOwned.ToArray(),
+                SecurablePermissions = new SecurablePermissions[0]
             };
 
             var viewInfo = new DatabaseRoleViewInfo()
             {
                 ObjectInfo = DatabaseRoleInfo,
-                Schemas = prototype.Schemas
+                Schemas = prototype.Schemas,
+                SupportedSecurableTypes = new SecurableTypeMetadata[0]
             };
 
             var context = new DatabaseRoleViewContext(parameters, dataContainer.ServerConnection);

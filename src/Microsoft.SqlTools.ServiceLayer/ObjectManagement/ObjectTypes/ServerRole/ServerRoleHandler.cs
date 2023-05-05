@@ -56,14 +56,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Name = prototype.Name,
                 Owner = prototype.Owner,
                 Members = prototype.Members.ToArray(),
-                Memberships = prototype.Memberships.ToArray()
+                Memberships = prototype.Memberships.ToArray(),
+                SecurablePermissions = new SecurablePermissions[0]
             };
 
             var viewInfo = new ServerRoleViewInfo()
             {
                 ObjectInfo = ServerRoleInfo,
                 IsFixedRole = prototype.IsFixedRole,
-                ServerRoles = serverRoles.ToArray()
+                ServerRoles = serverRoles.ToArray(),
+                SupportedSecurableTypes = new SecurableTypeMetadata[0]
             };
 
             var context = new ServerRoleViewContext(parameters);

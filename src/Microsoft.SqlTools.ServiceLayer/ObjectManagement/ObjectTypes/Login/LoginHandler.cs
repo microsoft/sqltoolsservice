@@ -82,7 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
                 IsLockedOut = prototype.IsLockedOut,
-                UserMapping = new ServerLoginDatabaseUserMapping[0]
+                UserMapping = new ServerLoginDatabaseUserMapping[0],
+                SecurablePermissions = new SecurablePermissions[0]
             };
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
@@ -104,7 +105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Languages = languages,
                 ServerRoles = prototype.ServerRoles.ServerRoleNames,
                 SupportAdvancedPasswordOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse,
-                SupportAdvancedOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance
+                SupportAdvancedOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance,
+                SupportedSecurableTypes = new SecurableTypeMetadata[0]
             };
             var context = new LoginViewContext(parameters);
             return Task.FromResult(new InitializeViewResult()

@@ -75,12 +75,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         Value = item.Value
                     }).ToArray(),
                 OwnedSchemas = prototype.SchemasOwned,
+                SecurablePermissions = new SecurablePermissions[0]
             };
 
             var viewInfo = new AppRoleViewInfo()
             {
                 ObjectInfo = appRoleInfo,
-                Schemas = prototype.Schemas
+                Schemas = prototype.Schemas,
+                SupportedSecurableTypes = new SecurableTypeMetadata[0]
             };
 
             var context = new AppRoleViewContext(parameters, dataContainer.ServerConnection);
