@@ -335,12 +335,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 																WriteLine("						Description = {0},", filterDescription);
 																if(filterType == "choice")
 																{
-																		var enumValues = filterDef.ChildNodes;
-																		WriteLine("						Choices = new string[] {");
-																		foreach (XmlElement enumValue in enumValues)
+																		var choiceValues = filterDef.ChildNodes;
+																		WriteLine("						Choices = new NodeFilterPropertyChoice[] {");
+																		foreach (XmlElement choice in choiceValues)
 																		{
-																				var enumValueName = enumValue.GetAttribute("Name");
-																				WriteLine("							\"{0}\",", enumValueName);
+																				var choiceName = choice.GetAttribute("LocLabel");
+																				var choiceValue = choice.GetAttribute("Value");
+																				WriteLine("							new NodeFilterPropertyChoice {");
+																				WriteLine("								DisplayName = {0},", choiceName);
+																				WriteLine("								Value = \"{0}\",", choiceValue);
+																				WriteLine("							},");
 																				
 																		}
 																		WriteLine("						}");

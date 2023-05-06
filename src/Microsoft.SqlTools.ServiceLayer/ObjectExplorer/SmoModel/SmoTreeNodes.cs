@@ -812,13 +812,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     					},
     					new NodeFilterProperty
     					{
-    						Name = "DurabilityType",
+    						Name = "Durability",
     						DisplayName = SR.FilterDurabilityType,
     						Type = NodeFilterPropertyDataType.Choice,
     						Description = SR.FilterDurabilityTypeDescription,
-    						Choices = new string[] {
-    							"SchemaAndData",
-    							"SchemaOnly",
+    						Choices = new NodeFilterPropertyChoice[] {
+    							new NodeFilterPropertyChoice {
+    								DisplayName = SR.FilterDurabilitySchemaAndData,
+    								Value = "1",
+    							},
+    							new NodeFilterPropertyChoice {
+    								DisplayName = SR.FilterDurabilitySchemaOnly,
+    								Value = "0",
+    							},
     						}
     					},
     					new NodeFilterProperty
@@ -1082,13 +1088,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "DurabilityType",
+						Name = "Durability",
 						DisplayName = SR.FilterDurabilityType,
 						Type = NodeFilterPropertyDataType.Choice,
 						Description = SR.FilterDurabilityTypeDescription,
-						Choices = new string[] {
-							"SchemaAndData",
-							"SchemaOnly",
+						Choices = new NodeFilterPropertyChoice[] {
+							new NodeFilterPropertyChoice {
+								DisplayName = SR.FilterDurabilitySchemaAndData,
+								Value = "1",
+							},
+							new NodeFilterPropertyChoice {
+								DisplayName = SR.FilterDurabilitySchemaOnly,
+								Value = "0",
+							},
 						}
 					},
 					new NodeFilterProperty
@@ -1305,13 +1317,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "DurabilityType",
+						Name = "Durability",
 						DisplayName = SR.FilterDurabilityType,
 						Type = NodeFilterPropertyDataType.Choice,
 						Description = SR.FilterDurabilityTypeDescription,
-						Choices = new string[] {
-							"SchemaAndData",
-							"SchemaOnly",
+						Choices = new NodeFilterPropertyChoice[] {
+							new NodeFilterPropertyChoice {
+								DisplayName = SR.FilterDurabilitySchemaAndData,
+								Value = "1",
+							},
+							new NodeFilterPropertyChoice {
+								DisplayName = SR.FilterDurabilitySchemaOnly,
+								Value = "0",
+							},
 						}
 					},
 					new NodeFilterProperty
@@ -1361,13 +1379,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 					},
 					new NodeFilterProperty
 					{
-						Name = "DurabilityType",
+						Name = "Durability",
 						DisplayName = SR.FilterDurabilityType,
 						Type = NodeFilterPropertyDataType.Choice,
 						Description = SR.FilterDurabilityTypeDescription,
-						Choices = new string[] {
-							"SchemaAndData",
-							"SchemaOnly",
+						Choices = new NodeFilterPropertyChoice[] {
+							new NodeFilterPropertyChoice {
+								DisplayName = SR.FilterDurabilitySchemaAndData,
+								Value = "1",
+							},
+							new NodeFilterPropertyChoice {
+								DisplayName = SR.FilterDurabilitySchemaOnly,
+								Value = "0",
+							},
 						}
 					},
 					new NodeFilterProperty

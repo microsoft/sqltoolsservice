@@ -102,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// <summary>
         /// The list of choices for the filter property if the type is choice
         /// </summary>
-        public string[] Choices { get; set; }
+        public NodeFilterPropertyChoice[] Choices { get; set; }
     }
 
     /// <summary>
@@ -153,5 +153,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// The applied values of the filter property
         /// </summary>
         public JToken Value { get; set; }
+    }
+
+    /// <summary>
+    /// The choice for the filter property if the type is choice
+    /// </summary>
+    public class NodeFilterPropertyChoice
+    {
+        /// <summary>
+        /// The dropdown display value for the choice
+        /// </summary>
+        /// <value></value>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// The value of the choice
+        /// </summary>
+        public string Value { get; set; }
     }
 }

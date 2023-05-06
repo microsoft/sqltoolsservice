@@ -2445,6 +2445,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FilterDurabilitySchemaOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDurabilitySchemaOnly);
+            }
+        }
+
+        public static string FilterDurabilitySchemaAndData
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDurabilitySchemaAndData);
+            }
+        }
+
         public static string FilterIsMemoryOptimized
         {
             get
@@ -12195,6 +12211,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string FilterDurabilityTypeDescription = "FilterDurabilityTypeDescription";
+
+
+            public const string FilterDurabilitySchemaOnly = "FilterDurabilitySchemaOnly";
+
+
+            public const string FilterDurabilitySchemaAndData = "FilterDurabilitySchemaAndData";
 
 
             public const string FilterIsMemoryOptimized = "FilterIsMemoryOptimized";
