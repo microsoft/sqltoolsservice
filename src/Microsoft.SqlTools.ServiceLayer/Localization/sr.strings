@@ -720,6 +720,24 @@ FileTable_LabelPart = File Table
 
 DatabaseNotAccessible = The database {0} is not accessible.
 
+FilterName = Name
+FilterNameDescription = Include or exclude objects based on the name or part of a name.
+FilterSchema = Schema
+FilterSchemaDescription =  Include or exclude objects based on the schema or part of a schema name.
+FilterOwner = Owner
+FilterOwnerDescription = Include or exclude objects based on the owner or part of an owner name.
+FilterDurabilityType = Durability Type
+FilterDurabilityTypeDescription = Include or exclude objects based on the durability type.
+FilterDurabilitySchemaOnly = Schema Only
+FilterDurabilitySchemaAndData = Schema and Data
+FilterIsMemoryOptimized = Is Memory Optimized
+FilterIsMemoryOptimizedDescription = Include or exclude objects based on whether the object is memory optimized.
+FilterCreateDate = Create Date
+FilterCreateDateDescription = Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.
+FilterIsNativelyCompiled = Is Natively Compiled
+FilterIsNativelyCompiledDescription = Include or exclude objects based on whether the object is natively compiled.
+FilterInPrimaryKey = In Primary Key
+FilterInPrimaryKeyDescription = Include or exclude objects based on whether the column is in a primary key.
 
 ############################################################################
 # Scripting Service

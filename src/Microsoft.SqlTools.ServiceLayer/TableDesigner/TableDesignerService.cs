@@ -1831,14 +1831,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private void UpdateTableTitleInfo(TableInfo tableInfo)
         {
             var td = GetTableDesigner(tableInfo);
-            var advancedOpsIndex = tableInfo.Tooltip.LastIndexOf('[');
-            var advancedOps = "";
-            if(advancedOpsIndex > -1){
-                advancedOps = " " + tableInfo.Tooltip.Substring(advancedOpsIndex);
-            }
             tableInfo.Title = td.TableViewModel.FullName;
             var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
-            tableInfo.Tooltip = string.Format("{0} - {1}{2}", tableParent, tableInfo.Title, advancedOps);
+            tableInfo.Tooltip = string.Format("{0} - {1}", tableParent, tableInfo.Title);
         }
 
         private Dictionary<string, string> GetMetadata(TableInfo tableInfo)

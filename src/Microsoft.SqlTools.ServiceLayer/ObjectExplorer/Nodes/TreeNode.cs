@@ -120,6 +120,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         public string NodeStatus { get; set; }
 
+        public NodeFilterProperty[] FilterProperties { get; set; }
+
         /// <summary>
         /// Label to display to the user, describing this node.
         /// If not explicitly set this will fall back to the <see cref="NodeValue"/> but
@@ -235,7 +237,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 NodeStatus = this.NodeStatus,
                 NodeSubType = this.NodeSubType,
                 ErrorMessage = this.ErrorMessage,
-                ObjectType = this.NodeTypeId.ToString()
+                ObjectType = this.NodeTypeId.ToString(),
+                FilterableProperties = this.FilterProperties
             };
         }
 
@@ -243,14 +246,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand(string name, CancellationToken cancellationToken, string? accessToken = null)
+        public IList<TreeNode> Expand(string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<NodeFilter>? filters = null)
         {
             // TODO consider why solution explorer has separate Children and Items options
             if (children.IsInitialized)
             {
                 return children;
             }
-            PopulateChildren(false, name, cancellationToken, accessToken);
+            PopulateChildren(false, name, cancellationToken, accessToken, filters);
             return children;
         }
 
@@ -258,19 +261,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// Expands this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public IList<TreeNode> Expand(CancellationToken cancellationToken, string? accessToken = null)
+        public IList<TreeNode> Expand(CancellationToken cancellationToken, string? accessToken = null, IEnumerable<NodeFilter>? filters = null)
         {
-            return Expand(null, cancellationToken, accessToken);
+            return Expand(null, cancellationToken, accessToken, filters);
         }
 
         /// <summary>
         /// Refresh this node and returns its children
         /// </summary>
         /// <returns>Children as an IList. This is the raw children collection, not a copy</returns>
-        public virtual IList<TreeNode> Refresh(CancellationToken cancellationToken, string? accessToken = null)
+        public virtual IList<TreeNode> Refresh(CancellationToken cancellationToken, string? accessToken = null, IEnumerable<NodeFilter>? filters = null)
         {
             // TODO consider why solution explorer has separate Children and Items options
-            PopulateChildren(true, null, cancellationToken, accessToken);
+            PopulateChildren(true, null, cancellationToken, accessToken, filters);
             return children;
         }
 
@@ -322,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null)
+        protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<NodeFilter>? filters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
@@ -353,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         try
                         {
                             Logger.Verbose($"Begin populate children for {this.GetNodePath()} using {factory.GetType()} factory");
-                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken);
+                            IEnumerable<TreeNode> items = factory.Expand(this, refresh, name, includeSystemObjects, cancellationToken, filters);
                             Logger.Verbose($"End populate children for {this.GetNodePath()} using {factory.GetType()} factory");
                             if (items != null)
                             {

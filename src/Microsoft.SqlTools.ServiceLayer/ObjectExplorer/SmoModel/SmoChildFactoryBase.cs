@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
@@ -20,12 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     public class SmoChildFactoryBase : ChildFactory
     {
         private IEnumerable<NodeSmoProperty> smoProperties;
+
         public override IEnumerable<string> ApplicableParents()
         {
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<NodeFilter>? filters = null)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
@@ -33,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 if (this.PutFoldersAfterNodes)
                 {
-                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
                     OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                     RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
                 }
@@ -41,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
                     RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
                 }
 
                 OnBeginAsyncOperations(parent);
@@ -110,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, IEnumerable<NodeFilter>? appliedFilters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -131,6 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
+            var filterDefinitions = parent.FilterProperties;
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodePropertyFilter
@@ -140,6 +143,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Values = new List<object> { name },
                 });
             }
+            if (appliedFilters != null)
+            {
+                foreach (var f in appliedFilters)
+                {
+                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.DisplayName == f.DisplayName);
+                    filters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
+                }
+            }
+
             foreach (var querier in queriers)
             {
                 cancellationToken.ThrowIfCancellationRequested();

@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -71,5 +72,103 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// The object type of the node. e.g. Database, Server, Tables...
         /// </summary>
         public string ObjectType { get; set; }
+        /// <summary>
+        /// Filterable properties that this node supports
+        /// </summary>
+        public NodeFilterProperty[] FilterableProperties { get; set; }
+    }
+
+    /// <summary>
+    /// The filterable properties that a node supports
+    /// </summary>
+    public class NodeFilterProperty
+    {
+        /// <summary>
+        /// The name of the filter property
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// The name of the filter property displayed to the user
+        /// </summary>
+        public string DisplayName { get; set; }
+        /// <summary>
+        /// The description of the filter property
+        /// </summary>
+        public string Description { get; set; }
+        /// <summary>
+        /// The data type of the filter property
+        /// </summary>
+        public NodeFilterPropertyDataType Type { get; set; }
+        /// <summary>
+        /// The list of choices for the filter property if the type is choice
+        /// </summary>
+        public NodeFilterPropertyChoice[] Choices { get; set; }
+    }
+
+    /// <summary>
+    /// The data type of the filter property. Matches NodeFilterPropertyDataType enum in ADS : https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.proposed.d.ts#L1847-L1853
+    /// </summary>
+    public enum NodeFilterPropertyDataType
+    {
+        String = 0,
+        Number = 1,
+        Boolean = 2,
+        Date = 3,
+        Choice = 4
+    }
+
+    /// <summary>
+    /// The operator of the filter property. Matches NodeFilterOperator  enum in ADS: https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.proposed.d.ts#L1855-L1868
+    /// </summary>
+    public enum NodeFilterOperator
+    {
+        Equals = 0,
+        NotEquals = 1,
+        LessThan = 2,
+        LessThanOrEquals = 3,
+        GreaterThan = 4,
+        GreaterThanOrEquals = 5,
+        Between = 6,
+        NotBetween = 7,
+        Contains = 8,
+        NotContains = 9,
+    }
+
+    /// <summary>
+    /// The filters that can be used to filter the nodes in an expand request. 
+    /// </summary>
+    public class NodeFilter
+    {
+        /// <summary>
+        /// The name of the filter property
+        /// </summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// The operator of the filter property
+        /// </summary>
+        public NodeFilterOperator Operator { get; set; }
+
+        /// <summary>
+        /// The applied values of the filter property
+        /// </summary>
+        public JToken Value { get; set; }
+    }
+
+    /// <summary>
+    /// The choice for the filter property if the type is choice
+    /// </summary>
+    public class NodeFilterPropertyChoice
+    {
+        /// <summary>
+        /// The dropdown display value for the choice
+        /// </summary>
+        /// <value></value>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// The value of the choice
+        /// </summary>
+        public string Value { get; set; }
     }
 }
