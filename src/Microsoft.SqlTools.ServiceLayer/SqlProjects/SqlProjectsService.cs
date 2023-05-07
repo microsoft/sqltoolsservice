@@ -531,7 +531,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(() =>
             {
-                SqlProject project = GetProject(requestParams.ProjectUri!, onlyLoadProperties: true));
+                SqlProject project = GetProject(requestParams.ProjectUri!, onlyLoadProperties: true);
                 project.SqlCmdVariables.Update(requestParams.Name, requestParams.DefaultValue); // won't throw if doesn't exist
             }, requestContext);
         }
