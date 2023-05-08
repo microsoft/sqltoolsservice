@@ -586,21 +586,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
-         /// <summary>
-        /// Gets or sets the connection name
-        /// </summary>
-        public string ConnectionName
-        {
-            get
-            {
-                return GetOptionValue<string>("connectionName");
-            }
-            set
-            {
-                SetOptionValue("connectionName", value);
-            }
-        }
-
         /// <summary>
         /// Gets or sets the database display name
         /// </summary>
