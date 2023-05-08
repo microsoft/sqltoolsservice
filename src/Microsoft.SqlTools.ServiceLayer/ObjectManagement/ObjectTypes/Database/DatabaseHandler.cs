@@ -76,16 +76,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // open a connection for running the database dialog and associated task
-            ConnectionInfo originalConnInfo;
-            this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out originalConnInfo);
-            if (originalConnInfo == null)
+            ConnectionInfo connInfo;
+            this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out connInfo);
+            if (connInfo == null)
             {
-                throw new ArgumentException("Invalid connection URI '{0}'", requestParams.ConnectionUri);
+                throw new ArgumentException($"Invalid connection URI '{requestParams.ConnectionUri}'");
             }
 
             // create a default data context and database object
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
-            CDataContainer dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, null, ConfigAction.Create, requestParams.Database);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: !requestParams.IsNewObject);
 
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             var azurePrototype = prototype as DatabasePrototypeAzure;
@@ -174,29 +173,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, DatabaseInfo database, ConfigAction configAction, string databaseName)
-        {
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true);
-            string objectUrn = (configAction == ConfigAction.Update && database != null)
-                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(databaseName))
-                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server[@Name='{0}']",
-                    Urn.EscapeString(dataContainer.ServerName));
-            dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
-            return dataContainer;
-        }
-
         private string ConfigureDatabase(string connectionUri, DatabaseInfo database, ConfigAction configAction, RunType runType)
         {
             if (database.Name == null)
             {
-                throw new ArgumentException("Database name not provided");
+                throw new ArgumentException("Database name not provided.");
             }
 
-            CDataContainer dataContainer = CreateDatabaseDataContainer(connectionUri, database, configAction, database.Name);
+            // open a connection for running the database dialog and associated task
+            ConnectionInfo connInfo;
+            this.ConnectionService.TryFindConnection(connectionUri, out connInfo);
+            if (connInfo == null)
+            {
+                throw new ArgumentException($"Invalid connection URI '{connectionUri}'");
+            }
+
+            // create a default data context and database object
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: configAction != ConfigAction.Create);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
             if (database.Owner != null && database.Owner != DefaultValue)
