@@ -76,15 +76,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // open a connection for running the database dialog and associated task
-            ConnectionInfo originalConnInfo;
-            this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out originalConnInfo);
-            if (originalConnInfo == null)
+            ConnectionInfo connInfo;
+            this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out connInfo);
+            if (connInfo == null)
             {
-                throw new ArgumentException("Invalid connection URI '{0}'", requestParams.ConnectionUri);
+                throw new ArgumentException($"Invalid connection URI '{requestParams.ConnectionUri}'");
             }
 
             // create a default data context and database object
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
             CDataContainer dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create);
 
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
@@ -193,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (database.Name == null)
             {
-                throw new ArgumentException("Database name not provided");
+                throw new ArgumentException("Database name not provided.");
             }
 
             CDataContainer dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database);
