@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // create a default data context and database object
             ServerConnection serverConnection = ConnectionService.OpenServerConnection(originalConnInfo, "DataContainer");
-            CDataContainer dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, null, ConfigAction.Create, requestParams.Database);
+            CDataContainer dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create);
 
             var prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             var azurePrototype = prototype as DatabasePrototypeAzure;
@@ -174,14 +174,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, DatabaseInfo database, ConfigAction configAction, string databaseName)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo database = null)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true);
-            string objectUrn = (configAction == ConfigAction.Update && database != null)
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: configAction != ConfigAction.Create);
+            string objectUrn = (configAction != ConfigAction.Create && database != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(databaseName))
+                    Urn.EscapeString(database.Name))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server[@Name='{0}']",
                     Urn.EscapeString(dataContainer.ServerName));
@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Database name not provided");
             }
 
-            CDataContainer dataContainer = CreateDatabaseDataContainer(connectionUri, database, configAction, database.Name);
+            CDataContainer dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
             if (database.Owner != null && database.Owner != DefaultValue)
