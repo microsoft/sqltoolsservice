@@ -11,6 +11,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
+using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -177,6 +178,69 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             StringBuilder sb = new StringBuilder(s);
             sb.Replace(esc, replace);
             return sb.ToString();
+        }
+
+        public static SearchableObjectType ConvertPotentialSqlObjectTypeToSearchableObjectType(string typeStr)
+        {
+            if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.ApplicationRole))
+            {
+                return SearchableObjectType.ApplicationRole;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.Credential))
+            {
+                return SearchableObjectType.Credential;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.DatabaseRole))
+            {
+                return SearchableObjectType.DatabaseRole;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.ServerLevelLogin))
+            {
+                return SearchableObjectType.Login;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.ServerRole))
+            {
+                return SearchableObjectType.ServerRole;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.Table))
+            {
+                return SearchableObjectType.Table;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.User))
+            {
+                return SearchableObjectType.User;
+            }
+            else if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.View))
+            {
+                return SearchableObjectType.View;
+            }
+            else
+            {
+                return ConvertStringToSearchableObjectType(typeStr);
+            }
+        }
+
+        private static string ConvertSqlObjectTypeToStringValue(SqlObjectType objectType)
+        {
+            return JsonConvert.SerializeObject(objectType).Replace("\"", "");
+        }
+
+        private static SearchableObjectType ConvertStringToSearchableObjectType(string typeStr)
+        {
+            foreach(SearchableObjectType t in Enum.GetValues(typeof(SearchableObjectType)))
+            {
+                if (t == SearchableObjectType.LastType)
+                {
+                    continue;
+                }
+                SecurableType secType = PermissionsData.Securable.GetSecurableType(t);
+                SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(t);
+                if (desc.DisplayTypeNameSingular == typeStr || desc.DisplayTypeNamePlural == typeStr)
+                {
+                    return t;
+                }
+            }
+            return SearchableObjectType.LastType;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// </summary>
         public string? ContextId { get; set; }
 
-        public SqlObjectType[]? ObjectTypes { get; set; }
+        public string[]? ObjectTypes { get; set; }
 
         public string? SearchText { get; set; }
         public string? Schema { get; set; }
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     {
         public string? Name { get; set; }
         public string? Schema { get; set; }
-        public SqlObjectType? Type { get; set; }
+        public string? Type { get; set; }
     }
 
     public class SearchRequest
