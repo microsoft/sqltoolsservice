@@ -17,17 +17,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class SecurableUtils
     {
+        private static readonly SearchableObjectType[] securableTypesForServerLevel = new SearchableObjectType[] {
+            SearchableObjectType.AvailabilityGroup,
+            SearchableObjectType.Endpoint,
+            SearchableObjectType.Login,
+            SearchableObjectType.ServerRole,
+            SearchableObjectType.Server
+        };
         public static SecurableTypeMetadata[] GetSecurableTypeMetadata(SqlObjectType objectType, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             List<SecurableTypeMetadata> res = new List<SecurableTypeMetadata>();
             switch (objectType)
             {
+                case SqlObjectType.ServerLevelLogin:
+                case SqlObjectType.ServerRole:
+                    AddSecurableTypeMetadata(res, securableTypesForServerLevel, serverVersion, databaseName, databaseEngineType, engineEdition);
+                    break;
                 case SqlObjectType.ApplicationRole:
                 case SqlObjectType.DatabaseRole:
-                case SqlObjectType.ServerRole:
-                case SqlObjectType.ServerLevelLogin:
                 case SqlObjectType.User:
-                    AddAllSecurableTypeMetadata(res, serverVersion, databaseName, databaseEngineType, engineEdition);
+                    AddSecurableTypeMetadata(res, (SearchableObjectType[])Enum.GetValues(typeof(SearchableObjectType)), serverVersion, databaseName, databaseEngineType, engineEdition);
                     break;
                 default:
                     break;
@@ -35,9 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        private static void AddAllSecurableTypeMetadata(List<SecurableTypeMetadata> res, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
-            foreach(SearchableObjectType t in Enum.GetValues(typeof(SearchableObjectType)))
+            foreach(SearchableObjectType t in supportedTypes)
             {
                 if (t == SearchableObjectType.LastType)
                 {
