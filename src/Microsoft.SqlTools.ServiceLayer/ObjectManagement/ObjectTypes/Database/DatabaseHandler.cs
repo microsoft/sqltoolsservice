@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 databaseViewInfo.LoginNames = logins.ToArray();
             }
 
-            var context = new DatabaseViewContext(requestParams, dataContainer.ServerConnection);
+            var context = new DatabaseViewContext(requestParams);
             return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
         }
 
