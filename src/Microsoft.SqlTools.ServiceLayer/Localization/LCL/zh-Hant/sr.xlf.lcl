@@ -3328,12 +3328,18 @@
       <Item ItemId=";FilterInPrimaryKey" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[In Primary Key]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在主索引鍵中]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";FilterInPrimaryKeyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Include or exclude objects based on whether the column is in a primary key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[根據資料行是否在主索引鍵中，包含或排除物件。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3403,6 +3409,9 @@
       <Item ItemId=";FilterOwnerDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Include or exclude objects based on the owner or part of an owner name.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[根據擁有者或擁有者名稱的一部分，包含或排除物件。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3418,6 +3427,9 @@
       <Item ItemId=";FilterSchemaDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[ Include or exclude objects based on the schema or part of a schema name.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ 根據結構描述或結構描述名稱的一部分，包含或排除物件。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
