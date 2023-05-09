@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
@@ -25,6 +26,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             SearchableObjectType.ServerRole,
             SearchableObjectType.Server
         };
+
+        static internal string launchEffectivePermissions = @"
+<formdescription>
+    <params>
+        <servername></servername>
+        <servertype>sql</servertype>
+        <database></database>
+        <urn></urn>
+        <executeas></executeas>
+        <executetype></executetype>
+        <A32942B7-FBDE-4ac3-B84E-F5EC89961094 />
+        <assemblyname>sqlmgmt.dll</assemblyname>
+    </params>
+</formdescription>";
+
         public static SecurableTypeMetadata[] GetSecurableTypeMetadata(SqlObjectType objectType, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             List<SecurableTypeMetadata> res = new List<SecurableTypeMetadata>();
@@ -100,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             Permission = p?.Permission.Name,
                             Grantor = p?.Grantor,
                             Grant = p?.State == PermissionStatus.Grant || p?.State == PermissionStatus.WithGrant,
-                            WithGrant = p?.State == PermissionStatus.WithGrant
+                            WithGrant = p?.State == PermissionStatus.WithGrant,
                         };
                         permissionItemsDict[key] = permissionItem;
                     }
@@ -114,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Schema = s.Schema,
                     Type = s.TypeName,
                     Permissions = permissions,
-                    EffectivePermissions = GetEffectivePermissions(dataContainer)
+                    EffectivePermissions = CanHaveEffectivePermissions(principalType) ? GetEffectivePermissions(dataContainer, s, principal) : new string[0]
                 };
                 res.Add(secPerm);
             }
@@ -122,9 +138,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        public static string[] GetEffectivePermissions(CDataContainer dataContainer)
+        public static bool CanHaveEffectivePermissions(PrincipalType principalType)
         {
-            // TODO pass in other parameters for initialization
+            // TODO
+            return true;
+        }
+
+        internal static string[] GetEffectivePermissions(CDataContainer dataContainer, Securable securable, Principal principal)
+        {
+            var doc = ReadEffectivePermissionsXml(securable, principal);
+            dataContainer.Document = doc;
             var dataModel = new EffectivePermissionsData(dataContainer);
             List<string> res = new List<string>();
             DataSet data = dataModel.QueryEffectivePermissions();
@@ -146,6 +169,38 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             return res.ToArray();
         }
+
+        /// <summary>
+        /// Form the xml to query effective permissions data 
+        /// </summary>
+        /// <returns></returns>
+        private static XmlDocument ReadEffectivePermissionsXml(Securable securable, Principal principal )
+        {
+            if (securable != null && principal != null)
+            {
+                string executeas = null;
+                string executetype = null;
+                GetPrincipalToExecuteAs(principal,
+                                                                     securable.DatabaseName,
+                                                                     securable.ConnectionInfo,
+                                                                     out executeas,
+                                                                     out executetype);
+
+                // build a document
+                XmlDocument xml = new XmlDocument();
+                xml.LoadXml(launchEffectivePermissions);
+                xml.SelectSingleNode("/formdescription/params/urn").InnerText = securable.Urn;
+                xml.SelectSingleNode("/formdescription/params/servername").InnerText = ((SqlConnectionInfo)securable.ConnectionInfo).ServerName;
+                xml.SelectSingleNode("/formdescription/params/database").InnerText = securable.DatabaseName;
+                xml.SelectSingleNode("/formdescription/params/executeas").InnerText = executeas;
+                xml.SelectSingleNode("/formdescription/params/executetype").InnerText = executetype;
+
+                return xml;
+            }
+
+            return null;
+        }
+
 
         internal static Principal CreatePrincipal(bool principalExists, PrincipalType principalType, SqlSmoObject o, CDataContainer dataContainer)
         {
@@ -244,6 +299,67 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return SearchableObjectType.LastType;
+        }
+
+        internal static void GetPrincipalToExecuteAs(Principal principal,
+                                                     string databaseName,
+                                                     object connectionInfo,
+                                                     out string executeas,
+                                                     out string executetype)
+        {
+            executeas = null;
+            executetype = null;
+
+            //
+            // IF we are a user AND we are mapped to a login, 
+            // then we actually want to calculate effective 
+            // permissions as the login, and not as the user.
+            // why?  because that's the only way the server 
+            // level perms will be taken into account.
+            //
+            if (principal.PrincipalType == PrincipalType.User &&
+                !string.IsNullOrEmpty(databaseName))
+            {
+                SqlConnectionInfoWithConnection ci = connectionInfo as SqlConnectionInfoWithConnection;
+                if (ci != null && ci.ServerConnection != null)
+                {
+                    Server server = new Server(ci.ServerConnection);
+                    if (server != null)
+                    {
+                        Database db = server.Databases[databaseName];
+                        if (db != null)
+                        {
+                            User u = db.Users[principal.Name];
+
+                            //
+                            // if the the user is mapped to a certificate or
+                            // or asymmetric key, we should execute as user.
+                            //
+                            if (u != null &&
+                                (u.LoginType == LoginType.SqlLogin ||
+                                 u.LoginType == LoginType.WindowsUser ||
+                                 u.LoginType == LoginType.WindowsGroup) &&
+                                !string.IsNullOrEmpty(u.Login))
+                            {
+                                executeas = u.Login;
+                                executetype = "login";
+                            }
+                        }
+                    }
+                }
+            }
+
+            //
+            // if we couldn't determine what type of user the principal was, 
+            // or if the user is mapped to a certificate or asymmetric key, or if
+            // the principal was a login, we will default to executing as whatever
+            // principal type we are (either login or user).
+            //
+            if (string.IsNullOrEmpty(executeas) || string.IsNullOrEmpty(executetype))
+            {
+                executeas = principal.Name;
+                executetype = (principal.PrincipalType == PrincipalType.Login) ? "login" : "user";
+            }
         }
     }
 }
