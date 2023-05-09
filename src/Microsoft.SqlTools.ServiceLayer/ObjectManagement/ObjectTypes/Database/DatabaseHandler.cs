@@ -183,8 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     "Server/Database[@Name='{0}']",
                     Urn.EscapeString(database.Name))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server[@Name='{0}']",
-                    Urn.EscapeString(dataContainer.ServerName));
+                    "Server");
             dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
             return dataContainer;
         }
