@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sb.ToString();
         }
 
-        public static SearchableObjectType ConvertPotentialSqlObjectTypeToSearchableObjectType(string typeStr)
+        internal static SearchableObjectType ConvertPotentialSqlObjectTypeToSearchableObjectType(string typeStr)
         {
             if (typeStr == ConvertSqlObjectTypeToStringValue(SqlObjectType.ApplicationRole))
             {
