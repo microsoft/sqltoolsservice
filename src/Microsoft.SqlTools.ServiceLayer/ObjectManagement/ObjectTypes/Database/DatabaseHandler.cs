@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using System.Resources;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -198,6 +199,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database);
             DatabasePrototype prototype = new DatabaseTaskHelper(dataContainer).Prototype;
             prototype.Name = database.Name;
+
+            // Update database file names now that we have a database name
+            Debug.Assert(prototype.Files.Count >= 2, "New database prototype had less than 2 initial files.");
+            var sanitizedName = SanitizeFileName(prototype.Name);
+
+            var dataFile = prototype.Files[0];
+            Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
+            dataFile.Name = sanitizedName;
+
+            var logFile = prototype.Files[1];
+            Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
+            logFile.Name = $"{sanitizedName}_log";
+
             if (database.Owner != null && database.Owner != DefaultValue)
             {
                 prototype.Owner = database.Owner;
@@ -236,6 +250,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             return sqlScript;
+        }
+
+        private static string SanitizeFileName(string name)
+        {
+            char[] result = name.ToCharArray();
+            string illegalCharacters = "\\/:*?\"<>|";
+
+            int resultLength    = result.GetLength(0);
+            int illegalLength   = illegalCharacters.Length;
+
+            for (int resultIndex = 0; resultIndex < resultLength; resultIndex++)
+            {
+                for (int illegalIndex = 0; illegalIndex < illegalLength; illegalIndex++)
+                {
+                    if (result[resultIndex] == illegalCharacters[illegalIndex])
+                    {
+                        result[resultIndex] = '_';
+                    }
+                }
+            }
+    
+            return new string(result);
         }
 
         private bool IsManagedInstance(Server server)
