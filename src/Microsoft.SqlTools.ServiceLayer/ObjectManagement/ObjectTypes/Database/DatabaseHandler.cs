@@ -200,16 +200,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             prototype.Name = database.Name;
 
             // Update database file names now that we have a database name
-            Debug.Assert(prototype.Files.Count >= 2, "New database prototype had less than 2 initial files.");
-            var sanitizedName = SanitizeFileName(prototype.Name);
+            if (!prototype.HideFileSettings)
+            {
+                var sanitizedName = SanitizeFileName(prototype.Name);
 
-            var dataFile = prototype.Files[0];
-            Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
-            dataFile.Name = sanitizedName;
+                var dataFile = prototype.Files[0];
+                Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
+                dataFile.Name = sanitizedName;
 
-            var logFile = prototype.Files[1];
-            Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
-            logFile.Name = $"{sanitizedName}_log";
+                if (prototype.NumberOfLogFiles > 0)
+                {
+                    var logFile = prototype.Files[1];
+                    Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
+                    logFile.Name = $"{sanitizedName}_log";
+                }
+            }
 
             if (database.Owner != null && database.Owner != DefaultValue)
             {
@@ -256,8 +261,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             char[] result = name.ToCharArray();
             string illegalCharacters = "\\/:*?\"<>|";
 
-            int resultLength    = result.GetLength(0);
-            int illegalLength   = illegalCharacters.Length;
+            int resultLength = result.GetLength(0);
+            int illegalLength = illegalCharacters.Length;
 
             for (int resultIndex = 0; resultIndex < resultLength; resultIndex++)
             {
@@ -269,7 +274,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
                 }
             }
-    
+
             return new string(result);
         }
 
