@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -71,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         public ConnectedBindingQueue()
             : this(true)
-        {
+        {            
         }
 
         public ConnectedBindingQueue(bool needsMetadata)
@@ -91,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="connInfo"></param>
         internal static string GetConnectionContextKey(ConnectionDetails details)
-        {
+        {            
             string key = string.Format("{0}_{1}_{2}_{3}",
                 details.ServerName ?? "NULL",
                 details.DatabaseName ?? "NULL",
@@ -109,39 +108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 key += "_" + details.GroupId;
             }
 
-            if (!string.IsNullOrEmpty(details.ConnectionName))
-            {
-                key += "_" + details.ConnectionName;
-            }
-
-            // Additional properties that are used to distinguish the connection (besides password)
-            // These are so that multiple connections can connect to the same target, with different settings.
-            foreach (KeyValuePair<string, object> entry in details.Options)
-            {
-                // Filter out properties we already have or don't want (password)
-                if (entry.Key != "server" && entry.Key != "database" && entry.Key != "user"
-                && entry.Key != "authenticationType" && entry.Key != "databaseDisplayName"
-                && entry.Key != "groupId" && entry.Key != "password" && entry.Key != "connectionName")
-                {
-                    // Boolean values are explicitly labeled true or false instead of undefined.
-                    if (entry.Value is bool)
-                    {
-                        if ((bool)entry.Value)
-                        {
-                            key += "_" + entry.Key + ":true";
-                        }
-                        else
-                        {
-                            key += "_" + entry.Key + ":false";
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(entry.Value as String))
-                    {
-                        key += "_" + entry.Key + ":" + entry.Value;
-                    }
-                }
-            }
-
             return Uri.EscapeUriString(key);
         }
 
@@ -154,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return string.Format("{0}_{1}",
                 serverName ?? "NULL",
                 databaseName ?? "NULL");
-
+            
         }
 
         public void CloseConnections(string serverName, string databaseName, int millisecondsTimeout)
@@ -232,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-
+                   
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
 
@@ -244,19 +210,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             this.CurrentSettings.SqlTools.IntelliSense.LowerCaseSuggestions.Value
                                 ? CasingStyle.Lowercase : CasingStyle.Uppercase;
                         bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
-                    }
-
+                    }         
+            
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
                 }
                 catch (Exception)
                 {
                     bindingContext.IsConnected = false;
-                }
+                }       
                 finally
                 {
                     bindingContext.BindingLock.Set();
-                }
+                }         
             }
 
             return connectionKey;

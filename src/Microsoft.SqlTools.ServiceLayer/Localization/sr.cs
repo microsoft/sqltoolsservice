@@ -2381,6 +2381,150 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string FilterName
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterName);
+            }
+        }
+
+        public static string FilterNameDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterNameDescription);
+            }
+        }
+
+        public static string FilterSchema
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterSchema);
+            }
+        }
+
+        public static string FilterSchemaDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterSchemaDescription);
+            }
+        }
+
+        public static string FilterOwner
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterOwner);
+            }
+        }
+
+        public static string FilterOwnerDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterOwnerDescription);
+            }
+        }
+
+        public static string FilterDurabilityType
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDurabilityType);
+            }
+        }
+
+        public static string FilterDurabilityTypeDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDurabilityTypeDescription);
+            }
+        }
+
+        public static string FilterDurabilitySchemaOnly
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDurabilitySchemaOnly);
+            }
+        }
+
+        public static string FilterDurabilitySchemaAndData
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterDurabilitySchemaAndData);
+            }
+        }
+
+        public static string FilterIsMemoryOptimized
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterIsMemoryOptimized);
+            }
+        }
+
+        public static string FilterIsMemoryOptimizedDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterIsMemoryOptimizedDescription);
+            }
+        }
+
+        public static string FilterCreateDate
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterCreateDate);
+            }
+        }
+
+        public static string FilterCreateDateDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterCreateDateDescription);
+            }
+        }
+
+        public static string FilterIsNativelyCompiled
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterIsNativelyCompiled);
+            }
+        }
+
+        public static string FilterIsNativelyCompiledDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterIsNativelyCompiledDescription);
+            }
+        }
+
+        public static string FilterInPrimaryKey
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterInPrimaryKey);
+            }
+        }
+
+        public static string FilterInPrimaryKeyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.FilterInPrimaryKeyDescription);
+            }
+        }
+
         public static string ScriptingParams_ConnectionString_Property_Invalid
         {
             get
@@ -12619,6 +12763,60 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string DatabaseNotAccessible = "DatabaseNotAccessible";
+
+
+            public const string FilterName = "FilterName";
+
+
+            public const string FilterNameDescription = "FilterNameDescription";
+
+
+            public const string FilterSchema = "FilterSchema";
+
+
+            public const string FilterSchemaDescription = "FilterSchemaDescription";
+
+
+            public const string FilterOwner = "FilterOwner";
+
+
+            public const string FilterOwnerDescription = "FilterOwnerDescription";
+
+
+            public const string FilterDurabilityType = "FilterDurabilityType";
+
+
+            public const string FilterDurabilityTypeDescription = "FilterDurabilityTypeDescription";
+
+
+            public const string FilterDurabilitySchemaOnly = "FilterDurabilitySchemaOnly";
+
+
+            public const string FilterDurabilitySchemaAndData = "FilterDurabilitySchemaAndData";
+
+
+            public const string FilterIsMemoryOptimized = "FilterIsMemoryOptimized";
+
+
+            public const string FilterIsMemoryOptimizedDescription = "FilterIsMemoryOptimizedDescription";
+
+
+            public const string FilterCreateDate = "FilterCreateDate";
+
+
+            public const string FilterCreateDateDescription = "FilterCreateDateDescription";
+
+
+            public const string FilterIsNativelyCompiled = "FilterIsNativelyCompiled";
+
+
+            public const string FilterIsNativelyCompiledDescription = "FilterIsNativelyCompiledDescription";
+
+
+            public const string FilterInPrimaryKey = "FilterInPrimaryKey";
+
+
+            public const string FilterInPrimaryKeyDescription = "FilterInPrimaryKeyDescription";
 
 
             public const string ScriptingParams_ConnectionString_Property_Invalid = "ScriptingParams_ConnectionString_Property_Invalid";

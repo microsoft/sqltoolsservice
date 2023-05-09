@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -56,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             ConnectedBindingContext connectedBindingContext = new ConnectedBindingContext();
             connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
             connectedBindingQueue = new ConnectedBindingQueue(false);
-            connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL_persistSecurityInfo:true", connectedBindingContext);
+            connectedBindingQueue.BindingContextMap.Add($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL", connectedBindingContext);
             connectedBindingQueue.BindingContextTasks.Add(connectedBindingContext, Task.Run(() => null));
             mockConnectionOpener = new Mock<SqlConnectionOpener>();
             connectedBindingQueue.SetConnectionOpener(mockConnectionOpener.Object);
@@ -297,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void FindNodeCanExpandParentNodes()
         {
             var mockTreeNode = new Mock<TreeNode>();
-            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>() };
+            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>(), ItExpr.IsNull<IEnumerable<NodeFilter>>() };
             mockTreeNode.Protected().Setup("PopulateChildren", populateChildrenArguments);
             mockTreeNode.Object.IsAlwaysLeaf = false;
 
