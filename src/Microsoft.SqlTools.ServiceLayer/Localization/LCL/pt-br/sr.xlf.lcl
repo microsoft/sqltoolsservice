@@ -3328,12 +3328,18 @@
       <Item ItemId=";FilterInPrimaryKey" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[In Primary Key]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Na Chave Primária]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";FilterInPrimaryKeyDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Include or exclude objects based on whether the column is in a primary key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Incluir ou excluir objetos com base em se a coluna está em uma chave primária.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3403,6 +3409,9 @@
       <Item ItemId=";FilterOwnerDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Include or exclude objects based on the owner or part of an owner name.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Incluir ou excluir objetos com base no proprietário ou parte de um nome de proprietário.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3418,6 +3427,9 @@
       <Item ItemId=";FilterSchemaDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[ Include or exclude objects based on the schema or part of a schema name.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ Incluir ou excluir objetos com base no esquema ou em parte de um nome de esquema.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
