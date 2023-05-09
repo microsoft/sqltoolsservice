@@ -55,8 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             string[] languages = languageOptionsList.ToArray();
             LoginPrototype prototype = parameters.IsNewObject
-            ? new LoginPrototype(dataContainer.Server)
-            : new LoginPrototype(dataContainer.Server, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login);
+            ? new LoginPrototype(dataContainer)
+            : new LoginPrototype(dataContainer, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login);
 
             List<string> loginServerRoles = new List<string>();
             foreach (string role in prototype.ServerRoles.ServerRoleNames)
@@ -83,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 IsEnabled = !prototype.IsDisabled,
                 IsLockedOut = prototype.IsLockedOut,
                 UserMapping = new ServerLoginDatabaseUserMapping[0],
-                SecurablePermissions = new SecurablePermissions[0]
+                SecurablePermissions = prototype.SecurablePermissions
             };
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[login.Name]);
+            LoginPrototype prototype = new LoginPrototype(dataContainer, dataContainer.Server.Logins[login.Name]);
 
             prototype.SqlPassword = login.Password;
             if (0 != string.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, login);
+            LoginPrototype prototype = new LoginPrototype(dataContainer, login);
 
             if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
             {

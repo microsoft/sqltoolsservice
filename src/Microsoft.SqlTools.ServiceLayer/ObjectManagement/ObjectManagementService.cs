@@ -142,13 +142,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     continue;
                 }
 
+                SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
+
                 if (requestParams.SearchText != null)
                 {
-                    SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
+                    if (desc.IsDatabaseObject)
+                    {
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.Database ?? "#TODO db name", requestParams.SearchText, false, true);
+                    }
+                    else
+                    {
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
+                    }
                 }
                 else
                 {
-                    SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, true);
+                    if (desc.IsDatabaseObject)
+                    {
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.Database ?? "#TODO DB name", true);
+                    }
+                    else
+                    {
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, true);
+                    }
+
                 }
 
                 foreach (SearchableObject obj in result)

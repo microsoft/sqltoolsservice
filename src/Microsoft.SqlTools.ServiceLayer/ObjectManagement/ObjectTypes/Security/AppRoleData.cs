@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private bool exists;
         private AppRolePrototypeData currentState;
         private AppRolePrototypeData originalState;
+        private SecurablePermissions[] securablePermissions = null;
 
         #endregion
 
@@ -139,6 +140,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.currentState.ExtendedProperties = value;
             }
         }
+
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return this.securablePermissions;
+            }
+            set
+            {
+                this.securablePermissions = value;
+            }
+        }
         #endregion
 
         #region Constructors / Dispose
@@ -149,6 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new AppRolePrototypeData(context, database);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
+            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
@@ -175,6 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.databaseName = database;
             this.currentState = new AppRolePrototypeData(context, database, role);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
+            this.securablePermissions = SecurableUtils.GetSecurablePermissions(true, PrincipalType.ApplicationRole, role, context);
         }
 
         #endregion

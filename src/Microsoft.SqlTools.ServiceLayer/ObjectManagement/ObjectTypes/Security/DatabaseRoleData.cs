@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private bool exists;
         private DatabaseRolePrototypeData currentState;
         private DatabaseRolePrototypeData originalState;
+        private SecurablePermissions[] securablePermissions = null;
 
         #endregion
 
@@ -138,6 +139,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 return this.dataContainer.Server.VersionMajor >= 9;
             }
         }
+
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return this.securablePermissions;
+            }
+            set
+            {
+                this.securablePermissions = value;
+            }
+        }
         #endregion
 
         #region Constructors / Dispose
@@ -148,6 +161,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new DatabaseRolePrototypeData(context, database);
             this.originalState = (DatabaseRolePrototypeData)this.currentState.Clone();
+            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
@@ -174,6 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new DatabaseRolePrototypeData(context, database, role);
             this.originalState = (DatabaseRolePrototypeData)this.currentState.Clone();
+            this.securablePermissions = SecurableUtils.GetSecurablePermissions(true, PrincipalType.DatabaseRole, role, context);
         }
 
         #endregion

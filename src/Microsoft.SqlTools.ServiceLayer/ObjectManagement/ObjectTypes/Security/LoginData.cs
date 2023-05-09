@@ -1552,6 +1552,7 @@ INNER JOIN sys.sql_logins AS sql_logins
         private LoginPrototypeData  originalState;
 
         private bool mapToCredential;
+        private SecurablePermissions[] securablePermissions = null;
         public bool MapToCredential
         {
             set
@@ -1905,6 +1906,18 @@ INNER JOIN sys.sql_logins AS sql_logins
             }
         }
 
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return securablePermissions;
+            }
+            set
+            {
+                securablePermissions = value;
+            }
+        }
+
         /// <summary>
         /// Get the database roles collection for the user in a particular database
         /// </summary>
@@ -2056,13 +2069,15 @@ INNER JOIN sys.sql_logins AS sql_logins
         /// constructor
         /// </summary>
         /// <param name="server">The server on which we are creating a login</param>
-        public LoginPrototype(Microsoft.SqlServer.Management.Smo.Server server)
+        public LoginPrototype(CDataContainer context)
         {
+            var server = context.Server;
             this.exists         = false;
             this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
             this.currentState   = new LoginPrototypeData(server);
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
+            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
@@ -2070,21 +2085,24 @@ INNER JOIN sys.sql_logins AS sql_logins
         /// </summary>
         /// <param name="server">The server on which we are modifying a login</param>
         /// <param name="login">The login we are modifying</param>
-        public LoginPrototype(Microsoft.SqlServer.Management.Smo.Server server, Login login)
+        public LoginPrototype(CDataContainer context, Login login)
         {
+            var server = context.Server;
             this.exists         = true;
             this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
             this.currentState   = new LoginPrototypeData(server, login);
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
+            this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.ServerRole, login, context);
         }
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="server">The server on which we are creating a login</param>
-        public LoginPrototype(Microsoft.SqlServer.Management.Smo.Server server, LoginInfo login)
+        public LoginPrototype(CDataContainer context, LoginInfo login)
         {
+            var server = context.Server;
             this.exists         = false;
             this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
             this.currentState   = new LoginPrototypeData(server);

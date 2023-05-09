@@ -19,6 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 
         public string? SearchText { get; set; }
         public string? Schema { get; set; }
+        public string? Database { get; set; }
     }
 
     public class SearchResultItem

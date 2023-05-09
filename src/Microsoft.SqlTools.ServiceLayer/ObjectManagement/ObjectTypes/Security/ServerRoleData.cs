@@ -133,6 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
