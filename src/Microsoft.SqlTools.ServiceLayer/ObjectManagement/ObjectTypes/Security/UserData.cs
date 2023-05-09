@@ -363,6 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private bool exists = false;
         private Database parent;
         private CDataContainer context;
+        private SecurablePermissions[] securablePermissions = new SecurablePermissions[0];
 
         public bool IsRoleMembershipChangesApplied { get; set; } //default is false
         public bool IsSchemaOwnershipChangesApplied { get; set; } //default is false
@@ -483,6 +484,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.currentState.isMember[roleName] = isMember;
         }
 
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return this.securablePermissions;
+            }
+            set
+            {
+                this.securablePermissions = value;
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -500,6 +513,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             Database? parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database ?? throw new ArgumentException("Context ParentUrn is invalid");
             this.parent = parent;
+
+            // TODO fix exists check
+            {
+                this.securablePermissions = SecurableUtils.GetSecurablePermissions(true, PrincipalType.User, GetUser(parent), context);
+            }
 
             this.roleNames = this.PopulateRoles();
             this.schemaNames = this.PopulateSchemas();

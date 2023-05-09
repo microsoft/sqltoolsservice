@@ -213,13 +213,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
                     DefaultLanguage = defaultLanguage,
-                    SecurablePermissions = new SecurablePermissions[0]
+                    SecurablePermissions = currentUserPrototype.SecurablePermissions
                 },
                 UserTypes = supportedUserTypes.ToArray(),
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = logins,
-                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
+                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray(),
+                SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.User, dataContainer.Server.Version, parameters.Database, dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
             var context = new UserViewContext(parameters, dataContainer.ServerConnection, currentUserPrototype.CurrentState);
             return new InitializeViewResult { ViewInfo = userViewInfo, Context = context };
