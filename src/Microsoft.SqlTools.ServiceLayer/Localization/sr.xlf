@@ -7363,8 +7363,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="general_default">
-        <source>&amp;lt;default&amp;gt;</source>
-        <target state="new">&amp;lt;default&amp;gt;</target>
+        <source>&lt;default&gt;</source>
+        <target state="new">&lt;default&gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="general_fileGroup">
@@ -7393,8 +7393,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="general_newFilegroup">
-        <source>&amp;lt;new filegroup&amp;gt;</source>
-        <target state="new">&amp;lt;new filegroup&amp;gt;</target>
+        <source>&lt;new filegroup&gt;</source>
+        <target state="new">&lt;new filegroup&gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="general_path">
@@ -7408,8 +7408,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="general_rawDevice">
-        <source>&amp;lt;raw device&amp;gt;</source>
-        <target state="new">&amp;lt;raw device&amp;gt;</target>
+        <source>&lt;raw device&gt;</source>
+        <target state="new">&lt;raw device&gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="general_recoveryModel_bulkLogged">
@@ -7728,8 +7728,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_file_defaultpathstring">
-        <source>&amp;lt;default path&amp;gt;</source>
-        <target state="new">&amp;lt;default path&amp;gt;</target>
+        <source>&lt;default path&gt;</source>
+        <target state="new">&lt;default path&gt;</target>
         <note></note>
       </trans-unit>
       <trans-unit id="title_openConnectionsMustBeClosed">

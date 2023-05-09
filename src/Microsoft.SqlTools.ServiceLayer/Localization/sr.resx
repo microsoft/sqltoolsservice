@@ -6025,7 +6025,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="general_default" xml:space="preserve">
-    <value>&amp;lt;default&amp;gt;</value>
+    <value>&lt;default&gt;</value>
     <comment></comment>
   </data>
   <data name="general_fileGroup" xml:space="preserve">
@@ -6049,7 +6049,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="general_newFilegroup" xml:space="preserve">
-    <value>&amp;lt;new filegroup&amp;gt;</value>
+    <value>&lt;new filegroup&gt;</value>
     <comment></comment>
   </data>
   <data name="general_path" xml:space="preserve">
@@ -6061,7 +6061,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="general_rawDevice" xml:space="preserve">
-    <value>&amp;lt;raw device&amp;gt;</value>
+    <value>&lt;raw device&gt;</value>
     <comment></comment>
   </data>
   <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
@@ -6317,7 +6317,7 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="prototype_file_defaultpathstring" xml:space="preserve">
-    <value>&amp;lt;default path&amp;gt;</value>
+    <value>&lt;default path&gt;</value>
     <comment></comment>
   </data>
   <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
