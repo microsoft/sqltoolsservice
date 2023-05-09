@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             set
             {
-
+                securablePermissions = value;
             }
         }
         #endregion

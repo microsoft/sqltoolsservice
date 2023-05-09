@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -87,39 +88,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             foreach (Securable s in securables)
             {
                 var permissionStates = principal.GetPermissionStates(s);
-                List<SecurablePermissionItem> permissionItems = new List<SecurablePermissionItem>();
+                Dictionary<string, SecurablePermissionItem> permissionItemsDict = new Dictionary<string, SecurablePermissionItem>();
                 for (int i = 0; i < permissionStates.Count; i++)
                 {
                     var p = permissionStates[i];
-                    var permissionItem = new SecurablePermissionItem()
+                    string key = p?.Permission.Name ?? string.Empty;
+                    if (!permissionItemsDict.ContainsKey(key) || string.IsNullOrEmpty(permissionItemsDict[key].Grantor))
                     {
-                        Permission = p?.Permission.Name,
-                        Grantor = p?.Grantor,
-                        Grant = p?.State == PermissionStatus.Grant || p?.State == PermissionStatus.WithGrant,
-                        WithGrant = p?.State == PermissionStatus.WithGrant
-                    };
-                    permissionItems.Add(permissionItem);
+                        var permissionItem = new SecurablePermissionItem()
+                        {
+                            Permission = p?.Permission.Name,
+                            Grantor = p?.Grantor,
+                            Grant = p?.State == PermissionStatus.Grant || p?.State == PermissionStatus.WithGrant,
+                            WithGrant = p?.State == PermissionStatus.WithGrant
+                        };
+                        permissionItemsDict[key] = permissionItem;
+                    }
                 }
-                // var distinct = permissionItems.GroupBy(p => p.Permission).Select(g => {
-                //     if (g.Count() > 1)
-                //     {
-                //         foreach (var item in g)
-                //         {
-                //             if (item.Grantor != null)
-                //             {
-                //                 return item;
-                //             }
-                //         }
-                //     }
-                //     return g.First();
-                // }).ToArray();
+
+                var permissions = permissionItemsDict.Values.OrderBy(x => x.Permission, StringComparer.InvariantCulture).ToArray();
 
                 SecurablePermissions secPerm = new SecurablePermissions()
                 {
                     Name = s.Name,
                     Schema = s.Schema,
                     Type = s.TypeName,
-                    Permissions = permissionItems.ToArray(),
+                    Permissions = permissions,
                     EffectivePermissions = GetEffectivePermissions(dataContainer)
                 };
                 res.Add(secPerm);

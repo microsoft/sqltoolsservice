@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 ServerRoles = prototype.ServerRoles.ServerRoleNames,
                 SupportAdvancedPasswordOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse,
                 SupportAdvancedOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance,
-                SupportedSecurableTypes = new SecurableTypeMetadata[0]
+                SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.ServerLevelLogin, dataContainer.Server.Version, "", dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
             var context = new LoginViewContext(parameters);
             return Task.FromResult(new InitializeViewResult()
