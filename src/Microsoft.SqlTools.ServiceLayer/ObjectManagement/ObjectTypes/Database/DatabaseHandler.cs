@@ -93,8 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             var databaseViewInfo = new DatabaseViewInfo()
             {
-                ObjectInfo = new DatabaseInfo(),
-                IsAzureServer = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase
+                ObjectInfo = new DatabaseInfo()
             };
 
             // azure sql db doesn't have a sysadmin fixed role
