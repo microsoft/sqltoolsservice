@@ -179,7 +179,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public static bool CanHaveEffectivePermissions(PrincipalType principalType)
         {
-            // TODO
             if (principalType == PrincipalType.ServerRole || principalType == PrincipalType.DatabaseRole || principalType == PrincipalType.ApplicationRole)
             {
                 return false;
