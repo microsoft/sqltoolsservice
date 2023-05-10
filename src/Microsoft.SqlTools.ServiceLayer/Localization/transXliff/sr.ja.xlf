@@ -7137,6 +7137,76 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">任意のログインの偽装</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FilterName">
+        <source>Name</source>
+        <target state="translated">名前</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterNameDescription">
+        <source>Include or exclude objects based on the name or part of a name.</source>
+        <target state="translated">名前または名前の一部に基づいてオブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchema">
+        <source>Schema</source>
+        <target state="translated">スキーマ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchemaDescription">
+        <source> Include or exclude objects based on the schema or part of a schema name.</source>
+        <target state="translated"> スキーマまたはスキーマ名の一部に基づいてオブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwner">
+        <source>Owner</source>
+        <target state="translated">所有者</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwnerDescription">
+        <source>Include or exclude objects based on the owner or part of an owner name.</source>
+        <target state="translated">所有者または所有者名の一部に基づいてオブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityType">
+        <source>Durability Type</source>
+        <target state="translated">持続性の種類</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityTypeDescription">
+        <source>Include or exclude objects based on the durability type.</source>
+        <target state="translated">持続性の種類に基づいてオブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimized">
+        <source>Is Memory Optimized</source>
+        <target state="translated">メモリ最適化</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimizedDescription">
+        <source>Include or exclude objects based on whether the object is memory optimized.</source>
+        <target state="translated">オブジェクトがメモリ最適化されているかどうかに基づいてオブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDate">
+        <source>Create Date</source>
+        <target state="translated">作成日</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDateDescription">
+        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
+        <target state="translated">指定した日付の任意の時刻に作成したオブジェクトを包含したり除外するために、作成日を選択または入力してください。または、指定した日付範囲内に作成したオブジェクトを包含したり除外するために、範囲の開始日と終了日を入力してください。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiled">
+        <source>Is Natively Compiled</source>
+        <target state="translated">ネイティブ コンパイル済み</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiledDescription">
+        <source>Include or exclude objects based on whether the object is natively compiled.</source>
+        <target state="translated">オブジェクトがネイティブ コンパイルかどうかに基づいてオブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ServiceProviderNotSet">
         <source>SetServiceProvider() was not called to establish the required service provider</source>
         <target state="translated">必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</target>
@@ -7145,6 +7215,26 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
         <target state="translated">サービス {0} がサービス プロバイダーに見つかりませんでした</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKey">
+        <source>In Primary Key</source>
+        <target state="translated">プライマリ キー</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKeyDescription">
+        <source>Include or exclude objects based on whether the column is in a primary key.</source>
+        <target state="translated">列がプライマリ キーにあるかどうかに基づいて、オブジェクトを含めるか除外します。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">スキーマのみ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">スキーマとデータ</target>
         <note></note>
       </trans-unit>
     </body>

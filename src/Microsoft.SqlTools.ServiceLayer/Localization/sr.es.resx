@@ -4348,10 +4348,64 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Suplantar cualquier inicio de sesión</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>Incluir o excluir objetos basados en el nombre o en parte de un nombre.</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>Esquema</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> Incluir o excluir objetos basándose en el esquema o en parte de un nombre de esquema.</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>Propietario</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>Incluir o excluir objetos basados en el propietario o en parte de un nombre de propietario.</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>Tipo de durabilidad</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>Incluir o excluir objetos en función del tipo de durabilidad.</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>Está optimizado para memoria</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Incluir o excluir objetos en función de si el objeto está optimizado para memoria.</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>Fecha de creación</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>Seleccione o escriba una fecha de creación para incluir o excluir objetos creados en cualquier momento de esa fecha o bien escriba una fecha de inicio y una fecha de finalización para incluir o excluir objetos creados en ese intervalo de fechas.</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>Está compilado de forma nativa</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>Incluir o excluir objetos en función de si el objeto está compilado de forma nativa.</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>No se llamó a SetServiceProvider() para establecer el proveedor de servicios necesario</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>El servicio {0} no se ha encontrado en el proveedor de servicios</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>En clave principal</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>Incluir o excluir objetos en función de si la columna está en una clave principal.</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>Solo esquema</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>Esquema y datos</value>
   </data>
 </root>

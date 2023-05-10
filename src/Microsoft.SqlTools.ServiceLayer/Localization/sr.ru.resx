@@ -4348,10 +4348,64 @@
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Олицетворение любого имени для входа</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>Включить или исключить объекты по имени или части имени.</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>Схема</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> Включить или исключить объекты по схеме или части имени схемы.</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>Владелец</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>Включить или исключить объекты по владельцу или части имени владельца.</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>Тип устойчивости</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>Включить или исключить объекты по типу устойчивости.</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>Оптимизировано для операций в памяти</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Включить или исключить объекты на основании того, является ли объект оптимизированным для обработки в памяти.</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>Дата создания</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>Выберите или введите дату создания, чтобы включить или исключить объекты, созданные в течение указанного дня, либо введите начальную и конечную даты для включения или исключения объектов, созданных в заданный этими датами период (включительно).</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>Скомпилировано в собственном коде</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>Включить или исключить объекты на основании того, скомпилированы ли они в собственном коде.</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>SetServiceProvider() не был вызван для установки требуемого поставщика услуг</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>Служба {0} не найдена в поставщике служб</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>В первичном ключе</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>Включить или исключить объекты в зависимости от того, находится ли столбец в первичном ключе.</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>Только схема</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>Схема и данные</value>
   </data>
 </root>

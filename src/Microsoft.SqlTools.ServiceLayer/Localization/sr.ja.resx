@@ -4348,10 +4348,64 @@
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>任意のログインの偽装</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>名前または名前の一部に基づいてオブジェクトを含めるか除外します。</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>スキーマ</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> スキーマまたはスキーマ名の一部に基づいてオブジェクトを含めるか除外します。</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>所有者</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>所有者または所有者名の一部に基づいてオブジェクトを含めるか除外します。</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>持続性の種類</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>持続性の種類に基づいてオブジェクトを含めるか除外します。</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>メモリ最適化</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>オブジェクトがメモリ最適化されているかどうかに基づいてオブジェクトを含めるか除外します。</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>作成日</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>指定した日付の任意の時刻に作成したオブジェクトを包含したり除外するために、作成日を選択または入力してください。または、指定した日付範囲内に作成したオブジェクトを包含したり除外するために、範囲の開始日と終了日を入力してください。</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>ネイティブ コンパイル済み</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>オブジェクトがネイティブ コンパイルかどうかに基づいてオブジェクトを含めるか除外します。</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>必要なサービス プロバイダーを確立するために SetServiceProvider() が呼び出されませんでした</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>サービス {0} がサービス プロバイダーに見つかりませんでした</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>プライマリ キー</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>列がプライマリ キーにあるかどうかに基づいて、オブジェクトを含めるか除外します。</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>スキーマのみ</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>スキーマとデータ</value>
   </data>
 </root>
