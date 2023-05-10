@@ -27,6 +27,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             SearchableObjectType.Server
         };
 
+        private static readonly SearchableObjectType[] securableTypesForDbLevel = new SearchableObjectType[] {
+            SearchableObjectType.AggregateFunction,
+            SearchableObjectType.ApplicationRole,
+            SearchableObjectType.Assembly,
+            SearchableObjectType.AsymmetricKey,
+            SearchableObjectType.Certificate,
+            SearchableObjectType.Database,
+            SearchableObjectType.DatabaseRole,
+            SearchableObjectType.ExternalDataSource,
+            SearchableObjectType.ExternalFileFormat,
+            SearchableObjectType.FullTextCatalog,
+            SearchableObjectType.FunctionInline,
+            SearchableObjectType.ServiceQueue,
+            SearchableObjectType.FunctionScalar,
+            SearchableObjectType.Schema,
+            SearchableObjectType.SecurityPolicy,
+            SearchableObjectType.Sequence,
+            SearchableObjectType.StoredProcedure,
+            SearchableObjectType.SymmetricKey,
+            SearchableObjectType.Synonym,
+            SearchableObjectType.Table,
+            SearchableObjectType.FunctionTable,
+            SearchableObjectType.UserDefinedDataType,
+            SearchableObjectType.UserDefinedTableType,
+            SearchableObjectType.User,
+            SearchableObjectType.View,
+            SearchableObjectType.XmlSchemaCollection
+        };
+
         static internal string launchEffectivePermissions = @"
 <formdescription>
     <params>
@@ -48,12 +77,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 case SqlObjectType.ServerLevelLogin:
                 case SqlObjectType.ServerRole:
-                    AddSecurableTypeMetadata(res, securableTypesForServerLevel, serverVersion, databaseName, databaseEngineType, engineEdition);
+                    AddSecurableTypeMetadata(res, securableTypesForServerLevel, null, serverVersion, databaseName, databaseEngineType, engineEdition);
                     break;
                 case SqlObjectType.ApplicationRole:
                 case SqlObjectType.DatabaseRole:
                 case SqlObjectType.User:
-                    AddSecurableTypeMetadata(res, (SearchableObjectType[])Enum.GetValues(typeof(SearchableObjectType)), serverVersion, databaseName, databaseEngineType, engineEdition);
+                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, null, serverVersion, databaseName, databaseEngineType, engineEdition);
                     break;
                 default:
                     break;
@@ -61,11 +90,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[] excludeList, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             foreach(SearchableObjectType t in supportedTypes)
             {
-                if (t == SearchableObjectType.LastType)
+                if (t == SearchableObjectType.LastType || (excludeList != null && excludeList.Contains(t)))
                 {
                     continue;
                 }
@@ -97,7 +126,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public static SecurablePermissions[] GetSecurablePermissions(bool principalExists, PrincipalType principalType, SqlSmoObject o, CDataContainer dataContainer)
         {
             List<SecurablePermissions> res = new List<SecurablePermissions>();
-            Principal principal = CreatePrincipal(principalExists, principalType, o, null, dataContainer);
+            Principal principal;
+
+            try
+            {
+                principal = CreatePrincipal(principalExists, principalType, o, null, dataContainer);
+            }
+            catch(Exception)
+            {
+                return new SecurablePermissions[0];
+            }
+
             principal.AddExistingSecurables();
 
             var securables = principal.GetSecurables(new SecurableComparer(SecurableComparer.DefaultSortingOrder, true));
@@ -141,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public static bool CanHaveEffectivePermissions(PrincipalType principalType)
         {
             // TODO
-            if (principalType == PrincipalType.ServerRole)
+            if (principalType == PrincipalType.ServerRole || principalType == PrincipalType.DatabaseRole || principalType == PrincipalType.ApplicationRole)
             {
                 return false;
             }
@@ -205,28 +244,54 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return null;
         }
 
-
+        /// <summary>
+        /// Create principal object for server level principals
+        /// </summary>
         internal static Principal CreatePrincipal(bool principalExists, PrincipalType principalType, SqlSmoObject o, string? objectName, CDataContainer dataContainer)
         {
-            Principal? principal = null;
-
             if (principalExists)
             {
                 NamedSmoObject obj = (NamedSmoObject) o;
-                principal = new Principal(obj, dataContainer.ConnectionInfo);
+                return new Principal(obj, dataContainer.ConnectionInfo);
             }
             else
             {
                 Version serverVersion = Securable.GetServerVersion(dataContainer.ConnectionInfo);
 
-                principal = new Principal(
+                return new Principal(
                     objectName,
                     principalType,
                     principalExists,
                     dataContainer.ConnectionInfo,
                     serverVersion);
             }
-            return principal;
+        }
+
+        /// <summary>
+        /// Create principal object for database level principals
+        /// </summary>
+        internal static Principal CreatePrincipal(bool principalExists, PrincipalType principalType, SqlSmoObject o, string? objectName, CDataContainer dataContainer, string databaseName)
+        {
+            if (principalExists)
+            {
+                NamedSmoObject obj = (NamedSmoObject)o;
+                return new Principal(obj, dataContainer.ConnectionInfo);
+            }
+            else
+            {
+                Version serverVersion = Securable.GetServerVersion(dataContainer.ConnectionInfo);
+                DatabaseEngineType databaseEngineType = Securable.GetDatabaseEngineType(dataContainer.ConnectionInfo);
+                DatabaseEngineEdition databaseEngineEdition = Securable.GetDatabaseEngineEdition(dataContainer.ConnectionInfo);
+                return new Principal(
+                                              objectName,
+                                              databaseName,
+                                              principalType,
+                                              principalExists,
+                                              dataContainer.ConnectionInfo,
+                                              serverVersion, 
+                                              databaseEngineType,
+                                              databaseEngineEdition);
+            }
         }
 
         public static String EscapeString(String s, string esc)
@@ -372,6 +437,90 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
             var urn = desc.GetSearchUrn(securableName, true, true);
             return SearchableObject.GetSearchableObject(searchableObjectType, connectionInfo, database, securableName);
+        }
+
+        internal static void SendToServerPermissionChanges(bool exists, string name, SecurablePermissions[] securablePermissions, Principal principal, CDataContainer dataContainer, string database)
+        {
+            if (!exists)
+            {
+                foreach (SecurablePermissions secPerm in securablePermissions)
+                {
+                    var securable = principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, dataContainer.ConnectionInfo));
+                    var states = principal.GetPermissionStates(securable);
+                    ApplyPermissionStates(secPerm.Permissions, states);
+                }
+            }
+            else
+            {
+                var securables = principal.GetSecurables(new SecurableComparer(SecurableComparer.DefaultSortingOrder, true));
+                foreach (SecurablePermissions secPerm in securablePermissions)
+                {
+                    var securable = FindMatchedSecurable(securables, secPerm.Name) ?? principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, dataContainer.ConnectionInfo));
+                    var states = principal.GetPermissionStates(securable);
+                    ApplyPermissionStates(secPerm.Permissions, states);                
+                }
+
+                var newSecurableNames = securablePermissions.Select(s => s.Name).ToHashSet();
+                foreach (Securable securable in securables)
+                {
+                    if (!newSecurableNames.Contains(securable.Name))
+                    {
+                        var states = principal.GetPermissionStates(securable);
+                        for (int i = 0; i < states.Count; i++)
+                        {
+                            states[i].Revoke();
+                        }
+                        principal.RemoveSecurable(securable);
+                    }
+                }
+            }
+            principal.ApplyChanges(name, dataContainer.Server);
+        }
+
+        private static Securable FindMatchedSecurable(SecurableList securableList, string name)
+        {
+            foreach (Securable securable in securableList)
+            {
+                if (securable.Name == name)
+                {
+                    return securable;
+                }
+            }
+            return null;
+        }
+
+        private static void ApplyPermissionStates(SecurablePermissionItem[] items, PermissionStateCollection states)
+        {
+            foreach (var p in items)
+            {
+                var key = p.Permission + p.Grantor;
+                if (p.WithGrant == true)
+                {
+                    states[key].State = PermissionStatus.WithGrant;
+                }
+                else if (p.Grant == true)
+                {
+                    states[key].State = PermissionStatus.Grant;
+                }
+                else if (p.Grant == false)
+                {
+                    states[key].State = PermissionStatus.Deny;
+                }
+                else if (p.Grant == null)
+                {
+                    states[key].State = PermissionStatus.Revoke;
+                }
+            }
+            var itemNames = items.Select(item => item.Permission).ToHashSet();
+
+            for (int i = 0; i < states.Count; i++)
+            {
+                var state = states[i];
+                if (!itemNames.Contains(state.Permission.Name))
+                {
+                    state.State = PermissionStatus.Revoke;
+                }
+            }
         }
     }
 }

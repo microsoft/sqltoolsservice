@@ -209,6 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             prototype.IsDisabled = !login.IsEnabled;
             prototype.MustChange = login.EnforcePasswordPolicy ? login.MustChangePassword : false;
             prototype.WindowsGrantAccess = login.ConnectPermission;
+            prototype.SecurablePermissions = login.SecurablePermissions;
 
             if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
             {

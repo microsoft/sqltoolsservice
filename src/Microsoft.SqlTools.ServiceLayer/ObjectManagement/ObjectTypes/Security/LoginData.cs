@@ -16,6 +16,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -1547,12 +1548,14 @@ INNER JOIN sys.sql_logins AS sql_logins
         }
 
         private bool                exists;
+        private CDataContainer      context;
         private string              machineName;
         private LoginPrototypeData  currentState;
         private LoginPrototypeData  originalState;
 
         private bool mapToCredential;
         private SecurablePermissions[] securablePermissions = null;
+        private Principal principal = null;
         public bool MapToCredential
         {
             set
@@ -2071,6 +2074,7 @@ INNER JOIN sys.sql_logins AS sql_logins
         /// <param name="server">The server on which we are creating a login</param>
         public LoginPrototype(CDataContainer context)
         {
+            this.context = context;
             var server = context.Server;
             this.exists         = false;
             this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
@@ -2087,6 +2091,7 @@ INNER JOIN sys.sql_logins AS sql_logins
         /// <param name="login">The login we are modifying</param>
         public LoginPrototype(CDataContainer context, Login login)
         {
+            this.context = context;
             var server = context.Server;
             this.exists         = true;
             this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
@@ -2094,6 +2099,8 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
             this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.Login, login, context);
+            this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.Login, login, null, context);
+            this.principal.AddExistingSecurables();
         }
 
         /// <summary>
@@ -2102,6 +2109,7 @@ INNER JOIN sys.sql_logins AS sql_logins
         /// <param name="server">The server on which we are creating a login</param>
         public LoginPrototype(CDataContainer context, LoginInfo login)
         {
+            this.context = context;
             var server = context.Server;
             this.exists         = false;
             this.machineName    = server.ConnectionContext.TrueName.ToUpperInvariant();
@@ -2130,6 +2138,8 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.IsDisabled = !login.IsEnabled;
             this.MustChange = login.EnforcePasswordPolicy ? login.MustChangePassword : false;
             this.WindowsGrantAccess = login.ConnectPermission;
+            this.securablePermissions = login.SecurablePermissions;
+            this.principal = SecurableUtils.CreatePrincipal(false, PrincipalType.Login, null, login.Name, context);
         }
 
         private LoginType GetLoginType(LoginInfo loginInfo)
@@ -2170,6 +2180,14 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.originalState  = new LoginPrototypeData(server, login);
             this.currentState   = (LoginPrototypeData) this.originalState.Clone();
 
+        }
+
+        public void SendChangeToServer()
+        {
+            ApplyGeneralChanges(this.context.Server);
+            ApplyServerRoleChanges(this.context.Server);
+            ApplyDatabaseRoleChanges(this.context.Server);
+            SecurableUtils.SendToServerPermissionChanges(this.exists, this.LoginName, this.SecurablePermissions, this.principal, this.context, null);
         }
 
         /// <summary>

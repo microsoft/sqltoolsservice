@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -33,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private AppRolePrototypeData currentState;
         private AppRolePrototypeData originalState;
         private SecurablePermissions[] securablePermissions = null;
-
+        private Principal principal = null;
         #endregion
 
         #region Trace support
@@ -175,6 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.databaseName = database;
             this.currentState = new AppRolePrototypeData(context, database);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
+            this.principal = SecurableUtils.CreatePrincipal(false, PrincipalType.ApplicationRole, null, roleInfo.Name, context, database);
 
             this.ApplyInfoToPrototype(roleInfo);
         }
@@ -190,6 +192,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.currentState = new AppRolePrototypeData(context, database, role);
             this.originalState = (AppRolePrototypeData)this.currentState.Clone();
             this.securablePermissions = SecurableUtils.GetSecurablePermissions(true, PrincipalType.ApplicationRole, role, context);
+            this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.ApplicationRole, role, null, context, database);
+            this.principal.AddExistingSecurables();
         }
 
         #endregion
@@ -238,6 +242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 SendToServerSchemaOwnershipChanges(db, approle);
                 SendToServerExtendedPropertiesChange();
+                SecurableUtils.SendToServerPermissionChanges(this.exists, this.Name, this.SecurablePermissions, this.principal, this.dataContainer, this.databaseName);
             }
             else // not in properties mode -> create role
             {
@@ -251,6 +256,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 SendToServerSchemaOwnershipChanges(db, approle);
                 SendToServerExtendedPropertiesChange();
+                SecurableUtils.SendToServerPermissionChanges(this.exists, this.Name, this.SecurablePermissions, this.principal, this.dataContainer, this.databaseName);
             }
 
         }
@@ -342,6 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.SchemasOwned = roleInfo.OwnedSchemas.ToArray();
             this.Password = roleInfo.Password;
             this.ExtendedProperties = roleInfo.ExtendedProperties.Select(ep => new KeyValuePair<string, string>(ep.Name, ep.Value)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            this.securablePermissions = roleInfo.SecurablePermissions;
         }
 
         private class AppRolePrototypeData : ICloneable

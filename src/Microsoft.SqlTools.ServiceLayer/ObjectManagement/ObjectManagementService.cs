@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (desc.IsDatabaseObject)
                     {
-                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.Database ?? "#TODO db name", requestParams.SearchText, false, true);
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText, false, true);
                     }
                     else
                     {
@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (desc.IsDatabaseObject)
                     {
-                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.Database ?? "#TODO DB name", true);
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, true);
                     }
                     else
                     {
