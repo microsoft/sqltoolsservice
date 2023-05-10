@@ -31,42 +31,53 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private const int minimumVersionForWritableCollation = 8;
         private const int minimumVersionForRecoveryModel = 8;
         private readonly ResourceManager resourceManager;
-        private const string DefaultValue = "<default>";
+        private readonly string defaultValue;
 
-        /// <summary>
-        /// Set of valid compatibility levels and their display strings
-        /// </summary>
-        private Dictionary<CompatibilityLevel, string> compatLevels = new Dictionary<CompatibilityLevel, string>()
-        {
-            {CompatibilityLevel.Version70, "SQL Server 7.0 (70)"},
-            {CompatibilityLevel.Version80, "SQL Server 2000 (80)"},
-            {CompatibilityLevel.Version90, "SQL Server 2005 (90)"},
-            {CompatibilityLevel.Version100, "SQL Server 2008 (100)"},
-            {CompatibilityLevel.Version110, "SQL Server 2012 (110)"},
-            {CompatibilityLevel.Version120, "SQL Server 2014 (120)"},
-            {CompatibilityLevel.Version130, "SQL Server 2016 (130)"},
-            {CompatibilityLevel.Version140, "SQL Server 2017 (140)"},
-            {CompatibilityLevel.Version150, "SQL Server 2019 (150)"},
-            {CompatibilityLevel.Version160, "SQL Server 2022 (160)"},
-        };
+        private readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
+        private readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
+        private readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
 
-        private Dictionary<string, CompatibilityLevel> displayCompatLevels = new Dictionary<string, CompatibilityLevel>()
-        {
-            {"SQL Server 7.0 (70)", CompatibilityLevel.Version70},
-            {"SQL Server 2000 (80)", CompatibilityLevel.Version80},
-            {"SQL Server 2005 (90)", CompatibilityLevel.Version90},
-            {"SQL Server 2008 (100)", CompatibilityLevel.Version100},
-            {"SQL Server 2012 (110)", CompatibilityLevel.Version110},
-            {"SQL Server 2014 (120)", CompatibilityLevel.Version120},
-            {"SQL Server 2016 (130)", CompatibilityLevel.Version130},
-            {"SQL Server 2017 (140)", CompatibilityLevel.Version140},
-            {"SQL Server 2019 (150)", CompatibilityLevel.Version150},
-            {"SQL Server 2022 (160)", CompatibilityLevel.Version160},
-        };
+        private readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
+        private readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
+        private readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
         {
-            this.resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+
+            displayCompatLevels.Add(CompatibilityLevel.Version70, this.resourceManager.GetString("compatibilityLevel_sphinx"));
+            displayCompatLevels.Add(CompatibilityLevel.Version80, this.resourceManager.GetString("compatibilityLevel_shiloh"));
+            displayCompatLevels.Add(CompatibilityLevel.Version90, this.resourceManager.GetString("compatibilityLevel_yukon"));
+            displayCompatLevels.Add(CompatibilityLevel.Version100, this.resourceManager.GetString("compatibilityLevel_katmai"));
+            displayCompatLevels.Add(CompatibilityLevel.Version110, this.resourceManager.GetString("compatibilityLevel_denali"));
+            displayCompatLevels.Add(CompatibilityLevel.Version120, this.resourceManager.GetString("compatibilityLevel_sql14"));
+            displayCompatLevels.Add(CompatibilityLevel.Version130, this.resourceManager.GetString("compatibilityLevel_sql15"));
+            displayCompatLevels.Add(CompatibilityLevel.Version140, this.resourceManager.GetString("compatibilityLevel_sql2017"));
+            displayCompatLevels.Add(CompatibilityLevel.Version150, this.resourceManager.GetString("compatibilityLevel_sqlv150"));
+            displayCompatLevels.Add(CompatibilityLevel.Version160, this.resourceManager.GetString("compatibilityLevel_sqlv160"));
+            
+            displayContainmentTypes.Add(ContainmentType.None, resourceManager.GetString("general_containmentType_None"));
+            displayContainmentTypes.Add(ContainmentType.Partial, resourceManager.GetString("general_containmentType_Partial"));
+
+            displayRecoveryModels.Add(RecoveryModel.Full, resourceManager.GetString("general_recoveryModel_full"));
+            displayRecoveryModels.Add(RecoveryModel.BulkLogged, resourceManager.GetString("general_recoveryModel_bulkLogged"));
+            displayRecoveryModels.Add(RecoveryModel.Simple, resourceManager.GetString("general_recoveryModel_simple"));
+
+            // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later.
+            // We can't use a simple Enum.Parse for that since the displayNames get localized.
+            foreach (CompatibilityLevel key in displayCompatLevels.Keys)
+            {
+                compatLevelEnums.Add(displayCompatLevels[key], key);
+            }
+
+            defaultValue = resourceManager.GetString("general_default");
+
+            containmentTypeEnums.Add(resourceManager.GetString("general_containmentType_None"), ContainmentType.None);
+            containmentTypeEnums.Add(resourceManager.GetString("general_containmentType_Partial"), ContainmentType.Partial);
+
+            recoveryModelEnums.Add(resourceManager.GetString("general_recoveryModel_full"), RecoveryModel.Full);
+            recoveryModelEnums.Add(resourceManager.GetString("general_recoveryModel_bulkLogged"), RecoveryModel.BulkLogged);
+            recoveryModelEnums.Add(resourceManager.GetString("general_recoveryModel_simple"), RecoveryModel.Simple);
         }
 
         public override bool CanHandleType(SqlObjectType objectType)
@@ -142,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
             {
                 var logins = new List<string>();
-                logins.Add(DefaultValue);
+                logins.Add(defaultValue);
                 foreach (Login login in dataContainer.Server.Logins)
                 {
                     logins.Add(login.Name);
@@ -216,25 +227,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            if (database.Owner != null && database.Owner != DefaultValue)
+            if (database.Owner != null && database.Owner != defaultValue)
             {
                 prototype.Owner = database.Owner;
             }
-            if (database.CollationName != null && database.CollationName != DefaultValue)
+            if (database.CollationName != null && database.CollationName != defaultValue)
             {
                 prototype.Collation = database.CollationName;
             }
             if (database.RecoveryModel != null)
             {
-                prototype.RecoveryModel = Enum.Parse<RecoveryModel>(database.RecoveryModel);
+                prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
             }
             if (database.CompatibilityLevel != null)
             {
-                prototype.DatabaseCompatibilityLevel = displayCompatLevels[database.CompatibilityLevel];
+                prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
             }
             if (prototype is DatabasePrototype110 db110 && database.ContainmentType != null)
             {
-                db110.DatabaseContainmentType = Enum.Parse<ContainmentType>(database.ContainmentType);
+                db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
             }
 
             string sqlScript = string.Empty;
@@ -304,7 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
             if (dataContainer.IsNewObject || isSphinxServer)
             {
-                collationItems.Add(DefaultValue);
+                collationItems.Add(defaultValue);
             }
 
             // if the server is shiloh or later, add specific collations to the dropdown
@@ -365,8 +376,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 dbContainmentType = dp110.DatabaseContainmentType;
             }
 
-            containmentTypes.Add(ContainmentType.None.ToString());
-            containmentTypes.Add(ContainmentType.Partial.ToString());
+            containmentTypes.Add(displayContainmentTypes[ContainmentType.None]);
+            containmentTypes.Add(displayContainmentTypes[ContainmentType.Partial]);
 
             var swapIndex = 0;
             switch (dbContainmentType)
@@ -408,22 +419,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             //       this code if we updated GetDisabledProperties() to handle MI as well.
             if (!IsAnyManagedInstance(dataContainer.Server))
             {
+                
                 // add recovery model options to the dropdown
-                recoveryModels.Add(RecoveryModel.Full.ToString());
-                recoveryModels.Add(RecoveryModel.BulkLogged.ToString());
-                recoveryModels.Add(RecoveryModel.Simple.ToString());
+                recoveryModels.Add(displayRecoveryModels[RecoveryModel.Full]);
+                recoveryModels.Add(displayRecoveryModels[RecoveryModel.BulkLogged]);
+                recoveryModels.Add(displayRecoveryModels[RecoveryModel.Simple]);
             }
             else
             {
                 if (prototype.OriginalName.Equals("tempdb", StringComparison.CurrentCultureIgnoreCase) && prototype.IsSystemDB)
                 {
                     // tempdb supports 'simple recovery' only
-                    recoveryModels.Add(RecoveryModel.Simple.ToString());
+                    recoveryModels.Add(displayRecoveryModels[RecoveryModel.Simple]);
                 }
                 else
                 {
                     // non-tempdb supports only 'full recovery' model
-                    recoveryModels.Add(RecoveryModel.Full.ToString());
+                    recoveryModels.Add(displayRecoveryModels[RecoveryModel.Full]);
                 }
             }
 
@@ -459,12 +471,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // For Azure we loop through all of the possible compatibility levels. We do this because there's only one compat level active on a
             // version at a time, but that can change at any point so in order to reduce maintenance required when that happens we'll just find
             // the one that matches the current set level and display that
-            foreach (var level in this.compatLevels.Keys)
+            foreach (var level in this.displayCompatLevels.Keys)
             {
                 if (level == prototype.DatabaseCompatibilityLevel)
                 {
                     // Azure can't change the compat level so we only populate the current version
-                    return new string[] { this.compatLevels[level] };
+                    return new string[] { this.displayCompatLevels[level] };
                 }
             }
 
@@ -489,49 +501,49 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             switch (dataContainer.SqlServerVersion)
             {
                 case 8:     // Shiloh
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version70]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version80]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version70]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version80]);
                     break;
                 case 9:     // Yukon
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version70]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version80]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version90]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version70]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version80]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version90]);
                     break;
                 case 10:    // Katmai
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version80]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version90]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version80]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version90]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
                     break;
                 case 11:    // Denali
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version90]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version90]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
                     break;
                 case 12:    // SQL2014
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
                     break;
                 case 13:    // SQL2016
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
                     break;
                 case 14:    // SQL2017
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version130]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version140]);
                     break;
                 case 15:    // SQL2019
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version130]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version140]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version150]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version150]);
                     break;
                 /* SQL_VBUMP_REVIEW */
                 default:
@@ -539,13 +551,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     // do not know about. We play conservative and only add the compat level we know
                     // about so far.
                     // At vBump, add a new case and move the 'default' label there.
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version130]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version140]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version150]);
-                    compatibilityLevels.Add(this.compatLevels[CompatibilityLevel.Version160]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version150]);
+                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version160]);
                     break;
             }
 
@@ -553,7 +565,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             for (var i = 0; i < compatibilityLevels.Count; i++)
             {
                 var level = compatibilityLevels[i];
-                var prototypeLevel = this.compatLevels[prototype.DatabaseCompatibilityLevel];
+                var prototypeLevel = this.displayCompatLevels[prototype.DatabaseCompatibilityLevel];
                 if (level == prototypeLevel)
                 {
                     if (i > 0)
