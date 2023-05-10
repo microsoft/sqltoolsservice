@@ -4348,10 +4348,64 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>Identität einer beliebigen Anmeldung annehmen</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>Objekte werden basierend auf ihrem Namen oder einem Teil ihres Namens ein- oder ausgeschlossen.</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>Schema</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> Objekte werden basierend auf ihrem Schemanamen oder einem Teil ihres Schemanamens ein- oder ausgeschlossen.</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>Besitzer</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>Objekte basierend auf dem Besitzer oder Teil eines Besitzernamens einschließen oder ausschließen.</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>Dauerhaftigkeitstyp</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>Objekte werden basierend auf dem Dauerhaftigkeitstyp ein- oder ausgeschlossen.</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>Ist speicheroptimiert</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>Schließen Sie Objekte abhängig davon, ob sie speicheroptimiert sind, ein oder aus.</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>Erstellungsdatum</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>Wählen Sie ein Erstellungsdatum aus, oder geben Sie ein Erstellungsdatum ein, um Objekte ein- oder auszuschließen, die zu einer beliebigen Uhrzeit an diesem Datum erstellt wurden. Sie können jedoch auch ein Anfangs- und Enddatum eingeben, um Objekte ein- oder auszuschließen, die in diesem Zeitraum (einschließlich Anfangs- und Enddatum) erstellt wurden.</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>Wird systemintern kompiliert</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>Schließen Sie Objekte abhängig davon, ob sie systemintern kompiliert sind, ein oder aus.</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>SetServiceProvider() wurde nicht aufgerufen, um den erforderlichen Dienstanbieter einzurichten.</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>Der Dienst {0} wurde im Dienstanbieter nicht gefunden.</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>Im Primärschlüssel</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>Schließt Objekte basierend darauf ein oder aus, ob sich die Spalte in einem Primärschlüssel befindet.</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>Nur Schema</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>Schema und Daten</value>
   </data>
 </root>

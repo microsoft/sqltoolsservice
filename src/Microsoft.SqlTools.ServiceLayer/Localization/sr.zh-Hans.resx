@@ -4348,10 +4348,64 @@
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>模拟任何登录</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>根据名称或名称的一部分包含或排除对象。</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>架构</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> 根据架构名称或架构名称的一部分包含或排除对象。</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>所有者</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>根据所有者名称或部分所有者名称包含或排除对象。</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>持续性类型</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>基于持续性类型包含或排除对象。</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>已经过内存优化</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>基于对象是否已经过内存优化包含或排除对象。</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>创建日期</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>选择或键入创建日期，以包含或排除在该日期的任何时间创建的对象；或者输入开始日期和结束日期，以包含或排除在该日期范围内创建的对象。</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>已本机编译</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>基于对象是否已本机编译包含或排除对象。</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>未调用 SetServiceProvider() 来建立所需的服务提供程序</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>在服务提供程序中找不到服务 {0}</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>在主键中</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>根据列是否在主键中来包含或排除对象。</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>仅限架构</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>架构和数据</value>
   </data>
 </root>

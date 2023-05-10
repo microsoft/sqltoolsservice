@@ -4348,10 +4348,64 @@
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>模擬任何登入</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>根據名稱或名稱的一部分，包含或排除物件。</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> 根據結構描述或結構描述名稱的一部分，包含或排除物件。</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>擁有者</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>根據擁有者或擁有者名稱的一部分，包含或排除物件。</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>持久性類型</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>根據持久性類型決定包含或排除物件。</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>已記憶體最佳化</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>根據物件是否已記憶體最佳化來決定包含或排除物件。</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>建立日期</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>選取或輸入日期，以包含或排除建立於該日期任何時間的物件，或輸入起訖日期，以包含或排除建立於包含起訖日期範圍內的物件。</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>以原生方式編譯</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>根據物件是否以原生方式編譯來決定包含或排除物件。</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>未呼叫 SetServiceProvider() 來建立必要的服務提供者</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>在服務提供者中找不到服務 {0}</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>在主索引鍵中</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>根據資料行是否在主索引鍵中，包含或排除物件。</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>僅結構描述</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>結構描述及資料</value>
   </data>
 </root>

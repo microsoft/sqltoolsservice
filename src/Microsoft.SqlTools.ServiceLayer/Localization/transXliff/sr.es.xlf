@@ -7137,6 +7137,76 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">Suplantar cualquier inicio de sesión</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FilterName">
+        <source>Name</source>
+        <target state="translated">Nombre</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterNameDescription">
+        <source>Include or exclude objects based on the name or part of a name.</source>
+        <target state="translated">Incluir o excluir objetos basados en el nombre o en parte de un nombre.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchema">
+        <source>Schema</source>
+        <target state="translated">Esquema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchemaDescription">
+        <source> Include or exclude objects based on the schema or part of a schema name.</source>
+        <target state="translated"> Incluir o excluir objetos basándose en el esquema o en parte de un nombre de esquema.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwner">
+        <source>Owner</source>
+        <target state="translated">Propietario</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwnerDescription">
+        <source>Include or exclude objects based on the owner or part of an owner name.</source>
+        <target state="translated">Incluir o excluir objetos basados en el propietario o en parte de un nombre de propietario.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityType">
+        <source>Durability Type</source>
+        <target state="translated">Tipo de durabilidad</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityTypeDescription">
+        <source>Include or exclude objects based on the durability type.</source>
+        <target state="translated">Incluir o excluir objetos en función del tipo de durabilidad.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimized">
+        <source>Is Memory Optimized</source>
+        <target state="translated">Está optimizado para memoria</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimizedDescription">
+        <source>Include or exclude objects based on whether the object is memory optimized.</source>
+        <target state="translated">Incluir o excluir objetos en función de si el objeto está optimizado para memoria.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDate">
+        <source>Create Date</source>
+        <target state="translated">Fecha de creación</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDateDescription">
+        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
+        <target state="translated">Seleccione o escriba una fecha de creación para incluir o excluir objetos creados en cualquier momento de esa fecha o bien escriba una fecha de inicio y una fecha de finalización para incluir o excluir objetos creados en ese intervalo de fechas.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiled">
+        <source>Is Natively Compiled</source>
+        <target state="translated">Está compilado de forma nativa</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiledDescription">
+        <source>Include or exclude objects based on whether the object is natively compiled.</source>
+        <target state="translated">Incluir o excluir objetos en función de si el objeto está compilado de forma nativa.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ServiceProviderNotSet">
         <source>SetServiceProvider() was not called to establish the required service provider</source>
         <target state="translated">No se llamó a SetServiceProvider() para establecer el proveedor de servicios necesario</target>
@@ -7145,6 +7215,26 @@ El procesador de consultas estima que la implementación del siguiente índice p
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
         <target state="translated">El servicio {0} no se ha encontrado en el proveedor de servicios</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKey">
+        <source>In Primary Key</source>
+        <target state="translated">En clave principal</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKeyDescription">
+        <source>Include or exclude objects based on whether the column is in a primary key.</source>
+        <target state="translated">Incluir o excluir objetos en función de si la columna está en una clave principal.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">Solo esquema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">Esquema y datos</target>
         <note></note>
       </trans-unit>
     </body>

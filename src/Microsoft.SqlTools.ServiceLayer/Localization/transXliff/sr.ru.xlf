@@ -7137,6 +7137,76 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Олицетворение любого имени для входа</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="FilterName">
+        <source>Name</source>
+        <target state="translated">Имя</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterNameDescription">
+        <source>Include or exclude objects based on the name or part of a name.</source>
+        <target state="translated">Включить или исключить объекты по имени или части имени.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchema">
+        <source>Schema</source>
+        <target state="translated">Схема</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterSchemaDescription">
+        <source> Include or exclude objects based on the schema or part of a schema name.</source>
+        <target state="translated"> Включить или исключить объекты по схеме или части имени схемы.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwner">
+        <source>Owner</source>
+        <target state="translated">Владелец</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterOwnerDescription">
+        <source>Include or exclude objects based on the owner or part of an owner name.</source>
+        <target state="translated">Включить или исключить объекты по владельцу или части имени владельца.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityType">
+        <source>Durability Type</source>
+        <target state="translated">Тип устойчивости</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilityTypeDescription">
+        <source>Include or exclude objects based on the durability type.</source>
+        <target state="translated">Включить или исключить объекты по типу устойчивости.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimized">
+        <source>Is Memory Optimized</source>
+        <target state="translated">Оптимизировано для операций в памяти</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsMemoryOptimizedDescription">
+        <source>Include or exclude objects based on whether the object is memory optimized.</source>
+        <target state="translated">Включить или исключить объекты на основании того, является ли объект оптимизированным для обработки в памяти.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDate">
+        <source>Create Date</source>
+        <target state="translated">Дата создания</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterCreateDateDescription">
+        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
+        <target state="translated">Выберите или введите дату создания, чтобы включить или исключить объекты, созданные в течение указанного дня, либо введите начальную и конечную даты для включения или исключения объектов, созданных в заданный этими датами период (включительно).</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiled">
+        <source>Is Natively Compiled</source>
+        <target state="translated">Скомпилировано в собственном коде</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterIsNativelyCompiledDescription">
+        <source>Include or exclude objects based on whether the object is natively compiled.</source>
+        <target state="translated">Включить или исключить объекты на основании того, скомпилированы ли они в собственном коде.</target>
+        <note></note>
+      </trans-unit>
       <trans-unit id="ServiceProviderNotSet">
         <source>SetServiceProvider() was not called to establish the required service provider</source>
         <target state="translated">SetServiceProvider() не был вызван для установки требуемого поставщика услуг</target>
@@ -7145,6 +7215,26 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="ServiceNotFound">
         <source>Service {0} was not found in the service provider</source>
         <target state="translated">Служба {0} не найдена в поставщике служб</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKey">
+        <source>In Primary Key</source>
+        <target state="translated">В первичном ключе</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterInPrimaryKeyDescription">
+        <source>Include or exclude objects based on whether the column is in a primary key.</source>
+        <target state="translated">Включить или исключить объекты в зависимости от того, находится ли столбец в первичном ключе.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaOnly">
+        <source>Schema Only</source>
+        <target state="translated">Только схема</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FilterDurabilitySchemaAndData">
+        <source>Schema and Data</source>
+        <target state="translated">Схема и данные</target>
         <note></note>
       </trans-unit>
     </body>
