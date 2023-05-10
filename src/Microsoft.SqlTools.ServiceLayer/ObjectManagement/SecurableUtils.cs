@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public static SecurablePermissions[] GetSecurablePermissions(bool principalExists, PrincipalType principalType, SqlSmoObject o, CDataContainer dataContainer)
         {
             List<SecurablePermissions> res = new List<SecurablePermissions>();
-            Principal principal = CreatePrincipal(principalExists, principalType, o, dataContainer);
+            Principal principal = CreatePrincipal(principalExists, principalType, o, null, dataContainer);
             principal.AddExistingSecurables();
 
             var securables = principal.GetSecurables(new SecurableComparer(SecurableComparer.DefaultSortingOrder, true));
@@ -115,8 +115,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             Permission = p?.Permission.Name,
                             Grantor = p?.Grantor,
-                            Grant = p?.State == PermissionStatus.Grant || p?.State == PermissionStatus.WithGrant,
-                            WithGrant = p?.State == PermissionStatus.WithGrant,
+                            Grant = p?.State == PermissionStatus.Revoke ? null : p?.State == PermissionStatus.Grant || p?.State == PermissionStatus.WithGrant,
+                            WithGrant = p?.State == PermissionStatus.Revoke ? null : p?.State == PermissionStatus.WithGrant,
                         };
                         permissionItemsDict[key] = permissionItem;
                     }
@@ -141,6 +141,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public static bool CanHaveEffectivePermissions(PrincipalType principalType)
         {
             // TODO
+            if (principalType == PrincipalType.ServerRole)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -202,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
 
-        internal static Principal CreatePrincipal(bool principalExists, PrincipalType principalType, SqlSmoObject o, CDataContainer dataContainer)
+        internal static Principal CreatePrincipal(bool principalExists, PrincipalType principalType, SqlSmoObject o, string? objectName, CDataContainer dataContainer)
         {
             Principal? principal = null;
 
@@ -213,7 +217,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             else
             {
-                string objectName = dataContainer.ObjectName;
                 Version serverVersion = Securable.GetServerVersion(dataContainer.ConnectionInfo);
 
                 principal = new Principal(
@@ -360,6 +363,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 executeas = principal.Name;
                 executetype = (principal.PrincipalType == PrincipalType.Login) ? "login" : "user";
             }
+        }
+
+        internal static SearchableObject ConvertFromSecurableNameToSearchableObject(string securableName, string type, string database, object connectionInfo)
+        {
+            SearchableObjectType searchableObjectType = ConvertPotentialSqlObjectTypeToSearchableObjectType(type);
+
+            SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
+            var urn = desc.GetSearchUrn(securableName, true, true);
+            return SearchableObject.GetSearchableObject(searchableObjectType, connectionInfo, database, securableName);
         }
     }
 }

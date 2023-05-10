@@ -2093,7 +2093,7 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.currentState   = new LoginPrototypeData(server, login);
             this.originalState  = (LoginPrototypeData) this.currentState.Clone();
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
-            this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.ServerRole, login, context);
+            this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.Login, login, context);
         }
 
         /// <summary>

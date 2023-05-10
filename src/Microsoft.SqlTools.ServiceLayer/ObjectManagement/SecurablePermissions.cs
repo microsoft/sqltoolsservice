@@ -9,8 +9,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public string? Permission { get; set; }
         public string? Grantor { get; set; }
-        public bool Grant { get; set; }
-        public bool WithGrant { get; set; }
+        public bool? Grant { get; set; }
+        public bool? WithGrant { get; set; }
     }
 
     public class SecurablePermissions

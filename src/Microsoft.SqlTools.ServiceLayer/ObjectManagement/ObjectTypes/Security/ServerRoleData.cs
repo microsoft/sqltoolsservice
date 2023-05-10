@@ -145,6 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+            this.principal = SecurableUtils.CreatePrincipal(false, PrincipalType.ServerRole, null, roleInfo.Name, context);
 
             this.ApplyInfoToPrototype(roleInfo);
         }
@@ -158,8 +159,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context, role);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
-            this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.ServerRole, role, context);
-            securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.ServerRole, role, this.dataContainer);
+            this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.ServerRole, role, null, context);
+            this.principal.AddExistingSecurables();
+            this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.ServerRole, role, this.dataContainer);
         }
 
         #endregion
@@ -201,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             SendToServerMemberChanges(serverRole);
             SendToServerMembershipChanges(serverRole);
+            SendToServerPermissionChanges();
         }
         #endregion
 
@@ -268,6 +271,83 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
+        private void SendToServerPermissionChanges()
+        {
+            if (!this.exists)
+            {
+                foreach (SecurablePermissions secPerm in this.SecurablePermissions)
+                {
+                    var securable = this.principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, null, this.dataContainer.ConnectionInfo));
+                    var states = this.principal.GetPermissionStates(securable);
+                    ApplyPermissionStates(secPerm.Permissions, states);
+                }
+            }
+            else
+            {
+                var securables = this.principal.GetSecurables(new SecurableComparer(SecurableComparer.DefaultSortingOrder, true));
+                foreach (SecurablePermissions secPerm in this.SecurablePermissions)
+                {
+                    var securable = FindMatchedSecurable(securables, secPerm.Name) ?? this.principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, null, this.dataContainer.ConnectionInfo));
+                    var states = this.principal.GetPermissionStates(securable);
+                    ApplyPermissionStates(secPerm.Permissions, states);                
+                }
+
+                var newSecurableNames = this.SecurablePermissions.Select(s => s.Name).ToHashSet();
+                foreach (Securable securable in securables)
+                {
+                    if (!newSecurableNames.Contains(securable.Name))
+                    {
+                        this.principal.RemoveSecurable(securable);
+                    }
+                }
+            }
+            this.principal.ApplyChanges(this.Name, this.originalState.Server);
+        }
+
+        private Securable FindMatchedSecurable(SecurableList securableList, string name)
+        {
+            foreach (Securable securable in securableList)
+            {
+                if (securable.Name == name)
+                {
+                    return securable;
+                }
+            }
+            return null;
+        }
+
+        private void ApplyPermissionStates(SecurablePermissionItem[] items, PermissionStateCollection states)
+        {
+            foreach (var p in items)
+            {
+                if (p.WithGrant == true)
+                {
+                    states[p.Permission].State = PermissionStatus.WithGrant;
+                }
+                else if (p.Grant == true)
+                {
+                    states[p.Permission].State = PermissionStatus.Grant;
+                }
+                else if (p.Grant == false)
+                {
+                    states[p.Permission].State = PermissionStatus.Deny;
+                }
+                else if (p.Grant == null)
+                {
+                    states[p.Permission].State = PermissionStatus.Revoke;
+                }
+            }
+            var itemNames = items.Select(item => item.Permission).ToHashSet();
+
+            for (int i = 0; i < states.Count; i++)
+            {
+                var state = states[i];
+                if (!itemNames.Contains(state.Permission.Name))
+                {
+                    state.State = PermissionStatus.Revoke;
+                }
+            }
+        }
 
         public void ApplyInfoToPrototype(ServerRoleInfo roleInfo)
         {
@@ -275,6 +355,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.Owner = roleInfo.Owner;
             this.Members = roleInfo.Members.ToList();
             this.Memberships = roleInfo.Memberships.ToList();
+            this.SecurablePermissions = roleInfo.SecurablePermissions;
         }
 
         private class ServerRolePrototypeData : ICloneable
