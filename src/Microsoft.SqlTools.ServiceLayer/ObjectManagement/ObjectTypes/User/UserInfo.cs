@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various user properties
     /// </summary>
-    public class UserInfo : SqlObject
+    public class UserInfo : SecurityPrincipalObject
     {
         public DatabaseUserType? Type { get; set; }
 
