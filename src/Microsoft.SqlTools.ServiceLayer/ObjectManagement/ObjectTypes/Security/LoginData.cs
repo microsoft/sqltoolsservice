@@ -2100,7 +2100,10 @@ INNER JOIN sys.sql_logins AS sql_logins
             this.comparer       = new SqlCollationSensitiveStringComparer(server.Information.Collation);
             this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.Login, login, context);
             this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.Login, login, null, context);
-            this.principal.AddExistingSecurables();
+            if (context.Server.DatabaseEngineType != DatabaseEngineType.SqlAzureDatabase)
+            {
+                this.principal.AddExistingSecurables();
+            }
         }
 
         /// <summary>

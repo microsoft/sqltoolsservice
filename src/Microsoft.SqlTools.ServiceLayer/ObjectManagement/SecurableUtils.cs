@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 case SqlObjectType.ApplicationRole:
                 case SqlObjectType.DatabaseRole:
                 case SqlObjectType.User:
-                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, null, serverVersion, databaseName, databaseEngineType, engineEdition);
+                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, databaseEngineType == DatabaseEngineType.SqlAzureDatabase ? new SearchableObjectType[] {SearchableObjectType.ServiceQueue} : null, serverVersion, databaseName, databaseEngineType, engineEdition);
                     break;
                 default:
                     break;
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[] excludeList, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[]? excludeList, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             foreach(SearchableObjectType t in supportedTypes)
             {
@@ -125,6 +125,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public static SecurablePermissions[] GetSecurablePermissions(bool principalExists, PrincipalType principalType, SqlSmoObject o, CDataContainer dataContainer)
         {
+            if (principalType == PrincipalType.Login && dataContainer?.Server?.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return new SecurablePermissions[0];
+            }
+
             List<SecurablePermissions> res = new List<SecurablePermissions>();
             Principal principal;
 
@@ -169,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Schema = s.Schema,
                     Type = s.TypeName,
                     Permissions = permissions,
-                    EffectivePermissions = CanHaveEffectivePermissions(principalType) ? GetEffectivePermissions(dataContainer, s, principal) : new string[0]
+                    EffectivePermissions = CanHaveEffectivePermissions(principalType, dataContainer) ? GetEffectivePermissions(dataContainer, s, principal) : new string[0]
                 };
                 res.Add(secPerm);
             }
@@ -177,8 +182,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        public static bool CanHaveEffectivePermissions(PrincipalType principalType)
+        public static bool CanHaveEffectivePermissions(PrincipalType principalType, CDataContainer dataContainer)
         {
+            if (dataContainer?.Server?.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return false;
+            }
+
             if (principalType == PrincipalType.ServerRole || principalType == PrincipalType.DatabaseRole || principalType == PrincipalType.ApplicationRole)
             {
                 return false;
@@ -441,6 +451,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal static void SendToServerPermissionChanges(bool exists, string name, SecurablePermissions[] securablePermissions, Principal principal, CDataContainer dataContainer, string database)
         {
             if (securablePermissions == null)
+            {
+                return;
+            }
+
+            if (principal.PrincipalType == PrincipalType.Login && dataContainer.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
             {
                 return;
             }
