@@ -10,12 +10,6 @@
           "OutputPath": "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\transXliff"
         },
         {
-          "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\sr.xlf",
-          "LclFile": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
-          "CopyOption": "LangIDOnName",
-          "OutputPath": "src\\Microsoft.SqlTools.ResourceProvider\\Localization\\transXliff"
-        },
-        {
           "SourceFile": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\sr.xlf",
           "LclFile": "src\\Microsoft.SqlTools.ResourceProvider.DefaultImpl\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
           "CopyOption": "LangIDOnName",
@@ -50,12 +44,6 @@
           "LclFile": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
           "CopyOption": "LangIDOnName",
           "OutputPath": "src\\Microsoft.Kusto.ServiceLayer\\Localization\\transXliff"
-        },
-        {
-          "SourceFile": "src\\Microsoft.SqlTools.Migration\\Localization\\sr.xlf",
-          "LclFile": "src\\Microsoft.SqlTools.Migration\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
-          "CopyOption": "LangIDOnName",
-          "OutputPath": "src\\Microsoft.SqlTools.Migration\\Localization\\transXliff"
         }
       ]
     }

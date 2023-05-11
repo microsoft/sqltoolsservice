@@ -30,8 +30,4 @@
     <ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Localization\*.resx" />
-    <None Include="Localization\sr.strings" />
-  </ItemGroup>
 </Project>
