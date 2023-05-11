@@ -29,6 +29,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             NodeValue = string.Empty;
             this.NodeType = "Database";
             this.NodeTypeId = NodeTypes.Database;
+			if(WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema)
+			{
+				this.FilterProperties = new NodeFilterProperty[]
+				{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+				};
+			}
             OnInitialize();
         }
     }

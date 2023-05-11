@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// <summary>
         /// The name of the filter property
         /// </summary>
-        public string DisplayName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The operator of the filter property

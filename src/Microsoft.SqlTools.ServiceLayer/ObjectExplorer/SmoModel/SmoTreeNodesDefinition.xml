@@ -661,6 +661,11 @@
     <Property>InPrimaryKey</Property>
   </FilterProperties>
 
+  <FilterProperties NodeName="Database" SettingsFlag="GroupBySchema">
+    <Property>Name</Property>
+    <Property>Owner</Property>
+  </FilterProperties>
+
 
   <FilterProperty Name="Name" LocLabel="SR.FilterName" Type="string" Description="SR.FilterNameDescription"/>
   <FilterProperty Name="Schema" LocLabel="SR.FilterSchema" Type="string" Description="SR.FilterSchemaDescription"/>
