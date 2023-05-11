@@ -429,13 +429,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        internal static SearchableObject ConvertFromSecurableNameToSearchableObject(string securableName, string type, string database, object connectionInfo)
+        internal static SearchableObject ConvertFromSecurableNameToSearchableObject(string securableName, string type, string database, string schema, object connectionInfo)
         {
             SearchableObjectType searchableObjectType = ConvertPotentialSqlObjectTypeToSearchableObjectType(type);
 
             SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
-            var urn = desc.GetSearchUrn(securableName, true, true);
-            return SearchableObject.GetSearchableObject(searchableObjectType, connectionInfo, database, securableName);
+            SearchableObjectCollection results = new SearchableObjectCollection();
+
+            if (desc.IsDatabaseObject)
+            {
+                if (desc.IsSchemaObject)
+                {
+                    SearchableObject.Search(
+                            results,
+                            searchableObjectType,
+                            connectionInfo,
+                            database,
+                            securableName,
+                            true,
+                            schema,
+                            true,
+                            true);
+                }
+                else
+                {
+                    SearchableObject.Search(
+                        results,
+                        searchableObjectType,
+                        connectionInfo,
+                        database,
+                        securableName,
+                        true,
+                        true);
+                }
+            }
+            else
+            {
+                SearchableObject.Search(
+                    results,
+                    searchableObjectType,
+                    connectionInfo,
+                    securableName,
+                    true,
+                    true);
+            }
+            SearchableObject result = (results.Count != 0) ? results[0] : null;
+            return result;
         }
 
         internal static void SendToServerPermissionChanges(bool exists, string name, SecurablePermissions[] securablePermissions, Principal principal, CDataContainer dataContainer, string database)
@@ -449,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 foreach (SecurablePermissions secPerm in securablePermissions)
                 {
-                    var securable = principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, dataContainer.ConnectionInfo));
+                    var securable = principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, secPerm.Schema, dataContainer.ConnectionInfo));
                     var states = principal.GetPermissionStates(securable);
                     ApplyPermissionStates(secPerm.Permissions, states);
                 }
@@ -459,7 +498,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var securables = principal.GetSecurables(new SecurableComparer(SecurableComparer.DefaultSortingOrder, true));
                 foreach (SecurablePermissions secPerm in securablePermissions)
                 {
-                    var securable = FindMatchedSecurable(securables, secPerm.Name) ?? principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, dataContainer.ConnectionInfo));
+                    var securable = FindMatchedSecurable(securables, secPerm.Name) ?? principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, secPerm.Schema, dataContainer.ConnectionInfo));
                     var states = principal.GetPermissionStates(securable);
                     ApplyPermissionStates(secPerm.Permissions, states);                
                 }
