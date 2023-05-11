@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various server role view properties
     /// </summary>
-    public class ServerRoleViewInfo : SqlObjectViewInfo
+    public class ServerRoleViewInfo : SecurityPrincipalViewInfo
     {
         public bool IsFixedRole { get; set; }
         public string[]? ServerRoles { get; set; }

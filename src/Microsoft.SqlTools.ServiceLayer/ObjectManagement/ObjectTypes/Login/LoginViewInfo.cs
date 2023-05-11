@@ -6,7 +6,7 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    public class LoginViewInfo : SqlObjectViewInfo
+    public class LoginViewInfo : SecurityPrincipalViewInfo
     {
         public LoginAuthenticationType[] AuthenticationTypes { get; set; }
         public bool CanEditLockedOutState { get; set; }

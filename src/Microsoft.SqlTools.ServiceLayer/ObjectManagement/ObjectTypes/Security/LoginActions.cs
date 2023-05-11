@@ -31,9 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (this.configAction != ConfigAction.Drop)
             {
-                prototype.ApplyGeneralChanges(this.DataContainer.Server);
-                prototype.ApplyServerRoleChanges(this.DataContainer.Server);
-                prototype.ApplyDatabaseRoleChanges(this.DataContainer.Server);
+                prototype.SendChangeToServer();
             }
         }
     }

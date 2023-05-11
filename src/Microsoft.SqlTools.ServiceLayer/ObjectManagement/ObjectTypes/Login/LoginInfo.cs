@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various login properties
     /// </summary>
-    public class LoginInfo : SqlObject
+    public class LoginInfo : SecurityPrincipalObject
     {
         public LoginAuthenticationType AuthenticationType { get; set; }
 

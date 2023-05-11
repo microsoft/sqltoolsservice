@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// The information required to render the user view.
     /// </summary>
-    public class UserViewInfo : SqlObjectViewInfo
+    public class UserViewInfo : SecurityPrincipalViewInfo
     {
         public DatabaseUserType[]? UserTypes { get; set; }
 

@@ -4348,10 +4348,64 @@
   <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
     <value>모든 로그인 가장</value>
   </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>이름의 전체 또는 일부를 기준으로 개체를 포함하거나 제외합니다.</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>스키마</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> 스키마 또는 스키마 이름의 일부를 기준으로 개체를 포함하거나 제외합니다.</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>소유자</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>소유자 또는 소유자 이름의 일부를 기반으로 개체를 포함하거나 제외합니다.</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>내구성 유형</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>내구성 유형을 기준으로 개체를 포함하거나 제외합니다.</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>메모리 액세스에 최적화됨</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>개체가 메모리 액세스에 최적화되었는지 여부에 따라 개체를 제외 또는 포함합니다.</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>만든 날짜</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>특정 날짜에 생성된 개체를 포함하거나 제외하려면 만든 날짜를 선택 또는 입력하고, 특정 날짜를 포함하는 날짜 범위 내에서 생성된 개체를 포함하거나 제외하려면 시작 및 종료 날짜를 입력하십시오.</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>고유하게 컴파일됨</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>개체가 고유하게 컴파일되었는지 여부에 따라 개체를 제외 또는 포함합니다.</value>
+  </data>
   <data name="ServiceProviderNotSet" xml:space="preserve">
     <value>필요한 서비스 공급자를 설정하기 위해 SetServiceProvider()가 호출되지 않았습니다</value>
   </data>
   <data name="ServiceNotFound" xml:space="preserve">
     <value>서비스 공급자에서 {0} 서비스를 찾을 수 없습니다</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>기본 키 여부</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>열이 기본 키에 있는지 여부에 따라 개체를 포함하거나 제외합니다.</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>스키마만</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>스키마 및 데이터</value>
   </data>
 </root>

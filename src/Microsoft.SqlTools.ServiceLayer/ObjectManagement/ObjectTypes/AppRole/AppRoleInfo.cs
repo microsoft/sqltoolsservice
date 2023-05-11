@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various application role properties
     /// </summary>
-    public class AppRoleInfo : SqlObject
+    public class AppRoleInfo : SecurityPrincipalObject
     {
         public string? DefaultSchema { get; set; }
         public string? Password { get; set; }
