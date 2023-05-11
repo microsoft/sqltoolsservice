@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // generate a user prototype
-            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType);
+            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType, parameters.IsNewObject);
 
             // get the default schema if available
             string defaultSchema = null;

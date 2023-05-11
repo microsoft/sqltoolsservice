@@ -94,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public SecureString passwordConfirm = new SecureString();
         public SecureString oldPassword = new SecureString();
         public bool isOldPasswordRequired = false;
+        public bool isNewObject = false;
 
         /// <summary>
         /// Used for creating clone of a UserPrototypeData.
@@ -517,7 +518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.parent = parent;
 
             var userName = this.currentState.name;
-            if (string.IsNullOrEmpty(userName))
+            if (current.isNewObject)
             {
                 this.securablePermissions = new SecurablePermissions[0];
                 this.principal = SecurableUtils.CreatePrincipal(false, PrincipalType.DatabaseRole, null, userName, context, parent.Name);
@@ -1061,10 +1062,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public static UserPrototype GetUserPrototype(
             CDataContainer context, UserInfo? user, 
-            UserPrototypeData? originalData, ExhaustiveUserTypes userType)
+            UserPrototypeData? originalData, ExhaustiveUserTypes userType, bool isNewObject)
         {
             UserPrototype currentPrototype = null;
             UserPrototypeData currentData = new UserPrototypeData(context, user);
+            currentData.isNewObject = isNewObject;
             switch (userType)
             {
                 case ExhaustiveUserTypes.AsymmetricKeyMappedUser:

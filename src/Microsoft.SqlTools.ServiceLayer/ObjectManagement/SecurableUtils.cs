@@ -440,6 +440,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal static void SendToServerPermissionChanges(bool exists, string name, SecurablePermissions[] securablePermissions, Principal principal, CDataContainer dataContainer, string database)
         {
+            if (securablePermissions == null)
+            {
+                return;
+            }
+
             if (!exists)
             {
                 foreach (SecurablePermissions secPerm in securablePermissions)
