@@ -55,8 +55,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             string[] languages = languageOptionsList.ToArray();
             LoginPrototype prototype = parameters.IsNewObject
-            ? new LoginPrototype(dataContainer.Server)
-            : new LoginPrototype(dataContainer.Server, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login);
+            ? new LoginPrototype(dataContainer)
+            : new LoginPrototype(dataContainer, dataContainer.Server.GetSmoObject(parameters.ObjectUrn) as Login);
 
             List<string> loginServerRoles = new List<string>();
             foreach (string role in prototype.ServerRoles.ServerRoleNames)
@@ -82,7 +82,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 ConnectPermission = prototype.WindowsGrantAccess,
                 IsEnabled = !prototype.IsDisabled,
                 IsLockedOut = prototype.IsLockedOut,
-                UserMapping = new ServerLoginDatabaseUserMapping[0]
+                UserMapping = new ServerLoginDatabaseUserMapping[0],
+                SecurablePermissions = prototype.SecurablePermissions
             };
 
             var supportedAuthTypes = new List<LoginAuthenticationType>();
@@ -104,7 +105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Languages = languages,
                 ServerRoles = prototype.ServerRoles.ServerRoleNames,
                 SupportAdvancedPasswordOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlDataWarehouse,
-                SupportAdvancedOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance
+                SupportAdvancedOptions = dataContainer.Server.DatabaseEngineType == DatabaseEngineType.Standalone || dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance,
+                SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.ServerLevelLogin, dataContainer.Server.Version, "", dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
             var context = new LoginViewContext(parameters);
             return Task.FromResult(new InitializeViewResult()
@@ -189,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, dataContainer.Server.Logins[login.Name]);
+            LoginPrototype prototype = new LoginPrototype(dataContainer, dataContainer.Server.Logins[login.Name]);
 
             prototype.SqlPassword = login.Password;
             if (0 != string.Compare(login.DefaultLanguage, SR.DefaultLanguagePlaceholder, StringComparison.Ordinal))
@@ -207,6 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             prototype.IsDisabled = !login.IsEnabled;
             prototype.MustChange = login.EnforcePasswordPolicy ? login.MustChangePassword : false;
             prototype.WindowsGrantAccess = login.ConnectPermission;
+            prototype.SecurablePermissions = login.SecurablePermissions;
 
             if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
             {
@@ -256,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-            LoginPrototype prototype = new LoginPrototype(dataContainer.Server, login);
+            LoginPrototype prototype = new LoginPrototype(dataContainer, login);
 
             if (prototype.LoginType == SqlServer.Management.Smo.LoginType.SqlLogin)
             {

@@ -9,7 +9,6 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Data;
-using System.Resources;
 using System.Text;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
@@ -281,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// Constructor
         /// </summary>
         /// <param name="image">Bitmap for the object type</param>
-        /// <param name="typeNameKey">The key to look up localized type names, e.g. "objectType.functionTable"</param>
+        /// <param name="typeNameKey">The key to look up localized type names, e.g. "objectType_functionTable"</param>
         /// <param name="urnObjectType">The URN object type substring, e.g. "UserDefinedFunction"</param>
         /// <param name="specialRestrictions">Any special clauses needed for the URN, e.g. "@FunctionType='2'"</param>
         /// <param name="disallowSystemObjectsRestriction">Clause to restrict selection to non-system objects, e.g. "@IsSystemObject='false'"</param>
@@ -294,8 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             string          specialRestrictions, 
             string          disallowSystemObjectsRestriction,
             bool            isDatabaseObject,
-            bool            isSchemaObject,
-            ResourceManager resourceManager)
+            bool            isSchemaObject)
         {
             // STrace.Assert(image != null, "image is null");
             // STrace.Assert((typeNameKey != null) && (typeNameKey.Length != 0), "typeNameKey is null or empty");
@@ -309,9 +307,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.disallowSystemObjectsRestriction   = disallowSystemObjectsRestriction;
             this.isDatabaseObject                   = isDatabaseObject;
             this.isSchemaObject                     = isSchemaObject;
-
-            this.typeNamePlural         = resourceManager.GetString(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}.plural", typeNameKey));
-            this.typeNameSingular       =  resourceManager.GetString(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}.singular", typeNameKey));
+            this.typeNamePlural         = SR.Keys.GetString(string.Format("{0}_plural", typeNameKey));
+            this.typeNameSingular       = SR.Keys.GetString(string.Format("{0}_singular", typeNameKey));
         
             // STrace.Assert((this.typeNamePlural != null) && (this.typeNamePlural.Length != 0), "could not get plural type name");
             // STrace.Assert((this.typeNameSingular != null) && (this.typeNameSingular.Length != 0), "could not get singular type name");
@@ -321,7 +318,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// Constructor
         /// </summary>
         /// <param name="image">Bitmap for the object type</param>
-        /// <param name="typeNameKey">The key to look up localized type names, e.g. "objectType.functionTable"</param>
+        /// <param name="typeNameKey">The key to look up localized type names, e.g. "objectType_functionTable"</param>
         /// <param name="urnObjectType">The URN object type substring, e.g. "UserDefinedFunction"</param>
         /// <param name="isDatabaseObject">Whether the object is contained by a database</param>
         /// <param name="isSchemaObject">Whether the object is contained byt a schema</param>
@@ -330,8 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             string          typeNameKey, 
             string          urnObjectType, 
             bool            isDatabaseObject,
-            bool            isSchemaObject,
-            ResourceManager resourceManager)
+            bool            isSchemaObject)
         {
             // STrace.Assert(image != null, "image is null");
             // STrace.Assert((typeNameKey != null) && (typeNameKey.Length != 0), "typeNameKey is null or empty");
@@ -344,8 +340,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.isDatabaseObject                   = isDatabaseObject;
             this.isSchemaObject                     = isSchemaObject;
 
-            this.typeNamePlural         = resourceManager.GetString(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}.plural", typeNameKey));
-            this.typeNameSingular       =  resourceManager.GetString(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}.singular", typeNameKey));
+            this.typeNamePlural         = SR.Keys.GetString(string.Format("{0}_plural", typeNameKey));
+            this.typeNameSingular       = SR.Keys.GetString(string.Format("{0}_singular", typeNameKey));
 
             // STrace.Assert((this.typeNamePlural != null) && (this.typeNamePlural.Length != 0), "could not get plural type name");
             // STrace.Assert((this.typeNameSingular != null) && (this.typeNameSingular.Length != 0), "could not get singular type name");
@@ -620,14 +616,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (SearchableObjectTypeDescription.firstVersionSpecificTypeInfoUpdate)
             {
-                ResourceManager resourceManager = new ResourceManager("Microsoft.SqlServer.Management.SqlMgmt.SqlObjectSearchStrings", typeof(SearchableObjectTypeDescription).Assembly);
-                // Color transparent = ResourceUtils.StandardBitmapTransparentColor;
-
                 //Re-writing the value of SearchableObjectType.ServerRole in the Dictionary.
                 SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ServerRole] =
                     new SearchableObjectTypeDescription(
                         // // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("Flexible_server_role.ico")).ToBitmap(),
-                        "objectType.serverRole",
+                        "objectType_serverRole",
                         "Role",
                         string.Empty,
                         Utils.IsSql11OrLater(serverVersion.Major)
@@ -636,8 +629,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 ? "@ID=2" //Public server role's ID is 2.
                                 : string.Empty,
                         false,
-                        false,
-                        resourceManager);
+                        false);
 
                 firstVersionSpecificTypeInfoUpdate = false;
             }
@@ -653,364 +645,324 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 SearchableObjectTypeDescription.typeToDescription = new HybridDictionary(25);
             }
 
-            ResourceManager resourceManager = new ResourceManager("Microsoft.SqlServer.Management.SqlMgmt.SqlObjectSearchStrings", typeof(SearchableObjectTypeDescription).Assembly);
-            // Color transparent = ResourceUtils.StandardBitmapTransparentColor;
-
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.AggregateFunction] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("ScalarValuedFunction.ico")).ToBitmap(),
-                    "objectType.aggregateFunction",
+                    "objectType_aggregateFunction",
                     "UserDefinedAggregate",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ApplicationRole] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("application_role_16x.ico")).ToBitmap(),
-                    "objectType.applicationRole",
+                    "objectType_applicationRole",
                     "ApplicationRole",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Assembly] =
                 new SearchableObjectTypeDescription(
                     // // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("assemblies.ico")).ToBitmap(),
-                    "objectType.assembly",
+                    "objectType_assembly",
                     "SqlAssembly",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.AsymmetricKey] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("asymmetric_key.ico")).ToBitmap(),
-                    "objectType.asymmetricKey",
+                    "objectType_asymmetricKey",
                     "AsymmetricKey",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Certificate] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("certificate.ico")).ToBitmap(),
-                    "objectType.certificate",
+                    "objectType_certificate",
                     "Certificate",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Database] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("database.ico")).ToBitmap(),
-                    "objectType.database",
+                    "objectType_database",
                     "Database",
                     String.Empty,
                     "@IsSystemObject=false()",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.AgentJob] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("jobs.ico")).ToBitmap(),
-                    "objectType.agentjob",
+                    "objectType_agentjob",
                     "JobServer/Job",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.DatabaseRole] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("database_roles_16x.ico")).ToBitmap(),
-                    "objectType.databaseRole",
+                    "objectType_databaseRole",
                     "Role",
                     String.Empty,
                     "@IsFixedRole=false()",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             //Without version info, we can't have system object Urn as it differs with version.
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ServerRole] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("Flexible_server_role.ico")).ToBitmap(),
-                    "objectType.serverRole",
+                    "objectType_serverRole",
                     "Role",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Endpoint] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("endpoint.ico")).ToBitmap(),
-                    "objectType.endpoint",
+                    "objectType_endpoint",
                     "Endpoint",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ExtendedStoredProcedure] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("user_extended_stored_proc.ico")).ToBitmap(),
-                    "objectType.extendedStoredProcedure",
+                    "objectType_extendedStoredProcedure",
                     "ExtendedStoredProcedure",
                     String.Empty,
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ExternalDataSource] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("ExternalDataSource.ico")).ToBitmap(),
-                    "objectType.externalDataSource",
+                    "objectType_externalDataSource",
                     "ExternalDataSource",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ExternalFileFormat] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("ExternalFileFormat.ico")).ToBitmap(),
-                    "objectType.externalFileFormat",
+                    "objectType_externalFileFormat",
                     "ExternalFileFormat",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.FullTextCatalog] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("full_text_catalog.ico")).ToBitmap(),
-                    "objectType.fullTextCatalog",
+                    "objectType_fullTextCatalog",
                     "FullTextCatalog",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.FunctionInline] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("table_valued_function.ico")).ToBitmap(),
-                    "objectType.functionInline",
+                    "objectType_functionInline",
                     "UserDefinedFunction",
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "@FunctionType='{0}'", (int)UserDefinedFunctionType.Inline),
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.FunctionScalar] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("ScalarValuedFunction.ico")).ToBitmap(),
-                    "objectType.functionScalar",
+                    "objectType_functionScalar",
                     "UserDefinedFunction",
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "@FunctionType='{0}'", (int)UserDefinedFunctionType.Scalar),
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.FunctionTable] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("table_valued_function.ico")).ToBitmap(),
-                    "objectType.functionTable",
+                    "objectType_functionTable",
                     "UserDefinedFunction",
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "@FunctionType='{0}'", (int)UserDefinedFunctionType.Table),
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Login] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("log_in_16x.ico")).ToBitmap(),
-                    "objectType.login",
+                    "objectType_login",
                     "Login",
                     String.Empty,
                     "@IsSystemObject=false()",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.LoginOnly] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("log_in_16x.ico")).ToBitmap(),
-                    "objectType.login",
+                    "objectType_login",
                     "Login",
                     "@LoginType = 2 or @LoginType = 0",
                     "@IsSystemObject=false()",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Schema] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("database_schema.ico")).ToBitmap(),
-                    "objectType.schema",
+                    "objectType_schema",
                     "Schema",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Server] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("server.ico")).ToBitmap(),
-                    "objectType.server",
+                    "objectType_server",
                     String.Empty,
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.SecurityPolicy] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("securitypolicy.ico")).ToBitmap(),
-                    "objectType.securityPolicy",
+                    "objectType_securityPolicy",
                     "SecurityPolicy",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.ServiceQueue] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("queue.ico")).ToBitmap(),
-                    "objectType.serviceQueue",
+                    "objectType_serviceQueue",
                     "ServiceBroker/ServiceQueue",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.StoredProcedure] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("stored_procedure.ico")).ToBitmap(),
-                    "objectType.storedProcedure",
+                    "objectType_storedProcedure",
                     "StoredProcedure",
                     String.Empty,
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Synonym] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("synonym.ico")).ToBitmap(),
-                    "objectType.synonym",
+                    "objectType_synonym",
                     "Synonym",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Sequence] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("sequence.ico")).ToBitmap(),
-                    "objectType.sequence",
+                    "objectType_sequence",
                     "Sequence",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Table] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("table.ico")).ToBitmap(),
-                    "objectType.table",
+                    "objectType_table",
                     "Table",
                     String.Empty,
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.User] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("user_16x.ico")).ToBitmap(),
-                    "objectType.user",
+                    "objectType_user",
                     "User",
                     String.Empty,
                     "(@IsSystemObject=false() or @Name='guest')",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.UserDefinedDataType] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("user_defined_data_type.ico")).ToBitmap(),
-                    "objectType.userDefinedDataType",
+                    "objectType_userDefinedDataType",
                     "UserDefinedDataType",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.View] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("view.ico")).ToBitmap(),
-                    "objectType.view",
+                    "objectType_view",
                     "View",
                     String.Empty,
                     "@IsSystemObject=false()",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.XmlSchemaCollection] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("XML_schemas.ico")).ToBitmap(),
-                    "objectType.xmlSchemaCollection",
+                    "objectType_xmlSchemaCollection",
                     "XmlSchemaCollection",
                     true,
-                    true,
-                    resourceManager);
+                    true);
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Rule] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("rule.ico")).ToBitmap(),
-                    "objectType.rule",
+                    "objectType_rule",
                     "Rule",
                     true,
-                    true,
-                    resourceManager);
+                    true);
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Default] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("defaults_16x.ico")).ToBitmap(),
-                    "objectType.default",
+                    "objectType_default",
                     "Default",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.Credential] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("credential.ico")).ToBitmap(),
-                    "objectType.credential",
+                    "objectType_credential",
                     "Credential",
                     false,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.SymmetricKey] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("symmetric_key.ico")).ToBitmap(),
-                    "objectType.symmetricKey",
+                    "objectType_symmetricKey",
                     "SymmetricKey",
                     true,
-                    false,
-                    resourceManager);
+                    false);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.UserDefinedTableType] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("table.ico")).ToBitmap(),
-                    "objectType.userDefinedTableType",
+                    "objectType_userDefinedTableType",
                     "UserDefinedTableType",
                     true,
-                    true,
-                    resourceManager);
+                    true);
 
             SearchableObjectTypeDescription.typeToDescription[SearchableObjectType.AvailabilityGroup] =
                 new SearchableObjectTypeDescription(
                     // DpiUtil.GetScaledIcon(ResourceUtils.LoadIcon("Availability_Group.ico")).ToBitmap(),
-                    "objectType.AvailabilityGroup",
+                    "objectType_AvailabilityGroup",
                     "AvailabilityGroup",
                     false,
-                    false,
-                    resourceManager);
+                    false);
         }
 
         /// <summary>

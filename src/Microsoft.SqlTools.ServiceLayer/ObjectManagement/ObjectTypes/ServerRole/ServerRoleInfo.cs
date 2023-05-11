@@ -8,7 +8,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// <summary>
     /// a class for storing various server role properties
     /// </summary>
-    public class ServerRoleInfo : SqlObject
+    public class ServerRoleInfo : SecurityPrincipalObject
     {
         public string? Owner { get; set; }
         public string[]? Members { get; set; }
