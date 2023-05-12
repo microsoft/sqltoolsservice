@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 foreach (var f in appliedFilters)
                 {
-                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.DisplayName == f.DisplayName);
+                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
                     filters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
                 }
             }
