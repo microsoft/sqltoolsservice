@@ -173,7 +173,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     res.Add(new SearchResultItem
                     {
                         Name = obj.Name,
-                        Type = type
+                        Type = type,
+                        Schema = obj.Schema
                     });
                 }
             }
