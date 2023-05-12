@@ -203,19 +203,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var dataModel = new EffectivePermissionsData(dataContainer);
             List<string> res = new List<string>();
             DataSet data = dataModel.QueryEffectivePermissions();
-            // STrace.Assert(data.Tables.Count == 1, "Unknown number of tables returned");
 
             if (data.Tables.Count > 0)
             {
                 DataTable table = data.Tables[0];
 
-                // STrace.Assert(table.Columns.Count >= 1 && table.Columns.Count <= 2, "Too many columns returned");
 
                 bool hasColumnInformation = dataModel.HasColumnInformation;
 
                 // loop through and add rows
                 foreach (DataRow row in table.Rows)
                 {
+                    if (hasColumnInformation && !string.IsNullOrEmpty(row[1].ToString()))
+                    {
+                        continue;
+                    }
                     res.Add(row[0].ToString());
                 }
             }
