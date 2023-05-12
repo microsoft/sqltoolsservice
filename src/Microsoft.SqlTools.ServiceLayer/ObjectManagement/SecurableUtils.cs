@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Schema = s.Schema,
                     Type = s.TypeName,
                     Permissions = permissions,
-                    EffectivePermissions = CanHaveEffectivePermissions(principalType, dataContainer) ? GetEffectivePermissions(dataContainer, s, principal) : new string[0]
+                    EffectivePermissions = CanHaveEffectivePermissions(principalType, dataContainer) ? GetEffectivePermissions(dataContainer, s, principal) : new EffectivePermissionItem[0]
                 };
                 res.Add(secPerm);
             }
@@ -196,12 +196,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return true;
         }
 
-        internal static string[] GetEffectivePermissions(CDataContainer dataContainer, Securable securable, Principal principal)
+        internal static EffectivePermissionItem[] GetEffectivePermissions(CDataContainer dataContainer, Securable securable, Principal principal)
         {
             var doc = ReadEffectivePermissionsXml(securable, principal);
             dataContainer.Document = doc;
             var dataModel = new EffectivePermissionsData(dataContainer);
-            List<string> res = new List<string>();
+            List<EffectivePermissionItem> res = new List<EffectivePermissionItem>();
             DataSet data = dataModel.QueryEffectivePermissions();
             // STrace.Assert(data.Tables.Count == 1, "Unknown number of tables returned");
 
@@ -216,7 +216,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 // loop through and add rows
                 foreach (DataRow row in table.Rows)
                 {
-                    res.Add(row[0].ToString());
+                    EffectivePermissionItem item = new EffectivePermissionItem();
+                    item.Permission = row[0].ToString();
+                    if (hasColumnInformation)
+                    {
+                        item.Column = row[1].ToString();
+                    }
+                    res.Add(item);
                 }
             }
             return res.ToArray();

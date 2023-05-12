@@ -13,12 +13,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool? WithGrant { get; set; }
     }
 
+    public class EffectivePermissionItem
+    {
+        public string? Permission { get; set; }
+        public string? Column { get; set; }
+    }
+
     public class SecurablePermissions
     {
         public string? Name { get; set; }
         public string? Schema { get; set; }
         public string? Type { get; set; }
-        public string[]? EffectivePermissions { get; set; }
+        public EffectivePermissionItem[]? EffectivePermissions { get; set; }
         public SecurablePermissionItem[]? Permissions { get; set; }
     }
 }
