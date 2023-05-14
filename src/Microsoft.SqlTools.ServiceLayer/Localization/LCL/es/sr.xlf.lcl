@@ -13231,6 +13231,9 @@
       <Item ItemId=";objectType_fullTextCatalog_singular" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Full-text catalog]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Catálogo de texto completo]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
