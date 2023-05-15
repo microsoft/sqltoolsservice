@@ -4396,6 +4396,222 @@
   <data name="ServiceNotFound" xml:space="preserve">
     <value>서비스 공급자에서 {0} 서비스를 찾을 수 없습니다</value>
   </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>테이블 반환 함수</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>외부 데이터 원본</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>서버 역할</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>XML 스키마 컬렉션</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>저장 프로시저</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>엔드포인트</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>시퀀스</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>사용자 정의 데이터 형식</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>전체 텍스트 카탈로그</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>자격 증명</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>데이터베이스 역할</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>엔드포인트</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>뷰</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>어셈블리</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>스칼라 함수</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>서버</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>테이블</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>큐</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>로그인</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>저장 프로시저</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>대칭 키</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>사용자 정의 테이블 형식</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>인라인 함수</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>서버 역할</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>에이전트 작업</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>데이터베이스 역할</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>동의어</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>가용성 그룹</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>외부 파일 형식</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>데이터베이스</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>대칭 키</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>보안 정책</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>외부 파일 형식</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>애플리케이션 역할</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>어셈블리</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>시퀀스</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>사용자 정의 데이터 형식</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>서버</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>집계 함수</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>전체 텍스트 카탈로그</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>인증서</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>가용성 그룹</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>데이터베이스</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>보기</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>스키마</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>규칙</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>인증서</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>사용자</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>에이전트 작업</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>동의어</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>집계 함수</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>테이블 반환 함수</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>규칙</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>큐</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>비대칭 키</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>애플리케이션 역할</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>확장 저장 프로시저</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>로그인</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>인라인 함수</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>사용자</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>외부 데이터 원본</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>스칼라 함수</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>테이블</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>자격 증명</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>스키마</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>사용자 정의 테이블 형식</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>보안 정책</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>XML 스키마 컬렉션</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>확장 저장 프로시저</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>비대칭 키</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>기본값</value>
+  </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
     <value>기본 키 여부</value>
   </data>

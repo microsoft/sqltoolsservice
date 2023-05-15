@@ -4396,6 +4396,222 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   <data name="ServiceNotFound" xml:space="preserve">
     <value>Service {0} introuvable dans le fournisseur de services</value>
   </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>Fonctions table</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>Source de données externe</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>Rôle du serveur</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>Collection de schémas XML</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>Procédures stockées</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>Points de terminaison</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>Séquence</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>Type de données défini par l'utilisateur</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>Catalogues de recherche en texte intégral</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>Informations d’identification</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>Rôles de base de données</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>Point de terminaison</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>Vues</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>Assembly</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>Fonction scalaire</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>Serveurs</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>Table</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>File d'attente</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>Connexions</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>Procédure stockée</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>Valeurs par défaut</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>Clé symétrique</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>Type de table défini par l'utilisateur</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>Fonction incluse</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>Rôles du serveur</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>Travail d'agent</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>Rôle de base de données</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>Synonyme</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>Groupe de disponibilité</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>Formats de fichier externes</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>Base de données</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>Clés symétriques</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>Stratégie de sécurité</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>Format de fichier externe</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>Rôle d'application</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>Assemblys</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>Séquences</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>Types de données définis par l'utilisateur</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>Serveur</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>Fonction d'agrégation</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>Catalogue de recherche en texte intégral</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>Certificats</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>Groupes de disponibilité</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>Bases de données</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>Voir</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>Schémas</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>Règles</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>Certificat</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>Utilisateur</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>Travaux de l'Agent</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>Synonymes</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>Fonctions d'agrégation</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>Fonction table</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>Règle</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>Files d'attente</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>Clés asymétriques</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>Rôles d'application</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>Procédure stockée étendue</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>Connexion</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>Fonctions incluses</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>Utilisateurs</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>Sources de données externes</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>Fonctions scalaires</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>Tables</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>Informations d'identification</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>Schéma</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>Types de tables définis par l'utilisateur</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>Stratégies de sécurité</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>Collections de schémas XML</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>Procédures stockées étendues</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>Clé asymétrique</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>Par défaut</value>
+  </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
     <value>Dans la clé primaire</value>
   </data>

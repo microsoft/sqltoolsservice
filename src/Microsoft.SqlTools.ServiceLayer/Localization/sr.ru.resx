@@ -4396,6 +4396,222 @@
   <data name="ServiceNotFound" xml:space="preserve">
     <value>Служба {0} не найдена в поставщике служб</value>
   </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>Возвращающие табличное значение функции</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>Источник внешних данных</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>Роль сервера</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>Коллекция схем XML</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>Хранимые процедуры</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>Конечные точки</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>Последовательность</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>Определяемый пользователем тип данных</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>Полнотекстовые каталоги</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>Учетные данные</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>Роли базы данных</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>Конечная точка</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>Представления</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>Сборка</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>Скалярная функция</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>Серверы</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>Таблица</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>Очередь</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>Имена для входа</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>Хранимая процедура</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>Значения по умолчанию</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>Симметричный ключ</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>Определяемый пользователем табличный тип</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>Встроенная функция</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>Роли сервера</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>Задание агента</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>Роль базы данных</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>Синоним</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>Группа доступности</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>Форматы внешнего файла</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>База данных</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>Симметричные ключи</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>Политика безопасности</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>Формат внешнего файла</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>Роль приложения</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>Сборки</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>Последовательности</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>Определяемые пользователем типы данных</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>Сервер</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>Агрегатная функция</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>Полнотекстовый каталог</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>Сертификаты</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>Группы доступности</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>Базы данных</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>Представление</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>Схемы</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>Правила</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>Сертификат</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>Пользователь</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>Задания агентов</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>Синонимы</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>Агрегатные функции</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>Возвращающая табличное значение функция</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>Правило</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>Очереди</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>Асимметричные ключи</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>Роли приложений</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>Расширенная хранимая процедура</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>Вход</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>Встроенные функции</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>Пользователи</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>Источники внешних данных</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>Скалярные функции</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>Таблицы</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>Учетные данные</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>Схема</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>Определяемые пользователем табличные типы</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>Политики безопасности</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>Коллекции схем XML</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>Расширенные хранимые процедуры</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>Асимметричный ключ</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
     <value>В первичном ключе</value>
   </data>
