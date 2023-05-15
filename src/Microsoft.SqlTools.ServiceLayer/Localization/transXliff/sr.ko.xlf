@@ -7217,6 +7217,365 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">서비스 공급자에서 {0} 서비스를 찾을 수 없습니다</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="objectType_functionTable_plural">
+        <source>Table-valued functions</source>
+        <target state="translated">테이블 반환 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalDataSource_singular">
+        <source>External Data Source</source>
+        <target state="translated">외부 데이터 원본</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serverRole_singular">
+        <source>Server role</source>
+        <target state="translated">서버 역할</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_xmlSchemaCollection_singular">
+        <source>XML schema collection</source>
+        <target state="translated">XML 스키마 컬렉션</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_storedProcedure_plural">
+        <source>Stored procedures</source>
+        <target state="translated">저장 프로시저</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_endpoint_plural">
+        <source>Endpoints</source>
+        <target state="translated">엔드포인트</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_sequence_singular">
+        <source>Sequence</source>
+        <target state="translated">시퀀스</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedDataType_singular">
+        <source>User-defined data type</source>
+        <target state="translated">사용자 정의 데이터 형식</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_fullTextCatalog_plural">
+        <source>Full-text catalogs</source>
+        <target state="translated">전체 텍스트 카탈로그</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_credential_singular">
+        <source>Credential</source>
+        <target state="translated">자격 증명</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_databaseRole_plural">
+        <source>Database roles</source>
+        <target state="translated">데이터베이스 역할</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_endpoint_singular">
+        <source>Endpoint</source>
+        <target state="translated">엔드포인트</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_view_plural">
+        <source>Views</source>
+        <target state="translated">뷰</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_assembly_singular">
+        <source>Assembly</source>
+        <target state="translated">어셈블리</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionScalar_singular">
+        <source>Scalar function</source>
+        <target state="translated">스칼라 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_server_plural">
+        <source>Servers</source>
+        <target state="translated">서버</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_table_singular">
+        <source>Table</source>
+        <target state="translated">테이블</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serviceQueue_singular">
+        <source>Queue</source>
+        <target state="translated">큐</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_login_plural">
+        <source>Logins</source>
+        <target state="translated">로그인</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_storedProcedure_singular">
+        <source>Stored procedure</source>
+        <target state="translated">저장 프로시저</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_default_plural">
+        <source>Defaults</source>
+        <target state="translated">기본값</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_symmetricKey_singular">
+        <source>Symmetric key</source>
+        <target state="translated">대칭 키</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedTableType_singular">
+        <source>User-defined table type</source>
+        <target state="translated">사용자 정의 테이블 형식</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionInline_singular">
+        <source>Inline function</source>
+        <target state="translated">인라인 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serverRole_plural">
+        <source>Server roles</source>
+        <target state="translated">서버 역할</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_agentjob_singular">
+        <source>Agent job</source>
+        <target state="translated">에이전트 작업</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_databaseRole_singular">
+        <source>Database role</source>
+        <target state="translated">데이터베이스 역할</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_synonym_singular">
+        <source>Synonym</source>
+        <target state="translated">동의어</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_AvailabilityGroup_singular">
+        <source>Availability Group</source>
+        <target state="translated">가용성 그룹</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalFileFormat_plural">
+        <source>External File Formats</source>
+        <target state="translated">외부 파일 형식</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_database_singular">
+        <source>Database</source>
+        <target state="translated">데이터베이스</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_symmetricKey_plural">
+        <source>Symmetric keys</source>
+        <target state="translated">대칭 키</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_securityPolicy_singular">
+        <source>Security Policy</source>
+        <target state="translated">보안 정책</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalFileFormat_singular">
+        <source>External File Format</source>
+        <target state="translated">외부 파일 형식</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_applicationRole_singular">
+        <source>Application role</source>
+        <target state="translated">애플리케이션 역할</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_assembly_plural">
+        <source>Assemblies</source>
+        <target state="translated">어셈블리</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_sequence_plural">
+        <source>Sequences</source>
+        <target state="translated">시퀀스</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedDataType_plural">
+        <source>User-defined data types</source>
+        <target state="translated">사용자 정의 데이터 형식</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_server_singular">
+        <source>Server</source>
+        <target state="translated">서버</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_aggregateFunction_singular">
+        <source>Aggregate function</source>
+        <target state="translated">집계 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_fullTextCatalog_singular">
+        <source>Full-text catalog</source>
+        <target state="translated">전체 텍스트 카탈로그</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_certificate_plural">
+        <source>Certificates</source>
+        <target state="translated">인증서</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_AvailabilityGroup_plural">
+        <source>Availability Groups</source>
+        <target state="translated">가용성 그룹</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_database_plural">
+        <source>Databases</source>
+        <target state="translated">데이터베이스</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_view_singular">
+        <source>View</source>
+        <target state="translated">보기</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_schema_plural">
+        <source>Schemas</source>
+        <target state="translated">스키마</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_rule_plural">
+        <source>Rules</source>
+        <target state="translated">규칙</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_certificate_singular">
+        <source>Certificate</source>
+        <target state="translated">인증서</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_user_singular">
+        <source>User</source>
+        <target state="translated">사용자</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_agentjob_plural">
+        <source>Agent jobs</source>
+        <target state="translated">에이전트 작업</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_synonym_plural">
+        <source>Synonyms</source>
+        <target state="translated">동의어</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_aggregateFunction_plural">
+        <source>Aggregate functions</source>
+        <target state="translated">집계 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionTable_singular">
+        <source>Table-valued function</source>
+        <target state="translated">테이블 반환 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_rule_singular">
+        <source>Rule</source>
+        <target state="translated">규칙</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serviceQueue_plural">
+        <source>Queues</source>
+        <target state="translated">큐</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_asymmetricKey_plural">
+        <source>Asymmetric keys</source>
+        <target state="translated">비대칭 키</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_applicationRole_plural">
+        <source>Application roles</source>
+        <target state="translated">애플리케이션 역할</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_extendedStoredProcedure_singular">
+        <source>Extended stored procedure</source>
+        <target state="translated">확장 저장 프로시저</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_login_singular">
+        <source>Login</source>
+        <target state="translated">로그인</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionInline_plural">
+        <source>Inline functions</source>
+        <target state="translated">인라인 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_user_plural">
+        <source>Users</source>
+        <target state="translated">사용자</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalDataSource_plural">
+        <source>External Data Sources</source>
+        <target state="translated">외부 데이터 원본</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionScalar_plural">
+        <source>Scalar functions</source>
+        <target state="translated">스칼라 함수</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_table_plural">
+        <source>Tables</source>
+        <target state="translated">테이블</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_credential_plural">
+        <source>Credentials</source>
+        <target state="translated">자격 증명</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_schema_singular">
+        <source>Schema</source>
+        <target state="translated">스키마</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedTableType_plural">
+        <source>User-defined table types</source>
+        <target state="translated">사용자 정의 테이블 형식</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_securityPolicy_plural">
+        <source>Security Policies</source>
+        <target state="translated">보안 정책</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_xmlSchemaCollection_plural">
+        <source>XML schema collections</source>
+        <target state="translated">XML 스키마 컬렉션</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_extendedStoredProcedure_plural">
+        <source>Extended stored procedures</source>
+        <target state="translated">확장 저장 프로시저</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_asymmetricKey_singular">
+        <source>Asymmetric key</source>
+        <target state="translated">비대칭 키</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_default_singular">
+        <source>Default</source>
+        <target state="translated">기본값</target>
+      </trans-unit>
       <trans-unit id="FilterInPrimaryKey">
         <source>In Primary Key</source>
         <target state="translated">기본 키 여부</target>

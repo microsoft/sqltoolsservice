@@ -7217,6 +7217,365 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <target state="translated">El servicio {0} no se ha encontrado en el proveedor de servicios</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="objectType_functionTable_plural">
+        <source>Table-valued functions</source>
+        <target state="translated">Funciones con valores de tabla</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalDataSource_singular">
+        <source>External Data Source</source>
+        <target state="translated">Origen de datos externo</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serverRole_singular">
+        <source>Server role</source>
+        <target state="translated">Rol del servidor</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_xmlSchemaCollection_singular">
+        <source>XML schema collection</source>
+        <target state="translated">Colección de esquemas XML</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_storedProcedure_plural">
+        <source>Stored procedures</source>
+        <target state="translated">Procedimientos almacenados</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_endpoint_plural">
+        <source>Endpoints</source>
+        <target state="translated">Puntos de conexión</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_sequence_singular">
+        <source>Sequence</source>
+        <target state="translated">Secuencia</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedDataType_singular">
+        <source>User-defined data type</source>
+        <target state="translated">Tipo de datos definido por el usuario</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_fullTextCatalog_plural">
+        <source>Full-text catalogs</source>
+        <target state="translated">Catálogos de texto completo</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_credential_singular">
+        <source>Credential</source>
+        <target state="translated">Credencial</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_databaseRole_plural">
+        <source>Database roles</source>
+        <target state="translated">Roles de base de datos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_endpoint_singular">
+        <source>Endpoint</source>
+        <target state="translated">Punto de conexión</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_view_plural">
+        <source>Views</source>
+        <target state="translated">Vistas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_assembly_singular">
+        <source>Assembly</source>
+        <target state="translated">Ensamblado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionScalar_singular">
+        <source>Scalar function</source>
+        <target state="translated">Función escalar</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_server_plural">
+        <source>Servers</source>
+        <target state="translated">Servidores</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_table_singular">
+        <source>Table</source>
+        <target state="translated">Tabla</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serviceQueue_singular">
+        <source>Queue</source>
+        <target state="translated">Cola</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_login_plural">
+        <source>Logins</source>
+        <target state="translated">Inicios de sesión</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_storedProcedure_singular">
+        <source>Stored procedure</source>
+        <target state="translated">Procedimiento almacenado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_default_plural">
+        <source>Defaults</source>
+        <target state="translated">Valores predeterminados</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_symmetricKey_singular">
+        <source>Symmetric key</source>
+        <target state="translated">Clave simétrica</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedTableType_singular">
+        <source>User-defined table type</source>
+        <target state="translated">Tipo de tabla definido por el usuario</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionInline_singular">
+        <source>Inline function</source>
+        <target state="translated">Función insertada</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serverRole_plural">
+        <source>Server roles</source>
+        <target state="translated">Roles del servidor</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_agentjob_singular">
+        <source>Agent job</source>
+        <target state="translated">Trabajo de agente</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_databaseRole_singular">
+        <source>Database role</source>
+        <target state="translated">Rol de base de datos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_synonym_singular">
+        <source>Synonym</source>
+        <target state="translated">Sinónimo</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_AvailabilityGroup_singular">
+        <source>Availability Group</source>
+        <target state="translated">Grupo de disponibilidad</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalFileFormat_plural">
+        <source>External File Formats</source>
+        <target state="translated">Formatos de archivo externos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_database_singular">
+        <source>Database</source>
+        <target state="translated">Base de datos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_symmetricKey_plural">
+        <source>Symmetric keys</source>
+        <target state="translated">Claves simétricas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_securityPolicy_singular">
+        <source>Security Policy</source>
+        <target state="translated">Directiva de seguridad</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalFileFormat_singular">
+        <source>External File Format</source>
+        <target state="translated">Formato de archivo externo</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_applicationRole_singular">
+        <source>Application role</source>
+        <target state="translated">Rol de aplicación</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_assembly_plural">
+        <source>Assemblies</source>
+        <target state="translated">Ensamblados</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_sequence_plural">
+        <source>Sequences</source>
+        <target state="translated">Secuencias</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedDataType_plural">
+        <source>User-defined data types</source>
+        <target state="translated">Tipos de datos definidos por el usuario</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_server_singular">
+        <source>Server</source>
+        <target state="translated">Servidor</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_aggregateFunction_singular">
+        <source>Aggregate function</source>
+        <target state="translated">Función de agregado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_fullTextCatalog_singular">
+        <source>Full-text catalog</source>
+        <target state="translated">Catálogo de texto completo</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_certificate_plural">
+        <source>Certificates</source>
+        <target state="translated">Certificados</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_AvailabilityGroup_plural">
+        <source>Availability Groups</source>
+        <target state="translated">Grupos de disponibilidad</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_database_plural">
+        <source>Databases</source>
+        <target state="translated">Bases de datos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_view_singular">
+        <source>View</source>
+        <target state="translated">Ver</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_schema_plural">
+        <source>Schemas</source>
+        <target state="translated">Esquemas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_rule_plural">
+        <source>Rules</source>
+        <target state="translated">Reglas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_certificate_singular">
+        <source>Certificate</source>
+        <target state="translated">Certificado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_user_singular">
+        <source>User</source>
+        <target state="translated">Usuario</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_agentjob_plural">
+        <source>Agent jobs</source>
+        <target state="translated">Trabajos de agente</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_synonym_plural">
+        <source>Synonyms</source>
+        <target state="translated">Sinónimos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_aggregateFunction_plural">
+        <source>Aggregate functions</source>
+        <target state="translated">Funciones de agregado</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionTable_singular">
+        <source>Table-valued function</source>
+        <target state="translated">Función con valores de tabla</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_rule_singular">
+        <source>Rule</source>
+        <target state="translated">Regla</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_serviceQueue_plural">
+        <source>Queues</source>
+        <target state="translated">Colas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_asymmetricKey_plural">
+        <source>Asymmetric keys</source>
+        <target state="translated">Claves asimétricas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_applicationRole_plural">
+        <source>Application roles</source>
+        <target state="translated">Roles de aplicación</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_extendedStoredProcedure_singular">
+        <source>Extended stored procedure</source>
+        <target state="translated">Procedimiento almacenado extendido</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_login_singular">
+        <source>Login</source>
+        <target state="translated">Inicio de sesión</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionInline_plural">
+        <source>Inline functions</source>
+        <target state="translated">Funciones insertadas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_user_plural">
+        <source>Users</source>
+        <target state="translated">Usuarios</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_externalDataSource_plural">
+        <source>External Data Sources</source>
+        <target state="translated">Orígenes de datos externos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_functionScalar_plural">
+        <source>Scalar functions</source>
+        <target state="translated">Funciones escalares</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_table_plural">
+        <source>Tables</source>
+        <target state="translated">Tablas</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_credential_plural">
+        <source>Credentials</source>
+        <target state="translated">Credenciales</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_schema_singular">
+        <source>Schema</source>
+        <target state="translated">Esquema</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_userDefinedTableType_plural">
+        <source>User-defined table types</source>
+        <target state="translated">Tipos de tablas definidos por el usuario</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_securityPolicy_plural">
+        <source>Security Policies</source>
+        <target state="translated">Directivas de seguridad</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_xmlSchemaCollection_plural">
+        <source>XML schema collections</source>
+        <target state="translated">Colecciones de esquemas XML</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_extendedStoredProcedure_plural">
+        <source>Extended stored procedures</source>
+        <target state="translated">Procedimientos almacenados extendidos</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_asymmetricKey_singular">
+        <source>Asymmetric key</source>
+        <target state="translated">Clave asimétrica</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="objectType_default_singular">
+        <source>Default</source>
+        <target state="translated">Predeterminado</target>
+      </trans-unit>
       <trans-unit id="FilterInPrimaryKey">
         <source>In Primary Key</source>
         <target state="translated">En clave principal</target>
