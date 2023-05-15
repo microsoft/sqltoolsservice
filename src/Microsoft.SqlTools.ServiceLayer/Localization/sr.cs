@@ -9877,6 +9877,582 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string objectType_functionTable_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_functionTable_plural);
+            }
+        }
+
+        public static string objectType_externalDataSource_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_externalDataSource_singular);
+            }
+        }
+
+        public static string objectType_serverRole_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_serverRole_singular);
+            }
+        }
+
+        public static string objectType_xmlSchemaCollection_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_xmlSchemaCollection_singular);
+            }
+        }
+
+        public static string objectType_storedProcedure_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_storedProcedure_plural);
+            }
+        }
+
+        public static string objectType_endpoint_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_endpoint_plural);
+            }
+        }
+
+        public static string objectType_sequence_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_sequence_singular);
+            }
+        }
+
+        public static string objectType_userDefinedDataType_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_userDefinedDataType_singular);
+            }
+        }
+
+        public static string objectType_fullTextCatalog_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_fullTextCatalog_plural);
+            }
+        }
+
+        public static string objectType_credential_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_credential_singular);
+            }
+        }
+
+        public static string objectType_databaseRole_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_databaseRole_plural);
+            }
+        }
+
+        public static string objectType_endpoint_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_endpoint_singular);
+            }
+        }
+
+        public static string objectType_view_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_view_plural);
+            }
+        }
+
+        public static string objectType_assembly_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_assembly_singular);
+            }
+        }
+
+        public static string objectType_functionScalar_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_functionScalar_singular);
+            }
+        }
+
+        public static string objectType_server_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_server_plural);
+            }
+        }
+
+        public static string objectType_table_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_table_singular);
+            }
+        }
+
+        public static string objectType_serviceQueue_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_serviceQueue_singular);
+            }
+        }
+
+        public static string objectType_login_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_login_plural);
+            }
+        }
+
+        public static string objectType_storedProcedure_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_storedProcedure_singular);
+            }
+        }
+
+        public static string objectType_default_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_default_plural);
+            }
+        }
+
+        public static string objectType_symmetricKey_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_symmetricKey_singular);
+            }
+        }
+
+        public static string objectType_userDefinedTableType_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_userDefinedTableType_singular);
+            }
+        }
+
+        public static string objectType_functionInline_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_functionInline_singular);
+            }
+        }
+
+        public static string objectType_serverRole_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_serverRole_plural);
+            }
+        }
+
+        public static string objectType_agentjob_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_agentjob_singular);
+            }
+        }
+
+        public static string objectType_databaseRole_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_databaseRole_singular);
+            }
+        }
+
+        public static string objectType_synonym_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_synonym_singular);
+            }
+        }
+
+        public static string objectType_AvailabilityGroup_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_AvailabilityGroup_singular);
+            }
+        }
+
+        public static string objectType_externalFileFormat_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_externalFileFormat_plural);
+            }
+        }
+
+        public static string objectType_database_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_database_singular);
+            }
+        }
+
+        public static string objectType_symmetricKey_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_symmetricKey_plural);
+            }
+        }
+
+        public static string objectType_securityPolicy_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_securityPolicy_singular);
+            }
+        }
+
+        public static string objectType_externalFileFormat_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_externalFileFormat_singular);
+            }
+        }
+
+        public static string objectType_applicationRole_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_applicationRole_singular);
+            }
+        }
+
+        public static string objectType_assembly_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_assembly_plural);
+            }
+        }
+
+        public static string objectType_sequence_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_sequence_plural);
+            }
+        }
+
+        public static string objectType_userDefinedDataType_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_userDefinedDataType_plural);
+            }
+        }
+
+        public static string objectType_server_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_server_singular);
+            }
+        }
+
+        public static string objectType_aggregateFunction_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_aggregateFunction_singular);
+            }
+        }
+
+        public static string objectType_fullTextCatalog_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_fullTextCatalog_singular);
+            }
+        }
+
+        public static string objectType_certificate_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_certificate_plural);
+            }
+        }
+
+        public static string objectType_AvailabilityGroup_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_AvailabilityGroup_plural);
+            }
+        }
+
+        public static string objectType_database_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_database_plural);
+            }
+        }
+
+        public static string objectType_view_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_view_singular);
+            }
+        }
+
+        public static string objectType_schema_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_schema_plural);
+            }
+        }
+
+        public static string objectType_rule_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_rule_plural);
+            }
+        }
+
+        public static string objectType_certificate_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_certificate_singular);
+            }
+        }
+
+        public static string objectType_user_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_user_singular);
+            }
+        }
+
+        public static string objectType_agentjob_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_agentjob_plural);
+            }
+        }
+
+        public static string objectType_synonym_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_synonym_plural);
+            }
+        }
+
+        public static string objectType_aggregateFunction_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_aggregateFunction_plural);
+            }
+        }
+
+        public static string objectType_functionTable_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_functionTable_singular);
+            }
+        }
+
+        public static string objectType_rule_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_rule_singular);
+            }
+        }
+
+        public static string objectType_serviceQueue_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_serviceQueue_plural);
+            }
+        }
+
+        public static string objectType_asymmetricKey_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_asymmetricKey_plural);
+            }
+        }
+
+        public static string objectType_applicationRole_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_applicationRole_plural);
+            }
+        }
+
+        public static string objectType_extendedStoredProcedure_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_extendedStoredProcedure_singular);
+            }
+        }
+
+        public static string objectType_login_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_login_singular);
+            }
+        }
+
+        public static string objectType_functionInline_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_functionInline_plural);
+            }
+        }
+
+        public static string objectType_user_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_user_plural);
+            }
+        }
+
+        public static string objectType_externalDataSource_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_externalDataSource_plural);
+            }
+        }
+
+        public static string objectType_functionScalar_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_functionScalar_plural);
+            }
+        }
+
+        public static string objectType_table_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_table_plural);
+            }
+        }
+
+        public static string objectType_credential_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_credential_plural);
+            }
+        }
+
+        public static string objectType_schema_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_schema_singular);
+            }
+        }
+
+        public static string objectType_userDefinedTableType_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_userDefinedTableType_plural);
+            }
+        }
+
+        public static string objectType_securityPolicy_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_securityPolicy_plural);
+            }
+        }
+
+        public static string objectType_xmlSchemaCollection_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_xmlSchemaCollection_plural);
+            }
+        }
+
+        public static string objectType_extendedStoredProcedure_plural
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_extendedStoredProcedure_plural);
+            }
+        }
+
+        public static string objectType_asymmetricKey_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_asymmetricKey_singular);
+            }
+        }
+
+        public static string objectType_default_singular
+        {
+            get
+            {
+                return Keys.GetString(Keys.objectType_default_singular);
+            }
+        }
+
         public static string Permission_Alter
         {
             get
@@ -15157,6 +15733,222 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ResetPasswordWhileUnlocking = "ResetPasswordWhileUnlocking";
+
+
+            public const string objectType_functionTable_plural = "objectType_functionTable_plural";
+
+
+            public const string objectType_externalDataSource_singular = "objectType_externalDataSource_singular";
+
+
+            public const string objectType_serverRole_singular = "objectType_serverRole_singular";
+
+
+            public const string objectType_xmlSchemaCollection_singular = "objectType_xmlSchemaCollection_singular";
+
+
+            public const string objectType_storedProcedure_plural = "objectType_storedProcedure_plural";
+
+
+            public const string objectType_endpoint_plural = "objectType_endpoint_plural";
+
+
+            public const string objectType_sequence_singular = "objectType_sequence_singular";
+
+
+            public const string objectType_userDefinedDataType_singular = "objectType_userDefinedDataType_singular";
+
+
+            public const string objectType_fullTextCatalog_plural = "objectType_fullTextCatalog_plural";
+
+
+            public const string objectType_credential_singular = "objectType_credential_singular";
+
+
+            public const string objectType_databaseRole_plural = "objectType_databaseRole_plural";
+
+
+            public const string objectType_endpoint_singular = "objectType_endpoint_singular";
+
+
+            public const string objectType_view_plural = "objectType_view_plural";
+
+
+            public const string objectType_assembly_singular = "objectType_assembly_singular";
+
+
+            public const string objectType_functionScalar_singular = "objectType_functionScalar_singular";
+
+
+            public const string objectType_server_plural = "objectType_server_plural";
+
+
+            public const string objectType_table_singular = "objectType_table_singular";
+
+
+            public const string objectType_serviceQueue_singular = "objectType_serviceQueue_singular";
+
+
+            public const string objectType_login_plural = "objectType_login_plural";
+
+
+            public const string objectType_storedProcedure_singular = "objectType_storedProcedure_singular";
+
+
+            public const string objectType_default_plural = "objectType_default_plural";
+
+
+            public const string objectType_symmetricKey_singular = "objectType_symmetricKey_singular";
+
+
+            public const string objectType_userDefinedTableType_singular = "objectType_userDefinedTableType_singular";
+
+
+            public const string objectType_functionInline_singular = "objectType_functionInline_singular";
+
+
+            public const string objectType_serverRole_plural = "objectType_serverRole_plural";
+
+
+            public const string objectType_agentjob_singular = "objectType_agentjob_singular";
+
+
+            public const string objectType_databaseRole_singular = "objectType_databaseRole_singular";
+
+
+            public const string objectType_synonym_singular = "objectType_synonym_singular";
+
+
+            public const string objectType_AvailabilityGroup_singular = "objectType_AvailabilityGroup_singular";
+
+
+            public const string objectType_externalFileFormat_plural = "objectType_externalFileFormat_plural";
+
+
+            public const string objectType_database_singular = "objectType_database_singular";
+
+
+            public const string objectType_symmetricKey_plural = "objectType_symmetricKey_plural";
+
+
+            public const string objectType_securityPolicy_singular = "objectType_securityPolicy_singular";
+
+
+            public const string objectType_externalFileFormat_singular = "objectType_externalFileFormat_singular";
+
+
+            public const string objectType_applicationRole_singular = "objectType_applicationRole_singular";
+
+
+            public const string objectType_assembly_plural = "objectType_assembly_plural";
+
+
+            public const string objectType_sequence_plural = "objectType_sequence_plural";
+
+
+            public const string objectType_userDefinedDataType_plural = "objectType_userDefinedDataType_plural";
+
+
+            public const string objectType_server_singular = "objectType_server_singular";
+
+
+            public const string objectType_aggregateFunction_singular = "objectType_aggregateFunction_singular";
+
+
+            public const string objectType_fullTextCatalog_singular = "objectType_fullTextCatalog_singular";
+
+
+            public const string objectType_certificate_plural = "objectType_certificate_plural";
+
+
+            public const string objectType_AvailabilityGroup_plural = "objectType_AvailabilityGroup_plural";
+
+
+            public const string objectType_database_plural = "objectType_database_plural";
+
+
+            public const string objectType_view_singular = "objectType_view_singular";
+
+
+            public const string objectType_schema_plural = "objectType_schema_plural";
+
+
+            public const string objectType_rule_plural = "objectType_rule_plural";
+
+
+            public const string objectType_certificate_singular = "objectType_certificate_singular";
+
+
+            public const string objectType_user_singular = "objectType_user_singular";
+
+
+            public const string objectType_agentjob_plural = "objectType_agentjob_plural";
+
+
+            public const string objectType_synonym_plural = "objectType_synonym_plural";
+
+
+            public const string objectType_aggregateFunction_plural = "objectType_aggregateFunction_plural";
+
+
+            public const string objectType_functionTable_singular = "objectType_functionTable_singular";
+
+
+            public const string objectType_rule_singular = "objectType_rule_singular";
+
+
+            public const string objectType_serviceQueue_plural = "objectType_serviceQueue_plural";
+
+
+            public const string objectType_asymmetricKey_plural = "objectType_asymmetricKey_plural";
+
+
+            public const string objectType_applicationRole_plural = "objectType_applicationRole_plural";
+
+
+            public const string objectType_extendedStoredProcedure_singular = "objectType_extendedStoredProcedure_singular";
+
+
+            public const string objectType_login_singular = "objectType_login_singular";
+
+
+            public const string objectType_functionInline_plural = "objectType_functionInline_plural";
+
+
+            public const string objectType_user_plural = "objectType_user_plural";
+
+
+            public const string objectType_externalDataSource_plural = "objectType_externalDataSource_plural";
+
+
+            public const string objectType_functionScalar_plural = "objectType_functionScalar_plural";
+
+
+            public const string objectType_table_plural = "objectType_table_plural";
+
+
+            public const string objectType_credential_plural = "objectType_credential_plural";
+
+
+            public const string objectType_schema_singular = "objectType_schema_singular";
+
+
+            public const string objectType_userDefinedTableType_plural = "objectType_userDefinedTableType_plural";
+
+
+            public const string objectType_securityPolicy_plural = "objectType_securityPolicy_plural";
+
+
+            public const string objectType_xmlSchemaCollection_plural = "objectType_xmlSchemaCollection_plural";
+
+
+            public const string objectType_extendedStoredProcedure_plural = "objectType_extendedStoredProcedure_plural";
+
+
+            public const string objectType_asymmetricKey_singular = "objectType_asymmetricKey_singular";
+
+
+            public const string objectType_default_singular = "objectType_default_singular";
 
 
             public const string Permission_Alter = "Permission_Alter";

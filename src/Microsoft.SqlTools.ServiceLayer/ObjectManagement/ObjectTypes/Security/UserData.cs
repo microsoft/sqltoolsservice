@@ -12,6 +12,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -93,6 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public SecureString passwordConfirm = new SecureString();
         public SecureString oldPassword = new SecureString();
         public bool isOldPasswordRequired = false;
+        public bool isNewObject = false;
 
         /// <summary>
         /// Used for creating clone of a UserPrototypeData.
@@ -363,6 +365,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private bool exists = false;
         private Database parent;
         private CDataContainer context;
+        private SecurablePermissions[] securablePermissions = new SecurablePermissions[0];
+        private Principal principal = null;
 
         public bool IsRoleMembershipChangesApplied { get; set; } //default is false
         public bool IsSchemaOwnershipChangesApplied { get; set; } //default is false
@@ -483,6 +487,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.currentState.isMember[roleName] = isMember;
         }
 
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return this.securablePermissions;
+            }
+            set
+            {
+                this.securablePermissions = value;
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -500,6 +516,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             Database? parent = context.Server.GetSmoObject(new Urn(context.ParentUrn)) as Database ?? throw new ArgumentException("Context ParentUrn is invalid");
             this.parent = parent;
+
+            var userName = this.currentState.name;
+            if (current.isNewObject)
+            {
+                this.securablePermissions = new SecurablePermissions[0];
+                this.principal = SecurableUtils.CreatePrincipal(false, PrincipalType.DatabaseRole, null, userName, context, parent.Name);
+            }
+            else
+            {
+                this.securablePermissions = SecurableUtils.GetSecurablePermissions(true, PrincipalType.User, parent.Users[userName], context);
+                this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.User, parent.Users[userName], null, context, parent.Name);
+                this.principal.AddExistingSecurables();
+            }
 
             this.roleNames = this.PopulateRoles();
             this.schemaNames = this.PopulateSchemas();
@@ -564,6 +593,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                 this.ApplyRoleMembershipChanges(parentDb, user);
                 this.IsRoleMembershipChangesApplied = true;
+
+                SecurableUtils.SendToServerPermissionChanges(!string.IsNullOrEmpty(this.currentState.name), this.Name, this.SecurablePermissions, this.principal, context, parentDb.Name);
             }
 
             return user;
@@ -1031,10 +1062,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public static UserPrototype GetUserPrototype(
             CDataContainer context, UserInfo? user, 
-            UserPrototypeData? originalData, ExhaustiveUserTypes userType)
+            UserPrototypeData? originalData, ExhaustiveUserTypes userType, bool isNewObject)
         {
             UserPrototype currentPrototype = null;
             UserPrototypeData currentData = new UserPrototypeData(context, user);
+            currentData.isNewObject = isNewObject;
             switch (userType)
             {
                 case ExhaustiveUserTypes.AsymmetricKeyMappedUser:
@@ -1066,6 +1098,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     System.Diagnostics.Debug.Assert(false, "Unknown UserType provided.");
                     currentPrototype = null;
                     break;
+            }
+            if (user != null && user.SecurablePermissions != null)
+            {
+                currentPrototype.SecurablePermissions = user.SecurablePermissions;
             }
             return currentPrototype;
         }

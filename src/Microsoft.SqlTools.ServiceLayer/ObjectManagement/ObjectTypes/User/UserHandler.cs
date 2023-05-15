@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // generate a user prototype
-            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType);
+            UserPrototype currentUserPrototype = UserPrototypeFactory.GetUserPrototype(dataContainer, userInfo, originalData: null, userType, parameters.IsNewObject);
 
             // get the default schema if available
             string defaultSchema = null;
@@ -212,13 +212,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     DefaultSchema = defaultSchema,
                     OwnedSchemas = schemaNames.ToArray(),
                     DatabaseRoles = databaseRoles.ToArray(),
-                    DefaultLanguage = defaultLanguage
+                    DefaultLanguage = defaultLanguage,
+                    SecurablePermissions = currentUserPrototype.SecurablePermissions
                 },
                 UserTypes = supportedUserTypes.ToArray(),
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = logins,
-                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray()
+                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray(),
+                SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.User, dataContainer.Server.Version, parameters.Database, dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
             var context = new UserViewContext(parameters, dataContainer.ServerConnection, currentUserPrototype.CurrentState);
             return new InitializeViewResult { ViewInfo = userViewInfo, Context = context };

@@ -56,14 +56,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Name = prototype.Name,
                 Owner = prototype.Owner,
                 Members = prototype.Members.ToArray(),
-                Memberships = prototype.Memberships.ToArray()
+                Memberships = prototype.Memberships.ToArray(),
+                SecurablePermissions = prototype.SecurablePermissions
             };
 
             var viewInfo = new ServerRoleViewInfo()
             {
                 ObjectInfo = ServerRoleInfo,
                 IsFixedRole = prototype.IsFixedRole,
-                ServerRoles = serverRoles.ToArray()
+                ServerRoles = serverRoles.ToArray(),
+                SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.ServerRole, dataContainer.Server.Version, "", dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
 
             var context = new ServerRoleViewContext(parameters);

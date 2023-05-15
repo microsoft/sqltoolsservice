@@ -71,7 +71,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 Password = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
                 OldPassword = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
                 DefaultLanguage = "English - us_english",
-                DefaultDatabase = "master"
+                DefaultDatabase = "master",
+                SecurablePermissions = new SecurablePermissions[0]
             };
         }
 
@@ -84,7 +85,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 LoginName = loginName,
                 Password = "placeholder" + new Random().NextInt64(10000000, 90000000).ToString() + "!*PLACEHOLDER",
                 DefaultSchema = "dbo",
-                OwnedSchemas = new string[] { "" }
+                OwnedSchemas = new string[] { "" },
+                SecurablePermissions = new SecurablePermissions[0]
             };
         }
 

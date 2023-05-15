@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -26,6 +27,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// as a hash table where one can manipulate custom data
         /// </summary>
         private CDataContainer dataContainer = null;
+        private Principal principal = null;
+        private SecurablePermissions[] securablePermissions = null;
 
         private bool exists;
         private ServerRolePrototypeData currentState;
@@ -109,6 +112,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 return this.currentState.IsFixedRole;
             }
         }
+
+        public SecurablePermissions[] SecurablePermissions
+        {
+            get
+            {
+                return securablePermissions;
+            }
+            set
+            {
+                securablePermissions = value;
+            }
+        }
         #endregion
 
         #region Constructors / Dispose
@@ -118,6 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+            this.securablePermissions = new SecurablePermissions[0];
         }
 
         /// <summary>
@@ -129,6 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+            this.principal = SecurableUtils.CreatePrincipal(false, PrincipalType.ServerRole, null, roleInfo.Name, context);
 
             this.ApplyInfoToPrototype(roleInfo);
         }
@@ -142,6 +159,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.dataContainer = context;
             this.currentState = new ServerRolePrototypeData(context, role);
             this.originalState = (ServerRolePrototypeData)this.currentState.Clone();
+            this.principal = SecurableUtils.CreatePrincipal(true, PrincipalType.ServerRole, role, null, context);
+            this.principal.AddExistingSecurables();
+            this.securablePermissions = SecurableUtils.GetSecurablePermissions(this.exists, PrincipalType.ServerRole, role, this.dataContainer);
         }
 
         #endregion
@@ -183,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             SendToServerMemberChanges(serverRole);
             SendToServerMembershipChanges(serverRole);
+            SecurableUtils.SendToServerPermissionChanges(this.exists, this.Name, this.SecurablePermissions, this.principal, this.dataContainer, null);
         }
         #endregion
 
@@ -250,13 +271,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-
         public void ApplyInfoToPrototype(ServerRoleInfo roleInfo)
         {
             this.Name = roleInfo.Name;
             this.Owner = roleInfo.Owner;
             this.Members = roleInfo.Members.ToList();
             this.Memberships = roleInfo.Memberships.ToList();
+            this.SecurablePermissions = roleInfo.SecurablePermissions;
         }
 
         private class ServerRolePrototypeData : ICloneable

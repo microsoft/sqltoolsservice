@@ -5,11 +5,10 @@
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    /// <summary>
-    /// a class for storing various database role view properties
-    /// </summary>
-    public class DatabaseRoleViewInfo : SecurityPrincipalViewInfo
+    public class SecurableTypeMetadata
     {
-        public string[]? Schemas { get; set; }
+        public string? Name { get; set; }
+        public string? DisplayName { get; set; }
+        public PermissionMetadata[]? Permissions { get; set; }
     }
 }
