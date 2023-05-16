@@ -237,6 +237,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 databaseRole.Create();
             }
             SendToServerSchemaOwnershipChanges(db, databaseRole);
+            SendToServerMembershipChanges(db, databaseRole);
             SendToServerExtendedPropertiesChange();
             SecurableUtils.SendToServerPermissionChanges(this.exists, this.Name, this.SecurablePermissions, this.principal, this.dataContainer, this.databaseName);
         }
