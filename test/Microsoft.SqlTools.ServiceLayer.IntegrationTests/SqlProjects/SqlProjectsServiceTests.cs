@@ -527,21 +527,40 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         {
             var (service, projectUri, _, _) = await SetUpDatabaseReferenceTest();
 
+            // Artifact reference
             MockRequest<ResultStatus> requestMock = new();
             await service.HandleAddSystemDatabaseReferenceRequest(new AddSystemDatabaseReferenceParams()
             {
                 ProjectUri = projectUri,
                 SystemDatabase = SystemDatabase.MSDB,
                 DatabaseLiteral = "EmEssDeeBee",
-                SuppressMissingDependencies = false
+                SuppressMissingDependencies = false,
+                ReferenceType = ReferenceType.ArtifactReference
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleAddSystemDatabaseReferenceRequest));
-            Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding system db reference");
-            SystemDatabaseReference systemDbRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.Get(SystemDatabase.MSDB.ToString());
-            Assert.AreEqual(SystemDatabase.MSDB, systemDbRef.SystemDb, "Referenced system DB");
-            Assert.AreEqual("EmEssDeeBee", systemDbRef.DatabaseVariableLiteralName);
-            Assert.IsFalse(systemDbRef.SuppressMissingDependencies, nameof(systemDbRef.SuppressMissingDependencies));
+            Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding system db reference to msdb");
+            SystemDatabaseReference msdbRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.Get(SystemDatabase.MSDB.ToString());
+            Assert.AreEqual(SystemDatabase.MSDB, msdbRef.SystemDb, "Referenced system DB");
+            Assert.AreEqual("EmEssDeeBee", msdbRef.DatabaseVariableLiteralName);
+            Assert.IsFalse(msdbRef.SuppressMissingDependencies, nameof(msdbRef.SuppressMissingDependencies));
+            Assert.AreEqual(ReferenceType.ArtifactReference, msdbRef.ReferenceStyle);
+
+            // Package reference
+            await service.HandleAddSystemDatabaseReferenceRequest(new AddSystemDatabaseReferenceParams()
+            {
+                ProjectUri = projectUri,
+                SystemDatabase = SystemDatabase.Master,
+                SuppressMissingDependencies = false,
+                ReferenceType = ReferenceType.PackageReference
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddSystemDatabaseReferenceRequest));
+            Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding system db reference to master");
+            SystemDatabaseReference masterRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.Get(SystemDatabase.Master.ToString());
+            Assert.AreEqual(SystemDatabase.Master, masterRef.SystemDb, "Referenced system DB");
+            Assert.IsFalse(masterRef.SuppressMissingDependencies, nameof(masterRef.SuppressMissingDependencies));
+            Assert.AreEqual(ReferenceType.PackageReference, masterRef.ReferenceStyle);
         }
 
         [Test]
