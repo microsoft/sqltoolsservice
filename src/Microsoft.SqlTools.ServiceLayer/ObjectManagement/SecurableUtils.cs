@@ -82,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 case SqlObjectType.ApplicationRole:
                 case SqlObjectType.DatabaseRole:
                 case SqlObjectType.User:
-                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, null, serverVersion, databaseName, databaseEngineType, engineEdition);
+                    AddSecurableTypeMetadata(res, securableTypesForDbLevel, databaseEngineType == DatabaseEngineType.SqlAzureDatabase ? new SearchableObjectType[] {SearchableObjectType.ServiceQueue} : null, serverVersion, databaseName, databaseEngineType, engineEdition);
                     break;
                 default:
                     break;
@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[] excludeList, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
+        private static void AddSecurableTypeMetadata(List<SecurableTypeMetadata> res, SearchableObjectType[] supportedTypes, SearchableObjectType[]? excludeList, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             foreach(SearchableObjectType t in supportedTypes)
             {
@@ -125,6 +125,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public static SecurablePermissions[] GetSecurablePermissions(bool principalExists, PrincipalType principalType, SqlSmoObject o, CDataContainer dataContainer)
         {
+            if (principalType == PrincipalType.Login && dataContainer?.Server?.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return new SecurablePermissions[0];
+            }
+
             List<SecurablePermissions> res = new List<SecurablePermissions>();
             Principal principal;
 
@@ -169,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Schema = s.Schema,
                     Type = s.TypeName,
                     Permissions = permissions,
-                    EffectivePermissions = CanHaveEffectivePermissions(principalType) ? GetEffectivePermissions(dataContainer, s, principal) : new string[0]
+                    EffectivePermissions = CanHaveEffectivePermissions(principalType, dataContainer) ? GetEffectivePermissions(dataContainer, s, principal) : new string[0]
                 };
                 res.Add(secPerm);
             }
@@ -177,8 +182,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return res.ToArray();
         }
 
-        public static bool CanHaveEffectivePermissions(PrincipalType principalType)
+        public static bool CanHaveEffectivePermissions(PrincipalType principalType, CDataContainer dataContainer)
         {
+            if (dataContainer?.Server?.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return false;
+            }
+
             if (principalType == PrincipalType.ServerRole || principalType == PrincipalType.DatabaseRole || principalType == PrincipalType.ApplicationRole)
             {
                 return false;
@@ -193,19 +203,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var dataModel = new EffectivePermissionsData(dataContainer);
             List<string> res = new List<string>();
             DataSet data = dataModel.QueryEffectivePermissions();
-            // STrace.Assert(data.Tables.Count == 1, "Unknown number of tables returned");
 
             if (data.Tables.Count > 0)
             {
                 DataTable table = data.Tables[0];
 
-                // STrace.Assert(table.Columns.Count >= 1 && table.Columns.Count <= 2, "Too many columns returned");
 
                 bool hasColumnInformation = dataModel.HasColumnInformation;
 
                 // loop through and add rows
                 foreach (DataRow row in table.Rows)
                 {
+                    if (hasColumnInformation && !string.IsNullOrEmpty(row[1].ToString()))
+                    {
+                        continue;
+                    }
                     res.Add(row[0].ToString());
                 }
             }
@@ -429,13 +441,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        internal static SearchableObject ConvertFromSecurableNameToSearchableObject(string securableName, string type, string database, object connectionInfo)
+        internal static SearchableObject ConvertFromSecurableNameToSearchableObject(string securableName, string type, string database, string schema, object connectionInfo)
         {
             SearchableObjectType searchableObjectType = ConvertPotentialSqlObjectTypeToSearchableObjectType(type);
 
             SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
-            var urn = desc.GetSearchUrn(securableName, true, true);
-            return SearchableObject.GetSearchableObject(searchableObjectType, connectionInfo, database, securableName);
+            SearchableObjectCollection results = new SearchableObjectCollection();
+
+            if (desc.IsDatabaseObject)
+            {
+                if (desc.IsSchemaObject)
+                {
+                    SearchableObject.Search(
+                            results,
+                            searchableObjectType,
+                            connectionInfo,
+                            database,
+                            securableName,
+                            true,
+                            schema,
+                            true,
+                            true);
+                }
+                else
+                {
+                    SearchableObject.Search(
+                        results,
+                        searchableObjectType,
+                        connectionInfo,
+                        database,
+                        securableName,
+                        true,
+                        true);
+                }
+            }
+            else
+            {
+                SearchableObject.Search(
+                    results,
+                    searchableObjectType,
+                    connectionInfo,
+                    securableName,
+                    true,
+                    true);
+            }
+            SearchableObject result = (results.Count != 0) ? results[0] : null;
+            return result;
         }
 
         internal static void SendToServerPermissionChanges(bool exists, string name, SecurablePermissions[] securablePermissions, Principal principal, CDataContainer dataContainer, string database)
@@ -445,11 +496,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 return;
             }
 
+            if (principal.PrincipalType == PrincipalType.Login && dataContainer.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                return;
+            }
+
             if (!exists)
             {
                 foreach (SecurablePermissions secPerm in securablePermissions)
                 {
-                    var securable = principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, dataContainer.ConnectionInfo));
+                    var securable = principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, secPerm.Schema, dataContainer.ConnectionInfo));
                     var states = principal.GetPermissionStates(securable);
                     ApplyPermissionStates(secPerm.Permissions, states);
                 }
@@ -459,7 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var securables = principal.GetSecurables(new SecurableComparer(SecurableComparer.DefaultSortingOrder, true));
                 foreach (SecurablePermissions secPerm in securablePermissions)
                 {
-                    var securable = FindMatchedSecurable(securables, secPerm.Name) ?? principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, dataContainer.ConnectionInfo));
+                    var securable = FindMatchedSecurable(securables, secPerm.Name) ?? principal.AddSecurable(SecurableUtils.ConvertFromSecurableNameToSearchableObject(secPerm.Name, secPerm.Type, database, secPerm.Schema, dataContainer.ConnectionInfo));
                     var states = principal.GetPermissionStates(securable);
                     ApplyPermissionStates(secPerm.Permissions, states);                
                 }
