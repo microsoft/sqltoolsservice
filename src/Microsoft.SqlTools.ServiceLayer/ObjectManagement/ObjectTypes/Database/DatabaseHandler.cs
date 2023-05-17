@@ -87,83 +87,88 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
-            // open a connection for running the database dialog and associated task
-            ConnectionInfo connInfo;
-            this.ConnectionService.TryFindConnection(requestParams.ConnectionUri, out connInfo);
-            if (connInfo == null)
-            {
-                throw new ArgumentException($"Invalid connection URI '{requestParams.ConnectionUri}'");
-            }
-
             // create a default data context and database object
             using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create))
-            using (var taskHelper = new DatabaseTaskHelper(dataContainer))
-            using (var context = new DatabaseViewContext(requestParams))
             {
-                var prototype = taskHelper.Prototype;
-                var azurePrototype = prototype as DatabasePrototypeAzure;
-                bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
-
-                var databaseViewInfo = new DatabaseViewInfo()
+                try
                 {
-                    ObjectInfo = new DatabaseInfo()
-                };
-
-                // azure sql db doesn't have a sysadmin fixed role
-                var compatibilityLevelEnabled = !isDw &&
-                                                (dataContainer.LoggedInUserIsSysadmin ||
-                                                dataContainer.Server.ServerType ==
-                                                DatabaseEngineType.SqlAzureDatabase);
-                if (dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
-                {
-                    // Azure doesn't allow modifying the collation after DB creation
-                    bool collationEnabled = !prototype.Exists;
-                    if (isDw)
+                    using (var taskHelper = new DatabaseTaskHelper(dataContainer))
+                    using (var context = new DatabaseViewContext(requestParams))
                     {
-                        if (collationEnabled)
+                        var prototype = taskHelper.Prototype;
+                        var azurePrototype = prototype as DatabasePrototypeAzure;
+                        bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
+
+                        var databaseViewInfo = new DatabaseViewInfo()
                         {
-                            databaseViewInfo.CollationNames = PopulateCollationDropdownWithPrototypeCollation(prototype);
+                            ObjectInfo = new DatabaseInfo()
+                        };
+
+                        // azure sql db doesn't have a sysadmin fixed role
+                        var compatibilityLevelEnabled = !isDw &&
+                                                        (dataContainer.LoggedInUserIsSysadmin ||
+                                                        dataContainer.Server.ServerType ==
+                                                        DatabaseEngineType.SqlAzureDatabase);
+                        if (dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                        {
+                            // Azure doesn't allow modifying the collation after DB creation
+                            bool collationEnabled = !prototype.Exists;
+                            if (isDw)
+                            {
+                                if (collationEnabled)
+                                {
+                                    databaseViewInfo.CollationNames = PopulateCollationDropdownWithPrototypeCollation(prototype);
+                                }
+                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdownAzure(dataContainer, prototype);
+                            }
+                            else
+                            {
+                                if (collationEnabled)
+                                {
+                                    databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer, prototype);
+                                }
+                                if (compatibilityLevelEnabled)
+                                {
+                                    databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer, prototype);
+                                }
+                            }
                         }
-                        databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdownAzure(dataContainer, prototype);
-                    }
-                    else
-                    {
-                        if (collationEnabled)
+                        else
                         {
                             databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer, prototype);
+                            if (compatibilityLevelEnabled)
+                            {
+                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer, prototype);
+                            }
+
+                            // These aren't visible when the target DB is on Azure so only populate if it's not an Azure DB
+                            databaseViewInfo.RecoveryModels = PopulateRecoveryModelDropdown(dataContainer, prototype);
+                            databaseViewInfo.ContainmentTypes = PopulateContainmentTypeDropdown(dataContainer, prototype);
                         }
-                        if (compatibilityLevelEnabled)
+
+                        // Skip adding logins for the Owner field if running against an Azure SQL DB
+                        if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
                         {
-                            databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer, prototype);
+                            var logins = new List<string>();
+                            logins.Add(defaultValue);
+                            foreach (Login login in dataContainer.Server.Logins)
+                            {
+                                logins.Add(login.Name);
+                            }
+                            databaseViewInfo.LoginNames = logins.ToArray();
                         }
+
+                        return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                     }
                 }
-                else
+                finally
                 {
-                    databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer, prototype);
-                    if (compatibilityLevelEnabled)
+                    ServerConnection serverConnection = dataContainer?.Server?.ConnectionContext;
+                    if (serverConnection != null && serverConnection.IsOpen)
                     {
-                        databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer, prototype);
+                        serverConnection.Disconnect();
                     }
-
-                    // These aren't visible when the target DB is on Azure so only populate if it's not an Azure DB
-                    databaseViewInfo.RecoveryModels = PopulateRecoveryModelDropdown(dataContainer, prototype);
-                    databaseViewInfo.ContainmentTypes = PopulateContainmentTypeDropdown(dataContainer, prototype);
                 }
-
-                // Skip adding logins for the Owner field if running against an Azure SQL DB
-                if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
-                {
-                    var logins = new List<string>();
-                    logins.Add(defaultValue);
-                    foreach (Login login in dataContainer.Server.Logins)
-                    {
-                        logins.Add(login.Name);
-                    }
-                    databaseViewInfo.LoginNames = logins.ToArray();
-                }
-
-                return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
             }
         }
 
@@ -209,66 +214,79 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             using (var dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database))
-            using (var taskHelper = new DatabaseTaskHelper(dataContainer))
             {
-                DatabasePrototype prototype = taskHelper.Prototype;
-                prototype.Name = database.Name;
-
-                // Update database file names now that we have a database name
-                if (!prototype.HideFileSettings)
+                try
                 {
-                    var sanitizedName = SanitizeFileName(prototype.Name);
-
-                    var dataFile = prototype.Files[0];
-                    Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
-                    dataFile.Name = sanitizedName;
-
-                    if (prototype.NumberOfLogFiles > 0)
+                    using (var taskHelper = new DatabaseTaskHelper(dataContainer))
                     {
-                        var logFile = prototype.Files[1];
-                        Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
-                        logFile.Name = $"{sanitizedName}_log";
+                        DatabasePrototype prototype = taskHelper.Prototype;
+                        prototype.Name = database.Name;
+
+                        // Update database file names now that we have a database name
+                        if (!prototype.HideFileSettings)
+                        {
+                            var sanitizedName = SanitizeFileName(prototype.Name);
+
+                            var dataFile = prototype.Files[0];
+                            Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
+                            dataFile.Name = sanitizedName;
+
+                            if (prototype.NumberOfLogFiles > 0)
+                            {
+                                var logFile = prototype.Files[1];
+                                Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
+                                logFile.Name = $"{sanitizedName}_log";
+                            }
+                        }
+
+                        if (database.Owner != null && database.Owner != defaultValue)
+                        {
+                            prototype.Owner = database.Owner;
+                        }
+                        if (database.CollationName != null && database.CollationName != defaultValue)
+                        {
+                            prototype.Collation = database.CollationName;
+                        }
+                        if (database.RecoveryModel != null)
+                        {
+                            prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
+                        }
+                        if (database.CompatibilityLevel != null)
+                        {
+                            prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
+                        }
+                        if (prototype is DatabasePrototype110 db110 && database.ContainmentType != null)
+                        {
+                            db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                        }
+
+                        string sqlScript = string.Empty;
+                        using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
+                        using (var executionHandler = new ExecutonHandler(actions))
+                        {
+                            executionHandler.RunNow(runType, this);
+                            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                            {
+                                throw executionHandler.ExecutionFailureException;
+                            }
+
+                            if (runType == RunType.ScriptToWindow)
+                            {
+                                sqlScript = executionHandler.ScriptTextFromLastRun;
+                            }
+                        }
+
+                        return sqlScript;
                     }
                 }
-
-                if (database.Owner != null && database.Owner != defaultValue)
+                finally
                 {
-                    prototype.Owner = database.Owner;
-                }
-                if (database.CollationName != null && database.CollationName != defaultValue)
-                {
-                    prototype.Collation = database.CollationName;
-                }
-                if (database.RecoveryModel != null)
-                {
-                    prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
-                }
-                if (database.CompatibilityLevel != null)
-                {
-                    prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
-                }
-                if (prototype is DatabasePrototype110 db110 && database.ContainmentType != null)
-                {
-                    db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
-                }
-
-                string sqlScript = string.Empty;
-                using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
-                using (var executionHandler = new ExecutonHandler(actions))
-                {
-                    executionHandler.RunNow(runType, this);
-                    if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                    ServerConnection serverConnection = dataContainer?.Server?.ConnectionContext;
+                    if (serverConnection != null && serverConnection.IsOpen)
                     {
-                        throw executionHandler.ExecutionFailureException;
-                    }
-
-                    if (runType == RunType.ScriptToWindow)
-                    {
-                        sqlScript = executionHandler.ScriptTextFromLastRun;
+                        serverConnection.Disconnect();
                     }
                 }
-
-                return sqlScript;
             }
         }
 
