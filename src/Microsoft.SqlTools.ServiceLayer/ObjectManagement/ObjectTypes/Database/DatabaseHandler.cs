@@ -327,9 +327,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return (IsManagedInstance(server) || IsArcEnabledManagedInstance(server));
         }
 
-        /// <summary>
-        /// Populate the collation dropdown
-        /// </summary>
         private string[] PopulateCollationDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
             var collationItems = new List<string>();
@@ -372,17 +369,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return collationItems.ToArray();
         }
 
-        /// <summary>
-        /// Populate the collation dropdown with the prototype's collation
-        /// </summary>
         private string[] PopulateCollationDropdownWithPrototypeCollation(DatabasePrototype prototype)
         {
             return new string[] { prototype.Collation };
         }
 
-        /// <summary>
-        /// Populates the containment type dropdown.
-        /// </summary>
         private string[] PopulateContainmentTypeDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
             if (!(SqlMgmtUtils.IsSql11OrLater(dataContainer.Server.ServerVersion)) || IsAnyManagedInstance(dataContainer.Server))
@@ -424,9 +415,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return containmentTypes.ToArray();
         }
 
-        /// <summary>
-        /// Populates the recovery model dropdown.
-        /// </summary>
         private string[] PopulateRecoveryModelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
             // if the server is shiloh or later, but not Managed Instance, enable the dropdown
@@ -507,9 +495,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return null;
         }
 
-        /// <summary>
-        /// Populate the compatibility level dropdown and select the appropriate item
-        /// </summary>
         private string[] PopulateCompatibilityLevelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
             // Unlikely that we are hitting such an old SQL Server, but leaving to preserve
