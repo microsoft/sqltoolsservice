@@ -74,6 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
         {
             Settings.PreloadDatabaseModel = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.PreloadDatabaseModel : false;
+            Settings.AllowDisableAndReenableDdlTriggers = newSettings.MssqlTools.TableDesigner != null ? newSettings.MssqlTools.TableDesigner.AllowDisableAndReenableDdlTriggers : true;
             return Task.FromResult(0);
         }
 
@@ -1801,11 +1802,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
                 connectionStringBuilder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(connectionStringBuilder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                 var connectionString = connectionStringBuilder.ToString();
+                var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: Settings.AllowDisableAndReenableDdlTriggers);
 
                 // Set Access Token only when authentication mode is not specified.
                 var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
                     ? tableInfo.AccessToken : null;
-                tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable);
+                tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
             }
             else
             {

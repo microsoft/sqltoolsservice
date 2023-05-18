@@ -14,5 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Whether the database model should be preloaded to make the initial launch quicker.
         /// </summary>
         public bool PreloadDatabaseModel { get; set; } = false;
+
+        /// <summary>
+        /// Whether the table designer should allow disabling and re-enabling DDL triggers during publish.
+        /// </summary>
+        public bool AllowDisableAndReenableDdlTriggers {get; set; } = true;
     }
 }
