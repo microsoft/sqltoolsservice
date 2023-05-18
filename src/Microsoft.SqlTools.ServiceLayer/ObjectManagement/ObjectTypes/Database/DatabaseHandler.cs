@@ -378,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             if (!(SqlMgmtUtils.IsSql11OrLater(dataContainer.Server.ServerVersion)) || IsAnyManagedInstance(dataContainer.Server))
             {
-                return null;
+                return Array.Empty<string>();
             }
 
             var containmentTypes = new List<string>();
@@ -421,7 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var recoveryModelEnabled = (minimumVersionForRecoveryModel <= dataContainer.Server.VersionMajor) && !IsAnyManagedInstance(dataContainer.Server);
             if (dataContainer.Server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
-                return null;
+                return Array.Empty<string>();
             }
 
             var recoveryModels = new List<string>();
@@ -492,7 +492,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             System.Diagnostics.Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown compat version '{0}'", prototype.DatabaseCompatibilityLevel));
-            return null;
+            return Array.Empty<string>();;
         }
 
         private string[] PopulateCompatibilityLevelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
@@ -502,7 +502,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (dataContainer.SqlServerVersion < 8)
             {
                 // we do not know this version number, we do not know the possible compatibility levels for the server
-                return null;
+                return Array.Empty<string>();
             }
 
             var compatibilityLevels = new List<string>();
@@ -587,7 +587,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // previous loop did not find the prototype compatibility level in this server's compatability options
             // disable the compatability level option
-            return null;
+            return Array.Empty<string>();
         }
     }
 }
