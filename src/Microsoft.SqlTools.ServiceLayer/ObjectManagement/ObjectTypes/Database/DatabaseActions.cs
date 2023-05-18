@@ -25,9 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
-        /// called by the management actions framework to execute the action
+        /// Called by the management actions framework to execute the action
         /// </summary>
-        /// <param name="node"></param>
         public override void OnRunNow(object sender)
         {
             if (this.configAction != ConfigAction.Drop)
