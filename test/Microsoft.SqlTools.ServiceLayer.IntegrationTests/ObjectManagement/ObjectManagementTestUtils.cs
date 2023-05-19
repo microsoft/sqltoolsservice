@@ -41,6 +41,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
         }
 
+        internal static string GetDatabaseURN(string name)
+        {
+            return string.Format("Server/Database[@Name='{0}']", name);
+        }
+
         internal static string GetLoginURN(string name)
         {
             return string.Format("Server/Login[@Name='{0}']", name);
@@ -54,6 +59,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         internal static string GetCredentialURN(string name)
         {
             return string.Format("Server/Credential[@Name = '{0}']", name);
+        }
+
+        internal static DatabaseInfo GetTestDatabaseInfo()
+        {
+            return new DatabaseInfo()
+            {
+                Name = "TestDatabaseName_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                Owner = "<default>",
+                CollationName = "SQL_Latin1_General_CP1_CI_AS",
+                CompatibilityLevel = "SQL Server 2022 (160)",
+                ContainmentType = "None",
+                RecoveryModel = "Full"
+            };
         }
 
         internal static LoginInfo GetTestLoginInfo()
