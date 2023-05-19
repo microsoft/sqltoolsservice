@@ -120,31 +120,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     databaseViewInfo.CollationNames = PopulateCollationDropdownWithPrototypeCollation(prototype);
                                 }
-                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdownAzure(dataContainer, prototype);
+                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdownAzure(prototype);
                             }
                             else
                             {
                                 if (collationEnabled)
                                 {
-                                    databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer, prototype);
+                                    databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer.Server, prototype, dataContainer.IsNewObject);
                                 }
                                 if (compatibilityLevelEnabled)
                                 {
-                                    databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer, prototype);
+                                    databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer.SqlServerVersion, prototype);
                                 }
                             }
                         }
                         else
                         {
-                            databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer, prototype);
+                            databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer.Server, prototype, dataContainer.IsNewObject);
                             if (compatibilityLevelEnabled)
                             {
-                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer, prototype);
+                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer.SqlServerVersion, prototype);
                             }
 
                             // These aren't visible when the target DB is on Azure so only populate if it's not an Azure DB
-                            databaseViewInfo.RecoveryModels = PopulateRecoveryModelDropdown(dataContainer, prototype);
-                            databaseViewInfo.ContainmentTypes = PopulateContainmentTypeDropdown(dataContainer, prototype);
+                            databaseViewInfo.RecoveryModels = PopulateRecoveryModelDropdown(dataContainer.Server, prototype);
+                            databaseViewInfo.ContainmentTypes = PopulateContainmentTypeDropdown(dataContainer.Server, prototype);
                         }
 
                         // Skip adding logins for the Owner field if running against an Azure SQL DB
@@ -326,13 +326,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return (IsManagedInstance(server) || IsArcEnabledManagedInstance(server));
         }
 
-        private string[] PopulateCollationDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
+        private string[] PopulateCollationDropdown(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var collationItems = new List<string>();
-            bool isSphinxServer = (dataContainer.Server!.VersionMajor < minimumVersionForWritableCollation);
+            bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
 
             // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
-            if (dataContainer.IsNewObject || isSphinxServer)
+            if (isNewObject || isSphinxServer)
             {
                 collationItems.Add(defaultValue);
             }
@@ -340,7 +340,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // if the server is shiloh or later, add specific collations to the dropdown
             if (!isSphinxServer)
             {
-                DataTable serverCollationsTable = dataContainer.Server.EnumCollations();
+                DataTable serverCollationsTable = server.EnumCollations();
                 if (serverCollationsTable != null)
                 {
                     foreach (DataRow serverCollation in serverCollationsTable.Rows)
@@ -373,9 +373,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return new string[] { prototype.Collation };
         }
 
-        private string[] PopulateContainmentTypeDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
+        private string[] PopulateContainmentTypeDropdown(Server server, DatabasePrototype prototype)
         {
-            if (!(SqlMgmtUtils.IsSql11OrLater(dataContainer.Server!.ServerVersion)) || IsAnyManagedInstance(dataContainer.Server))
+            if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || IsAnyManagedInstance(server))
             {
                 return Array.Empty<string>();
             }
@@ -414,20 +414,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return containmentTypes.ToArray();
         }
 
-        private string[] PopulateRecoveryModelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
+        private string[] PopulateRecoveryModelDropdown(Server server, DatabasePrototype prototype)
         {
             // if the server is shiloh or later, but not Managed Instance, enable the dropdown
-            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= dataContainer.Server!.VersionMajor) && !IsAnyManagedInstance(dataContainer.Server);
-            if (dataContainer.Server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
+            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !IsAnyManagedInstance(server);
+            if (server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
                 return Array.Empty<string>();
             }
 
             var recoveryModels = new List<string>();
-            // Note: we still discriminate on IsAnyManagedInstance(dataContainer.Server) because GetDisabledProperties()
-            //       was not updated to handle SQL Managed Instance. I suppose we could cleanup
-            //       this code if we updated GetDisabledProperties() to handle MI as well.
-            if (!IsAnyManagedInstance(dataContainer.Server))
+            // Note: we still discriminate on IsAnyManagedInstance(server) because GetDisabledProperties()
+            //       was not updated to handle SQL Managed Instance.
+            if (!IsAnyManagedInstance(server))
             {
 
                 // add recovery model options to the dropdown
@@ -476,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return recoveryModels.ToArray();
         }
 
-        private string[] PopulateCompatibilityLevelDropdownAzure(CDataContainer dataContainer, DatabasePrototype prototype)
+        private string[] PopulateCompatibilityLevelDropdownAzure(DatabasePrototype prototype)
         {
             // For Azure we loop through all of the possible compatibility levels. We do this because there's only one compat level active on a
             // version at a time, but that can change at any point so in order to reduce maintenance required when that happens we'll just find
@@ -494,18 +493,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Array.Empty<string>();
         }
 
-        private string[] PopulateCompatibilityLevelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
+        private string[] PopulateCompatibilityLevelDropdown(int sqlServerVersion, DatabasePrototype prototype)
         {
             // Unlikely that we are hitting such an old SQL Server, but leaving to preserve
             // the original semantic of this method.
-            if (dataContainer.SqlServerVersion < 8)
+            if (sqlServerVersion < 8)
             {
                 // we do not know this version number, we do not know the possible compatibility levels for the server
                 return Array.Empty<string>();
             }
 
             var compatibilityLevels = new List<string>();
-            switch (dataContainer.SqlServerVersion)
+            switch (sqlServerVersion)
             {
                 case 8:     // Shiloh
                     compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version70]);
