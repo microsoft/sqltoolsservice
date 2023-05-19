@@ -47,6 +47,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
+            defaultValue = resourceManager.GetString("general_default");
+
             displayCompatLevels.Add(CompatibilityLevel.Version70, this.resourceManager.GetString("compatibilityLevel_sphinx"));
             displayCompatLevels.Add(CompatibilityLevel.Version80, this.resourceManager.GetString("compatibilityLevel_shiloh"));
             displayCompatLevels.Add(CompatibilityLevel.Version90, this.resourceManager.GetString("compatibilityLevel_yukon"));
@@ -72,14 +74,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 compatLevelEnums.Add(displayCompatLevels[key], key);
             }
 
-            defaultValue = resourceManager.GetString("general_default");
+            containmentTypeEnums.Add(displayContainmentTypes[ContainmentType.None], ContainmentType.None);
+            containmentTypeEnums.Add(displayContainmentTypes[ContainmentType.Partial], ContainmentType.Partial);
 
-            containmentTypeEnums.Add(resourceManager.GetString("general_containmentType_None"), ContainmentType.None);
-            containmentTypeEnums.Add(resourceManager.GetString("general_containmentType_Partial"), ContainmentType.Partial);
-
-            recoveryModelEnums.Add(resourceManager.GetString("general_recoveryModel_full"), RecoveryModel.Full);
-            recoveryModelEnums.Add(resourceManager.GetString("general_recoveryModel_bulkLogged"), RecoveryModel.BulkLogged);
-            recoveryModelEnums.Add(resourceManager.GetString("general_recoveryModel_simple"), RecoveryModel.Simple);
+            recoveryModelEnums.Add(displayRecoveryModels[RecoveryModel.Full], RecoveryModel.Full);
+            recoveryModelEnums.Add(displayRecoveryModels[RecoveryModel.BulkLogged], RecoveryModel.BulkLogged);
+            recoveryModelEnums.Add(displayRecoveryModels[RecoveryModel.Simple], RecoveryModel.Simple);
         }
 
         public override bool CanHandleType(SqlObjectType objectType)
