@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
 
+        private readonly HashSet<char> illegalFilenameCharacters = new HashSet<char>(new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' });
+
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
         {
             resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
@@ -290,26 +292,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        private static string SanitizeFileName(string name)
+        /// <summary>
+        /// Removes invalid characters from a filename string, replacing each invalid character with an underscore.
+        /// </summary>
+        private string SanitizeFileName(string fileName)
         {
-            char[] result = name.ToCharArray();
-            string illegalCharacters = "\\/:*?\"<>|";
-
-            int resultLength = result.GetLength(0);
-            int illegalLength = illegalCharacters.Length;
-
-            for (int resultIndex = 0; resultIndex < resultLength; resultIndex++)
+            char[] nameChars = fileName.ToCharArray();
+            for (int i = 0; i < nameChars.Length; i++)
             {
-                for (int illegalIndex = 0; illegalIndex < illegalLength; illegalIndex++)
+                if (illegalFilenameCharacters.Contains(nameChars[i]))
                 {
-                    if (result[resultIndex] == illegalCharacters[illegalIndex])
-                    {
-                        result[resultIndex] = '_';
-                    }
+                    nameChars[i] = '_';
                 }
             }
-
-            return new string(result);
+            return new string(nameChars);
         }
 
         private bool IsManagedInstance(Server server)
@@ -492,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             System.Diagnostics.Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown compat version '{0}'", prototype.DatabaseCompatibilityLevel));
-            return Array.Empty<string>();;
+            return Array.Empty<string>();
         }
 
         private string[] PopulateCompatibilityLevelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
