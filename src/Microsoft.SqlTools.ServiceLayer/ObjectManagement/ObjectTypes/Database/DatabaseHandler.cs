@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
@@ -47,25 +46,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
 
-            defaultValue = resourceManager.GetString("general_default");
+            defaultValue = resourceManager.GetString("general_default") ?? "<default>";
 
-            displayCompatLevels.Add(CompatibilityLevel.Version70, this.resourceManager.GetString("compatibilityLevel_sphinx"));
-            displayCompatLevels.Add(CompatibilityLevel.Version80, this.resourceManager.GetString("compatibilityLevel_shiloh"));
-            displayCompatLevels.Add(CompatibilityLevel.Version90, this.resourceManager.GetString("compatibilityLevel_yukon"));
-            displayCompatLevels.Add(CompatibilityLevel.Version100, this.resourceManager.GetString("compatibilityLevel_katmai"));
-            displayCompatLevels.Add(CompatibilityLevel.Version110, this.resourceManager.GetString("compatibilityLevel_denali"));
-            displayCompatLevels.Add(CompatibilityLevel.Version120, this.resourceManager.GetString("compatibilityLevel_sql14"));
-            displayCompatLevels.Add(CompatibilityLevel.Version130, this.resourceManager.GetString("compatibilityLevel_sql15"));
-            displayCompatLevels.Add(CompatibilityLevel.Version140, this.resourceManager.GetString("compatibilityLevel_sql2017"));
-            displayCompatLevels.Add(CompatibilityLevel.Version150, this.resourceManager.GetString("compatibilityLevel_sqlv150"));
-            displayCompatLevels.Add(CompatibilityLevel.Version160, this.resourceManager.GetString("compatibilityLevel_sqlv160"));
+            displayCompatLevels.Add(CompatibilityLevel.Version70, this.resourceManager.GetString("compatibilityLevel_sphinx") ?? "SQL Server 7.0 (70)");
+            displayCompatLevels.Add(CompatibilityLevel.Version80, this.resourceManager.GetString("compatibilityLevel_shiloh") ?? "SQL Server 2000 (80)");
+            displayCompatLevels.Add(CompatibilityLevel.Version90, this.resourceManager.GetString("compatibilityLevel_yukon") ?? "SQL Server 2005 (90)");
+            displayCompatLevels.Add(CompatibilityLevel.Version100, this.resourceManager.GetString("compatibilityLevel_katmai") ?? "SQL Server 2008 (100)");
+            displayCompatLevels.Add(CompatibilityLevel.Version110, this.resourceManager.GetString("compatibilityLevel_denali") ?? "SQL Server 2012 (110)");
+            displayCompatLevels.Add(CompatibilityLevel.Version120, this.resourceManager.GetString("compatibilityLevel_sql14") ?? "SQL Server 2014 (120)");
+            displayCompatLevels.Add(CompatibilityLevel.Version130, this.resourceManager.GetString("compatibilityLevel_sql15") ?? "SQL Server 2016 (130)");
+            displayCompatLevels.Add(CompatibilityLevel.Version140, this.resourceManager.GetString("compatibilityLevel_sql2017") ?? "SQL Server 2017 (140)");
+            displayCompatLevels.Add(CompatibilityLevel.Version150, this.resourceManager.GetString("compatibilityLevel_sqlv150") ?? "SQL Server 2019 (150)");
+            displayCompatLevels.Add(CompatibilityLevel.Version160, this.resourceManager.GetString("compatibilityLevel_sqlv160") ?? "SQL Server 2022 (160)");
 
-            displayContainmentTypes.Add(ContainmentType.None, resourceManager.GetString("general_containmentType_None"));
-            displayContainmentTypes.Add(ContainmentType.Partial, resourceManager.GetString("general_containmentType_Partial"));
+            displayContainmentTypes.Add(ContainmentType.None, resourceManager.GetString("general_containmentType_None") ?? "None");
+            displayContainmentTypes.Add(ContainmentType.Partial, resourceManager.GetString("general_containmentType_Partial") ?? "Partial");
 
-            displayRecoveryModels.Add(RecoveryModel.Full, resourceManager.GetString("general_recoveryModel_full"));
-            displayRecoveryModels.Add(RecoveryModel.BulkLogged, resourceManager.GetString("general_recoveryModel_bulkLogged"));
-            displayRecoveryModels.Add(RecoveryModel.Simple, resourceManager.GetString("general_recoveryModel_simple"));
+            displayRecoveryModels.Add(RecoveryModel.Full, resourceManager.GetString("general_recoveryModel_full") ?? "Full");
+            displayRecoveryModels.Add(RecoveryModel.BulkLogged, resourceManager.GetString("general_recoveryModel_bulkLogged") ?? "Bulk-logged");
+            displayRecoveryModels.Add(RecoveryModel.Simple, resourceManager.GetString("general_recoveryModel_simple") ?? "Simple");
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -109,9 +108,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // azure sql db doesn't have a sysadmin fixed role
                         var compatibilityLevelEnabled = !isDw &&
                                                         (dataContainer.LoggedInUserIsSysadmin ||
-                                                        dataContainer.Server.ServerType ==
+                                                        dataContainer.Server!.ServerType ==
                                                         DatabaseEngineType.SqlAzureDatabase);
-                        if (dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                        if (dataContainer.Server!.ServerType == DatabaseEngineType.SqlAzureDatabase)
                         {
                             // Azure doesn't allow modifying the collation after DB creation
                             bool collationEnabled = !prototype.Exists;
@@ -165,8 +164,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer?.Server?.ConnectionContext;
-                    if (serverConnection != null && serverConnection.IsOpen)
+                    ServerConnection serverConnection = dataContainer.Server!.ConnectionContext;
+                    if (serverConnection.IsOpen)
                     {
                         serverConnection.Disconnect();
                     }
@@ -194,17 +193,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo database = null)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo? database = null)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: configAction != ConfigAction.Create);
+            if (dataContainer.Server == null)
+            {
+                throw new InvalidOperationException("Server was not created for data container");
+            }
             string objectUrn = (configAction != ConfigAction.Create && database != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server/Database[@Name='{0}']",
                     Urn.EscapeString(database.Name))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server");
-            dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
+            dataContainer.SqlDialogSubject = dataContainer.Server!.GetSmoObject(objectUrn);
             return dataContainer;
         }
 
@@ -283,8 +286,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer?.Server?.ConnectionContext;
-                    if (serverConnection != null && serverConnection.IsOpen)
+                    ServerConnection serverConnection = dataContainer.Server!.ConnectionContext;
+                    if (serverConnection.IsOpen)
                     {
                         serverConnection.Disconnect();
                     }
@@ -326,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private string[] PopulateCollationDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
             var collationItems = new List<string>();
-            bool isSphinxServer = (dataContainer.Server.VersionMajor < minimumVersionForWritableCollation);
+            bool isSphinxServer = (dataContainer.Server!.VersionMajor < minimumVersionForWritableCollation);
 
             // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
             if (dataContainer.IsNewObject || isSphinxServer)
@@ -372,14 +375,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string[] PopulateContainmentTypeDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
-            if (!(SqlMgmtUtils.IsSql11OrLater(dataContainer.Server.ServerVersion)) || IsAnyManagedInstance(dataContainer.Server))
+            if (!(SqlMgmtUtils.IsSql11OrLater(dataContainer.Server!.ServerVersion)) || IsAnyManagedInstance(dataContainer.Server))
             {
                 return Array.Empty<string>();
             }
 
             var containmentTypes = new List<string>();
             ContainmentType dbContainmentType = ContainmentType.None;
-            DatabasePrototype110 dp110 = prototype as DatabasePrototype110;
+            DatabasePrototype110? dp110 = prototype as DatabasePrototype110;
 
             if (dp110 != null)
             {
@@ -414,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private string[] PopulateRecoveryModelDropdown(CDataContainer dataContainer, DatabasePrototype prototype)
         {
             // if the server is shiloh or later, but not Managed Instance, enable the dropdown
-            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= dataContainer.Server.VersionMajor) && !IsAnyManagedInstance(dataContainer.Server);
+            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= dataContainer.Server!.VersionMajor) && !IsAnyManagedInstance(dataContainer.Server);
             if (dataContainer.Server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
                 return Array.Empty<string>();
