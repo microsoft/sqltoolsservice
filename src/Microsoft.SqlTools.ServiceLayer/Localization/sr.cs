@@ -11373,30 +11373,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string compatibilityLevel_shiloh
-        {
-            get
-            {
-                return Keys.GetString(Keys.compatibilityLevel_shiloh);
-            }
-        }
-
-        public static string compatibilityLevel_sphinx
-        {
-            get
-            {
-                return Keys.GetString(Keys.compatibilityLevel_sphinx);
-            }
-        }
-
-        public static string compatibilityLevel_yukon
-        {
-            get
-            {
-                return Keys.GetString(Keys.compatibilityLevel_yukon);
-            }
-        }
-
         public static string createDatabase_title
         {
             get
@@ -12309,14 +12285,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string compatibilityLevel_katmai
-        {
-            get
-            {
-                return Keys.GetString(Keys.compatibilityLevel_katmai);
-            }
-        }
-
         public static string prototype_db_prop_encryptionEnabled
         {
             get
@@ -12354,6 +12322,38 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.error_db_prop_invalidleadingColumns);
+            }
+        }
+
+        public static string compatibilityLevel_sphinx
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_sphinx);
+            }
+        }
+
+        public static string compatibilityLevel_shiloh
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_shiloh);
+            }
+        }
+
+        public static string compatibilityLevel_yukon
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_yukon);
+            }
+        }
+
+        public static string compatibilityLevel_katmai
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_katmai);
             }
         }
 
@@ -17395,15 +17395,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string autogrowth_dialog_defaultfilestreamtitle = "autogrowth_dialog_defaultfilestreamtitle";
 
 
-            public const string compatibilityLevel_shiloh = "compatibilityLevel_shiloh";
-
-
-            public const string compatibilityLevel_sphinx = "compatibilityLevel_sphinx";
-
-
-            public const string compatibilityLevel_yukon = "compatibilityLevel_yukon";
-
-
             public const string createDatabase_title = "createDatabase_title";
 
 
@@ -17746,9 +17737,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string prototype_db_prop_varDecimalEnabled = "prototype_db_prop_varDecimalEnabled";
 
 
-            public const string compatibilityLevel_katmai = "compatibilityLevel_katmai";
-
-
             public const string prototype_db_prop_encryptionEnabled = "prototype_db_prop_encryptionEnabled";
 
 
@@ -17762,6 +17750,18 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string error_db_prop_invalidleadingColumns = "error_db_prop_invalidleadingColumns";
+
+
+            public const string compatibilityLevel_sphinx = "compatibilityLevel_sphinx";
+
+
+            public const string compatibilityLevel_shiloh = "compatibilityLevel_shiloh";
+
+
+            public const string compatibilityLevel_yukon = "compatibilityLevel_yukon";
+
+
+            public const string compatibilityLevel_katmai = "compatibilityLevel_katmai";
 
 
             public const string compatibilityLevel_denali = "compatibilityLevel_denali";

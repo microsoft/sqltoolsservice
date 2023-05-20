@@ -6228,18 +6228,6 @@ The Query Processor estimates that implementing the following index could improv
     <value>Change Maxsize</value>
     <comment></comment>
   </data>
-  <data name="compatibilityLevel_shiloh" xml:space="preserve">
-    <value>SQL Server 2000 (80)</value>
-    <comment></comment>
-  </data>
-  <data name="compatibilityLevel_sphinx" xml:space="preserve">
-    <value>SQL Server 7.0 (70)</value>
-    <comment></comment>
-  </data>
-  <data name="compatibilityLevel_yukon" xml:space="preserve">
-    <value>SQL Server 2005 (90)</value>
-    <comment></comment>
-  </data>
   <data name="createDatabase_title" xml:space="preserve">
     <value>New Database</value>
     <comment></comment>
@@ -6696,10 +6684,6 @@ The Query Processor estimates that implementing the following index could improv
     <value>VarDecimal Storage Format Enabled</value>
     <comment></comment>
   </data>
-  <data name="compatibilityLevel_katmai" xml:space="preserve">
-    <value>SQL Server 2008 (100)</value>
-    <comment></comment>
-  </data>
   <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
     <value>Encryption Enabled</value>
     <comment></comment>
@@ -6718,6 +6702,22 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
     <value>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+    <comment></comment>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
     <comment></comment>
   </data>
   <data name="compatibilityLevel_denali" xml:space="preserve">
