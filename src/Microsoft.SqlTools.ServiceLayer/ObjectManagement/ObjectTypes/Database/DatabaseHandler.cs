@@ -28,6 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         private const int minimumVersionForWritableCollation = 8;
         private const int minimumVersionForRecoveryModel = 8;
+        private const string serverNotExistsError = "Server was not created for data container";
 
         private readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
         private readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
@@ -84,6 +85,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // create a default data context and database object
             using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create))
             {
+                if (dataContainer.Server == null)
+                {
+                    throw new InvalidOperationException(serverNotExistsError);
+                }
                 try
                 {
                     using (var taskHelper = new DatabaseTaskHelper(dataContainer))
@@ -101,9 +106,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // azure sql db doesn't have a sysadmin fixed role
                         var compatibilityLevelEnabled = !isDw &&
                                                         (dataContainer.LoggedInUserIsSysadmin ||
-                                                        dataContainer.Server!.ServerType ==
+                                                        dataContainer.Server.ServerType ==
                                                         DatabaseEngineType.SqlAzureDatabase);
-                        if (dataContainer.Server!.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                        if (dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                         {
                             // Azure doesn't allow modifying the collation after DB creation
                             bool collationEnabled = !prototype.Exists;
@@ -157,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer.Server!.ConnectionContext;
+                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
                     if (serverConnection.IsOpen)
                     {
                         serverConnection.Disconnect();
@@ -192,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: configAction != ConfigAction.Create);
             if (dataContainer.Server == null)
             {
-                throw new InvalidOperationException("Server was not created for data container");
+                throw new InvalidOperationException(serverNotExistsError);
             }
             string objectUrn = (configAction != ConfigAction.Create && database != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
@@ -200,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Urn.EscapeString(database.Name))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server");
-            dataContainer.SqlDialogSubject = dataContainer.Server!.GetSmoObject(objectUrn);
+            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
             return dataContainer;
         }
 
@@ -213,6 +218,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             using (var dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database))
             {
+                if (dataContainer.Server == null)
+                {
+                    throw new InvalidOperationException(serverNotExistsError);
+                }
                 try
                 {
                     using (var taskHelper = new DatabaseTaskHelper(dataContainer))
@@ -279,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer.Server!.ConnectionContext;
+                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
                     if (serverConnection.IsOpen)
                     {
                         serverConnection.Disconnect();
