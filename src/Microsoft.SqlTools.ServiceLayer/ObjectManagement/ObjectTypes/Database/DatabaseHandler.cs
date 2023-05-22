@@ -16,7 +16,6 @@ using System.Data;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
-using System.Resources;
 using System.Globalization;
 using System.Diagnostics;
 
@@ -29,8 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         private const int minimumVersionForWritableCollation = 8;
         private const int minimumVersionForRecoveryModel = 8;
-        private readonly ResourceManager resourceManager;
-        private readonly string defaultValue;
 
         private readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
         private readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
@@ -44,27 +41,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
         {
-            resourceManager = new ResourceManager("Microsoft.SqlTools.ServiceLayer.Localization.SR", typeof(DatabasePrototype).GetAssembly());
+            displayCompatLevels.Add(CompatibilityLevel.Version70, SR.compatibilityLevel_sphinx);
+            displayCompatLevels.Add(CompatibilityLevel.Version80, SR.compatibilityLevel_shiloh);
+            displayCompatLevels.Add(CompatibilityLevel.Version90, SR.compatibilityLevel_yukon);
+            displayCompatLevels.Add(CompatibilityLevel.Version100, SR.compatibilityLevel_katmai);
+            displayCompatLevels.Add(CompatibilityLevel.Version110, SR.compatibilityLevel_denali);
+            displayCompatLevels.Add(CompatibilityLevel.Version120, SR.compatibilityLevel_sql14);
+            displayCompatLevels.Add(CompatibilityLevel.Version130, SR.compatibilityLevel_sql15);
+            displayCompatLevels.Add(CompatibilityLevel.Version140, SR.compatibilityLevel_sql2017);
+            displayCompatLevels.Add(CompatibilityLevel.Version150, SR.compatibilityLevel_sqlv150);
+            displayCompatLevels.Add(CompatibilityLevel.Version160, SR.compatibilityLevel_sqlv160);
 
-            defaultValue = resourceManager.GetString("general_default") ?? "<default>";
+            displayContainmentTypes.Add(ContainmentType.None, SR.general_containmentType_None);
+            displayContainmentTypes.Add(ContainmentType.Partial, SR.general_containmentType_Partial);
 
-            displayCompatLevels.Add(CompatibilityLevel.Version70, this.resourceManager.GetString("compatibilityLevel_sphinx") ?? "SQL Server 7.0 (70)");
-            displayCompatLevels.Add(CompatibilityLevel.Version80, this.resourceManager.GetString("compatibilityLevel_shiloh") ?? "SQL Server 2000 (80)");
-            displayCompatLevels.Add(CompatibilityLevel.Version90, this.resourceManager.GetString("compatibilityLevel_yukon") ?? "SQL Server 2005 (90)");
-            displayCompatLevels.Add(CompatibilityLevel.Version100, this.resourceManager.GetString("compatibilityLevel_katmai") ?? "SQL Server 2008 (100)");
-            displayCompatLevels.Add(CompatibilityLevel.Version110, this.resourceManager.GetString("compatibilityLevel_denali") ?? "SQL Server 2012 (110)");
-            displayCompatLevels.Add(CompatibilityLevel.Version120, this.resourceManager.GetString("compatibilityLevel_sql14") ?? "SQL Server 2014 (120)");
-            displayCompatLevels.Add(CompatibilityLevel.Version130, this.resourceManager.GetString("compatibilityLevel_sql15") ?? "SQL Server 2016 (130)");
-            displayCompatLevels.Add(CompatibilityLevel.Version140, this.resourceManager.GetString("compatibilityLevel_sql2017") ?? "SQL Server 2017 (140)");
-            displayCompatLevels.Add(CompatibilityLevel.Version150, this.resourceManager.GetString("compatibilityLevel_sqlv150") ?? "SQL Server 2019 (150)");
-            displayCompatLevels.Add(CompatibilityLevel.Version160, this.resourceManager.GetString("compatibilityLevel_sqlv160") ?? "SQL Server 2022 (160)");
-
-            displayContainmentTypes.Add(ContainmentType.None, resourceManager.GetString("general_containmentType_None") ?? "None");
-            displayContainmentTypes.Add(ContainmentType.Partial, resourceManager.GetString("general_containmentType_Partial") ?? "Partial");
-
-            displayRecoveryModels.Add(RecoveryModel.Full, resourceManager.GetString("general_recoveryModel_full") ?? "Full");
-            displayRecoveryModels.Add(RecoveryModel.BulkLogged, resourceManager.GetString("general_recoveryModel_bulkLogged") ?? "Bulk-logged");
-            displayRecoveryModels.Add(RecoveryModel.Simple, resourceManager.GetString("general_recoveryModel_simple") ?? "Simple");
+            displayRecoveryModels.Add(RecoveryModel.Full, SR.general_recoveryModel_full);
+            displayRecoveryModels.Add(RecoveryModel.BulkLogged, SR.general_recoveryModel_bulkLogged);
+            displayRecoveryModels.Add(RecoveryModel.Simple, SR.general_recoveryModel_simple);
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -151,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
                         {
                             var logins = new List<string>();
-                            logins.Add(defaultValue);
+                            logins.Add(SR.general_default);
                             foreach (Login login in dataContainer.Server.Logins)
                             {
                                 logins.Add(login.Name);
@@ -244,11 +237,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null && database.Owner != defaultValue)
+                        if (database.Owner != null && database.Owner != SR.general_default)
                         {
                             prototype.Owner = database.Owner;
                         }
-                        if (database.CollationName != null && database.CollationName != defaultValue)
+                        if (database.CollationName != null && database.CollationName != SR.general_default)
                         {
                             prototype.Collation = database.CollationName;
                         }
@@ -334,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
             if (isNewObject || isSphinxServer)
             {
-                collationItems.Add(defaultValue);
+                collationItems.Add(SR.general_default);
             }
 
             // if the server is shiloh or later, add specific collations to the dropdown
