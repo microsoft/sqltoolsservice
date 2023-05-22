@@ -111,33 +111,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             {
                                 if (collationEnabled)
                                 {
-                                    databaseViewInfo.CollationNames = PopulateCollationDropdownWithPrototypeCollation(prototype);
+                                    databaseViewInfo.CollationNames = GetCollationsWithPrototypeCollation(prototype);
                                 }
-                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdownAzure(prototype);
+                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevelsAzure(prototype);
                             }
                             else
                             {
                                 if (collationEnabled)
                                 {
-                                    databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer.Server, prototype, dataContainer.IsNewObject);
+                                    databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
                                 }
                                 if (compatibilityLevelEnabled)
                                 {
-                                    databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer.SqlServerVersion, prototype);
+                                    databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
                                 }
                             }
                         }
                         else
                         {
-                            databaseViewInfo.CollationNames = PopulateCollationDropdown(dataContainer.Server, prototype, dataContainer.IsNewObject);
+                            databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
                             if (compatibilityLevelEnabled)
                             {
-                                databaseViewInfo.CompatibilityLevels = PopulateCompatibilityLevelDropdown(dataContainer.SqlServerVersion, prototype);
+                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
                             }
 
                             // These aren't visible when the target DB is on Azure so only populate if it's not an Azure DB
-                            databaseViewInfo.RecoveryModels = PopulateRecoveryModelDropdown(dataContainer.Server, prototype);
-                            databaseViewInfo.ContainmentTypes = PopulateContainmentTypeDropdown(dataContainer.Server, prototype);
+                            databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
+                            databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
                         }
 
                         // Skip adding logins for the Owner field if running against an Azure SQL DB
@@ -319,7 +319,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return (IsManagedInstance(server) || IsArcEnabledManagedInstance(server));
         }
 
-        private string[] PopulateCollationDropdown(Server server, DatabasePrototype prototype, bool isNewObject)
+        private string[] GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var collationItems = new List<string>();
             bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
@@ -361,12 +361,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return collationItems.ToArray();
         }
 
-        private string[] PopulateCollationDropdownWithPrototypeCollation(DatabasePrototype prototype)
+        private string[] GetCollationsWithPrototypeCollation(DatabasePrototype prototype)
         {
             return new string[] { prototype.Collation };
         }
 
-        private string[] PopulateContainmentTypeDropdown(Server server, DatabasePrototype prototype)
+        private string[] GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
             if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || IsAnyManagedInstance(server))
             {
@@ -407,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return containmentTypes.ToArray();
         }
 
-        private string[] PopulateRecoveryModelDropdown(Server server, DatabasePrototype prototype)
+        private string[] GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
             // if the server is shiloh or later, but not Managed Instance, enable the dropdown
             var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !IsAnyManagedInstance(server);
@@ -468,7 +468,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return recoveryModels.ToArray();
         }
 
-        private string[] PopulateCompatibilityLevelDropdownAzure(DatabasePrototype prototype)
+        private string[] GetCompatibilityLevelsAzure(DatabasePrototype prototype)
         {
             // For Azure we loop through all of the possible compatibility levels. We do this because there's only one compat level active on a
             // version at a time, but that can change at any point so in order to reduce maintenance required when that happens we'll just find
@@ -486,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Array.Empty<string>();
         }
 
-        private string[] PopulateCompatibilityLevelDropdown(int sqlServerVersion, DatabasePrototype prototype)
+        private string[] GetCompatibilityLevels(int sqlServerVersion, DatabasePrototype prototype)
         {
             // Unlikely that we are hitting such an old SQL Server, but leaving to preserve
             // the original semantic of this method.
