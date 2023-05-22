@@ -403,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     swapIndex = 1;
                     break;
                 default:
-                    System.Diagnostics.Debug.Fail("Unexpected Containment type.");
+                    Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unexpected containment type '{0}'", dbContainmentType));
                     break;
             }
             if (swapIndex > 0)
@@ -464,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         break;
 
                     default:
-                        System.Diagnostics.Debug.Assert(RecoveryModel.Full == prototype.RecoveryModel, "unexpected recovery model");
+                        Debug.Assert(RecoveryModel.Full == prototype.RecoveryModel, string.Format(CultureInfo.InvariantCulture, "Unknown recovery model '{0}'", prototype.RecoveryModel));
                         break;
                 }
                 if (swapIndex > 0)
@@ -491,7 +491,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            System.Diagnostics.Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown compat version '{0}'", prototype.DatabaseCompatibilityLevel));
+            Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown compatibility level '{0}'", prototype.DatabaseCompatibilityLevel));
             return Array.Empty<string>();
         }
 
