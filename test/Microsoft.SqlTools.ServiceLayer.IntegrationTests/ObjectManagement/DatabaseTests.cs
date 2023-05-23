@@ -17,10 +17,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
     public class DatabaseTests
     {
         /// <summary>
-        /// Test the basic Create Database method handler
+        /// Test the basic Create Database method handler by creating, updating, and then deleting a database.
         /// </summary>
         [Test]
-        public async Task TestHandleCreateDatabaseRequest()
+        public async Task DatabaseCreateAndUpdatetest()
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
