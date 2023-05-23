@@ -20,12 +20,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         /// Test the basic Create Database method handler by creating, updating, and then deleting a database.
         /// </summary>
         [Test]
-        public async Task DatabaseCreateAndUpdatetest()
+        public async Task DatabaseCreateAndUpdateTest_OnPrem()
+        {
+            await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
+        }
+
+        [Test]
+        public async Task DatabaseCreateAndUpdateTest_Azure()
+        {
+            await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
+        }
+
+        private async Task RunDatabaseCreateAndUpdateTest(TestServerType serverType)
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 // setup, drop database if exists.
-                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath, serverType: serverType);
                 var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
                 var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
                 await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
@@ -42,4 +53,5 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
     }
+
 }
