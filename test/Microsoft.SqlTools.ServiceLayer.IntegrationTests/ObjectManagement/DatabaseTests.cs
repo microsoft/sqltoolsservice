@@ -58,14 +58,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     // create and update
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{0}' was not created succesfully");
+                    Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
 
                     var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
-                    Assert.False(databaseExists(testDatabase.Name!, server), $"Database '{0}' was not dropped succesfully");
+                    Assert.False(databaseExists(testDatabase.Name!, server), $"Database '{testDatabase.Name}' was not dropped succesfully");
                 }
                 finally
                 {
