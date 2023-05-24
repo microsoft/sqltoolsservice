@@ -173,12 +173,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
         }
 
-        internal static async Task DropObject(string connectionUri, string objectUrn)
+        internal static async Task DropObject(string connectionUri, string objectUrn, bool throwIfNotExist = false)
         {
             var dropParams = new DropRequestParams
             {
                 ConnectionUri = connectionUri,
-                ObjectUrn = objectUrn
+                ObjectUrn = objectUrn,
+                ThrowIfNotExist = throwIfNotExist
             };
 
             var dropRequestContext = new Mock<RequestContext<DropRequestResponse>>();

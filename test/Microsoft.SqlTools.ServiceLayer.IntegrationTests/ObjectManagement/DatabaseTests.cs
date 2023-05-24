@@ -30,11 +30,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
         }
 
-        // [Test]
-        // public async Task DatabaseCreateAndUpdateTest_Azure()
-        // {
-        //     await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
-        // }
+        // Disable Azure test by default since it's not supported for pipeline tests
+        // [Test] 
+        public async Task DatabaseCreateAndUpdateTest_Azure()
+        {
+            await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
+        }
 
         private async Task RunDatabaseCreateAndUpdateTest(TestServerType serverType)
         {
@@ -64,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
 
                     // cleanup
-                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
                     Assert.False(databaseExists(testDatabase.Name!, server), $"Database '{testDatabase.Name}' was not dropped succesfully");
                 }
                 finally
@@ -96,6 +97,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 }
             }
             return dbFound;
+        }
+
+        [Test]
+        public async Task DatabaseNotExistsErrorTest()
+        {
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
+            var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+            var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+            try
+            {
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
+                Assert.Fail("Did not throw an exception when trying to drop non-existent database.");
+            }
+            catch (FailedOperationException ex)
+            {
+                Assert.NotNull(ex.InnerException, "Expected inner exception was null.");
+                Assert.True(ex.InnerException is MissingObjectException, $"Received unexpected inner exception type: {ex.InnerException!.GetType()}");
+            }
         }
     }
 }
