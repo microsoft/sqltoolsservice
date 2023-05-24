@@ -25,11 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
         }
 
-        // [Test]
-        // public async Task DatabaseCreateAndUpdateTest_Azure()
-        // {
-        //     await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
-        // }
+        [Test]
+        public async Task DatabaseCreateAndUpdateTest_Azure()
+        {
+            await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
+        }
 
         private async Task RunDatabaseCreateAndUpdateTest(TestServerType serverType)
         {
