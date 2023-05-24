@@ -97,6 +97,45 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
+        public async Task DatabaseScriptTest()
+        {
+// setup, drop database if exists.
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
+            DbConnection connection;
+            if (!connectionResult.ConnectionInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
+            {
+                throw new InvalidOperationException("Could not retrieve connection object.");
+            }
+            var server = new Server(new ServerConnection(new SqlConnection(connection.ConnectionString)));
+
+            var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+            var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+            await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+            try
+            {
+                // create and update
+                var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                var script = await ObjectManagementTestUtils.ScriptObject(parametersForCreation, testDatabase);
+                Assert.True(!databaseExists(testDatabase.Name!, server), $"Database should not have been created for scripting operation");
+                Assert.True(script.ToLowerInvariant().Contains($"create database [{testDatabase.Name!.ToLowerInvariant()}]"));
+            }
+            finally
+            {
+                // Cleanup database on the off-change that scripting somehow created the database
+                server.Databases.Refresh();
+                foreach (Database db in server.Databases)
+                {
+                    if (db.Name == testDatabase.Name)
+                    {
+                        db.DropIfExists();
+                        break;
+                    }
+                }
+            }
+        }
+
+        [Test]
         public async Task DatabaseNotExistsErrorTest()
         {
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");

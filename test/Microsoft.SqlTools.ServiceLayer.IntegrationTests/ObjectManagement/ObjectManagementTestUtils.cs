@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
         }
 
-        internal static async Task ScriptObject(InitializeViewRequestParams parameters, SqlObject obj)
+        internal static async Task<string> ScriptObject(InitializeViewRequestParams parameters, SqlObject obj)
         {
             // Initialize the view
             var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
@@ -161,9 +161,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
 
             // Script the object
+            string script = string.Empty;
             var scriptObjectRequestContext = new Mock<RequestContext<string>>();
-            scriptObjectRequestContext.Setup(x => x.SendResult(It.IsAny<string>()))
-                .Returns(Task.FromResult<string>(""));
+            scriptObjectRequestContext
+                .Setup(x => x.SendResult(It.IsAny<string>()))
+                .Returns(Task.FromResult<string>(""))
+                .Callback<string>(scriptResult => script = scriptResult);
             await Service.HandleScriptObjectRequest(new ScriptObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) }, scriptObjectRequestContext.Object);
 
             // Dispose the view
@@ -171,6 +174,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
                 .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+
+            return script;
         }
 
         internal static async Task DropObject(string connectionUri, string objectUrn, bool throwIfNotExist = false)
