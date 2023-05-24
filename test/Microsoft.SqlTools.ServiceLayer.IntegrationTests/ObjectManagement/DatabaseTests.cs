@@ -69,15 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             finally
             {
                 // Cleanup using SMO if Drop didn't work
-                server.Databases.Refresh();
-                foreach (Database db in server.Databases)
-                {
-                    if (db.Name == testDatabase.Name)
-                    {
-                        db.DropIfExists();
-                        break;
-                    }
-                }
+                dropDatabase(server, testDatabase.Name!);
             }
         }
 
@@ -96,10 +88,23 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return dbFound;
         }
 
+        private void dropDatabase(Server server, string databaseName)
+        {
+            server.Databases.Refresh();
+            foreach (Database db in server.Databases)
+            {
+                if (db.Name == databaseName)
+                {
+                    db.DropIfExists();
+                    break;
+                }
+            }
+        }
+
         [Test]
         public async Task DatabaseScriptTest()
         {
-// setup, drop database if exists.
+            // setup, drop database if exists.
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
             DbConnection connection;
             if (!connectionResult.ConnectionInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
@@ -123,15 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             finally
             {
                 // Cleanup database on the off-change that scripting somehow created the database
-                server.Databases.Refresh();
-                foreach (Database db in server.Databases)
-                {
-                    if (db.Name == testDatabase.Name)
-                    {
-                        db.DropIfExists();
-                        break;
-                    }
-                }
+                dropDatabase(server, testDatabase.Name!);
             }
         }
 
@@ -187,15 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
             finally
             {
-                server.Databases.Refresh();
-                foreach (Database db in server.Databases)
-                {
-                    if (db.Name == testDatabase.Name)
-                    {
-                        db.DropIfExists();
-                        break;
-                    }
-                }
+                dropDatabase(server, testDatabase.Name!);
             }
         }
     }
