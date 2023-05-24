@@ -39,46 +39,43 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
         private async Task RunDatabaseCreateAndUpdateTest(TestServerType serverType)
         {
-            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            // setup, drop database if exists.
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: serverType);
+            DbConnection connection;
+            if (!connectionResult.ConnectionInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
             {
-                // setup, drop database if exists.
-                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath, serverType: serverType);
-                DbConnection connection;
-                if (!connectionResult.ConnectionInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
+                throw new InvalidOperationException("Could not retrieve connection object.");
+            }
+            var server = new Server(new ServerConnection(new SqlConnection(connection.ConnectionString)));
+
+            var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+            var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+            await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+            try
+            {
+                // create and update
+                var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+
+                var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
+                await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
+
+                // cleanup
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
+                Assert.False(databaseExists(testDatabase.Name!, server), $"Database '{testDatabase.Name}' was not dropped succesfully");
+            }
+            finally
+            {
+                // Cleanup using SMO if Drop didn't work
+                server.Databases.Refresh();
+                foreach (Database db in server.Databases)
                 {
-                    throw new InvalidOperationException("Could not retrieve connection object.");
-                }
-                var server = new Server(new ServerConnection(new SqlConnection(connection.ConnectionString)));
-
-                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
-                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
-                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
-
-                try
-                {
-                    // create and update
-                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
-                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
-
-                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
-                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-
-                    // cleanup
-                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
-                    Assert.False(databaseExists(testDatabase.Name!, server), $"Database '{testDatabase.Name}' was not dropped succesfully");
-                }
-                finally
-                {
-                    // Cleanup using SMO if Drop didn't work
-                    server.Databases.Refresh();
-                    foreach (Database db in server.Databases)
+                    if (db.Name == testDatabase.Name)
                     {
-                        if (db.Name == testDatabase.Name)
-                        {
-                            db.DropIfExists();
-                            break;
-                        }
+                        db.DropIfExists();
+                        break;
                     }
                 }
             }
@@ -114,6 +111,52 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             {
                 Assert.NotNull(ex.InnerException, "Expected inner exception was null.");
                 Assert.True(ex.InnerException is MissingObjectException, $"Received unexpected inner exception type: {ex.InnerException!.GetType()}");
+            }
+        }
+
+        [Test]
+        public async Task DatabaseAlreadyExistsErrorTest()
+        {
+            // setup, drop database if exists.
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
+            DbConnection connection;
+            if (!connectionResult.ConnectionInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.Default, out connection))
+            {
+                throw new InvalidOperationException("Could not retrieve connection object.");
+            }
+            var server = new Server(new ServerConnection(new SqlConnection(connection.ConnectionString)));
+
+            var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+            var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+            await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+            try
+            {
+                var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+
+                await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                Assert.Fail("Did not throw an exception when trying to create database with same name.");
+            }
+            catch (FailedOperationException ex)
+            {
+                Assert.NotNull(ex.InnerException, "Expected inner exception was null.");
+                Assert.True(ex.InnerException is ExecutionFailureException, $"Received unexpected inner exception type: {ex.InnerException!.GetType()}");
+                Assert.NotNull(ex.InnerException.InnerException, "Expected inner-inner exception was null.");
+                Assert.True(ex.InnerException.InnerException is SqlException, $"Received unexpected inner-inner exception type: {ex.InnerException.InnerException!.GetType()}");
+            }
+            finally
+            {
+                server.Databases.Refresh();
+                foreach (Database db in server.Databases)
+                {
+                    if (db.Name == testDatabase.Name)
+                    {
+                        db.DropIfExists();
+                        break;
+                    }
+                }
             }
         }
     }
