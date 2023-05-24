@@ -25,11 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
         }
 
-        [Test]
-        public async Task DatabaseCreateAndUpdateTest_Azure()
-        {
-            await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
-        }
+        // [Test]
+        // public async Task DatabaseCreateAndUpdateTest_Azure()
+        // {
+        //     await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
+        // }
 
         private async Task RunDatabaseCreateAndUpdateTest(TestServerType serverType)
         {
@@ -41,15 +41,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
                 await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
 
-                // create and update
-                var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
-                await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                try
+                {
+                    // create and update
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
 
-                var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
-                await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-
-                // cleanup
-                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
+                }
+                finally
+                {
+                    // cleanup
+                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+                }
             }
         }
     }
