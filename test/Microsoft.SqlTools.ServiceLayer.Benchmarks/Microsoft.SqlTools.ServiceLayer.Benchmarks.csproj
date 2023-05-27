@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DebugType>portable</DebugType>
+    <AssemblyName>Microsoft.SqlTools.ServiceLayer.Benchmarks</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+		<RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+		<StartupObject>Microsoft.SqlTools.ServiceLayer.Benchmarks.Program</StartupObject>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+</Project>
