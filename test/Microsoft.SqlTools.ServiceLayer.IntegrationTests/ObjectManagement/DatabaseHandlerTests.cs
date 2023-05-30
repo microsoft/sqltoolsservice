@@ -29,6 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
         }
 
+        /// <summary>
+        /// Test the Create Database method handler functionality against an Azure SQL database.
+        /// </summary>
         [Test]
         [Ignore("Test is not supported in the integration test pipeline.")]
         public async Task DatabaseCreateAndUpdateTest_Azure()
@@ -70,6 +73,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
 
+        /// <summary>
+        /// Test that the handler can export the Create Database operation to a SQL script.
+        /// </summary>
         [Test]
         public async Task DatabaseScriptTest()
         {
@@ -97,6 +103,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
 
+        /// <summary>
+        /// Test that the handler correctly throws an error when trying to drop a database that doesn't exist.
+        /// </summary>
         [Test]
         public async Task DatabaseNotExistsErrorTest()
         {
@@ -115,6 +124,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
 
+        /// <summary>
+        /// Test that the handler correctly throws an error when trying to create a database with the same name as an existing database.
+        /// </summary>
         [Test]
         public async Task DatabaseAlreadyExistsErrorTest()
         {
