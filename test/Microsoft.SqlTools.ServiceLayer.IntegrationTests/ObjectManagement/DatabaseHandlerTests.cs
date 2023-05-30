@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         /// Test the Create Database method handler functionality against an Azure SQL database.
         /// </summary>
         [Test]
+        [Ignore("Test is not supported in the integration test pipeline.")]
         public async Task DatabaseCreateAndUpdateTest_Azure()
         {
             await RunDatabaseCreateAndUpdateTest(TestServerType.Azure);
