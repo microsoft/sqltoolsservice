@@ -73,34 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
 
-        private bool databaseExists(string dbName, Server server)
-        {
-            server.Databases.Refresh();
-            bool dbFound = false;
-            foreach (Database db in server.Databases)
-            {
-                if (db.Name == dbName)
-                {
-                    dbFound = true;
-                    break;
-                }
-            }
-            return dbFound;
-        }
-
-        private void dropDatabase(Server server, string databaseName)
-        {
-            server.Databases.Refresh();
-            foreach (Database db in server.Databases)
-            {
-                if (db.Name == databaseName)
-                {
-                    db.DropIfExists();
-                    break;
-                }
-            }
-        }
-
         [Test]
         public async Task DatabaseScriptTest()
         {
@@ -185,6 +157,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             finally
             {
                 dropDatabase(server, testDatabase.Name!);
+            }
+        }
+
+        private bool databaseExists(string dbName, Server server)
+        {
+            server.Databases.Refresh();
+            bool dbFound = false;
+            foreach (Database db in server.Databases)
+            {
+                if (db.Name == dbName)
+                {
+                    dbFound = true;
+                    break;
+                }
+            }
+            return dbFound;
+        }
+
+        private void dropDatabase(Server server, string databaseName)
+        {
+            server.Databases.Refresh();
+            foreach (Database db in server.Databases)
+            {
+                if (db.Name == databaseName)
+                {
+                    db.DropIfExists();
+                    break;
+                }
             }
         }
     }
