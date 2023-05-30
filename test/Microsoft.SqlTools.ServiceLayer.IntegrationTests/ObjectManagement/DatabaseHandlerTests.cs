@@ -29,7 +29,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
         }
 
-        // Disable Azure test by default since it's not supported for pipeline tests
         [Test]
         [Ignore("Test is not supported in the integration test pipeline.")]
         public async Task DatabaseCreateAndUpdateTest_Azure()
@@ -74,7 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public async Task DatabaseScriptTest()
         {
-            // setup, drop database if exists.
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
             using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
             {
@@ -86,7 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
                 try
                 {
-                    // create and update
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     var script = await ObjectManagementTestUtils.ScriptObject(parametersForCreation, testDatabase);
                     Assert.True(!databaseExists(testDatabase.Name!, server), $"Database should not have been created for scripting operation");
@@ -94,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 }
                 finally
                 {
-                    // Cleanup database on the off-change that scripting somehow created the database
+                    // Cleanup database on the off-chance that scripting somehow created the database
                     dropDatabase(server, testDatabase.Name!);
                 }
             }
@@ -121,7 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public async Task DatabaseAlreadyExistsErrorTest()
         {
-            // setup, drop database if exists.
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
             using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
             {
