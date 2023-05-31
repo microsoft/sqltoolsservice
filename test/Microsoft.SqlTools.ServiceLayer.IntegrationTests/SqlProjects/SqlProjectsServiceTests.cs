@@ -544,7 +544,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(SystemDatabase.MSDB, msdbRef.SystemDb, "Referenced system DB");
             Assert.AreEqual("EmEssDeeBee", msdbRef.DatabaseVariableLiteralName);
             Assert.IsFalse(msdbRef.SuppressMissingDependencies, nameof(msdbRef.SuppressMissingDependencies));
-            Assert.AreEqual(ReferenceType.ArtifactReference, msdbRef.ReferenceStyle);
+            Assert.AreEqual(ReferenceType.ArtifactReference, msdbRef.ReferenceType);
 
             // Package reference
             await service.HandleAddSystemDatabaseReferenceRequest(new AddSystemDatabaseReferenceParams()
@@ -560,7 +560,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             SystemDatabaseReference masterRef = (SystemDatabaseReference)service.Projects[projectUri].DatabaseReferences.Get(SystemDatabase.Master.ToString());
             Assert.AreEqual(SystemDatabase.Master, masterRef.SystemDb, "Referenced system DB");
             Assert.IsFalse(masterRef.SuppressMissingDependencies, nameof(masterRef.SuppressMissingDependencies));
-            Assert.AreEqual(ReferenceType.PackageReference, masterRef.ReferenceStyle);
+            Assert.AreEqual(ReferenceType.PackageReference, masterRef.ReferenceType);
         }
 
         [Test]
