@@ -6,8 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
@@ -307,6 +305,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
+        /// <summary>
+        /// Get supported database collations for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the collations. The first element will be "<default>" if this is either a new database or a Sphinx server.
         private string[] GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var collationItems = new List<string>();
@@ -345,11 +347,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return collationItems.ToArray();
         }
 
+        /// <summary>
+        /// Gets the prototype's current collation.
+        /// </summary>
         private string[] GetCollationsWithPrototypeCollation(DatabasePrototype prototype)
         {
             return new string[] { prototype.Collation };
         }
 
+        /// <summary>
+        /// Get supported database containment types for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the containment types. This array is empty if containment types are not supported for this server.</returns>
         private string[] GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
             // Containment types are only supported for Denali and later, and only if the server is not a managed instance
@@ -392,6 +401,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return containmentTypes.ToArray();
         }
 
+        /// <summary>
+        /// Get supported database recovery models for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the recovery models. This array is empty if recovery models are not supported for this server.</returns>
         private string[] GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
             // Recovery models are only supported if the server is shiloh or later and is not a Managed Instance
@@ -450,6 +463,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return recoveryModels.ToArray();
         }
 
+        /// <summary>
+        /// Get supported database compatibility levels for this Azure server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if the database has a compatibility level we don't recognize.</returns>
         private string[] GetCompatibilityLevelsAzure(DatabasePrototype prototype)
         {
             // For Azure we loop through all of the possible compatibility levels. We do this because there's only one compat level active on a
@@ -468,6 +485,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Array.Empty<string>();
         }
 
+        /// <summary>
+        /// Get supported database compatibility levels for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if this is either a Sphinx server or if the database has a compatibility level we don't recognize.</returns>
         private string[] GetCompatibilityLevels(int sqlServerVersion, DatabasePrototype prototype)
         {
             // Unlikely that we are hitting such an old SQL Server, but leaving to preserve
