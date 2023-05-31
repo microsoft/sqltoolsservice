@@ -18,6 +18,7 @@ using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -37,8 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
-
-        private static readonly HashSet<char> illegalFilenameCharacters = new HashSet<char>(new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' });
 
         static DatabaseHandler()
         {
@@ -74,6 +73,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 recoveryModelEnums.Add(displayRecoveryModels[key], key);
             }
+        }
+
+        public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
+        {
         }
 
         public override bool CanHandleType(SqlObjectType objectType)
@@ -233,7 +236,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // Update database file names now that we have a database name
                         if (!prototype.HideFileSettings)
                         {
-                            var sanitizedName = SanitizeFileName(prototype.Name);
+                            var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
                             var dataFile = prototype.Files[0];
                             Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
@@ -296,22 +299,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Removes invalid characters from a filename string, replacing each invalid character with an underscore.
-        /// </summary>
-        private static string SanitizeFileName(string fileName)
-        {
-            char[] nameChars = fileName.ToCharArray();
-            for (int i = 0; i < nameChars.Length; i++)
-            {
-                if (illegalFilenameCharacters.Contains(nameChars[i]))
-                {
-                    nameChars[i] = '_';
-                }
-            }
-            return new string(nameChars);
         }
 
         private bool IsManagedInstance(Server server)
