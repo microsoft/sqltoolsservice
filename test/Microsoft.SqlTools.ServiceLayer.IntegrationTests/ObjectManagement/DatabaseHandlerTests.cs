@@ -56,19 +56,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     // create and update
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+                    Assert.True(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
 
                     var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", false, SqlObjectType.Database, "", objUrn);
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
-                    Assert.False(databaseExists(testDatabase.Name!, server), $"Database '{testDatabase.Name}' was not dropped succesfully");
+                    Assert.False(DatabaseExists(testDatabase.Name!, server), $"Database '{testDatabase.Name}' was not dropped succesfully");
                 }
                 finally
                 {
                     // Cleanup using SMO if Drop didn't work
-                    dropDatabase(server, testDatabase.Name!);
+                    DropDatabase(server, testDatabase.Name!);
                 }
             }
         }
@@ -92,13 +92,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     var script = await ObjectManagementTestUtils.ScriptObject(parametersForCreation, testDatabase);
-                    Assert.True(!databaseExists(testDatabase.Name!, server), $"Database should not have been created for scripting operation");
+                    Assert.True(!DatabaseExists(testDatabase.Name!, server), $"Database should not have been created for scripting operation");
                     Assert.True(script.ToLowerInvariant().Contains($"create database [{testDatabase.Name!.ToLowerInvariant()}]"));
                 }
                 finally
                 {
                     // Cleanup database on the off-chance that scripting somehow created the database
-                    dropDatabase(server, testDatabase.Name!);
+                    DropDatabase(server, testDatabase.Name!);
                 }
             }
         }
@@ -143,7 +143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
-                    Assert.True(databaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+                    Assert.True(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
 
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
                     Assert.Fail("Did not throw an exception when trying to create database with same name.");
@@ -157,12 +157,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 }
                 finally
                 {
-                    dropDatabase(server, testDatabase.Name!);
+                    DropDatabase(server, testDatabase.Name!);
                 }
             }
         }
 
-        private bool databaseExists(string dbName, Server server)
+        private bool DatabaseExists(string dbName, Server server)
         {
             server.Databases.Refresh();
             bool dbFound = false;
@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return dbFound;
         }
 
-        private void dropDatabase(Server server, string databaseName)
+        private void DropDatabase(Server server, string databaseName)
         {
             server.Databases.Refresh();
             foreach (Database db in server.Databases)
