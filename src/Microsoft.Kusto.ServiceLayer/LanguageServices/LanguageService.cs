@@ -129,7 +129,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue("LanguageService", _bindingQueue);
+                    connectionService.RegisterConnectedQueue(Constants.languageServiceFeature, _bindingQueue);
                 }
                 return connectionService;
             }
@@ -557,7 +557,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                _bindingQueue.AddConnectionContext(connInfo, true, featureName: "LanguageService", overwrite: true);
+                                _bindingQueue.AddConnectionContext(connInfo, true, featureName: Constants.languageServiceFeature, overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                                 UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
@@ -677,7 +677,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = _bindingQueue.AddConnectionContext(connInfo, true,"languageService");
+                        scriptInfo.ConnectionKey = _bindingQueue.AddConnectionContext(connInfo, true, Constants.languageServiceFeature);
                         scriptInfo.IsConnected = _bindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)

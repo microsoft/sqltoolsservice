@@ -172,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue("LanguageService", bindingQueue);
+                    connectionService.RegisterConnectedQueue(Constants.languageServiceFeature, bindingQueue);
                 }
                 return connectionService;
             }
@@ -720,7 +720,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
+                                this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.languageServiceFeature, overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                                 UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
@@ -1004,7 +1004,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, "languageService");
+                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.languageServiceFeature);
                         scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)
