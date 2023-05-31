@@ -140,12 +140,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
                             }
 
-                            // These aren't visible when the target DB is on Azure so only populate if it's not an Azure DB
+                            // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
                             databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
                             databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
                         }
 
-                        // Skip adding logins for the Owner field if running against an Azure SQL DB
+                        // Skip adding logins if running against an Azure SQL DB
                         if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
                         {
                             var logins = new List<string>();
@@ -333,13 +333,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var collationItems = new List<string>();
             bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
 
-            // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
+            // if we're creating a new database or this is a Sphinx Server, add "<default>" to the list
             if (isNewObject || isSphinxServer)
             {
                 collationItems.Add(SR.general_default);
             }
 
-            // if the server is shiloh or later, add specific collations to the dropdown
+            // if the server is shiloh or later, add specific collations to the list
             if (!isSphinxServer)
             {
                 DataTable serverCollationsTable = server.EnumCollations();
@@ -418,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string[] GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
-            // if the server is shiloh or later, but not Managed Instance, enable the dropdown
+            // Recovery models are only supported if the server is shiloh or later and is not a Managed Instance
             var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !IsAnyManagedInstance(server);
             if (server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
@@ -426,12 +426,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             var recoveryModels = new List<string>();
-            // Note: we still discriminate on IsAnyManagedInstance(server) because GetDisabledProperties()
-            //       was not updated to handle SQL Managed Instance.
             if (!IsAnyManagedInstance(server))
             {
 
-                // add recovery model options to the dropdown
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.Full]);
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.BulkLogged]);
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.Simple]);
@@ -486,7 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 if (level == prototype.DatabaseCompatibilityLevel)
                 {
-                    // Azure can't change the compat level so we only populate the current version
+                    // Azure can't change the compat level so we only include the current version
                     return new string[] { this.displayCompatLevels[level] };
                 }
             }
@@ -569,7 +566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     break;
             }
 
-            // set the compatability level for this combo box based on the prototype
+            // set the first compatability level for this list based on the prototype
             for (var i = 0; i < compatibilityLevels.Count; i++)
             {
                 var level = compatibilityLevels[i];
@@ -585,8 +582,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            // previous loop did not find the prototype compatibility level in this server's compatability options
-            // disable the compatability level option
+            // previous loop did not find the prototype compatibility level in this server's compatability options, so treat compatibility levels as unsupported for this server
             return Array.Empty<string>();
         }
     }
