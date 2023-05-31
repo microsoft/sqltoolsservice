@@ -3,18 +3,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-// using BenchmarkDotNet.Attributes;
+using System.Linq;
 using BenchmarkDotNet.Running;
-using Microsoft.SqlTools.ServiceLayer.Benchmarks.Test;
 
 namespace Microsoft.SqlTools.ServiceLayer.Benchmarks
 {
-    public class Program
+    public class ObjectExplorerBenchmarks
     {
         public static void Main(string[] args)
         {
-            // Use BenchmarkRunner.Run to Benchmark your code
-            var summary = BenchmarkRunner.Run<Sha512VsSha256>();
+            var runAllTests = args.Length == 0;
+
+            if (runAllTests || args.Contains("objectExplorer"))
+            {
+                BenchmarkRunner.Run<ObjectExplorerPerformance>();
+            }
         }
-    }
+    }    
 }

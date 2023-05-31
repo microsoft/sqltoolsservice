@@ -8,11 +8,12 @@
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 		<RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
-		<StartupObject>Microsoft.SqlTools.ServiceLayer.Benchmarks.Program</StartupObject>
+		<StartupObject>Microsoft.SqlTools.ServiceLayer.Benchmarks.ObjectExplorerBenchmarks</StartupObject>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="System.Data.SqlClient" />
   </ItemGroup>
 </Project>
