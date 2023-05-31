@@ -75,6 +75,7 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Benchmarks" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
