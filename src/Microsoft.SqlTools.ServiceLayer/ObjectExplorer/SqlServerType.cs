@@ -42,10 +42,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// </summary>
         public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database = null)
         {
-            var isSqlDw = false;
+            bool isSqlDw = false;
             try
             {
-                isSqlDw = database.IsSqlDw;
+                // Database could be null here, handle NRE first.
+                if (database != null)
+                {
+                    isSqlDw = database.IsSqlDw;
+                }
             }
             catch (Exception e)
             {
@@ -54,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 Logger.Information($"This exception is expected when we are trying to access a readonly database. Exception: {e.Message}");
             }
 
-            return GetValidForFlag(serverType, database != null && isSqlDw);
+            return GetValidForFlag(serverType, isSqlDw);
         }
 
         /// <summary>
