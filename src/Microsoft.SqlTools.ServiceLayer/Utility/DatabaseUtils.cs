@@ -19,7 +19,7 @@ using System.Security;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
-    public class DatabaseUtils
+    public static class DatabaseUtils
     {
         /// <summary>
         /// Check if the database is a system database

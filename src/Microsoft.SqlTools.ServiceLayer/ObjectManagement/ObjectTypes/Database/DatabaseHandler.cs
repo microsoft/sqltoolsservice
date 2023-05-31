@@ -307,21 +307,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        private bool IsManagedInstance(Server server)
-        {
-            return server?.Information?.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
-        }
-
-        private bool IsArcEnabledManagedInstance(Server server)
-        {
-            return server?.Information?.DatabaseEngineEdition == DatabaseEngineEdition.SqlAzureArcManagedInstance;
-        }
-
-        private bool IsAnyManagedInstance(Server server)
-        {
-            return (IsManagedInstance(server) || IsArcEnabledManagedInstance(server));
-        }
-
         private string[] GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var collationItems = new List<string>();
@@ -366,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string[] GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
-            if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || IsAnyManagedInstance(server))
+            if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || server.IsAnyManagedInstance())
             {
                 return Array.Empty<string>();
             }
@@ -408,14 +393,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private string[] GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
             // Recovery models are only supported if the server is shiloh or later and is not a Managed Instance
-            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !IsAnyManagedInstance(server);
+            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !server.IsAnyManagedInstance();
             if (server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
                 return Array.Empty<string>();
             }
 
             var recoveryModels = new List<string>();
-            if (!IsAnyManagedInstance(server))
+            if (!server.IsAnyManagedInstance())
             {
 
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.Full]);
