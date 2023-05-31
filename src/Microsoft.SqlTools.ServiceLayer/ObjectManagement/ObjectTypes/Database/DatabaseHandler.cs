@@ -380,7 +380,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     swapIndex = 1;
                     break;
                 default:
-                    Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unexpected containment type '{0}'", dbContainmentType));
                     break;
             }
             if (swapIndex > 0)
@@ -465,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown compatibility level '{0}'", prototype.DatabaseCompatibilityLevel));
+            // If we couldn't find the prototype's current compatibility level, then treat compatibillity levels as unsupported for this server
             return Array.Empty<string>();
         }
 
