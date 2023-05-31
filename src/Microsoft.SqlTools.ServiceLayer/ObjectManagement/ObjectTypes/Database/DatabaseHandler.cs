@@ -334,6 +334,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             if (prototype.Exists)
             {
+                // Put the prototype's current collation at the front of the list
                 int index = collationItems.FindIndex(collation => collation.Equals(prototype.Collation, StringComparison.InvariantCultureIgnoreCase));
                 if (index > 0)
                 {
@@ -351,6 +352,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private string[] GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
+            // Containment types are only supported for Denali and later, and only if the server is not a managed instance
             if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || server.IsAnyManagedInstance())
             {
                 return Array.Empty<string>();
@@ -368,6 +370,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             containmentTypes.Add(displayContainmentTypes[ContainmentType.None]);
             containmentTypes.Add(displayContainmentTypes[ContainmentType.Partial]);
 
+            // Put the prototype's current containment type at the front of the list
             var swapIndex = 0;
             switch (dbContainmentType)
             {
@@ -421,6 +424,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+            // Put the prototype's current recovery model at the front of the list
             if (recoveryModelEnabled)
             {
                 var swapIndex = 0;
