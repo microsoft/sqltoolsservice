@@ -239,13 +239,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
                             var dataFile = prototype.Files[0];
-                            Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
+                            if (dataFile.DatabaseFileType != FileType.Data)
+                            {
+                                throw new InvalidOperationException("Database prototype's first file was not a Data file.");
+                            }
                             dataFile.Name = sanitizedName;
 
                             if (prototype.NumberOfLogFiles > 0)
                             {
                                 var logFile = prototype.Files[1];
-                                Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
+                                if (logFile.DatabaseFileType != FileType.Log)
+                                {
+                                    throw new InvalidOperationException("Database prototype's second file was not a Log file.");
+                                }
                                 logFile.Name = $"{sanitizedName}_log";
                             }
                         }
@@ -343,11 +349,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             if (prototype.Exists)
             {
-                System.Diagnostics.Debug.Assert(((prototype.Collation != null) && (prototype.Collation.Length != 0)),
-                    "prototype.Collation is null");
-                System.Diagnostics.Debug.Assert(collationItems.Contains(prototype.Collation),
-                    "prototype.Collation is not in the collation list");
-
                 int index = collationItems.FindIndex(collation => collation.Equals(prototype.Collation, StringComparison.InvariantCultureIgnoreCase));
                 if (index > 0)
                 {
@@ -449,7 +450,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         break;
 
                     default:
-                        Debug.Assert(RecoveryModel.Full == prototype.RecoveryModel, string.Format(CultureInfo.InvariantCulture, "Unknown recovery model '{0}'", prototype.RecoveryModel));
                         break;
                 }
                 if (swapIndex > 0)
