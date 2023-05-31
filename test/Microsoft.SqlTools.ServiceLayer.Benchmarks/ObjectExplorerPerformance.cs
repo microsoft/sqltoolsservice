@@ -4,12 +4,10 @@
 //
 
 using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 
