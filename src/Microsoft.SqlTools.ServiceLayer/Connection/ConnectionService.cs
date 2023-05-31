@@ -1837,7 +1837,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
-                bool shouldForceDisablePooling = featureName != Constants.languageServiceFeature;
+                bool shouldForceDisablePooling = featureName != Constants.LanguageServiceFeature;
 
                 // increase the connection and command timeout to at least 30 seconds and and build connection string
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);

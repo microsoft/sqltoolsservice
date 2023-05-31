@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public static readonly string SqlLoginAuthenticationType = "SqlLogin";
 
         // Feature names
-        public static readonly string languageServiceFeature = "languageService";
+        public static readonly string LanguageServiceFeature = "languageService";
 
         static Constants()
         {
