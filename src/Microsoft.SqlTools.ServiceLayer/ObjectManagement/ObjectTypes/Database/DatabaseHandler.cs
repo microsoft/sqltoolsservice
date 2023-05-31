@@ -4,20 +4,20 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Admin;
+using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
-using System.Globalization;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
