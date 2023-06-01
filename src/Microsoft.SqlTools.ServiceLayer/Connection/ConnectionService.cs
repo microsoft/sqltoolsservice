@@ -1329,17 +1329,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails)
+        /// <param name="connectionDetails">Connection details</param>
+        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
+        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
         {
-            return CreateConnectionStringBuilder(connectionDetails).ToString();
+            return CreateConnectionStringBuilder(connectionDetails, forceDisablePooling).ToString();
         }
 
         /// <summary>
         /// Build a connection string builder a connection details instance
         /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
+        /// <param name="connectionDetails">Connection details</param>
+        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -1579,7 +1581,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
-            connectionBuilder.Pooling = false;
+            if (forceDisablePooling)
+            {
+                connectionBuilder.Pooling = false;
+            }
 
             return connectionBuilder;
         }
@@ -1833,17 +1838,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
+                // allow pooling connections for language service feature to improve intellisense connection retention and performance.
+                bool shouldForceDisablePooling = featureName != Constants.LanguageServiceFeature;
+
                 // increase the connection and command timeout to at least 30 seconds and and build connection string
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
                 connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, originalCommandTimeout ?? 0);
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
+
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                connInfo.ConnectionDetails.Pooling = false;
+                if (shouldForceDisablePooling) {
+                    connInfo.ConnectionDetails.Pooling = false;
+                }
                 connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
 
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
 
                 // restore original values
                 connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
