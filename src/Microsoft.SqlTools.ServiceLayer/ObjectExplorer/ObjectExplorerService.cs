@@ -790,7 +790,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             string sessionUri = LookupUriFromQueueKey(queueKey);
             if (!string.IsNullOrWhiteSpace(sessionUri))
             {
-                await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
+                if (ex.GetType() == typeof(ConnectionFailureException))
+                {
+                    await SendSessionFailedNotification(uri: sessionUri, errorMessage: ex.ToString(), errorCode: null);
+                }
+                else
+                {
+                    await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
+                }
             }
         }
 
