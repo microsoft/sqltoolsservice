@@ -388,7 +388,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
-            string errorMessage = string.Empty;
 
             // Performance Optimization for table designer to load the database model earlier based on user configuration.
             if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
@@ -461,21 +460,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    catch (ConnectionFailureException ex)
                                    {
                                        Logger.Error($"Failed to expand node: {ex.InnerException.Message}");
-                                       var node = new NodeInfo()
+                                       var errorNode = new NodeInfo()
                                        {
                                            ParentNodePath = nodePath,
                                            ErrorMessage = ex.InnerException.Message,
-                                           Label = "Error",
+                                           Label = ex.InnerException.Message,
                                            ObjectType = "error",
                                            NodeType = "error",
                                            IsLeaf = true
                                        };
-                                       nodes = new NodeInfo[]{ node };
-                                       errorMessage = ex.InnerException.Message;
+                                       nodes = new NodeInfo[]{ errorNode };
                                    }
                                }
                                response.Nodes = nodes;
-                               response.ErrorMessage = !string.IsNullOrWhiteSpace(errorMessage) ? errorMessage : node.ErrorMessage;
+                               response.ErrorMessage = node.ErrorMessage;
                                try
                                {
                                    // SMO changes the database when getting sql objects. Make sure the database is changed back to the original one
