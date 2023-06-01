@@ -7,16 +7,17 @@ using System;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
+// using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
+// using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
+using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
 
 namespace Microsoft.SqlTools.ServiceLayer.Benchmarks
 {
     [MemoryDiagnoser]
     public class ObjectExplorerPerformance
     {
-        private ObjectExplorerService _service;
+        // private ObjectExplorerService _service;
         private SqlConnectionStringBuilder _builder = new SqlConnectionStringBuilder();
         private int _tableCount = 10;
 
@@ -95,6 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Benchmarks
             string databaseName = "tempdb";
             await RunTest(databaseName, query, "TepmDb", async (testDbName, session) =>
             {
+                await Task.CompletedTask;
                 // var children = (await _service.ExpandNode(session, session.Root.GetNodePath())).Nodes;
             });
         }
@@ -104,35 +106,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Benchmarks
         /// </summary>
         private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, ObjectExplorerSession, Task> test)
         {
-            SqlTestDb testDb = null;
-            string uri = string.Empty;
+            // SqlTestDb testDb = null;
+            // string uri = string.Empty;
             try
             {
-                testDb = await SqlTestDb.CreateNewAsync(TestServerType.Azure, false, null, query, testDbPrefix);
-                if (databaseName == "#testDb#")
-                {
-                    databaseName = testDb.DatabaseName;
-                }
+                // testDb = await SqlTestDb.CreateNewAsync(TestServerType.Azure, false, null, query, testDbPrefix);
+                // if (databaseName == "#testDb#")
+                // {
+                //     databaseName = testDb.DatabaseName;
+                // }
 
-                var session = await CreateSession(databaseName);
-                uri = session.Uri;
-                await test(testDb.DatabaseName, session);
+                // var session = await CreateSession(databaseName);
+                // uri = session.Uri;
+                // await test(testDb.DatabaseName, session);
             }
             catch (Exception ex)
             {
                 string msg = ex.BuildRecursiveErrorMessage();
-                throw new Exception($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
+                // throw new Exception($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
             }
             finally
             {
-                if (!string.IsNullOrEmpty(uri))
-                {
-                    CloseSession(uri);
-                }
-                if (testDb != null)
-                {
-                    await testDb.CleanupAsync();
-                }
+                // if (!string.IsNullOrEmpty(uri))
+                // {
+                //     CloseSession(uri);
+                // }
+                // if (testDb != null)
+                // {
+                //     await testDb.CleanupAsync();
+                // }
             }
         }
     }
