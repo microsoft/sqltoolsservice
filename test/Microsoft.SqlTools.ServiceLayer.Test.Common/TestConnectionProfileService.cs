@@ -195,6 +195,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 connectParams.Connection.DatabaseName = databaseName;
                 connectParams.Connection.DatabaseDisplayName = databaseName;
             }
+
+            if (!string.IsNullOrEmpty(connectionProfile.TrustServerCertificate))
+            {
+                connectParams.Connection.TrustServerCertificate = bool.Parse(connectionProfile.TrustServerCertificate);
+            }
+
             if (key == SqlAzureInstanceKey || key == SqlAzureInstanceKey)
             {
                 connectParams.Connection.ConnectTimeout = 30;

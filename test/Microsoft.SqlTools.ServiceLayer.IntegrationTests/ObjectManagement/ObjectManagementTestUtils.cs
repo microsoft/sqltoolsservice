@@ -41,6 +41,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return string.Format(@"{0}\{1}", Environment.UserDomainName, Environment.UserName);
         }
 
+        internal static string GetDatabaseURN(string name)
+        {
+            return string.Format("Server/Database[@Name='{0}']", name);
+        }
+
         internal static string GetLoginURN(string name)
         {
             return string.Format("Server/Login[@Name='{0}']", name);
@@ -54,6 +59,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         internal static string GetCredentialURN(string name)
         {
             return string.Format("Server/Credential[@Name = '{0}']", name);
+        }
+
+        internal static DatabaseInfo GetTestDatabaseInfo()
+        {
+            return new DatabaseInfo()
+            {
+                Name = "TestDatabaseName_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                Owner = "<default>",
+                CollationName = "SQL_Latin1_General_CP1_CI_AS",
+                CompatibilityLevel = "SQL Server 2022 (160)",
+                ContainmentType = "None",
+                RecoveryModel = "Full"
+            };
         }
 
         internal static LoginInfo GetTestLoginInfo()
@@ -134,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
         }
 
-        internal static async Task ScriptObject(InitializeViewRequestParams parameters, SqlObject obj)
+        internal static async Task<string> ScriptObject(InitializeViewRequestParams parameters, SqlObject obj)
         {
             // Initialize the view
             var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
@@ -143,9 +161,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
 
             // Script the object
+            string script = string.Empty;
             var scriptObjectRequestContext = new Mock<RequestContext<string>>();
-            scriptObjectRequestContext.Setup(x => x.SendResult(It.IsAny<string>()))
-                .Returns(Task.FromResult<string>(""));
+            scriptObjectRequestContext
+                .Setup(x => x.SendResult(It.IsAny<string>()))
+                .Returns(Task.FromResult<string>(""))
+                .Callback<string>(scriptResult => script = scriptResult);
             await Service.HandleScriptObjectRequest(new ScriptObjectRequestParams { ContextId = parameters.ContextId, Object = JToken.FromObject(obj) }, scriptObjectRequestContext.Object);
 
             // Dispose the view
@@ -153,14 +174,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
                 .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+
+            return script;
         }
 
-        internal static async Task DropObject(string connectionUri, string objectUrn)
+        internal static async Task DropObject(string connectionUri, string objectUrn, bool throwIfNotExist = false)
         {
             var dropParams = new DropRequestParams
             {
                 ConnectionUri = connectionUri,
-                ObjectUrn = objectUrn
+                ObjectUrn = objectUrn,
+                ThrowIfNotExist = throwIfNotExist
             };
 
             var dropRequestContext = new Mock<RequestContext<DropRequestResponse>>();

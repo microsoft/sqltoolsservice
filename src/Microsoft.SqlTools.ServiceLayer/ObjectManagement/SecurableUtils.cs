@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 SecurableTypeMetadata metadata = new SecurableTypeMetadata()
                 {
                     Name = desc.DisplayTypeNameSingular,
-                    DisplayName = desc.DisplayTypeNamePlural,
+                    DisplayName = desc.DisplayTypeNameSingular,
                     Permissions = permissions
                 };
                 res.Add(metadata);
