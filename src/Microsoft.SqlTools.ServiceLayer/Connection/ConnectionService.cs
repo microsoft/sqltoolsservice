@@ -1329,7 +1329,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
-        /// <param name="connectionDetails"></param>
+        /// <param name="connectionDetails">Connection details</param>
+        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
         {
             return CreateConnectionStringBuilder(connectionDetails, forceDisablePooling).ToString();
@@ -1338,7 +1339,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Build a connection string builder a connection details instance
         /// </summary>
-        /// <param name="connectionDetails"></param>
+        /// <param name="connectionDetails">Connection details</param>
+        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
         public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
         {
             SqlConnectionStringBuilder connectionBuilder;
