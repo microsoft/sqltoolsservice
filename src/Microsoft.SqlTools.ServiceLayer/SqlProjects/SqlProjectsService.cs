@@ -385,7 +385,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 new SystemDatabaseReference(
                     requestParams.SystemDatabase,
                     requestParams.SuppressMissingDependencies,
-                    requestParams.DatabaseLiteral)),
+                    requestParams.DatabaseLiteral,
+                    requestParams.ReferenceType)),
                 requestContext);
         }
 
