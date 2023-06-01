@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -388,6 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
+            string errorMessage = string.Empty;
 
             // Performance Optimization for table designer to load the database model earlier based on user configuration.
             if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
@@ -453,10 +454,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
-                                   nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   try
+                                   {
+                                       nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   }
+                                   catch (ConnectionFailureException ex)
+                                   {
+                                       Logger.Error($"Failed to expand node: {ex.InnerException.Message}");
+                                       var node = new NodeInfo()
+                                       {
+                                           ParentNodePath = nodePath,
+                                           ErrorMessage = ex.InnerException.Message,
+                                           Label = "Error",
+                                           ObjectType = "error",
+                                           NodeType = "error",
+                                           IsLeaf = true
+                                       };
+                                       nodes = new NodeInfo[]{ node };
+                                       errorMessage = ex.InnerException.Message;
+                                   }
                                }
                                response.Nodes = nodes;
-                               response.ErrorMessage = node.ErrorMessage;
+                               response.ErrorMessage = !string.IsNullOrWhiteSpace(errorMessage) ? errorMessage : node.ErrorMessage;
                                try
                                {
                                    // SMO changes the database when getting sql objects. Make sure the database is changed back to the original one
