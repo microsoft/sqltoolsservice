@@ -19,7 +19,7 @@ using System.Security;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
-    public class DatabaseUtils
+    public static class DatabaseUtils
     {
         /// <summary>
         /// Check if the database is a system database
@@ -328,5 +328,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                 return new string[0];
             }
         }
+
+        /// <summary>
+        /// Removes invalid characters from a filename string, replacing each invalid character with an underscore.
+        /// </summary>
+        public static string SanitizeDatabaseFileName(string fileName)
+        {
+            char[] nameChars = fileName.ToCharArray();
+            for (int i = 0; i < nameChars.Length; i++)
+            {
+                if (illegalFilenameCharacters.Contains(nameChars[i]))
+                {
+                    nameChars[i] = '_';
+                }
+            }
+            return new string(nameChars);
+        }
+        private static readonly HashSet<char> illegalFilenameCharacters = new HashSet<char>(new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' });
     }
 }

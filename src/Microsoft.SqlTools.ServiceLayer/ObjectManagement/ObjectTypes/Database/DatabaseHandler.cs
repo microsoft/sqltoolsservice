@@ -6,8 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
@@ -18,6 +16,7 @@ using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -30,17 +29,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private const int minimumVersionForRecoveryModel = 8;
         private const string serverNotExistsError = "Server was not created for data container";
 
-        private readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
-        private readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
-        private readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
+        private static readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
+        private static readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
+        private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
 
-        private readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
-        private readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
-        private readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
+        private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
+        private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
+        private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
 
-        private readonly HashSet<char> illegalFilenameCharacters = new HashSet<char>(new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' });
-
-        public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
+        static DatabaseHandler()
         {
             displayCompatLevels.Add(CompatibilityLevel.Version70, SR.compatibilityLevel_sphinx);
             displayCompatLevels.Add(CompatibilityLevel.Version80, SR.compatibilityLevel_shiloh);
@@ -60,19 +57,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRecoveryModels.Add(RecoveryModel.BulkLogged, SR.general_recoveryModel_bulkLogged);
             displayRecoveryModels.Add(RecoveryModel.Simple, SR.general_recoveryModel_simple);
 
-            // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later.
+            // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
             foreach (CompatibilityLevel key in displayCompatLevels.Keys)
             {
                 compatLevelEnums.Add(displayCompatLevels[key], key);
             }
+            foreach (ContainmentType key in displayContainmentTypes.Keys)
+            {
+                containmentTypeEnums.Add(displayContainmentTypes[key], key);
+            }
+            foreach (RecoveryModel key in displayRecoveryModels.Keys)
+            {
+                recoveryModelEnums.Add(displayRecoveryModels[key], key);
+            }
+        }
 
-            containmentTypeEnums.Add(displayContainmentTypes[ContainmentType.None], ContainmentType.None);
-            containmentTypeEnums.Add(displayContainmentTypes[ContainmentType.Partial], ContainmentType.Partial);
-
-            recoveryModelEnums.Add(displayRecoveryModels[RecoveryModel.Full], RecoveryModel.Full);
-            recoveryModelEnums.Add(displayRecoveryModels[RecoveryModel.BulkLogged], RecoveryModel.BulkLogged);
-            recoveryModelEnums.Add(displayRecoveryModels[RecoveryModel.Simple], RecoveryModel.Simple);
+        public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
+        {
         }
 
         public override bool CanHandleType(SqlObjectType objectType)
@@ -140,12 +142,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
                             }
 
-                            // These aren't visible when the target DB is on Azure so only populate if it's not an Azure DB
+                            // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
                             databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
                             databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
                         }
 
-                        // Skip adding logins for the Owner field if running against an Azure SQL DB
+                        // Skip adding logins if running against an Azure SQL DB
                         if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
                         {
                             var logins = new List<string>();
@@ -232,16 +234,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // Update database file names now that we have a database name
                         if (!prototype.HideFileSettings)
                         {
-                            var sanitizedName = SanitizeFileName(prototype.Name);
+                            var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
                             var dataFile = prototype.Files[0];
-                            Debug.Assert(dataFile.DatabaseFileType == FileType.Data, "Expected first database file to be a data file for new database prototype.");
+                            if (dataFile.DatabaseFileType != FileType.Data)
+                            {
+                                throw new InvalidOperationException("Database prototype's first file was not a Data file.");
+                            }
                             dataFile.Name = sanitizedName;
 
                             if (prototype.NumberOfLogFiles > 0)
                             {
                                 var logFile = prototype.Files[1];
-                                Debug.Assert(dataFile.DatabaseFileType == FileType.Log, "Expected first database file to be a log file for new database prototype");
+                                if (logFile.DatabaseFileType != FileType.Log)
+                                {
+                                    throw new InvalidOperationException("Database prototype's second file was not a Log file.");
+                                }
                                 logFile.Name = $"{sanitizedName}_log";
                             }
                         }
@@ -298,48 +306,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
-        /// Removes invalid characters from a filename string, replacing each invalid character with an underscore.
+        /// Get supported database collations for this server.
         /// </summary>
-        private string SanitizeFileName(string fileName)
-        {
-            char[] nameChars = fileName.ToCharArray();
-            for (int i = 0; i < nameChars.Length; i++)
-            {
-                if (illegalFilenameCharacters.Contains(nameChars[i]))
-                {
-                    nameChars[i] = '_';
-                }
-            }
-            return new string(nameChars);
-        }
-
-        private bool IsManagedInstance(Server server)
-        {
-            return server?.Information?.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
-        }
-
-        private bool IsArcEnabledManagedInstance(Server server)
-        {
-            return server?.Information?.DatabaseEngineEdition == DatabaseEngineEdition.SqlAzureArcManagedInstance;
-        }
-
-        private bool IsAnyManagedInstance(Server server)
-        {
-            return (IsManagedInstance(server) || IsArcEnabledManagedInstance(server));
-        }
-
+        /// <returns>A string array containing the display names of the collations. The first element will be "<default>" if this is either a new database or a Sphinx server.
         private string[] GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var collationItems = new List<string>();
             bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
 
-            // if we're creating a new database or this is a Sphinx Server, add "<default>" to the dropdown
+            // if we're creating a new database or this is a Sphinx Server, add "<default>" to the list
             if (isNewObject || isSphinxServer)
             {
                 collationItems.Add(SR.general_default);
             }
 
-            // if the server is shiloh or later, add specific collations to the dropdown
+            // if the server is shiloh or later, add specific collations to the list
             if (!isSphinxServer)
             {
                 DataTable serverCollationsTable = server.EnumCollations();
@@ -355,11 +336,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             if (prototype.Exists)
             {
-                System.Diagnostics.Debug.Assert(((prototype.Collation != null) && (prototype.Collation.Length != 0)),
-                    "prototype.Collation is null");
-                System.Diagnostics.Debug.Assert(collationItems.Contains(prototype.Collation),
-                    "prototype.Collation is not in the collation list");
-
+                // Put the prototype's current collation at the front of the list
                 int index = collationItems.FindIndex(collation => collation.Equals(prototype.Collation, StringComparison.InvariantCultureIgnoreCase));
                 if (index > 0)
                 {
@@ -370,14 +347,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return collationItems.ToArray();
         }
 
+        /// <summary>
+        /// Gets the prototype's current collation.
+        /// </summary>
         private string[] GetCollationsWithPrototypeCollation(DatabasePrototype prototype)
         {
             return new string[] { prototype.Collation };
         }
 
+        /// <summary>
+        /// Get supported database containment types for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the containment types. This array is empty if containment types are not supported for this server.</returns>
         private string[] GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
-            if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || IsAnyManagedInstance(server))
+            // Containment types are only supported for Denali and later, and only if the server is not a managed instance
+            if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || server.IsAnyManagedInstance())
             {
                 return Array.Empty<string>();
             }
@@ -394,6 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             containmentTypes.Add(displayContainmentTypes[ContainmentType.None]);
             containmentTypes.Add(displayContainmentTypes[ContainmentType.Partial]);
 
+            // Put the prototype's current containment type at the front of the list
             var swapIndex = 0;
             switch (dbContainmentType)
             {
@@ -403,7 +389,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     swapIndex = 1;
                     break;
                 default:
-                    Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unexpected containment type '{0}'", dbContainmentType));
                     break;
             }
             if (swapIndex > 0)
@@ -416,22 +401,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return containmentTypes.ToArray();
         }
 
+        /// <summary>
+        /// Get supported database recovery models for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the recovery models. This array is empty if recovery models are not supported for this server.</returns>
         private string[] GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
-            // if the server is shiloh or later, but not Managed Instance, enable the dropdown
-            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !IsAnyManagedInstance(server);
+            // Recovery models are only supported if the server is shiloh or later and is not a Managed Instance
+            var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !server.IsAnyManagedInstance();
             if (server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
                 return Array.Empty<string>();
             }
 
             var recoveryModels = new List<string>();
-            // Note: we still discriminate on IsAnyManagedInstance(server) because GetDisabledProperties()
-            //       was not updated to handle SQL Managed Instance.
-            if (!IsAnyManagedInstance(server))
+            if (!server.IsAnyManagedInstance())
             {
 
-                // add recovery model options to the dropdown
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.Full]);
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.BulkLogged]);
                 recoveryModels.Add(displayRecoveryModels[RecoveryModel.Simple]);
@@ -450,6 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+            // Put the prototype's current recovery model at the front of the list
             if (recoveryModelEnabled)
             {
                 var swapIndex = 0;
@@ -464,7 +451,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         break;
 
                     default:
-                        Debug.Assert(RecoveryModel.Full == prototype.RecoveryModel, string.Format(CultureInfo.InvariantCulture, "Unknown recovery model '{0}'", prototype.RecoveryModel));
                         break;
                 }
                 if (swapIndex > 0)
@@ -477,24 +463,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return recoveryModels.ToArray();
         }
 
+        /// <summary>
+        /// Get supported database compatibility levels for this Azure server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if the database has a compatibility level we don't recognize.</returns>
         private string[] GetCompatibilityLevelsAzure(DatabasePrototype prototype)
         {
             // For Azure we loop through all of the possible compatibility levels. We do this because there's only one compat level active on a
             // version at a time, but that can change at any point so in order to reduce maintenance required when that happens we'll just find
             // the one that matches the current set level and display that
-            foreach (var level in this.displayCompatLevels.Keys)
+            foreach (var level in displayCompatLevels.Keys)
             {
                 if (level == prototype.DatabaseCompatibilityLevel)
                 {
-                    // Azure can't change the compat level so we only populate the current version
-                    return new string[] { this.displayCompatLevels[level] };
+                    // Azure can't change the compat level so we only include the current version
+                    return new string[] { displayCompatLevels[level] };
                 }
             }
 
-            Debug.Fail(string.Format(CultureInfo.InvariantCulture, "Unknown compatibility level '{0}'", prototype.DatabaseCompatibilityLevel));
+            // If we couldn't find the prototype's current compatibility level, then treat compatibillity levels as unsupported for this server
             return Array.Empty<string>();
         }
 
+        /// <summary>
+        /// Get supported database compatibility levels for this server.
+        /// </summary>
+        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if this is either a Sphinx server or if the database has a compatibility level we don't recognize.</returns>
         private string[] GetCompatibilityLevels(int sqlServerVersion, DatabasePrototype prototype)
         {
             // Unlikely that we are hitting such an old SQL Server, but leaving to preserve
@@ -509,49 +503,49 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             switch (sqlServerVersion)
             {
                 case 8:     // Shiloh
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version70]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version80]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version70]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version80]);
                     break;
                 case 9:     // Yukon
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version70]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version80]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version90]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version70]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version80]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version90]);
                     break;
                 case 10:    // Katmai
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version80]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version90]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version80]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version90]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
                     break;
                 case 11:    // Denali
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version90]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version90]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
                     break;
                 case 12:    // SQL2014
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version120]);
                     break;
                 case 13:    // SQL2016
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version130]);
                     break;
                 case 14:    // SQL2017
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version140]);
                     break;
                 case 15:    // SQL2019
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version140]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version150]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version150]);
                     break;
                 /* SQL_VBUMP_REVIEW */
                 default:
@@ -559,21 +553,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     // do not know about. We play conservative and only add the compat level we know
                     // about so far.
                     // At vBump, add a new case and move the 'default' label there.
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version100]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version110]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version120]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version130]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version140]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version150]);
-                    compatibilityLevels.Add(this.displayCompatLevels[CompatibilityLevel.Version160]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version150]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version160]);
                     break;
             }
 
-            // set the compatability level for this combo box based on the prototype
+            // set the first compatability level for this list based on the prototype
             for (var i = 0; i < compatibilityLevels.Count; i++)
             {
                 var level = compatibilityLevels[i];
-                var prototypeLevel = this.displayCompatLevels[prototype.DatabaseCompatibilityLevel];
+                var prototypeLevel = displayCompatLevels[prototype.DatabaseCompatibilityLevel];
                 if (level == prototypeLevel)
                 {
                     if (i > 0)
@@ -585,8 +579,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            // previous loop did not find the prototype compatibility level in this server's compatability options
-            // disable the compatability level option
+            // previous loop did not find the prototype compatibility level in this server's compatability options, so treat compatibility levels as unsupported for this server
             return Array.Empty<string>();
         }
     }
