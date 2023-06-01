@@ -16,6 +16,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public static readonly string DefaultApplicationName = "azdata";
         public static readonly string SqlLoginAuthenticationType = "SqlLogin";
 
+        // Feature names
+        public static readonly string LanguageServiceFeature = "languageService";
+
         static Constants()
         {
             JsonSerializerSettings = new JsonSerializerSettings();
