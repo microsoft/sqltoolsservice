@@ -79,6 +79,31 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
     }
 
     /// <summary>
+    /// Creates a NodeInfo and configures it for error situations
+    /// </summary>
+    public static class ErrorNodeInfo
+    {
+        /// <summary>
+        /// Helper function to create an error node.
+        /// </summary>
+        /// <param name="parentNodePath">The parent node the error node will appear under</param>
+        /// <param name="errorMessage">The error message to display in the error node</param>
+        /// <returns>NodeInfo instance with the specified parent path and error message</returns>
+        public static NodeInfo CreateErrorNode(string parentNodePath, string errorMessage)
+        {
+            return new NodeInfo()
+            {
+                ParentNodePath = parentNodePath,
+                ErrorMessage = errorMessage,
+                Label = errorMessage,
+                ObjectType = "error",
+                NodeType = "error",
+                IsLeaf = true
+            };
+        }
+    }
+
+    /// <summary>
     /// The filterable properties that a node supports
     /// </summary>
     public class NodeFilterProperty

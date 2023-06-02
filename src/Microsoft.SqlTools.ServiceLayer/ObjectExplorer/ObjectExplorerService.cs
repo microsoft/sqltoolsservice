@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    {
                                        var errorMessage = ex?.InnerException?.Message ?? ex.Message;
                                        Logger.Error($"Failed to expand node: {errorMessage}");
-                                       var errorNode = CreateErrorNode(parentNodePath: nodePath, errorMessage: errorMessage);
+                                       var errorNode = ErrorNodeInfo.CreateErrorNode(parentNodePath: nodePath, errorMessage: errorMessage);
                                        nodes = new NodeInfo[] { errorNode };
                                    }
                                }
@@ -499,27 +499,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
             }
             return response;
-        }
-
-        /// <summary>
-        /// Creates an error node
-        /// </summary>
-        /// /// <param name="parentNodePath">Path to parent node that triggered the error.</param>
-        /// <param name="errorMessage">Message shown to the user</param>
-        /// <returns>NodeInfo instance with the specified parent path and error message</returns>
-        private NodeInfo CreateErrorNode(string parentNodePath, string errorMessage)
-        {
-            var errorNode = new NodeInfo()
-            {
-                ParentNodePath = parentNodePath,
-                ErrorMessage = errorMessage,
-                Label = errorMessage,
-                ObjectType = "error",
-                NodeType = "error",
-                IsLeaf = true
-            };
-
-            return errorNode;
         }
 
         /// <summary>
