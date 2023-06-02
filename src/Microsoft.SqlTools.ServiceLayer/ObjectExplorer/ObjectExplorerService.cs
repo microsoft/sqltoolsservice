@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -453,7 +453,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
-                                   nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   try
+                                   {
+                                       nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   }
+                                   catch (ConnectionFailureException ex)
+                                   {
+                                       var errorMessage = ex.InnerException?.Message ?? ex.Message;
+
+                                       Logger.Error($"Failed to expand node: {errorMessage}");
+                                       var errorNode = ErrorNodeInfo.Create(parentNodePath: nodePath, errorMessage: errorMessage);
+                                       nodes = new NodeInfo[] { errorNode };
+                                   }
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
