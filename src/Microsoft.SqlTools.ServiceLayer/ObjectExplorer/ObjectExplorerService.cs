@@ -459,7 +459,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    }
                                    catch (ConnectionFailureException ex)
                                    {
-                                       var errorMessage = ex?.InnerException?.Message ?? ex.Message;
+                                       var errorMessage = ex.InnerException?.Message ?? ex.Message;
+
                                        Logger.Error($"Failed to expand node: {errorMessage}");
                                        var errorNode = CreateErrorNode(parentNodePath: nodePath, errorMessage: errorMessage);
                                        nodes = new NodeInfo[] { errorNode };
