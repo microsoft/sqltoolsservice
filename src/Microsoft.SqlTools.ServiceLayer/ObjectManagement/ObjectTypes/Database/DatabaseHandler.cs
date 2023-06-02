@@ -150,11 +150,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         if (!isAzureDB)
                         {
                             var logins = new List<string>();
-                            logins.Add(SR.general_default);
                             foreach (Login login in dataContainer.Server.Logins)
                             {
                                 logins.Add(login.Name);
                             }
+                            // If we don't have a default database owner, then move the current login to the front of the list to use as the default.
+                            string firstOwner = prototype.Exists ? prototype.Owner : dataContainer.Server.ConnectionContext.TrueLogin;
+                            int swapIndex = logins.FindIndex(login => login.Equals(firstOwner, StringComparison.InvariantCultureIgnoreCase));
+                            if (swapIndex > 0)
+                            {
+                                logins.RemoveAt(swapIndex);
+                                logins.Insert(0, firstOwner);
+                            }
+
                             databaseViewInfo.LoginNames = logins.ToArray();
                         }
 
@@ -253,11 +261,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null && database.Owner != SR.general_default)
+                        if (database.Owner != null)
                         {
                             prototype.Owner = database.Owner;
                         }
-                        if (database.CollationName != null && database.CollationName != SR.general_default)
+                        if (database.CollationName != null)
                         {
                             prototype.Collation = database.CollationName;
                         }
@@ -313,12 +321,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var collationItems = new List<string>();
             bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
 
-            // if we're creating a new database or this is a Sphinx Server, add "<default>" to the list
-            if (isNewObject || isSphinxServer)
-            {
-                collationItems.Add(SR.general_default);
-            }
-
             // if the server is shiloh or later, add specific collations to the list
             if (!isSphinxServer)
             {
@@ -333,15 +335,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            if (prototype.Exists)
+            // If this database already exists, then put its collation at the front of the list.
+            // Otherwise use the server's collation as the default first value.
+            string firstCollation = prototype.Exists ? prototype.Collation : server.Collation;
+            int index = collationItems.FindIndex(collation => collation.Equals(firstCollation, StringComparison.InvariantCultureIgnoreCase));
+            if (index > 0)
             {
-                // Put the prototype's current collation at the front of the list
-                int index = collationItems.FindIndex(collation => collation.Equals(prototype.Collation, StringComparison.InvariantCultureIgnoreCase));
-                if (index > 0)
-                {
-                    collationItems.RemoveAt(index);
-                    collationItems.Insert(0, prototype.Collation);
-                }
+                collationItems.RemoveAt(index);
+                collationItems.Insert(0, firstCollation);
             }
             return collationItems.ToArray();
         }

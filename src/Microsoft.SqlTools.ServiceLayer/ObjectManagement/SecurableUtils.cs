@@ -582,5 +582,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
         }
+
+        /// <summary>
+        /// The list of Schema-Scoped SecurableTypes
+        /// </summary>
+        internal static IEnumerable<SecurableType> GetSchemaTypes(Server server)
+        {
+            return Enum.GetValues(typeof(SecurableType))
+                .Cast<SecurableType>()
+                .Where(
+                    t =>
+                        t.IsValidSchemaBoundSecurable(
+                        new ServerVersion(server.ServerVersion.Major, server.ServerVersion.Minor, server.ServerVersion.BuildNumber),
+                            server.DatabaseEngineEdition,
+                            server.DatabaseEngineType));
+        }
     }
 }
