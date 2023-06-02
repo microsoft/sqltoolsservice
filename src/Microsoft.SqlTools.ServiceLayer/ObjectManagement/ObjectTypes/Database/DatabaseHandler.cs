@@ -99,18 +99,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         var prototype = taskHelper.Prototype;
                         var azurePrototype = prototype as DatabasePrototypeAzure;
                         bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
+                        bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
 
                         var databaseViewInfo = new DatabaseViewInfo()
                         {
-                            ObjectInfo = new DatabaseInfo()
+                            ObjectInfo = new DatabaseInfo(),
+                            IsAzureDB = isAzureDB
                         };
 
                         // azure sql db doesn't have a sysadmin fixed role
-                        var compatibilityLevelEnabled = !isDw &&
-                                                        (dataContainer.LoggedInUserIsSysadmin ||
-                                                        dataContainer.Server.ServerType ==
-                                                        DatabaseEngineType.SqlAzureDatabase);
-                        if (dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                        var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
+                        if (isAzureDB)
                         {
                             // Azure doesn't allow modifying the collation after DB creation
                             bool collationEnabled = !prototype.Exists;
@@ -148,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
 
                         // Skip adding logins if running against an Azure SQL DB
-                        if (dataContainer.Server.ServerType != DatabaseEngineType.SqlAzureDatabase)
+                        if (!isAzureDB)
                         {
                             var logins = new List<string>();
                             logins.Add(SR.general_default);
