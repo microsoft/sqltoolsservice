@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             return new DatabaseInfo()
             {
                 Name = "TestDatabaseName_" + new Random().NextInt64(10000000, 90000000).ToString(),
-                Owner = "<default>",
+                Owner = "sa",
                 CollationName = "SQL_Latin1_General_CP1_CI_AS",
                 CompatibilityLevel = "SQL Server 2022 (160)",
                 ContainmentType = "None",
