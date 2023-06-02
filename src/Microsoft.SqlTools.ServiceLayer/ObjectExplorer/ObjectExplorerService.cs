@@ -462,7 +462,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                        var errorMessage = ex.InnerException?.Message ?? ex.Message;
 
                                        Logger.Error($"Failed to expand node: {errorMessage}");
-                                       var errorNode = ErrorNodeInfo.CreateErrorNode(parentNodePath: nodePath, errorMessage: errorMessage);
+                                       var errorNode = ErrorNodeInfo.Create(parentNodePath: nodePath, errorMessage: errorMessage);
                                        nodes = new NodeInfo[] { errorNode };
                                    }
                                }

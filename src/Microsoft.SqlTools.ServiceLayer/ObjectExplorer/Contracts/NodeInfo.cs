@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// <param name="parentNodePath">The parent node the error node will appear under</param>
         /// <param name="errorMessage">The error message to display in the error node</param>
         /// <returns>NodeInfo instance with the specified parent path and error message</returns>
-        public static NodeInfo CreateErrorNode(string parentNodePath, string errorMessage)
+        public static NodeInfo Create(string parentNodePath, string errorMessage)
         {
             return new NodeInfo()
             {
