@@ -12962,7 +12962,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Change Autogrowth]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Изменение параметров автоувеличения]]></Val>
+            <Val><![CDATA[Изменение параметров автоматического увеличения]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -12988,60 +12988,90 @@
       <Item ItemId=";compatibilityLevel_denali" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2012 (110)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2012 (110)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_katmai" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2008 (100)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2008 (100)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_shiloh" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2000 (80)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2000 (80)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_sphinx" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 7.0 (70)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 7.0 (70)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_sql14" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2014 (120)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2014 (120)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_sql15" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2016 (130)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2016 (130)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_sql2017" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2017 (140)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2017 (140)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_sqlv150" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2019 (150)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2019 (150)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_sqlv160" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2022 (160)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2022 (160)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";compatibilityLevel_yukon" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SQL Server 2005 (90)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[SQL Server 2005 (90)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -13211,7 +13241,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Autogrowth / Maxsize]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Автоувеличение/максимальный размер]]></Val>
+            <Val><![CDATA[Автоматическое увеличение/максимальный размер]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13253,7 +13283,7 @@
         <Str Cat="Text">
           <Val><![CDATA[<default>]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[<default>]]></Val>
+            <Val><![CDATA[<по умолчанию>]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -13297,6 +13327,9 @@
       <Item ItemId=";general_newFilegroup" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[<new filegroup>]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[<создать файловую группу>]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -13321,6 +13354,9 @@
       <Item ItemId=";general_rawDevice" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[<raw device>]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[<неформатированный носитель>]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14191,54 +14227,81 @@
       <Item ItemId=";prototype_db_prop_ansiNullDefault" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[ANSI NULL Default ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ANSI NULL по умолчанию ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_ansiNulls" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[ANSI NULLS Enabled ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Значения ANSI NULLS включены ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_ansiPadding" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[ANSI Padding Enabled ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Включено заполнение ANSI ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_ansiWarnings" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[ANSI Warnings Enabled ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Включены предупреждения ANSI ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_arithabort" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Arithmetic Abort Enabled ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Включено арифметическое прерывание ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_autoClose" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Auto Close ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Автоматическое закрытие ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_autoCreateStatistics" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Auto Create Statistics ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Статистика автоматического создания ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_autoShrink" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Auto Shrink ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Автоматическое сжатие ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_autoUpdateStatistics" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Auto Update Statistics ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Автоматическое обновление статистики ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14263,12 +14326,18 @@
       <Item ItemId=";prototype_db_prop_caseSensitive" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Case Sensitive ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[С учетом регистра ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_closeCursorOnCommit" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Close Cursor on Commit Enabled ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Закрывать курсор при разрешении фиксации ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14284,6 +14353,9 @@
       <Item ItemId=";prototype_db_prop_concatNullYieldsNull" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Concatenate Null Yields Null ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Объединение со значением NULL дает NULL ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14299,12 +14371,18 @@
       <Item ItemId=";prototype_db_prop_databaseState" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Database State ]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Состояние базы данных ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_databaseState_value_autoClosed" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[AUTO_CLOSED]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ЗАКРЫТО_АВТОМАТИЧЕСКИ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14312,7 +14390,7 @@
         <Str Cat="Text">
           <Val><![CDATA[EMERGENCY]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[EMERGENCY]]></Val>
+            <Val><![CDATA[АВАРИЙНЫЙ РЕЖИМ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -14320,12 +14398,18 @@
       <Item ItemId=";prototype_db_prop_databaseState_value_inaccessible" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[INACCESSIBLE]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[НЕДОСТУПНО]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_databaseState_value_normal" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[NORMAL]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[НОРМАЛЬНЫЙ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14333,7 +14417,7 @@
         <Str Cat="Text">
           <Val><![CDATA[OFFLINE]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OFFLINE]]></Val>
+            <Val><![CDATA[АВТОНОМНЫЙ РЕЖИМ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -14342,7 +14426,7 @@
         <Str Cat="Text">
           <Val><![CDATA[RECOVERING]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[RECOVERING]]></Val>
+            <Val><![CDATA[ВОССТАНОВЛЕНИЕ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -14360,7 +14444,7 @@
         <Str Cat="Text">
           <Val><![CDATA[RESTORING]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[RESTORING]]></Val>
+            <Val><![CDATA[ВОССТАНОВЛЕНИЕ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -14368,12 +14452,18 @@
       <Item ItemId=";prototype_db_prop_databaseState_value_shutdown" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[SHUTDOWN]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ЗАВЕРШЕНИЕ РАБОТЫ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";prototype_db_prop_databaseState_value_standby" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[STANDBY]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[РЕЖИМ ОЖИДАНИЯ]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -14381,7 +14471,7 @@
         <Str Cat="Text">
           <Val><![CDATA[SUSPECT]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[SUSPECT]]></Val>
+            <Val><![CDATA[ПОДОЗРИТЕЛЬНЫЙ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -14390,7 +14480,7 @@
         <Str Cat="Text">
           <Val><![CDATA[OFF]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ВЫКЛ.]]></Val>
+            <Val><![CDATA[ВЫКЛ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
