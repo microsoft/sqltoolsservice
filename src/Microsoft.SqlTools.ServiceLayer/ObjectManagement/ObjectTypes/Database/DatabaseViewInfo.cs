@@ -5,8 +5,6 @@
 //
 #nullable disable
 
-using System.Collections.Generic;
-
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabaseViewInfo : SqlObjectViewInfo
