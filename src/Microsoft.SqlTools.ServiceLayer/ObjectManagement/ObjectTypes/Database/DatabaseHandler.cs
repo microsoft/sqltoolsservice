@@ -37,6 +37,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
 
+        private static readonly string[] azureEditions;
+        private static readonly string[] azureBackupLevels;
+        private static readonly Dictionary<string, string[]> azureMaxSizes;
+        private static readonly Dictionary<string, string[]> azureServiceLevels;
+
         static DatabaseHandler()
         {
             displayCompatLevels.Add(CompatibilityLevel.Version70, SR.compatibilityLevel_sphinx);
@@ -71,6 +76,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 recoveryModelEnums.Add(displayRecoveryModels[key], key);
             }
+
+            // Azure SLO info is invariant of server information, so set up static objects we can return later
+            azureEditions = GetAzureEditions();
+            azureBackupLevels = GetAzureBackupLevels();
+            azureMaxSizes = GetAzureMaxSizes(azureEditions);
+            azureServiceLevels = GetAzureServiceLevels(azureEditions);
         }
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
@@ -132,6 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
                                 }
                             }
+                            databaseViewInfo.AzureBackupRedundancyLevels = azureBackupLevels;
+                            databaseViewInfo.AzureServiceLevelObjectives = azureServiceLevels;
+                            databaseViewInfo.AzureEditions = azureEditions;
+                            databaseViewInfo.AzureMaxSizes = azureMaxSizes;
                         }
                         else
                         {
@@ -581,6 +596,78 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // previous loop did not find the prototype compatibility level in this server's compatability options, so treat compatibility levels as unsupported for this server
             return Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Get supported backup redundancy levels for this Azure server.
+        /// </summary>
+        private static string[] GetAzureBackupLevels()
+        {
+            return AzureSqlDbHelper.BackupStorageRedundancyLevels;
+        }
+
+        /// <summary>
+        /// Get supported service level objectives for this Azure server.
+        /// </summary>
+        private static Dictionary<string, string[]> GetAzureServiceLevels(string[] editionDisplayNames)
+        {
+            var levelsMap = new Dictionary<string, string[]>();
+            foreach (string displayName in editionDisplayNames)
+            {
+                if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(displayName, out var azureEdition))
+                {
+                    if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(azureEdition, out var serviceInfoPair))
+                    {
+                        // Move default value to the front of the list
+                        var serviceLevelsList = new List<string>(serviceInfoPair.Value);
+                        var defaultIndex = serviceInfoPair.Key;
+                        if (defaultIndex >= 0 && defaultIndex < serviceLevelsList.Count)
+                        {
+                            var defaultServiceObjective = serviceLevelsList[defaultIndex];
+                            serviceLevelsList.RemoveAt(defaultIndex);
+                            serviceLevelsList.Insert(0, defaultServiceObjective);
+                        }
+                        levelsMap.Add(displayName, serviceLevelsList.ToArray());
+                    }
+                }
+            }
+            return levelsMap;
+        }
+
+        /// <summary>
+        /// Get supported editions for this Azure server.
+        /// </summary>
+        private static string[] GetAzureEditions()
+        {
+            return AzureSqlDbHelper.GetValidAzureEditionOptions().Select(edition => edition.DisplayName).ToArray();
+        }
+
+        /// <summary>
+        /// Get supported maximum sizes for this Azure server.
+        /// </summary>
+        private static Dictionary<string, string[]> GetAzureMaxSizes(string[] editionDisplayNames)
+        {
+            var sizesMap = new Dictionary<string, string[]>();
+            foreach (string displayName in editionDisplayNames)
+            {
+                if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(displayName, out var azureEdition))
+                {
+                    if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(azureEdition, out var sizeInfoPair))
+                    {
+                        // Move default value to the front of the list
+                        var sizeInfoList = new List<DbSize>(sizeInfoPair.Value);
+                        var defaultIndex = sizeInfoPair.Key;
+                        if (defaultIndex >= 0 && defaultIndex < sizeInfoList.Count)
+                        {
+                            var defaultSizeInfo = sizeInfoList[defaultIndex];
+                            sizeInfoList.RemoveAt(defaultIndex);
+                            sizeInfoList.Insert(0, defaultSizeInfo);
+                        }
+                        sizesMap.Add(displayName, sizeInfoList.Select(info => info.ToString()).ToArray());
+                    }
+                }
+            }
+            return sizesMap;
         }
     }
 }

@@ -320,6 +320,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             { "LRS", "Local" },
             { "ZRS", "Zone" }
         };
+        private static readonly string[] backupRedundancyLevels = bsrAPIToUIValueMapping.Values.ToArray();
+
+        /// <summary>
+        /// All valid backup storage redundancy levels for an Azure SQL database
+        /// </summary>
+        public static string[] BackupStorageRedundancyLevels
+        {
+            get
+            {
+                return backupRedundancyLevels;
+            }
+        }
 
         //KeyValuePair contains the BackupStorageRedundancy values for all azure editions.
         private static readonly KeyValuePair<int, string[]> keyValuePair = new KeyValuePair<int, string[]>(0, bsrAPIToUIValueMapping.Values.ToArray());
@@ -516,7 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// We do this so that the AzureEdition enum can have values such as NONE or DEFAULT added
         /// without requiring clients to explicitly filter out those values themselves each time. 
         /// <returns></returns>
-        public static IEnumerable<AzureEdition> GetValidAzureEditionOptions(object unused)
+        public static IEnumerable<AzureEdition> GetValidAzureEditionOptions()
         {
             yield return AzureEdition.Basic;
             yield return AzureEdition.Standard;
@@ -524,10 +536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             yield return AzureEdition.DataWarehouse;
             yield return AzureEdition.BusinessCritical;
             yield return AzureEdition.GeneralPurpose;
-            //yield return AzureEdition.Free;
             yield return AzureEdition.Hyperscale;
-            //yield return AzureEdition.Stretch;
-            //yield return AzureEdition.System;
         }
     }
 }
