@@ -29,7 +29,7 @@
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230301.46" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230407.56" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.7.0" />
+		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.9.0" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230403.55" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
