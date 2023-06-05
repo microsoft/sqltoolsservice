@@ -39,8 +39,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private static readonly string[] azureEditions;
         private static readonly string[] azureBackupLevels;
-        private static readonly Dictionary<string, string[]> azureMaxSizes;
-        private static readonly Dictionary<string, string[]> azureServiceLevels;
+        private static readonly AzureEditionDetails[] azureMaxSizes;
+        private static readonly AzureEditionDetails[] azureServiceLevels;
 
         static DatabaseHandler()
         {
@@ -609,9 +609,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported service level objectives for this Azure server.
         /// </summary>
-        private static Dictionary<string, string[]> GetAzureServiceLevels(string[] editionDisplayNames)
+        private static AzureEditionDetails[] GetAzureServiceLevels(string[] editionDisplayNames)
         {
-            var levelsMap = new Dictionary<string, string[]>();
+            var levels = new List<AzureEditionDetails>();
             foreach (string displayName in editionDisplayNames)
             {
                 if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(displayName, out var azureEdition))
@@ -627,11 +627,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             serviceLevelsList.RemoveAt(defaultIndex);
                             serviceLevelsList.Insert(0, defaultServiceObjective);
                         }
-                        levelsMap.Add(displayName, serviceLevelsList.ToArray());
+                        var details = new AzureEditionDetails() { EditionDisplayName = displayName, Details = serviceLevelsList.ToArray() };
+                        levels.Add(details);
                     }
                 }
             }
-            return levelsMap;
+            return levels.ToArray();
         }
 
         /// <summary>
@@ -645,9 +646,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported maximum sizes for this Azure server.
         /// </summary>
-        private static Dictionary<string, string[]> GetAzureMaxSizes(string[] editionDisplayNames)
+        private static AzureEditionDetails[] GetAzureMaxSizes(string[] editionDisplayNames)
         {
-            var sizesMap = new Dictionary<string, string[]>();
+            var sizes = new List<AzureEditionDetails>();
             foreach (string displayName in editionDisplayNames)
             {
                 if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(displayName, out var azureEdition))
@@ -663,11 +664,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             sizeInfoList.RemoveAt(defaultIndex);
                             sizeInfoList.Insert(0, defaultSizeInfo);
                         }
-                        sizesMap.Add(displayName, sizeInfoList.Select(info => info.ToString()).ToArray());
+                        var details = new AzureEditionDetails() { EditionDisplayName = displayName, Details = sizeInfoList.Select(info => info.ToString()).ToArray() };
+                        sizes.Add(details);
                     }
                 }
             }
-            return sizesMap;
+            return sizes.ToArray();
         }
     }
 }
