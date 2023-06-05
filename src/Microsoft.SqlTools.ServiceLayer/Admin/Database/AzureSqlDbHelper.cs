@@ -21,19 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         [DebuggerDisplay("{Name,nq}")]
         public class AzureEdition
         {
-            public static readonly AzureEdition Basic = new AzureEdition("Basic", "SR.BasicAzureEdition");
-            public static readonly AzureEdition Standard = new AzureEdition("Standard", "SR.StandardAzureEdition");
-            public static readonly AzureEdition Premium = new AzureEdition("Premium", "SR.PremiumAzureEdition");
-            public static readonly AzureEdition DataWarehouse = new AzureEdition("DataWarehouse", "SR.DataWarehouseAzureEdition");
-            public static readonly AzureEdition GeneralPurpose = new AzureEdition("GeneralPurpose", "SR.GeneralPurposeAzureEdition");
-            public static readonly AzureEdition BusinessCritical = new AzureEdition("BusinessCritical", "SR.BusinessCriticalAzureEdition");
-
-            public static readonly AzureEdition Hyperscale = new AzureEdition("Hyperscale", "SR.HyperscaleAzureEdition");
-            // Free does not offer DatabaseSize >=1GB, hence it's not "supported".
-            //public static readonly AzureEdition Free = new AzureEdition("Free", SR.FreeAzureEdition);
-            // Stretch and system do not seem to be applicable, so I'm commenting them out
-            //public static readonly AzureEdition Stretch = new AzureEdition("Stretch", SR.StretchAzureEdition);
-            //public static readonly AzureEdition System = new AzureEdition("System", SR.SystemAzureEdition);
+            public static readonly AzureEdition Basic = new AzureEdition("Basic", SR.BasicAzureEdition);
+            public static readonly AzureEdition Standard = new AzureEdition("Standard", SR.StandardAzureEdition);
+            public static readonly AzureEdition Premium = new AzureEdition("Premium", SR.PremiumAzureEdition);
+            public static readonly AzureEdition DataWarehouse = new AzureEdition("DataWarehouse", SR.DataWarehouseAzureEdition);
+            public static readonly AzureEdition GeneralPurpose = new AzureEdition("GeneralPurpose", SR.GeneralPurposeAzureEdition);
+            public static readonly AzureEdition BusinessCritical = new AzureEdition("BusinessCritical", SR.BusinessCriticalAzureEdition);
+            public static readonly AzureEdition Hyperscale = new AzureEdition("Hyperscale", SR.HyperscaleAzureEdition);
 
             internal string Name { get; private set; }
             internal string DisplayName { get; private set; }

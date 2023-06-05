@@ -12437,6 +12437,70 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string BasicAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.BasicAzureEdition);
+            }
+        }
+
+        public static string StandardAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.StandardAzureEdition);
+            }
+        }
+
+        public static string PremiumAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.PremiumAzureEdition);
+            }
+        }
+
+        public static string DataWarehouseAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.DataWarehouseAzureEdition);
+            }
+        }
+
+        public static string GeneralPurposeAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.GeneralPurposeAzureEdition);
+            }
+        }
+
+        public static string BusinessCriticalAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.BusinessCriticalAzureEdition);
+            }
+        }
+
+        public static string ErrorInvalidEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorInvalidEdition);
+            }
+        }
+
+        public static string HyperscaleAzureEdition
+        {
+            get
+            {
+                return Keys.GetString(Keys.HyperscaleAzureEdition);
+            }
+        }
+
         public static string ConnectionServiceListDbErrorNotConnected(string uri)
         {
             return Keys.GetString(Keys.ConnectionServiceListDbErrorNotConnected, uri);
@@ -17792,6 +17856,30 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string BasicAzureEdition = "BasicAzureEdition";
+
+
+            public const string StandardAzureEdition = "StandardAzureEdition";
+
+
+            public const string PremiumAzureEdition = "PremiumAzureEdition";
+
+
+            public const string DataWarehouseAzureEdition = "DataWarehouseAzureEdition";
+
+
+            public const string GeneralPurposeAzureEdition = "GeneralPurposeAzureEdition";
+
+
+            public const string BusinessCriticalAzureEdition = "BusinessCriticalAzureEdition";
+
+
+            public const string ErrorInvalidEdition = "ErrorInvalidEdition";
+
+
+            public const string HyperscaleAzureEdition = "HyperscaleAzureEdition";
 
 
             private Keys()
