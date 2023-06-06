@@ -91,58 +91,58 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             {
                 return AzureSqlDbHelper.GetAzureEditionDisplayName(this.currentState.azureEdition);
             }
-            // set
-            // {
-            //     AzureEdition edition;
-            //     if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(value, out edition))
-            //     {
-            //         //Try to get the ServiceLevelObjective from the api,if not the default hardcoded service level objectives will be retrieved.
-            //         string serverLevelObjective = AzureServiceLevelObjectiveProvider.TryGetAzureServiceLevelObjective(value, AzureServiceLocation);
+            set
+            {
+                AzureEdition edition;
+                if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(value, out edition))
+                {
+                    //Try to get the ServiceLevelObjective from the api,if not the default hardcoded service level objectives will be retrieved.
+                    // string serverLevelObjective = AzureServiceLevelObjectiveProvider.TryGetAzureServiceLevelObjective(value, AzureServiceLocation);
 
-            //         if (!string.IsNullOrEmpty(serverLevelObjective))
-            //         {
-            //             this.currentState.azureEdition = edition;
-            //             this.currentState.currentServiceLevelObjective = serverLevelObjective;
-            //             // Instead of creating db instance with default Edition, update EditionToCreate while selecting Edition from the UI.
-            //             this.EditionToCreate = MapAzureEditionToDbEngineEdition(edition);
-            //             string storageAccountType = AzureServiceLevelObjectiveProvider.TryGetAzureStorageType(value, AzureServiceLocation);
-            //             if (!string.IsNullOrEmpty(storageAccountType))
-            //             {
-            //                 this.currentState.backupStorageRedundancy = storageAccountType;
-            //             }
+                    // if (!string.IsNullOrEmpty(serverLevelObjective))
+                    // {
+                    //     this.currentState.azureEdition = edition;
+                    //     this.currentState.currentServiceLevelObjective = serverLevelObjective;
+                    //     // Instead of creating db instance with default Edition, update EditionToCreate while selecting Edition from the UI.
+                    //     this.EditionToCreate = MapAzureEditionToDbEngineEdition(edition);
+                    //     string storageAccountType = AzureServiceLevelObjectiveProvider.TryGetAzureStorageType(value, AzureServiceLocation);
+                    //     if (!string.IsNullOrEmpty(storageAccountType))
+                    //     {
+                    //         this.currentState.backupStorageRedundancy = storageAccountType;
+                    //     }
 
-            //             // Try to get the azure maxsize from the api,if not the default hardcoded maxsize will be retrieved.
-            //             DbSize dbSize = AzureServiceLevelObjectiveProvider.TryGetAzureMaxSize(value, serverLevelObjective, AzureServiceLocation);
-            //             if (!string.IsNullOrEmpty(dbSize.ToString()))
-            //             {
-            //                 this.currentState.maxSize = new DbSize(dbSize.Size, dbSize.SizeUnit);
-            //             }
-            //         }
-            //         else
-            //         {
-            //             if (edition == this.currentState.azureEdition)
-            //             { //No changes, return early since we don't need to do any of the changes below
-            //                 return;
-            //             }
+                    //     // Try to get the azure maxsize from the api,if not the default hardcoded maxsize will be retrieved.
+                    //     DbSize dbSize = AzureServiceLevelObjectiveProvider.TryGetAzureMaxSize(value, serverLevelObjective, AzureServiceLocation);
+                    //     if (!string.IsNullOrEmpty(dbSize.ToString()))
+                    //     {
+                    //         this.currentState.maxSize = new DbSize(dbSize.Size, dbSize.SizeUnit);
+                    //     }
+                    // }
+                    // else
+                    // {
+                    if (edition == this.currentState.azureEdition)
+                    { // No changes, return early since we don't need to do any of the changes below
+                        return;
+                    }
 
-            //             this.currentState.azureEdition = edition;                        
-            //             this.EditionToCreate = MapAzureEditionToDbEngineEdition(edition);
-            //             this.CurrentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(edition);
-            //             this.BackupStorageRedundancy = AzureSqlDbHelper.GetDefaultBackupStorageRedundancy(edition);
-            //             var defaultSize = AzureSqlDbHelper.GetDatabaseDefaultSize(edition);
+                    this.currentState.azureEdition = edition;                        
+                    this.EditionToCreate = MapAzureEditionToDbEngineEdition(edition);
+                    this.CurrentServiceLevelObjective = AzureSqlDbHelper.GetDefaultServiceObjective(edition);
+                    this.BackupStorageRedundancy = AzureSqlDbHelper.GetDefaultBackupStorageRedundancy(edition);
+                    var defaultSize = AzureSqlDbHelper.GetDatabaseDefaultSize(edition);
 
-            //             this.MaxSize = defaultSize == null ? String.Empty : defaultSize.ToString();
-            //         }
-            //         this.NotifyObservers();
-            //     }
-            //     else
-            //     {
-            //         //Can't really do much if we fail to parse the display name so just leave it as is and log a message
-            //         System.Diagnostics.Debug.Assert(false,
-            //             string.Format(CultureInfo.InvariantCulture,
-            //                 "Failed to parse edition display name '{0}' back into AzureEdition", value));
-            //     }
-            // }
+                    this.MaxSize = defaultSize == null ? String.Empty : defaultSize.ToString();
+                    // }
+                    this.NotifyObservers();
+                }
+                else
+                {
+                    //Can't really do much if we fail to parse the display name so just leave it as is and log a message
+                    System.Diagnostics.Debug.Assert(false,
+                        string.Format(CultureInfo.InvariantCulture,
+                            "Failed to parse edition display name '{0}' back into AzureEdition", value));
+                }
+            }
         }
 
         /// <summary>

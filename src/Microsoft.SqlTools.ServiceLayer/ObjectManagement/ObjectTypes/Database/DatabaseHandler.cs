@@ -297,6 +297,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
                         }
 
+                        if (prototype is DatabasePrototypeAzure dbAz)
+                        {
+                            // Set edition first since the prototype will fill all the Azure fields with default values
+                            if (database.AzureEdition != null)
+                            {
+                                dbAz.AzureEditionDisplay = database.AzureEdition;
+                            }
+                            if (database.AzureBackupRedundancyLevel != null)
+                            {
+                                dbAz.BackupStorageRedundancy = database.AzureBackupRedundancyLevel;
+                            }
+                            if (database.AzureServiceLevelObjective != null)
+                            {
+                                dbAz.CurrentServiceLevelObjective = database.AzureServiceLevelObjective;
+                            }
+                            if (database.AzureMaxSize != null)
+                            {
+                                dbAz.MaxSize = database.AzureMaxSize;
+                            }
+                        }
+
                         string sqlScript = string.Empty;
                         using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
                         using (var executionHandler = new ExecutonHandler(actions))
