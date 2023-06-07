@@ -37,10 +37,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
 
-        private static readonly string[] azureEditions;
-        private static readonly string[] azureBackupLevels;
-        private static readonly AzureEditionDetails[] azureMaxSizes;
-        private static readonly AzureEditionDetails[] azureServiceLevels;
+        internal static readonly string[] AzureEditions;
+        internal static readonly string[] AzureBackupLevels;
+        internal static readonly AzureEditionDetails[] AzureMaxSizes;
+        internal static readonly AzureEditionDetails[] AzureServiceLevels;
 
         static DatabaseHandler()
         {
@@ -78,10 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
-            azureEditions = GetAzureEditions();
-            azureBackupLevels = GetAzureBackupLevels();
-            azureMaxSizes = GetAzureMaxSizes(azureEditions);
-            azureServiceLevels = GetAzureServiceLevels(azureEditions);
+            AzureEditions = GetAzureEditions();
+            AzureBackupLevels = GetAzureBackupLevels();
+            AzureMaxSizes = GetAzureMaxSizes(AzureEditions);
+            AzureServiceLevels = GetAzureServiceLevels(AzureEditions);
         }
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
@@ -143,10 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
                                 }
                             }
-                            databaseViewInfo.AzureBackupRedundancyLevels = azureBackupLevels;
-                            databaseViewInfo.AzureServiceLevelObjectives = azureServiceLevels;
-                            databaseViewInfo.AzureEditions = azureEditions;
-                            databaseViewInfo.AzureMaxSizes = azureMaxSizes;
+                            databaseViewInfo.AzureBackupRedundancyLevels = AzureBackupLevels;
+                            databaseViewInfo.AzureServiceLevelObjectives = AzureServiceLevels;
+                            databaseViewInfo.AzureEditions = AzureEditions;
+                            databaseViewInfo.AzureMaxSizes = AzureMaxSizes;
                         }
                         else
                         {
