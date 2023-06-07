@@ -18,6 +18,7 @@ using Moq;
 using NUnit.Framework;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {

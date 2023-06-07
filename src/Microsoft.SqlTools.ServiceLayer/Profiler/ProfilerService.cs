@@ -18,7 +18,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.XEvent.XELite;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
@@ -149,11 +148,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                         }
                         catch { }
 
-                        if (xeSession == null)
-                        {
-                            // create a new XEvent session and Profiler session
-                            xeSession = this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
-                        }
+                        // create a new XEvent session and Profiler session, if it doesn't exist
+                        xeSession ??= this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
 
                         // start monitoring the profiler session
                         monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
@@ -390,10 +386,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             Session session = store.Sessions[sessionName] ?? throw new Exception(SR.SessionNotFound);
 
             // start the session if it isn't already running
-            if (session == null)
-            {
-                throw new ProfilerException(SR.SessionNotFound);
-            }
+
+            session = session ?? throw new ProfilerException(SR.SessionNotFound);
 
             var xeventSession = new XEventSession()
             {

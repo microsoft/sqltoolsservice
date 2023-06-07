@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     xmlDoc.LoadXml(targetXml);
 
                     var nodes = xmlDoc.DocumentElement.GetElementsByTagName("event");
-                    var rawEvents = nodes.Cast<XmlNode>().Select(n => ParseProfilerEvent(n)).ToList();
+                    var rawEvents = nodes.Cast<XmlNode>().Select(ParseProfilerEvent).ToList();
                     FilterOldEvents(rawEvents);
                     return rawEvents;
                 }

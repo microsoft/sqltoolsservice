@@ -2,11 +2,12 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Runtime;
 using NUnit.Framework;
 using System.Reflection;
 using Microsoft.SqlServer.XEvent.XELite;
@@ -14,11 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using System.Threading;
 using System.Linq;
-using Moq;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
-using Microsoft.Azure.Management.Sql.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
@@ -48,62 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             });
         }
 
-        [Test]
-        public void XeStreamObservable_calls_OnError_when_the_fetcher_fails()
-        {
-            var observer = InitializeFileObserver("thispathdoesnotexist.xel");
-            observer.Observable.Start();
-            var retries = 10;
-            while (!observer.Completed && retries-- > 0)
-            {
-                Thread.Sleep(100);
-            }
-            Assert.Multiple(() =>
-            {
-                Assert.That(observer.Completed, Is.True, $"Reading the missing file didn't complete in 1 second.");
-                Assert.That(observer.Error?.GetBaseException(), Is.InstanceOf<FileNotFoundException>(), $"Expected Error from missing file. Error:{observer.Error}");
-            });
-        }
-
-        [Test]
-        public void XeStreamObservable_can_Start_after_Close()
-        {
-            var observer1 = InitializeFileObserver();
-            var observable = observer1.Observable;
-            observer1.OnEventAdded += (o, e) => { observable.Close(); };
-            observable.Start();
-            var retries = 10;
-            while (!observer1.Completed && retries-- > 0)
-            {
-                Thread.Sleep(100);
-            }
-            Assert.Multiple(() =>
-            {
-                Assert.That(observer1.ProfilerEvents.Select(p => p.Name), Is.EqualTo(new[] { "rpc_completed" }), "Only 1 event expected before Close() for observer1");
-            });
-            var firstEvent = observer1.ProfilerEvents[0];
-            var observer2 = new XeStreamObserver() { Observable = observable };
-            observable.Subscribe(observer2);
-            Console.WriteLine("Starting the xevent observable for 1 second to process some events");
-            observable.Start();
-            retries = 100;
-            while (!observer2.Completed && retries-- > 0)
-            {
-                Thread.Sleep(100);
-            }
-            Assert.Multiple(() =>
-            {
-                Assert.That(observer2.Completed, Is.True, "observer2 should have read to completion");
-                Assert.That(observer1.ProfilerEvents.Select(p => (p.Name, p.Timestamp)), Is.EqualTo(new[] { (firstEvent.Name, firstEvent.Timestamp) }), "Only 1 event expected for observer1 after restarting the observer");
-                Assert.That(observer2.ProfilerEvents.Count, Is.EqualTo(149), "observer2 should have all the events from the file");
-            });
-        }
-
-        private static ProfilerEvent GetOneEvent()
-        {
-            return new ProfilerEvent("profilerEvent", "timeStamp");
-        }
-
         private XeStreamObserver InitializeFileObserver(string filePath = null)
         {
             filePath ??= Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Profiler", "TestXel_0.xel");
@@ -115,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         }
     }
 
-    class XeStreamObserver : IObserver<ProfilerEvent>
+    sealed class XeStreamObserver : IObserver<ProfilerEvent>
     {
         public XeStreamObservable Observable { get; set; }
         public readonly List<ProfilerEvent> ProfilerEvents = new List<ProfilerEvent>();

@@ -1,9 +1,14 @@
-﻿using Microsoft.SqlServer.XEvent.XELite;
-using Microsoft.SqlServer.XEvent.XELite.Internal;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -15,9 +15,10 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
 using NUnit.Framework;
-using System.Reflection;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlServer.Management.XEvent;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
 {
@@ -131,8 +132,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
             return sessionName;
         }
 
-        
 
+
+#pragma warning disable JSON002 // Probable JSON string detected
         const string standardSessionJson = @"{
 			name: 'Standard_OnPrem',
 			defaultView: 'Standard View',
@@ -160,5 +162,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
 					ADD TARGET package0.ring_buffer(SET max_events_limit=(1000),max_memory=(51200))
 					WITH (MAX_MEMORY=8192 KB,EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,MAX_DISPATCH_LATENCY=5 SECONDS,MAX_EVENT_SIZE=0 KB,MEMORY_PARTITION_MODE=PER_CPU,TRACK_CAUSALITY=ON,STARTUP_STATE=OFF)'
 		}";
+#pragma warning restore JSON002 // Probable JSON string detected
     }
 }
