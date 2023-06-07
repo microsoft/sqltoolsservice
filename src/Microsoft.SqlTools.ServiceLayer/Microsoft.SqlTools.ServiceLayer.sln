@@ -1,0 +1,45 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer", "D:\Projects\STS\sqltoolsservice\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj", "{37B01E48-F3B1-4B5B-8165-28D93E07A370}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Authentication", "D:\Projects\STS\sqltoolsservice\src\Microsoft.SqlTools.Authentication\Microsoft.SqlTools.Authentication.csproj", "{9CCA074D-B374-46D3-B3FE-D7E501AAC21F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Credentials", "D:\Projects\STS\sqltoolsservice\src\Microsoft.SqlTools.Credentials\Microsoft.SqlTools.Credentials.csproj", "{1D38B7AD-3C22-477E-A6BD-F59639001FBB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting", "D:\Projects\STS\sqltoolsservice\src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj", "{38475FFA-D740-4AB7-BDAD-108844C45BAA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ManagedBatchParser", "D:\Projects\STS\sqltoolsservice\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj", "{1565B1BC-0763-451C-922C-2DE492FB7555}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37B01E48-F3B1-4B5B-8165-28D93E07A370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37B01E48-F3B1-4B5B-8165-28D93E07A370}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37B01E48-F3B1-4B5B-8165-28D93E07A370}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37B01E48-F3B1-4B5B-8165-28D93E07A370}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CCA074D-B374-46D3-B3FE-D7E501AAC21F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CCA074D-B374-46D3-B3FE-D7E501AAC21F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CCA074D-B374-46D3-B3FE-D7E501AAC21F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CCA074D-B374-46D3-B3FE-D7E501AAC21F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D38B7AD-3C22-477E-A6BD-F59639001FBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D38B7AD-3C22-477E-A6BD-F59639001FBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D38B7AD-3C22-477E-A6BD-F59639001FBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D38B7AD-3C22-477E-A6BD-F59639001FBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38475FFA-D740-4AB7-BDAD-108844C45BAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38475FFA-D740-4AB7-BDAD-108844C45BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38475FFA-D740-4AB7-BDAD-108844C45BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38475FFA-D740-4AB7-BDAD-108844C45BAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1565B1BC-0763-451C-922C-2DE492FB7555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1565B1BC-0763-451C-922C-2DE492FB7555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1565B1BC-0763-451C-922C-2DE492FB7555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1565B1BC-0763-451C-922C-2DE492FB7555}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C9310D6B-37F3-4D7B-BAF7-DA1A9D609F6E}
+	EndGlobalSection
+EndGlobal
