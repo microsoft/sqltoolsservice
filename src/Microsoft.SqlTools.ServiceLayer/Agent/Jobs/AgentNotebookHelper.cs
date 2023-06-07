@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -41,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (SqlCommand sqlQueryCommand = new SqlCommand(sqlQuery, connection))
                 {
                     if (queryParameters != null)
@@ -258,12 +260,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             @"
             SELECT
             materialized_id,
-            run_time,
-            run_date,
             notebook_error,
             pin,
             notebook_name,
-            is_deleted
+            is_deleted,
+            FORMAT(msdb.dbo.agent_datetime(run_date, run_time), 'yyyyMMddHHmmss') as job_runtime 
             FROM 
             notebooks.nb_materialized 
             WHERE job_id = @jobId";

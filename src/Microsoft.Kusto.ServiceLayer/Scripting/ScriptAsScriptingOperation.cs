@@ -5,17 +5,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using System.Collections.Specialized;
-using System.Text;
-using System.Globalization;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Diagnostics;
 
@@ -28,28 +23,14 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     {
         private readonly IScripter _scripter;
         private static readonly Dictionary<string, SqlServerVersion> scriptCompatibilityMap = LoadScriptCompatibilityMap();
-        /// <summary>
-        /// Left delimiter for an named object
-        /// </summary>
-        public const char LeftDelimiter = '[';
+        private string _serverName;
+        private string _databaseName;
 
-        /// <summary>
-        /// right delimiter for a named object
-        /// </summary>
-        public const char RightDelimiter = ']';
-
-        public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken, IScripter scripter) : base(parameters)
+        public ScriptAsScriptingOperation(ScriptingParams parameters, IScripter scripter, IDataSource datasource) :
+            base(parameters, datasource)
         {
-            DataSource = DataSourceFactory.Create(DataSourceType.Kusto, this.Parameters.ConnectionString,
-                azureAccountToken);
             _scripter = scripter;
         }
-
-        internal IDataSource DataSource { get; set; }
-
-        private string serverName;
-        private string databaseName;
-        private bool disconnectAtDispose = false;
 
         public override void Execute()
         {
@@ -62,7 +43,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 this.CancellationToken.ThrowIfCancellationRequested();
                 string resultScript = string.Empty;
                 
-                UrnCollection urns = CreateUrns(DataSource);
+                UrnCollection urns = CreateUrns(_dataSource);
                 ScriptingOptions options = new ScriptingOptions();
                 SetScriptBehavior(options);
                 ScriptAsOptions scriptAsOptions = new ScriptAsOptions(this.Parameters.ScriptOptions);
@@ -78,12 +59,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 switch (this.Parameters.Operation)
                 {
                     case ScriptingOperationType.Select:
-                        resultScript = GenerateScriptSelect(DataSource, urns);
+                        resultScript = GenerateScriptSelect(_dataSource, urns);
                         break;
                     
                     case ScriptingOperationType.Alter:
                     case ScriptingOperationType.Execute:
-                        resultScript = GenerateScriptForFunction(DataSource);
+                        resultScript = GenerateScriptForFunction(_dataSource);
                         break;
                 }
 
@@ -131,13 +112,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     });
                 }
             }
-            finally
-            {
-                if (disconnectAtDispose && DataSource != null)
-                {
-                    DataSource.Dispose();
-                }
-            }
         }
 
         private string GenerateScriptSelect(IDataSource dataSource, UrnCollection urns)
@@ -177,206 +151,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         }
 
 
-        /// <summary>
-        /// Generate a schema qualified name (e.g. [schema].[objectName]) for an object if the option for SchemaQualify is true
-        /// </summary>
-        /// <param name="schema">The schema name. May be null or empty in which case it will be ignored</param>
-        /// <param name="objectName">The object name.</param>
-        /// <param name="schemaQualify">Whether to schema qualify the object or not</param>
-        /// <returns>The object name, quoted as appropriate and schema-qualified if the option is set</returns>
-        private static string GenerateSchemaQualifiedName(string schema, string objectName, bool schemaQualify)
-        {
-            var qualifiedName = new StringBuilder();
-
-            if (schemaQualify && !String.IsNullOrEmpty(schema))
-            {
-                // schema.name
-                qualifiedName.AppendFormat(CultureInfo.InvariantCulture, "{0}.{1}", GetDelimitedString(schema), GetDelimitedString(objectName));
-            }
-            else
-            {
-                // name
-                qualifiedName.AppendFormat(CultureInfo.InvariantCulture, "{0}", GetDelimitedString(objectName));
-            }
-
-            return qualifiedName.ToString();
-        }
-
-        /// <summary>
-        /// getting delimited string
-        /// </summary>
-        /// <param name="str">string</param>
-        /// <returns>string</returns>
-        static private string GetDelimitedString(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-            {
-                return String.Empty;
-            }
-            else
-            {
-                StringBuilder qualifiedName = new StringBuilder();
-                qualifiedName.AppendFormat("{0}{1}{2}",
-                                       LeftDelimiter,
-                                       QuoteObjectName(str),
-                                       RightDelimiter);
-                return qualifiedName.ToString();
-            }
-        }
-
-        /// <summary>
-        /// turn a smo datatype object into a type that can be inserted into tsql, e.g. nvarchar(20)
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        internal static string GetDatatype(DataType type, ScriptingOptions options)
-        {
-            // string we'll return.
-            string rv = string.Empty;
-
-            string dataType = type.Name;
-            switch (type.SqlDataType)
-            {
-                // char, nchar, nchar, nvarchar, varbinary, nvarbinary are all displayed as type(length)
-                // length of -1 is taken to be type(max). max isn't localizable.
-                case SqlDataType.Char:
-                case SqlDataType.NChar:
-                case SqlDataType.VarChar:
-                case SqlDataType.NVarChar:
-                case SqlDataType.Binary:
-                case SqlDataType.VarBinary:
-                    rv = string.Format(CultureInfo.InvariantCulture,
-                                       "{0}({1})",
-                                       dataType,
-                                       type.MaximumLength);
-                    break;
-                case SqlDataType.VarCharMax:
-                case SqlDataType.NVarCharMax:
-                case SqlDataType.VarBinaryMax:
-                    rv = string.Format(CultureInfo.InvariantCulture,
-                                       "{0}(max)",
-                                       dataType);
-                    break;
-                // numeric and decimal are displayed as type precision,scale
-                case SqlDataType.Numeric:
-                case SqlDataType.Decimal:
-                    rv = string.Format(CultureInfo.InvariantCulture,
-                                       "{0}({1},{2})",
-                                       dataType,
-                                       type.NumericPrecision,
-                                       type.NumericScale);
-                    break;
-                //time, datetimeoffset and datetime2 are displayed as type scale
-                case SqlDataType.Time:
-                case SqlDataType.DateTimeOffset:
-                case SqlDataType.DateTime2:
-                    rv = string.Format(CultureInfo.InvariantCulture,
-                                       "{0}({1})",
-                                       dataType,
-                                       type.NumericScale);
-                    break;
-                // anything else is just type.
-                case SqlDataType.Xml:
-                    if (type.Schema != null && type.Schema.Length > 0 && dataType != null && dataType.Length > 0)
-                    {
-                        rv = String.Format(CultureInfo.InvariantCulture
-                            , "xml ({0}{2}{1}.{0}{3}{1})"
-                            , LeftDelimiter
-                            , RightDelimiter
-                            , QuoteObjectName(type.Schema)
-                            , QuoteObjectName(dataType));
-                    }
-                    else
-                    {
-                        rv = "xml";
-                    }
-                    break;
-                case SqlDataType.UserDefinedDataType:
-                case SqlDataType.UserDefinedTableType:
-                case SqlDataType.UserDefinedType:
-                    //User defined types may be in a non-DBO schema so append it if necessary
-                    rv = GenerateSchemaQualifiedName(type.Schema, dataType, options.SchemaQualify);
-                    break;
-                default:
-                    rv = dataType;
-                    break;
-
-            }
-            return rv;
-        }
-
-        /// <summary>
-        /// Double quotes certain characters in object name
-        /// </summary>
-        /// <param name="sqlObject"></param>
-        public static string QuoteObjectName(string sqlObject)
-        {
-
-            int len = sqlObject.Length;
-            StringBuilder result = new StringBuilder(sqlObject.Length);
-            for (int i = 0; i < len; i++)
-            {
-                if (sqlObject[i] == ']')
-                {
-                    result.Append(']');
-                }
-                result.Append(sqlObject[i]);
-            }
-
-            return result.ToString();
-        }
-
-        private static void WriteUseDatabase(Database parentObject, StringBuilder stringBuilder , ScriptingOptions options)
-        {
-            if (options.IncludeDatabaseContext)
-            {
-                string useDb = string.Format(CultureInfo.InvariantCulture, "USE {0}", CommonConstants.DefaultBatchSeperator);
-                if (!options.NoCommandTerminator)
-                {
-                    stringBuilder.Append(useDb);
-                    
-                }
-                else
-                {
-                    stringBuilder.Append(useDb);
-                    stringBuilder.Append(Environment.NewLine);
-                }
-            }
-        }
-
-        private string GetScript(ScriptingOptions options, StringCollection stringCollection)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var item in stringCollection)
-            {
-                sb.Append(item);
-                if (options != null && !options.NoCommandTerminator)
-                {
-                    //Ensure the batch separator is always on a new line (to avoid syntax errors)
-                    //but don't write an extra if we already have one as this can affect definitions
-                    //of objects such as Stored Procedures (see TFS#9125366)
-                    sb.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}{2}",
-                        item.EndsWith(Environment.NewLine) ? string.Empty : Environment.NewLine,
-                        CommonConstants.DefaultBatchSeperator,
-                        Environment.NewLine);
-                }
-                else
-                {
-                    sb.AppendFormat(CultureInfo.InvariantCulture, Environment.NewLine);
-                }
-            }
-
-            return sb.ToString();
-        }
-
         private UrnCollection CreateUrns(IDataSource dataSource)
         {
             IEnumerable<ScriptingObject> selectedObjects = new List<ScriptingObject>(this.Parameters.ScriptingObjects);
 
-            serverName = dataSource.ClusterName;
-            databaseName = new SqlConnectionStringBuilder(this.Parameters.ConnectionString).InitialCatalog;
+            _serverName = dataSource.ClusterName;
+            _databaseName = Parameters.DatabaseName;
             UrnCollection urnCollection = new UrnCollection();
             foreach (var scriptingObject in selectedObjects)
             {
@@ -385,7 +165,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                     // TODO: get the default schema
                     scriptingObject.Schema = "dbo";
                 }
-                urnCollection.Add(scriptingObject.ToUrn(serverName, databaseName));
+                urnCollection.Add(scriptingObject.ToUrn(_serverName, _databaseName));
             }
             return urnCollection;
         }
@@ -413,6 +193,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             return new Dictionary<string, SqlServerVersion>
             {
+                {SqlScriptOptions.ScriptCompatibilityOptions.Script160Compat.ToString(), SqlServerVersion.Version160},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script150Compat.ToString(), SqlServerVersion.Version150},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script140Compat.ToString(), SqlServerVersion.Version140},
                 {SqlScriptOptions.ScriptCompatibilityOptions.Script130Compat.ToString(), SqlServerVersion.Version130},
@@ -532,28 +313,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 scriptingOptions.DriIncludeSystemNames = true;
                 scriptingOptions.AnsiPadding = true;
             }
-        }
-
-        private void ScripterScriptingError(object sender, ScriptingErrorEventArgs e)
-        {
-            this.CancellationToken.ThrowIfCancellationRequested();
-
-            Logger.Write(
-                TraceEventType.Verbose,
-                string.Format(
-                    "Sending scripting error progress event, Urn={0}, OperationId={1}, Completed={2}, Error={3}",
-                    e.Current,
-                    this.OperationId,
-                    false,
-                    e?.InnerException?.ToString() ?? "null"));
-
-            this.SendProgressNotificationEvent(new ScriptingProgressNotificationParams
-            {
-                ScriptingObject = e.Current?.ToScriptingObject(),
-                Status = "Failed",
-                ErrorMessage = e?.InnerException?.Message,
-                ErrorDetails = e?.InnerException?.ToString(),
-            });
         }
     }
 }

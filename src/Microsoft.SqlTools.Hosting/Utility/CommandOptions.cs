@@ -5,9 +5,8 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 
-namespace Microsoft.SqlTools.Hosting.Utility
+namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
     /// The command-line options helper class.
@@ -29,6 +28,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
             ServiceName = serviceName;
             ErrorMessage = string.Empty;
             Locale = string.Empty;
+            ApplicationName = string.Empty;
 
             try
             {
@@ -43,11 +43,20 @@ namespace Microsoft.SqlTools.Hosting.Utility
 
                         switch (argName)
                         {
+                            case "-application-name":
+                                ApplicationName = args[++i];
+                                break;
+                            case "-data-path":
+                                ApplicationPath = args[++i];
+                                break;
                             case "-autoflush-log":
                                 AutoFlushLog = true;
-                                break; 
+                                break;
                             case "-tracing-level":
                                 TracingLevel = args[++i];
+                                break;
+                            case "-pii-logging":
+                                PiiLogging = true;
                                 break;
                             case "-log-file":
                                 LogFilePath = args[++i];
@@ -61,6 +70,22 @@ namespace Microsoft.SqlTools.Hosting.Utility
                             case "-help":
                                 ShouldExit = true;
                                 return;
+                            case "-service-name":
+                                ServiceName = args[++i];
+                                break;
+                            case "-parallel-message-processing":
+                                ParallelMessageProcessing = true;
+                                break;
+                            case "-enable-sql-authentication-provider":
+                                EnableSqlAuthenticationProvider = true;
+                                break;
+                            case "-parent-pid":
+                                string nextArg = args[++i];
+                                if (Int32.TryParse(nextArg, out int parsedInt))
+                                {
+                                    ParentProcessId = parsedInt;
+                                }
+                                break;
                             default:
                                 ErrorMessage += string.Format("Unknown argument \"{0}\"" + Environment.NewLine, argName);
                                 break;
@@ -82,6 +107,16 @@ namespace Microsoft.SqlTools.Hosting.Utility
                 }
             }
         }
+
+        /// <summary>
+        /// Name of application that is sending command options
+        /// </summary>
+        public string ApplicationName { get; private set; }
+
+        /// <summary>
+        /// Path of application home directory
+        /// </summary>
+        public string ApplicationPath { get; private set; }
 
         /// <summary>
         /// Contains any error messages during execution
@@ -125,9 +160,30 @@ namespace Microsoft.SqlTools.Hosting.Utility
 
         public string TracingLevel { get; private set; }
 
+        public bool PiiLogging { get; private set; }
+
         public string LogFilePath { get; private set; }
 
         public bool AutoFlushLog { get; private set; } = false;
+
+        /// <summary>
+        /// A temporary flag to decide whether the message handling should block the main thread.
+        /// Eventually we will fix the issues and make this the default behavior.
+        /// </summary>
+        public bool ParallelMessageProcessing { get; private set; } = false;
+
+        /// <summary>
+        /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used 
+        /// when user chooses 'Azure MFA'. This setting enables MSAL.NET to acquire token with SqlClient integration.
+        /// Currently this option is disabled by default, it's planned to be enabled by default in future releases.
+        /// </summary>
+        public bool EnableSqlAuthenticationProvider { get; private set; } = false;
+
+        /// <summary>
+        /// The ID of the process that started this service. This is used to check when the parent
+        /// process exits so that the service process can exit at the same time.
+        /// </summary>
+        public int? ParentProcessId { get; private set; }
 
         public virtual void SetLocale(string locale)
         {
@@ -148,11 +204,18 @@ namespace Microsoft.SqlTools.Hosting.Utility
         /// culture-specific messages
         /// </summary>
         /// <param name="locale"></param>
-        internal void LocaleSetter(string locale)
+        public void LocaleSetter(string locale)
         {
             // Creating cultureInfo from our given locale
             CultureInfo language = new CultureInfo(locale);
             Locale = locale;
+
+            // Allow the system set Number Format and Date Format to be preserved when changing the locale.
+            NumberFormatInfo NumberFormat = CultureInfo.CurrentCulture.NumberFormat;
+            DateTimeFormatInfo DateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+
+            language.NumberFormat = NumberFormat;
+            language.DateTimeFormat = DateTimeFormat;
 
             // Setting our language globally 
             CultureInfo.CurrentCulture = language;

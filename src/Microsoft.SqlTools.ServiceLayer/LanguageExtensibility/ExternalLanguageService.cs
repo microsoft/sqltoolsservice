@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -36,10 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
 
@@ -63,10 +62,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ExternalLanguageStatusRequest.Type, this.HandleExternalLanguageStatusRequest);
-            serviceHost.SetRequestHandler(ExternalLanguageListRequest.Type, this.HandleExternalLanguageListRequest);
-            serviceHost.SetRequestHandler(ExternalLanguageDeleteRequest.Type, this.HandleExternalLanguageDeleteRequest);
-            serviceHost.SetRequestHandler(ExternalLanguageUpdateRequest.Type, this.HandleExternalLanguageUpdateRequest);
+            serviceHost.SetRequestHandler(ExternalLanguageStatusRequest.Type, this.HandleExternalLanguageStatusRequest, true);
+            serviceHost.SetRequestHandler(ExternalLanguageListRequest.Type, this.HandleExternalLanguageListRequest, true);
+            serviceHost.SetRequestHandler(ExternalLanguageDeleteRequest.Type, this.HandleExternalLanguageDeleteRequest, true);
+            serviceHost.SetRequestHandler(ExternalLanguageUpdateRequest.Type, this.HandleExternalLanguageUpdateRequest, true);
         }
 
         /// <summary>
@@ -78,34 +77,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         public async Task HandleExternalLanguageDeleteRequest(ExternalLanguageDeleteRequestParams parameters, RequestContext<ExternalLanguageDeleteResponseParams> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageDeleteRequest");
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            ExternalLanguageDeleteResponseParams response = new ExternalLanguageDeleteResponseParams
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                ExternalLanguageDeleteResponseParams response = new ExternalLanguageDeleteResponseParams
-                {
-                };
+            };
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
-                }
-                else
-                {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        ExternalLanguageOperations.DeleteLanguage(dbConnection, parameters.LanguageName);
-                    }
-                    
-                    await requestContext.SendResult(response);
-                }
-            }
-            catch (Exception e)
+            if (connInfo == null)
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
+            }
+            else
+            {
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    ExternalLanguageOperations.DeleteLanguage(dbConnection, parameters.LanguageName);
+                }
+
+                await requestContext.SendResult(response);
             }
         }
 
@@ -118,34 +109,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         public async Task HandleExternalLanguageUpdateRequest(ExternalLanguageUpdateRequestParams parameters, RequestContext<ExternalLanguageUpdateResponseParams> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageUpdateRequest");
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            ExternalLanguageUpdateResponseParams response = new ExternalLanguageUpdateResponseParams
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                ExternalLanguageUpdateResponseParams response = new ExternalLanguageUpdateResponseParams
-                {
-                };
+            };
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
-                }
-                else
-                {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        ExternalLanguageOperations.UpdateLanguage(dbConnection, parameters.Language);
-                    }
-
-                    await requestContext.SendResult(response);
-                }
+            if (connInfo == null)
+            {
+                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
-            catch (Exception e)
+            else
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    ExternalLanguageOperations.UpdateLanguage(dbConnection, parameters.Language);
+                }
+
+                await requestContext.SendResult(response);
             }
         }
 
@@ -158,35 +141,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         public async Task HandleExternalLanguageStatusRequest(ExternalLanguageStatusRequestParams parameters, RequestContext<ExternalLanguageStatusResponseParams> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageStatusRequest");
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            ExternalLanguageStatusResponseParams response = new ExternalLanguageStatusResponseParams
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                ExternalLanguageStatusResponseParams response = new ExternalLanguageStatusResponseParams
-                {
-                    Status = false,
-                };
+                Status = false,
+            };
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
-                }
-                else
-                {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        response.Status = ExternalLanguageOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
-                    }
-
-                    await requestContext.SendResult(response);
-                }
+            if (connInfo == null)
+            {
+                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
-            catch (Exception e)
+            else
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    response.Status = ExternalLanguageOperations.GetLanguageStatus(dbConnection, parameters.LanguageName);
+                }
+
+                await requestContext.SendResult(response);
             }
         }
 
@@ -199,34 +174,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         public async Task HandleExternalLanguageListRequest(ExternalLanguageListRequestParams parameters, RequestContext<ExternalLanguageListResponseParams> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageListRequest");
-            try
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            ExternalLanguageListResponseParams response = new ExternalLanguageListResponseParams
             {
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    parameters.OwnerUri,
-                    out connInfo);
-                ExternalLanguageListResponseParams response = new ExternalLanguageListResponseParams
-                {
-                };
+            };
 
-                if (connInfo == null)
-                {
-                    await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
-                }
-                else
-                {
-                    using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
-                    {
-                        response.Languages = ExternalLanguageOperations.GetLanguages(dbConnection);
-                    }
-
-                    await requestContext.SendResult(response);
-                }
+            if (connInfo == null)
+            {
+                await requestContext.SendError(new Exception(SR.ConnectionServiceDbErrorDefaultNotConnected(parameters.OwnerUri)));
             }
-            catch (Exception e)
+            else
             {
-                // Exception related to run task will be captured here
-                await requestContext.SendError(e);
+                using (IDbConnection dbConnection = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    response.Languages = ExternalLanguageOperations.GetLanguages(dbConnection);
+                }
+
+                await requestContext.SendResult(response);
             }
         }
     }

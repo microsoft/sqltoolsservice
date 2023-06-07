@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
     {
         private delegate Task<List<TResult>> AssessmentMethod<TResult>(SqlObjectLocator locator);
 
-        private static readonly string[] AllowedSeverityLevels = { "Information", "Warning", "Critical" };
+        private static readonly string[] AllowedSeverityLevels = { string.Empty, "Information", "Low", "Medium", "High" };
 
         [Test]
         public async Task InvokeSqlAssessmentServerTest()
@@ -56,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         }
 
         [Test]
-        public async Task GetAssessmentItemsServerTest()
+        public async Task GetSqlAssessmentItemsServerTest()
         {
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo("master");
 
@@ -81,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         }
 
         [Test]
-        public async Task GetAssessmentItemsDatabaseTest()
+        public async Task GetSqlAssessmentItemsDatabaseTest()
         {
             const string DatabaseName = "tempdb";
             var liveConnection = LiveConnectionHelper.InitLiveConnectionInfo(DatabaseName);
@@ -214,9 +216,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlAssessment
         {
             Assert.Multiple(() =>
             {
-                Assert.That(item.CheckId, Is.Not.Null.Or.Empty);
-                Assert.That(item.DisplayName, Is.Not.Null.Or.Empty);
-                Assert.That(item.Description, Is.Not.Null.Or.Empty);
+                Assert.That(item.CheckId, Is.Not.Null);
+                Assert.That(item.DisplayName, Is.Not.Null);
+                Assert.That(item.Description, Is.Not.Null);
                 Assert.NotNull(item.Tags);
                 Assert.That(item.Tags, Has.All.Not.Null.Or.Empty);
             });

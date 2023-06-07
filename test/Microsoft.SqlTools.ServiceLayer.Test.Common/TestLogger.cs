@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
@@ -30,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         public SourceLevels TracingLevel { get; set; } = SourceLevels.Critical;
         public bool DoNotUseTraceSource { get; set; } = false;
 
+        public bool IsPiiEnabled { get; set; } = false;
+
         public bool AutoFlush { get; set; } = false;
 
         private List<Action> pendingVerifications;
@@ -41,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         public string LogFileName { get => logFileName ?? Logger.LogFileFullPath; set => logFileName = value; }
         public void Initialize() =>
-            Logger.Initialize(TracingLevel, LogFilePath, TraceSource, AutoFlush); // initialize the logger
+            Logger.Initialize(TracingLevel, IsPiiEnabled, LogFilePath, TraceSource, AutoFlush); // initialize the logger
         public string LogContents
         {
             get
@@ -65,10 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         {
             get
             {
-                if (pendingVerifications == null)
-                {
-                    pendingVerifications = new List<Action>();
-                }
+                pendingVerifications ??= new List<Action>();
                 return pendingVerifications;
             }
             set => pendingVerifications = value;

@@ -3,8 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -29,14 +32,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// </summary>
         /// <param name="parent">Parent Node</param>
         /// <param name="refresh">force to refresh</param>
-        /// <param name="refresh">name of the sql object to filter</param>
-        /// <returns></returns>
-        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken);
+        /// <param name="name">name of the sql object to filter</param>
+        /// <param name="includeSystemObjects">include system objects</param>
+        /// <param name="cancellationToken">cancellation token</param>
+        /// <param name="filters">filters to apply</param>
+        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<NodeFilter>? filters);
 
         /// <summary>
         /// The list of filters that should be applied on the smo object list
         /// </summary>
-        public abstract IEnumerable<NodeFilter> Filters { get; }
+        public abstract IEnumerable<INodeFilter> Filters { get; }
 
         /// <summary>
         /// The list of properties to be loaded with the object
@@ -69,5 +74,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         // TODO Consider whether Remove operations need to be supported
         //public abstract bool CanRemoveChild(TreeNode parent, object context);
         //public abstract int GetChildIndexToRemove(TreeNode parent, object context);
+
+        /// <summary>
+        /// A flag that puts child folders after nodes when the node is expanded.
+        /// </summary>
+        /// <value></value>
+        public virtual bool PutFoldersAfterNodes => false;
     }
 }

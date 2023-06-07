@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -22,10 +23,7 @@ namespace Microsoft.SqlTools.Utility
                 {
                     foreach (var key in keys)
                     {
-                        if (_cache.ContainsKey(key))
-                        {
-                            _cache.Remove(key);
-                        }
+                        _cache.Remove(key);                        
                     }
                 }
             }, out exception);

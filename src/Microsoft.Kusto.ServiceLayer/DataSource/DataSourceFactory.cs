@@ -1,30 +1,113 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
-using Microsoft.Kusto.ServiceLayer.Utility;
+using System.Composition;
+using Kusto.Data;
+using Kusto.Language;
+using Kusto.Language.Editor;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
+using Microsoft.Kusto.ServiceLayer.DataSource.Kusto;
+using Microsoft.Kusto.ServiceLayer.DataSource.Monitor;
+using Microsoft.Kusto.ServiceLayer.Formatter;
+using Microsoft.Kusto.ServiceLayer.LanguageServices;
+using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using CompletionItem = Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts.CompletionItem;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
-    public class DataSourceFactory
+    [Export(typeof(IDataSourceFactory))]
+    public class DataSourceFactory : IDataSourceFactory
     {
-        public static IDataSource Create(DataSourceType dataSourceType, string connectionString, string azureAccountToken)
+        private const string KustoProviderName = "KUSTO";
+        private const string LogAnalyticsProviderName = "LOGANALYTICS";
+        private const string KustoProviderDescription = "Microsoft Azure Data Explorer";
+        private const string LogAnalyticsProviderDescription = "Microsoft Azure Monitor Explorer";
+        
+        public IDataSource Create(ConnectionDetails connectionDetails, string ownerUri)
         {
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(connectionString, nameof(connectionString));
-            ValidationUtils.IsArgumentNotNullOrWhiteSpace(azureAccountToken, nameof(azureAccountToken));
-
+            var dataSourceType = GetDataSourceType();
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
                 {
-                    return new KustoDataSource(connectionString, azureAccountToken);
+                    var kustoConnectionDetails = MapKustoConnectionDetails(connectionDetails);
+                    var kustoClient = new KustoClient(kustoConnectionDetails, ownerUri);
+                    var intellisenseClient = new KustoIntellisenseClient(kustoClient);
+                    return new KustoDataSource(kustoClient, intellisenseClient);
+                }
+                case DataSourceType.LogAnalytics:
+                {
+                    var httpClient = new MonitorClient(connectionDetails.ServerName, connectionDetails.AccountToken);
+                    var intellisenseClient = new MonitorIntellisenseClient(httpClient);
+                    return new MonitorDataSource(httpClient, intellisenseClient);
+                }
+                default:
+                    
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
+                        nameof(dataSourceType));
+            }
+        }
+
+        private DataSourceType GetDataSourceType()
+        {
+            return Program.ServiceName.Contains("Kusto") ? DataSourceType.Kusto : DataSourceType.LogAnalytics;
+        }
+
+        private DataSourceConnectionDetails MapKustoConnectionDetails(ConnectionDetails connectionDetails)
+        {
+            if (connectionDetails.AuthenticationType == dstsAuth || connectionDetails.AuthenticationType == AzureMFA)
+            {
+                ValidationUtils.IsTrue<ArgumentException>(!string.IsNullOrWhiteSpace(connectionDetails.AccountToken),
+                    $"The Kusto User Token is not specified - set {nameof(connectionDetails.AccountToken)}");
+            }
+
+            return new DataSourceConnectionDetails
+            {
+                ServerName = connectionDetails.ServerName,
+                DatabaseName = connectionDetails.DatabaseName,
+                ConnectionString = connectionDetails.ConnectionString,
+                AuthenticationType = connectionDetails.AuthenticationType,
+                UserToken = connectionDetails.AccountToken,
+                UserName = connectionDetails.UserName,
+                Password = connectionDetails.Password
+            };
+        }
+
+        public static KustoConnectionStringBuilder CreateConnectionStringBuilder(DataSourceType dataSourceType, string serverName, string databaseName)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                {
+                    return new KustoConnectionStringBuilder(serverName, databaseName);
                 }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"",
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
+                        nameof(dataSourceType));
+            }
+        }
+
+        public static KustoConnectionStringBuilder CreateConnectionStringBuilder(DataSourceType dataSourceType, string connectionString)
+        {
+            switch (dataSourceType)
+            {
+                case DataSourceType.Kusto:
+                {
+                    return new KustoConnectionStringBuilder(connectionString);
+                }
+
+                default:
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""",
                         nameof(dataSourceType));
             }
         }
@@ -39,7 +122,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
         }
 
@@ -53,24 +136,43 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                     }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
         }
 
-        public static ReliableConnectionHelper.ServerInfo ConvertToServerinfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
+        public static ReliableConnectionHelper.ServerInfo ConvertToServerInfoFormat(DataSourceType dataSourceType, DiagnosticsInfo clusterDiagnostics)
         {
             switch (dataSourceType)
             {
                 case DataSourceType.Kusto:
                     {
-                        ReliableConnectionHelper.ServerInfo serverInfo = new ReliableConnectionHelper.ServerInfo();
-                        serverInfo.Options = new Dictionary<string, object>(clusterDiagnostics.Options);
-                        return serverInfo;
+                        return new ReliableConnectionHelper.ServerInfo
+                        {
+                            Options = new Dictionary<string, object>(clusterDiagnostics.Options)
+                        };
                     }
 
                 default:
-                    throw new ArgumentException($"Unsupported data source type \"{dataSourceType}\"", nameof(dataSourceType));
+                    throw new ArgumentException($@"Unsupported data source type ""{dataSourceType}""", nameof(dataSourceType));
             }
+        }
+
+        public static string GetProviderName()
+        {
+            return Program.ServiceName.Contains("Kusto") ? KustoProviderName : LogAnalyticsProviderName;
+        }
+
+        public static string GetProviderDescription()
+        {
+            return Program.ServiceName.Contains("Kusto") ? KustoProviderDescription : LogAnalyticsProviderDescription;
+        }
+
+        public static string Format(string input, FormatOptions options)
+        {
+            var code = KustoCode.ParseAndAnalyze(input);
+            var kustoCodeService = new KustoCodeService(code);
+            var formattedText = kustoCodeService.GetFormattedText();
+            return formattedText.Text;
         }
     }
 }

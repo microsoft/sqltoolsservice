@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -27,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save with a null set of params
             // Then: I should get a null argument exception
             ResultSet rs = new ResultSet(
-                Common.Ordinal, Common.Ordinal, 
+                Common.Ordinal, Common.Ordinal,
                 MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<ArgumentNullException>(() => rs.SaveAs(
                 null,
@@ -41,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save with a null set of params
             // Then: I should get a null argument exception
             ResultSet rs = new ResultSet(
-                Common.Ordinal, Common.Ordinal, 
+                Common.Ordinal, Common.Ordinal,
                 MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<ArgumentNullException>(() => rs.SaveAs(
                 new SaveResultsRequestParams(),
@@ -54,11 +56,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // If: I attempt to save a result set that hasn't completed execution
             // Then: I should get an invalid operation exception
             ResultSet rs = new ResultSet(
-                Common.Ordinal, Common.Ordinal, 
+                Common.Ordinal, Common.Ordinal,
                 MemoryFileSystem.GetFileStreamFactory());
             Assert.Throws<InvalidOperationException>(() => rs.SaveAs(
-                new SaveResultsRequestParams(), 
-                MemoryFileSystem.GetFileStreamFactory(), 
+                new SaveResultsRequestParams(),
+                MemoryFileSystem.GetFileStreamFactory(),
                 null, null));
         }
 
@@ -78,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // Then: I should get an invalid operation exception
             var requestParams = new SaveResultsRequestParams {FilePath = Constants.OwnerUri};
             Assert.Throws<InvalidOperationException>(() => rs.SaveAs(
-                requestParams, GetMockFactory(GetMockWriter().Object, null), 
+                requestParams, GetMockFactory(GetMockWriter().Object, null),
                 null, null));
         }
 
@@ -110,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
             // ... All the rows should have been written successfully
             saveWriter.Verify(
-                w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IList<DbColumnWrapper>>()),
+                w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()),
                 Times.Exactly(Common.StandardRows));
         }
 
@@ -150,21 +152,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
 
             // ... All the rows should have been written successfully
             saveWriter.Verify(
-                w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IList<DbColumnWrapper>>()),
+                w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()),
                 Times.Exactly((int) (saveParams.RowEndIndex - saveParams.RowStartIndex  + 1)));
         }
 
         private static Mock<IFileStreamWriter> GetMockWriter()
         {
             var mockWriter = new Mock<IFileStreamWriter>();
-            mockWriter.Setup(w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IList<DbColumnWrapper>>()));
+            mockWriter.Setup(w => w.WriteRow(It.IsAny<IList<DbCellValue>>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()));
             return mockWriter;
         }
 
         private static IFileStreamFactory GetMockFactory(IFileStreamWriter writer, Func<string, IFileStreamReader> readerGenerator)
         {
             var mockFactory = new Mock<IFileStreamFactory>();
-            mockFactory.Setup(f => f.GetWriter(It.IsAny<string>()))
+            mockFactory.Setup(f => f.GetWriter(It.IsAny<string>(), It.IsAny<IReadOnlyList<DbColumnWrapper>>()))
                 .Returns(writer);
             mockFactory.Setup(f => f.GetReader(It.IsAny<string>()))
                 .Returns(readerGenerator);

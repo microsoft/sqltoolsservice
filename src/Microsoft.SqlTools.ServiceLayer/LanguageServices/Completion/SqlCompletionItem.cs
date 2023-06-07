@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,19 +12,31 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
 {
     /// <summary>
     /// Creates a completion item from SQL parser declaration item
     /// </summary>
-    public class SqlCompletionItem
+    public partial class SqlCompletionItem
     {
-        private static Regex ValidSqlNameRegex = new Regex(@"^[\p{L}_@#][\p{L}\p{N}@$#_]{0,127}$");
+        [GeneratedRegex("^[\\p{L}_@#][\\p{L}\\p{N}@$#_]{0,127}$")]
+        private static partial Regex GetValidSqlNameRegex();
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]" };
         private static DelimitedIdentifier FunctionPostfix = new DelimitedIdentifier { Start = "", End = "()" };
         private static DelimitedIdentifier[] DelimitedIdentifiers =
             new DelimitedIdentifier[] { BracketedIdentifiers, new DelimitedIdentifier { Start = "\"", End = "\"" } };
+        public static readonly IList<string> AnsiScalarFunctions = new List<string>()
+        {
+            "CURRENT_DATE",
+            "CURRENT_TIME",
+            "CURRENT_TIMESTAMP",
+            "CURRENT_USER",
+            "SESSION_USER",
+            "SYSTEM_USER",
+            "USER"
+        };
 
         /// <summary>
         /// Create new instance given the SQL parser declaration
@@ -66,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.Schema:
                         // Only quote if we need to - i.e. if this isn't a valid name (has characters that need escaping such as [) 
                         // or if it's a reserved word
-                        if (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
+                        if (!GetValidSqlNameRegex().IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
                         {
                             InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
                         }
@@ -75,7 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.ScalarValuedFunction:
                     case DeclarationType.TableValuedFunction:
                         // Add ()'s for all functions except global variable system functions (which all start with @@)
-                        if (!DeclarationTitle.StartsWith("@@"))
+                        // and ANSI scalar functions (which don't include the parentheses to match the spec)
+                        if (!DeclarationTitle.StartsWith("@@") && !AnsiScalarFunctions.Contains(DeclarationTitle.ToUpperInvariant()))
                         {
                             InsertText = WithDelimitedIdentifier(FunctionPostfix, DeclarationTitle);
                         }
@@ -183,7 +198,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
            int startColumn,
            int endColumn)
         {
-            CompletionItem item = new CompletionItem()
+            var item = new CompletionItem()
             {
                 Label = label,
                 Kind = kind,

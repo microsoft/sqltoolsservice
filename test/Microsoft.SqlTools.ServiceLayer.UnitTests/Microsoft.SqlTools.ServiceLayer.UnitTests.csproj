@@ -1,21 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup Label="Configuration">
 		<OutputType>Exe</OutputType>
-		<TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<IsPackable>false</IsPackable>
 		<ApplicationIcon />
 		<StartupObject />
+		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
+		<NoWarn>$(NoWarn);CS8795</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Text.Encoding.CodePages" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
-		<PackageReference Include="Moq"  />
+		<PackageReference Include="Moq" />
 		<PackageReference Include="nunit" />
 		<PackageReference Include="nunit3testadapter" />
 		<PackageReference Include="nunit.console" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="coverlet.collector">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.msbuild">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
@@ -28,6 +37,13 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Remove=".\ShowPlan\TestExecution.xml" />
+		<EmbeddedResource Include="ShowPlan\TestShowPlan.xml" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="ShowPlan\TestShowPlanRecommendations.xml" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="Profiler\TestXel_0.xel">

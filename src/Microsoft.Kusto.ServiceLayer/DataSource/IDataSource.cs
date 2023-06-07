@@ -1,12 +1,18 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
+using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 
@@ -30,7 +36,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// The current database name, if there is one.
         /// </summary>
-        string DatabaseName { get; set; }
+        string DatabaseName { get; }
 
         /// <summary>
         /// Executes a query.
@@ -73,7 +79,8 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <summary>
         /// Refresh object list for entire cluster.
         /// </summary>
-        void Refresh();
+        /// <param name="includeDatabase"></param>
+        void Refresh(bool includeDatabase);
 
         /// <summary>
         /// Refresh object list for given object.
@@ -86,29 +93,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// </summary>
         /// <param name="updateDatabase">Object metadata.</param>
         void UpdateDatabase(string databaseName);
-
-        /// <summary>
-        /// Gets autocomplete suggestions at given position.
-        /// </summary>
-        /// <param name="GetAutoCompleteSuggestions">Object metadata.</param>
-        CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo queryText, Position index, bool throwOnError = false);
-        /// <summary>
-        /// Gets quick info hover tooltips for the current position.
-        /// </summary>
-        /// <param name="GetHoverHelp">Object metadata.</param>
-        Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
-
-        /// <summary>
-        /// Gets definition for a selected query text.
-        /// </summary>
-        /// <param name="GetDefinition">Object metadata.</param>
-        DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
-        
-        /// <summary>
-        /// Gets a list of semantic diagnostic marks for the provided script file
-        /// </summary>
-        /// <param name="GetSemanticMarkers">Object metadata.</param>
-        ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
 
         /// <summary>
         /// Tells whether the data source exists.
@@ -135,5 +119,12 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         /// <param name="functionName"></param>
         /// <returns></returns>
         string GenerateExecuteFunctionScript(string functionName);
+        
+        ScriptFileMarker[] GetSemanticMarkers(ScriptParseInfo parseInfo, ScriptFile scriptFile, string queryText);
+        DefinitionResult GetDefinition(string queryText, int index, int startLine, int startColumn, bool throwOnError = false);
+        Hover GetHoverHelp(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        CompletionItem[] GetAutoCompleteSuggestions(ScriptDocumentInfo scriptDocumentInfo, Position textPosition, bool throwOnError = false);
+        ListDatabasesResponse GetDatabases(string serverName, bool includeDetails);
+        DatabaseInfo GetDatabaseInfo(string serverName, string databaseName);
     }
 }

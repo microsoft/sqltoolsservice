@@ -3,13 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.ComponentModel;
 using System.Resources;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
@@ -272,6 +273,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     break;
             }
 
+            System.Diagnostics.Debug.Assert(result != null && result.Length != 0, "no string found for database scoped configuration value");
+
             return result;
         }
 
@@ -290,11 +293,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 return DatabaseScopedConfigurationOnOff.Off;
             }
             else if (displayText == manager.GetString("prototype_db_prop_databasescopedconfig_value_on") || !forSecondary)
-            {            
+            {
                 return DatabaseScopedConfigurationOnOff.On;
             }
             else
-            {               
+            {
                 return DatabaseScopedConfigurationOnOff.Primary;
             }
         }

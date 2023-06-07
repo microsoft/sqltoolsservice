@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -103,8 +105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 yield return new object[] {"0x000", new byte[] {0x00, 0x00}, "0x0000"};             // Base16, odd
 
                 // Single byte tests
-                yield return new object[] {"50", new byte[] {0x32}, "0x32"};                        // Base10
-                yield return new object[] {"050", new byte[] {0x32}, "0x32"};                       // Base10, leading zeros
+                yield return new object[] {"50", "2"u8.ToArray(), "0x32"};                        // Base10
+                yield return new object[] {"050", "2"u8.ToArray(), "0x32"};                       // Base10, leading zeros
                 yield return new object[] {"0xF0", new byte[] {0xF0}, "0xF0"};                      // Base16
                 yield return new object[] {"0x0F", new byte[] {0x0F}, "0x0F"};                      // Base16, leading zeros
                 yield return new object[] {"0xF", new byte[] {0x0F}, "0x0F"};                       // Base16, odd
@@ -294,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return new DbColumnWrapper(new CellUpdateTestDbColumn(typeof(T), dataTypeName, allowNull, colSize));
         }
 
-        private class CellUpdateTestDbColumn : DbColumn
+        private sealed class CellUpdateTestDbColumn : DbColumn
         {
             public CellUpdateTestDbColumn(Type dataType, string dataTypeName, bool allowNull = true, int? colSize = null)
             {

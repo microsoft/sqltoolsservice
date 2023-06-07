@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
+using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -48,6 +51,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts
             set
             {
                 SetOptionValue(RestoreOptionsHelper.BackupFilePaths, value);
+            }
+        }
+
+        internal DeviceType DeviceType 
+        {
+            get
+            {
+                return GetOptionValue<DeviceType>(RestoreOptionsHelper.DeviceType, DeviceType.File);
+            }
+            set
+            {
+                SetOptionValue(RestoreOptionsHelper.DeviceType, value);
             }
         }
 

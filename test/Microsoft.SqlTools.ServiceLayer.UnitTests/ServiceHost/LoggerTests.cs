@@ -1,6 +1,9 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
 
 using System.Diagnostics;
 using System.IO;
@@ -106,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 string tracingLevel = null;
                 SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
                 string expectedTraceSource = Logger.defaultTraceSource;
-                Logger.Initialize(tracingLevel);
+                Logger.Initialize(tracingLevel, false);
                 bool isLogFileExpectedToExist = false;
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);
@@ -117,7 +120,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 string tracingLevel = null;
                 SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
                 string expectedTraceSource = Logger.defaultTraceSource;
-                Logger.Initialize(tracingLevel);
+                Logger.Initialize(tracingLevel, false);
                 bool isLogFileExpectedToExist = false;
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);
@@ -128,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 string tracingLevel = "invalid";
                 SourceLevels expectedTracingLevel = Logger.defaultTracingLevel;
                 string expectedTraceSource = Logger.defaultTraceSource;
-                Logger.Initialize(tracingLevel);
+                Logger.Initialize(tracingLevel, false);
                 bool isLogFileExpectedToExist = false;
                 TestLogger.VerifyInitialization(expectedTracingLevel, expectedTraceSource, Logger.LogFileFullPath, isLogFileExpectedToExist, testNo++);
                 TestLogger.Cleanup(Logger.LogFileFullPath);

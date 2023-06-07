@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
@@ -171,12 +172,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         AddCell((string)o);
                         break;
                     default:
-                        if (o is TimeSpan) //TimeSpan doesn't have TypeCode
+                        if (o is TimeSpan span) //TimeSpan doesn't have TypeCode
                         {
-                            AddCell((TimeSpan)o);
-                            break;
+                            AddCell(span);
                         }
-                        AddCell(dbCellValue.DisplayValue);
+                        // We need to handle SqlDecimal and SqlMoney types here because we can't convert them to .NET types due to different precisons in SQL Server and .NET.
+                        else if (o is SqlDecimal || o is SqlMoney)
+                        {
+                            AddCellBoxedNumber(dbCellValue.DisplayValue);
+                        }
+                        else
+                        {
+                            AddCell(dbCellValue.DisplayValue);
+                        }
                         break;
                 }
             }
@@ -510,10 +518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public ExcelSheet AddSheet(string sheetName = null)
         {
             string sheetFileName = "sheet" + (sheetNames.Count + 1);
-            if (sheetName == null)
-            {
-                sheetName = sheetFileName;
-            }
+            sheetName ??= sheetFileName;
             EnsureValidSheetName(sheetName);
 
             sheetNames.Add(sheetName);

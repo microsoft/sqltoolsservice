@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -92,19 +94,19 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 {typeof(byte[]), val => WriteBytes((byte[]) val)},
                 {typeof(Guid), val => WriteGuid((Guid) val)},
 
-                {typeof(SqlString), val => WriteNullable((SqlString) val, obj => WriteString((string) obj))},
-                {typeof(SqlInt16), val => WriteNullable((SqlInt16) val, obj => WriteInt16((short) obj))},
-                {typeof(SqlInt32), val => WriteNullable((SqlInt32) val, obj => WriteInt32((int) obj))},
-                {typeof(SqlInt64), val => WriteNullable((SqlInt64) val, obj => WriteInt64((long) obj)) },
-                {typeof(SqlByte), val => WriteNullable((SqlByte) val, obj => WriteByte((byte) obj)) },
-                {typeof(SqlBoolean), val => WriteNullable((SqlBoolean) val, obj => WriteBoolean((bool) obj)) },
-                {typeof(SqlDouble), val => WriteNullable((SqlDouble) val, obj => WriteDouble((double) obj)) },
-                {typeof(SqlSingle), val => WriteNullable((SqlSingle) val, obj => WriteSingle((float) obj)) },
+                {typeof(SqlString), val => WriteNullable((SqlString) val, obj => WriteString(((SqlString) obj).Value))},
+                {typeof(SqlInt16), val => WriteNullable((SqlInt16) val, obj => WriteInt16(((SqlInt16) obj).Value))},
+                {typeof(SqlInt32), val => WriteNullable((SqlInt32) val, obj => WriteInt32(((SqlInt32)obj).Value))},
+                {typeof(SqlInt64), val => WriteNullable((SqlInt64) val, obj => WriteInt64(((SqlInt64) obj).Value)) },
+                {typeof(SqlByte), val => WriteNullable((SqlByte) val, obj => WriteByte(((SqlByte) obj).Value)) },
+                {typeof(SqlBoolean), val => WriteNullable((SqlBoolean) val, obj => WriteBoolean(((SqlBoolean) obj).Value)) },
+                {typeof(SqlDouble), val => WriteNullable((SqlDouble) val, obj => WriteDouble(((SqlDouble) obj).Value)) },
+                {typeof(SqlSingle), val => WriteNullable((SqlSingle) val, obj => WriteSingle(((SqlSingle) obj).Value)) },
                 {typeof(SqlDecimal), val => WriteNullable((SqlDecimal) val, obj => WriteSqlDecimal((SqlDecimal) obj)) },
-                {typeof(SqlDateTime), val => WriteNullable((SqlDateTime) val, obj => WriteDateTime((DateTime) obj)) },
-                {typeof(SqlBytes), val => WriteNullable((SqlBytes) val, obj => WriteBytes((byte[]) obj)) },
-                {typeof(SqlBinary), val => WriteNullable((SqlBinary) val, obj => WriteBytes((byte[]) obj)) },
-                {typeof(SqlGuid), val => WriteNullable((SqlGuid) val, obj => WriteGuid((Guid) obj)) },
+                {typeof(SqlDateTime), val => WriteNullable((SqlDateTime) val, obj => WriteDateTime(((SqlDateTime) obj).Value)) },
+                {typeof(SqlBytes), val => WriteNullable((SqlBytes) val, obj => WriteBytes(((SqlBytes) obj).Value)) },
+                {typeof(SqlBinary), val => WriteNullable((SqlBinary) val, obj => WriteBytes(((SqlBinary) obj).Value)) },
+                {typeof(SqlGuid), val => WriteNullable((SqlGuid) val, obj => WriteGuid(((SqlGuid) obj).Value)) },
                 {typeof(SqlMoney), val => WriteNullable((SqlMoney) val, obj => WriteMoney((SqlMoney) obj)) }
             };
         }
@@ -167,14 +169,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                         }
                         else
                         {
-                            // not a long field 
+                            // not a long field
                             values[i] = reader.GetValue(i);
                         }
                     }
                 }
 
                 // Get true type of the object
-                Type tVal = values[i].GetType();
+                Type tVal = values[i] == null ? typeof(DBNull) : values[i].GetType();
 
                 // Write the object to a file
                 if (tVal == typeof(DBNull))
@@ -209,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         [Obsolete]
-        public void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns)
+        public void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns)
         {
             throw new InvalidOperationException("This type of writer is meant to write values from a DbDataReader only.");
         }
@@ -299,7 +301,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         internal int WriteBoolean(bool val)
         {
             byteBuffer[0] = 0x01; // length
-            byteBuffer[1] = (byte) (val ? 0x01 : 0x00);
+            byteBuffer[1] = (byte)(val ? 0x01 : 0x00);
             return FileUtilities.WriteWithLength(fileStream, byteBuffer, 2);
         }
 
@@ -442,7 +444,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 // Convert to a unicode byte array
                 byte[] bytes = Encoding.Unicode.GetBytes(sVal);
 
-                // convert char array into byte array and write it out							
+                // convert char array into byte array and write it out
                 iTotalLen = WriteLength(bytes.Length);
                 iTotalLen += FileUtilities.WriteWithLength(fileStream, bytes, bytes.Length);
             }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
 	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+  <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
 	<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<DefineConstants>$(DefineConstants);NETCOREAPP1_0</DefineConstants>

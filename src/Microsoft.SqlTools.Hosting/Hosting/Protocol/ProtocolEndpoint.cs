@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
@@ -44,7 +45,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// handlers for requests, responses, and events that are
         /// transmitted through the channel.
         /// </summary>
-        protected MessageDispatcher MessageDispatcher { get; set; }
+        public MessageDispatcher MessageDispatcher { get; set; }
 
         /// <summary>
         /// Initializes an instance of the protocol server using the
@@ -68,12 +69,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <summary>
         /// Initializes
         /// </summary>
-        public void Initialize()
+        public void Initialize(Stream inputStream = null, Stream outputStream = null)
         {
             if (!this.isInitialized)
             {
                 // Start the provided protocol channel
-                this.protocolChannel.Start(this.messageProtocolType);
+                this.protocolChannel.Start(this.messageProtocolType, inputStream, outputStream);
 
                 // Start the message dispatcher
                 this.MessageDispatcher = new MessageDispatcher(this.protocolChannel);
@@ -118,10 +119,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
         }
 
-        public void WaitForExit()
+        public async Task WaitForExitAsync()
         {
             this.endpointExitedTask = new TaskCompletionSource<bool>();
-            this.endpointExitedTask.Task.Wait();
+            await this.endpointExitedTask.Task.WaitAsync(CancellationToken.None);
         }
 
         public async Task Stop()
@@ -157,14 +158,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         /// <param name="requestParams"></param>
         /// <returns></returns>
         public Task<TResult> SendRequest<TParams, TResult>(
-            RequestType<TParams, TResult> requestType, 
+            RequestType<TParams, TResult> requestType,
             TParams requestParams)
         {
             return this.SendRequest(requestType, requestParams, true);
         }
 
         public async Task<TResult> SendRequest<TParams, TResult>(
-            RequestType<TParams, TResult> requestType, 
+            RequestType<TParams, TResult> requestType,
             TParams requestParams,
             bool waitForResponse)
         {
@@ -181,13 +182,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 responseTask = new TaskCompletionSource<Message>();
                 this.pendingRequests.Add(
-                    this.currentMessageId.ToString(), 
+                    this.currentMessageId.ToString(),
                     responseTask);
             }
 
             await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
-                requestType, 
-                requestParams, 
+                requestType,
+                requestParams,
                 this.currentMessageId);
 
             if (responseTask != null)
@@ -271,32 +272,39 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
-            Func<TParams, RequestContext<TResult>, Task> requestHandler)
+            Func<TParams, RequestContext<TResult>, Task> requestHandler,
+            bool isParallelProcessingSupported = false)
         {
             this.MessageDispatcher.SetRequestHandler(
                 requestType,
-                requestHandler);
-        }
-
-        public void SetEventHandler<TParams>(
-            EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler)
-        {
-            this.MessageDispatcher.SetEventHandler(
-                eventType,
-                eventHandler,
-                false);
+                requestHandler,
+                false,
+                isParallelProcessingSupported);
         }
 
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool overrideExisting)
+            bool isParallelProcessingSupported = false)
         {
             this.MessageDispatcher.SetEventHandler(
                 eventType,
                 eventHandler,
-                overrideExisting);
+                false,
+                isParallelProcessingSupported);
+        }
+
+        public void SetEventHandler<TParams>(
+            EventType<TParams> eventType,
+            Func<TParams, EventContext, Task> eventHandler,
+            bool overrideExisting,
+            bool isParallelProcessingSupported = false)
+        {
+            this.MessageDispatcher.SetEventHandler(
+                eventType,
+                eventHandler,
+                overrideExisting,
+                isParallelProcessingSupported);
         }
 
         private void HandleResponse(Message responseMessage)

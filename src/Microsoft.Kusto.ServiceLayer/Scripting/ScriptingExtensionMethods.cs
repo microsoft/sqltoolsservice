@@ -3,11 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
@@ -101,7 +99,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
             string urn = string.Format(
                 "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
-                server.ToUpper(),
+                server.ToUpper(System.Globalization.CultureInfo.InvariantCulture),
                 Urn.EscapeString(database),
                 scriptingObject.Type,
                 Urn.EscapeString(scriptingObject.Name),

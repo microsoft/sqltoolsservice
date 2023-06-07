@@ -3,9 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using NUnit.Framework;
@@ -21,17 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         private static Dictionary<string, InstanceInfo> connectionProfilesCache = new Dictionary<string, InstanceInfo>();
         private static TestConnectionProfileService instance = new TestConnectionProfileService();
 
-        public const string DefaultSql2005InstanceKey = "defaultSql2005";
-        public const string DefaultSql2008InstanceKey = "defaultSql2008";
-        public const string DefaultSql2011InstanceKey = "defaultSql2011";
-        public const string DefaultSql2012Pcu1InstanceKey = "defaultSql2012pcu1";
-        public const string DefaultSql2014InstanceKey = "defaultSql2014";
-        public const string DefaultSqlAzureInstanceKey = "defaultSqlAzure";
-        public const string DefaultServerlessInstanceKey = "defaultServerless";
-        public const string DefaultSqlPdwInstanceKey = "defaultSqlPdw";
-        public const string DefaultSqlAzureV12InstanceKey = "defaultSqlAzureV12";
-        public const string DefaultSql2016InstanceKey = "defaultSql2016";
-        public const string DefaultSqlvNextInstanceKey = "defaultSqlvNext";
+        public const string SqlAzureInstanceKey = "sqlAzure";
+        public const string SqlOnPremInstanceKey = "sqlOnPrem";
 
         private TestConnectionProfileService()
         {
@@ -46,66 +40,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
-        public static InstanceInfo DefaultSql2012Pcu1
+        public static InstanceInfo? SqlAzure
         {
-            get { return GetInstance(DefaultSql2012Pcu1InstanceKey); }
+            get { return GetInstance(SqlAzureInstanceKey); }
         }
 
-        public static InstanceInfo DefaultSql2014
+        public static InstanceInfo? SqlOnPrem
         {
-            get { return GetInstance(DefaultSql2014InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSqlAzure
-        {
-            get { return GetInstance(DefaultSqlAzureInstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSqlAzureV12
-        {
-            get { return GetInstance(DefaultSqlAzureV12InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSql2016
-        {
-            get { return GetInstance(DefaultSql2016InstanceKey); }
-        }
-
-        public static InstanceInfo DefaultSqlvNext
-        {
-            get { return GetInstance(DefaultSqlvNextInstanceKey); }
+            get { return GetInstance(SqlOnPremInstanceKey); }
         }
 
         /// <summary>
         /// Returns the SQL connection info for given version key
         /// </summary>
-        public static InstanceInfo GetInstance(string key)
+        public static InstanceInfo? GetInstance(string key)
         {
-            InstanceInfo instanceInfo;
-            connectionProfilesCache.TryGetValue(key, out instanceInfo);
+            connectionProfilesCache.TryGetValue(key, out InstanceInfo? instanceInfo);
             Assert.True(instanceInfo != null, string.Format(CultureInfo.InvariantCulture, "Cannot find any instance for version key: {0}", key));
             return instanceInfo;
         }
 
-        public ConnectParams GetConnectionParameters(string key = DefaultSql2016InstanceKey, string databaseName = null)
+        public ConnectParams? GetConnectionParameters(string key = SqlOnPremInstanceKey, string databaseName = null)
         {
-            InstanceInfo instanceInfo = GetInstance(key);
-            if (instanceInfo != null)
-            {
-                ConnectParams connectParam = CreateConnectParams(instanceInfo, key, databaseName);
-
-                return connectParam;
-            }
-            return null;
+            InstanceInfo? instanceInfo = GetInstance(key);
+            return instanceInfo != null ? CreateConnectParams(instanceInfo, key, databaseName) : null;
         }
 
         /// <summary>
         /// Returns database connection parameters for given server type
         /// </summary>
-        public ConnectParams GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
+        public ConnectParams? GetConnectionParameters(TestServerType serverType = TestServerType.OnPrem, string databaseName = null)
         {
             string key = ConvertServerTypeToVersionKey(serverType);
-            return  GetConnectionParameters(key, databaseName);
+            return GetConnectionParameters(key, databaseName);
         }
 
         /// <summary>
@@ -123,19 +90,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     Console.WriteLine("DBTestInstance not configured. Run 'dotnet run Microsoft.SqlTools.ServiceLayer.TestEnvConfig' from the command line to configure");
                 }
 
-                if (testServers != null && settings != null)
+                if (testServers != null)
                 {
                     foreach (var serverIdentity in testServers)
                     {
-                        var instance = settings != null ? settings.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName) : null;
-                        if (instance.ServerType == TestServerType.None)
+                        var instance = settings?.GetConnectionProfile(serverIdentity.ProfileName, serverIdentity.ServerName);
+                        if (instance?.ServerType == TestServerType.None)
                         {
                             instance.ServerType = serverIdentity.ServerType;
                             AddInstance(instance);
                         }
                     }
                 }
-                if (settings != null)
+                if (settings?.Connections != null)
                 {
                     foreach (var instance in settings.Connections)
                     {
@@ -143,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Assert.True(false, "Fail to load the SQL connection instances. error: " + ex.Message);
             }
@@ -151,6 +118,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
         private static void AddInstance(InstanceInfo instance)
         {
+            Console.WriteLine($"Checking whether instance should be added to connections cache, server type: {instance.ServerType.ToString()}, version key: {instance.VersionKey}");
             if (instance != null && (instance.ServerType != TestServerType.None || !string.IsNullOrEmpty(instance.VersionKey)))
             {
                 TestServerType serverType = instance.ServerType == TestServerType.None ? TestServerType.OnPrem : instance.ServerType; //Default to onPrem
@@ -164,13 +132,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         instance.Password = credential.Password;
                     }
                     connectionProfilesCache.Add(versionKey, instance);
+                    Console.WriteLine("Instance added.");
                 }
+                else
+                {
+                    Console.WriteLine("Instance already in the cache.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Instance skipped.");
             }
         }
 
         private static string ConvertServerTypeToVersionKey(TestServerType serverType)
         {
-            return serverType == TestServerType.OnPrem ? DefaultSql2016InstanceKey : DefaultSqlAzureV12InstanceKey;
+            return serverType == TestServerType.OnPrem ? SqlOnPremInstanceKey : SqlAzureInstanceKey;
         }
 
         /// <summary>
@@ -181,23 +158,56 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             ConnectParams connectParams = new ConnectParams();
             connectParams.Connection = new ConnectionDetails();
             connectParams.Connection.ServerName = connectionProfile.ServerName;
-            connectParams.Connection.DatabaseName = connectionProfile.Database;
-            connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
-            connectParams.Connection.UserName = connectionProfile.User;
-            connectParams.Connection.Password = connectionProfile.Password;
-            connectParams.Connection.MaxPoolSize = 200;
+
+            if (!string.IsNullOrEmpty(connectionProfile.Database))
+            {
+                connectParams.Connection.DatabaseName = connectionProfile.Database;
+                connectParams.Connection.DatabaseDisplayName = connectionProfile.Database;
+            }
+            if (!string.IsNullOrEmpty(connectionProfile.User))
+            {
+                connectParams.Connection.UserName = connectionProfile.User;
+            }
+            if (!string.IsNullOrEmpty(connectionProfile.Password))
+            {
+                connectParams.Connection.Password = connectionProfile.Password;
+            }
+
             connectParams.Connection.AuthenticationType = connectionProfile.AuthenticationType.ToString();
+            connectParams.Connection.MaxPoolSize = 200;
+
+            if (!string.IsNullOrEmpty(connectionProfile.Encrypt))
+            {
+                connectParams.Connection.Encrypt = connectionProfile.Encrypt;
+            }
+            else
+            {
+                connectParams.Connection.Encrypt = SqlConnectionEncryptOption.Optional.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(connectionProfile.HostNameInCertificate))
+            {
+                connectParams.Connection.HostNameInCertificate = connectionProfile.HostNameInCertificate;
+            }
+            
             if (!string.IsNullOrEmpty(databaseName))
             {
                 connectParams.Connection.DatabaseName = databaseName;
                 connectParams.Connection.DatabaseDisplayName = databaseName;
             }
-            if (key == DefaultSqlAzureInstanceKey || key == DefaultSqlAzureV12InstanceKey)
+
+            if (!string.IsNullOrEmpty(connectionProfile.TrustServerCertificate))
+            {
+                connectParams.Connection.TrustServerCertificate = bool.Parse(connectionProfile.TrustServerCertificate);
+            }
+
+            if (key == SqlAzureInstanceKey || key == SqlAzureInstanceKey)
             {
                 connectParams.Connection.ConnectTimeout = 30;
-                connectParams.Connection.Encrypt = true;
+                connectParams.Connection.Encrypt = SqlConnectionEncryptOption.Mandatory.ToString();
                 connectParams.Connection.TrustServerCertificate = false;
             }
+
             return connectParams;
         }
     }

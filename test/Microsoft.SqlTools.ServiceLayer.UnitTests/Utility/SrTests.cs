@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Globalization;
 using NUnit.Framework;
 
@@ -33,6 +35,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionParamsValidateNullSqlAuth(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnectErrorNullParams);
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnectionCanceled);
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(""));
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidColumnEncryptionSetting(""));
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidSecureEnclaves(""));
+            Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidEncryptOption(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidAuthType(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceConnStringInvalidIntent(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceDbErrorDefaultNotConnected(""));

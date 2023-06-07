@@ -6,34 +6,29 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
-    public class ConnectionService
+    public class ConnectionService : IConnectionService
     {
-        public const string AdminConnectionPrefix = "ADMIN:";
-        internal const string PasswordPlaceholder = "******";
-        private const string SqlAzureEdition = "SQL Azure";
+        private const string PasswordPlaceholder = "******";
 
         /// <summary>
         /// Singleton service instance
@@ -60,22 +55,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
-        /// Map from script URIs to ConnectionInfo objects
-        /// This is internal for testing access only
-        /// </summary>
-        internal Dictionary<string, ConnectionInfo> OwnerToConnectionMap { get; } = new Dictionary<string, ConnectionInfo>();
-
-        /// <summary>
         /// Database Lock manager instance
         /// </summary>
         internal DatabaseLocksManager LockedDatabaseManager
         {
             get
             {
-                if (lockedDatabaseManager == null)
-                {
-                    lockedDatabaseManager = DatabaseLocksManager.Instance;
-                }
+                lockedDatabaseManager ??= DatabaseLocksManager.Instance;
                 return lockedDatabaseManager;
             }
             set
@@ -86,55 +72,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         /// <summary>
         /// Service host object for sending/receiving requests/events.
-        /// Internal for testing purposes.
         /// </summary>
-        internal IProtocolEndpoint ServiceHost { get; set; }
+        private IProtocolEndpoint _serviceHost;
 
-        /// <summary>
-        /// Gets the connection queue
-        /// </summary>
-        internal IConnectedBindingQueue ConnectionQueue
-        {
-            get
-            {
-                return this.GetConnectedQueue("Default");
-            }
-        }
-
-
-        /// <summary>
-        /// Default constructor should be private since it's a singleton class, but we need a constructor
-        /// for use in unit test mocking.
-        /// </summary>
-        public ConnectionService()
-        {
-        }
-
-        /// <summary>
-        /// Returns a connection queue for given type
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public IConnectedBindingQueue GetConnectedQueue(string type)
-        {
-            IConnectedBindingQueue connectedBindingQueue;
-            if (connectedQueues.TryGetValue(type, out connectedBindingQueue))
-            {
-                return connectedBindingQueue;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Returns all the connection queues
-        /// </summary>
-        public IEnumerable<IConnectedBindingQueue> ConnectedQueues
-        {
-            get
-            {
-                return this.connectedQueues.Values;
-            }
-        }
 
         /// <summary>
         /// Register a new connection queue if not already registered
@@ -175,8 +115,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private IDataSourceConnectionFactory _dataSourceConnectionFactory;
 
-        // Attempts to link a URI to an actively used connection for this URI
-        public virtual bool TryFindConnection(string ownerUri, out ConnectionInfo connectionInfo) => this.OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo);
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// Validates the given ConnectParams object. 
@@ -184,9 +123,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectionParams">The params to validate</param>
         /// <returns>A ConnectionCompleteParams object upon validation error, 
         /// null upon validation success</returns>
-        public ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
+        private ConnectionCompleteParams ValidateConnectParams(ConnectParams connectionParams)
         {
-            string paramValidationErrorMessage;
             if (connectionParams == null)
             {
                 return new ConnectionCompleteParams
@@ -194,12 +132,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     Messages = SR.ConnectionServiceConnectErrorNullParams
                 };
             }
-            if (!connectionParams.IsValid(out paramValidationErrorMessage))
+            if (!connectionParams.IsValid(out string paramValidationErrorMessage))
             {
                 return new ConnectionCompleteParams
                 {
                     OwnerUri = connectionParams.OwnerUri,
-                    Messages = paramValidationErrorMessage
+                    ErrorMessage = paramValidationErrorMessage,
                 };
             }
 
@@ -210,7 +148,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Open a connection with the specified ConnectParams
         /// </summary>
-        public virtual async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
+        public async Task<ConnectionCompleteParams> Connect(ConnectParams connectionParams)
         {
             // Validate parameters
             ConnectionCompleteParams validationResults = ValidateConnectParams(connectionParams);
@@ -224,9 +162,8 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo, 
             // but wait until later when we are connected to add it to the map.
-            ConnectionInfo connectionInfo;
             bool connectionChanged = false;
-            if (!OwnerToConnectionMap.TryGetValue(connectionParams.OwnerUri, out connectionInfo))
+            if (!_connectionManager.TryGetValue(connectionParams.OwnerUri, out ConnectionInfo connectionInfo))
             {
                 connectionInfo = new ConnectionInfo(_dataSourceConnectionFactory, connectionParams.OwnerUri, connectionParams.Connection);
             }
@@ -252,10 +189,10 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
 
             // If this is the first connection for this URI, add the ConnectionInfo to the map
-            bool addToMap = connectionChanged || !OwnerToConnectionMap.ContainsKey(connectionParams.OwnerUri);
+            bool addToMap = connectionChanged || !_connectionManager.ContainsKey(connectionParams.OwnerUri);
             if (addToMap)
             {
-                OwnerToConnectionMap[connectionParams.OwnerUri] = connectionInfo;
+                _connectionManager.TryAdd(connectionParams.OwnerUri, connectionInfo);
             }
 
             // Return information about the connected SQL Server instance
@@ -266,6 +203,28 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
 
             return completeParams;
+        }
+
+        internal bool TryRefreshAuthToken(string ownerUri, out string token)
+        {
+            token = string.Empty;
+            if (!_connectionManager.TryGetValue(ownerUri, out ConnectionInfo connection))
+            {
+                return false;
+            }
+
+            var requestMessage = new RequestSecurityTokenParams
+            {
+                AccountId = connection.ConnectionDetails.GetOptionValue("azureAccount", string.Empty),
+                Authority = connection.ConnectionDetails.GetOptionValue("azureTenantId", string.Empty),
+                Provider = connection.ConnectionDetails.AuthenticationType,
+                Resource = "SQL"
+            };
+
+            var response = _serviceHost.SendRequest(SecurityTokenRequest.Type, requestMessage, true).Result;
+            connection.UpdateAuthToken(response.Token);
+            token = response.Token;
+            return true;
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
@@ -372,12 +331,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 if (!string.IsNullOrEmpty(connectionInfo.ConnectionDetails.ConnectionString))
                 {
                     // If the connection was set up with a connection string, use the connection string to get the details
-                    var connectionString = new SqlConnectionStringBuilder(connection.ConnectionString);
+                    var connectionStringBuilder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connection.ConnectionString);
+                    
                     response.ConnectionSummary = new ConnectionSummary
                     {
-                        ServerName = connectionString.DataSource,
-                        DatabaseName = connectionString.InitialCatalog,
-                        UserName = connectionString.UserID
+                        ServerName = connectionStringBuilder.DataSource,
+                        DatabaseName = connectionStringBuilder.InitialCatalog,
+                        UserName = connectionStringBuilder.UserID
                     };
                 }
                 else
@@ -397,7 +357,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 DataSourceObjectMetadata clusterMetadata = MetadataFactory.CreateClusterMetadata(connectionInfo.ConnectionDetails.ServerName);
 
                 DiagnosticsInfo clusterDiagnostics = dataSource.GetDiagnostics(clusterMetadata);
-                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerinfoFormat(DataSourceType.Kusto, clusterDiagnostics);
+                ReliableConnectionHelper.ServerInfo serverInfo = DataSourceFactory.ConvertToServerInfoFormat(DataSourceType.Kusto, clusterDiagnostics);
 
                 response.ServerInfo = new ServerInfo
                 {
@@ -409,6 +369,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             catch (Exception ex)
             {
                 response.Messages = ex.ToString();
+                response.ErrorMessage = ex.Message;
             }
 
             return response;
@@ -429,11 +390,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             try
             {
                 connectionInfo.ConnectionDetails.Pooling = false;
-                // build the connection string from the input parameters
-                string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
-                // create a sql connection instance
-                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                // create a data source connection instance
+                connection = connectionInfo.Factory.CreateDataSourceConnection(connectionInfo.ConnectionDetails, connectionInfo.OwnerUri);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -519,7 +478,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             // Try to get the ConnectionInfo, if it exists
             ConnectionInfo connectionInfo;
-            if (!OwnerToConnectionMap.TryGetValue(ownerUri, out connectionInfo))
+            if (!_connectionManager.TryGetValue(ownerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(SR.ConnectionServiceListDbErrorNotConnected(ownerUri));
             }
@@ -531,19 +490,11 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 throw new InvalidOperationException(SR.ConnectionServiceDbErrorDefaultNotConnected(ownerUri));
             }
-
-            if (IsDedicatedAdminConnection(connectionInfo.ConnectionDetails))
+            
+            // Try to get the ReliableDataSourceClient and create if it doesn't already exist
+            if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
             {
-                // Since this is a dedicated connection only 1 is allowed at any time. Return the default connection for use in the requested action
-                connection = defaultConnection;
-            }
-            else
-            {
-                // Try to get the ReliableDataSourceClient and create if it doesn't already exist
-                if (!connectionInfo.TryGetConnection(connectionType, out connection) && ConnectionType.Default != connectionType)
-                {
-                    connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
-                }
+                connection = await TryOpenConnectionForConnectionType(ownerUri, connectionType, alwaysPersistSecurity, connectionInfo);
             }
 
             return connection;
@@ -634,7 +585,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
             // Lookup the ConnectionInfo owned by the URI
             ConnectionInfo info;
-            if (!OwnerToConnectionMap.TryGetValue(disconnectParams.OwnerUri, out info))
+            if (!_connectionManager.TryGetValue(disconnectParams.OwnerUri, out info))
             {
                 return false;
             }
@@ -659,7 +610,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             // If the ConnectionInfo has no more connections, remove the ConnectionInfo
             if (info.CountConnections == 0)
             {
-                OwnerToConnectionMap.Remove(disconnectParams.OwnerUri);
+                _connectionManager.TryRemove(disconnectParams.OwnerUri);
             }
 
             // Handle Telemetry disconnect events if we are disconnecting the default connection
@@ -752,48 +703,32 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// List all databases on the server specified
         /// </summary>
-        public ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
+        private ListDatabasesResponse ListDatabases(ListDatabasesParams listDatabasesParams)
         {
             // Verify parameters
-            var owner = listDatabasesParams.OwnerUri;
-            if (string.IsNullOrEmpty(owner))
+            if (string.IsNullOrEmpty(listDatabasesParams.OwnerUri))
             {
                 throw new ArgumentException(SR.ConnectionServiceListDbErrorNullOwnerUri);
             }
 
             // Use the existing connection as a base for the search
-            ConnectionInfo info;
-            if (!TryFindConnection(owner, out info))
+            if (!_connectionManager.TryGetValue(listDatabasesParams.OwnerUri, out ConnectionInfo info))
             {
-                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(owner));
-            }
-            ConnectionDetails connectionDetails = info.ConnectionDetails.Clone();
-
-            IDataSource dataSource = OpenDataSourceConnection(info);
-            DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(info.ConnectionDetails.ServerName);
-
-            ListDatabasesResponse response = new ListDatabasesResponse();
-
-            // Mainly used by "manage" dashboard
-            if(listDatabasesParams.IncludeDetails.HasTrue()){
-                IEnumerable<DataSourceObjectMetadata> databaseMetadataInfo = dataSource.GetChildObjects(objectMetadata, true);
-                List<DatabaseInfo> metadata = MetadataFactory.ConvertToDatabaseInfo(databaseMetadataInfo);
-                response.Databases = metadata.ToArray();
-
-                return response;
+                throw new Exception(SR.ConnectionServiceListDbErrorNotConnected(listDatabasesParams.OwnerUri));
             }
 
-            IEnumerable<DataSourceObjectMetadata> databaseMetadata = dataSource.GetChildObjects(objectMetadata);
-            if(databaseMetadata != null) response.DatabaseNames = databaseMetadata.Select(objMeta => objMeta.PrettyName).ToArray();
-            return response;
+            info.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
+            IDataSource dataSource = connection.GetUnderlyingConnection();
+
+            return dataSource.GetDatabases(info.ConnectionDetails.ServerName, listDatabasesParams.IncludeDetails.HasTrue());
         }
 
         public void InitializeService(IProtocolEndpoint serviceHost, IDataSourceConnectionFactory dataSourceConnectionFactory, 
-            IConnectedBindingQueue connectedBindingQueue)
+            IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager)
         {
-            ServiceHost = serviceHost;
+            _serviceHost = serviceHost;
             _dataSourceConnectionFactory = dataSourceConnectionFactory;
-            
+            _connectionManager = connectionManager;
             connectedQueues.AddOrUpdate("Default", connectedBindingQueue, (key, old) => connectedBindingQueue);
             LockedDatabaseManager.ConnectionService = this;
 
@@ -830,15 +765,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="connectParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
-        protected async Task HandleConnectRequest(
-            ConnectParams connectParams,
-            RequestContext<bool> requestContext)
+        private async Task HandleConnectRequest(ConnectParams connectParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
 
             try
             {
-                RunConnectRequestHandlerTask(connectParams);
+                await Task.Run(async () => await RunConnectRequestHandlerTask(connectParams));
                 await requestContext.SendResult(true);
             }
             catch
@@ -847,34 +780,22 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
         }
 
-        private void RunConnectRequestHandlerTask(ConnectParams connectParams)
+        private async Task RunConnectRequestHandlerTask(ConnectParams connectParams)
         {
-            // create a task to connect asynchronously so that other requests are not blocked in the meantime
-            Task.Run(async () =>
+            try
             {
-                try
+                // open connection based on request details
+                ConnectionCompleteParams result = await Connect(connectParams);
+                await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+            }
+            catch (Exception ex)
+            {
+                var result = new ConnectionCompleteParams
                 {
-                    // result is null if the ConnectParams was successfully validated 
-                    ConnectionCompleteParams result = ValidateConnectParams(connectParams);
-                    if (result != null)
-                    {
-                        await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                        return;
-                    }
-
-                    // open connection based on request details
-                    result = await Connect(connectParams);
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                }
-                catch (Exception ex)
-                {
-                    ConnectionCompleteParams result = new ConnectionCompleteParams()
-                    {
-                        Messages = ex.ToString()
-                    };
-                    await ServiceHost.SendEvent(ConnectionCompleteNotification.Type, result);
-                }
-            }).ContinueWithOnFaulted(null);
+                    Messages = ex.ToString()
+                };
+                await _serviceHost.SendEvent(ConnectionCompleteNotification.Type, result);
+            }
         }
 
         /// <summary>
@@ -900,15 +821,13 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Handle disconnect requests
         /// </summary>
-        protected async Task HandleDisconnectRequest(
-            DisconnectParams disconnectParams,
-            RequestContext<bool> requestContext)
+        private async Task HandleDisconnectRequest(DisconnectParams disconnectParams, RequestContext<bool> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "HandleDisconnectRequest");
 
             try
             {
-                bool result = Instance.Disconnect(disconnectParams);
+                bool result = Disconnect(disconnectParams);
                 await requestContext.SendResult(result);
             }
             catch (Exception ex)
@@ -921,194 +840,19 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <summary>
         /// Handle requests to list databases on the current server
         /// </summary>
-        protected async Task HandleListDatabasesRequest(
-            ListDatabasesParams listDatabasesParams,
-            RequestContext<ListDatabasesResponse> requestContext)
+        private async Task HandleListDatabasesRequest(ListDatabasesParams listDatabasesParams, RequestContext<ListDatabasesResponse> requestContext)
         {
             Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
 
             try
             {
-                ListDatabasesResponse result = ListDatabases(listDatabasesParams);
+                var result = await Task.Run(() => ListDatabases(listDatabasesParams));
                 await requestContext.SendResult(result);
             }
             catch (Exception ex)
             {
                 await requestContext.SendError(ex.ToString());
             }
-        }
-
-        /// <summary>
-        /// Checks if a ConnectionDetails object represents a DAC connection
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
-        {
-            Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
-            string serverName = builder.DataSource;
-            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Build a connection string from a connection details instance
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails)
-        {
-            return CreateConnectionStringBuilder(connectionDetails).ToString();
-        }
-
-        /// <summary>
-        /// Build a connection string builder a connection details instance
-        /// </summary>
-        /// <param name="connectionDetails"></param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails)
-        {
-            SqlConnectionStringBuilder connectionBuilder;
-
-            // If connectionDetails has a connection string already, use it to initialize the connection builder, then override any provided options.
-            // Otherwise use the server name, username, and password from the connection details.
-            if (!string.IsNullOrEmpty(connectionDetails.ConnectionString))
-            {
-                connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
-            }
-            else
-            {
-                // add alternate port to data source property if provided
-                string dataSource = !connectionDetails.Port.HasValue
-                    ? connectionDetails.ServerName
-                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
-
-                connectionBuilder = new SqlConnectionStringBuilder
-                {
-                    ["Data Source"] = dataSource,
-                    ["User Id"] = connectionDetails.UserName,
-                    ["Password"] = connectionDetails.Password
-                };
-            }
-
-            // Check for any optional parameters
-            if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
-            {
-                connectionBuilder["Initial Catalog"] = connectionDetails.DatabaseName;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
-            {
-                switch (connectionDetails.AuthenticationType)
-                {
-                    case "Integrated":
-                        connectionBuilder.IntegratedSecurity = true;
-                        break;
-                    case "SqlLogin":
-                        break;
-                    case "AzureMFA":
-                        connectionBuilder.UserID = "";
-                        connectionBuilder.Password = "";
-                        break;
-                    default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
-                }
-            }
-            if (connectionDetails.Encrypt.HasValue)
-            {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.Value;
-            }
-            if (connectionDetails.TrustServerCertificate.HasValue)
-            {
-                connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
-            }
-            if (connectionDetails.PersistSecurityInfo.HasValue)
-            {
-                connectionBuilder.PersistSecurityInfo = connectionDetails.PersistSecurityInfo.Value;
-            }
-            if (connectionDetails.ConnectTimeout.HasValue)
-            {
-                connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
-            }
-            if (connectionDetails.ConnectRetryCount.HasValue)
-            {
-                connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
-            }
-            if (connectionDetails.ConnectRetryInterval.HasValue)
-            {
-                connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ApplicationName))
-            {
-                connectionBuilder.ApplicationName = connectionDetails.ApplicationName;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.WorkstationId))
-            {
-                connectionBuilder.WorkstationID = connectionDetails.WorkstationId;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ApplicationIntent))
-            {
-                ApplicationIntent intent;
-                switch (connectionDetails.ApplicationIntent)
-                {
-                    case "ReadOnly":
-                        intent = ApplicationIntent.ReadOnly;
-                        break;
-                    case "ReadWrite":
-                        intent = ApplicationIntent.ReadWrite;
-                        break;
-                    default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidIntent(connectionDetails.ApplicationIntent));
-                }
-                connectionBuilder.ApplicationIntent = intent;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.CurrentLanguage))
-            {
-                connectionBuilder.CurrentLanguage = connectionDetails.CurrentLanguage;
-            }
-            if (connectionDetails.Pooling.HasValue)
-            {
-                connectionBuilder.Pooling = connectionDetails.Pooling.Value;
-            }
-            if (connectionDetails.MaxPoolSize.HasValue)
-            {
-                connectionBuilder.MaxPoolSize = connectionDetails.MaxPoolSize.Value;
-            }
-            if (connectionDetails.MinPoolSize.HasValue)
-            {
-                connectionBuilder.MinPoolSize = connectionDetails.MinPoolSize.Value;
-            }
-            if (connectionDetails.LoadBalanceTimeout.HasValue)
-            {
-                connectionBuilder.LoadBalanceTimeout = connectionDetails.LoadBalanceTimeout.Value;
-            }
-            if (connectionDetails.Replication.HasValue)
-            {
-                connectionBuilder.Replication = connectionDetails.Replication.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.AttachDbFilename))
-            {
-                connectionBuilder.AttachDBFilename = connectionDetails.AttachDbFilename;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.FailoverPartner))
-            {
-                connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
-            }
-            if (connectionDetails.MultiSubnetFailover.HasValue)
-            {
-                connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
-            }
-            if (connectionDetails.MultipleActiveResultSets.HasValue)
-            {
-                connectionBuilder.MultipleActiveResultSets = connectionDetails.MultipleActiveResultSets.Value;
-            }
-            if (connectionDetails.PacketSize.HasValue)
-            {
-                connectionBuilder.PacketSize = connectionDetails.PacketSize.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
-            {
-                connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
-            }
-            connectionBuilder.Pooling = false;
-
-            return connectionBuilder;
         }
 
         /// <summary>
@@ -1122,7 +866,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             {
                 string connectionString = string.Empty;
                 ConnectionInfo info;
-                if (TryFindConnection(connStringParams.OwnerUri, out info))
+                if (_connectionManager.TryGetValue(connStringParams.OwnerUri, out info))
                 {
                     try
                     {
@@ -1131,9 +875,9 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                             info.ConnectionDetails.Password = ConnectionService.PasswordPlaceholder;
                         }
 
-                        info.ConnectionDetails.ApplicationName = "sqlops-connection-string";
-
-                        connectionString = BuildConnectionString(info.ConnectionDetails);
+                        info.ConnectionDetails.ApplicationName = "ads-connection-string";
+                        connectionString = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto,
+                            info.ConnectionDetails.ServerName, info.ConnectionDetails.DatabaseName).ToString();
                     }
                     catch (Exception e)
                     {
@@ -1169,48 +913,24 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
 
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-            ConnectionDetails details = new ConnectionDetails()
+            var builder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, connectionString);
+            return new ConnectionDetails
             {
-                ApplicationIntent = builder.ApplicationIntent.ToString(),
-                ApplicationName = builder.ApplicationName,
-                AttachDbFilename = builder.AttachDBFilename,
-                AuthenticationType = builder.IntegratedSecurity ? "Integrated" : "SqlLogin",
-                ConnectRetryCount = builder.ConnectRetryCount,
-                ConnectRetryInterval = builder.ConnectRetryInterval,
-                ConnectTimeout = builder.ConnectTimeout,
-                CurrentLanguage = builder.CurrentLanguage,
+                ApplicationName = builder.ApplicationNameForTracing,
+                AuthenticationType = AzureMFA,
                 DatabaseName = builder.InitialCatalog,
-                Encrypt = builder.Encrypt,
-                FailoverPartner = builder.FailoverPartner,
-                LoadBalanceTimeout = builder.LoadBalanceTimeout,
-                MaxPoolSize = builder.MaxPoolSize,
-                MinPoolSize = builder.MinPoolSize,
-                MultipleActiveResultSets = builder.MultipleActiveResultSets,
-                MultiSubnetFailover = builder.MultiSubnetFailover,
-                PacketSize = builder.PacketSize,
-                Password = !builder.IntegratedSecurity ? builder.Password : string.Empty,
-                PersistSecurityInfo = builder.PersistSecurityInfo,
-                Pooling = builder.Pooling,
-                Replication = builder.Replication,
                 ServerName = builder.DataSource,
-                TrustServerCertificate = builder.TrustServerCertificate,
-                TypeSystemVersion = builder.TypeSystemVersion,
                 UserName = builder.UserID,
-                WorkstationId = builder.WorkstationID,
             };
-
-            return details;
         }
 
         /// <summary>
         /// Handles a request to change the database for a connection
         /// </summary>
-        public async Task HandleChangeDatabaseRequest(
-            ChangeDatabaseParams changeDatabaseParams,
-            RequestContext<bool> requestContext)
+        private async Task HandleChangeDatabaseRequest(ChangeDatabaseParams changeDatabaseParams, RequestContext<bool> requestContext)
         {
-            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            bool result = await Task.Run(() => result = ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            await requestContext.SendResult(result);
         }
 
         /// <summary>
@@ -1218,63 +938,57 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
-        public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
+        private bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
         {
-            ConnectionInfo info;
-            if (TryFindConnection(ownerUri, out info))
+            if (!_connectionManager.TryGetValue(ownerUri, out ConnectionInfo info))
             {
-                try
-                {
-                    info.ConnectionDetails.DatabaseName = newDatabaseName;
-
-                    foreach (string key in info.AllConnectionTypes)
-                    {
-                        ReliableDataSourceConnection conn;
-                        info.TryGetConnection(key, out conn);
-                        if (conn != null && conn.Database != newDatabaseName)
-                        {
-                            if (info.IsCloud && force)
-                            {
-                                conn.Close();
-                                conn.Dispose();
-                                info.RemoveConnection(key);
-
-                                string connectionString = BuildConnectionString(info.ConnectionDetails);
-
-                                // create a sql connection instance
-                                ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
-                                connection.Open();
-                                info.AddConnection(key, connection);
-                            }
-                            else
-                            {
-                                conn.ChangeDatabase(newDatabaseName);
-                            }
-                        }
-
-                    }
-
-                    // Fire a connection changed event
-                    ConnectionChangedParams parameters = new ConnectionChangedParams();
-                    IConnectionSummary summary = info.ConnectionDetails;
-                    parameters.Connection = summary.Clone();
-                    parameters.OwnerUri = ownerUri;
-                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Logger.Write(
-                        TraceEventType.Error,
-                        string.Format(
-                            "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}",
-                            newDatabaseName,
-                            ownerUri,
-                            e.ToString())
-                    );
-                }
+                return false;
             }
-            return false;
+            
+            try
+            {
+                info.ConnectionDetails.DatabaseName = newDatabaseName;
+
+                foreach (string key in info.AllConnectionTypes)
+                {
+                    ReliableDataSourceConnection conn;
+                    info.TryGetConnection(key, out conn);
+                    if (conn != null && conn.Database != newDatabaseName)
+                    {
+                        if (info.IsCloud && force)
+                        {
+                            conn.Close();
+                            conn.Dispose();
+                            info.RemoveConnection(key);
+
+                            // create a kusto connection instance
+                            ReliableDataSourceConnection connection = info.Factory.CreateDataSourceConnection(info.ConnectionDetails, ownerUri);
+                            connection.Open();
+                            info.AddConnection(key, connection);
+                        }
+                        else
+                        {
+                            conn.ChangeDatabase(newDatabaseName);
+                        }
+                    }
+                }
+
+                // Fire a connection changed event
+                ConnectionChangedParams parameters = new ConnectionChangedParams();
+                IConnectionSummary summary = info.ConnectionDetails;
+                parameters.Connection = summary.Clone();
+                parameters.OwnerUri = ownerUri;
+                _serviceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Write(
+                    TraceEventType.Error,
+                    $"Exception caught while trying to change database context to [{newDatabaseName}] for OwnerUri [{ownerUri}]. Exception:{e}"
+                );
+                return false;
+            }
         }
 
         /// <summary>
@@ -1313,12 +1027,12 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <param name="info"></param>
         private void HandleDisconnectTelemetry(ConnectionInfo connectionInfo)
         {
-            if (ServiceHost != null)
+            if (_serviceHost != null)
             {
                 try
                 {
                     // Send a telemetry notification for intellisense performance metrics
-                    ServiceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
+                    _serviceHost.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                     {
                         Params = new TelemetryProperties
                         {
@@ -1336,109 +1050,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
                 }
             }
-        }
-
-        /// <summary>
-        /// Create and open a new SqlConnection from a ConnectionInfo object
-        /// Note: we need to audit all uses of this method to determine why we're
-        /// bypassing normal ConnectionService connection management
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A SqlConnection created with the given connection info</returns>
-        internal static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            try
-            {
-                // capture original values
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
-                bool? originalPooling = connInfo.ConnectionDetails.Pooling;
-
-                // increase the connection timeout to at least 30 seconds and and build connection string
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
-                connInfo.ConnectionDetails.PersistSecurityInfo = true;
-                // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                connInfo.ConnectionDetails.Pooling = false;
-                connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
-
-                // generate connection string
-                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
-
-                // restore original values
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
-                connInfo.ConnectionDetails.Pooling = originalPooling;
-
-                // open a dedicated binding server connection
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
-                {
-                    // Fill in Azure authentication token if needed
-                    if (connInfo.ConnectionDetails.AzureAccountToken != null)
-                    {
-                        sqlConn.AccessToken = connInfo.ConnectionDetails.AzureAccountToken;
-                    }
-
-                    sqlConn.Open();
-                    return sqlConn;
-                }
-            }
-            catch (Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
-                    ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Create and open a new SqlConnection from a ConnectionInfo object
-        /// Note: we need to audit all uses of this method to determine why we're
-        /// bypassing normal ConnectionService connection management
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A SqlConnection created with the given connection info</returns>
-        private IDataSource OpenDataSourceConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            try
-            {
-                // generate connection string
-                string connectionString = BuildConnectionString(connInfo.ConnectionDetails);
-
-                // TODOKusto: Pass in type of DataSource needed to make this generic. Hard coded to Kusto right now.
-                return DataSourceFactory.Create(DataSourceType.Kusto, connectionString, connInfo.ConnectionDetails.AzureAccountToken);
-            }
-            catch (Exception ex)
-            {
-                string error = string.Format(CultureInfo.InvariantCulture,
-                    "Failed opening a DataSource of type {0}: error:{1} inner:{2} stacktrace:{3}",
-                    DataSourceType.Kusto, ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Create and open a new ServerConnection from a ConnectionInfo object.
-        /// This calls ConnectionService.OpenSqlConnection and then creates a
-        /// ServerConnection from it.
-        /// </summary>
-        /// <param name="connInfo">The connection info to connect with</param>
-        /// <param name="featureName">A plaintext string that will be included in the application name for the connection</param>
-        /// <returns>A ServerConnection (wrapping a SqlConnection) created with the given connection info</returns>
-        internal static ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName = null)
-        {
-            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
-
-            return connInfo.ConnectionDetails.AzureAccountToken != null 
-                ? new ServerConnection(sqlConnection, new AzureAccessToken(connInfo.ConnectionDetails.AzureAccountToken)) 
-                : new ServerConnection(sqlConnection);
         }
 
         public static void EnsureConnectionIsOpen(ReliableDataSourceConnection conn, bool forceReopen = false)

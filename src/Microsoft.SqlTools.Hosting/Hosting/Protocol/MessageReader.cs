@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
 using Microsoft.SqlTools.Utility;
@@ -50,6 +49,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         #endregion
 
         #region Constructors
+        public MessageReader() {} // added for mocking MessageReader in UT
 
         public MessageReader(
             Stream inputStream,
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         #region Public Methods
 
-        public async Task<Message> ReadMessage()
+        public virtual async Task<Message> ReadMessage() // mark as virtual for mocking MessageReader in UT
         {
             string messageContent = null;
 

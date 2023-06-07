@@ -3,11 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
+#nullable disable
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
@@ -100,15 +101,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             Validate.IsNotNullOrWhitespaceString("scriptingObject.Type", scriptingObject.Type);
 
             // Leaving the server name blank will automatically match whatever the server SMO is running against.
-            string urn = string.Format(
-                "Server[@Name='{0}']/Database[@Name='{1}']/{2}[@Name='{3}' {4}]",
-                server.ToUpper(),
-                Urn.EscapeString(database),
-                scriptingObject.Type,
-                Urn.EscapeString(scriptingObject.Name),
-                scriptingObject.Schema != null ? string.Format("and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema)) : string.Empty);
+            StringBuilder urnBuilder = new StringBuilder();
+            urnBuilder.AppendFormat("Server[@Name='{0}']/", server.ToUpper(System.Globalization.CultureInfo.InvariantCulture));
+            urnBuilder.AppendFormat("Database[@Name='{0}']/", Urn.EscapeString(database));
 
-            return new Urn(urn);
+            bool hasParentObject = !string.IsNullOrWhiteSpace(scriptingObject.ParentName) 
+                && !string.IsNullOrWhiteSpace(scriptingObject.ParentTypeName);
+            if (hasParentObject)
+            {
+                urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.ParentTypeName, Urn.EscapeString(scriptingObject.ParentName));
+                if (!string.IsNullOrWhiteSpace(scriptingObject.Schema))
+                {
+                    urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
+                }
+                urnBuilder.Append("]/");
+            }
+
+            urnBuilder.AppendFormat("{0}[@Name='{1}'", scriptingObject.Type, Urn.EscapeString(scriptingObject.Name));
+
+            // add schema to object only if there is no parent object specified
+            // the parent object field is only set for objects that don't have schema themselves
+            // so if parent is not null then the schema filter will already be set that part of the urn above
+            if (!string.IsNullOrWhiteSpace(scriptingObject.Schema) && !hasParentObject)
+            {
+                urnBuilder.AppendFormat(" and @Schema = '{0}'", Urn.EscapeString(scriptingObject.Schema));
+            }
+
+            urnBuilder.Append("]");
+
+            return new Urn(urnBuilder.ToString());
         }
 
         /// <summary>

@@ -3,26 +3,32 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
+using Microsoft.SqlTools.ServiceLayer.Workspace;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.ObjectExplorer.ObjectExplorerService;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {
-    public class ObjectExplorerServiceTests
+    public partial class ObjectExplorerServiceTests
     {
         private ObjectExplorerService _service = TestServiceProvider.Instance.ObjectExplorerService;
 
@@ -118,10 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         {
             var query = "";
             string databaseName = "#testDb#";
-            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
-            {
-                await ExpandAndVerifyDatabaseNode(testDbName, session);
-            });
+            await RunTest(databaseName, query, "TestDb", ExpandAndVerifyDatabaseNode);
         }
 
         [Test]
@@ -206,6 +209,90 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             });
         }
 
+        [Test]
+        public async Task GroupBySchemaisDisabled()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Tables), "Tables node should be found in database node when group by schema is disabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Views), "Views node should be found in database node when group by schema is disabled");
+            });
+        }
+
+        [Test]
+        public async Task GroupBySchemaisEnabled()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t1"), "Schema node t1 should be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t2"), "Schema node t2 should be found in database node when group by schema is enabled");
+                Assert.False(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Tables), "Tables node should not be found in database node when group by schema is enabled");
+                Assert.False(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Views), "Views node should not be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Programmability), "Programmability node should be found in database node when group by schema is enabled");
+                var lastSchemaPosition = Array.FindLastIndex(databaseChildren.Nodes, t => t.ObjectType == nameof(NodeTypes.ExpandableSchema));
+                var firstNonSchemaPosition = Array.FindIndex(databaseChildren.Nodes, t => t.ObjectType != nameof(NodeTypes.ExpandableSchema));
+                Assert.True(lastSchemaPosition < firstNonSchemaPosition, "Schema nodes should be before non-schema nodes");
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+            });
+        }
+
+        [Test]
+        public async Task GroupBySchemaHidesLegacySchemas()
+        {
+            string query = @"Create schema t1
+                            GO
+                            Create schema t2
+                            GO";
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "TestDb", async (testDbName, session) =>
+            {
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t1"), "Non legacy schema node t1 should be found in database node when group by schema is enabled");
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t2"), "Non legacy schema node t2 should be found in database node when group by schema is enabled");
+                string[] legacySchemas = new string[] 
+                { 
+                    "db_accessadmin", 
+                    "db_backupoperator", 
+                    "db_datareader", 
+                    "db_datawriter", 
+                    "db_ddladmin", 
+                    "db_denydatareader", 
+                    "db_denydatawriter", 
+                    "db_owner", 
+                    "db_securityadmin" 
+                };
+                foreach(var nodes in databaseChildren.Nodes)
+                {
+                    Assert.That(legacySchemas, Does.Not.Contain(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
+                }
+                var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_BuiltInSchema);
+                var legacySchemasChildren = await _service.ExpandNode(session, legacySchemasNode.NodePath);
+                foreach(var nodes in legacySchemasChildren.Nodes)
+                {
+                    Assert.That(legacySchemas, Does.Contain(nodes.Label), "Legacy schema nodes should be found in legacy schemas folder when group by schema is enabled");
+                }
+                WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+            });
+        }
+
         private async Task VerifyRefresh(ObjectExplorerSession session, string tablePath, string tableName, bool deleted = true)
         {
             //Refresh Root
@@ -213,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 
             //Verify tables cache is empty
             var rootChildrenCache = session.Root.GetChildren();
-             var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
+            var tablesCache = rootChildrenCache.First(x => x.Label == SR.SchemaHierarchy_Tables).GetChildren();
             Assert.False(tablesCache.Any());
 
             //Expand Tables
@@ -241,8 +328,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         //This takes take long to run so not a good test for CI builds
         public async Task VerifySystemObjects()
         {
-            string queryFileName = null;
-            string baselineFileName = null;
+            string queryFileName = string.Empty;
+            string baselineFileName = string.Empty;
             string databaseName = "#testDb#";
             await TestServiceProvider.CalculateRunTime(() => VerifyObjectExplorerTest(databaseName, queryFileName, "SystemOBjects", baselineFileName, true), true);
         }
@@ -266,8 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             catch (Exception ex)
             {
                 string msg = ex.BuildRecursiveErrorMessage();
-                Console.WriteLine($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
-                Assert.False(true, msg);
+                throw new Exception($"Failed to run OE test. uri:{uri} error:{msg} {ex.StackTrace}");
             }
             finally
             {
@@ -287,66 +373,66 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
             //connectParams.Connection.Pooling = false;
             ConnectionDetails details = connectParams.Connection;
-            string uri = ObjectExplorerService.GenerateUri(details);
+            string uri = GenerateUri(details);
 
-            var session =  await _service.DoCreateSession(details, uri);
+            var session = await _service.DoCreateSession(details, uri);
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "OE session created for database: {0}", databaseName));
             return session;
         }
 
         private async Task<NodeInfo> ExpandServerNodeAndVerifyDatabaseHierachy(string databaseName, ObjectExplorerSession session, bool serverNode = true)
         {
-            Assert.NotNull(session);
-            Assert.NotNull(session.Root);
-            NodeInfo nodeInfo = session.Root.ToNodeInfo();
-            Assert.AreEqual(false, nodeInfo.IsLeaf);
+            Assert.That(session, Is.Not.Null, nameof(session));
+            Assert.That(session.Root, Is.Not.Null, nameof(session.Root));
+            var nodeInfo = session.Root.ToNodeInfo();
+            Assert.That(nodeInfo.IsLeaf, Is.False, "Should not be a leaf node");
 
             NodeInfo databaseNode = null;
 
             if (serverNode)
             {
-                Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Server.ToString());
+                Assert.That(nodeInfo.NodeType, Is.EqualTo(NodeTypes.Server.ToString()), "Server node has incorrect type");
                 var children = session.Root.Expand(new CancellationToken());
 
                 //All server children should be folder nodes
                 foreach (var item in children)
                 {
-                    Assert.AreEqual("Folder", item.NodeType);
+                    Assert.That(item.NodeType, Is.EqualTo(NodeTypes.Folder.ToString()), $"Node {item.Label} should be folder");
                 }
 
                 var databasesRoot = children.FirstOrDefault(x => x.NodeTypeId == NodeTypes.Databases);
                 var databasesChildren = (await _service.ExpandNode(session, databasesRoot.GetNodePath())).Nodes;
                 var databases = databasesChildren.Where(x => x.NodeType == NodeTypes.Database.ToString());
 
-                //Verify the test databases is in the list
-                Assert.NotNull(databases);
+                // Verify the test databases is in the list
                 Assert.False(databases.Any(x => x.Label == "master"));
-                var systemDatabasesNode = databasesChildren.FirstOrDefault(x => x.Label == SR.SchemaHierarchy_SystemDatabases);
-                Assert.NotNull(systemDatabasesNode);
+                Assert.That(databases, Has.None.Matches<NodeInfo>(n => n.Label == "master"), "master database not expected in user databases folder");
+                var systemDatabasesNodes = databasesChildren.Where(x => x.Label == SR.SchemaHierarchy_SystemDatabases).ToList();
+                Assert.That(systemDatabasesNodes, Has.Count.EqualTo(1), $"Exactly one {SR.SchemaHierarchy_SystemDatabases} node expected");
 
-                var systemDatabases = await _service.ExpandNode(session, systemDatabasesNode.NodePath);
-                Assert.True(systemDatabases.Nodes.Any(x => x.Label == "master"));
+                var expandResponse = await _service.ExpandNode(session, systemDatabasesNodes.First().NodePath);
+                Assert.That(expandResponse.Nodes, Has.One.Matches<NodeInfo>(n => n.Label == "master"), "master database expected in system databases folder");
 
                 databaseNode = databases.FirstOrDefault(d => d.Label == databaseName);
             }
             else
             {
-                Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Database.ToString());
+                Assert.That(nodeInfo.NodeType, Is.EqualTo(NodeTypes.Database.ToString()), $"Database node {nodeInfo.Label} has incorrect type");
                 databaseNode = session.Root.ToNodeInfo();
                 Assert.True(databaseNode.Label.Contains(databaseName));
                 var databasesChildren = (await _service.ExpandNode(session, databaseNode.NodePath)).Nodes;
                 Assert.False(databasesChildren.Any(x => x.Label == SR.SchemaHierarchy_SystemDatabases));
 
             }
-            Assert.NotNull(databaseNode);
-            return databaseNode;
+            Assert.That(databaseNode, Is.Not.Null, "Database node should not be null");
+            return databaseNode!;
         }
 
         private async Task ExpandAndVerifyDatabaseNode(string databaseName, ObjectExplorerSession session)
         {
             Assert.NotNull(session);
             Assert.NotNull(session.Root);
-            NodeInfo nodeInfo = session.Root.ToNodeInfo();
+            var nodeInfo = session.Root.ToNodeInfo();
             Assert.AreEqual(false, nodeInfo.IsLeaf);
             Assert.AreEqual(nodeInfo.NodeType, NodeTypes.Database.ToString());
             Assert.True(nodeInfo.Label.Contains(databaseName));
@@ -400,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         /// </summary>
         private async Task<NodeInfo> FindNodeByLabel(NodeInfo node, ObjectExplorerSession session, string label)
         {
-            if(node != null && node.Label == label)
+            if (node != null && node.Label == label)
             {
                 return node;
             }
@@ -427,21 +513,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             return null;
         }
 
-
         private void VerifyMetadata(NodeInfo node)
         {
+            // These are node types for which the label doesn't include a schema
+            // (usually because the objects themselves aren't schema-bound)
+            var schemalessLabelNodeTypes = new List<string>() {
+                "Column",
+                "Key",
+                "Constraint",
+                "Index",
+                "Statistic",
+                "Trigger",
+                "StoredProcedureParameter",
+                "TableValuedFunctionParameter",
+                "ScalarValuedFunctionParameter",
+                "UserDefinedTableTypeColumn"
+            };
             if (node.NodeType != "Folder")
             {
-                Assert.NotNull(node.NodeType);
+                Assert.That(node.NodeType, Is.Not.Empty.Or.Null, "NodeType should not be empty or null");
                 if (node.Metadata != null && !string.IsNullOrEmpty(node.Metadata.MetadataTypeName))
                 {
-                    if (!string.IsNullOrEmpty(node.Metadata.Schema))
+                    if (!string.IsNullOrEmpty(node.Metadata.Schema) && !schemalessLabelNodeTypes.Any(t => t == node.NodeType))
                     {
-                        Assert.True(node.Label.Contains($"{node.Metadata.Schema}.{node.Metadata.Name}"));
+                        Assert.That(node.Label, Does.Contain($"{node.Metadata.Schema}.{node.Metadata.Name}"), "Node label does not contain expected text");
                     }
                     else
                     {
-                        Assert.NotNull(node.Label);
+                        Assert.That(node.Label, Does.Contain(node.Metadata.Name), "Node label does not contain expected text");
                     }
                 }
             }
@@ -450,7 +549,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         private async Task<bool> VerifyObjectExplorerTest(string databaseName, string testDbPrefix, string queryFileName, string baselineFileName, bool verifySystemObjects = false)
         {
             var query = string.IsNullOrEmpty(queryFileName) ? string.Empty : LoadScript(queryFileName);
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             await RunTest(databaseName, query, testDbPrefix, async (testDbName, session) =>
             {
                 await ExpandServerNodeAndVerifyDatabaseHierachy(testDbName, session, false);
@@ -459,7 +558,32 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 if (!string.IsNullOrEmpty(baseline))
                 {
                     string actual = stringBuilder.ToString();
-                    BaselinedTest.CompareActualWithBaseline(actual, baseline);
+
+                    // Dropped ledger objects have a randomly generated GUID appended to their name when they are deleted
+                    // For testing purposes, those guids need to be replaced with a deterministic string
+                    actual = GetBaselineRegex().Replace(actual, "<<NonDeterministic>>");
+
+                    // Write output to a bin directory for easier comparison
+                    string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+                    string outputRegeneratedFolder = Path.Combine(assemblyPath, @"ObjectExplorerServiceTests\Baselines\Regenerated");
+                    string outputRegeneratedFilePath = Path.Combine(outputRegeneratedFolder, baselineFileName);
+                    string msg = "";
+
+                    try
+                    {
+                        Directory.CreateDirectory(outputRegeneratedFolder);
+                        File.WriteAllText(outputRegeneratedFilePath, actual);
+                        msg = $"Generated output written to :\t{outputRegeneratedFilePath}\n\t" +
+                              $"Baseline output located at  :\t{GetBaseLineFile(baselineFileName)}";
+                    }
+                    catch (Exception e)
+                    {
+                        // We don't want to fail the test completely if we failed to write the regenerated baseline
+                        // (especially if the test passed).
+                        msg = $"Errors also occurred while attempting to write the new baseline file {outputRegeneratedFilePath} : {e.Message}";
+                    }
+
+                    Assert.That(actual, Is.EqualTo(baseline), $"Baseline comparison for {baselineFileName} failed\n\t" + msg);
                 }
             });
 
@@ -513,5 +637,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
             FileInfo inputFile = GetBaseLineFile(fileName);
             return TestUtilities.ReadTextAndNormalizeLineEndings(inputFile.FullName);
         }
+
+        [GeneratedRegex("[A-Z0-9]{32}")]
+        private static partial Regex GetBaselineRegex();
     }
 }

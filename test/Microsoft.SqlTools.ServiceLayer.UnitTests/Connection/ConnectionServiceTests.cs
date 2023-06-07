@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
@@ -10,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -64,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
+            CancellationToken token = new CancellationToken();
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t =>
@@ -125,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
+            CancellationToken token = new CancellationToken();
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t =>
@@ -193,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             // Given a connection that times out and responds to cancellation
             var mockConnection = new Mock<DbConnection> { CallBase = true };
-            CancellationToken token;
+            CancellationToken token = new CancellationToken();
             bool ready = false;
             mockConnection.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>()))
                 .Callback<CancellationToken>(t =>
@@ -248,11 +251,32 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
+        /// Verify that we cannot connect to the default database when no username
+        /// is provided and the authentication type is basic auth.
+        /// </summary>
+        [Test]
+        public async Task CantConnectWithoutUsername()
+        {
+            // Connect
+            var connectionDetails = TestObjects.GetTestConnectionDetails();
+            connectionDetails.UserName = "";
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = connectionDetails
+                });
+
+            Assert.That(connectionResult.ErrorMessage, Is.EqualTo(SR.ConnectionParamsValidateNullSqlAuth("UserName")));
+        }
+
+        /// <summary>
         /// Verify that we can connect to the default database when no database name is
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task CanConnectWithEmptyDatabaseName([Values(null, "")]string databaseName)
+        public async Task CanConnectWithEmptyDatabaseName([Values(null, "")] string databaseName)
         {
             // Connect
             var connectionDetails = TestObjects.GetTestConnectionDetails();
@@ -273,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// provided as a parameter.
         /// </summary>
         [Test]
-        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName([Values("master", "nonMasterDb")]string expectedDbName)
+        public async Task ConnectToDefaultDatabaseRespondsWithActualDbName([Values("master", "nonMasterDb")] string expectedDbName)
         {
             // Given connecting with empty database name will return the expected DB name
             var connectionMock = new Mock<DbConnection> { CallBase = true };
@@ -402,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     Connection = invalidConnectionDetails
                 });
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
         static readonly object[] invalidParameters =
@@ -419,11 +443,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"Integrated", "file://my/sample/file.sql", null, "test", "sa", "123456"},
             new object[] {"Integrated", "", "my-server", "test", "sa", "123456"},
             new object[] {"Integrated", "file://my/sample/file.sql", "", "test", "sa", "123456"}
-    };
+        };
         /// <summary>
         /// Verify that when connecting with invalid parameters, an error is thrown.
         /// </summary>
-        [Test, TestCaseSource(nameof(invalidParameters))]        
+        [Test, TestCaseSource(nameof(invalidParameters))]
         public async Task ConnectingWithInvalidParametersYieldsErrorMessage(string authType, string ownerUri, string server, string database, string userName, string password)
         {
             // Connect with invalid parameters
@@ -442,11 +466,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                     }
                 });
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
+        }
+
+        static readonly object[] noPassword =
+        {
+            new object[] {"sa", null},
+            new object[] {"sa", ""},
+        };
+
+      
+        /// <summary>
+        /// Verify that when using sql logins, the password can be empty.
+        /// </summary>
+        [Test, TestCaseSource(nameof(noPassword))]
+        public void ConnectingWithNoPasswordWorksForSqlLogin(string userName, string password)
+        {
+            // Connect
+            var connectionResult = 
+                ConnectionService.CreateConnectionStringBuilder(new ConnectionDetails()
+                    {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = userName,
+                        Password = password,
+                        AuthenticationType = SqlLogin
+                    });
+
+            Assert.That(connectionResult, Is.Not.Null.Or.Empty, "check that the connection was successful");
         }
 
         static readonly object[] noUserNameOrPassword =
-        {
+    {
             new object[] {null, null},
             new object[] {null, ""},
             new object[] {"", null},
@@ -474,11 +525,65 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                         DatabaseName = "test",
                         UserName = userName,
                         Password = password,
-                        AuthenticationType = "Integrated"
+                        AuthenticationType = Integrated
                     }
                 });
 
             Assert.That(connectionResult.ConnectionId, Is.Not.Null.Or.Empty, "check that the connection was successful");
+        }
+
+        /// <summary>
+        /// Verify that username is required when using Active Directory Interactive authentication.
+        /// Both AzureMFA and ActiveDirectoryInteractive should work same way, when SqlAuthenticationProvider is enabled.
+        /// </summary>
+        [TestCase(null, AzureMFA)]
+        [TestCase(null, ActiveDirectoryInteractive)]
+        public async Task ConnectingWitNoUsernameFailsForAADInteractiveAuth(string userName, string authMode)
+        {
+            // This is an exception scenario test, therefore using ConnectionService instance instead of TestConnectionService directly.
+            ConnectionService.Instance.EnableSqlAuthenticationProvider = true;
+            // Connect
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = new ConnectionDetails()
+                    {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = userName,
+                        AuthenticationType = authMode
+                    }
+                });
+
+            Assert.That(connectionResult.ConnectionId, Is.Null.Or.Empty, "Connection should not be successful");
+        }
+
+        /// <summary>
+        /// Verify that password is ignored when using Active Directory Interactive authentication.
+        /// </summary>
+        [TestCase("user", "anything", AzureMFA)]
+        [TestCase("user", "anything", ActiveDirectoryInteractive)]
+        public async Task ConnectingWitPasswordIsIgnoredForAADInteractiveAuth(string username, string password, string authMode)
+        {
+            // Connect
+            var connectionResult = await
+                TestObjects.GetTestConnectionService()
+                .Connect(new ConnectParams()
+                {
+                    OwnerUri = "file:///my/test/file.sql",
+                    Connection = new ConnectionDetails()
+                    {
+                        ServerName = "my-server",
+                        DatabaseName = "test",
+                        UserName = username,
+                        Password = password,
+                        AuthenticationType = authMode
+                    }
+                });
+
+            Assert.That(connectionResult.ConnectionId, Is.Not.Null.Or.Empty, "Connection should be successful");
         }
 
         /// <summary>
@@ -492,7 +597,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 TestObjects.GetTestConnectionService()
                 .Connect(null);
 
-            Assert.That(connectionResult.Messages, Is.Not.Null.Or.Empty, "check that an error was caught");
+            Assert.That(connectionResult.ErrorMessage, Is.Not.Null.Or.Empty, "check that an error was caught");
         }
 
 
@@ -500,8 +605,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             new object[] {"AuthenticationType", "Integrated", "Integrated Security" },
             new object[] {"AuthenticationType", "SqlLogin", ""},
-            new object[] {"Encrypt", true, "Encrypt"},
-            new object[] {"Encrypt", false, "Encrypt"},
+            new object[] {"Encrypt", "Mandatory", "Encrypt"},
+            new object[] {"Encrypt", "Optional", "Encrypt"},
+            new object[] {"Encrypt", "Strict", "Encrypt"},
             new object[] {"ColumnEncryptionSetting", "Enabled", "Column Encryption Setting=Enabled"},
             new object[] {"ColumnEncryptionSetting", "Disabled", "Column Encryption Setting=Disabled"},
             new object[] {"ColumnEncryptionSetting", "enabled", "Column Encryption Setting=Enabled"},
@@ -512,9 +618,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"ColumnEncryptionSetting", "DiSaBlEd", "Column Encryption Setting=Disabled"},
             new object[] {"TrustServerCertificate", true, "Trust Server Certificate"},
             new object[] {"TrustServerCertificate", false, "Trust Server Certificate"},
+            new object[] {"HostNameInCertificate", "hostname", "Host Name In Certificate"},
             new object[] {"PersistSecurityInfo", true, "Persist Security Info"},
             new object[] {"PersistSecurityInfo", false, "Persist Security Info"},
             new object[] {"ConnectTimeout", 15, "Connect Timeout"},
+            new object[] {"CommandTimeout", 30, "Command Timeout"},
             new object[] {"ConnectRetryCount", 1, "Connect Retry Count"},
             new object[] {"ConnectRetryInterval", 10, "Connect Retry Interval"},
             new object[] {"ApplicationName", "vscode-mssql", "Application Name"},
@@ -558,13 +666,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
         private static readonly object[] optionalEnclaveParameters =
         {
-            new object[] {"EnclaveAttestationProtocol", "AAS", "Attestation Protocol=AAS"},
-            new object[] {"EnclaveAttestationProtocol", "HGS", "Attestation Protocol=HGS"},
-            new object[] {"EnclaveAttestationProtocol", "aas", "Attestation Protocol=AAS"},
-            new object[] {"EnclaveAttestationProtocol", "hgs", "Attestation Protocol=HGS"},
-            new object[] {"EnclaveAttestationProtocol", "AaS", "Attestation Protocol=AAS"},
-            new object[] {"EnclaveAttestationProtocol", "hGs", "Attestation Protocol=HGS"},
-            new object[] {"EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave" },
+            new object[] {"AAS", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=AAS"},
+            new object[] {"HGS", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=HGS"},
+            new object[] {"aas", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=AAS"},
+            new object[] {"hgs", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=HGS"},
+            new object[] {"AaS", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=AAS"},
+            new object[] {"hGs", "https://attestation.us.attest.azure.net/attest/SgxEnclave", "Enclave Attestation Url=https://attestation.us.attest.azure.net/attest/SgxEnclave;Attestation Protocol=HGS"},
+            new object[] {"NONE", null, "Attestation Protocol=None"},
+            new object[] {"None", null, "Attestation Protocol=None" },
         };
 
         /// <summary>
@@ -572,18 +681,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// can be built into a connection string for connecting.
         /// </summary>
         [Test, TestCaseSource(nameof(optionalEnclaveParameters))]
-        public void ConnectingWithOptionalEnclaveParametersBuildsConnectionString(string propertyName, object propertyValue, string connectionStringMarker)
+        public void ConnectingWithOptionalEnclaveParametersBuildsConnectionString(string attestationProtocol, string attestationUrl, string connectionStringMarker)
         {
-            // Create a test connection details object and set the property to a specific value
+            // Create a test connection details object
             ConnectionDetails details = TestObjects.GetTestConnectionDetails();
-            details.ColumnEncryptionSetting = "Enabled";
-            details.GetType()
-                .GetProperty(propertyName)
-                .SetValue(details, propertyValue);
 
-            // Test that a connection string can be created without exceptions
-            string connectionString = ConnectionService.BuildConnectionString(details);            
-            Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameter is in the connection string");
+            //Enable Secure Enclaves
+            details.ColumnEncryptionSetting = "Enabled";
+            details.SecureEnclaves = "Enabled";
+
+            // Set Attestation Protocol
+            details.GetType()
+                .GetProperty("EnclaveAttestationProtocol")
+                .SetValue(details, attestationProtocol);
+
+            // Set Attestation URL
+            details.GetType()
+                .GetProperty("EnclaveAttestationUrl")
+                .SetValue(details, attestationUrl);
+
+            // Test that a connection string can be created without exceptions with provided combinations.
+            string connectionString = ConnectionService.BuildConnectionString(details);
+            Assert.That(connectionString, Contains.Substring(connectionStringMarker), "Verify that the parameters are in the connection string");
         }
 
         private static readonly object[] invalidOptions =
@@ -591,7 +710,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             new object[] {"AuthenticationType", "NotAValidAuthType" },
             new object[] {"ColumnEncryptionSetting", "NotAValidColumnEncryptionSetting" },
             new object[] {"EnclaveAttestationProtocol", "NotAValidEnclaveAttestationProtocol" },
+            new object[] {"EnclaveAttestationProtocol", "AAS" }, // Without Attestation Url
+            new object[] {"EnclaveAttestationProtocol", "hgs" }, // Without Attestation Url
+            new object[] { "EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave" }, // Without Attestation Protocol
         };
+
         /// <summary>
         /// Build connection string with an invalid property type
         /// </summary>
@@ -604,11 +727,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.Throws<ArgumentException>(() => ConnectionService.BuildConnectionString(details));
         }
 
-        private static readonly Tuple<string,object>[][] optionCombos =
+        private static readonly Tuple<string, object>[][] optionCombos =
         {
             new []
                 {
                     Tuple.Create<string, object>("ColumnEncryptionSetting", null),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                },
+            new []
+                {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", "Enabled"),
+                    Tuple.Create<string, object>("SecureEnclaves", null),
                     Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
                     Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
                 },
@@ -620,11 +750,59 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 },
             new []
                 {
+                    Tuple.Create<string, object>("ColumnEncryptionSetting", "Enabled"),
+                    Tuple.Create<string, object>("SecureEnclaves", "Disabled"),
+                    Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
+                    Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
+                },
+            new []
+                {
                     Tuple.Create<string, object>("ColumnEncryptionSetting", ""),
                     Tuple.Create<string, object>("EnclaveAttestationProtocol", "AAS"),
                     Tuple.Create<string, object>("EnclaveAttestationUrl", "https://attestation.us.attest.azure.net/attest/SgxEnclave")
                 }
         };
+
+        private static readonly object[] EncryptionCombinations =
+        {
+            new object[] { SqlConnectionEncryptOption.Optional, SqlConnectionEncryptOption.Optional },
+            new object[] { SqlConnectionEncryptOption.Mandatory, SqlConnectionEncryptOption.Mandatory },
+            new object[] { SqlConnectionEncryptOption.Strict, SqlConnectionEncryptOption.Strict },
+        };
+
+        /// <summary>
+        /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
+        /// </summary>
+        [Test, TestCaseSource(nameof(EncryptionCombinations))]
+        public void ConnectingWithStrictEncryptionBuildsConnectionString(SqlConnectionEncryptOption encryptValue, SqlConnectionEncryptOption expected)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            details.Encrypt = encryptValue.ToString();
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+
+            Assert.That(connectionString, Contains.Substring("Encrypt=" + expected.ToString()), "Encrypt not as expected.");
+        }
+
+        /// <summary>
+        /// Verify that Strict Encryption parameters can be built into a connection string for connecting.
+        /// </summary>
+        [Test]
+        [TestCase(true, "True")]
+        [TestCase(false, "False")]
+        public void ConnectingWithBoolEncryptBuildsConnectionString(bool encryptValue, string expected)
+        {
+            // Create a test connection details object and set the property to a specific value
+            ConnectionDetails details = TestObjects.GetTestConnectionDetails();
+            details.Options["encrypt"] = encryptValue;
+
+            // Test that a connection string can be created without exceptions
+            string connectionString = ConnectionService.BuildConnectionString(details);
+
+            Assert.That(connectionString, Contains.Substring("Encrypt=" + expected), "Encrypt not as expected.");
+        }
 
         /// <summary>
         /// Build connection string with an invalid property combinations
@@ -878,7 +1056,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             TestDbColumn[] cols = { new TestDbColumn("name") };
             object[][] rows =
             {
-                new object[] {"mydatabase"}, // this should be sorted to the end in the response
+                new object[] {"mydatabase"},
                 new object[] {"master"},
                 new object[] {"model"},
                 new object[] {"msdb"},
@@ -890,11 +1068,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             string[] databaseNames = response.DatabaseNames;
 
             Assert.AreEqual(5, databaseNames.Length);
-            Assert.AreEqual("master", databaseNames[0]);
-            Assert.AreEqual("model", databaseNames[1]);
-            Assert.AreEqual("msdb", databaseNames[2]);
-            Assert.AreEqual("tempdb", databaseNames[3]);
-            Assert.AreEqual("mydatabase", databaseNames[4]);
+            Assert.AreEqual("mydatabase", databaseNames[0]);
+            Assert.AreEqual("master", databaseNames[1]);
+            Assert.AreEqual("model", databaseNames[2]);
+            Assert.AreEqual("msdb", databaseNames[3]);
+            Assert.AreEqual("tempdb", databaseNames[4]);
         }
 
         /// <summary>
@@ -912,7 +1090,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
              };
             object[][] rows =
             {
-                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"}, // this should be sorted to the end in the response
+                new object[] {"mydatabase", "Online", "10", "2010-01-01 11:11:11"},
                 new object[] {"master", "Online", "11", "2010-01-01 11:11:12"},
                 new object[] {"model", "Offline", "12", "2010-01-01 11:11:13"},
                 new object[] {"msdb", "Online", "13", "2010-01-01 11:11:14"},
@@ -922,11 +1100,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var response = await RunListDatabasesRequestHandler(testdata: data, includeDetails: true);
 
             Assert.AreEqual(5, response.Databases.Length);
-            VerifyDatabaseDetail(rows[0], response.Databases[4]);
-            VerifyDatabaseDetail(rows[1], response.Databases[0]);
-            VerifyDatabaseDetail(rows[2], response.Databases[1]);
-            VerifyDatabaseDetail(rows[3], response.Databases[2]);
-            VerifyDatabaseDetail(rows[4], response.Databases[3]);
+            VerifyDatabaseDetail(rows[0], response.Databases[0]);
+            VerifyDatabaseDetail(rows[1], response.Databases[1]);
+            VerifyDatabaseDetail(rows[2], response.Databases[2]);
+            VerifyDatabaseDetail(rows[3], response.Databases[3]);
+            VerifyDatabaseDetail(rows[4], response.Databases[4]);
         }
 
         private void VerifyDatabaseDetail(object[] expected, DatabaseInfo actual)
@@ -1116,10 +1294,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Test that the connection summary comparer creates a hash code correctly
         /// </summary>
         [Test]
-        public void TestConnectionSummaryComparerHashCode([Values]bool objectNull, 
-                                                          [Values(null, "server")]string serverName, 
-                                                          [Values(null, "test")]string databaseName, 
-                                                          [Values(null, "sa")]string userName)
+        public void TestConnectionSummaryComparerHashCode([Values] bool objectNull,
+                                                          [Values(null, "server")] string serverName,
+                                                          [Values(null, "test")] string databaseName,
+                                                          [Values(null, "sa")] string userName)
         {
             // Given a connection summary and comparer object
             ConnectionSummary summary = null;
@@ -1320,13 +1498,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullOwnerUri([Values(null, "")]string ownerUri)
+        public async Task GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
         {
             // If: I have a connection service and I ask for a connection with an invalid ownerUri
             // Then: An exception should be thrown
             var service = TestObjects.GetTestConnectionService();
-             Assert.ThrowsAsync<ArgumentException>(
-                () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
+            Assert.ThrowsAsync<ArgumentException>(
+               () => service.GetOrOpenConnection(ownerUri, ConnectionType.Default));
         }
 
         [Test]
@@ -1622,19 +1800,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             // If we make a connection to a live database
             ConnectionService service = ConnectionService.Instance;
 
-            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Command Timeout=30;HostNameInCertificate={servername}";
 
             var details = service.ParseConnectionString(connectionString);
+            Assert.That(details.ServerName, Is.EqualTo("tcp:{servername},1433"), "Unexpected server name");
+            Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
+            Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
+            Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
+            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.Encrypt, Is.EqualTo("True"), "Unexpected Encrypt value");
+            Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
+            Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
+            Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
+            Assert.That(details.CommandTimeout, Is.EqualTo(30), "Unexpected CommandTimeout Timeout value");
+        }
 
-            Assert.AreEqual("tcp:{servername},1433", details.ServerName);
-            Assert.AreEqual("{databasename}", details.DatabaseName);
-            Assert.AreEqual("{your_username}", details.UserName);
-            Assert.AreEqual("{your_password}", details.Password);
-            Assert.AreEqual(false, details.PersistSecurityInfo);
-            Assert.AreEqual(false, details.MultipleActiveResultSets);
-            Assert.AreEqual(true, details.Encrypt);
-            Assert.AreEqual(false, details.TrustServerCertificate);
-            Assert.AreEqual(30, details.ConnectTimeout);
+        /// <summary>
+        /// Test ParseConnectionString
+        /// </summary>
+        [Test]
+        public void ParseConnectionStringTest_StrictEncryption()
+        {
+            // If we make a connection to a live database
+            ConnectionService service = ConnectionService.Instance;
+
+            var connectionString = "Server=tcp:{servername},1433;Initial Catalog={databasename};Persist Security Info=False;User ID={your_username};Password={your_password};MultipleActiveResultSets=False;Encrypt=Strict;TrustServerCertificate=False;Connection Timeout=30;Command Timeout=30;HostNameInCertificate={servername}";
+
+            var details = service.ParseConnectionString(connectionString);
+            Assert.That(details.ServerName, Is.EqualTo("tcp:{servername},1433"), "Unexpected server name");
+            Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
+            Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
+            Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
+            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.Encrypt, Is.EqualTo(SqlConnectionEncryptOption.Strict.ToString()), "Unexpected Encrypt value");
+            Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
+            Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
+            Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
+            Assert.That(details.CommandTimeout, Is.EqualTo(30), "Unexpected Command Timeout value");
         }
 
         [Test]
@@ -1651,17 +1855,95 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             details.AzureAccountToken = azureAccountToken;
             details.UserName = "";
             details.Password = "";
-            details.AuthenticationType = "AzureMFA";
+            details.AuthenticationType = AzureMFA;
 
-            // If I open a connection using connection details that include an account token
+            // Open a connection using connection details that include an account token
             await connectionService.Connect(new ConnectParams
             {
                 OwnerUri = "testURI",
                 Connection = details
             });
 
-            // Then the connection factory got called with details including an account token
+            // Validate that the connection factory gets called with details NOT including an account token
             mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken)), Times.Once());
+        }
+
+        /// <summary>
+        /// Test is IsDbPool method correctly works for various database names
+        /// </summary>
+        [Test]
+        public void CheckIsDbPool()
+        {
+            Assert.IsTrue(ConnectionService.IsDbPool("db@pool"));
+            Assert.IsFalse(ConnectionService.IsDbPool("db"));
+            Assert.IsFalse(ConnectionService.IsDbPool(null));
+        }
+
+        /// <summary>
+        /// Verify that providing an empty password to change password will fire an error. 
+        /// </summary>
+        [Test]
+        public async Task ConnectionEmptyPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                NewPassword = ""
+            };
+            Assert.Throws<Exception>(() => connectionService.ChangePassword(testConnectionParams));
+        }
+
+        /// <summary>
+        /// Verify that providing an invalid connection parameter value to change password will fire an error. 
+        /// </summary>
+        [Test]
+        public async Task ConnectionInvalidParamPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = { },
+                NewPassword = "TestPassword"
+            };
+            Assert.Throws<Exception>(() => connectionService.ChangePassword(testConnectionParams));
+        }
+
+        /// <summary>
+        /// Verify that providing a non actual connection and a fake password to change password will throw an error. 
+        /// </summary>
+        [Test]
+        public async Task InvalidConnectionPasswordChange()
+        {
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+
+            var connectionService = ConnectionService.Instance;
+            connectionService.ServiceHost = serviceHostMock.Object;
+
+            // Set up an initial connection
+            const string ownerUri = "file://my/sample/file.sql";
+            ChangePasswordParams testConnectionParams = new ChangePasswordParams()
+            {
+                OwnerUri = ownerUri,
+                Connection = TestObjects.GetTestConnectionDetails(),
+                NewPassword = "TestPassword"
+            };
+            Assert.Throws<Microsoft.SqlServer.Management.Common.ChangePasswordFailureException>(
+                () => connectionService.ChangePassword(testConnectionParams));
         }
     }
 }

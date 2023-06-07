@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
         public ResourceProviderService()
         {
         }
-        
+
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "ResourceProvider initialized");
@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 ResourceManager = ServiceProvider.GetService<IAzureResourceManager>()
             };
         }
-        
+
         /// <summary>
         /// Handles a firewall rule creation request. It does this by matching the server name to an Azure Server resource,
         /// then issuing the command to create a new firewall rule for the specified IP address against that instance
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             await HandleRequest(requestHandler, tokenExpiredHandler, requestContext, "HandleCreateFirewallRuleRequest");
         }
 
-        private async Task<CreateFirewallRuleResponse> DoHandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRule)
+        private async Task<CreateFirewallRuleResponse> DoHandleCreateFirewallRuleRequest(CreateFirewallRuleParams firewallRuleParams)
         {
             var result = new CreateFirewallRuleResponse();
             // Note: currently not catching the exception. Expect the caller to this message to handle error cases by
@@ -77,18 +77,18 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             try
             {
                 AuthenticationService authService = ServiceProvider.GetService<AuthenticationService>();
-                IUserAccount account = await authService.SetCurrentAccountAsync(firewallRule.Account, firewallRule.SecurityTokenMappings);
-                FirewallRuleResponse response = await firewallRuleService.CreateFirewallRuleAsync(firewallRule.ServerName, firewallRule.StartIpAddress, firewallRule.EndIpAddress);
+                IUserAccount account = await authService.SetCurrentAccountAsync(firewallRuleParams.Account, firewallRuleParams.SecurityTokenMappings);
+                FirewallRuleResponse response = await firewallRuleService.CreateFirewallRuleAsync(firewallRuleParams);
                 result.Result = true;
             }
-            catch(FirewallRuleException ex)
+            catch (FirewallRuleException ex)
             {
                 result.Result = false;
                 result.ErrorMessage = ex.Message;
             }
             return result;
         }
-        
+
         public async Task ProcessHandleFirewallRuleRequest(HandleFirewallRuleParams canHandleRuleParams, RequestContext<HandleFirewallRuleResponse> requestContext)
         {
             Func<Task<HandleFirewallRuleResponse>> requestHandler = () =>
@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
             };
             await HandleRequest(requestHandler, null, requestContext, "HandleCreateFirewallRuleRequest");
         }
-        
+
         private async Task HandleRequest<T>(Func<Task<T>> handler, Func<ExpiredTokenException, T> expiredTokenHandler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(TraceEventType.Verbose, requestType);
@@ -120,7 +120,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 T result = await handler();
                 await requestContext.SendResult(result);
             }
-            catch(ExpiredTokenException ex)
+            catch (ExpiredTokenException ex)
             {
                 if (expiredTokenHandler != null)
                 {
@@ -135,11 +135,6 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                     await requestContext.SendError(ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                // Send just the error message back for now as stack trace isn't useful
-                await requestContext.SendError(ex.Message);
-            }
-        }   
+        }
     }
 }

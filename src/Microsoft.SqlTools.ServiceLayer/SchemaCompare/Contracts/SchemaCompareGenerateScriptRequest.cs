@@ -2,18 +2,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using Microsoft.SqlServer.Dac.Compare;
+
+#nullable disable
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
     /// <summary>
     /// Parameters for a schema compare generate script request.
     /// </summary>
-    public class SchemaCompareGenerateScriptParams : SchemaComparePublishChangesParams
+    public class SchemaCompareGenerateScriptParams : SchemaComparePublishDatabaseChangesParams
     {
     }
 

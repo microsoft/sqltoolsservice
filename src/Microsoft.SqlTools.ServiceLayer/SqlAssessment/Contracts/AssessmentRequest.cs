@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 
 using Microsoft.SqlServer.Management.Assessment;
@@ -81,7 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts
         /// <summary>
         /// Gets or sets a <see cref="string"/> indicating
         /// severity level assigned to this items.
-        /// Values are: "Information", "Warning", "Critical".
+        /// Values are: "Information", "Low", "Medium", "High".
         /// </summary>
         public string Level { get; set; }
     }

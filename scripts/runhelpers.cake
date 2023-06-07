@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 /// <summary>
 ///  Class encompassing the optional settings for running processes.
@@ -11,9 +12,13 @@ public class RunOptions
     /// </summary>
     public string WorkingDirectory { get; set; }
     /// <summary>
-    ///  Container logging the StandardOutput content.
+    ///  Stream to log std out messages to
     /// </summary>
-    public IList<string> StandardOutputListing { get; set; }
+    public StreamWriter StandardOutputWriter { get; set; }
+    /// <summary>
+    ///  Stream to log std err messages to
+    /// </summary>
+    public StreamWriter StandardErrorWriter { get; set; }
     /// <summary>
     ///  Desired maximum time-out for the process
     /// </summary>
@@ -26,25 +31,22 @@ public class RunOptions
 /// </summary>
 public struct ExitStatus
 {
-    private int _code;
+    private string _cmd;
+    private string _args;
+    private int _exitCode;
     private bool _timeOut;
-    /// <summary>
-    ///  Default constructor when the execution finished.
-    /// </summary>
-    /// <param name="code">The exit code</param>
-    public ExitStatus(int code)
-    {
-        this._code = code;
-        this._timeOut = false;
-    }
     /// <summary>
     ///  Default constructor when the execution potentially timed out.
     /// </summary>
-    /// <param name="code">The exit code</param>
+    /// <param name="cmd">The cmd/file being executed</param>
+    /// <param name="args">The arguments passed to the command</param>
+    /// <param name="exitCode">The exit code</param>
     /// <param name="timeOut">True if the execution timed out</param>
-    public ExitStatus(int code, bool timeOut)
+    public ExitStatus(string cmd, string args, int exitCode, bool timeOut = false)
     {
-        this._code = code;
+        this._cmd = cmd;
+        this._args = args;
+        this._exitCode = exitCode;
         this._timeOut = timeOut;
     }
     /// <summary>
@@ -58,7 +60,7 @@ public struct ExitStatus
     /// <returns>The exit code</returns>
     public static implicit operator int(ExitStatus exitStatus)
     {
-        return exitStatus._code;
+        return exitStatus._exitCode;
     }
     /// <summary>
     ///  Trigger Exception for non-zero exit code.
@@ -67,9 +69,9 @@ public struct ExitStatus
     /// <returns>The exit status for further queries</returns>
     public ExitStatus ExceptionOnError(string errorMessage)
     {
-        if (this._code != 0)
+        if (this._exitCode != 0)
         {
-            throw new Exception(errorMessage);
+            throw new Exception(errorMessage + $"\nCommand: {this._cmd} {this._args}");
         }
         return this;
     }
@@ -117,35 +119,47 @@ ExitStatus Run(string exec, string args, RunOptions runOptions)
             {
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
-                RedirectStandardOutput = runOptions.StandardOutputListing != null
+                RedirectStandardOutput = runOptions.StandardOutputWriter != null,
+                RedirectStandardError = runOptions.StandardErrorWriter != null,
             });
-    if (runOptions.StandardOutputListing != null)
+    if (runOptions.StandardOutputWriter != null)
     {
         process.OutputDataReceived += (s, e) =>
         {
             if (e.Data != null)
             {
-                runOptions.StandardOutputListing.Add(e.Data);
+                runOptions.StandardOutputWriter.WriteLine(e.Data);
             }
         };
         process.BeginOutputReadLine();
     }
+    if (runOptions.StandardErrorWriter != null)
+    {
+        process.ErrorDataReceived += (s, e) =>
+        {
+            if (e.Data != null)
+            {
+                runOptions.StandardErrorWriter.WriteLine(e.Data);
+            }
+        };
+        process.BeginErrorReadLine();
+    }
     if (runOptions.TimeOut == 0)
     {
         process.WaitForExit();
-        return new ExitStatus(process.ExitCode);
+        return new ExitStatus(exec, args, process.ExitCode);
     }
     else
     {
         bool finished = process.WaitForExit(runOptions.TimeOut);
         if (finished)
         {
-            return new ExitStatus(process.ExitCode);
+            return new ExitStatus(exec, args, process.ExitCode);
         }
         else
         {
             KillProcessTree(process);
-            return new ExitStatus(0, true);
+            return new ExitStatus(exec, args, 0, true);
         }
     }
 }
@@ -160,25 +174,12 @@ ExitStatus Run(string exec, string args, RunOptions runOptions)
 ExitStatus RunRestore(string exec, string args, string workingDirectory)
 {
     Information("Restoring packages....");
-    var p = StartAndReturnProcess(exec,
-        new ProcessSettings
-        {
-            Arguments = args,
-            RedirectStandardOutput = true,
-            WorkingDirectory = workingDirectory
-        });
-    p.WaitForExit();
-    var exitCode = p.GetExitCode();
+    var exitStatus = Run(exec, args, new RunOptions {
+        WorkingDirectory = workingDirectory
+    }).ExceptionOnError($"Error restoring packages.");
 
-    if (exitCode == 0)
-    {
-        Information("Package restore successful!");
-    }
-    else
-    {
-        Error(string.Join("\n", p.GetStandardOutput()));
-    }
-    return new ExitStatus(exitCode);
+    Information("Package restore successful!");
+    return exitStatus;
 }
 
 /// <summary>
@@ -201,4 +202,33 @@ public void KillProcessTree(Process process)
     {
         process.Kill();
     }
+}
+
+public void DotnetPack(string outputFolder, string projectFolder, string project) {
+    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    using (var logWriter = new StreamWriter(logPath)) {
+        Information($"Packaging {projectFolder}");
+        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
+            new RunOptions
+            {
+                StandardOutputWriter = logWriter,
+                StandardErrorWriter = logWriter
+            })
+        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
+    }
+}
+
+public void DotnetPackNuspec(string outputFolder, string projectFolder, string project) {
+    var logPath = System.IO.Path.Combine(logFolder, $"{project}-pack.log");
+    using (var logWriter = new StreamWriter(logPath)) {
+        Information($"Packaging {projectFolder}");
+        Run(nugetcli, $"pack {projectFolder}\\{project}.nuspec -OutputDirectory {outputFolder}",
+            new RunOptions
+            {
+                StandardOutputWriter = logWriter,
+                StandardErrorWriter = logWriter
+            })
+        .ExceptionOnError($"Packaging {project} failed. See {logPath} for details.");
+    }
+
 }

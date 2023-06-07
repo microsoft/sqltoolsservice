@@ -60,19 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         protected Mock<IProtocolEndpoint> HostMock { get; private set; }
         protected SerializationService SerializationService { get; private set; }
 
-        [Test]
-        public async Task SaveResultsAsCsvNoHeaderSuccess()
-        {
-            await TestSaveAsCsvSuccess(false);
-        }
-
-        [Test]
-        public async Task SaveResultsAsCsvWithHeaderSuccess()
-        {
-            await TestSaveAsCsvSuccess(true);
-        }
-
-        private async Task TestSaveAsCsvSuccess(bool includeHeaders)
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task TestSaveAsCsvSuccess(bool includeHeaders)
         {
             await this.RunFileSaveTest(async (filePath) =>
             {
@@ -102,18 +92,47 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             });
         }
 
-        [Test]
-        public async Task SaveResultsAsCsvNoHeaderMultiRequestSuccess()
+        [TestCase(true)]
+        [TestCase(false)]
+        public Task TestSaveAsMarkdownSuccess(bool includeHeaders)
         {
-            await TestSaveAsCsvMultiRequestSuccess(false);
+            return this.RunFileSaveTest(async filePath =>
+            {
+                // Give:
+                // ... A simple data set that requires 1 message
+                var saveParams = new SerializeDataStartRequestParams
+                {
+                    FilePath = filePath,
+                    Columns = DefaultColumns,
+                    Rows = DefaultData,
+                    IsLastBatch = true,
+                    SaveFormat = "markdown",
+                    IncludeHeaders = includeHeaders,
+                };
+
+                // When: I attempt to save this to a file
+                var efv = new EventFlowValidator<SerializeDataResult>()
+                    .AddStandardResultValidator()
+                    .Complete();
+
+                await SerializationService.RunSerializeStartRequest(saveParams, efv.Object);
+
+                // Then:
+                // ... There should not have been any errors
+                efv.Validate();
+
+                // ... And the file should look as expected
+                VerifyContents.VerifyMarkdownMatchesData(
+                    saveParams.Rows,
+                    saveParams.Columns,
+                    saveParams.IncludeHeaders,
+                    saveParams.FilePath);
+            });
         }
 
-        [Test]
-        public async Task SaveResultsAsCsvWithHeaderMultiRequestSuccess()
-        {
-            await TestSaveAsCsvMultiRequestSuccess(true);
-        }
-        private async Task TestSaveAsCsvMultiRequestSuccess(bool includeHeaders)
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task TestSaveAsCsvMultiRequestSuccess(bool includeHeaders)
         {
             Action<SerializeDataStartRequestParams> setParams = (serializeParams) => {
                 serializeParams.SaveFormat = "csv";
@@ -145,6 +164,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             };
             Action<string> validation = (filePath) => {
                 VerifyContents.VerifyXmlMatchesData(DefaultData, DefaultColumns, filePath);
+            };
+            await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task SaveAsMarkdownMultiRequestSuccess(bool includeHeaders)
+        {
+            Action<SerializeDataStartRequestParams> setParams = serializeParams =>
+            {
+                serializeParams.SaveFormat = "markdown";
+                serializeParams.IncludeHeaders = includeHeaders;
+            };
+            Action<string> validation = filePath =>
+            {
+                VerifyContents.VerifyMarkdownMatchesData(DefaultData, DefaultColumns, includeHeaders, filePath);
             };
             await this.TestSerializeDataMultiRequestSuccess(setParams, validation);
         }
@@ -225,9 +260,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         {
             return efv.AddResultValidation(r =>
             {
-                Assert.NotNull(r);
-                Assert.Null(r.Messages);
-                Assert.True(r.Succeeded);
+                Assert.That(r, Is.Not.Null, "Result should not be null");
+                Assert.That(r.Messages, Is.Null, "No messages should be attached to the result");
+                Assert.That(r.Succeeded, Is.True, "Result should indicate request succeeded");
             });
         }
     }
@@ -236,10 +271,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
     {
         public static void VerifyCsvMatchesData(DbCellValue[][] data, ColumnInfo[] columns, bool includeHeaders, string filePath)
         {
-            Assert.True(File.Exists(filePath), "Expected file to have been written");
+            Assert.That(filePath, Does.Exist, "Expected file to have been written");
             string[] lines = File.ReadAllLines(filePath);
             int expectedLength = includeHeaders ? data.Length + 1 : data.Length;
-            Assert.AreEqual(expectedLength, lines.Length);
+            Assert.That(lines.Length, Is.EqualTo(expectedLength), "Incorrect number of lines in result");
             int lineIndex = 0;
             if (includeHeaders)
             {
@@ -248,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             }
             for (int dataIndex =0; dataIndex < data.Length && lineIndex < lines.Length; dataIndex++, lineIndex++)
             {
-                AssertLineEquals(lines[lineIndex], data[dataIndex].Select((d) => GetCsvPrintValue(d)).ToArray());
+                AssertLineEquals(lines[lineIndex], data[dataIndex].Select(GetCsvPrintValue).ToArray());
             }
         }
 
@@ -260,17 +295,54 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
         private static void AssertLineEquals(string line, string[] expected)
         {
             var actual = line.Split(',');
-            Assert.True(actual.Length == expected.Length, $"Line '{line}' does not match values {string.Join(",", expected)}");
+            Assert.That(actual.Length, Is.EqualTo(expected.Length),
+                $"Line '{line}' does not match values {string.Join(",", expected)}");
             for (int i = 0; i < actual.Length; i++)
             {
-                Assert.True(expected[i] == actual[i], $"Line '{line}' does not match values '{string.Join(",", expected)}' as '{expected[i]}' does not equal '{actual[i]}'");
+                Assert.That(actual[i], Is.EqualTo(expected[i]),
+                    $"Line '{line}' does not match values '{string.Join(",", expected)}' as '{expected[i]}' does not equal '{actual[i]}'");
             }
         }
 
+        public static void VerifyMarkdownMatchesData(
+            DbCellValue[][] data,
+            ColumnInfo[] columns,
+            bool includeHeaders,
+            string filePath)
+        {
+            Assert.That(filePath, Does.Exist, "Expected file to be written");
+            string[] lines = File.ReadAllLines(filePath);
+
+            int expectedLength = includeHeaders ? data.Length + 2 : data.Length;
+            Assert.That(lines.Length, Is.EqualTo(expectedLength), "Incorrect number of lines in output");
+
+            int lineOffset = 0;
+            if (includeHeaders)
+            {
+                // First line is |col1|col2|...
+                var firstLineExpected = $"|{string.Join("|", columns.Select(c => c.Name))}|";
+                Assert.That(lines[0], Is.EqualTo(firstLineExpected), "Header row does not match expected");
+                // Second line is |---|---|...
+                var secondLineExpected = $"|{string.Join("", Enumerable.Repeat("---|", columns.Length))}";
+                Assert.That(lines[1], Is.EqualTo(secondLineExpected), "Separator row does not match expected");
+
+                lineOffset = 2;
+            }
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                var expectedLine = $"|{string.Join("|", data[i].Select(GetMarkdownPrintValue).ToArray())}|";
+                Assert.That(lines[i + lineOffset], Is.EqualTo(expectedLine), "Data row does not match expected");
+            }
+        }
+
+        private static string GetMarkdownPrintValue(DbCellValue d) =>
+            d.IsNull ? "NULL" : d.DisplayValue;
+
         public static void VerifyJsonMatchesData(DbCellValue[][] data, ColumnInfo[] columns, string filePath)
         {
-                        // ... Upon deserialization to an array of dictionaries
-            Assert.True(File.Exists(filePath), "Expected file to have been written");
+            // ... Upon deserialization to an array of dictionaries
+            Assert.That(filePath, Does.Exist, "Expected file to have been written");
             string output = File.ReadAllText(filePath);
             Dictionary<string, object>[] outputObject =
                 JsonConvert.DeserializeObject<Dictionary<string, object>[]>(output);
@@ -278,18 +350,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             // ... There should be 2 items in the array,
             // ... The item should have three fields, and three values, assigned appropriately
             // ... The deserialized values should match the display value
-            Assert.AreEqual(data.Length, outputObject.Length);
+            Assert.That(outputObject.Length, Is.EqualTo(data.Length), "Incorrect number of records in output");
             for (int rowIndex = 0; rowIndex < outputObject.Length; rowIndex++)
             {
                 Dictionary<string,object> item = outputObject[rowIndex];
-                Assert.AreEqual(columns.Length, item.Count);
+                Assert.That(item.Count, Is.EqualTo(columns.Length), $"Incorrect number of cells for record {rowIndex}");
                 for (int columnIndex = 0; columnIndex < columns.Length; columnIndex++)
                 {
                     var key = columns[columnIndex].Name;
-                    Assert.True(item.ContainsKey(key));
+                    Assert.That(item, Contains.Key(key), $"Record {rowIndex} does not contain column {key}");
                     DbCellValue value = data[rowIndex][columnIndex];
                     object expectedValue = GetJsonExpectedValue(value, columns[columnIndex]);
-                    Assert.AreEqual(expectedValue, item[key]);
+                    Assert.That(item[key], Is.EqualTo(expectedValue), $"Record {rowIndex}, column {key} contains incorrect value");
                 }
             }
         }
@@ -303,18 +375,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             }
             else if (column.DataTypeName == "Int")
             {
-                return Int64.Parse(value.DisplayValue.ToLower());
+                return Int64.Parse(value.DisplayValue.ToLower(System.Globalization.CultureInfo.InvariantCulture));
             }
             else if (column.DataTypeName == "Bit")
             {
-                return Boolean.Parse(value.DisplayValue.ToLower());
+                return Boolean.Parse(value.DisplayValue.ToLower(System.Globalization.CultureInfo.InvariantCulture));
             }
             return value.DisplayValue;
         }
         public static void VerifyXmlMatchesData(DbCellValue[][] data, ColumnInfo[] columns, string filePath)
         {
-                        // ... Upon deserialization to an array of dictionaries
-            Assert.True(File.Exists(filePath), "Expected file to have been written");
+            // ... Upon deserialization to an array of dictionaries
+            Assert.That(filePath, Does.Exist, "Expected file to have been written");
             string output = File.ReadAllText(filePath);
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(output);
@@ -325,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
             string xpath = "data/row";
             var rows = xmlDoc.SelectNodes(xpath);
 
-            Assert.AreEqual(data.Length, rows.Count);
+            Assert.That(rows.Count, Is.EqualTo(data.Length), "Incorrect number of records in output");
             for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
             {
                 var rowValue = rows.Item(rowIndex);
@@ -335,10 +407,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.SaveResults
                 {
                     var columnName = columns[columnIndex].Name;
                     var xmlColumn = xmlCols.FirstOrDefault(x => x.Name == columnName);
-                    Assert.NotNull(xmlColumn);
+                    Assert.That(xmlColumn, Is.Not.Null, $"Record {rowIndex} does not contain column {columnName}");
                     DbCellValue value = data[rowIndex][columnIndex];
                     object expectedValue = GetXmlExpectedValue(value);
-                    Assert.AreEqual(expectedValue, xmlColumn.InnerText);
+                    Assert.That(xmlColumn.InnerText, Is.EqualTo(expectedValue), $"Invalid value for record {rowIndex}, column {columnName}");
                 }
             }
         }

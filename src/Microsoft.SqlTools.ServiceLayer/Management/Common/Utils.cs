@@ -3,18 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
-using System.Collections;
 using Microsoft.Data.SqlClient;
 using System.Globalization;
-using System.IO;
-using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Xml;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using SMO = Microsoft.SqlServer.Management.Smo;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
@@ -36,14 +31,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <param name="customAttribute"></param>
         /// <returns></returns>
         public static Attribute GetCustomAttribute(object objectToGetAttributeFrom, Type customAttribute)
-        {         
+        {
             //first, see if the object implemented this interface to override standard behavior
             System.Reflection.ICustomAttributeProvider attribProvider = objectToGetAttributeFrom as System.Reflection.ICustomAttributeProvider;
-            if (attribProvider == null)
-            {
-                //if not, get it from its type
-                attribProvider = (System.Reflection.ICustomAttributeProvider)objectToGetAttributeFrom.GetType();
-            }
+            //if not, get it from its type
+            attribProvider ??= (System.Reflection.ICustomAttributeProvider)objectToGetAttributeFrom.GetType();
 
             object[] attribs = attribProvider.GetCustomAttributes(customAttribute, true);
             if (attribs != null && attribs.Length > 0)
@@ -65,22 +57,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns></returns>
         public static SqlConnectionInfo GetSqlConnectionInfoFromDataContainer(CDataContainer dc)
         {
-            if (dc != null)
-            {
-                // we may have been given conneciton information by the object explorer. in which case there is no need
-                // to build it ourselves.
-                SqlConnectionInfo result = dc.ConnectionInfo as SqlConnectionInfo;
-                if (result == null)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            // we may have been given conneciton information by the object explorer. in which case there is no need
+            // to build it ourselves.
+            return dc != null ? dc.ConnectionInfo as SqlConnectionInfo ?? throw new InvalidOperationException()
+                : null;
         }
 
         public static int InitialTreeViewWidth
@@ -234,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             bool result = false;
             if (svr != null)
             {
-                if (IsKatmaiOrLater(svr.Information.Version.Major)     
+                if (IsKatmaiOrLater(svr.Information.Version.Major)
                     && svr.ServerType != DatabaseEngineType.SqlAzureDatabase) //Azure doesn't support filestream
                 {
                     if (svr.Configuration.FilestreamAccessLevel.RunValue != 0)
@@ -297,6 +277,76 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             return !string.IsNullOrEmpty(serverName) && serverName.StartsWith("asazure://", StringComparison.OrdinalIgnoreCase);
         }
+
+        public static bool IsSql11OrLater(ServerVersion version)
+        {
+            return IsSql11OrLater(version.Major);
+        }
+
+        public static bool IsSql11OrLater(int versionMajor)
+        {
+            return (versionMajor >= 11);
+        }
+
+        public static bool IsSql12OrLater(ServerVersion version)
+        {
+            return IsSql12OrLater(version.Major);
+        }
+
+        public static bool IsSql12OrLater(int versionMajor)
+        {
+            return (versionMajor >= 12);
+        }
+
+        public static bool IsSql13OrLater(ServerVersion version)
+        {
+            return IsSql13OrLater(version.Major);
+        }
+
+        public static bool IsSql13OrLater(int versionMajor)
+        {
+            return (versionMajor >= 13);
+        }
+
+        public static bool IsSql14OrLater(ServerVersion version)
+        {
+            return IsSql14OrLater(version.Major);
+        }
+
+        public static bool IsSql14OrLater(int versionMajor)
+        {
+            return (versionMajor >= 14);
+        }
+
+        public static bool IsSql15OrLater(ServerVersion version)
+        {
+            return IsSql15OrLater(version.Major);
+        }
+
+        public static bool IsSql15OrLater(int versionMajor)
+        {
+            return (versionMajor >= 15);
+        }
+
+        public static bool IsSql16OrLater(ServerVersion version)
+        {
+            return IsSql16OrLater(version.Major);
+        }
+
+        public static bool IsSql16OrLater(int versionMajor)
+        {
+            return (versionMajor >= 16);
+        }
+
+        public static bool IsYukonOrAbove(SqlServer.Management.Smo.Server server)
+        {
+            return server.Version.Major >= 9;
+        }
+
+        public static bool IsBelowYukon(SqlServer.Management.Smo.Server server)
+        {
+            return server.Version.Major < 9;
+        }
     }
 
 
@@ -328,11 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// <returns>Smo Server object for the connection</returns>
         public static Microsoft.SqlServer.Management.Smo.Server GetSmoServer(IManagedConnection mc)
         {
-            SqlOlapConnectionInfoBase ci = mc.Connection;
-            if (ci == null)
-            {
-                throw new ArgumentNullException("ci");
-            }
+            SqlOlapConnectionInfoBase ci = mc.Connection ?? throw new ArgumentNullException("ci");
 
             SMO.Server server = null;
 
@@ -517,7 +563,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             if (string.IsNullOrWhiteSpace(s))
             {
                 return s;
-            } 
+            }
 
             StringBuilder sb = new StringBuilder(s.Length * 2);
             foreach (char c in s)

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Linq;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -248,6 +250,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             foreach (string word in AutoCompleteHelper.DefaultCompletionText)
             {
+                if (SqlCompletionItem.AnsiScalarFunctions.Contains(word.ToUpperInvariant()))
+                {
+                    // Skip ANSI scalar functions, those don't have parentheses
+                    continue;
+                }
                 string declarationTitle = word;
                 string tokenText = "";
                 SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
@@ -261,9 +268,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Test]
-        public void GlobalVariableSystemFunctionsShouldNotHaveParenthesesAdded()
+        [TestCase("@@CONNECTIONS")]
+        [TestCase("CURRENT_DATE")]
+        [TestCase("CURRENT_TIME")]
+        [TestCase("CURRENT_TIMESTAMP")]
+        [TestCase("CURRENT_USER")]
+        [TestCase("SESSION_USER")]
+        [TestCase("SYSTEM_USER")]
+        [TestCase("USER")]
+        public void GlobalVariable_And_AnsiScalar_Functions_Should_Not_Have_Parentheses_Added(string declarationTitle)
         {
-            string declarationTitle = "@@CONNECTIONS";
             string tokenText = "";
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, DeclarationType.BuiltInFunction, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
@@ -271,7 +285,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.AreEqual(declarationTitle, completionItem.Label);
             Assert.AreEqual($"{declarationTitle}", completionItem.InsertText);
             Assert.AreEqual(declarationTitle, completionItem.Detail);
-
         }
 
         [Test]

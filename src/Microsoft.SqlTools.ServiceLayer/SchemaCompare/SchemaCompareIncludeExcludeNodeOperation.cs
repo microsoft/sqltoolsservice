@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -62,12 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             try
             {
-                SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry);
-                if (node == null)
-                {
-                    throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
-                }
-
+                SchemaDifference node = this.FindDifference(this.ComparisonResult.Differences, this.Parameters.DiffEntry) ?? throw new InvalidOperationException(SR.SchemaCompareExcludeIncludeNodeNotFound);
                 this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(node) : this.ComparisonResult.Exclude(node);
 
                 // if include request (pass or fail), send dependencies that might have been affected by this request, given by GetIncludeDependencies()

@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
@@ -96,24 +97,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                         this.connection = (SqlOlapConnectionInfoBase)cloneable.Clone();
                         this.closeOnDispose = true;
                     }
-                    else if (sourceConnection is SqlConnectionInfoWithConnection)
+                    else if (sourceConnection is SqlConnectionInfoWithConnection connection2)
                     {
-                        this.connection = ((SqlConnectionInfoWithConnection)sourceConnection).Copy();
+                        this.connection = connection2.Copy();
                         this.closeOnDispose = true;
                     }
                 }
             }
             // if everything else has failed just use to passed in connection.
-            if (this.connection == null)
-            {
-                this.connection = sourceConnection;
-            }
+            this.connection ??= sourceConnection;
 
             // always set the lock timeout to prevent the shell from not responding
-            if (this.connection is SqlConnectionInfoWithConnection)
+            if (this.connection is SqlConnectionInfoWithConnection connection1)
             {
                 // set lock_timeout to 10 seconds
-                ((SqlConnectionInfoWithConnection)this.connection).ServerConnection.LockTimeout = 10;
+                connection1.ServerConnection.LockTimeout = 10;
             }
         }
         #endregion
@@ -191,10 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             get
             {
-                if (activeConnections == null)
-                {
-                    activeConnections = new Hashtable();
-                }
+                activeConnections ??= new Hashtable();
                 return activeConnections;
             }
         }

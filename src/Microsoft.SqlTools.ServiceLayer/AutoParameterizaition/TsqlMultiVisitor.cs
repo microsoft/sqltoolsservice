@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Data.SqlClient;
@@ -31,11 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
         {
             get
             {
-                if (_executionParameters == null)
-                {
-                    _executionParameters = new Dictionary<string, int>();
-                }
-
+                _executionParameters ??= new Dictionary<string, int>();
                 return _executionParameters;
             }
         }

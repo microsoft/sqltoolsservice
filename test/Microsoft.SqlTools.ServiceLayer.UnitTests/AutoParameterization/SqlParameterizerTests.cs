@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
@@ -112,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             // SQL greater than 300000 characters should throw   
             string bigSql = string.Concat(Repeat(element: sqlLength_300, count: 1100));
             DbCommand command2 = new SqlCommand { CommandText = bigSql };
-            Assert.Throws<ParameterizationScriptTooLargeException>(() => command2.Parameterize());
+            Assert.Throws<ParameterizationScriptTooLargeException>(command2.Parameterize);
         }
 
         /// <summary>
@@ -127,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
             string sql = string.Concat(Repeat(element: invalidSql, count: 1000));
             DbCommand command = new SqlCommand { CommandText = sql };
 
-            Assert.Throws<ParameterizationParsingException>(() => command.Parameterize());
+            Assert.Throws<ParameterizationParsingException>(command.Parameterize);
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
                 GO";
 
             DbCommand command = new SqlCommand { CommandText = sql };
-            Assert.Throws<ParameterizationFormatException>(() => command.Parameterize());
+            Assert.Throws<ParameterizationFormatException>(command.Parameterize);
         }
 
         /// <summary>

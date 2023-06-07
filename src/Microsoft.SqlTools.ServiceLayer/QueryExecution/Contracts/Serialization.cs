@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data;
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -111,44 +112,50 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         {
             this.SaveFormat = saveFormat;
             this.FilePath = savePath;
-            this.Rows = Rows;
+            this.Rows = rows;
             this.IsLastBatch = isLast;
         }
 
-        internal bool IncludeHeaders
+        public bool IncludeHeaders
         {
             get { return this.GetOptionValue<bool>(SerializationOptionsHelper.IncludeHeaders); }
             set { this.SetOptionValue<bool>(SerializationOptionsHelper.IncludeHeaders, value); }
         }
 
-        internal string Delimiter
+        public string Delimiter
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.Delimiter); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.Delimiter, value); }
         }
 
-        internal string LineSeparator
+        public string LineSeparator
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.LineSeparator); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.LineSeparator, value); }
         }
 
-        internal string TextIdentifier
+        public string TextIdentifier
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.TextIdentifier); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.TextIdentifier, value); }
         }
 
-        internal string Encoding
+        public string Encoding
         {
             get { return this.GetOptionValue<string>(SerializationOptionsHelper.Encoding); }
             set { this.SetOptionValue<string>(SerializationOptionsHelper.Encoding, value); }
         }
 
-        internal bool Formatted
+        public bool Formatted
         {
             get { return this.GetOptionValue<bool>(SerializationOptionsHelper.Formatted); }
             set { this.SetOptionValue<bool>(SerializationOptionsHelper.Formatted, value); }
+        }
+
+        public int MaxCharsToStore
+        {
+            get { return this.GetOptionValue<int>(SerializationOptionsHelper.MaxCharsToStore); }
+            set { this.SetOptionValue<int>(SerializationOptionsHelper.Formatted, value); }
         }
     }
 
@@ -176,5 +183,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         internal const string TextIdentifier = "textIdentifier";
         internal const string Encoding = "encoding";
         internal const string Formatted = "formatted";
+        internal const string MaxCharsToStore = "maxchars";
     }
 }

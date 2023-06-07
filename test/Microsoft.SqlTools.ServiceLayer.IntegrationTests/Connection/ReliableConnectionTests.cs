@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -27,14 +29,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
     /// </summary>
     public class ReliableConnectionTests
     {
-        internal class TestDataTransferErrorDetectionStrategy : DataTransferErrorDetectionStrategy
+        internal sealed class TestDataTransferErrorDetectionStrategy : DataTransferErrorDetectionStrategy
         {
             public bool InvokeCanRetrySqlException(SqlException exception)
             {
                 return CanRetrySqlException(exception);
             }
         }
-        internal class TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy : SqlAzureTemporaryAndIgnorableErrorDetectionStrategy
+        internal sealed class TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy : SqlAzureTemporaryAndIgnorableErrorDetectionStrategy
         {
             public TestSqlAzureTemporaryAndIgnorableErrorDetectionStrategy()
                 : base (new int[] { 100 })
@@ -52,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             }
         }
 
-        internal class TestFixedDelayPolicy : FixedDelayPolicy
+        internal sealed class TestFixedDelayPolicy : FixedDelayPolicy
         {
             public TestFixedDelayPolicy(
                 IErrorDetectionStrategy strategy, 
@@ -75,7 +77,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             }
         }
 
-        internal class TestProgressiveRetryPolicy : ProgressiveRetryPolicy
+        internal sealed class TestProgressiveRetryPolicy : ProgressiveRetryPolicy
         {
             public TestProgressiveRetryPolicy(
                 IErrorDetectionStrategy strategy, 
@@ -95,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             }
         }
 
-        internal class TestTimeBasedRetryPolicy : TimeBasedRetryPolicy
+        internal sealed class TestTimeBasedRetryPolicy : TimeBasedRetryPolicy
         {
             public TestTimeBasedRetryPolicy(
                 IErrorDetectionStrategy strategy,
@@ -242,8 +244,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 csb.Password = connectParams.Connection.Password;
             }
             csb.ConnectTimeout = connectParams.Connection.ConnectTimeout.HasValue ? connectParams.Connection.ConnectTimeout.Value: 30;
-            csb.Encrypt = connectParams.Connection.Encrypt.HasValue ? connectParams.Connection.Encrypt.Value : false;
+            
+            csb.Encrypt = connectParams.Connection.Encrypt?.ToLowerInvariant() switch {
+                "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                "strict" => SqlConnectionEncryptOption.Strict,
+                _ => default
+            };
+
             csb.TrustServerCertificate = connectParams.Connection.TrustServerCertificate.HasValue ? connectParams.Connection.TrustServerCertificate.Value : false;
+            if (!string.IsNullOrEmpty(connectParams.Connection.HostNameInCertificate))
+            {
+                csb.HostNameInCertificate = connectParams.Connection.HostNameInCertificate;
+            }
 
             return csb;
         }
@@ -903,7 +916,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
             command.UpdatedRowSource = UpdateRowSource.None;
             Assert.AreEqual(UpdateRowSource.None, command.UpdatedRowSource);
             Assert.NotNull(command.GetUnderlyingCommand());
-            Assert.Throws<InvalidOperationException>(() => command.ValidateConnectionIsSet());
+            Assert.Throws<InvalidOperationException>(command.ValidateConnectionIsSet);
             command.Prepare();
             Assert.NotNull(command.CreateParameter());
             command.Cancel();            

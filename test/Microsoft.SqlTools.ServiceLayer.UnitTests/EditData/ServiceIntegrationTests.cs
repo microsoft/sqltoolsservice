@@ -3,11 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.EditData;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region EditSession Operation Helper Tests
 
         [Test]
-        public async Task NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
+        public void NullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")] string sessionId)
         {
             // Setup: 
             // ... Create a edit data service
@@ -35,14 +36,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Create a session params that returns the provided session ID
             var mockParams = new EditCreateRowParams {OwnerUri = sessionId};
-
+            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
             // If: I ask to perform an action that requires a session
             // Then: I should get an error from it
-            var efv = new EventFlowValidator<EditDisposeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleSessionRequest(mockParams, efv.Object, session => null);
-            efv.Validate();
+            Assert.That(() => eds.HandleSessionRequest(mockParams, contextMock.Object, session => null), Throws.Exception);
         }
 
         [Test]
@@ -55,14 +52,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // ... Create a session param that returns the common owner uri
             var mockParams = new EditCreateRowParams { OwnerUri = Common.OwnerUri };
-
+            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
             // If: I ask to perform an action that requires a session
             // Then: I should get an error from it
-            var efv = new EventFlowValidator<EditDisposeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleSessionRequest(mockParams, efv.Object, s => { throw new Exception(); });
-            efv.Validate();
+            Assert.That(() => eds.HandleSessionRequest(mockParams, contextMock.Object, s => { throw new Exception(); }), Throws.Exception);
         }
 
 
@@ -72,18 +65,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region Dispose Tests
 
         [Test]
-        public async Task DisposeNullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")]  string sessionId)
+        public void DisposeNullOrMissingSessionId([Values(null, "", " \t\n\r", "Does not exist")]  string sessionId)
         {
             // Setup: Create a edit data service
             var eds = new EditDataService(null, null, null);
 
             // If: I ask to perform an action that requires a session
             // Then: I should get an error from it
-            var efv = new EventFlowValidator<EditDisposeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleDisposeRequest(new EditDisposeParams {OwnerUri = sessionId}, efv.Object);
-            efv.Validate();
+            var contextMock = RequestContextMocks.Create<EditDisposeResult>(null);
+            Assert.That(() => eds.HandleDisposeRequest(new EditDisposeParams { OwnerUri = sessionId }, contextMock.Object), Throws.Exception);
         }
 
         [Test]
@@ -294,16 +284,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 OwnerUri = ownerUri,
                 ObjectType = objType
             };
-
+            var contextMock = RequestContextMocks.Create<EditInitializeResult>(null);
             // ... And I initialize an edit session with that
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-
             // Then:
-            // ... An error event should have been raised
-            efv.Validate();
+            // ... An error event should have been sent
+            Assert.That(() => eds.HandleInitializeRequest(initParams, contextMock.Object), Throws.ArgumentException);
 
             // ... There should not be a session
             Assert.That(eds.ActiveSessions, Is.Empty);
@@ -325,15 +310,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 ObjectType = "Table",
                 Filters = new EditInitializeFiltering()
             };
-            var efv = new EventFlowValidator<EditInitializeResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await eds.HandleInitializeRequest(initParams, efv.Object);
-            
+            var contextMock = RequestContextMocks.Create<EditInitializeResult>(null);
+
             // Then:
             // ... An error event should have been sent
-            efv.Validate();
-            
+            Assert.That(() => eds.HandleInitializeRequest(initParams, contextMock.Object), Throws.ArgumentNullException);
+
             // ... The original session should still be there
             Assert.AreEqual(1, eds.ActiveSessions.Count);
             Assert.AreEqual(session, eds.ActiveSessions[Constants.OwnerUri]);

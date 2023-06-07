@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -49,6 +52,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Path identifying the node to expand. See <see cref="NodeInfo.NodePath"/> for details
         /// </summary>
         public string NodePath { get; set; }
+
+        /// <summary>
+        /// Security token for AzureMFA authentication for refresing access token on connection.
+        /// </summary>
+        public SecurityToken? SecurityToken { get; set; }
+        
+        ///<summary>
+        /// Filters to apply to the expand request
+        ///</summary>
+        public NodeFilter[]? Filters { get; set; }
     }
 
     /// <summary>

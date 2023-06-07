@@ -3,12 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
@@ -77,7 +80,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             var tableFactory = new TableValuedFunctionsChildFactory();
             var filters = tableFactory.Filters;
             Assert.True(filters.ToList().Any(filter => {
-                return filter.Values.Contains(UserDefinedFunctionType.Table) && filter.Values.Contains(UserDefinedFunctionType.Inline);
+                var f = filter as NodePropertyFilter;
+                return f.Values.Contains(UserDefinedFunctionType.Table) && f.Values.Contains(UserDefinedFunctionType.Inline);
             }));
         }
 

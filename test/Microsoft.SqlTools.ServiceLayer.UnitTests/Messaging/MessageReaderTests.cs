@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.IO;
 using System.Text;
@@ -93,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                Assert.ThrowsAsync<ArgumentException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading");
+                Assert.ThrowsAsync<ArgumentException>(messageReader.ReadMessage, "An exception should be thrown while reading");
             }
         }
 
@@ -111,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading") ;
+                Assert.ThrowsAsync<MessageParseException>(messageReader.ReadMessage, "An exception should be thrown while reading") ;
             }
         }
 
@@ -129,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading");
+                Assert.ThrowsAsync<MessageParseException>(messageReader.ReadMessage, "An exception should be thrown while reading");
             }
         }
 
@@ -151,9 +153,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                Assert.ThrowsAsync<JsonReaderException>(() => messageReader.ReadMessage(), "The first read should fail with an exception while deserializing");
+                Assert.ThrowsAsync<JsonReaderException>(messageReader.ReadMessage, "The first read should fail with an exception while deserializing");
 
-                Assert.ThrowsAsync<MessageParseException>(() => messageReader.ReadMessage(), "The second read should fail with an exception while reading headers");
+                Assert.ThrowsAsync<MessageParseException>(messageReader.ReadMessage, "The second read should fail with an exception while reading headers");
             }
         }
 
@@ -174,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
                 inputStream.Flush();
                 inputStream.Seek(0, SeekOrigin.Begin);
 
-                Assert.ThrowsAsync<ArgumentException>(() => messageReader.ReadMessage(), "An exception should be thrown while reading the first one");
+                Assert.ThrowsAsync<ArgumentException>(messageReader.ReadMessage, "An exception should be thrown while reading the first one");
 
                 // ... A test event should be successfully read from the second one
                 Message messageResult = messageReader.ReadMessage().Result;
@@ -236,10 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
 
         private byte[] GetMessageBytes(string messageString, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
+            encoding ??= Encoding.UTF8;
 
             byte[] messageBytes = Encoding.UTF8.GetBytes(messageString);
             byte[] headerBytes = Encoding.ASCII.GetBytes(string.Format(Constants.ContentLengthFormatString, messageBytes.Length));

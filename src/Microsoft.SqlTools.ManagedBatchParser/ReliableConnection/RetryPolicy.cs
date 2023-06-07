@@ -29,7 +29,7 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Threading;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -407,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
-        internal class ExponentialDelayRetryPolicy : RetryPolicy
+        internal sealed class ExponentialDelayRetryPolicy : RetryPolicy
         {
             private readonly int _maxRetryCount;
             private readonly double _intervalFactor;

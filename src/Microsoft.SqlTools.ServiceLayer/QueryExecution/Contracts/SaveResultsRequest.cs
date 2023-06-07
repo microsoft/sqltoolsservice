@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
@@ -84,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string Delimiter { get; set; }
 
         /// <summary>
-        /// either CR, CRLF or LF to seperate rows in CSV
+        /// either CR, CRLF or LF to separate rows in CSV
         /// </summary>
         public string LineSeperator { get; set; }
 
@@ -97,6 +99,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// Encoding of the CSV file
         /// </summary>
         public string Encoding { get; set; }
+
+        /// <summary>
+        /// Maximum number of characters to store 
+        /// </summary>
+        public int MaxCharsToStore { get; set; }
     }
 
     /// <summary>
@@ -116,6 +123,28 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams
     {
         //TODO: define config for save as JSON
+    }
+
+    /// <summary>
+    /// Parameters for saving results as a Markdown table
+    /// </summary>
+    public class SaveResultsAsMarkdownRequestParams : SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Encoding of the CSV file
+        /// </summary>
+        public string Encoding { get; set; }
+
+        /// <summary>
+        /// Whether to include column names as header for the table.
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+
+        /// <summary>
+        /// Character sequence to separate a each row in the table. Should be either CR, CRLF, or
+        /// LF. If not provided, defaults to the system default line ending sequence.
+        /// </summary>
+        public string? LineSeparator { get; set; }
     }
 
     /// <summary>
@@ -173,6 +202,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public static readonly
             RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult> Type =
             RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult>.Create("query/saveJson");
+    }
+
+    /// <summary>
+    /// Request type to save results as a Markdown table
+    /// </summary>
+    public class SaveResultsAsMarkdownRequest
+    {
+        public static readonly
+            RequestType<SaveResultsAsMarkdownRequestParams, SaveResultRequestResult> Type =
+            RequestType<SaveResultsAsMarkdownRequestParams, SaveResultRequestResult>.Create("query/saveMarkdown");
     }
     
     /// <summary>

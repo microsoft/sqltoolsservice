@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -75,25 +77,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         }
 
         [Test]
-        public async Task SaveCredentialThrowsIfCredentialIdMissing()
+        public void SaveCredentialThrowsIfCredentialIdMissing()
         {
-            string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
-
-            await service.HandleSaveCredentialRequest(new Credential(null), contextMock.Object);
-            TestUtils.VerifyErrorSent(contextMock);
-            Assert.That(errorResponse, Does.Contain("ArgumentException"));
+            var contextMock = RequestContextMocks.Create<bool>(null);
+            // Verify throws with no ID
+            Assert.That(() => service.HandleSaveCredentialRequest(new Credential(null), contextMock.Object), Throws.ArgumentException);
         }
 
         [Test]
-        public async Task SaveCredentialThrowsIfPasswordMissing()
+        public void SaveCredentialThrowsIfPasswordMissing()
         {
-            string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
-
-            await service.HandleSaveCredentialRequest(new Credential(CredentialId), contextMock.Object);
-            TestUtils.VerifyErrorSent(contextMock);
-            Assert.True(errorResponse.Contains("ArgumentException") || errorResponse.Contains("ArgumentNullException"));
+            var contextMock = RequestContextMocks.Create<bool>(null);
+            // Verify throws with no ID
+            Assert.That(() => service.HandleSaveCredentialRequest(new Credential(CredentialId), contextMock.Object), Throws.ArgumentNullException);
         }
 
         [Test]
@@ -193,27 +189,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         }
 
         [Test]
-        public async Task ReadCredentialThrowsIfCredentialIsNull()
+        public void ReadCredentialThrowsIfCredentialIsNull()
         {
-            string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling((msg, code) => errorResponse = msg);
-
-            // Verify throws on null, and this is sent as an error
-            await service.HandleReadCredentialRequest(null, contextMock.Object);
-            TestUtils.VerifyErrorSent(contextMock);
-            Assert.That(errorResponse, Does.Contain("ArgumentNullException"));
-        }
-
-        [Test]
-        public async Task ReadCredentialThrowsIfIdMissing()
-        {
-            string errorResponse = null;
-            var contextMock = RequestContextMocks.Create<Credential>(null).AddErrorHandling((msg, code) => errorResponse = msg);
-
+            var contextMock = RequestContextMocks.Create<Credential>(null);
             // Verify throws with no ID
-            await service.HandleReadCredentialRequest(new Credential(), contextMock.Object);
-            TestUtils.VerifyErrorSent(contextMock);
-            Assert.That(errorResponse, Does.Contain("ArgumentException"));
+            Assert.That(() => service.HandleReadCredentialRequest(new Credential(), contextMock.Object), Throws.ArgumentException);
         }
 
         [Test]
@@ -235,15 +215,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Credentials
         }
 
         [Test]
-        public async Task DeleteCredentialThrowsIfIdMissing()
+        public void DeleteCredentialThrowsIfIdMissing()
         {
-            object errorResponse = null;
-            var contextMock = RequestContextMocks.Create<bool>(null).AddErrorHandling((msg, code) => errorResponse = msg);
-
+            var contextMock = RequestContextMocks.Create<bool>(null);
             // Verify throws with no ID
-            await service.HandleDeleteCredentialRequest(new Credential(), contextMock.Object);
-            TestUtils.VerifyErrorSent(contextMock);
-            Assert.True(((string)errorResponse).Contains("ArgumentException"));
+            Assert.That(() => service.HandleDeleteCredentialRequest(new Credential(), contextMock.Object), Throws.ArgumentException);
         }
 
         [Test]

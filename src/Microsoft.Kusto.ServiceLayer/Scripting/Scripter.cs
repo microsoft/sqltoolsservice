@@ -22,7 +22,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // TODOKusto: Extract into the Kusto folder.
             selectQuery.Append($"{KustoQueryUtils.EscapeName(urn.GetAttribute("Name"))}");
             selectQuery.Append($"{KustoQueryUtils.StatementSeparator}");
-            selectQuery.Append("limit 1000");
+            selectQuery.Append("take 10");
 
             return selectQuery.ToString();
         }

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Globalization;
 using System.IO;
@@ -11,7 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.BatchParser;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 {
-    internal class TestCommandHandler : ICommandHandler
+    public class TestCommandHandler : ICommandHandler
     {
         private Parser parser;
         private StringBuilder outputString;
@@ -39,7 +41,7 @@ namespace Microsoft.SqlTools.ManagedBatchParser.UnitTests.BatchParser
 
             if (string.Compare(textWithVariablesUnresolved, textWithVariablesResolved, StringComparison.Ordinal) != 0)
             {
-                outputString.AppendLine("Text with variables not resolved:");
+                outputString.AppendLine("Text with variables resolved:");
                 outputString.AppendLine(textWithVariablesResolved);
                 outputString.AppendLine("Text with variables not resolved:");
                 outputString.AppendLine(textWithVariablesUnresolved);

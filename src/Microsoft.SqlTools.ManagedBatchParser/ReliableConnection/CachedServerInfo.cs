@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Dmf;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         #region CacheKey implementation
-        internal class CacheKey : IEquatable<CacheKey>
+        internal sealed class CacheKey : IEquatable<CacheKey>
         {
             private string dataSource;
             private string dbName;

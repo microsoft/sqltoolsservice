@@ -63,8 +63,8 @@
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true=">
       <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded=">
-          <xsd:element name="metadata=">
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
@@ -75,13 +75,13 @@
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="assembly=">
+          <xsd:element name="assembly">
             <xsd:complexType>
               <xsd:attribute name="alias" type="xsd:string" />
               <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="data=">
+          <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -93,7 +93,7 @@
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="resheader=">
+          <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -147,14 +147,6 @@
   </data>
   <data name="IncompatibleServiceForExtensionLoader" xml:space="preserve">
     <value>Service of type {0} cannot be created by ExtensionLoader&lt;{1}&gt;</value>
-    <comment></comment>
-  </data>
-  <data name="ServiceProviderNotSet" xml:space="preserve">
-    <value>SetServiceProvider() was not called to establish the required service provider</value>
-    <comment></comment>
-  </data>
-  <data name="ServiceNotFound" xml:space="preserve">
-    <value>Service {0} was not found in the service provider</value>
     <comment></comment>
   </data>
   <data name="ServiceNotOfExpectedType" xml:space="preserve">

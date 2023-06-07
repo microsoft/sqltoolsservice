@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.Utility;
+#nullable disable
+
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the connection password
         /// </summary>
-        public string Password 
+        public string Password
         {
             get
             {
@@ -116,6 +117,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
+        /// Gets or sets a value that specifies that Always Encrypted with Secure Enclaves is enabled in a connection.
+        /// </summary>
+        public string SecureEnclaves
+        {
+            get
+            {
+                return GetOptionValue<string>("secureEnclaves");
+            }
+
+            set
+            {
+                SetOptionValue("secureEnclaves", value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value for Attestation Protocol.
         /// </summary>
         public string EnclaveAttestationProtocol
@@ -148,13 +165,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         }
 
         /// <summary>
-        /// Gets or sets a Boolean value that indicates whether SQL Server uses SSL encryption for all data sent between the client and server if the server has a certificate installed.
+        /// Gets or sets a <see cref="string"/> value that indicates encryption mode that SQL Server should use to perform SSL encryption for all the data sent between the client and server. Supported values are: Optional, Mandatory, Strict, True, False, Yes and No.
+        /// Boolean 'true' and 'false' will also continue to be supported for backwards compatibility.
         /// </summary>
-        public bool? Encrypt
+        public string? Encrypt
         {
             get
             {
-                return GetOptionValue<bool?>("encrypt");
+                string? value = GetOptionValue<string?>("encrypt");
+                if (string.IsNullOrEmpty(value))
+                {
+                    // Accept boolean values for backwards compatibility.
+                    value = GetOptionValue<bool?>("encrypt")?.ToString();
+                }
+                return value;
             }
 
             set
@@ -176,6 +200,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             set
             {
                 SetOptionValue("trustServerCertificate", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value that indicates the host name in the certificate to be used for certificate validation when encryption is enabled.
+        /// </summary>
+        public string HostNameInCertificate
+        {
+            get
+            {
+                return GetOptionValue<string>("hostNameInCertificate");
+            }
+
+            set
+            {
+                SetOptionValue("hostNameInCertificate", value);
             }
         }
 
@@ -208,6 +248,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             set
             {
                 SetOptionValue("connectTimeout", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the length of time (in seconds) to wait for a command to complete on the server before terminating the attempt and generating an error.
+        /// </summary>
+        public int? CommandTimeout
+        {
+            get
+            {
+                return GetOptionValue<int?>("commandTimeout");
+            }
+
+            set
+            {
+                SetOptionValue("commandTimeout", value);
             }
         }
 
@@ -481,7 +537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             {
                 SetOptionValue("port", value);
             }
-        }        
+        }
 
         /// <summary>
         /// Gets or sets a string value that indicates the type system the application expects.
@@ -518,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the group ID
         /// </summary>
-        public string GroupId 
+        public string GroupId
         {
             get
             {
@@ -533,7 +589,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// <summary>
         /// Gets or sets the database display name
         /// </summary>
-        public string DatabaseDisplayName 
+        public string DatabaseDisplayName
         {
             get
             {
@@ -557,32 +613,61 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
             }
         }
 
-        public bool IsComparableTo(ConnectionDetails other)
+        public int? ExpiresOn
         {
-            if (other == null)
+            get
             {
-                return false;
+                return GetOptionValue<int?>("expiresOn");
             }
-
-            if (ServerName != other.ServerName
-                || AuthenticationType != other.AuthenticationType
-                || UserName != other.UserName
-                || AzureAccountToken != other.AzureAccountToken)
+            set
             {
-                return false;
+                SetOptionValue("expiresOn", value);
             }
-
-            // For database name, only compare if neither is empty. This is important
-            // Since it allows for handling of connections to the default database, but is
-            // not a 100% accurate heuristic.
-            if (!string.IsNullOrEmpty(DatabaseName)
-                && !string.IsNullOrEmpty(other.DatabaseName)
-                && DatabaseName != other.DatabaseName)
-            {
-                return false;
-            }
-
-            return true;
         }
+
+        /// <summary>
+        /// Compares all SQL Server Connection properties to be able to identify differences in current instance and provided instance appropriately.
+        /// </summary>
+        /// <param name="other">Instance to compare with.</param>
+        /// <returns>True if comparison yeilds no differences, otherwise false.</returns>
+        public bool IsComparableTo(ConnectionDetails other)
+            => other != null
+            && string.Equals(ApplicationIntent, other.ApplicationIntent, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(ApplicationName, other.ApplicationName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(AttachDbFilename, other.AttachDbFilename, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(AuthenticationType, other.AuthenticationType, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(AzureAccountToken, other.AzureAccountToken, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(ColumnEncryptionSetting, other.ColumnEncryptionSetting, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(SecureEnclaves, other.SecureEnclaves, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(ConnectionString, other.ConnectionString, System.StringComparison.InvariantCultureIgnoreCase)
+            && ConnectRetryCount == other.ConnectRetryCount
+            && ConnectRetryInterval == other.ConnectRetryInterval
+            && ConnectTimeout == other.ConnectTimeout
+            && CommandTimeout == other.CommandTimeout
+            && string.Equals(CurrentLanguage, other.CurrentLanguage, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(DatabaseDisplayName, other.DatabaseDisplayName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(DatabaseName, other.DatabaseName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(EnclaveAttestationProtocol, other.EnclaveAttestationProtocol, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(EnclaveAttestationUrl, other.EnclaveAttestationUrl, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(Encrypt, other.Encrypt, System.StringComparison.InvariantCultureIgnoreCase)
+            && ExpiresOn == other.ExpiresOn
+            && string.Equals(FailoverPartner, other.FailoverPartner, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(HostNameInCertificate, other.HostNameInCertificate, System.StringComparison.InvariantCultureIgnoreCase)
+            && LoadBalanceTimeout == other.LoadBalanceTimeout
+            && MaxPoolSize == other.MaxPoolSize
+            && MinPoolSize == other.MinPoolSize
+            && MultipleActiveResultSets == other.MultipleActiveResultSets
+            && MultiSubnetFailover == other.MultiSubnetFailover
+            && PacketSize == other.PacketSize
+            && string.Equals(Password, other.Password, System.StringComparison.InvariantCultureIgnoreCase)
+            && PersistSecurityInfo == other.PersistSecurityInfo
+            && Pooling == other.Pooling
+            && Port == other.Port
+            && Replication == other.Replication
+            && string.Equals(ServerName, other.ServerName, System.StringComparison.InvariantCultureIgnoreCase)
+            && TrustServerCertificate == other.TrustServerCertificate
+            && string.Equals(TypeSystemVersion, other.TypeSystemVersion, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(UserName, other.UserName, System.StringComparison.InvariantCultureIgnoreCase)
+            && string.Equals(WorkstationId, other.WorkstationId, System.StringComparison.InvariantCultureIgnoreCase);
     }
 }

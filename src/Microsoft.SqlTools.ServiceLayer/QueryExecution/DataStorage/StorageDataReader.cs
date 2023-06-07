@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
@@ -98,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <returns>The value of the given column</returns>
         public object GetValue(int i)
         {
-            return sqlDataReader == null ? DbDataReader.GetValue(i) : sqlDataReader.GetValue(i);
+            return sqlDataReader == null ? DbDataReader.GetValue(i) : sqlDataReader.GetSqlValue(i);
         }
 
         /// <summary>
@@ -113,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
             }
             else
             {
-                sqlDataReader.GetValues(values);
+                sqlDataReader.GetSqlValues(values);
             }
         }
 

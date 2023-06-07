@@ -2,6 +2,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using System;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
@@ -10,7 +12,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
@@ -53,10 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set
@@ -69,10 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             get
             {
-                if (sqlTaskManagerInstance == null)
-                {
-                    sqlTaskManagerInstance = SqlTaskManager.Instance;
-                }
+                sqlTaskManagerInstance ??= SqlTaskManager.Instance;
                 return sqlTaskManagerInstance;
             }
             set
@@ -88,10 +83,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         {
             get
             {
-                if (fileBrowserService == null)
-                {
-                    fileBrowserService = FileBrowserService.Instance;
-                }
+                fileBrowserService ??= FileBrowserService.Instance;
                 return fileBrowserService;
             }
             set
@@ -106,22 +98,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Get database info
-            serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest);
+            serviceHost.SetRequestHandler(BackupConfigInfoRequest.Type, HandleBackupConfigInfoRequest, true);
 
             // Create backup
-            serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest);
+            serviceHost.SetRequestHandler(BackupRequest.Type, HandleBackupRequest, true);
 
             // Create restore task
-            serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest);
+            serviceHost.SetRequestHandler(RestoreRequest.Type, HandleRestoreRequest, true);
 
             // Create restore plan
-            serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest);
+            serviceHost.SetRequestHandler(RestorePlanRequest.Type, HandleRestorePlanRequest, true);
 
             // Cancel restore plan
-            serviceHost.SetRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest);
+            serviceHost.SetRequestHandler(CancelRestorePlanRequest.Type, HandleCancelRestorePlanRequest, true);
 
             // Create restore config
-            serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest);
+            serviceHost.SetRequestHandler(RestoreConfigInfoRequest.Type, HandleRestoreConfigInfoRequest, true);
 
             // Register file path validation callbacks
             FileBrowserServiceInstance.RegisterValidatePathsCallback(FileValidationServiceConstants.Backup, DisasterRecoveryFileValidator.ValidatePaths);
@@ -138,35 +130,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             DefaultDatabaseInfoParams optionsParams,
             RequestContext<BackupConfigInfoResponse> requestContext)
         {
-            try
-            {
-                var response = new BackupConfigInfoResponse();
-                ConnectionInfo connInfo;
-                DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
-                        optionsParams.OwnerUri,
-                        out connInfo);
+            var response = new BackupConfigInfoResponse();
+            ConnectionInfo connInfo;
+            DisasterRecoveryService.ConnectionServiceInstance.TryFindConnection(
+                    optionsParams.OwnerUri,
+                    out connInfo);
 
-                if (connInfo != null)
+            if (connInfo != null)
+            {
+                using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true))
                 {
-                    using (DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true))
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
                     {
-                        using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup"))
+                        if (sqlConn != null && !connInfo.IsCloud)
                         {
-                            if (sqlConn != null && !connInfo.IsCloud)
-                            {
-                                BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
-                                response.BackupConfigInfo = backupConfigInfo;
-                            }
+                            BackupConfigInfo backupConfigInfo = this.GetBackupConfigInfo(helper.DataContainer, sqlConn, sqlConn.Database);
+                            response.BackupConfigInfo = backupConfigInfo;
                         }
                     }
                 }
+            }
 
-                await requestContext.SendResult(response);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+            await requestContext.SendResult(response);
         }
 
         /// <summary>
@@ -202,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 ConnectionInfo connInfo;
                 bool supported = IsBackupRestoreOperationSupported(restoreParams.OwnerUri, out connInfo);
-                
+
                 if (restoreParams.OverwriteTargetDatabase)
                 {
                     restoreParams.TargetDatabaseName = restoreParams.SourceDatabaseName;
@@ -277,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 {
                     try
                     {
-                       
+
                         RestoreDatabaseTaskDataObject restoreDataObject = this.restoreDatabaseService.CreateRestoreDatabaseTaskDataObject(restoreParams, connInfo);
 
                         if (restoreDataObject != null)
@@ -323,38 +308,47 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             BackupParams backupParams,
             RequestContext<BackupResponse> requestContext)
         {
-            try
+            BackupResponse response = new BackupResponse();
+            ConnectionInfo connInfo;
+            bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
+
+            if (supported && connInfo != null)
             {
-                BackupResponse response = new BackupResponse();
-                ConnectionInfo connInfo;
-                bool supported = IsBackupRestoreOperationSupported(backupParams.OwnerUri, out connInfo);
-
-                if (supported && connInfo != null)
+                DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
+                // Open a new connection to use for the backup, which will be closed when the backup task is completed
+                // (or an error occurs)
+                SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
+                try
                 {
-                    DatabaseTaskHelper helper = AdminService.CreateDatabaseTaskHelper(connInfo, databaseExists: true);
-                    SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo, "Backup");
-                    // Connection gets discounnected when backup is done
-
                     BackupOperation backupOperation = CreateBackupOperation(helper.DataContainer, sqlConn, backupParams.BackupInfo);
-                    SqlTask sqlTask = null;
 
                     // create task metadata
                     TaskMetadata metadata = TaskMetadata.Create(backupParams, SR.BackupTaskName, backupOperation, ConnectionServiceInstance);
-                   
-                    sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
-                    sqlTask.StatusChanged += CloseConnection;
+
+                    SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                    sqlTask.StatusChanged += (object sender, TaskEventArgs<SqlTaskStatus> e) =>
+                    {
+                        SqlTask sqlTask = e.SqlTask;
+                        if (sqlTask != null && sqlTask.IsCompleted)
+                        {
+                            sqlConn.Dispose();
+                        }
+                    };
                 }
-                else
+                catch
                 {
-                    response.Result = false;
+                    // Ensure that the connection is closed if any error occurs while starting up the task
+                    sqlConn.Dispose();
+                    throw;
                 }
 
-                await requestContext.SendResult(response);
             }
-            catch (Exception ex)
+            else
             {
-                await requestContext.SendError(ex.ToString());
+                response.Result = false;
             }
+
+            await requestContext.SendResult(response);
         }
 
         private bool IsBackupRestoreOperationSupported(string ownerUri, out ConnectionInfo connectionInfo)
@@ -381,25 +375,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             catch
             {
-                if(sqlConn != null && sqlConn.State == System.Data.ConnectionState.Open)
+                if (sqlConn != null && sqlConn.State == System.Data.ConnectionState.Open)
                 {
                     sqlConn.Close();
                 }
             }
             connectionInfo = null;
             return false;
-        }
-
-        private void CloseConnection(object sender, TaskEventArgs<SqlTaskStatus> e)
-        {
-            SqlTask sqlTask = e.SqlTask;
-            if (sqlTask != null && sqlTask.IsCompleted)
-            {
-                connectionService.Disconnect(new DisconnectParams()
-                {
-                    OwnerUri = sqlTask.TaskMetadata.OwnerUri
-                });
-            }
         }
 
         private BackupOperation CreateBackupOperation(CDataContainer dataContainer, SqlConnection sqlConnection)

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
@@ -89,18 +91,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         public virtual QueueItem QueueBindingOperation(
             string key,
-            Func<IBindingContext, CancellationToken, object> bindOperation,
-            Func<IBindingContext, object> timeoutOperation = null,
-            Func<Exception, object> errorHandler = null,
+            Func<IBindingContext, CancellationToken, object?> bindOperation,
+            Func<IBindingContext, object>? timeoutOperation = null,
+            Func<Exception, object>? errorHandler = null,
             int? bindingTimeout = null,
             int? waitForLockTimeout = null)
         {
-            // don't add null operations to the binding queue
-            if (bindOperation == null)
-            {
-                return null;
-            }
-
             QueueItem queueItem = new QueueItem()
             {
                 Key = key,
@@ -195,10 +191,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             lock (this.bindingContextLock)
             {
-                if (this.BindingContextMap.ContainsKey(key))
+                if (this.BindingContextMap.TryGetValue(key, out IBindingContext? bindingContext))
                 {
                     // disconnect existing connection
-                    var bindingContext = this.BindingContextMap[key];
                     if (bindingContext.ServerConnection != null && bindingContext.ServerConnection.IsOpen)
                     {
                         // Disconnecting can take some time so run it in a separate task so that it doesn't block removal

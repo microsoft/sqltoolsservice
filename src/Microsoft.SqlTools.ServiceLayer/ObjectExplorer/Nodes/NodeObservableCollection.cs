@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using System;
 using System.Collections.Generic;
@@ -34,8 +36,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             get
             {
-                // SMO objects are already sorted so no need to sort them again
-                return this.FirstOrDefault() is SmoTreeNode;
+                // SMO objects are already sorted so no need to sort them again, unless they have dropped folders
+                bool anyDroppedFolders = this.Any(
+                        node => node is FolderNode &&
+                        (node.NodeTypeId == NodeTypes.DroppedLedgerTables ||
+                         node.NodeTypeId == NodeTypes.DroppedLedgerViews ||
+                         node.NodeTypeId == NodeTypes.DroppedLedgerColumns));
+                return this.FirstOrDefault() is SmoTreeNode && !anyDroppedFolders;
             }
         }
 
@@ -177,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         private void DoSort()
         {
             List<TreeNode> sorted = this.OrderBy(x => x).ToList();
-            for (int i = 0; i < sorted.Count(); i++)
+            for (int i = 0; i < sorted.Count; i++)
             {
                 int index = IndexOf(sorted[i]);
                 if (index != i)

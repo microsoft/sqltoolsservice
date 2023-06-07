@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="batchIndex">The index for selecting the batch item</param>
         /// <param name="resultSetIndex">The index for selecting the result set</param>
         /// <returns>The Execution Plan, if the result set has one</returns>
-        public Task<ExecutionPlan> GetExecutionPlan(int batchIndex, int resultSetIndex)
+        public Task<Contracts.ExecutionPlan> GetExecutionPlan(int batchIndex, int resultSetIndex)
         {
             // Sanity check to make sure that the batch is within bounds
             if (batchIndex < 0 || batchIndex >= Batches.Length)
@@ -383,6 +383,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             Batches[saveParams.BatchIndex].SaveAs(saveParams, fileFactory, successHandler, failureHandler);
+        }
+
+        /// <summary>
+        /// Changes the OwnerURI for the editor connection.
+        /// </summary>
+        public String ConnectionOwnerURI { 
+            get
+            {
+                return this.editorConnection.OwnerUri;
+            }
+            set
+            {
+                this.editorConnection.OwnerUri = value;
+            }
         }
 
         #endregion
@@ -566,11 +580,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void OnInfoMessage(object sender, SqlInfoMessageEventArgs args)
         {
-            SqlConnection conn = sender as SqlConnection;
-            if (conn == null)
-            {
-                throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
-            }
+            SqlConnection conn = sender as SqlConnection ?? throw new InvalidOperationException(SR.QueryServiceMessageSenderNotSql);
 
             foreach (SqlError error in args.Errors)
             {
@@ -623,7 +633,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // "set noexec off" should be the very first command, cause everything after 
                 // corresponding "set noexec on" is not executed until "set noexec off"
                 // is encounted
-                if (!settings.NoExec)
+                // NOEXEC is not currently supported by SqlOnDemand servers
+                if (!settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
                     builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
                 }
@@ -684,7 +695,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // "set noexec on" should be the very last command, cause everything after it is not
                 // being executed unitl "set noexec off" is encounered
-                if (settings.NoExec)
+                // NOEXEC is not currently supported by SqlOnDemand servers
+                if (settings.NoExec && connection.EngineEdition != SqlServer.Management.Common.DatabaseEngineEdition.SqlOnDemand)
                 {
                     builderBefore.AppendFormat("{0} ", helper.SetNoExecString);
                 }

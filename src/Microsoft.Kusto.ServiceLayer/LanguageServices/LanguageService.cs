@@ -15,10 +15,9 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.DataSourceIntellisense;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
-using Microsoft.Kusto.ServiceLayer.LanguageServices.Completion;
+using Microsoft.Kusto.ServiceLayer.DataSource.Intellisense;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace;
@@ -66,9 +65,6 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
-
-        // For testability only
-        internal Task DelayedDiagnosticsTask = null;
 
         private ConnectionService connectionService = null;
 
@@ -133,7 +129,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue("LanguageService", _bindingQueue);
+                    connectionService.RegisterConnectedQueue(Constants.LanguageServiceFeature, _bindingQueue);
                 }
                 return connectionService;
             }
@@ -145,6 +141,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         }
 
         private CancellationTokenSource existingRequestCancellation;
+        private IConnectionManager _connectionManager;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -154,10 +151,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             get
             {
-                if (workspaceServiceInstance == null)
-                {
-                    workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
-                }
+                workspaceServiceInstance ??=  WorkspaceService<SqlToolsSettings>.Instance;
                 return workspaceServiceInstance;
             }
             set
@@ -170,10 +164,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             get
             {
-                if (this.serviceHostInstance == null)
-                {
-                    this.serviceHostInstance = ServiceHost.Instance;
-                }
+                this.serviceHostInstance ??= ServiceHost.Instance;
                 return this.serviceHostInstance;
             }
             set
@@ -209,9 +200,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// <param name="context"></param>
         /// <param name="dataSourceFactory"></param>
         /// <param name="connectedBindingQueue"></param>
-        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue)
+        public void InitializeService(ServiceHost serviceHost, IConnectedBindingQueue connectedBindingQueue, IConnectionManager connectionManager)
         {
             _bindingQueue = connectedBindingQueue;
+            _connectionManager = connectionManager;
             // Register the requests that this service will handle
 
             //serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);     // Kusto api doesnt support this as of now. Implement it wherever applicable. Hover help is closest to signature help
@@ -319,9 +311,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
 
                     ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
+                    _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
 
                     var completionItems = GetCompletionItems(
                         textDocumentPosition, scriptFile, connInfo);
@@ -382,7 +372,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     DefinitionResult definitionResult = null;
                     if (scriptFile != null)
                     {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                        isConnected = _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
                         definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                     }
 
@@ -553,9 +543,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 }
 
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientUri,
-                    out connInfo);
+                _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
 
                 // check that there is an active connection for the current editor
                 if (connInfo != null)
@@ -569,7 +557,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                _bindingQueue.AddConnectionContext(connInfo, true, featureName: "LanguageService", overwrite: true);
+                                _bindingQueue.AddConnectionContext(connInfo, true, featureName: Constants.LanguageServiceFeature, overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                                 UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
@@ -684,17 +672,12 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         {
             await Task.Run(() =>
             {
-                if (ConnectionService.IsDedicatedAdminConnection(connInfo.ConnectionDetails))
-                {
-                    // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
-                    return;
-                }
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: true);
                 if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = _bindingQueue.AddConnectionContext(connInfo, true,"languageService");
+                        scriptInfo.ConnectionKey = _bindingQueue.AddConnectionContext(connInfo, true, Constants.LanguageServiceFeature);
                         scriptInfo.IsConnected = _bindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)
@@ -773,16 +756,14 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                 
                 return dataSource.GetDefinition(scriptFile.Contents, textDocumentPosition.Position.Character, 1, 1);
             }
-            else
+
+            // User is not connected.
+            return new DefinitionResult
             {
-                // User is not connected.
-                return new DefinitionResult
-                {
-                    IsErrorResult = true,
-                    Message = SR.PeekDefinitionNotConnectedError,
-                    Locations = null
-                };
-            }
+                IsErrorResult = true,
+                Message = SR.PeekDefinitionNotConnectedError,
+                Locations = null
+            };
         }
 
         /// <summary>
@@ -793,10 +774,10 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         internal Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
-            ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        scriptFile.ClientUri,
-                        out connInfo);
+            if (!_connectionManager.TryGetValue(scriptFile.ClientUri, out var connInfo))
+            {
+                return null;
+            }
 
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)     // populate parseresult or check why it is used.
             {
@@ -814,8 +795,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                                 
                                 ReliableDataSourceConnection connection;
                                 connInfo.TryGetConnection("Default", out connection);
-                                IDataSource dataSource = connection.GetUnderlyingConnection();               
-                                
+                                IDataSource dataSource = connection.GetUnderlyingConnection();
                                 return dataSource.GetHoverHelp(scriptDocumentInfo, textDocumentPosition.Position);
                             });
 
@@ -854,20 +834,23 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             if (scriptParseInfo == null)
             {
                 var scriptDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
-                resultCompletionItems = resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
+                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocInfo, textDocumentPosition.Position);       //TODO_KUSTO: DataSourceFactory.GetDefaultAutoComplete 1st param should get the datasource type generically instead of hard coded DataSourceType.Kusto
                 return resultCompletionItems;
             }
 
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
 
-            if(connInfo != null){
+            if (connInfo != null)
+            {
                 ReliableDataSourceConnection connection;
                 connInfo.TryGetConnection("Default", out connection);
                 IDataSource dataSource = connection.GetUnderlyingConnection();
-			    
-                resultCompletionItems = dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
+
+                resultCompletionItems =
+                    dataSource.GetAutoCompleteSuggestions(scriptDocumentInfo, textDocumentPosition.Position);
             }
-            else{
+            else
+            {
                 resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
             }
 
@@ -883,10 +866,8 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             }
 
             // if there are no completions then provide the default list
-            if (resultCompletionItems == null)          // this is the getting default keyword option when its not connected
-            {
-                resultCompletionItems = DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
-            }
+            // this is the getting default keyword option when its not connected
+            resultCompletionItems ??= DataSourceFactory.GetDefaultAutoComplete(DataSourceType.Kusto, scriptDocumentInfo, textDocumentPosition.Position);
 
             return resultCompletionItems;
         }
@@ -937,7 +918,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
             existingRequestCancellation = new CancellationTokenSource();
             Task.Factory.StartNew(
                 () =>
-                    this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
+                    DelayThenInvokeDiagnostics(
                         LanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,
@@ -1002,20 +983,20 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                 ScriptFileMarker[] semanticMarkers = null;
                 ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientUri,
-                    out connInfo);
-                
-                if(connInfo != null){
+                _connectionManager.TryGetValue(scriptFile.ClientUri, out connInfo);
+
+                if (connInfo != null)
+                {
                     connInfo.TryGetConnection("Default", out var connection);
                     IDataSource dataSource = connection.GetUnderlyingConnection();
-                    
+
                     semanticMarkers = dataSource.GetSemanticMarkers(parseInfo, scriptFile, scriptFile.Contents);
-			    }
-                else{
+                }
+                else
+                {
                     semanticMarkers = DataSourceFactory.GetDefaultSemanticMarkers(DataSourceType.Kusto, parseInfo, scriptFile, scriptFile.Contents);
                 }
-                
+
                 Logger.Write(TraceEventType.Verbose, "Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
@@ -1030,13 +1011,13 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>
-        internal ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        internal ScriptParseInfo? GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
             lock (this.parseMapLock)
             {
-                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                if (this.ScriptParseInfoMap.TryGetValue(uri, out ScriptParseInfo? scriptParseInfo))
                 {
-                    return this.ScriptParseInfoMap[uri];
+                    return scriptParseInfo;
                 }
                 else if (createIfNotExists)
                 {
@@ -1110,7 +1091,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
                     }
 
                     // If there is a single statement on the line, track it so that we can return it regardless of where the user's cursor is
-                    SqlStatement lineStatement = null;
+                    SqlStatement? lineStatement = null;
                     bool? lineHasSingleStatement = null;
 
                     // check if the batch matches parameters
@@ -1144,7 +1125,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
 
                     if (lineHasSingleStatement == true)
                     {
-                        return lineStatement.Sql;
+                        return lineStatement?.Sql ?? string.Empty;
                     }
                 }
             }

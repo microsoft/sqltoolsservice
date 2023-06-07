@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -34,8 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "SerializationService initialized");
-            serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest);
-            serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest);
+            serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest, true);
+            serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest, true);
         }
 
         /// <summary>
@@ -72,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
                 }
-                
+
                 Logger.Write(TraceEventType.Verbose, "HandleSerializeStartRequest");
                 SerializeDataResult result = serializer.ProcessRequest(serializeParams);
                 await requestContext.SendResult(result);
@@ -153,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     {
         private IFileStreamWriter writer;
         private SerializeDataStartRequestParams requestParams;
-        private IList<DbColumnWrapper> columns;
+        private IReadOnlyList<DbColumnWrapper> columns;
 
         public string FilePath { get; private set; }
 
@@ -164,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             this.FilePath = requestParams.FilePath;
         }
 
-        private IList<DbColumnWrapper> MapColumns(ColumnInfo[] columns)
+        private IReadOnlyList<DbColumnWrapper> MapColumns(ColumnInfo[] columns)
         {
             List<DbColumnWrapper> columnWrappers = new List<DbColumnWrapper>();
             foreach (ColumnInfo column in columns)
@@ -243,6 +245,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             SaveRequestParams = CreateCsvRequestParams()
                         };
                         break;
+                    case "markdown":
+                        factory = new SaveAsMarkdownFileStreamFactory(CreateMarkdownRequestParams());
+                        break;
                     case "xml":
                         factory = new SaveAsXmlFileStreamFactory()
                         {
@@ -258,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     default:
                         throw new Exception(SR.SerializationServiceUnsupportedFormat(this.requestParams.SaveFormat));
                 }
-                this.writer = factory.GetWriter(requestParams.FilePath);
+                this.writer = factory.GetWriter(requestParams.FilePath, columns);
             }
         }
         public void CloseStreams()
@@ -300,9 +305,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 Delimiter = this.requestParams.Delimiter,
                 LineSeperator = this.requestParams.LineSeparator,
                 TextIdentifier = this.requestParams.TextIdentifier,
-                Encoding = this.requestParams.Encoding
+                Encoding = this.requestParams.Encoding,
+                MaxCharsToStore = this.requestParams.MaxCharsToStore
             };
         }
+
+        private SaveResultsAsMarkdownRequestParams CreateMarkdownRequestParams() =>
+            new SaveResultsAsMarkdownRequestParams
+            {
+                FilePath = this.requestParams.FilePath,
+                BatchIndex = 0,
+                ResultSetIndex = 0,
+                IncludeHeaders = this.requestParams.IncludeHeaders,
+                LineSeparator = this.requestParams.LineSeparator,
+                Encoding = this.requestParams.Encoding,
+            };
+
         private SaveResultsAsXmlRequestParams CreateXmlRequestParams()
         {
             return new SaveResultsAsXmlRequestParams

@@ -3,20 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
-using System.Collections;
 using System.Collections.Specialized;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
 using System.Text;
-using System.Xml;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Admin;
-using Microsoft.SqlTools.ServiceLayer.Agent;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
@@ -25,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
     /// </summary>
     public class ManagementActionBase : IDisposable, IExecutionAwareManagementAction
     {
-#region Members
+        #region Members
 
         /// <summary>
         /// service provider of our host. We should direct all host-specific requests to the services
@@ -39,23 +32,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         private ExecutionMode m_executionMode = ExecutionMode.Success;
 
         /// <summary>
+        /// indicates that this is a database level operation, which on SQL DB will require an alternate 
+        /// execution manager to capture sql for scripting
+        /// </summary>
+        private bool isDatabaseOperation = false;
+
+        /// <summary>
+        /// Parent database object to use for database operations
+        /// </summary>
+        private Database parentDb = null;
+
+        /// <summary>
         /// data container with initialization-related information
         /// </summary>
         private CDataContainer dataContainer;
         //whether we assume complete ownership over it.
         //We set this member once the dataContainer is set to be non-null
-        private bool ownDataContainer = true;   
+        private bool ownDataContainer = true;
 
         //SMO Server connection that MUST be used for all enumerator calls
         //We'll get this object out of CDataContainer, that must be initialized
         //property by the initialization code
-        private ServerConnection  serverConnection;
+        private ServerConnection serverConnection;
 
         private ExecutionHandlerDelegate cachedExecutionHandlerDelegate;
 
-#endregion
+        #endregion
 
-#region Constructors
+        #region Constructors
 
         /// <summary>
         /// Constructor
@@ -64,9 +68,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
         }
 
-#endregion
+        #endregion
 
-#region IDisposable implementation
+        #region IDisposable implementation
 
         void IDisposable.Dispose()
         {
@@ -91,31 +95,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             }
         }
 
-#endregion
+        #endregion
 
-#region IObjectWithSite implementation
+        #region IObjectWithSite implementation
 
         public virtual void SetSite(IServiceProvider sp)
-        {         
+        {
             if (sp == null)
             {
                 throw new ArgumentNullException("sp");
             }
 
             // allow to be sited only once
-            if (this.serviceProvider == null)
-            {                             
-                // cache the service provider
-                this.serviceProvider = sp;             
+            // cache the service provider
+            this.serviceProvider ??= sp;
 
-                // call protected virtual method to enable derived classes to do initialization
-                // OnHosted();
-            }
+            // call protected virtual method to enable derived classes to do initialization
+            // OnHosted();
         }
 
-#endregion
+        #endregion
 
-#region IExecutionAwareManagementAction implementation
+        #region IExecutionAwareManagementAction implementation
 
         /// <summary>
         /// called before management action executes onRun method.
@@ -151,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 // we take over execution here. We substitute the server here for SQL containers
                 if (this.DataContainer.ContainerServerType == CDataContainer.ServerType.SQL)
-                {                
+                {
                     ExecuteForSql(executionInfo, out executionResult);
                     return false; // execution of the entire action was done here
                 }
@@ -186,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             return true;
         }
-#endregion
+        #endregion
 
 
         /// <summary>
@@ -217,10 +218,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         /// </returns>
         protected virtual bool DoPreProcessExecution(RunType runType, out ExecutionMode executionResult)
         {
-            //ask the framework to do normal execution by calling OnRunNOw methods
+            //ask the framework to do normal execution by calling OnRunNow methods
             //of the views one by one
             executionResult = ExecutionMode.Success;
-            return true; 
+            return true;
         }
 
         /// <summary>
@@ -262,6 +263,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 this.dataContainer = value;
                 this.ownDataContainer = OwnDataContainer; //cache the value
+            }
+        }
+
+        protected bool IsDatabaseOperation
+        {
+            get
+            {
+                return this.isDatabaseOperation;
+            }
+            set
+            {
+                this.isDatabaseOperation = value;
+            }
+        }
+
+        protected Database ParentDb
+        {
+            get
+            {
+                return this.parentDb;
             }
         }
 
@@ -395,6 +416,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                 sc = sqlDialogSubject.ExecutionManager.ConnectionContext.CapturedSql.Text;
             }
 
+            // for SQL DB database-level operations the script could be on the database object's execution manager
+            if (sc.Count == 0 && this.isDatabaseOperation && this.parentDb != null
+                && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+            {
+                sc = this.parentDb.ExecutionManager.ConnectionContext.CapturedSql.Text;
+            }                
+
             StringBuilder script = new StringBuilder(4096);
             if (sc != null)
             {
@@ -462,6 +490,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     sqlDialogSubject.ExecutionManager.ConnectionContext.SqlExecutionModes = newMode;
                 }
 
+                if (this.isDatabaseOperation)
+                {
+                    this.parentDb = this.DataContainer.Server.GetSmoObject(this.DataContainer.ParentUrn) as Database;
+                    if (this.parentDb != null && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                    {
+                        this.parentDb.ExecutionManager.ConnectionContext.SqlExecutionModes = newMode;
+                    }
+                }
+
                 executionResult = DoPreProcessExecutionAndRunViews(executionInfo.RunType);
 
                 if (isScripting)
@@ -475,10 +512,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             finally
             {
                 GetServerConnectionForScript().SqlExecutionModes = executionModeOriginal;
+                if (this.parentDb != null && this.isDatabaseOperation && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                {
+                    this.parentDb.ExecutionManager.ConnectionContext.SqlExecutionModes = executionModeOriginal;
+                }
 
                 if (isScripting)
-                {                    
+                {
                     GetServerConnectionForScript().CapturedSql.Clear();
+                    if (this.parentDb != null && this.isDatabaseOperation && this.DataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
+                    {
+                        this.parentDb.ExecutionManager.ConnectionContext.CapturedSql.Clear();
+                    }
                 }
 
                 if (sqlDialogSubject != null)
@@ -511,10 +556,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
         {
             get
             {
-                if (this.cachedExecutionHandlerDelegate == null)
-                {                   
-                    this.cachedExecutionHandlerDelegate = new ExecutionHandlerDelegate(this);
-                }
+                this.cachedExecutionHandlerDelegate ??= new ExecutionHandlerDelegate(this);
                 return this.cachedExecutionHandlerDelegate;
             }
         }

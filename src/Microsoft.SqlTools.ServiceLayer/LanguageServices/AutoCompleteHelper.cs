@@ -3,27 +3,27 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
     /// <summary>
-    /// Main class for Language Service functionality including anything that reqires knowledge of
-    /// the language to perfom, such as definitions, intellisense, etc.
+    /// Main class for Language Service functionality including anything that requires knowledge of
+    /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
     public static class AutoCompleteHelper
     {
@@ -32,6 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public static readonly string[] DefaultCompletionText = new string[]
         {
             "abs",
+            "abort",
             "acos",
             "action",
             "add",
@@ -41,7 +42,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "any",
             "apply",
             "approx_count_distinct",
+            "approx_percentile_cont",
+            "approx_percentile_disc",
             "are",
+            "array",
             "as",
             "asc",
             "ascii",
@@ -50,12 +54,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "atan",
             "atn2",
             "authorization",
+            "auto",
+            "auto_drop",
             "avg",
             "backup",
             "begin",
             "between",
             "binary",
             "bit",
+            "bit_count",
+            "blockers",
             "both",
             "break",
             "bulk",
@@ -109,6 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "database",
             "datalength",
             "date",
+            "date_bucket",
             "dateadd",
             "datediff",
             "datefromparts",
@@ -116,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "datepart",
             "datetime",
             "datetime2",
-            "date_bucket",
+            "datetrunc",
             "day",
             "days",
             "dbcc",
@@ -163,6 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "fillfactor",
             "filter",
             "first",
+            "first_value",
             "float",
             "floor",
             "for",
@@ -172,8 +182,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "from",
             "full",
             "function",
+            "generate_series",
             "geography",
             "get",
+            "get_bit",
             "getdate",
             "getutcdate",
             "global",
@@ -195,6 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "identity_insert",
             "identitycol",
             "if",
+            "ignore",
             "iif",
             "image",
             "immediate",
@@ -221,7 +234,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "key",
             "language",
             "last",
+            "leading",
             "left",
+            "left_shift",
             "len",
             "level",
             "like",
@@ -238,11 +253,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "masked",
             "match",
             "max",
+            "max_duration",
             "maxdop",
             "merge",
             "message",
             "min",
             "minute",
+            "minutes",
             "modify",
             "module",
             "month",
@@ -263,6 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "now",
             "null",
             "nullif",
+            "nulls",
             "numeric",
             "nvarchar",
             "object",
@@ -289,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "password",
             "path",
             "patindex",
+            "pause",
             "percent",
             "percentage",
             "period",
@@ -307,6 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "proc",
             "procedure",
             "public",
+            "quarter",
             "query_store",
             "quoted_identifier",
             "quotename",
@@ -336,6 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "replicate",
             "replication",
             "required",
+            "respect",
             "restart",
             "restore",
             "restrict",
@@ -346,6 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "revert",
             "revoke",
             "right",
+            "right_shift",
             "rollback",
             "rollup",
             "round",
@@ -357,6 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "rule",
             "sample",
             "save",
+            "scalar",
             "schema",
             "schemabinding",
             "scoped",
@@ -365,6 +388,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "secondary",
             "security",
             "select",
+            "self",
             "send",
             "sent",
             "sequence",
@@ -373,6 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "session_user",
             "sessionproperty",
             "set",
+            "set_bit",
             "sets",
             "setuser",
             "shutdown",
@@ -423,6 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "tinyint",
             "to",
             "top",
+            "trailing",
             "tran",
             "transaction",
             "translate",
@@ -457,6 +483,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             "version",
             "view",
             "waitfor",
+            "wait_at_low_priority",
+            "week",
             "when",
             "where",
             "while",
@@ -571,7 +599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (currentList != null &&
                 token != null && !string.IsNullOrWhiteSpace(token.Text) &&
-                token.Text.All(ch => char.IsLetter(ch)) &&
+                token.Text.All(char.IsLetter) &&
                 currentList.All(x => string.Compare(x.Label, token.Text, true) != 0
                 ))
             {
@@ -727,6 +755,141 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             help.ActiveParameter = currentParameter;
 
             return help;
+        }
+
+        /// <summary>
+        /// Give suggestions for sql star expansion. 
+        /// </summary>
+        /// <param name="scriptDocumentInfo">Document info containing the current cursor position</param>
+        /// <returns>Completion item array containing the expanded star suggestion</returns>
+        public static CompletionItem[] ExpandSqlStarExpression(ScriptDocumentInfo scriptDocumentInfo)
+        {
+            //Fetching the star expression node in sql script.
+            SqlSelectStarExpression selectStarExpression = AutoCompleteHelper.TryGetSelectStarStatement(scriptDocumentInfo.ScriptParseInfo.ParseResult.Script, scriptDocumentInfo);
+            if (selectStarExpression == null)
+            {
+                return null;
+            }
+
+            // Getting SQL object identifier for star expressions like a.* 
+            SqlObjectIdentifier starObjectIdentifier = null;
+            if (selectStarExpression.Children.Any())
+            {
+                starObjectIdentifier = (SqlObjectIdentifier)selectStarExpression.Children.ElementAt(0);
+            }
+
+            /*
+            Returning no suggestions when the bound tables are null. 
+            This happens when there are no existing connections for the script. 
+            */
+            if (selectStarExpression.BoundTables == null)
+            {
+                return null;
+            }
+
+            List<ITabular> boundedTableList = selectStarExpression.BoundTables.ToList();
+
+            IList<string> columnNames = new List<string>();
+
+            /*
+             We include table names in 2 conditions.
+             1. When there are multiple tables to avoid column ambiguity
+             2. When there is single table with an alias
+            */
+            bool includeTableName = boundedTableList.Count > 1 || (boundedTableList.Count == 1 && boundedTableList[0] != boundedTableList[0].Unaliased);
+
+            // Handing case for object identifiers where the column names will contain the identifier for eg: a.* becomes a.column_name
+            if (starObjectIdentifier != null)
+            {
+                string objectIdentifierName = starObjectIdentifier.ObjectName.ToString();
+                ITabular relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
+                columnNames = relatedTable.Columns.Select(c => String.Format("{0}.{1}", Utils.MakeSqlBracket(objectIdentifierName), Utils.MakeSqlBracket(c.Name))).ToList();
+            }
+            else
+            {
+                foreach (var table in boundedTableList)
+                {
+                    foreach (var column in table.Columns)
+                    {
+                        if (includeTableName)
+                        {
+                            columnNames.Add($"{Utils.MakeSqlBracket(table.Name)}.{Utils.MakeSqlBracket(column.Name)}"); // Including table names in case of multiple tables to avoid column ambiguity errors. 
+                        }
+                        else
+                        {
+                            columnNames.Add(Utils.MakeSqlBracket(column.Name));
+                        }
+                    }
+                }
+            }
+
+            if (columnNames == null || columnNames.Count == 0)
+            {
+                return null;
+            }
+
+            var insertText = String.Join(String.Format(",{0}", Environment.NewLine), columnNames.ToArray()); // Adding a new line after every column name
+            var completionItems = new CompletionItem[] {
+                new CompletionItem
+                {
+                    InsertText = insertText,
+                    Label = insertText,
+                    Detail = insertText,
+                    Kind = CompletionItemKind.Text,
+                    /*
+                    Vscode/ADS only shows completion items that match the text present in the editor. However, in case of star expansion that is never going to happen as columns names are different than '*'. 
+                    Therefore adding an explicit filterText that contains the original star expression to trick vscode/ADS into showing this suggestion item. 
+                    */
+                    FilterText = selectStarExpression.Sql,
+                    Preselect = true,
+                    TextEdit = new TextEdit {
+                        NewText = insertText,
+                        Range = new Range {
+                            Start = new Position{
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.StartLocation.ColumnNumber - 1
+                            },
+                            End = new Position {
+                                Line = scriptDocumentInfo.StartLine,
+                                Character = selectStarExpression.EndLocation.ColumnNumber - 1
+                            }
+                        }
+                    }
+                }
+            };
+            return completionItems;
+        }
+
+        public static SqlSelectStarExpression TryGetSelectStarStatement(SqlCodeObject currentNode, ScriptDocumentInfo scriptDocumentInfo)
+        {
+            if (currentNode == null || scriptDocumentInfo == null)
+            {
+                return null;
+            }
+
+            // Checking if the current node is a sql select star expression.
+            if (currentNode is SqlSelectStarExpression)
+            {
+                return currentNode as SqlSelectStarExpression;
+            }
+
+            // Visiting children to get the the sql select star expression.
+            foreach (SqlCodeObject child in currentNode.Children)
+            {
+                // Visiting only those children where the cursor is present. 
+                int childStartLineNumber = child.StartLocation.LineNumber - 1;
+                int childEndLineNumber = child.EndLocation.LineNumber - 1;
+                SqlSelectStarExpression childStarExpression = TryGetSelectStarStatement(child, scriptDocumentInfo);
+                if ((childStartLineNumber < scriptDocumentInfo.StartLine ||
+                    childStartLineNumber == scriptDocumentInfo.StartLine && child.StartLocation.ColumnNumber <= scriptDocumentInfo.StartColumn) &&
+                    (childEndLineNumber > scriptDocumentInfo.StartLine ||
+                    childEndLineNumber == scriptDocumentInfo.StartLine && child.EndLocation.ColumnNumber >= scriptDocumentInfo.EndColumn) &&
+                    childStarExpression != null)
+                {
+                    return childStarExpression;
+                }
+            }
+            return null;
         }
     }
 }

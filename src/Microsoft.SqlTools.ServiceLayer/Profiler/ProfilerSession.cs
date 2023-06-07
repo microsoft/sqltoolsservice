@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -123,9 +125,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
             if ((currentEvent.Name.Equals("sql_batch_completed")
                 || currentEvent.Name.Equals("sql_batch_starting"))
-                && currentEvent.Values.ContainsKey("batch_text"))
+                && currentEvent.Values.TryGetValue("batch_text", out string value))
             {
-                return currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_session_targets")
+                return value.Contains("SELECT target_data FROM sys.dm_xe_session_targets")
                     || currentEvent.Values["batch_text"].Contains("SELECT target_data FROM sys.dm_xe_database_session_targets");
             }
 

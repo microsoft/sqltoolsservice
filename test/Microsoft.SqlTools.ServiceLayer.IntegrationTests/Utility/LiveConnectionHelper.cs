@@ -1,9 +1,14 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using System;
 using Microsoft.Data.SqlClient;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -11,9 +16,16 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
 {
+    public class LiveConnectionException : Exception
+    {
+        public LiveConnectionException(string message)
+            : base(message) { }
+    }
+
     public class LiveConnectionHelper
     {
         public static string GetTestSqlFile(string fileName = null)
@@ -37,32 +49,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
         }
 
         public static TestConnectionResult InitLiveConnectionInfo(string databaseName = null, string ownerUri = null)
-        {
-            ScriptFile scriptFile = null;
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
-            if (string.IsNullOrEmpty(ownerUri))
-            {
-                ownerUri = GetTestSqlFile();
-                scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
-                ownerUri = scriptFile.ClientUri;
-            }
-            var connectionService = GetLiveTestConnectionService();
-            var connectionResult =
-                connectionService
-                .Connect(new ConnectParams
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectParams.Connection
-                });
+            => InitLiveConnectionInfoAsync(databaseName, ownerUri, ServiceLayer.Connection.ConnectionType.Default).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            connectionResult.Wait();
-
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
-        }
-
-        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = null, string ownerUri = null, 
+        public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = "master", string ownerUri = null,
             string connectionType = ServiceLayer.Connection.ConnectionType.Default, TestServerType serverType = TestServerType.OnPrem)
         {
             ScriptFile scriptFile = null;
@@ -72,25 +61,54 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
                 scriptFile = TestServiceProvider.Instance.WorkspaceService.Workspace.GetFile(ownerUri);
                 ownerUri = scriptFile.ClientUri;
             }
+            if (string.IsNullOrEmpty(databaseName))
+            {
+                databaseName = "master";
+            }
             ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
 
-            var connectionService = GetLiveTestConnectionService();
-            var connectionResult =
-                await connectionService
-                .Connect(new ConnectParams
-                {
-                    OwnerUri = ownerUri,
-                    Connection = connectParams.Connection,
-                    Type = connectionType
-                });
-            if (!string.IsNullOrEmpty(connectionResult.ErrorMessage))
+            // try to connect up to 3 times, sleeping in between retries
+            const int RetryCount = 3;
+            const int RetryDelayMs = 15000;
+            for (int attempt = 0; attempt < RetryCount; ++attempt)
             {
-                Console.WriteLine(connectionResult.ErrorMessage);
+                var connectionService = GetLiveTestConnectionService();
+                var connectionResult =
+                    await connectionService.Connect(new ConnectParams
+                    {
+                        OwnerUri = ownerUri,
+                        Connection = connectParams.Connection,
+                        Type = connectionType
+                    });
+                if (!string.IsNullOrEmpty(connectionResult.ErrorMessage))
+                {
+                    Console.WriteLine(connectionResult.ErrorMessage);
+                }
+
+                ConnectionInfo connInfo;
+                connectionService.TryFindConnection(ownerUri, out connInfo);
+
+                // if the connection wasn't successful then cleanup and try again (up to max retry count)
+                if (connInfo == null)
+                {
+                    connectionService.Disconnect(new DisconnectParams()
+                    {
+                        OwnerUri = ownerUri
+                    });
+                    // don't sleep on the final iterations since we won't try again
+                    if (attempt < RetryCount - 1)
+                    {
+                        Thread.Sleep(RetryDelayMs);
+                    }
+                }
+                else
+                {
+                    return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
+                }
             }
 
-            ConnectionInfo connInfo = null;
-            connectionService.TryFindConnection(ownerUri, out connInfo);
-            return new TestConnectionResult() { ConnectionInfo = connInfo, ScriptFile = scriptFile };
+            throw new LiveConnectionException(string.Format("Could not establish a connection to {0}:{1}",
+                connectParams.Connection.ServerName, connectParams.Connection.DatabaseName));
         }
 
         public static ConnectionInfo InitLiveConnectionInfoForDefinition(string databaseName = null)
@@ -99,18 +117,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             {
                 ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(TestServerType.OnPrem, databaseName);
                 string ownerUri = queryTempFile.FilePath;
+
+                InitLiveConnectionInfo(databaseName, ownerUri);
+
                 var connectionService = GetLiveTestConnectionService();
-                var connectionResult =
-                    connectionService
-                    .Connect(new ConnectParams
-                    {
-                        OwnerUri = ownerUri,
-                        Connection = connectParams.Connection
-                    });
-
-                connectionResult.Wait();
-
-                ConnectionInfo connInfo = null;
+                ConnectionInfo connInfo;
                 connectionService.TryFindConnection(ownerUri, out connInfo);
 
                 Assert.NotNull(connInfo);

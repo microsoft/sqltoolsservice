@@ -1,7 +1,9 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -27,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // If:
             // ... I create and then destruct a json writer
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, Array.Empty<DbColumnWrapper>());
             jsonWriter.Dispose();
 
             // Then:
@@ -59,7 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // If:
             // ... I write two rows
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             using (jsonWriter)
             {
                 jsonWriter.WriteRow(data, columns);
@@ -117,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             byte[] output = new byte[8192];
 
             // If: I write two rows
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             using (jsonWriter)
             {
                 jsonWriter.WriteRow(data, columns);
@@ -158,7 +160,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                 new DbCellValue {DisplayValue = "1", RawObject = 1},
                 new DbCellValue {DisplayValue = "1.234", RawObject = 1.234},
                 new DbCellValue {DisplayValue = "2017-07-08T00:00:00", RawObject = new DateTime(2017, 07, 08)},
-                
+
             };
             List<DbColumnWrapper> columns = new List<DbColumnWrapper>
             {
@@ -170,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // If:
             // ... I write two rows
-            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams);
+            var jsonWriter = new SaveAsJsonFileStreamWriter(new MemoryStream(output), saveParams, columns);
             using (jsonWriter)
             {
                 jsonWriter.WriteRow(data, columns);

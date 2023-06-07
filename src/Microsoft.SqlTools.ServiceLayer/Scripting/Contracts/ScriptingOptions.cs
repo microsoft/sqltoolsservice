@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
 {
     /// <summary>
@@ -123,8 +125,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting.Contracts
         ///   Script110Compat
         ///   Script120Compat
         ///   Script130Compat
-        ///   Script140Compat  
-        ///   Script150Compat  
+        ///   Script140Compat
+        ///   Script150Compat
+        ///   Script160Compat
         /// </summary>
         /// <remarks>
         /// The default is Script140Compat.

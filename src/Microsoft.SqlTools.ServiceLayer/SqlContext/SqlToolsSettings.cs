@@ -3,10 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.SqlTools.Utility;
+#nullable disable
+
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -19,15 +17,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private ISqlToolsSettingsValues sqlTools = null; 
         private SqlToolsSettingsValues mssqlTools = null; 
         private SqlToolsSettingsValues allSqlTools = null; 
+        private TelemetrySettingsValues telemetrySettings = null;
 
         public ISqlToolsSettingsValues SqlTools 
         { 
             get
             {
-                if (this.sqlTools == null)
-                {
-                    this.sqlTools = new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
-                }
+                this.sqlTools ??= new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
                 return this.sqlTools;
             } 
             set
@@ -44,10 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.mssqlTools == null)
-                {
-                    this.mssqlTools = new SqlToolsSettingsValues(false);
-                }
+                this.mssqlTools ??= new SqlToolsSettingsValues(false);
                 return this.mssqlTools;
             } 
             set
@@ -64,15 +57,29 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.allSqlTools == null)
-                {
-                    this.allSqlTools = new SqlToolsSettingsValues(false);
-                }
+                this.allSqlTools ??= new SqlToolsSettingsValues(false);
                 return this.allSqlTools;
             } 
             set
             {
                 this.sqlTools = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the underlying settings value object
+        /// </summary>
+        [JsonProperty("telemetry")]
+        public TelemetrySettingsValues TelemetrySettings
+        {
+            get
+            {
+                this.telemetrySettings ??= new TelemetrySettingsValues();
+                return this.telemetrySettings;
+            }
+            set
+            {
+                this.telemetrySettings = value;
             }
         }
 

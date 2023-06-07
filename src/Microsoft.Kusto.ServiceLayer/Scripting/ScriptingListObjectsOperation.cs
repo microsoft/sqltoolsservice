@@ -5,19 +5,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using System.Diagnostics;
+using Microsoft.Kusto.ServiceLayer.DataSource;
 
 namespace Microsoft.Kusto.ServiceLayer.Scripting
 {
@@ -111,7 +103,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             try
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
+                var builder = DataSourceFactory.CreateConnectionStringBuilder(DataSourceType.Kusto, Parameters.ConnectionString);
             }
             catch (Exception e)
             {

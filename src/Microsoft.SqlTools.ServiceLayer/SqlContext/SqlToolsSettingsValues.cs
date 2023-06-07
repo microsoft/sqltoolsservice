@@ -3,10 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -26,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 IntelliSense = new IntelliSenseSettings();
                 QueryExecutionSettings = new QueryExecutionSettings();
                 Format = new FormatterSettings();
+                TableDesigner = new TableDesignerSettings();
+                PiiLogging = false;
             }
         }
 
@@ -52,5 +53,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// </summary>
         [JsonProperty("objectExplorer")]
         public ObjectExplorerSettings ObjectExplorer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the table designer settings
+        /// </summary>
+        [JsonProperty("tableDesigner")]
+        public TableDesignerSettings TableDesigner { get; set; }
+
+        /// <summary>
+        /// Gets or sets the setting to enable PII Logging.
+        /// </summary>
+        [JsonProperty("piiLogging")]
+        public Boolean PiiLogging { get; set; }
     }
 }

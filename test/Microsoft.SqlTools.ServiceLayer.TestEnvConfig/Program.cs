@@ -3,16 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 {
-    class Program
+    sealed class Program
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0210:Convert to top-level statements", Justification = "Structure retained for readability.")]
         static void Main(string[] args)
         {
             if (args.Length == 1)
@@ -66,23 +69,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
         The following is an example of a setting_file: 
 
 <Configuration>
-    <Instance Name=""defaultSql2005"">
-        <DataSource>SQL2005 servername</DataSource>
+    <Instance Name=""sqlOnPrem"">
+       <DataSource>SQL On-Prem servername</DataSource>
         <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 2005 remote share</RemoteShare>
+        <RemoteShare>SQL remote share</RemoteShare>
     </Instance>
-    <Instance Name=""defaultSql2008"">
-       <DataSource>SQL2008 servername</DataSource>
-        <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 2008 remote share</RemoteShare>
-    </Instance>
-    <Instance Name=""defaultSql2011"">
-       <DataSource>SQL2011 servername</DataSource>
-        <BackupMethod>RemoteShare</BackupMethod>
-        <RemoteShare>SQL 20011 remote share</RemoteShare>
-    </Instance>
-    <Instance Name=""defaultSqlAzureV12"">
-        <DataSource>SQLAzure servername</DataSource>
+    <Instance Name=""sqlAzure"">
+        <DataSource>SQL Azure servername</DataSource>
         <BackupMethod>RemoteShare</BackupMethod>
         <RemoteShare>SQLAzure remote share</RemoteShare>
         <UserId>user id</UserId>
@@ -94,22 +87,25 @@ namespace Microsoft.SqlTools.ServiceLayer.TestEnvConfig
 
         private static void SaveSettings(string settingFile)
         {
-            
+            Console.WriteLine($"settings file content: {File.ReadAllText(settingFile)}");
             var xdoc = XDocument.Load(settingFile);
-            var settings =
-                from setting in xdoc.Descendants("Instance")
-                select new InstanceInfo(setting.Attribute("VersionKey").Value) // VersionKey is required
+            List<InstanceInfo> settings = new List<InstanceInfo>();
+            foreach (var setting in xdoc.Descendants("Instance"))
+            {
+                var passwordEnvVariableValue = Environment.GetEnvironmentVariable((setting.Attribute("VersionKey").Value + "_password"));
+
+                settings.Add(new InstanceInfo(setting.Attribute("VersionKey").Value)
                 {
                     ServerName = setting.Element("DataSource").Value, // DataSource is required
                     ConnectTimeoutAsString = (string)setting.Element("ConnectTimeout"), //ConnectTimeout is optional
                     User = (string)setting.Element("UserId"), // UserID is optional
-                    Password = (string)setting.Element("Password"),
+                    Password = string.IsNullOrEmpty(passwordEnvVariableValue) ? (string)setting.Element("Password") : passwordEnvVariableValue,
                     RemoteSharePath = (string)setting.Element("RemoteShare"), // RemoteShare is optional
                     AuthenticationType = string.IsNullOrEmpty((string)setting.Element("UserId")) ? AuthenticationType.Integrated : AuthenticationType.SqlLogin
-                };
+                });
+            }
 
             TestConfigPersistenceHelper.Write(settings);
-            
         }
     }
 }

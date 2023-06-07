@@ -1,18 +1,25 @@
-﻿using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 {
-    class RequestSecurityTokenParams 
+    class RequestSecurityTokenParams
     {
-        /// <summary>
-        /// Gets or sets the address of the authority to issue token.
-        /// </summary>
-        public string Authority { get; set; }
-
         /// <summary>
         /// Gets or sets the provider that indicates the type of linked account to query.
         /// </summary>
         public string Provider { get; set; }
+
+        /// <summary>
+        /// Gets or sets the authority URL from where token is requested.
+        /// </summary>
+        public string Authority { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the target resource that is the recipient of the requested token.
@@ -20,9 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string Resource { get; set; }
 
         /// <summary>
-        /// Gets or sets the scope of the authentication request.
+        /// Gets or sets the scope array of the authentication request.
         /// </summary>
-        public string Scope { get; set; }
+        public string [] Scopes { get; set; }
     }
 
     class RequestSecurityTokenResponse

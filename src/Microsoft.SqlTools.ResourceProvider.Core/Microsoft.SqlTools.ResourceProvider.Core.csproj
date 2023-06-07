@@ -1,17 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<Nullable>disable</Nullable>
 		<PackageId>Microsoft.SqlTools.ResourceProvider.Core</PackageId>
 		<AssemblyName>Microsoft.SqlTools.ResourceProvider.Core</AssemblyName>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<ApplicationIcon />
 		<OutputType>Library</OutputType>
 		<StartupObject />
 		<Description>Provides Resource Provider and control plane services for SqlTools applications.</Description>
-		<Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="Microsoft.Extensions.DependencyModel"/>
 		<PackageReference Include="System.Runtime.Loader"/>
 		<PackageReference Include="System.Composition"/>
@@ -20,7 +21,13 @@
 		<ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Localization\sr.resx" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 </Project>

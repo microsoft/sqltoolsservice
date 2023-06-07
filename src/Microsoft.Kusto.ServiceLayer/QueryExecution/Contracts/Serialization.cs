@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Data;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -111,7 +110,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
         {
             this.SaveFormat = saveFormat;
             this.FilePath = savePath;
-            this.Rows = Rows;
+            this.Rows = rows;
             this.IsLastBatch = isLast;
         }
 

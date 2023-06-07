@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -379,6 +381,12 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
             if (!EditCache.TryRemove(rowId, out removedEdit))
             {
                 throw new ArgumentOutOfRangeException(nameof(rowId), SR.EditDataUpdateNotPending);
+            }
+
+            // Remove the increment of the NextRow ID if we're reverting a CreateRow, as we are not actually adding a row.
+            if (typeof(RowCreate) == removedEdit.GetType())
+            {
+                NextRowId--;
             }
         }
 

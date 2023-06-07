@@ -3,10 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.SqlTools.Utility;
 using Newtonsoft.Json;
 
 namespace Microsoft.Kusto.ServiceLayer.SqlContext
@@ -24,10 +20,7 @@ namespace Microsoft.Kusto.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.sqlTools == null)
-                {
-                    this.sqlTools = new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
-                }
+                this.sqlTools ??= new CompoundToolsSettingsValues(MssqlTools, AllSqlTools);
                 return this.sqlTools;
             } 
             set
@@ -44,10 +37,7 @@ namespace Microsoft.Kusto.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.mssqlTools == null)
-                {
-                    this.mssqlTools = new SqlToolsSettingsValues(false);
-                }
+                this.mssqlTools ??= new SqlToolsSettingsValues(false);
                 return this.mssqlTools;
             } 
             set
@@ -64,10 +54,7 @@ namespace Microsoft.Kusto.ServiceLayer.SqlContext
         { 
             get
             {
-                if (this.allSqlTools == null)
-                {
-                    this.allSqlTools = new SqlToolsSettingsValues(false);
-                }
+                this.allSqlTools ??= new SqlToolsSettingsValues(false);
                 return this.allSqlTools;
             } 
             set

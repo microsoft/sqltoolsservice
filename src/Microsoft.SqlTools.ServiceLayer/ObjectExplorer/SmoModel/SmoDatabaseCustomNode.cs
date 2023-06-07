@@ -3,9 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
+using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -29,6 +33,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 child.IsAlwaysLeaf = true;
             }
         }
+
+        public override string GetNodeSubType(object smoObject, SmoQueryContext smoContext)
+        {
+            try
+            {
+                Database? db = smoObject as Database;
+                if (db != null && IsPropertySupported(nameof(db.IsLedger), smoContext, db, CachedSmoProperties) && db.IsLedger)
+                {
+                    return "Ledger";
+                }
+            }
+            catch (Exception e)
+            {
+                //Ignore the exception and just not change create custom name
+                Logger.Warning($"Error ignored when reading databases node subtype: {e.Message}");
+            }
+
+            return string.Empty;
+        }
     }
 
     internal static class DatabasesCustomNodeHelper
@@ -38,12 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal static bool GetDatabaseIsUnavailable(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            Database db = smoObject as Database;
+            Database? db = smoObject as Database;
             if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", smoContext, db, supportedProperties))
             {
                 DatabaseStatus status;
                 try
-                { 
+                {
                     status = db.Status;
                 }
                 catch (SqlServer.Management.Common.ConnectionFailureException)
@@ -66,12 +89,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         internal static string GetStatus(object smoObject, SmoQueryContext smoContext, IEnumerable<NodeSmoProperty> supportedProperties)
         {
-            Database db = smoObject as Database;
+            Database? db = smoObject as Database;
             if (db != null && SmoChildFactoryBase.IsPropertySupported("Status", smoContext, db, supportedProperties))
             {
                 DatabaseStatus status;
                 try
-                { 
+                {
                     status = db.Status;
                 }
                 catch (SqlServer.Management.Common.ConnectionFailureException)
@@ -102,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 else if ((status & DatabaseStatus.Inaccessible) == DatabaseStatus.Inaccessible)
                 {
                     return "Inaccessible";
-                }              
+                }
                 else if ((status & DatabaseStatus.Shutdown) == DatabaseStatus.Shutdown)
                 {
                     return "Shutdown";
@@ -118,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 else if ((status & DatabaseStatus.AutoClosed) == DatabaseStatus.AutoClosed)
                 {
                     return "Auto Closed";
-                }	
+                }
             }
 
             return string.Empty;

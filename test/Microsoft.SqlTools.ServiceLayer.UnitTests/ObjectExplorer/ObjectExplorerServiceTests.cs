@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading;
@@ -66,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         {
             object errorResponse = null;
             var contextMock = RequestContextMocks.Create<CreateSessionResponse>(null)
-                                                 .AddErrorHandling((errorMessage, errorCode) => errorResponse = errorMessage);
+                                                 .AddErrorHandling((errorMessage, errorCode, data) => errorResponse = errorMessage);
 
             await service.HandleCreateSessionRequest(null, contextMock.Object);
             VerifyErrorSent(contextMock);
@@ -295,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void FindNodeCanExpandParentNodes()
         {
             var mockTreeNode = new Mock<TreeNode>();
-            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken() };
+            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>(), ItExpr.IsNull<IEnumerable<NodeFilter>>() };
             mockTreeNode.Protected().Setup("PopulateChildren", populateChildrenArguments);
             mockTreeNode.Object.IsAlwaysLeaf = false;
 
@@ -473,7 +476,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private void VerifyServerNodeChildren(NodeInfo[] children)
         {
             Assert.NotNull(children);
-            Assert.True(children.Count() == 3);
+            Assert.True(children.Length == 3);
             Assert.True(children.All((x => x.NodeType == "Folder")));
         }
 

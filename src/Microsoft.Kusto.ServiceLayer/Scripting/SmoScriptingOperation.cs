@@ -3,13 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -22,12 +19,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public abstract class SmoScriptingOperation : ScriptingOperation
     {
+        protected readonly IDataSource _dataSource;
         private bool _disposed;
 
-        public SmoScriptingOperation(ScriptingParams parameters)
+        protected SmoScriptingOperation(ScriptingParams parameters, IDataSource datasource)
         {
+            _dataSource = datasource;
             Validate.IsNotNull("parameters", parameters);
-
             this.Parameters = parameters;
         }
 
@@ -73,34 +71,23 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             parameters.OperationId = this.OperationId;
         }
 
-        protected string GetServerNameFromLiveInstance(string connectionString, string azureAccessToken)
+        protected string GetServerNameFromLiveInstance()
         {
-            string serverName = string.Empty;
-            
-            using(var dataSource = DataSourceFactory.Create(DataSourceType.Kusto, connectionString, azureAccessToken))
-            {
-                serverName = dataSource.ClusterName;
-            }
-
-            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", serverName));
-            return serverName;
+            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", _dataSource.ClusterName));
+            return _dataSource.ClusterName;
         }
 
         protected void ValidateScriptDatabaseParams()
         {
-            try
+            if (string.IsNullOrWhiteSpace(Parameters.DatabaseName))
             {
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.Parameters.ConnectionString);
+                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid);
             }
-            catch (Exception e)
-            {
-                throw new ArgumentException(SR.ScriptingParams_ConnectionString_Property_Invalid, e);
-            }
-            if (this.Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
+            if (Parameters.FilePath == null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 throw new ArgumentException(SR.ScriptingParams_FilePath_Property_Invalid);
             }
-            else if (this.Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
+            if (Parameters.FilePath != null && this.Parameters.ScriptDestination != "ToEditor")
             {
                 if (!Directory.Exists(Path.GetDirectoryName(this.Parameters.FilePath)))
                 {

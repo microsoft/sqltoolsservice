@@ -1,29 +1,18 @@
 <Project>
-	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+	<Import
+		Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 	<PropertyGroup>
-		<Company>Microsoft Corporation</Company>
-		<Product>Microsoft SQL Server</Product>
-	</PropertyGroup>
-	<PropertyGroup>
-		<VersionPrefix>1.1.2</VersionPrefix>
-		<VersionSuffix></VersionSuffix>
-	</PropertyGroup>
-	<PropertyGroup>
-		<Authors>Microsoft</Authors>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-		<PackageLicenseUrl>https://github.com/Microsoft/sqltoolsservice/blob/master/license.txt</PackageLicenseUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/Microsoft/sqltoolsservice/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Microsoft/sqltoolsservice</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageTags>SQL XPLAT</PackageTags>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<CredentialsTargetFramework>netcoreapp3.1</CredentialsTargetFramework>
-		<ServiceLayerTargetFramework>netcoreapp3.1</ServiceLayerTargetFramework>
-		<ResourceProviderTargetFramework>netcoreapp3.1</ResourceProviderTargetFramework>
-	</PropertyGroup>
-	<PropertyGroup>
 		<DebugType>portable</DebugType>
+		<!-- add Source Link info to package/pdbs-->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
 </Project>

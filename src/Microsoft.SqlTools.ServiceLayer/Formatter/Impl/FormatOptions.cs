@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
+#nullable disable
+
 using System.ComponentModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.Formatter

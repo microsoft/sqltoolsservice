@@ -3,27 +3,59 @@
   "DotNetFolder": ".dotnet",
   "DotNetInstallScriptURL": "https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/",
   "DotNetChannel": "preview",
-  "DotNetVersion": "3.1.202",
+  "DotNetVersion": "5.0.301",
   "BuildToolsFolder": ".tools",
   "ArtifactsFolder": "artifacts",
   "PackageName": "Microsoft.SqlTools.ServiceLayer",
   "TestProjects": {
     "Microsoft.SqlTools.ServiceLayer.UnitTests": [
-      "netcoreapp3.1"
-   ]
+      "net7.0"
+    ],
+    "Microsoft.Kusto.ServiceLayer.UnitTests": [
+      "net7.0"
+    ],
+    "Microsoft.SqlTools.ServiceLayer.TestEnvConfig": [
+      "net7.0"
+    ],
+    "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
+      "net7.0"
+    ]
   },
-  "Frameworks": [  
-    "netcoreapp3.1"
+  "Frameworks": [
+    "net7.0"
   ],
-  "MainProjects": [     
+  "FxFrameworks":[
+    "net472",
+    "net7.0"
+  ],
+  "MainProjects": [
     "Microsoft.SqlTools.Credentials",
     "Microsoft.SqlTools.ResourceProvider",
-    "Microsoft.SqlTools.ServiceLayer"
+    "Microsoft.Kusto.ServiceLayer",
+    "Microsoft.SqlTools.ServiceLayer",
+    "Microsoft.SqlTools.ManagedBatchParser",
+    "Microsoft.SqlTools.Migration"
+  ],
+  "FxBuildProjects": [
+    "Microsoft.SqlTools.ManagedBatchParser"
   ],
   "PackageProjects": [
-    "Microsoft.SqlTools.CoreServices",
-    "Microsoft.SqlTools.DataProtocol.Contracts",
-    "Microsoft.SqlTools.Hosting.Contracts",
-    "Microsoft.SqlTools.Hosting.v2"
+    "Microsoft.SqlTools.Hosting"
+  ],
+  "DotnetToolProjects": [
+    "Microsoft.SqlTools.ServiceLayer",
+    "Microsoft.Kusto.ServiceLayer",
+    "Microsoft.SqlTools.Migration"
+  ],
+  "Projects": [
+    {
+      "Name": "Microsoft.SqlTools.Migration",
+      "PackageProjects": [
+        "Microsoft.SqlTools.Migration"
+      ],
+      "TestProjects": [
+        "Microsoft.SqlTools.Migration.UnitTests"
+      ]
+    }
   ]
 }

@@ -3,8 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -16,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.Utility;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
@@ -84,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
-        /// Runs a query by calling the services directly (not using the test driver) 
+        /// Runs a query by calling the services directly (not using the test driver)
         /// </summary>
         public void RunQuery(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
         {
@@ -93,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         }
 
         /// <summary>
-        /// Runs a query by calling the services directly (not using the test driver) 
+        /// Runs a query by calling the services directly (not using the test driver)
         /// </summary>
         public async Task RunQueryAsync(TestServerType serverType, string databaseName, string queryText, bool throwOnError = false)
         {
@@ -102,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 uri = queryTempFile.FilePath;
 
-                ConnectionInfo connInfo = InitLiveConnectionInfo(serverType, databaseName, uri);
+                ConnectionInfo connInfo = await InitLiveConnectionInfo(serverType, databaseName, uri);
                 Query query = new Query(queryText, connInfo, new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
                 query.Execute();
                 await query.ExecutionTask;
@@ -132,23 +137,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             return result;
         }
 
-        private ConnectionInfo InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
+        private async Task<ConnectionInfo> InitLiveConnectionInfo(TestServerType serverType, string databaseName, string scriptFilePath)
         {
             ConnectParams connectParams = ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
 
             string ownerUri = scriptFilePath;
             var connectionService = ConnectionService.Instance;
-            var connectionResult = connectionService.Connect(new ConnectParams()
+            var connectionResult = await connectionService.Connect(new ConnectParams()
                 {
                     OwnerUri = ownerUri,
                     Connection = connectParams.Connection
                 });
 
-            connectionResult.Wait();
-
-            ConnectionInfo connInfo = null;
+            if(!string.IsNullOrEmpty(connectionResult.ErrorMessage))
+            {
+                throw new Exception($"Error creating live connection to {connectParams.Connection.ServerName} (Type={serverType}). Error: {connectionResult.ErrorMessage}");
+            }
+            ConnectionInfo? connInfo = null;
             connectionService.TryFindConnection(ownerUri, out connInfo);
-            Assert.NotNull(connInfo);
+            Assert.That(connInfo, Is.Not.Null, $"Could not find connection {ownerUri} when creating live connection");
             return connInfo;
         }
 
@@ -182,12 +189,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 const string hostProfileId = "SQLToolsTestService";
                 Version hostVersion = new Version(1, 0);
 
-                // set up the host details and profile paths 
+                // set up the host details and profile paths
                 var hostDetails = new HostDetails(hostName, hostProfileId, hostVersion);
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
 
-                // Grab the instance of the service host
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                // Initialize the ServiceHost, using a MemoryStream for the output stream so that we don't fill up the logs
+                // with a bunch of outgoing messages (which aren't used for anything during tests)
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, null, null, new MemoryStream());
+
+                // Set up our logger to write to Console for tests to help debug issues
+                Logger.Initialize(autoFlush: true);
+                Logger.TracingLevel = System.Diagnostics.SourceLevels.All;
+                Logger.TraceSource.Listeners.Add(new ConsoleTraceListener());
             }
         }
 

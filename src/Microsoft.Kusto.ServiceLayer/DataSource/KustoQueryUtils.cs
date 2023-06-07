@@ -1,6 +1,8 @@
-// <copyright file="KustoQueryUtils.cs" company="Microsoft">
-// Copyright (c) Microsoft. All Rights Reserved.
-// </copyright>
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
 namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
-    public static class KustoQueryUtils
+    public static partial class KustoQueryUtils
     {
         public const string StatementSeparator = "\n | "; // Start each statement on a new line. Not required by Kusto, but doing this for readability of scripts generated from here.
 
@@ -28,7 +30,6 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
             } 
 
             string result = name;
-            Regex  rx = new Regex("[^_a-zA-Z0-9]");
             string [] kustoKeywordList = {"and", "anomalychart", "areachart", "asc", "barchart", "between", "bool", "boolean", "by",
                 "columnchart", "consume", "contains", "containscs", "count", "date", "datetime", "default", "desc", "distinct",
                 "double", "dynamic", "endswith", "evaluate", "extend", "false", "filter", "find", "first", "flags", "float",
@@ -39,7 +40,7 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
                 "take", "time", "timechart", "timeline", "timepivot", "timespan", "to", "top", "toscalar", "true", "union", 
                 "unstacked", "viewers", "where", "withsource"}; // add more keywords here
 
-            var escapeName = rx.IsMatch(name) || kustoKeywordList.Any(name.Contains) || alwaysEscape;
+            var escapeName = GetNameRegex().IsMatch(name) || kustoKeywordList.Any(name.Contains) || alwaysEscape;
             if (escapeName) 
             {
                 if (name.IndexOf('"') > -1) 
@@ -77,18 +78,36 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public static void SafeAdd<T>(this Dictionary<string, Dictionary<string, T>> dictionary, string key,
             T metadata) where T : DataSourceObjectMetadata
         {
-            if (dictionary.ContainsKey(key))
+            if (dictionary.TryGetValue(key, out Dictionary<string, T>? metadataCollection))
             {
-                if (dictionary[key].ContainsKey(metadata.Name))
+                if (metadataCollection.ContainsKey(metadata.Name))
                 {
                     return;
                 }
-                    
-                dictionary[key].Add(metadata.Name, metadata);
+
+                metadataCollection.Add(metadata.Name, metadata);
             }
             else
             {
                 dictionary[key] = new Dictionary<string, T> {{metadata.Name, metadata}};
+            }
+        }
+
+        public static void SafeAdd<T>(this Dictionary<string, SortedDictionary<string, DataSourceObjectMetadata>> dictionary, string key,
+            T node) where T : DataSourceObjectMetadata
+        {
+            if (dictionary.TryGetValue(key, out SortedDictionary<string, DataSourceObjectMetadata>? metadataCollection))
+            {
+                if (metadataCollection.ContainsKey(node.PrettyName))
+                {
+                    return;
+                }
+
+                metadataCollection.Add(node.PrettyName, node);
+            }
+            else
+            {
+                dictionary[key] = new SortedDictionary<string, DataSourceObjectMetadata> {{node.PrettyName, node}};
             }
         }
         
@@ -103,13 +122,26 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
         public static void AddRange<T>(this ConcurrentDictionary<string, IEnumerable<T>> dictionary, string key,
             List<T> metadatas) where T : DataSourceObjectMetadata
         {
-            if (dictionary.ContainsKey(key))
+            if (dictionary.TryGetValue(key, out IEnumerable<T>? value))
             {
-                metadatas.AddRange(dictionary[key]);
+                metadatas.AddRange(value);
             }
             
             dictionary[key] = metadatas.OrderBy(x => x.PrettyName, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
+        public static string ParseDatabaseName(string databaseName)
+        {
+            var regex = GetDatabaseNameRegex();
+            
+            return regex.IsMatch(databaseName)
+                ? regex.Match(databaseName).Value
+                : databaseName;
+        }
+
+        [GeneratedRegex("(?<=\\().+?(?=\\))")]
+        private static partial Regex GetDatabaseNameRegex();
+        [GeneratedRegex("[^_a-zA-Z0-9]")]
+        private static partial Regex GetNameRegex();
     }
 }

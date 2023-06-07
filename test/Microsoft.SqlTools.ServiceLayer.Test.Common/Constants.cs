@@ -3,11 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
     public static class Constants
     {
         public const string SqlConectionSettingsEnvironmentVariable = "SettingsFileName";
+
+        public const string AzureStorageAccountKey = "AzureStorageAccountKey";
+
+        public const string AzureStorageAccountName = "AzureStorageAccountName";
+
+        public const string AzureBlobContainerUri = "AzureBlobContainerUri";
 
         /// <summary>
         /// Environment variable used to get the TSDATA source directory root.

@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
@@ -497,7 +496,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
             }
         }
 
-        public string AzureAccountToken
+        public string AccountToken
         {
             get
             {
@@ -519,7 +518,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection.Contracts
             if (ServerName != other.ServerName
                 || AuthenticationType != other.AuthenticationType
                 || UserName != other.UserName
-                || AzureAccountToken != other.AzureAccountToken)
+                || AccountToken != other.AccountToken)
             {
                 return false;
             }

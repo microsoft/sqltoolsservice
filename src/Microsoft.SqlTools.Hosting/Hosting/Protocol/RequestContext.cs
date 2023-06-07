@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Error = Microsoft.SqlTools.Hosting.Contracts.Error;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.Hosting.Protocol
 {
@@ -39,13 +38,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventParams);
         }
 
-        public virtual Task SendError(string errorMessage, int errorCode = 0)
+        public virtual Task SendError(string errorMessage, int errorCode = 0, string data = null)
         {
             // Build the error message
             Error error = new Error
             {
                 Message = errorMessage,
-                Code = errorCode
+                Code = errorCode,
+                Data = data
             };
             return this.messageWriter.WriteError(
                     requestMessage.Method,
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public virtual Task SendError(Exception e)
         {
             // Overload to use the parameterized error handler
-            return SendError(e.Message, e.HResult);
+            return SendError(e.Message, e.HResult, e.StackTrace);
         }
     }
 }

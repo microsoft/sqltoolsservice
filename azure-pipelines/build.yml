@@ -1,80 +1,128 @@
-pool:
-  vmImage: 'windows-latest'
-  demands:
-  - Cmd
-  - npm
+parameters:
+  - name: platforms
+    type: object
+    default:
+    - name: 'osx.10.11-x64'
+      displayName: 'osx'
+      archiveName: 'osx-x64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'osx-arm64'
+      displayName: 'osx arm'
+      archiveName: 'osx-arm64-unsigned'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'rhel.7.2-x64'
+      displayName: 'rhel'
+      archiveName: 'rhel-x64'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+    - name: 'win-x64'
+      displayName: 'Windows 64 bit'
+      archiveName: 'win-x64'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'win-x86'
+      displayName: 'Windows 32 bit'
+      archiveName: 'win-x86'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'win-arm64'
+      archiveName: 'win-arm64'
+      displayName: 'Windows ARM 64 bit'
+      archiveFileFormat: 'zip'
+      archiveType: 'zip'
+    - name: 'linux-arm64'
+      archiveName: 'linux-arm64'
+      displayName: 'Linux ARM 64 bit'
+      archiveFileFormat: 'tar.gz'
+      archiveType: 'tar'
+  - name: projects
+    type: object
+    default:
+    - 'Microsoft.SqlTools.ServiceLayer'
+    - 'Microsoft.SqlTools.Migration'
 
 steps:
-- task: ArchiveFiles@1
-  displayName: 'Archive source '
+# .NET Core 2.1 SDK is installed for ESRP Code signing task,
+# ESRP currently uses DLL from this path: ~\1.9.111\netcoreapp2.1\esrpcli.dll (found in logs)
+# Can be removed once ESRP codesigning task gets an upgrade and a newer SDK DLL is used.
+- task: UseDotNet@2
+  displayName: 'Use .NET Core 2 sdk'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: source'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/source.tar.gz'
-    ArtifactName: source
+    useGlobalJson: false
+    version: 2.x
 
 - task: UseDotNet@2
-  displayName: 'Use defined .NET Core sdk'
+  displayName: 'Use defined .NET sdk'
   inputs:
     useGlobalJson: true
-
-- task: DotNetCoreCLI@1
-  displayName: 'dotnet restore src/Microsoft.SqlTools.Credentials'
-  inputs:
-    command: restore
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.Credentials'
-    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
-
-- task: DotNetCoreCLI@1
-  displayName: 'dotnet restore src/Microsoft.SqlTools.Hosting'
-  inputs:
-    command: restore
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.Hosting'
-    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
-
-- task: DotNetCoreCLI@1
-  displayName: 'dotnet restore src/Microsoft.SqlTools.ServiceLayer'
-  inputs:
-    command: restore
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer'
-    arguments: '--configfile $(Build.SourcesDirectory)/nuget.config'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer'
-  inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build src/Microsoft.SqlTools.ServiceLayer --configuration Release'
-  inputs:
-    projects: '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.ServiceLayer '
-    arguments: '--configuration Release'
 
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
     filename: build.cmd
     arguments: '-target=all -mono'
-  continueOnError: true
-
-- task: DotNetCoreCLI@1
+    
+- task: DotNetCoreCLI@2
   displayName: 'dotnet restore test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: restore
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
 
-- task: DotNetCoreCLI@1
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore test/Microsoft.Kusto.ServiceLayer.UnitTests'
+  inputs:
+    command: restore
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+
+- task: DotNetCoreCLI@2
   displayName: 'dotnet test test/Microsoft.SqlTools.ServiceLayer.UnitTests'
   inputs:
     command: test
     projects: test/Microsoft.SqlTools.ServiceLayer.UnitTests
-    arguments: '--logger "trx;LogFileName=xunit.trx"'
+    testRunTitle: SqlTools.ServiceLayer.UnitTests
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test test/Microsoft.Kusto.ServiceLayer.UnitTests'
+  inputs:
+    command: test
+    projects: test/Microsoft.Kusto.ServiceLayer.UnitTests
+    testRunTitle: Kusto.ServiceLayer.UnitTests
+    arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
+
+- script: |
+    dotnet tool install -g dotnet-reportgenerator-globaltool
+    reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura"
+  displayName: Create Code coverage report
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage report'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
+
+- task: PowerShell@2
+  displayName: 'Generate Nuspec Version'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.csproj'
+      $props = New-Object XML
+      $props.Load($projectFile)
+      $propGroup = $props.Project.PropertyGroup;
+      $versionPre = $env:ManagedBatchParserMajor + '.' + $env:ManagedBatchParserMinor + '.'
+      if($env:StableRelease.Equals('true')) {
+          $version = $versionPre + '0';
+      } else {
+          $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
+      }
+      $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
+      $nuspec = New-Object XML
+      $nuspec.Load($nuspecFile)
+      $nuspec.package.metadata.version = $version;
+      $nuspec.Save($nuspecFile)
 
 - task: Npm@1
   displayName: 'npm install -g gulp-cli'
@@ -83,24 +131,39 @@ steps:
     verbose: false
     customCommand: 'install -g gulp-cli'
 
-- task: BatchScript@1
-  displayName: 'Run script test/CodeCoverage/runintegration.bat'
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning - SNK only'
   inputs:
-    filename: test/CodeCoverage/runintegration.bat
-    workingFolder: test/CodeCoverage
-  enabled: false
-
-- task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 2.2.108 for CodeSigning'
-  inputs:
-    version: 2.2.108
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/default/net472/'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [
+       {
+        "KeyCode" : "CP-235847-SN",
+        "operationSetCode" : "StrongNameSign",
+        "Parameters" : [],
+        "ToolName" : "sign",
+        "ToolVersion" : "1.0"
+       },
+       {
+        "KeyCode" : "CP-235847-SN",
+        "operationSetCode" : "StrongNameVerify",
+        "Parameters" : [],
+        "ToolName" : "sign",
+        "ToolVersion" : "1.0"
+       }
+     ]
+    SessionTimeout: 600
+    MaxConcurrency: 5
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning - sha256 only'
   inputs:
     ConnectedServiceName: 'Code Signing'
     FolderPath: '$(Build.SourcesDirectory)/artifacts/publish'
-    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll'
+    Pattern: 'Microsoft.SqlTools.ManagedBatchParser.dll,MicrosoftSqlToolsCredentials.exe,MicrosoftSqlToolsServiceLayer.exe,SqlSerializationService.exe,SqlToolsResourceProviderService.exe,Microsoft.SqlTools.Hosting.dll,Microsoft.SqlTools.ResourceProvider.Core.dll,Microsoft.SqlTools.ResourceProvider.DefaultImpl.dll,MicrosoftSqlToolsCredentials.dll,MicrosoftSqlToolsServiceLayer.dll,Newtonsoft.Json.dll,SqlSerializationService.dll,SqlToolsResourceProviderService.dll,System.Data.SqlClient.dll,System.Net.Sockets.dll,MicrosoftSqlToolsMigration.exe,MicrosoftSqlToolsMigration.dll'
     signConfigType: inlineSignParams
     inlineOperation: |
      [
@@ -147,56 +210,76 @@ steps:
      ]
     SessionTimeout: 600
     MaxConcurrency: 5
-  condition: and(succeeded(), eq(variables['signed'], true))
 
-- task: ArchiveFiles@1
-  displayName: 'Archive osx build'
+- task: BatchScript@1
+  displayName: 'Package nuspec projects'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/osx.10.11-x64/netcoreapp3.1'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-osx-x64-netcoreapp3.1.tar.gz'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive rhel build'
+    filename: build.cmd
+    arguments: '-target=DotnetPackNuspec -mono'
+    
+- task: BatchScript@1
+  displayName: "Build and Package service tool projects"
+  env:
+    BUILD_DOTNET_TOOL: "true"
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/rhel.7.2-x64/netcoreapp3.1'
-    includeRootFolder: false
-    archiveType: tar
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-rhel-x64-netcoreapp3.1.tar.gz'
+    filename: build.cmd
+    arguments: "-target=dotnetpackservicetools -mono"
 
-- task: ArchiveFiles@1
-  displayName: 'Archive windows 64 bit build'
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP Code Signing - Nuget Package'
   inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x64/netcoreapp3.1'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x64-netcoreapp3.1.zip'
+    ConnectedServiceName: 'Code Signing'
+    FolderPath: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    Pattern: '*.nupkg'
+    signConfigType: 'inlineSignParams'
+    inlineOperation: |
+      [
+          {
+              "keyCode": "CP-401405",
+              "operationSetCode": "NuGetSign",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+          },
+          {
+              "keyCode": "CP-401405",
+              "operationSetCode": "NuGetVerify",
+              "parameters": [ ],
+              "toolName": "sign",
+              "toolVersion": "1.0"
+          }
+      ]
+    SessionTimeout: '60'
+    MaxConcurrency: '50'
+    MaxRetryAttempts: '5'
 
-- task: ArchiveFiles@1
-  displayName: 'Archive windows 32 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win7-x86/netcoreapp3.1'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win-x86-netcoreapp3.1.zip'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive windows10 arm 32 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm/netcoreapp3.1'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm-netcoreapp3.1.zip'
-
-- task: ArchiveFiles@1
-  displayName: 'Archive windows10 arm 64 bit build'
-  inputs:
-    rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/Microsoft.SqlTools.ServiceLayer/win10-arm64/netcoreapp3.1'
-    includeRootFolder: false
-    archiveFile: '$(Build.SourcesDirectory)/artifacts/package/Microsoft.SqlTools.ServiceLayer-win10-arm64-netcoreapp3.1.zip'
-
+- ${{ each project in parameters.projects }}:
+  - ${{ each platform in parameters.platforms }}:
+    - task: ArchiveFiles@1
+      displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
+      inputs:
+        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net7.0'
+        includeRootFolder: false
+        archiveType: ${{ platform.archiveType }}
+        archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net7.0.${{ platform.archiveFileFormat }}'
+    
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
+  displayName: 'Publish Artifact: build archives'
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/artifacts/package'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: nuget packages'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/nugetPackages'
+    ArtifactName: 'packages'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: logs'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/artifacts/logs'
+    ArtifactName: 'logs'
+  condition: true
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'
@@ -207,18 +290,7 @@ steps:
     publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
     allowPackageConflicts: true
 
-- task: PublishTestResults@2
-  displayName: 'Publish Test Results **/xunit.trx'
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
   inputs:
-    testResultsFormat: VSTest
-    testResultsFiles: '**/xunit.trx'
-
-trigger: none
-pr: none
-
-schedules:
-- cron: "0 5 * * Mon-Fri"
-  displayName: Mon-Fri at 5:00AM
-  branches:
-    include:
-    - main
+    failOnAlert: true

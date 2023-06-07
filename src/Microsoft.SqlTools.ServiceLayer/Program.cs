@@ -1,13 +1,17 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
 using System;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using System.IO;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -19,8 +23,9 @@ namespace Microsoft.SqlTools.ServiceLayer
         /// <summary>
         /// Main entry point into the SQL Tools API Service Layer
         /// </summary>
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
+            SqlClientListener? sqlClientListener = null;
             try
             {
                 // read command-line arguments
@@ -36,23 +41,43 @@ namespace Microsoft.SqlTools.ServiceLayer
                     logFilePath = Logger.GenerateLogFilePath("sqltools");
                 }
 
-                Logger.AutoFlush = commandOptions.AutoFlushLog;
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
 
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "sqltools");
+                // Register PII Logging configuration change callback
+                Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
+                {
+                    Logger.IsPiiEnabled = newSettings?.MssqlTools?.PiiLogging ?? false;
+                    Logger.Information(Logger.IsPiiEnabled ? "PII Logging enabled" : "PII Logging disabled");
+                    return Task.FromResult(true);
+                });
+
+                // Only enable SQL Client logging when verbose or higher to avoid extra overhead when the
+                // detailed logging it provides isn't needed
+                if (Logger.TracingLevel.HasFlag(SourceLevels.Verbose))
+                {
+                    sqlClientListener = new SqlClientListener();
+                }
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
 
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, commandOptions);
+                serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
 
-                serviceHost.WaitForExit();
+                // If this service was started by another process, then it should shutdown when that parent process does.
+                if (commandOptions.ParentProcessId != null)
+                {
+                    ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
+                }
+
+                await serviceHost.WaitForExitAsync();
             }
             catch (Exception ex)
             {
-                try 
+                try
                 {
-                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");                    
+                    Logger.WriteWithCallstack(TraceEventType.Critical, $"An unhandled exception occurred: {ex}");
                 }
                 catch (Exception loggerEx)
                 {
@@ -64,6 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             finally
             {
                 Logger.Close();
+                sqlClientListener?.Dispose();
             }
         }
     }

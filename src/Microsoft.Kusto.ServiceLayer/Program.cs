@@ -1,11 +1,14 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Microsoft.Kusto.ServiceLayer
 {
@@ -14,10 +17,12 @@ namespace Microsoft.Kusto.ServiceLayer
     /// </summary>
     internal class Program
     {
+        internal static string ServiceName;
+        
         /// <summary>
         /// Main entry point into the SQL Tools API Service Layer
         /// </summary>
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             try
             {
@@ -28,15 +33,15 @@ namespace Microsoft.Kusto.ServiceLayer
                     return;
                 }
 
+                ServiceName = commandOptions.ServiceName;
+                
                 string logFilePath = commandOptions.LogFilePath;
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
                     logFilePath = Logger.GenerateLogFilePath("kustoservice");
                 }
 
-                Logger.AutoFlush = commandOptions.AutoFlushLog;
-
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "kustoservice");
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, piiEnabled: commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "kustoservice", commandOptions.AutoFlushLog);
 
                 // set up the host details and profile paths 
                 var hostDetails = new HostDetails(version: new Version(1, 0));
@@ -44,7 +49,13 @@ namespace Microsoft.Kusto.ServiceLayer
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
-                serviceHost.WaitForExit();
+                // If this service was started by another process, then it should shutdown when that parent process does.
+                if (commandOptions.ParentProcessId != null)
+                {
+                    ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
+                }
+
+                await serviceHost.WaitForExitAsync();
             }
             catch (Exception e)
             {

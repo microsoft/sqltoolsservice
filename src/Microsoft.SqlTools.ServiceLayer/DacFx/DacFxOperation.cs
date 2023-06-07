@@ -2,13 +2,15 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 using Microsoft.SqlTools.Utility;
 using System;
-using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading;
 
@@ -85,7 +87,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             try
             {
                 // Pass in Azure authentication token if needed
-                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) : new DacServices(this.ConnectionString);
+                this.DacServices = this.ConnInfo.ConnectionDetails.AzureAccountToken != null && this.ConnInfo.ConnectionDetails.AuthenticationType == AzureMFA
+                    ? new DacServices(this.ConnectionString, new AccessTokenProvider(this.ConnInfo.ConnectionDetails.AzureAccountToken)) 
+                    : new DacServices(this.ConnectionString);
                 Execute();
             }
             catch (Exception e)

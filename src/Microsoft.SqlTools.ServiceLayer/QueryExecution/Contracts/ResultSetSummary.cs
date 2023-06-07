@@ -3,6 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
 {
     /// <summary>
@@ -40,7 +46,53 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// </summary>
         public SpecialAction SpecialAction { get; set; }
 
-        public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}'";
+        /// <summary>
+        /// The visualization options for the client to render charts.
+        /// </summary>
+        public VisualizationOptions Visualization { get; set; }
 
+        /// <summary>
+        /// Returns a string represents the current object.
+        /// </summary>
+        public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}', Visualization:'{Visualization}'";
+    }
+
+    /// <summary>
+    /// Represents the configuration options for data visualization
+    /// </summary>
+    public class VisualizationOptions
+    {
+        /// <summary>
+        /// Gets or sets the type of the visualization
+        /// </summary>
+        public VisualizationType Type { get; set; }
+    }
+
+    /// <summary>
+    /// The supported visualization types
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum VisualizationType
+    {
+        [EnumMember(Value = "bar")]
+        Bar,
+        [EnumMember(Value = "count")]
+        Count,
+        [EnumMember(Value = "doughnut")]
+        Doughnut,
+        [EnumMember(Value = "horizontalBar")]
+        HorizontalBar,
+        [EnumMember(Value = "image")]
+        Image,
+        [EnumMember(Value = "line")]
+        Line,
+        [EnumMember(Value = "pie")]
+        Pie,
+        [EnumMember(Value = "scatter")]
+        Scatter,
+        [EnumMember(Value = "table")]
+        Table,
+        [EnumMember(Value = "timeSeries")]
+        TimeSeries
     }
 }

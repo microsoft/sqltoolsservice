@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="zh-Hans">
+    <body>
+      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
+        <target state="translated">消息 {0}，级别 {1}，状态 {2}，第 {3} 行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
+        <target state="translated">消息 {0}，级别 {1}，状态 {2}，过程 {3}，第 {4} 行</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
+        <source>Msg {0}, Level {1}, State {2}</source>
+        <target state="translated">消息 {0}，级别 {1}，状态 {2}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchError_Exception">
+        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
+        <target state="translated">执行批处理时出错。错误消息为: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
+        <source>({0} row(s) affected)</source>
+        <target state="translated">({0} 行受影响)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionNotYetCompleteError">
+        <source>The previous execution is not yet complete.</source>
+        <target state="translated">上一次执行尚未完成。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Error">
+        <source>A scripting error occurred.</source>
+        <target state="translated">出现脚本错误。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_ParsingSyntax">
+        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
+        <target state="translated">分析 {0} 时遇到语法错误。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_FatalError">
+        <source>A fatal error occurred.</source>
+        <target state="translated">出现错误。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Batch execution completed {0} times...</source>
+        <target state="translated">已执行完 {0} 次批处理…</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
+        <source>You cancelled the query.</source>
+        <target state="translated">您已取消查询。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Halting">
+        <source>An error occurred while the batch was being executed.</source>
+        <target state="translated">执行批处理时出错。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="translated">执行批处理时出错，但已忽略该错误。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
+        <target state="translated">开始执行循环</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_CommandNotSupported">
+        <source>Command {0} is not supported.</source>
+        <target state="translated">不支持命令 {0}。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_VariableNotFound">
+        <source>The variable {0} could not be found.</source>
+        <target state="translated">找不到变量 {0}。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineError">
+        <source>SQL Execution error: {0}</source>
+        <target state="translated">SQL 执行错误: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="translated">批处理分析器包装执行: 在第 {1} 行处发现 {0}: {2} 说明: {3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
+        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
+        <target state="translated">已收到批处理分析器包装执行引擎批处理消息:  消息: {0}    详细消息: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
+        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
+        <target state="translated">批处理分析器包装执行引擎批处理 ResultSet 正在处理: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
+        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
+        <target state="translated">批处理分析器包装执行引擎批处理 ResultSet 已完成。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
+        <source>Canceling batch parser wrapper batch execution.</source>
+        <target state="translated">取消批处理分析器包装批处理执行。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Warning">
+        <source>Scripting warning.</source>
+        <target state="translated">脚本警告。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TroubleshootingAssistanceMessage">
+        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
+        <target state="translated">有关此错误的详细信息，请参见产品文档中的疑难解答主题。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_CircularReference">
+        <source>File '{0}' recursively included.</source>
+        <target state="translated">反复包括文件“{0}”。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_CommentNotTerminated">
+        <source>Missing end comment mark '*/'.</source>
+        <target state="translated">缺少结束注释标记“*/”。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_StringNotTerminated">
+        <source>Unclosed quotation mark after the character string.</source>
+        <target state="translated">字符串后的引号不完整。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_IncorrectSyntax">
+        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
+        <target state="translated">分析“{0}”时遇到错误的语法。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_VariableNotDefined">
+        <source>Variable {0} is not defined.</source>
+        <target state="translated">未定义变量 {0}。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_PathInvalid">
+        <source>Path contains invalid characters.</source>
+        <target state="translated">路径包含无效的字符。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_PathLong">
+        <source>Path too long.</source>
+        <target state="translated">路径过长。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_FailedInclude">
+        <source>Could not find included file {0}.</source>
+        <target state="translated">找不到包含的文件 {0}。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NullEmptyOrWhitespaceString">
+        <source>Parameter contains a null, empty, or whitespace string.</source>
+        <target state="translated">参数包含 null、空或空格字符串。</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

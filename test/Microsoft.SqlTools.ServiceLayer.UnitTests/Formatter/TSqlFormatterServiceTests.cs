@@ -3,13 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class TSqlFormatterServiceTests : FormatterUnitTestsBase
     {
-        private Mock<ServiceLayer.Workspace.Workspace> workspaceMock; 
+        private Mock<ServiceLayer.Workspace.Workspace> workspaceMock;
         private TextDocumentIdentifier textDocument;
         DocumentFormattingParams docFormatParams;
         DocumentRangeFormattingParams rangeFormatParams;
@@ -61,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
     C1 int NOT NULL,
     C2 nvarchar(50) NULL
 )");
-        
+
         private void SetupLanguageService(bool skipFile = false)
         {
             LanguageServiceMock.Setup(x => x.ShouldSkipNonMssqlFile(It.IsAny<string>())).Returns(skipFile);
@@ -217,11 +218,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             await test(contextMock.Object);
             VerifyResult(contextMock, verify);
         }
-        
+
         public static void VerifyResult<T>(Mock<RequestContext<T>> contextMock, Action verify)
         {
             contextMock.Verify(c => c.SendResult(It.IsAny<T>()), Times.Once);
-            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+            contextMock.Verify(c => c.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
             verify();
         }
 
@@ -254,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             };
             return scriptFile;
         }
-        
+
 
     }
 }

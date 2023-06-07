@@ -4,9 +4,8 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials.Utility;
-using Microsoft.SqlTools.Hosting.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
@@ -22,7 +21,7 @@ namespace Microsoft.SqlTools.Credentials
         /// <summary>
         /// Main entry point into the Credentials Service Host
         /// </summary>
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             try
             {
@@ -39,11 +38,9 @@ namespace Microsoft.SqlTools.Credentials
                     logFilePath = Logger.GenerateLogFilePath("credentials");
                 }
 
-                Logger.AutoFlush = commandOptions.AutoFlushLog;
+                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, piiEnabled: commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "credentials", commandOptions.AutoFlushLog);
 
-                Logger.Initialize(tracingLevel: commandOptions.TracingLevel, logFilePath: logFilePath, traceSource: "credentials");
-
-                // set up the host details and profile paths 
+                // set up the host details and profile paths
                 var hostDetails = new HostDetails(
                     name: "SqlTools Credentials Provider",
                     profileId: "Microsoft.SqlTools.Credentials",
@@ -52,7 +49,7 @@ namespace Microsoft.SqlTools.Credentials
                 SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
                 UtilityServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
 
-                serviceHost.WaitForExit();
+                await serviceHost.WaitForExitAsync();
             }
             catch (Exception e)
             {

@@ -3,11 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.XEvent;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
@@ -72,10 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             lock (this.sessionsLock)
             {
                 // start the monitoring thread
-                if (this.processorThread == null)
-                {
-                    this.processorThread = Task.Factory.StartNew(ProcessSessions);
-                }
+                this.processorThread ??= Task.Factory.StartNew(ProcessSessions);
 
                 // create new profiling session if needed
                 if (!this.monitoredSessions.ContainsKey(session.Id))

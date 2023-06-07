@@ -1,6 +1,8 @@
-// <copyright file="KustoQueryUtils.cs" company="Microsoft">
-// Copyright (c) Microsoft. All Rights Reserved.
-// </copyright>
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Data;
 
@@ -8,8 +10,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     public class DataReaderWrapper : IDataReader
     {
-        private readonly IDataReader _inner ;
-        public DataReaderWrapper(IDataReader inner)
+        private IDataReader _inner ;
+
+        protected DataReaderWrapper()
+        {
+        }
+
+        protected DataReaderWrapper(IDataReader inner)
+        {
+            SetDataReader(inner);
+        }
+
+        protected void SetDataReader(IDataReader inner)
         {
             _inner = inner;
         }

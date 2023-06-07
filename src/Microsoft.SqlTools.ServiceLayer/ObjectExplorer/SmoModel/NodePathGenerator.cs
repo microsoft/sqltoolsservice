@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             var assembly = typeof(ObjectExplorerService).Assembly;
-            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.TreeNodeDefinition.xml");
+            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.SmoTreeNodesDefinition.xml");
             var serializer = new XmlSerializer(typeof(ServerExplorerTree));
             NodeTypeDictionary = new Dictionary<string, HashSet<Node>>();
             using (var reader = new StreamReader(resource))
@@ -70,10 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 path = schema + "." + path;
             }
 
-            if (path == null)
-            {
-                path = "";
-            }
+            path ??= "";
 
             foreach (var matchingNode in matchingNodes)
             {
@@ -126,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             else
             {
                 var returnSet = new HashSet<string>();
-                if (currentNode.ContainedType() == "Database")
+                if (currentNode.ContainedType() == "Database" || currentNode.ContainedType() == "ExpandableSchema")
                 {
                     path = databaseName + "/" + path;
                 }
@@ -149,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         returnSet.Add(newPath);
                     }
                 }
-                
+
                 return returnSet;
             }
         }
@@ -225,7 +224,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return null;
                 }
-                
+
                 var containedNode = TreeRoot.GetNode(containedType);
                 if (containedNode == this)
                 {
@@ -241,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     return SR.Keys.GetString(this.LocLabel.Remove(0, 3));
                 }
-                
+
                 return string.Empty;
             }
 

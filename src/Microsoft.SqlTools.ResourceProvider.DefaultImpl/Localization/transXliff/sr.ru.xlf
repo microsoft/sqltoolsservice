@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="ru">
+    <body>
+      <trans-unit id="FailedToGetAzureDatabasesErrorMessage">
+        <source>An error occurred while getting Azure databases</source>
+        <target state="translated">Произошла ошибка при получении баз данных Azure</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureResourceGroupsErrorMessage">
+        <source>An error occurred while getting Azure resource groups: {0}</source>
+        <target state="translated">Ошибка при получении групп ресурсов Azure: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureSqlServersErrorMessage">
+        <source>An error occurred while getting Azure Sql Servers</source>
+        <target state="translated">Произошла ошибка при получении серверов Azure Sql Servers</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailed">
+        <source>An error occurred while creating a new firewall rule.</source>
+        <target state="translated">Произошла ошибка при создании правила брандмауэра.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnsupportedAuthType">
+        <source>Unsupported account type '{0}' for this provider</source>
+        <target state="translated">Тип учетной записи {0} не поддерживается для этого поставщика</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureSqlServersWithError">
+        <source>An error occurred while getting Azure Sql Servers: '{0}'</source>
+        <target state="translated">Ошибка при получении серверов Azure SQL: "{0}"</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailedWithError">
+        <source>An error occurred while creating a new firewall rule: '{0}'</source>
+        <target state="translated">Ошибка при создании правила брандмауэра: "{0}"</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FailedToGetAzureSubscriptionsErrorMessage">
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
+        <target state="translated">Ошибка при получении подписок Azure: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UserNeedsAuthenticationError">
+        <source>The current user must be reauthenticated before executing this operation </source>
+        <target state="translated">Перед выполнением этой операции текущий пользователь должен заново пройти проверку подлинности </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UserNotFoundError">
+        <source>No user was found, cannot execute the operation</source>
+        <target state="translated">Пользователи не найдены. Невозможно выполнить операцию.</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

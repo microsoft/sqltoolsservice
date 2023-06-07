@@ -1,16 +1,14 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.SqlTools.ResourceProvider.Core;
-using Microsoft.SqlTools.ResourceProvider.Core.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure;
-using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
 {
@@ -173,7 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Fakes
         //    connectionStringBuilder.ConnectTimeout = 123;
         //    connectionStringBuilder.Encrypt = true;
         //    connectionStringBuilder.ApplicationIntent = ApplicationIntent.ReadWrite;
-        //    connectionStringBuilder.AsynchronousProcessing = true;
         //    connectionStringBuilder.MaxPoolSize = 45;
         //    connectionStringBuilder.MinPoolSize = 3;
         //    connectionStringBuilder.PacketSize = 600;

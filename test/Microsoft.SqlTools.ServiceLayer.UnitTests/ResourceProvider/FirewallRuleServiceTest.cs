@@ -1,6 +1,9 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ResourceProvider.Core;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
+using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 using Microsoft.SqlTools.ResourceProvider.Core.Firewall;
 using Moq;
 using NUnit.Framework;
@@ -308,9 +312,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
             try
             {
                 FirewallRuleService service = new FirewallRuleService();
+                CreateFirewallRuleParams createFirewallRuleParams = new CreateFirewallRuleParams()
+                {
+                    ServerName = serverName,
+                    StartIpAddress = testContext.StartIpAddress,
+                    EndIpAddress = testContext.EndIpAddress
+                };
                 service.AuthenticationManager = testContext.ApplicationAuthenticationManager;
                 service.ResourceManager = testContext.AzureResourceManager;
-                FirewallRuleResponse response = await service.CreateFirewallRuleAsync(serverName, testContext.StartIpAddress, testContext.EndIpAddress);
+                FirewallRuleResponse response = await service.CreateFirewallRuleAsync(createFirewallRuleParams);
                 if (verifyFirewallRuleCreated)
                 {
                     testContext.AzureResourceManagerMock.Verify(x => x.CreateFirewallRuleAsync(
@@ -396,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider
         }
     }
 
-    internal class ServiceTestContext
+    internal sealed class ServiceTestContext
     {
         private string _validServerName = "validServerName.database.windows.net";
         private string _startIpAddressValue = "1.2.3.6";

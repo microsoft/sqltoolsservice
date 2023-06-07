@@ -3,13 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using System;
-using Microsoft.SqlServer.Management.Common;
-using System.Collections.Generic;
-using System.Collections;
-using Microsoft.SqlServer.Management.Diagnostics;
-using System.Collections.ObjectModel;
+#nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {

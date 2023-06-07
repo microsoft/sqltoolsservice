@@ -1,6 +1,5 @@
-[![Travis CI](https://travis-ci.org/Microsoft/sqltoolsservice.svg?branch=dev)](https://travis-ci.org/Microsoft/sqltoolsservice)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/Microsoft/sqltoolsservice?svg=true&retina=true&branch=dev)](https://ci.appveyor.com/project/kburtram/sqltoolsservice)
-[![Coverage Status](https://coveralls.io/repos/github/Microsoft/sqltoolsservice/badge.svg?branch=main)](https://coveralls.io/github/Microsoft/sqltoolsservice?branch=main)
+[![Build Status](https://mssqltools.visualstudio.com/CrossPlatBuildScripts/_apis/build/status/SqlToolsService%20-%20Product%20Build?branchName=main&label=Product%20Build)](https://mssqltools.visualstudio.com/CrossPlatBuildScripts/_build/latest?definitionId=391&branchName=main)
+[![Build Status](https://mssqltools.visualstudio.com/CrossPlatBuildScripts/_apis/build/status/Tools%20Service%20Integration%20tests?branchName=main&label=Integration%20Tests)](https://mssqltools.visualstudio.com/CrossPlatBuildScripts/_build/latest?definitionId=379&branchName=main)
 
 # Microsoft SQL Tools Service 
 
@@ -36,7 +35,6 @@ so that we can ensure we are solving the right problems in the right way.
 - File a bug or feature request as an [issue](https://github.com/Microsoft/sqltoolsservice/issues)
 - Comment on existing issues to give your feedback on how they should be fixed/implemented
 - Contribute a bug fix or feature implementation by submitting a pull request
-- Contribute more unit tests for feature areas that lack good coverage
 - Review the pull requests that others submit to ensure they follow [established guidelines]
   (#pull-request-guidelines)
 
@@ -48,7 +46,7 @@ Here's a high level list of guidelines to follow to ensure your code contributio
 - Follow established guidelines for commit hygiene
 - Write unit tests to validate new features and bug fixes
 - Ensure that the 'Release' build and unit tests pass locally
-- Ensure that the AppVeyor build passes for your change
+
 - Respond to all review feedback and final commit cleanup
 
 ### Practice Good Commit Hygiene
@@ -149,8 +147,7 @@ on this check so that our project will always have good generated documentation.
 
 - **The build and unit tests must run green**
 
-  Run all unit tests and code coverage tests to ensure all tests are passing and code coverage numbers
-  and not negatively impacted by your change.
+  Run all unit tests to ensure all tests are passing and are not negatively impacted by your change.
 
 - **Respond to code review feedback**
 

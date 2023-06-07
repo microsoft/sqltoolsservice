@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts;
 using System;
@@ -36,10 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             get
             {
-                if(taskManager == null)
-                {
-                    taskManager = SqlTaskManager.Instance;
-                }
+                taskManager ??= SqlTaskManager.Instance;
                 return taskManager;
             }
             set
@@ -55,8 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             this.serviceHost = serviceHost;
             Logger.Write(TraceEventType.Verbose, "TaskService initialized");
-            serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest);
-            serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest);
+            serviceHost.SetRequestHandler(ListTasksRequest.Type, HandleListTasksRequest, true);
+            serviceHost.SetRequestHandler(CancelTaskRequest.Type, HandleCancelTaskRequest, true);
             TaskManager.TaskAdded += OnTaskAdded;
         }
 

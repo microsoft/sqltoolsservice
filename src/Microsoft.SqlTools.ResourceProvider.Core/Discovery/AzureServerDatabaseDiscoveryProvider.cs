@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
                 result = await AzureUtil.ExecuteGetAzureResourceAsParallel(_session, serverResources, null, cancellationToken, GetDatabasesForServerFromService);
             }
             return result;
-        }        
+        }
 
         private async Task<ServiceResponse<DatabaseInstanceInfo>> GetDatabasesForServerFromService(
            IAzureResourceManagementSession session,
@@ -108,7 +109,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
         /// <summary>
         /// Converts the resource to DatabaseInstanceInfo
-        /// </summary>       
+        /// </summary>
         private DatabaseInstanceInfo ConvertToModel(ServerInstanceInfo serverInstanceInfo, IAzureResource azureResource)
         {
             DatabaseInstanceInfo databaseInstance = new DatabaseInstanceInfo(serverInstanceInfo)

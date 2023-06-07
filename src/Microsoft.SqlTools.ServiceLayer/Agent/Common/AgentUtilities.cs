@@ -3,15 +3,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Data;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent 
 {
@@ -52,9 +51,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Category = job.Category,
                 CategoryId = job.CategoryID,
                 CategoryType = job.CategoryType,
-                LastRun = job.LastRun != null ? job.LastRun.ToString() : string.Empty,
-                NextRun = job.NextRun != null ? job.NextRun.ToString() : string.Empty,
-                JobId = job.JobID != null ? job.JobID.ToString() : null,
+                LastRun = job.LastRun.ToString(),
+                NextRun = job.NextRun.ToString(),
+                JobId = job.JobID.ToString(),
                 OperatorToEmail = job.OperatorToEmail,
                 OperatorToPage = job.OperatorToPage,
                 StartStepId = job.StartStepID,
@@ -82,9 +81,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 Category = job.Category,
                 CategoryId = job.CategoryID,
                 CategoryType = job.CategoryType,
-                LastRun = job.LastRun != null ? job.LastRun.ToString() : string.Empty,
-                NextRun = job.NextRun != null ? job.NextRun.ToString() : string.Empty,
-                JobId = job.JobID != null ? job.JobID.ToString() : null,
+                LastRun = job.LastRun.ToString(),
+                NextRun = job.NextRun.ToString(),
+                JobId = job.JobID.ToString(),
                 OperatorToEmail = job.OperatorToEmail,
                 OperatorToPage = job.OperatorToPage,
                 StartStepId = job.StartStepID,
@@ -265,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries)
+                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries.Cast<LogSourceJobHistory.LogEntryJobHistory>())
                 {
                     if (steps.Contains(subEntry.StepName))
                     {                                              
@@ -307,7 +306,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                 // Add steps to the job if any
                 var jobSteps = new List<AgentJobStep>();
-                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries)
+                foreach (LogSourceJobHistory.LogEntryJobHistory subEntry in entry.SubEntries.Cast<LogSourceJobHistory.LogEntryJobHistory>())
                 {
                     if (steps.Contains(subEntry.StepName))
                     {                                              

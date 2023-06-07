@@ -3,9 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -21,8 +25,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         Sql2014,
         Sql2016,
         Sql2017,
+        Sql2019,
+        Sql2022,
         AzureV12,
-        SqlOnDemand
+        SqlOnDemand,
+        AzureSqlDWGen3
     }
 
     /// <summary>
@@ -35,7 +42,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// </summary>
         public static ValidForFlag GetValidForFlag(SqlServerType serverType, Database database = null)
         {
-            return GetValidForFlag(serverType, database != null && database.IsSqlDw);
+            bool isSqlDw = false;
+            try
+            {
+                // Database could be null here, handle NRE first.
+                if (database != null)
+                {
+                    isSqlDw = database.IsSqlDw;
+                }
+            }
+            catch (Exception e)
+            {
+                // Incase of dataverses, isSqlDw creates a temp table to check if the database is accessible, however dataverse 
+                // don't support ddl statements and therefore this check fails.
+                Logger.Information($"This exception is expected when we are trying to access a readonly database. Exception: {e.Message}");
+            }
+
+            return GetValidForFlag(serverType, isSqlDw);
         }
 
         /// <summary>
@@ -59,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ValidForFlag validforFlag = ValidForFlag.All;
             if (Enum.TryParse<ValidForFlag>(serverType.ToString(), out validforFlag))
             {
-                if (isSqlDw && serverType == SqlServerType.AzureV12)
+                if ((isSqlDw && serverType == SqlServerType.AzureV12) || serverType == SqlServerType.AzureSqlDWGen3)
                 {
                     validforFlag = ValidForFlag.SqlDw;
                 }
@@ -81,52 +104,66 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// </summary>
         public static SqlServerType CalculateServerType(ServerInfo serverInfo)
         {
-            SqlServerType serverType = SqlServerType.Unknown;
             string serverVersion = serverInfo.ServerVersion;
 
             if (serverInfo.EngineEditionId == 11)
             {
-                serverType = SqlServerType.SqlOnDemand;
+                return SqlServerType.SqlOnDemand;
             }
             else if (serverInfo.IsCloud)
             {
-                serverType = SqlServerType.AzureV12;
+                if (serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDataWarehouse
+                    && serverVersion.StartsWith("12", StringComparison.Ordinal))
+                {
+                    return SqlServerType.AzureSqlDWGen3;
+                }
+                else
+                {
+                    return SqlServerType.AzureV12;
+                }
             }
             else if (!string.IsNullOrWhiteSpace(serverVersion))
             {
                 if (serverVersion.StartsWith("9", StringComparison.Ordinal) ||
                     serverVersion.StartsWith("09", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2005;
+                    return SqlServerType.Sql2005;
                 }
                 else if (serverVersion.StartsWith("10", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2008; // and 2008R2
+                    return SqlServerType.Sql2008; // and 2008R2
                 }
                 else if (serverVersion.StartsWith("11", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2012;
+                    return SqlServerType.Sql2012;
                 }
                 else if (serverVersion.StartsWith("12", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2014;
+                    return SqlServerType.Sql2014;
                 }
                 else if (serverVersion.StartsWith("13", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2016;
+                    return SqlServerType.Sql2016;
                 }
                 else if (serverVersion.StartsWith("14", StringComparison.Ordinal))
                 {
-                    serverType = SqlServerType.Sql2017;
+                    return SqlServerType.Sql2017;
+                }
+                else if (serverVersion.StartsWith("15", StringComparison.Ordinal))
+                {
+                    return SqlServerType.Sql2019;
+                }
+                else if (serverVersion.StartsWith("16", StringComparison.Ordinal))
+                {
+                    return SqlServerType.Sql2022;
                 }
                 else
                 {
                     // vNext case - default to latest version
-                    serverType = SqlServerType.Sql2017;
+                    return SqlServerType.Sql2022;
                 }
             }
-
-            return serverType;
+            return SqlServerType.Unknown;
         }
     }
 }

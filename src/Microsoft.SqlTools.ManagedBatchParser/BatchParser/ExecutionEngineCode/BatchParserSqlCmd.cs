@@ -89,10 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
             if (value == null)
             {
-                if (internalVariables.ContainsKey(name))
-                {
-                    internalVariables.Remove(name);
-                }
+                internalVariables.Remove(name);                
             }
             else
             {
@@ -155,12 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                     }
 
                 }
-                if (fullFileName == null)
-                {
-                    fullFileName = Path.GetFullPath(fileName);
-                }
-
-                return fullFileName;
+                return fullFileName ?? Path.GetFullPath(fileName);
             }
             catch (ArgumentException)
             {

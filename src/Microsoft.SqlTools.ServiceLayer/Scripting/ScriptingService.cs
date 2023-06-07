@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.IO;
 using System.Collections.Concurrent;
@@ -15,6 +17,8 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using static Microsoft.SqlTools.Utility.SqlConstants;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -22,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
     /// Main class for Scripting Service functionality
     /// </summary>
     public sealed class ScriptingService : IDisposable
-    {    
+    {
         private const int ScriptingOperationTimeout = 60000;
 
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
@@ -43,10 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
             set
@@ -67,9 +68,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="context"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
-            serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
-            serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
+            serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest, true);
+            serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest, true);
+            serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest, true);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -84,75 +85,61 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         private async Task HandleListObjectsRequest(ScriptingListObjectsParams parameters, RequestContext<ScriptingListObjectsResult> requestContext)
         {
-            try
-            {
-                ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters);
-                operation.CompleteNotification += (sender, e) => requestContext.SendEvent(ScriptingListObjectsCompleteEvent.Type, e);
+            ScriptingListObjectsOperation operation = new ScriptingListObjectsOperation(parameters);
+            operation.CompleteNotification += (sender, e) => requestContext.SendEvent(ScriptingListObjectsCompleteEvent.Type, e);
 
-                RunTask(requestContext, operation);
+            RunTask(requestContext, operation);
 
-                await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            await requestContext.SendResult(new ScriptingListObjectsResult { OperationId = operation.OperationId });
         }
 
         /// <summary>
         /// Handles request to start the scripting operation
         /// </summary>
-        public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        public Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             SmoScriptingOperation operation = null;
-
-            try
+            // if a connection string wasn't provided as a parameter then
+            // use the owner uri property to lookup its associated ConnectionInfo
+            // and then build a connection string out of that
+            ConnectionInfo connInfo = null;
+            string accessToken = null;
+            if (parameters.ConnectionString == null)
             {
-                // if a connection string wasn't provided as a parameter then
-                // use the owner uri property to lookup its associated ConnectionInfo
-                // and then build a connection string out of that
-                ConnectionInfo connInfo = null;
-                string accessToken = null;
-                if (parameters.ConnectionString == null)
+                ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                if (connInfo != null)
                 {
-                    ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
-                    if (connInfo != null)
+                    parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
+                    // Set Access Token only when authentication type is AzureMFA.
+                    if (connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
                     {
-                        parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
                         accessToken = connInfo.ConnectionDetails.AzureAccountToken;
                     }
-                    else
-                    {
-                        throw new Exception("Could not find ConnectionInfo");
-                    }
-                }
-
-                if (parameters.FilePath == null)
-                {
-                    // Create a temporary and random path to handle this operation
-                    parameters.FilePath = Path.GetTempFileName();
-                }
-
-                if (!ShouldCreateScriptAsOperation(parameters))
-                {
-                    operation = new ScriptingScriptOperation(parameters, accessToken);
                 }
                 else
                 {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken);
+                    throw new Exception("Could not find ConnectionInfo");
                 }
-
-                operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
-                operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
-                operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
-
-                RunTask(requestContext, operation);
-
             }
-            catch (Exception e)
+
+            // Create a temporary and random path to handle this operation
+            parameters.FilePath ??= Path.GetTempFileName();
+
+            if (!ShouldCreateScriptAsOperation(parameters))
             {
-                await requestContext.SendError(e);
+                operation = new ScriptingScriptOperation(parameters, accessToken);
             }
+            else
+            {
+                operation = new ScriptAsScriptingOperation(parameters, accessToken);
+            }
+
+            operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
+            operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
+            operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
+
+            RunTask(requestContext, operation);
+            return Task.CompletedTask;
         }
 
         private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)
@@ -160,10 +147,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // Scripting as operation should be used to script one object.
             // Scripting data and scripting to file is not supported by scripting as operation
             // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
-            if( (parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
-                && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") || 
-                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute || 
-                parameters.Operation == ScriptingOperationType.Alter) 
+            if ((parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null
+                && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") ||
+                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute ||
+                parameters.Operation == ScriptingOperationType.Alter)
             {
                 return true;
             }
@@ -178,27 +165,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// </summary>
         public async Task HandleScriptCancelRequest(ScriptingCancelParams parameters, RequestContext<ScriptingCancelResult> requestContext)
         {
-            try
+            ScriptingOperation operation = null;
+            if (this.ActiveOperations.TryRemove(parameters.OperationId, out operation))
             {
-                ScriptingOperation operation = null;
-                if (this.ActiveOperations.TryRemove(parameters.OperationId, out operation))
-                {
-                    operation.Cancel();
-                }
-                else
-                {
-                    Logger.Write(TraceEventType.Information, string.Format("Operation {0} was not found", operation.OperationId));
-                }
+                operation.Cancel();
+            }
+            else
+            {
+                Logger.Write(TraceEventType.Information, string.Format("Operation {0} was not found", operation.OperationId));
+            }
 
-                await requestContext.SendResult(new ScriptingCancelResult());
-            }
-            catch (Exception e)
-            {
-                await requestContext.SendError(e);
-            }
+            await requestContext.SendResult(new ScriptingCancelResult());
         }
 
-        private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters, 
+        private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters,
                                                                SmoScriptingOperation operation, string scriptDestination)
         {
             await requestContext.SendEvent(eventType, parameters);
@@ -250,8 +230,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             if (!disposed)
             {
                 disposed = true;
-                
-                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
+
+                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values.Cast<ScriptingScriptOperation>())
                 {
                     operation.Dispose();
                 }

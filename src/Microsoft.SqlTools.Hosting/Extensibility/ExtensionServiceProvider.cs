@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Composition.Convention;
 using System.Composition.Hosting;
@@ -113,23 +112,96 @@ namespace Microsoft.SqlTools.Extensibility
             if (!services.ContainsKey(typeof(T)))
             {
                 ExtensionStore store = new ExtensionStore(typeof(T), config);
-                base.Register<T>(() => store.GetExports<T>());
+                base.Register<T>(store.GetExports<T>);
             }
         }
 
         /// <summary>
         /// Merges in new assemblies to the existing container configuration.
         /// </summary>
-        public void AddAssembliesToConfiguration(IEnumerable<Assembly> assemblies)
+        /// <typeparam name="T">Type of the service present in the assemblies</typeparam>
+        public void AddAssembliesToConfiguration<T>(IEnumerable<Assembly> assemblies)
         {
             Validate.IsNotNull(nameof(assemblies), assemblies);
             var previousConfig = config;
-            this.config = conventions => {
+            this.config = conventions =>
+            {
                 // Chain in the existing configuration function's result, then include additional
                 // assemblies
                 ContainerConfiguration containerConfig = previousConfig(conventions);
                 return containerConfig.WithAssemblies(assemblies, conventions);
             };
+            ExtensionStore store = new ExtensionStore(typeof(T), config);
+
+            // If the service type is already registered, replace the existing registration with the new one
+            if (this.services.ContainsKey(typeof(T)))
+            {
+                this.services[typeof(T)] = store.GetExports<T>;
+            }
+            else
+            {
+                base.Register<T>(store.GetExports<T>);
+            }
+        }
+
+        /// <summary>
+        /// Creates a service provider by loading a set of named assemblies, expected to be <paramref name="directory"/>
+        /// </summary>
+        /// <param name="directory">Directory to search for included assemblies</param>
+        /// <param name="inclusionList">full DLL names, case insensitive, of assemblies to include</param>
+        /// <returns><see cref="ExtensionServiceProvider"/> instance</returns>
+        public static ExtensionServiceProvider CreateFromAssembliesInDirectory(string directory, IList<string> inclusionList)
+        {
+            Logger.Verbose("Loading service assemblies from ..."+ directory);
+            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
+
+            List<Assembly> assemblies = LoadAssemblies(directory, inclusionList);
+            return Create(assemblies);
+        }
+
+        public void AddAssemblies<T>(string directory, IList<string> inclusionList)
+        {
+            this.AddAssembliesToConfiguration<T>(LoadAssemblies(directory, inclusionList));
+        }
+
+        private static List<Assembly> LoadAssemblies(string directory, IList<string> inclusionList)
+        {
+            Logger.Verbose("Loading service assemblies from ..."+ directory);
+            //AssemblyLoadContext context = new AssemblyLoader(directory);
+            var assemblyPaths = Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly);
+
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (var path in assemblyPaths)
+            {
+                // skip DLL files not in inclusion list
+                bool isInList = false;
+                foreach (var item in inclusionList)
+                {
+                    if (path.EndsWith(item, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isInList = true;
+                        break;
+                    }
+                }
+
+                if (!isInList)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    Logger.Verbose("Loading service assembly: " + path);
+                    assemblies.Add(AssemblyLoadContext.Default.LoadFromAssemblyPath(path));
+                    Logger.Verbose("Loaded service assembly: " + path);
+                }
+                catch (Exception ex)
+                {
+                    // we expect exceptions trying to scan all DLLs since directory contains native libraries
+                    Logger.Error(ex);
+                }
+            }
+            return assemblies;
         }
 
     }
@@ -186,10 +258,7 @@ namespace Microsoft.SqlTools.Extensibility
 
         public IEnumerable<T> GetExports<T>()
         {
-            if (exports == null)
-            {
-                exports = host.GetExports(contractType).ToList();
-            }
+            exports ??= host.GetExports(contractType).ToList();
             return exports.Cast<T>();
         }
 
@@ -197,7 +266,7 @@ namespace Microsoft.SqlTools.Extensibility
         {
             // Define exports as matching a parent type, export as that parent type
             var builder = new ConventionBuilder();
-            builder.ForTypesDerivedFrom(contractType).Export(exportConventionBuilder  => exportConventionBuilder.AsContractType(contractType));
+            builder.ForTypesDerivedFrom(contractType).Export(exportConventionBuilder => exportConventionBuilder.AsContractType(contractType));
             return builder;
         }
     }

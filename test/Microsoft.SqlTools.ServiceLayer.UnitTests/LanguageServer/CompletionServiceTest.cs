@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -40,9 +42,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
-            var count = result.CompletionItems == null ? 0 : result.CompletionItems.Count();
+            var count = result.CompletionItems == null ? 0 : result.CompletionItems.Length;
 
-            Assert.That(count, Is.Not.EqualTo(defaultCompletionList.Count()));
+            Assert.That(count, Is.Not.EqualTo(defaultCompletionList.Length));
         }
 
         [Test]
@@ -63,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
-            Assert.AreEqual(result.CompletionItems.Count(), defaultCompletionList.Count());
+            Assert.AreEqual(result.CompletionItems.Length, defaultCompletionList.Length);
             Thread.Sleep(3000);
             Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
         }

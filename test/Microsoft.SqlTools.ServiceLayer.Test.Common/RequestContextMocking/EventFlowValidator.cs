@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -115,11 +116,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
                 .Returns(Task.FromResult(0));
 
             // Add general handler for error event
-            Context.AddErrorHandling((msg, code) =>
+            Context.AddErrorHandling((msg, code, data) =>
             {
                 ReceivedEvents.Add(new ReceivedEvent
                 {
-                    EventObject = new Error {Message = msg, Code = code},
+                    EventObject = new Error { Message = msg, Code = code, Data = data },
                     EventType = EventTypes.Error
                 });
             });
@@ -155,15 +156,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
                 // Step 1) Make sure the event type matches
                 Assert.True(expected.EventType.Equals(received.EventType),
                     string.Format("Expected EventType {0} but got {1}. Received object is {2}", expected.EventType, received.EventType, received.EventObject.ToString()));
-                
+
                 // Step 2) Make sure the param type matches
-                Assert.True( expected.ParamType == received.EventObject.GetType()
-                    , $"expected and received event types differ for event Number: {i+1}. Expected EventType: {expected.ParamType}  & Received EventType: {received.EventObject.GetType()}\r\n"
+                Assert.True(expected.ParamType == received.EventObject.GetType()
+                    , $"expected and received event types differ for event Number: {i + 1}. Expected EventType: {expected.ParamType}  & Received EventType: {received.EventObject.GetType()}\r\n"
                     + $"\there is the full list of expected and received events::"
-                    + $"\r\n\t\t expected event types:{string.Join("\r\n\t\t", ExpectedEvents.ConvertAll(evt=>evt.ParamType))}"
-                    + $"\r\n\t\t received event types:{string.Join("\r\n\t\t", ReceivedEvents.ConvertAll(evt=>evt.EventObject.GetType()))}"
+                    + $"\r\n\t\t expected event types:{string.Join("\r\n\t\t", ExpectedEvents.ConvertAll(evt => evt.ParamType))}"
+                    + $"\r\n\t\t received event types:{string.Join("\r\n\t\t", ReceivedEvents.ConvertAll(evt => evt.EventObject.GetType()))}"
                 );
-                
+
                 // Step 3) Run the validator on the param object
                 Assert.NotNull(received.EventObject);
                 expected.Validator?.DynamicInvoke(received.EventObject);
@@ -179,14 +180,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking
             Event
         }
 
-        private class ExpectedEvent
+        private sealed class ExpectedEvent
         {
             public EventTypes EventType { get; set; }
             public Type ParamType { get; set; }
             public Delegate Validator { get; set; }
         }
 
-        private class ReceivedEvent
+        private sealed class ReceivedEvent
         {
             public object EventObject { get; set; }
             public EventTypes EventType { get; set; }

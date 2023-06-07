@@ -1,4 +1,9 @@
-﻿namespace Microsoft.Kusto.ServiceLayer.DataSource
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+namespace Microsoft.Kusto.ServiceLayer.DataSource
 {
     /// <summary>
     /// Represents the type of a data source.
@@ -23,6 +28,6 @@
         /// <summary>
         /// An Operations Management Suite (OMS) Log Analytics workspace.
         /// </summary>
-        OmsLogAnalytics
+        LogAnalytics
     }
 }

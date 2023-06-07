@@ -1,0 +1,61 @@
+trigger: none
+pr: none
+
+variables:
+  # Major version number for the release
+- name: Major
+  value: '4'
+  # Minor version number for the release (should be incremented post a stable release)
+- name: Minor
+  value: '8'
+  # Patch version number for the release (should be incremented in release branch once one is created)
+- name: Patch
+  value: '0'
+
+stages:
+- stage: Build
+  variables:
+  - name: buildConfiguration
+    value: 'Release'
+  - name: ManagedBatchParserMajor
+    value: '3'
+  - name: ManagedBatchParserMinor
+    value: '0'
+    # Set to true to build a stable release.
+  - name: StableRelease
+    value: 'false'
+  jobs:
+  - job: Build
+    pool:
+      name: 'ads-build-1es-hosted-pool'
+      demands:
+      - ImageOverride -equals ADS-Windows_Image
+    steps:
+    - template: build.yml
+    timeoutInMinutes: 90
+
+  # In order to run on arm64 macOS the executables must be at least self-signed, but dotnet publish step only does it when publishing on macOS.
+  # More information: https://github.com/dotnet/runtime/issues/49091
+  - job: CodeSign_osx_arm64_executables
+    pool:
+      vmImage: 'macos-latest'
+    dependsOn:
+      - Build
+    steps:
+    - template: osx-arm64-signing.yml
+
+- stage: Release
+  variables:
+  - name: skipComponentGovernanceDetection
+    value: true
+  dependsOn:
+  - Build
+  condition: and(succeeded(), eq(variables['RELEASE'], 'true'))
+  pool:
+    name: 'ads-build-1es-hosted-pool'
+    demands:
+    - ImageOverride -equals ADS-Linux_Image
+  jobs:
+  - job: Release
+    steps:
+    - template: release.yml

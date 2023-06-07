@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,11 +16,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
     /// <summary>
     /// Provides utilities for converting from SQL script syntax into POCOs.
     /// </summary>
-    public static class FromSqlScript
+    public static partial class FromSqlScript
     {
         // Regex: optionally starts with N, captures string wrapped in single quotes
-        private static readonly Regex StringRegex = new Regex("^N?'(.*)'$", RegexOptions.Compiled);
-        private static readonly Regex BracketRegex = new Regex(@"^\[(.*)\]$", RegexOptions.Compiled);
+        [GeneratedRegex("^N?'(.*)'$", RegexOptions.Compiled)]
+        private static partial Regex GetStringRegex();
+
+        [GeneratedRegex("^\\[(.*)\\]$", RegexOptions.Compiled)]
+        private static partial Regex GetBracketRegex();
 
         /// <summary>
         /// Decodes a multipart identifier as used in a SQL script into an array of the multiple
@@ -33,8 +38,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
         /// </exception>
         public static string[] DecodeMultipartIdentifier(string multipartIdentifier)
         {
-            StringBuilder sb = new StringBuilder();
-            List<string> namedParts = new List<string>();
+            var sb = new StringBuilder();
+            var namedParts = new List<string>();
             bool insideBrackets = false;
             bool bracketsClosed = false;
             for (int i = 0; i < multipartIdentifier.Length; i++)
@@ -120,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
             literal = literal.Trim('(', ')');
 
             // Attempt to unwrap inverted commas around a string
-            Match match = StringRegex.Match(literal);
+            Match match = GetStringRegex().Match(literal);
             if (match.Success)
             {
                 // Like: N'stuff' or 'stuff'
@@ -134,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters
         /// </summary>
         /// <param name="identifer">Identifier to check.</param>
         /// <returns>Boolean indicating if identifier is escaped with brackets.</returns>
-        public static bool IsIdentifierBracketed(string identifer) => BracketRegex.IsMatch(identifer);
+        public static bool IsIdentifierBracketed(string identifer) => GetBracketRegex().IsMatch(identifer);
 
         #region Private Helpers
         

@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<Nullable>disable</Nullable>
 		<EnableDefaultItems>false</EnableDefaultItems>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<AssemblyTitle>SqlTools Hosting Library</AssemblyTitle>
+		<Description>Provides hosting services for SqlTools applications.</Description>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -18,9 +20,15 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
 		<PackageReference Include="System.Runtime.Loader" />
 		<PackageReference Include="System.Composition" />
+		<PackageReference Include="System.Text.Encodings.Web" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Localization\sr.resx" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
 	</ItemGroup>
 </Project>

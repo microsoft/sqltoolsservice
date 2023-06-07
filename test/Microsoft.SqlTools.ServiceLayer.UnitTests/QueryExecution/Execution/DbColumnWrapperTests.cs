@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using NUnit.Framework;
@@ -17,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         /// <summary>
         /// Test DbColumn derived class
         /// </summary>
-        private class TestColumn : DbColumn
+        private sealed class TestColumn : DbColumn
         {
             public TestColumn(
                 string dataTypeName = null, 

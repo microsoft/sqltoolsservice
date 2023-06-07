@@ -1,4 +1,6 @@
-syntax: glob 
+syntax: glob
+
+CoverageReport
 
 ### VisualStudio ###
 *.dgml
@@ -32,20 +34,10 @@ x64/
 x86/
 build/
 bld/
-[Bb]in/
 [Oo]bj/
 msbuild.log
 msbuild.err
 msbuild.wrn
-
-# code coverage artifacts
-coverage.xml
-node_modules
-packages
-reports
-opencovertests.xml
-outputCobertura.xml
-sqltools.xml
 
 # Cross building rootfs
 cross/rootfs/
@@ -173,8 +165,7 @@ publish/
 # NuGet Packages
 *.nuget.props
 *.nuget.targets
-*.nupkg
-**/packages/*
+src/**/*.nupkg
 
 # Windows Azure Build Output
 csx/

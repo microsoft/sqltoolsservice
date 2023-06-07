@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ResourceProvider.Core.Authentication;
+using Microsoft.SqlTools.ResourceProvider.Core.Contracts;
 
 namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 {
@@ -19,14 +21,14 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
     {
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
-        /// </summary>   
-        Task<FirewallRuleResponse> CreateFirewallRuleAsync(string serverName, string startIpAddressValue, string endIpAddressValue);
+        /// </summary>
+        Task<FirewallRuleResponse> CreateFirewallRuleAsync(CreateFirewallRuleParams firewallRuleParams);
 
 
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
-        /// </summary> 
-        Task<FirewallRuleResponse> CreateFirewallRuleAsync(string serverName, IPAddress startIpAddress, IPAddress endIpAddress);
+        /// </summary>
+        Task<FirewallRuleResponse> CreateFirewallRuleAsync(string serverName, FirewallRuleRequest firewallRuleRequest);
 
 
         /// <summary>
@@ -53,32 +55,41 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
     {
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
-        /// </summary>     
-        public async Task<FirewallRuleResponse> CreateFirewallRuleAsync(string serverName, string startIpAddressValue, string endIpAddressValue)
+        /// </summary>
+        public async Task<FirewallRuleResponse> CreateFirewallRuleAsync(CreateFirewallRuleParams firewallRuleParams)
         {
-            IPAddress startIpAddress = ConvertToIpAddress(startIpAddressValue);
-            IPAddress endIpAddress = ConvertToIpAddress(endIpAddressValue);
-            return await CreateFirewallRuleAsync(serverName, startIpAddress, endIpAddress);
+            IPAddress startIpAddress = ConvertToIpAddress(firewallRuleParams.StartIpAddress);
+            IPAddress endIpAddress = ConvertToIpAddress(firewallRuleParams.EndIpAddress);
+            FirewallRuleRequest firewallRuleRequest = new FirewallRuleRequest()
+            {
+                StartIpAddress = ConvertToIpAddress(firewallRuleParams.StartIpAddress),
+                EndIpAddress = ConvertToIpAddress(firewallRuleParams.EndIpAddress),
+                FirewallRuleName = string.Format(CultureInfo.InvariantCulture, firewallRuleParams.FirewallRuleName ?? "ClientIPAddress_{0}",
+                    DateTime.UtcNow.ToString("yyyy-MM-dd_hh:mm:ss", CultureInfo.CurrentCulture))
+            };
+            return await CreateFirewallRuleAsync(firewallRuleParams.ServerName, firewallRuleRequest);
         }
 
         /// <summary>
         /// Creates firewall rule for given server name and IP address range. Throws exception if operation fails
-        /// </summary> 
-        public async Task<FirewallRuleResponse> CreateFirewallRuleAsync(string serverName,  IPAddress startIpAddress, IPAddress endIpAddress)
+        /// </summary>
+        public async Task<FirewallRuleResponse> CreateFirewallRuleAsync(string serverName, FirewallRuleRequest firewallRuleRequest)
         {
             try
             {
                 FirewallRuleResponse firewallRuleResponse = new FirewallRuleResponse() { Created = false };
-                CommonUtil.CheckStringForNullOrEmpty(serverName, "serverName");
-                CommonUtil.CheckForNull(startIpAddress, "startIpAddress");
-                CommonUtil.CheckForNull(endIpAddress, "endIpAddress");
+                CommonUtil.CheckStringForNullOrEmpty(serverName, nameof(serverName));
+                CommonUtil.CheckForNull(firewallRuleRequest, nameof(firewallRuleRequest));
+                CommonUtil.CheckForNull(firewallRuleRequest.FirewallRuleName, nameof(firewallRuleRequest.FirewallRuleName));
+                CommonUtil.CheckForNull(firewallRuleRequest.StartIpAddress, nameof(firewallRuleRequest.StartIpAddress));
+                CommonUtil.CheckForNull(firewallRuleRequest.EndIpAddress, nameof(firewallRuleRequest.EndIpAddress));
 
                 IAzureAuthenticationManager authenticationManager = AuthenticationManager;
 
                 if (authenticationManager != null && !await authenticationManager.GetUserNeedsReauthenticationAsync())
                 {
                     FirewallRuleResource firewallRuleResource = await FindAzureResourceAsync(serverName);
-                    firewallRuleResponse = await CreateFirewallRule(firewallRuleResource, startIpAddress, endIpAddress);
+                    firewallRuleResponse = await CreateFirewallRule(firewallRuleResource, firewallRuleRequest);
                 }
                 if (firewallRuleResponse == null || !firewallRuleResponse.Created)
                 {
@@ -87,7 +98,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                 return firewallRuleResponse;
             }
             catch (ServiceExceptionBase)
-            {                
+            {
                 throw;
             }
             catch (Exception ex)
@@ -108,8 +119,8 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 
         /// <summary>
         /// Creates firewall rule for given subscription and IP address range
-        /// </summary>        
-        private async Task<FirewallRuleResponse> CreateFirewallRule(FirewallRuleResource firewallRuleResource, IPAddress startIpAddress, IPAddress endIpAddress)
+        /// </summary>
+        private async Task<FirewallRuleResponse> CreateFirewallRule(FirewallRuleResource firewallRuleResource, FirewallRuleRequest firewallRuleRequest)
         {
             CommonUtil.CheckForNull(firewallRuleResource, "firewallRuleResource");
 
@@ -117,25 +128,19 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
             {
                 if (firewallRuleResource.IsValid)
                 {
-
-                    FirewallRuleRequest request = new FirewallRuleRequest()
-                    {
-                        StartIpAddress = startIpAddress,
-                        EndIpAddress = endIpAddress
-                    };
                     using (IAzureResourceManagementSession session = await ResourceManager.CreateSessionAsync(firewallRuleResource.SubscriptionContext))
                     {
                         return await ResourceManager.CreateFirewallRuleAsync(
                             session,
                             firewallRuleResource.AzureResource,
-                            request);
+                            firewallRuleRequest);
                     }
                 }
             }
             catch (ServiceExceptionBase)
             {
                 throw;
-            }          
+            }
             catch (Exception ex)
             {
                 throw new FirewallRuleException(string.Format(CultureInfo.CurrentCulture, SR.FirewallRuleCreationFailedWithError, ex.Message), ex);
@@ -154,16 +159,12 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         {
             try
             {
-                IEnumerable<IAzureUserAccountSubscriptionContext> subscriptions = await AuthenticationManager.GetSubscriptionsAsync();
+                IEnumerable<IAzureUserAccountSubscriptionContext> subscriptions = await AuthenticationManager.GetSubscriptionsAsync() 
+                    ?? throw new FirewallRuleException(SR.NoSubscriptionsFound);
 
-                if (subscriptions == null)
-                {
-                    throw new FirewallRuleException(SR.NoSubscriptionsFound);
-                }
+                ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null,
+                     subscriptions, serverName, new CancellationToken(), TryFindAzureResourceForSubscriptionAsync);
 
-               ServiceResponse<FirewallRuleResource> response = await AzureUtil.ExecuteGetAzureResourceAsParallel((object)null, 
-                    subscriptions, serverName, new CancellationToken(), TryFindAzureResourceForSubscriptionAsync);
-                
                 if (response != null)
                 {
                     if (response.Data != null && response.Data.Any())
@@ -190,7 +191,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                 throw new FirewallRuleException(SR.FirewallRuleCreationFailed, ex);
             }
         }
- 
+
         /// <summary>
         /// Returns a  list of Azure sql databases for given subscription
         /// </summary>
@@ -222,7 +223,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         /// <summary>
         /// Throws a firewallRule exception based on give status code
         /// </summary>
-        private void HandleError(ServiceExceptionBase exception, string serverName, 
+        private void HandleError(ServiceExceptionBase exception, string serverName,
             IAzureUserAccountSubscriptionContext subscription)
         {
             var accountName = subscription != null && subscription.UserAccount != null &&
@@ -262,19 +263,19 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
                     {
                         return resource;
                     }
-                }       
+                }
             }
             catch (ServiceExceptionBase ex)
             {
                 HandleError(ex, serverName, session.SubscriptionContext);
-            } 
+            }
             catch (Exception ex)
             {
                 throw new FirewallRuleException(SR.FirewallRuleCreationFailed, ex);
-            }            
+            }
             return null;
         }
-      
+
         private IPAddress ConvertToIpAddress(string ipAddressValue)
         {
             IPAddress ipAddress;

@@ -36,7 +36,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         private static readonly string s_SetCursorCloseOnCommit = "SET CURSOR_CLOSE_ON_COMMIT {0}";
         private static readonly string s_SetImplicitTransaction = "SET IMPLICIT_TRANSACTIONS {0}";
         private static readonly string s_SetQuotedIdentifier = "SET QUOTED_IDENTIFIER {0}";
-        private static readonly string s_SetNoExec = "SET NOEXEC {0}";
         private static readonly string s_SetStatisticsTime = "SET STATISTICS TIME {0}";
         private static readonly string s_SetStatisticsIO = "SET STATISTICS IO {0}";
         private static readonly string s_SetParseOnly = "SET PARSEONLY {0}";
@@ -191,14 +190,6 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             get
             {
                 return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetQuotedIdentifier, (this.settings.QuotedIdentifier ? s_On : s_Off));
-            }
-        }
-
-        public string SetNoExecString
-        {
-            get
-            {
-                return string.Format(System.Globalization.CultureInfo.InvariantCulture, s_SetNoExec, (this.settings.NoExec ? s_On : s_Off));
             }
         }
 

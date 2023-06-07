@@ -11,8 +11,10 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -39,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             (int)DatabaseEngineEdition.SqlDatabase,
             (int)DatabaseEngineEdition.SqlDataWarehouse,
             (int)DatabaseEngineEdition.SqlStretchDatabase,
+            (int)DatabaseEngineEdition.SqlOnDemand,
             // Note: for now, ignoring managed instance as it should be treated just like on prem.
         });
 
@@ -273,10 +276,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 Debug.Assert(conn.State == ConnectionState.Open, "connection passed to ExecuteNonQuery should be open.");
 
                 cmd = conn.CreateCommand();
-                if (initializeCommand == null)
-                {
-                    initializeCommand = SetCommandTimeout;
-                }
+
+                initializeCommand ??= SetCommandTimeout;
                 initializeCommand(cmd);
 
                 cmd.CommandText = commandText;
@@ -328,10 +329,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 Debug.Assert(conn.State == ConnectionState.Open, "connection passed to ExecuteScalar should be open.");
 
                 cmd = conn.CreateCommand();
-                if (initializeCommand == null)
-                {
-                    initializeCommand = SetCommandTimeout;
-                }
+
+                initializeCommand ??= SetCommandTimeout;
                 initializeCommand(cmd);
 
                 cmd.CommandText = commandText;
@@ -381,11 +380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             {
                 cmd = conn.CreateCommand();
 
-                if (initializeCommand == null)
-                {
-                    initializeCommand = SetCommandTimeout;
-                }
-
+                initializeCommand ??= SetCommandTimeout;
                 initializeCommand(cmd);
 
                 cmd.CommandText = commandText;
@@ -408,6 +403,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 {
                     cmd.Dispose();
                 }
+            }
+        }
+        /// <summary>
+        /// Creates a IDbCommand and calls ExecuteReader using the provided connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="commandText">The command text to execute</param>
+        /// <param name="readResult">A delegate used to read from the reader</param>
+        /// <param name="initializeCommand">Optional delegate to initialize the IDbCommand object</param>
+        /// <param name="catchException">Optional exception handling.  Pass back 'true' to handle the 
+        /// exception, 'false' to throw. If Null is passed in then all exceptions are thrown.</param>
+        public static void ExecuteReader(
+            string connectionString,
+            string commandText,
+            Action<IDataReader> readResult,
+            Action<IDbCommand> initializeCommand = null,
+            Predicate<Exception> catchException = null)
+        {
+            Validate.IsNotNull(nameof(connectionString), connectionString);
+            Validate.IsNotNullOrEmptyString(nameof(commandText), commandText);
+            Validate.IsNotNull(nameof(readResult), readResult);
+            using (var sqlConnection = new SqlConnection(connectionString))
+            {
+                sqlConnection.Open();
+                ExecuteReader(sqlConnection, commandText, readResult, initializeCommand, catchException);
             }
         }
 
@@ -632,8 +652,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         public class ServerInfo
         {
-            internal const string OptionIsBigDataCluster = "isBigDataCluster";
-            internal const string OptionClusterEndpoints = "clusterEndpoints";
             public int ServerMajorVersion;
             public int ServerMinorVersion;
             public int ServerReleaseVersion;
@@ -648,23 +666,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             // of SQL Server do not have their metadata upgraded to include the xml_index_type column in the sys.xml_indexes view. Because
             // of this, we must detect the presence of the column to determine if we can query for Selective Xml Indexes
             public bool IsSelectiveXmlIndexMetadataPresent;
-
             public string OsVersion;
-
             public string MachineName;
             public string ServerName;
-
+            public Nullable<int> CpuCount;
+            public Nullable<int> PhysicalMemoryInMB;
             public Dictionary<string, object> Options { get; set; }
-        }
-
-        public class ClusterEndpoint
-        {
-            public string ServiceName;
-            public string Description;
-            public string Endpoint;
-            public string Protocol;
-            public string IpAddress;
-            public int Port;
         }
 
         public class ServerHostInfo
@@ -673,6 +680,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string Distribution;
             public string Release;
             public string ServicePackLevel;
+        }
+
+        public class ServerSystemInfo
+        {
+            public Nullable<int> CpuCount;
+            public Nullable<int> PhysicalMemoryInMB;
         }
 
         public static bool TryGetServerVersion(string connectionString, out ServerInfo serverInfo, string azureAccountToken)
@@ -714,29 +727,83 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <param name="connection">The connection</param>
         public static ServerHostInfo GetServerHostInfo(IDbConnection connection)
         {
-            // SQL Server 2016 and below does not provide sys.dm_os_host_info
+            var hostInfo = new ServerHostInfo();
+            // SQL Server 2016 and earlier versions does not provide sys.dm_os_host_info and we know the host OS can only be Windows.
             if (!Version.TryParse(ReadServerVersion(connection), out var hostVersion) || hostVersion.Major <= 13)
             {
-                return new ServerHostInfo
+                try
                 {
-                    Platform = "Windows"
-                };
+                    hostInfo.Platform = "Windows";
+                    ExecuteReader(
+                        connection,
+                        SqlConnectionHelperScripts.GetHostWindowsVersion,
+                        reader =>
+                        {
+                            reader.Read();
+                            hostInfo.Release = reader[0].ToString();
+                        });
+                }
+                catch
+                {
+                    // Ignore the error and only set the Platform to Windows by default
+                }
             }
-
-            var hostInfo = new ServerHostInfo();
-            ExecuteReader(
-                connection,
-                SqlConnectionHelperScripts.GetHostInfo,
-                reader =>
-                {
-                    reader.Read();
-                    hostInfo.Platform = reader[0].ToString();
-                    hostInfo.Distribution = reader[1].ToString();
-                    hostInfo.Release = reader[2].ToString();
-                    hostInfo.ServicePackLevel = reader[3].ToString();
-                });
-
+            else
+            {
+                ExecuteReader(
+                    connection,
+                    SqlConnectionHelperScripts.GetHostInfo,
+                    reader =>
+                    {
+                        reader.Read();
+                        hostInfo.Platform = reader[0].ToString();
+                        hostInfo.Distribution = reader[1].ToString();
+                        hostInfo.Release = reader[2].ToString();
+                        hostInfo.ServicePackLevel = reader[3].ToString();
+                    });
+            }
             return hostInfo;
+        }
+
+        /// <summary>
+        /// Gets the server host cpu count and memory from sys.dm_os_sys_info view
+        /// </summary>
+        /// <param name="connection">The connection</param>
+        public static ServerSystemInfo GetServerCpuAndMemoryInfo(IDbConnection connection)
+        {
+            var sysInfo = new ServerSystemInfo();
+            try
+            {
+                SqlConnection sqlConnection = GetAsSqlConnection(connection);
+                var server = new Server(new ServerConnection(sqlConnection));
+                var defaultFields = new List<string>();
+                var isProcessorsSupported = server.IsSupportedProperty(nameof(server.Processors));
+                if (isProcessorsSupported)
+                {
+                    defaultFields.Add(nameof(server.Processors));
+                }
+                var isPhysicalMemorySupported = server.IsSupportedProperty(nameof(server.PhysicalMemory));
+                if (isPhysicalMemorySupported)
+                {
+                    defaultFields.Add(nameof(server.PhysicalMemory));
+                }
+                if (defaultFields.Any())
+                {
+                    server.SetDefaultInitFields(server.GetType(), defaultFields.ToArray());
+                }
+
+                sysInfo.CpuCount = isProcessorsSupported ? server.Processors as int? : null;
+                sysInfo.PhysicalMemoryInMB = isPhysicalMemorySupported ? server.PhysicalMemory as int? : null;
+            }
+            catch (Exception ex)
+            {
+                // We don't want to fail the normal flow if any unexpected thing happens
+                // since these properties are not available for types of sql servers and users 
+                // and it is not essential to always include them
+                // just logging the errors here and moving on with the workflow. 
+                Logger.Write(TraceEventType.Error, ex.ToString());
+            }
+            return sysInfo;
         }
 
         /// <summary>
@@ -804,38 +871,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 });
 
                 // Also get the OS Version
-                ExecuteReader(
-                connection,
-                SqlConnectionHelperScripts.GetOsVersion,
-                delegate (IDataReader reader)
-                {
-                    reader.Read();
-                    serverInfo.OsVersion = reader[0].ToString();
-                });
+                var hostInfo = GetServerHostInfo(connection);
+
+                // Examples:
+                // SQL Server on Linux : Ubuntu 16.04
+                // SQL Server on Windows:
+                //  major version <= 13 (SQL Server 2016) - Windows 6.5
+                //  otherwise - Windows Server 2019 Standard 10.0
+                serverInfo.OsVersion = hostInfo.Distribution != null ? string.Format("{0} {1}", hostInfo.Distribution, hostInfo.Release) : string.Format("{0} {1}", hostInfo.Platform, hostInfo.Release);
+
+                var sysInfo = GetServerCpuAndMemoryInfo(connection);
+
+                serverInfo.CpuCount = sysInfo.CpuCount;
+                serverInfo.PhysicalMemoryInMB = sysInfo.PhysicalMemoryInMB;
 
                 serverInfo.Options = new Dictionary<string, object>();
-
-                // Get BDC endpoints
-                if (!serverInfo.IsCloud && serverInfo.ServerMajorVersion >= 15)
-                {
-                    List<ClusterEndpoint> clusterEndpoints = new List<ClusterEndpoint>();
-                    serverInfo.Options.Add(ServerInfo.OptionClusterEndpoints, clusterEndpoints);
-
-                    try
-                    {
-                        LookupClusterEndpoints(connection, serverInfo, clusterEndpoints);
-                    }
-                    catch (SqlException)
-                    {
-                        // Failed to find cluster endpoints DMV, this must not be a cluster
-                        // or user does not have permissions to see cluster info
-                        serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
-                    }
-                }
-                else
-                {
-                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, false);
-                }
 
                 return serverInfo;
             };
@@ -853,27 +903,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
 
             return result;
-        }
-
-        private static void LookupClusterEndpoints(IDbConnection connection, ServerInfo serverInfo, List<ClusterEndpoint> clusterEndpoints)
-        {
-            ExecuteReader(
-                connection,
-                SqlConnectionHelperScripts.GetClusterEndpoints,
-                delegate (IDataReader reader)
-                {
-                    while (reader.Read())
-                    {
-                        clusterEndpoints.Add(new ClusterEndpoint {
-                            ServiceName = reader.GetString(0),
-                            Description = reader.GetString(1),
-                            Endpoint = reader.GetString(2),
-                            Protocol = reader.GetString(3)
-                        });
-                    }
-                    serverInfo.Options.Add(ServerInfo.OptionIsBigDataCluster, clusterEndpoints.Count > 0);
-                }
-            );
         }
 
         public static string GetServerName(IDbConnection connection)

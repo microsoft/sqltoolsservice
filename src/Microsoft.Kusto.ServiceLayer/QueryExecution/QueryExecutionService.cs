@@ -68,13 +68,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         {
             get
             {
-                if (BufferFileStreamFactory == null)
+                BufferFileStreamFactory ??= new ServiceBufferFileStreamFactory
                 {
-                    BufferFileStreamFactory = new ServiceBufferFileStreamFactory
-                    {
-                        ExecutionSettings = Settings.QueryExecutionSettings
-                    };
-                }
+                    ExecutionSettings = Settings.QueryExecutionSettings
+                };
                 return BufferFileStreamFactory;
             }
         }
@@ -123,6 +120,8 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// </summary>
         private ConnectionService ConnectionService { get; }
 
+        private IConnectionManager _connectionManager;
+
         private WorkspaceService<SqlToolsSettings> WorkspaceService { get; }
 
         /// <summary>
@@ -160,8 +159,10 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
         /// event handler.
         /// </summary>
         /// <param name="serviceHost">The service host instance to register with</param>
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(ServiceHost serviceHost, IConnectionManager connectionManager)
         {
+            _connectionManager = connectionManager;
+            
             // Register handlers for requests
             serviceHost.SetRequestHandler(ExecuteDocumentSelectionRequest.Type, HandleExecuteRequest);
             serviceHost.SetRequestHandler(ExecuteDocumentStatementRequest.Type, HandleExecuteRequest);
@@ -252,7 +253,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 // get connection
                 ConnectionInfo connInfo;
-                if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo))
+                if (!_connectionManager.TryGetValue(executeParams.OwnerUri, out connInfo))
                 {
                     await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
                     return;
@@ -269,7 +270,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     await ConnectionService.Connect(connectParams);
 
                     ConnectionInfo newConn;
-                    ConnectionService.TryFindConnection(randomUri, out newConn);
+                    _connectionManager.TryGetValue(randomUri, out newConn);
 
                     Func<string, Task> queryCreateFailureAction = message => requestContext.SendError(message);
 
@@ -707,7 +708,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             {
                 connectionInfo = connInfo;
             } 
-            else if (!ConnectionService.TryFindConnection(executeParams.OwnerUri, out connectionInfo))
+            else if (!_connectionManager.TryGetValue(executeParams.OwnerUri, out connectionInfo))
             {
                 throw new ArgumentOutOfRangeException(nameof(executeParams.OwnerUri), SR.QueryServiceQueryInvalidOwnerUri);
             }

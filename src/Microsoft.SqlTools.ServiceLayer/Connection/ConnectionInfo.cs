@@ -3,10 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Utility;
 
@@ -17,6 +20,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// </summary>
     public class ConnectionInfo
     {
+        private static readonly DateTime UnixEpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -26,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             OwnerUri = ownerUri;
             ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
-            IntellisenseMetrics = new InteractionMetrics<double>(new int[] {50, 100, 200, 500, 1000, 2000});
+            IntellisenseMetrics = new InteractionMetrics<double>(new int[] { 50, 100, 200, 500, 1000, 2000 });
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// URI identifying the owner/user of the connection. Could be a file, service, resource, etc.
         /// </summary>
-        public string OwnerUri { get; private set; }
+        public string OwnerUri { get; set; }
 
         /// <summary>
         /// Factory used for creating the SQL connection associated with the connection info.
@@ -71,10 +76,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Returns true if the db connection is to a SQL db instance
         /// </summary>
         public bool IsSqlDb { get; set; }
-        
+
+        /// <summary>
         /// Returns true if the sql connection is to a DW instance
         /// </summary>
         public bool IsSqlDW { get; set; }
+
+        /// <summary>
+        /// Returns true if Authentication mode is AzureMFA, determines if Access token is in use.
+        /// </summary>
+        public bool IsAzureAuth { get; set; }
+
+        /// <summary>
+        /// Returns the connection Engine Edition
+        /// </summary>
+        public DatabaseEngineEdition EngineEdition { get; set; }
 
         /// <summary>
         /// Returns the major version number of the db we are connected to 
@@ -152,8 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public void RemoveConnection(string connectionType)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
-            DbConnection connection;
-            ConnectionTypeToConnectionMap.TryRemove(connectionType, out connection);
+            ConnectionTypeToConnectionMap.TryRemove(connectionType, out _);
         }
 
         /// <summary>
@@ -163,9 +178,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             foreach (var type in AllConnectionTypes)
             {
-                DbConnection connection;
-                ConnectionTypeToConnectionMap.TryRemove(type, out connection);
+                ConnectionTypeToConnectionMap.TryRemove(type, out _);
             }
-        } 
+        }
+
+        /// <summary>
+        /// Updates the Auth Token and Expires On fields
+        /// </summary>
+        public bool TryUpdateAccessToken(SecurityToken? securityToken)
+        {
+            if (securityToken != null && !string.IsNullOrEmpty(securityToken.Token) && IsAzureAuth && IsAccessTokenExpired)
+            {
+                ConnectionDetails.AzureAccountToken = securityToken.Token;
+                ConnectionDetails.ExpiresOn = securityToken.ExpiresOn;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if Access token saved in connection details is expired or about to expire in 2 minutes.
+        /// </summary>
+        private bool IsAccessTokenExpired
+        {
+            get
+            {
+                if (IsAzureAuth && ConnectionDetails.ExpiresOn != null && double.TryParse(ConnectionDetails.ExpiresOn.ToString(), out var expiresOn))
+                {
+                    DateTime dateTime = UnixEpochUtc.AddSeconds(expiresOn);
+
+                    // Check if access token is already expired or shall expire in 2 minutes.
+                    if (dateTime <= DateTime.UtcNow.AddMinutes(2))
+                    {
+                        Logger.Verbose("Access token found expired.");
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
     }
 }

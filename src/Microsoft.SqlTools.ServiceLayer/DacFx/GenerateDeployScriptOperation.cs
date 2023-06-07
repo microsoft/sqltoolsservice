@@ -2,14 +2,13 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System;
-using Microsoft.Data.SqlClient;
-using System.Diagnostics;
+
+#nullable disable
 using System.IO;
+using System.Threading;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 
@@ -36,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             PublishOptions publishOptions = new PublishOptions();
             publishOptions.GenerateDeploymentReport = this.Parameters.GenerateDeploymentReport;
             publishOptions.CancelToken = this.CancellationToken;
-            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
+            publishOptions.DeployOptions = this.Parameters.DeploymentOptions != null ? DacFxUtils.CreateDeploymentOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
             if (this.Parameters.SqlCommandVariableValues != null)
             {
@@ -54,6 +53,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 this.SqlTask.AddScript(SqlTaskStatus.Succeeded, Result.DatabaseScript);
                 if (!string.IsNullOrEmpty(this.Result.MasterDbScript))
                 {
+                    // Delay to avoid race condition to ensure both scripts get opened in ADS. Fix for https://github.com/microsoft/azuredatastudio/issues/20133
+                    Thread.Sleep(500);
+
                     // master script is only used if the target is Azure SQL db and the script contains all operations that must be done against the master database
                     this.SqlTask.AddScript(SqlTaskStatus.Succeeded, this.Result.MasterDbScript);
                 }

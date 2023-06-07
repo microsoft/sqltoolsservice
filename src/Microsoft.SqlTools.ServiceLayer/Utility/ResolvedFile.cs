@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
@@ -36,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         {
             get
             {
-                return ClientUri?.ToLower();
+                return ClientUri?.ToLower(System.Globalization.CultureInfo.InvariantCulture);
             }
         }
     }

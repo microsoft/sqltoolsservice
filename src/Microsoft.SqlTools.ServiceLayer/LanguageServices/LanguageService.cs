@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -43,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public class LanguageService: IDisposable
+    public class LanguageService : IDisposable
     {
         #region Singleton Instance Implementation
 
@@ -170,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (connectionService == null)
                 {
                     connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue("LanguageService", bindingQueue);
+                    connectionService.RegisterConnectedQueue(Constants.LanguageServiceFeature, bindingQueue);
                 }
                 return connectionService;
             }
@@ -181,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        private CancellationTokenSource existingRequestCancellation;
+        private CancellationTokenSource? existingRequestCancellation;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -191,10 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (workspaceServiceInstance == null)
-                {
-                    workspaceServiceInstance =  WorkspaceService<SqlToolsSettings>.Instance;
-                }
+                workspaceServiceInstance ??= WorkspaceService<SqlToolsSettings>.Instance;
                 return workspaceServiceInstance;
             }
             set
@@ -207,10 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (this.serviceHostInstance == null)
-                {
-                    this.serviceHostInstance = ServiceHost.Instance;
-                }
+                this.serviceHostInstance ??= ServiceHost.Instance;
                 return this.serviceHostInstance;
             }
             set
@@ -258,6 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest);
             // serviceHost.SetRequestHandler(DocumentHighlightRequest.Type, HandleDocumentHighlightRequest);
 
+            // Not enabling parallel processing for LanguageService as message order might matter.
             serviceHost.SetRequestHandler(SignatureHelpRequest.Type, HandleSignatureHelpRequest);
             serviceHost.SetRequestHandler(CompletionResolveRequest.Type, HandleCompletionResolveRequest);
             serviceHost.SetRequestHandler(HoverRequest.Type, HandleHoverRequest);
@@ -267,14 +264,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
+            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
 
             // Register a no-op shutdown task for validation of the shutdown logic
-            serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+            serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
             {
                 Logger.Write(TraceEventType.Verbose, "Shutting down language service");
                 DeletePeekDefinitionScripts();
                 this.Dispose();
-                await Task.FromResult(0);
+                return Task.FromResult(0);
             });
 
             ServiceHostInstance = serviceHost;
@@ -314,49 +312,41 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleCompletionExtLoadRequest(CompletionExtensionParams param, RequestContext<bool> requestContext)
         {
-            try
+            //register the new assembly
+            var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
+            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
+            var assemblies = new Assembly[] { assembly };
+            serviceProvider.AddAssembliesToConfiguration<ICompletionExtension>(assemblies);
+            foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
             {
-                //register the new assembly
-                var serviceProvider = (ExtensionServiceProvider)ServiceHostInstance.ServiceProvider;
-                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(param.AssemblyPath);
-                var assemblies = new Assembly[] { assembly };
-                serviceProvider.AddAssembliesToConfiguration(assemblies);
-                foreach (var ext in serviceProvider.GetServices<ICompletionExtension>())
+                var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);
+                var cancellationToken = cancellationTokenSource.Token;
+                string extName = ext.Name;
+                string extTypeName = ext.GetType().FullName;
+                if (extTypeName != param.TypeName)
                 {
-                    var cancellationTokenSource = new CancellationTokenSource(ExtensionLoadingTimeout);
-                    var cancellationToken = cancellationTokenSource.Token;
-                    string extName = ext.Name;
-                    string extTypeName = ext.GetType().FullName;
-                    if (extTypeName != param.TypeName)
-                    {
-                        continue;
-                    }
-
-                    if (!CheckIfAssemblyShouldBeLoaded(param.AssemblyPath, extTypeName))
-                    {
-                        await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
-                        return;
-                    }
-
-                    await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
-                    cancellationTokenSource.Dispose();
-                    if (!string.IsNullOrEmpty(extName))
-                    {
-                        completionExtensions[extName] = ext;
-                        await requestContext.SendResult(true);
-                        return;
-                    }
-                    else
-                    {
-                        await requestContext.SendError(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
-                        return;
-                    }
+                    continue;
                 }
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.Message);
-                return;
+
+                if (!CheckIfAssemblyShouldBeLoaded(param.AssemblyPath, extTypeName))
+                {
+                    await requestContext.SendError(string.Format("Skip loading {0} because it's already loaded", param.AssemblyPath));
+                    return;
+                }
+
+                await ext.Initialize(param.Properties, cancellationToken).WithTimeout(ExtensionLoadingTimeout);
+                cancellationTokenSource.Dispose();
+                if (!string.IsNullOrEmpty(extName))
+                {
+                    completionExtensions[extName] = ext;
+                    await requestContext.SendResult(true);
+                    return;
+                }
+                else
+                {
+                    await requestContext.SendError(string.Format("Skip loading an unnamed completion extension from {0}", param.AssemblyPath));
+                    return;
+                }
             }
 
             await requestContext.SendError(string.Format("Couldn't discover completion extension with type {0} in {1}", param.TypeName, param.AssemblyPath));
@@ -398,32 +388,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
         {
-            await Task.Run(async () =>
+            ParseResult result = Parser.Parse(param.Query);
+            SyntaxParseResult syntaxResult = new SyntaxParseResult();
+            if (result != null && !result.Errors.Any())
             {
-                try
+                syntaxResult.Parseable = true;
+            }
+            else
+            {
+                syntaxResult.Parseable = false;
+                string[] errorMessages = new string[result.Errors.Count()];
+                for (int i = 0; i < result.Errors.Count(); i++)
                 {
-                    ParseResult result = Parser.Parse(param.Query);
-                    SyntaxParseResult syntaxResult = new SyntaxParseResult();
-                    if (result != null && result.Errors.Count() == 0)
-                    {
-                        syntaxResult.Parseable = true;
-                    } else
-                    {
-                        syntaxResult.Parseable = false;
-                        string[] errorMessages = new string[result.Errors.Count()];
-                        for (int i = 0; i < result.Errors.Count(); i++)
-                        {
-                            errorMessages[i] = result.Errors.ElementAt(i).Message;
-                        }
-                        syntaxResult.Errors = errorMessages;
-                    }
-                    await requestContext.SendResult(syntaxResult);
+                    errorMessages[i] = result.Errors.ElementAt(i).Message;
                 }
-                catch (Exception ex)
-                {
-                    await requestContext.SendError(ex.ToString());
-                }
-            });
+                syntaxResult.Errors = errorMessages;
+            }
+            await requestContext.SendResult(syntaxResult);
         }
 
         /// <summary>
@@ -436,35 +417,32 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
-            try
+            var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+            if (scriptFile == null)
             {
-                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                if (scriptFile == null)
+                await requestContext.SendResult(null);
+                return;
+            }
+            // check if Intellisense suggestions are enabled
+            if (ShouldSkipIntellisense(scriptFile.ClientUri))
+            {
+                await requestContext.SendResult(null);
+            }
+            else
+            {
+                ConnectionInfo connInfo = null;
+                // Check if we need to refresh the auth token, and if we do then don't pass in the 
+                // connection so that we only show the default options until the refreshed token is returned
+                if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
                 {
-                    await requestContext.SendResult(null);
-                    return;
-                }
-                // check if Intellisense suggestions are enabled
-                if (ShouldSkipIntellisense(scriptFile.ClientUri))
-                {
-                    await requestContext.SendResult(null);
-                }
-                else
-                {
-                    // get the current list of completion items and return to client
                     ConnectionServiceInstance.TryFindConnection(
                         scriptFile.ClientUri,
-                        out ConnectionInfo connInfo);
-
-                    var completionItems = await GetCompletionItems(
-                        textDocumentPosition, scriptFile, connInfo);
-
-                    await requestContext.SendResult(completionItems);
+                        out connInfo);
                 }
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
+                var completionItems = await GetCompletionItems(
+                    textDocumentPosition, scriptFile, connInfo);
+
+                await requestContext.SendResult(completionItems);
             }
         }
 
@@ -479,70 +457,56 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             CompletionItem completionItem,
             RequestContext<CompletionItem> requestContext)
         {
-            try
+            // check if Intellisense suggestions are enabled
+            // Note: Do not know file, so no need to check for MSSQL flavor
+            if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
             {
-                // check if Intellisense suggestions are enabled
-                // Note: Do not know file, so no need to check for MSSQL flavor
-                if (!CurrentWorkspaceSettings.IsSuggestionsEnabled)
-                {
-                    await requestContext.SendResult(completionItem);
-                }
-                else
-                {
-                    completionItem = ResolveCompletionItem(completionItem);
-                    await requestContext.SendResult(completionItem);
-                }
+                await requestContext.SendResult(completionItem);
             }
-            catch (Exception ex)
+            else
             {
-                await requestContext.SendError(ex.ToString());
+                completionItem = ResolveCompletionItem(completionItem);
+                await requestContext.SendResult(completionItem);
             }
         }
 
         internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
-            try
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
+
+            if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
-                DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequested);
-
-                if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
+                // Retrieve document and connection
+                ConnectionInfo connInfo;
+                var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+                bool isConnected = false;
+                bool succeeded = false;
+                DefinitionResult definitionResult = null;
+                if (scriptFile != null)
                 {
-                    // Retrieve document and connection
-                    ConnectionInfo connInfo;
-                    var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-                    bool isConnected = false;
-                    bool succeeded = false;
-                    DefinitionResult definitionResult = null;
-                    if (scriptFile != null)
-                    {
-                        isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
-                        definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
-                    }
+                    isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                }
 
-                    if (definitionResult != null && !definitionResult.IsErrorResult)
-                    {
-                        await requestContext.SendResult(definitionResult.Locations);
-                        succeeded = true;
-                    }
-                    else
-                    {
-                        await requestContext.SendResult(Array.Empty<Location>());
-                    }
-
-                    DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
+                if (definitionResult != null && !definitionResult.IsErrorResult)
+                {
+                    await requestContext.SendResult(definitionResult.Locations);
+                    succeeded = true;
                 }
                 else
                 {
-                    // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
                     await requestContext.SendResult(Array.Empty<Location>());
                 }
 
-                DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
+                DocumentStatusHelper.SendTelemetryEvent(requestContext, CreatePeekTelemetryProps(succeeded, isConnected));
             }
-            catch (Exception ex)
+            else
             {
-                await requestContext.SendError(ex.ToString());
+                // Send an empty result so that processing does not hang when peek def service called from non-mssql clients
+                await requestContext.SendResult(Array.Empty<Location>());
             }
+
+            DocumentStatusHelper.SendStatusChange(requestContext, textDocumentPosition, DocumentStatusHelper.DefinitionRequestCompleted);
         }
 
         private static TelemetryProperties CreatePeekTelemetryProps(bool succeeded, bool connected)
@@ -558,7 +522,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             };
         }
 
-// turn off this code until needed (10/28/2016)
+        // turn off this code until needed (10/28/2016)
 #if false
         private async Task HandleReferencesRequest(
             ReferencesParams referencesParams,
@@ -579,35 +543,28 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<SignatureHelp> requestContext)
         {
-            try
+            // check if Intellisense suggestions are enabled
+            if (ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                // check if Intellisense suggestions are enabled
-                if (ShouldSkipNonMssqlFile(textDocumentPosition))
+                await requestContext.SendResult(null);
+            }
+            else
+            {
+                ScriptFile scriptFile = CurrentWorkspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
+                SignatureHelp help = null;
+                if (scriptFile != null)
                 {
-                    await requestContext.SendResult(null);
+                    help = GetSignatureHelp(textDocumentPosition, scriptFile);
+                }
+                if (help != null)
+                {
+                    await requestContext.SendResult(help);
                 }
                 else
                 {
-                    ScriptFile scriptFile = CurrentWorkspace.GetFile(
-                        textDocumentPosition.TextDocument.Uri);
-                    SignatureHelp help = null;
-                    if (scriptFile != null)
-                    {
-                        help = GetSignatureHelp(textDocumentPosition, scriptFile);
-                    }
-                    if (help != null)
-                    {
-                        await requestContext.SendResult(help);
-                    }
-                    else
-                    {
-                        await requestContext.SendResult(new SignatureHelp());
-                    }
+                    await requestContext.SendResult(new SignatureHelp());
                 }
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
             }
         }
 
@@ -615,31 +572,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<Hover> requestContext)
         {
-            try
+            // check if Quick Info hover tooltips are enabled
+            if (CurrentWorkspaceSettings.IsQuickInfoEnabled
+                && !ShouldSkipNonMssqlFile(textDocumentPosition))
             {
-                // check if Quick Info hover tooltips are enabled
-                if (CurrentWorkspaceSettings.IsQuickInfoEnabled
-                    && !ShouldSkipNonMssqlFile(textDocumentPosition))
-                {
-                    var scriptFile = CurrentWorkspace.GetFile(
-                        textDocumentPosition.TextDocument.Uri);
+                var scriptFile = CurrentWorkspace.GetFile(
+                    textDocumentPosition.TextDocument.Uri);
 
-                    Hover hover = null;
-                    if (scriptFile != null)
-                    {
-                        hover = GetHoverItem(textDocumentPosition, scriptFile);
-                    }
-                    if (hover != null)
-                    {
-                        await requestContext.SendResult(hover);
-                    }
+                Hover hover = null;
+                if (scriptFile != null)
+                {
+                    hover = GetHoverItem(textDocumentPosition, scriptFile);
                 }
-                await requestContext.SendResult(null);
+                if (hover != null)
+                {
+                    await requestContext.SendResult(hover);
+                }
             }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
+            await requestContext.SendResult(null);
         }
 
         #endregion
@@ -668,8 +618,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         new ScriptFile[] { scriptFile },
                         eventContext);
                 }
-
-                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -694,8 +642,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         changedFiles.ToArray(),
                         eventContext);
                 }
-
-                await Task.FromResult(true);
             }
             catch (Exception ex)
             {
@@ -718,6 +664,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
+                // open editors that have requested a refreshed AAD token.
+                connectionService.TokenUpdateUris.Remove(uri, out var result);
                 // if not in the preview window and diagnostics are enabled then clear diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -743,8 +692,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Write(TraceEventType.Verbose, "HandleRebuildIntelliSenseNotification");
 
+                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                // what the document events are sent in as.
+                var escapedOwnerUri = Uri.EscapeUriString(rebuildParams.OwnerUri);
                 // Skip closing this file if the file doesn't exist
-                var scriptFile = this.CurrentWorkspace.GetFile(rebuildParams.OwnerUri);
+                var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
                 if (scriptFile == null)
                 {
                     return;
@@ -767,7 +720,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: "LanguageService", overwrite: true);
+                                this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                                 UpdateLanguageServiceOnConnection(connInfo).Wait();
                             }
@@ -792,19 +745,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
 
                         // Send a notification to signal that autocomplete is ready
-                        ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = connInfo.OwnerUri});
+                        ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
                     });
                 }
                 else
                 {
                     // Send a notification to signal that autocomplete is ready
-                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
                 }
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = rebuildParams.OwnerUri});
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
             }
         }
 
@@ -869,14 +822,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Validate.IsNotNull(nameof(changeParams), changeParams);
                 Validate.IsNotNull(nameof(changeParams), changeParams.Uri);
                 bool shouldBlock = false;
-                if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase)) {
+                if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
+                {
                     shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
                 }
                 if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
                 {
                     shouldBlock = true; // the provider will continue to be mssql
                 }
-                if (shouldBlock) {
+                if (shouldBlock)
+                {
                     this.nonMssqlUriMap.AddOrUpdate(changeParams.Uri, true, (k, oldValue) => true);
                     if (CurrentWorkspace.ContainsFile(changeParams.Uri))
                     {
@@ -887,16 +842,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     bool value;
                     this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
-                    // should rebuild intellisense when re-considering as sql 
+                    // should rebuild intellisense when re-considering as sql
                     RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
-                    await HandleRebuildIntelliSenseNotification(param, eventContext);              
-                }                
+                    await HandleRebuildIntelliSenseNotification(param, eventContext);
+                }
             }
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
+        }
+
+        internal Task HandleTokenRefreshedNotification(
+            TokenRefreshedParams tokenRefreshedParams,
+            EventContext eventContext
+        )
+        {
+            connectionService.UpdateAuthToken(tokenRefreshedParams);
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -909,13 +873,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// it is the last URI connected to a particular connection,
         /// then remove the cache.
         /// </summary>
-        public async Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
+        public Task RemoveAutoCompleteCacheUriReference(IConnectionSummary summary, string ownerUri)
         {
             RemoveScriptParseInfo(ownerUri);
 
             // currently this method is disabled, but we need to reimplement now that the
             // implementation of the 'cache' has changed.
-            await Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -926,6 +890,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
         public ParseResult ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
         {
+            Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
@@ -935,27 +900,27 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     if (connInfo == null || !parseInfo.IsConnected)
                     {
-                            // parse on separate thread so stack size can be increased
-                            var parseThread = new Thread(() =>
+                        // parse on separate thread so stack size can be increased
+                        var parseThread = new Thread(() =>
+                        {
+                            try
                             {
-                                try
-                                {
-                                    // parse current SQL file contents to retrieve a list of errors
-                                    ParseResult parseResult = Parser.IncrementalParse(
-                                        scriptFile.Contents,
-                                        parseInfo.ParseResult,
-                                        this.DefaultParseOptions);
+                                // parse current SQL file contents to retrieve a list of errors
+                                ParseResult parseResult = Parser.IncrementalParse(
+                                scriptFile.Contents,
+                                parseInfo.ParseResult,
+                                this.DefaultParseOptions);
 
-                                    parseInfo.ParseResult = parseResult;
-                                }
-                                catch (Exception e)
-                                {
-                                    // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
-                                    Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
-                                }
-                            }, ConnectedBindingQueue.QueueThreadStackSize);
-                            parseThread.Start();
-                            parseThread.Join();
+                                parseInfo.ParseResult = parseResult;
+                            }
+                            catch (Exception e)
+                            {
+                                // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
+                                Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
+                            }
+                        }, ConnectedBindingQueue.QueueThreadStackSize);
+                        parseThread.Start();
+                        parseThread.Join();
                     }
                     else
                     {
@@ -999,7 +964,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 return null;
                             });
 
-                            queueItem.ItemProcessed.WaitOne();
+                        queueItem.ItemProcessed.WaitOne();
                     }
                 }
                 catch (Exception ex)
@@ -1015,7 +980,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-               Logger.Write(TraceEventType.Warning, "Binding metadata lock timeout in ParseAndBind");
+                Logger.Write(TraceEventType.Warning, "Binding metadata lock timeout in ParseAndBind");
             }
 
             return parseInfo.ParseResult;
@@ -1025,9 +990,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Update the autocomplete metadata provider when the user connects to a database
         /// </summary>
         /// <param name="info"></param>
-        public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
+        public Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
         {
-            await Task.Run(() =>
+            return Task.Run(() =>
             {
                 if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
                 {
@@ -1039,7 +1004,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     try
                     {
-                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, "languageService");
+                        scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
                         scriptInfo.IsConnected = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey);
                     }
                     catch (Exception ex)
@@ -1054,11 +1019,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
-
                 PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
 
                 // Send a notification to signal that autocomplete is ready
-                ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() {OwnerUri = info.OwnerUri});
+                ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
             });
         }
 
@@ -1078,7 +1042,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (scriptInfo.IsConnected)
             {
-                var scriptFile = CurrentWorkspace.GetFile(info.OwnerUri);
+                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                // what the document events are sent in as.
+                var fileUri = Uri.EscapeUriString(info.OwnerUri);
+                var scriptFile = CurrentWorkspace.GetFile(fileUri);
                 if (scriptFile == null)
                 {
                     return;
@@ -1241,7 +1209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     finally
                     {
-                       Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                     }
                 }
             }
@@ -1523,20 +1491,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Get function signature help for the current position
         /// </summary>
-        internal SignatureHelp GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal SignatureHelp? GetSignatureHelp(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
+            Logger.Verbose($"GetSignatureHelp -  {scriptFile}");
             int startLine = textDocumentPosition.Position.Line;
             int endColumn = textDocumentPosition.Position.Character;
 
-            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            ScriptParseInfo? scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
 
             if (scriptParseInfo == null)
             {
+                Logger.Verbose($"GetSignatureHelp - Could not find ScriptParseInfo for {scriptFile}");
                 // Cache not set up yet - skip and wait until later
                 return null;
             }
 
-            ConnectionInfo connInfo;
+            ConnectionInfo? connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
@@ -1545,6 +1515,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
+            } else
+            {
+                Logger.Verbose($"GetSignatureHelp - No reparse needed for {scriptFile}");
             }
 
             if (scriptParseInfo.ParseResult != null)
@@ -1581,11 +1554,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                                 else
                                 {
+                                    Logger.Verbose($"GetSignatureHelp - Didn't get any method locations from parse result");
                                     return null;
                                 }
                             });
-
                         queueItem.ItemProcessed.WaitOne();
+                        Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
                     finally
@@ -1594,6 +1568,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                 }
             }
+            Logger.Verbose($"GetSignatureHelp - No ScriptParseInfo.ParseResult for {scriptFile}");
 
             // return null if there isn't a tooltip for the current location
             return null;
@@ -1647,6 +1622,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // cache the current script parse info object to resolve completions later
             this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
+
+            /*
+             Expanding star expressions in query only when the script is connected to a database
+             as the parser requires a connection to determine column names
+            */
+            if (connInfo != null)
+            {
+                CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
+                if (starExpansionSuggestion != null)
+                {
+                    return starExpansionSuggestion;
+                }
+            }
 
             // if there are no completions then provide the default list
             if (resultCompletionItems == null)
@@ -1859,10 +1847,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
                 {
+                    Logger.Verbose($"Updating ScriptParseInfo for uri {uri}");
                     this.ScriptParseInfoMap[uri] = scriptInfo;
                 }
                 else
                 {
+                    Logger.Verbose($"Adding ScriptParseInfo for uri {uri}");
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
                 }
 
@@ -1875,16 +1865,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="createIfNotExists">Creates a new instance if one doesn't exist</param>
-        internal ScriptParseInfo GetScriptParseInfo(string uri, bool createIfNotExists = false)
+        internal ScriptParseInfo? GetScriptParseInfo(string uri, bool createIfNotExists = false)
         {
             lock (this.parseMapLock)
             {
-                if (this.ScriptParseInfoMap.ContainsKey(uri))
+                if (this.ScriptParseInfoMap.TryGetValue(uri, out ScriptParseInfo value))
                 {
-                    return this.ScriptParseInfoMap[uri];
+                    Logger.Verbose($"Found ScriptParseInfo for uri {uri}");
+                    return value;
                 }
                 else if (createIfNotExists)
                 {
+                    Logger.Verbose($"ScriptParseInfo for uri {uri} did not exist, creating new one");
                     // create a new script parse info object and initialize with the current settings
                     ScriptParseInfo scriptInfo = new ScriptParseInfo();
                     this.ScriptParseInfoMap.Add(uri, scriptInfo);
@@ -1892,6 +1884,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
+                    Logger.Verbose($"Could not find ScriptParseInfo for uri {uri}");
                     return null;
                 }
             }
@@ -1903,6 +1896,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 if (this.ScriptParseInfoMap.ContainsKey(uri))
                 {
+                    Logger.Verbose($"Removing ScriptParseInfo for uri {uri}");
                     return this.ScriptParseInfoMap.Remove(uri);
                 }
                 else

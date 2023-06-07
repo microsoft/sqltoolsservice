@@ -1,7 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using System;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -21,11 +25,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         Sql2017 = 0x40,
         SqlDw = 0x80,
         SqlOnDemand = 0x100,
-        AllOnPrem = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017,
+        AzureSqlDWGen3 = 0x200,
+        Sql2019 = 0x400,
+        Sql2022 = 0x800,
+        Sql2022OrHigher = Sql2022,
+        Sql2017OrHigher = Sql2017 | Sql2019 | Sql2022OrHigher,
+        Sql2016OrHigher = Sql2016 | Sql2017OrHigher,
+        Sql2012OrHigher = Sql2012 | Sql2014 | Sql2016OrHigher,
+        Sql2008OrHigher = Sql2008 | Sql2012OrHigher,
+        AllOnPrem = Sql2005 | Sql2008OrHigher,
         AllAzure = AzureV12,
-        All = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw | SqlOnDemand,
-        NotSqlDw = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlOnDemand,
-        NotSqlDemand = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12 | SqlDw,
-        NotSqlDwNotDemand = Sql2005 | Sql2008 | Sql2012 | Sql2014 | Sql2016 | Sql2017 | AzureV12,
+        All = AllOnPrem | AzureV12 | SqlDw | SqlOnDemand,
+        NotSqlDw = AllOnPrem | AzureV12 | SqlOnDemand,
+        NotSqlDemand = AllOnPrem | AzureV12 | SqlDw,
+        NotSqlDwNotDemand = AllOnPrem | AzureV12,
     }
 }

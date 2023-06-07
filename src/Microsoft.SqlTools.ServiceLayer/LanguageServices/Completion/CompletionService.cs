@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -37,10 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         {
             get
             {
-                if(this.sqlParserWrapper == null)
-                {
-                    this.sqlParserWrapper = new SqlParserWrapper();
-                }
+                this.sqlParserWrapper ??= new SqlParserWrapper();
                 return this.sqlParserWrapper;
             }
             set

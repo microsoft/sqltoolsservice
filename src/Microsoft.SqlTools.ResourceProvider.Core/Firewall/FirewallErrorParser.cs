@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using Microsoft.Data.SqlClient;
@@ -12,15 +13,15 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
     internal interface IFirewallErrorParser
     {
         /// <summary>
-        /// Parses given error message and error code to see if it's firewall rule error 
+        /// Parses given error message and error code to see if it's firewall rule error
         /// and finds the blocked ip address
         /// </summary>
         FirewallParserResponse ParseErrorMessage(string errorMessage, int errorCode);
 
         /// <summary>
-        /// Parses given error message and error code to see if it's firewall rule error 
+        /// Parses given error message and error code to see if it's firewall rule error
         /// and finds the blocked ip address
-        /// </summary>      
+        /// </summary>
         FirewallParserResponse ParseException(SqlException sqlException);
     }
 
@@ -30,9 +31,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
     public class FirewallErrorParser : IFirewallErrorParser
     {
         /// <summary>
-        /// Parses given error message and error code to see if it's firewall rule error 
+        /// Parses given error message and error code to see if it's firewall rule error
         /// and finds the blocked ip address
-        /// </summary>  
+        /// </summary>
         public FirewallParserResponse ParseException(SqlException sqlException)
         {
             CommonUtil.CheckForNull(sqlException, "sqlException");
@@ -40,9 +41,9 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
         }
 
         /// <summary>
-        /// Parses given error message and error code to see if it's firewall rule error 
+        /// Parses given error message and error code to see if it's firewall rule error
         /// and finds the blocked ip address
-        /// </summary>     
+        /// </summary>
         public FirewallParserResponse ParseErrorMessage(string errorMessage, int errorCode)
         {
             CommonUtil.CheckForNull(errorMessage, "errorMessage");
@@ -62,16 +63,18 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 
         /// <summary>
         /// Parses the given message to find the blocked ip address
-        /// </summary>        
+        /// </summary>
         private static bool TryParseClientIp(string message, out IPAddress clientIp)
         {
             clientIp = null;
             try
             {
+                #pragma warning disable SYSLIB1045
                 Regex regex =
                     new Regex(
                         @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
                         RegexOptions.IgnoreCase);
+                #pragma warning restore SYSLIB1045
                 Match match = regex.Match(message);
 
                 if (match.Success)
@@ -91,7 +94,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Firewall
 
         /// <summary>
         /// Returns true if given error code is firewall rule blocked error code
-        /// </summary>      
+        /// </summary>
         private bool IsSqlAzureFirewallBlocked(int errorCode)
         {
             return errorCode == SqlAzureFirewallBlockedErrorNumber;

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -146,8 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
         {
             get 
             {
-                if (this._baselineSubDir == null)
-                    this._baselineSubDir = string.Empty;
+                this._baselineSubDir ??= string.Empty;
                 return this._baselineSubDir; 
             }
             set { this._baselineSubDir = value; }
@@ -264,33 +265,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common.Baselined
             if (!string.IsNullOrEmpty(TraceFilePath) && !Directory.Exists(TraceFilePath))   //if this does not exist, then we want it (pronto)
                 Directory.CreateDirectory(TraceFilePath);
 
-        }
-
-        /// <summary>
-        /// Compares two strings and gives appropriate output
-        /// </summary>
-        /// <param name="actualContent">Actual string</param>
-        /// <param name="baselineContent">Expected string</param>
-        /// <remarks>Fails test if strings do not match; comparison is done using an InvariantCulture StringComparer</remarks>
-        public static void CompareActualWithBaseline(string actualContent, string baselineContent)
-        {
-
-            int _compareResult = string.Compare(actualContent, baselineContent, StringComparison.OrdinalIgnoreCase);
-            if (_compareResult != 0)
-            {
-                Trace.WriteLine("Debug Info:");
-                Trace.WriteLine("========BEGIN=EXPECTED========");
-                Trace.WriteLine(baselineContent);
-                Trace.WriteLine("=========END=EXPECTED=========");
-                Trace.WriteLine("=========BEGIN=ACTUAL=========");
-                Trace.WriteLine(actualContent);
-                Trace.WriteLine("==========END=ACTUAL==========");
-                Assert.True(false, string.Format("Comparison failed! (actualContent {0} baselineContent)", (_compareResult < 0 ? "<" : ">")));    //we already know it is not equal
-            }
-            else
-            {
-                Trace.WriteLine("Compare match! All is fine...");
-            }
         }
 
         /// <summary>

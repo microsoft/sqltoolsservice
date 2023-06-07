@@ -3,18 +3,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlServer.Management.Sdk.Sfc;
+#nullable disable
+
 using System;
-using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
-using Microsoft.SqlServer.Management.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
 
-#region LogSourceAggregation - ILogSource info built from multiple other sources
+    #region LogSourceAggregation - ILogSource info built from multiple other sources
     internal class LogSourceAggregation : ILogSource, ITypedColumns, IDisposable
     {
 #region Constants
@@ -421,10 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             e.Source = sourceName;
 
-            if (m_exceptionList == null)
-            {
-                m_exceptionList = new List<Exception>();
-            }
+            m_exceptionList ??= new List<Exception>();
             m_exceptionList.Add(e);
         }
 

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,11 +20,13 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
+
+    public class InvalidParams : ExecuteRequestParamsBase { }
+
     public class ServiceIntegrationTests
     {
 
@@ -131,12 +135,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... Mock up an implementation of ExecuteRequestParamsBase
             // ... Create a query execution service without a connection service or workspace
             //     service (we won't execute code that uses either
-            var mockParams = new Mock<ExecuteRequestParamsBase>().Object;
+            var invalidParams = new InvalidParams() { OwnerUri = "" };
             var queryService = new QueryExecutionService(null, null);
 
             // If: I attempt to get query text from the mock params
             // Then: It should throw an exception
-            Assert.Throws<InvalidCastException>(() => queryService.GetSqlText(mockParams));
+            Assert.Throws<InvalidCastException>(() => queryService.GetSqlText(invalidParams));
         }
 
         #endregion

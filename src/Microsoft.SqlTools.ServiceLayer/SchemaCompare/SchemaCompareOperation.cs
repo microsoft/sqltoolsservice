@@ -2,14 +2,18 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
@@ -89,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                 if (this.Parameters.DeploymentOptions != null)
                 {
-                    comparison.Options = SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions);
+                    comparison.Options = DacFxUtils.CreateDeploymentOptions(this.Parameters.DeploymentOptions);
                 }
 
                 // for testing
@@ -112,11 +116,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 this.Differences = new List<DiffEntry>();
                 if (this.ComparisonResult.Differences != null)
                 {
+                    // filter out not included and not excludeable differences
+                    (this.ComparisonResult.Differences as List<SchemaDifference>).RemoveAll(d => !d.Included && !d.IsExcludable);
+
                     foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                     {
                         DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
                         this.Differences.Add(diffEntry);
                     }
+                }
+
+                // Appending the set of errors that are stopping the schema compare to the ErrorMessage
+                // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here
+                var errorsList = ComparisonResult.GetErrors().Where(x => x.MessageType.Equals(Microsoft.SqlServer.Dac.DacMessageType.Error)).Select(e => e.Message).Distinct().ToList();
+                if (errorsList.Count > 0)
+                {
+                    ErrorMessage = string.Join("\n", errorsList);
                 }
             }
             catch (Exception e)

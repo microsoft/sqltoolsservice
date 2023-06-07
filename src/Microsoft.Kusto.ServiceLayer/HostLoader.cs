@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Threading.Tasks;
@@ -11,8 +12,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Admin;
 using Microsoft.Kusto.ServiceLayer.Metadata;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.DataSource;
-using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.QueryExecution;
 using Microsoft.Kusto.ServiceLayer.Scripting;
@@ -53,7 +52,7 @@ namespace Microsoft.Kusto.ServiceLayer
                     // Start the service only after all request handlers are setup. This is vital
                     // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
                     // is hooked up to receive the message
-                    serviceHost.Start().Wait();
+                    serviceHost.Start().GetAwaiter().GetResult();
                     isLoaded = true;
                 }
             }
@@ -67,7 +66,8 @@ namespace Microsoft.Kusto.ServiceLayer
             ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(inclusionList);
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
-            
+            var connectionManager = serviceProvider.GetService<IConnectionManager>();
+
             var scripter = serviceProvider.GetService<IScripter>();
             var dataSourceConnectionFactory = serviceProvider.GetService<IDataSourceConnectionFactory>();
             var connectedBindingQueue = serviceProvider.GetService<IConnectedBindingQueue>();
@@ -78,25 +78,25 @@ namespace Microsoft.Kusto.ServiceLayer
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue);
+            LanguageService.Instance.InitializeService(serviceHost, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue);
+            ConnectionService.Instance.InitializeService(serviceHost, dataSourceConnectionFactory, connectedBindingQueue, connectionManager);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);
 
-            QueryExecutionService.Instance.InitializeService(serviceHost);
+            QueryExecutionService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
 
-            ScriptingService.Instance.InitializeService(serviceHost, scripter);
+            ScriptingService.Instance.InitializeService(serviceHost, scripter, ConnectionService.Instance, connectionManager);
             serviceProvider.RegisterSingleService(ScriptingService.Instance);
 
-            AdminService.Instance.InitializeService(serviceHost);
+            AdminService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(AdminService.Instance);
 
-            MetadataService.Instance.InitializeService(serviceHost);
+            MetadataService.Instance.InitializeService(serviceHost, connectionManager);
             serviceProvider.RegisterSingleService(MetadataService.Instance);
             
             InitializeHostedServices(serviceProvider, serviceHost);

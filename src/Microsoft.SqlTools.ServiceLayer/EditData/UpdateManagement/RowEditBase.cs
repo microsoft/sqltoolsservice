@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -181,38 +183,60 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
                 }
                 else
                 {
-                    if (cellData.RawObject is byte[] ||
-                        col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
-                        col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
+                    if (parameterize)
                     {
-                        // Special cases for byte[] and TEXT/NTEXT types
-                        cellDataClause = "IS NOT NULL";
-                    }
-                    else
-                    {
-                        // General case is to just use the value from the cell
-                        if (parameterize)
+                        // Add a parameter and parameterized clause component
+                        // NOTE: We include the row ID to make sure the parameter is unique if
+                        //       we execute multiple row edits at once.
+                        string paramName = $"@Param{RowId}{col.Ordinal}";
+                        if (cellData.RawObject is byte[])
                         {
-                            // Add a parameter and parameterized clause component
-                            // NOTE: We include the row ID to make sure the parameter is unique if
-                            //       we execute multiple row edits at once.
-                            string paramName = $"@Param{RowId}{col.Ordinal}";
-                            cellDataClause = $"= {paramName}";
-                            SqlParameter parameter = new SqlParameter(paramName, col.DbColumn.SqlDbType)
-                            {
-                                Value = cellData.RawObject
-                            };
-                            output.Parameters.Add(parameter);
+                            cellDataClause = $"= CONVERT (VARBINARY(MAX), {paramName})";
+                        }
+                        else if (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) || (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                            col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            // Special case for TEXT/NTEXT types.
+                            //NOTE: the types are not compatible with n/varchar so direct comparison
+                            //      will not work for these types, must convert first.
+                            cellDataClause = $"= CONVERT (NVARCHAR(MAX), {paramName})";
                         }
                         else
                         {
-                            // Add the clause component with the formatted value
-                            cellDataClause = $"= {ToSqlScript.FormatValue(cellData, col.DbColumn)}";
+                            cellDataClause = $"= {paramName}";
                         }
+
+                        SqlParameter parameter = new SqlParameter(paramName, col.DbColumn.SqlDbType)
+                        {
+                            Value = cellData.RawObject
+                        };
+                        output.Parameters.Add(parameter);
+                    }
+                    else
+                    {
+                        // Add the clause component with the formatted value
+                        cellDataClause = $"= {ToSqlScript.FormatValue(cellData, col.DbColumn)}";
                     }
                 }
 
-                string completeComponent = $"({col.EscapedName} {cellDataClause})";
+                string completeComponent;
+
+                if (cellData.RawObject is byte[])
+                {
+                    completeComponent = $"(CONVERT (VARBINARY(MAX), {col.EscapedName}) {cellDataClause})";
+                }
+
+                else if (col.DbColumn.DataTypeName.Equals("TEXT", StringComparison.OrdinalIgnoreCase) ||
+                            col.DbColumn.DataTypeName.Equals("NTEXT", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Special case for TEXT/NTEXT types as explained on line 197.
+                    completeComponent = $"(CONVERT (NVARCHAR(MAX), {col.EscapedName}) {cellDataClause})";
+                }
+                else
+                {
+                    completeComponent = $"({col.EscapedName} {cellDataClause})";
+                }
+
                 output.ClauseComponents.Add(completeComponent);
             }
 

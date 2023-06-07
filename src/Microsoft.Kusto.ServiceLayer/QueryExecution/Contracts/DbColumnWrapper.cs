@@ -1,6 +1,7 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -89,7 +90,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution.Contracts
             NumericScale = SafeGetValue<int?>(row, "NumericScale");
             UdtAssemblyQualifiedName = SafeGetValue<string>(row, "UdtAssemblyQualifiedName");
             DataType = SafeGetValue<Type>(row, "DataType");
-            DataTypeName = SafeGetValue<string>(row, "ColumnType");
+            DataTypeName = SafeGetValue<string>(row, "ColumnType") ?? "dynamic";
             ColumnName = SafeGetValue<string>(row, "ColumnName");
         }
         

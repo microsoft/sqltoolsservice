@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -10,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using NUnit.Framework;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 {
@@ -36,6 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 {
                     DataSource = connectParams.Connection.ServerName,
                     InitialCatalog = connectParams.Connection.DatabaseName,
+                    TrustServerCertificate = true
                 };
 
                 if (connectParams.Connection.AuthenticationType == "Integrated")
@@ -46,6 +48,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 {
                     builder.UserID = connectParams.Connection.UserName;
                     builder.Password = connectParams.Connection.Password;
+                    builder.PersistSecurityInfo = true;
+                }
+
+                if (!string.IsNullOrEmpty(connectParams.Connection.Encrypt))
+                {
+                    builder.Encrypt = connectParams.Connection.Encrypt switch
+                    {
+                        "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
+                        "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
+                        "strict" => SqlConnectionEncryptOption.Strict,
+                        _ => SqlConnectionEncryptOption.Optional
+                    };
+                }
+
+                if (!string.IsNullOrEmpty(connectParams.Connection.HostNameInCertificate))
+                {
+                    builder.HostNameInCertificate = connectParams.Connection.HostNameInCertificate;
                 }
 
                 return builder.ToString();

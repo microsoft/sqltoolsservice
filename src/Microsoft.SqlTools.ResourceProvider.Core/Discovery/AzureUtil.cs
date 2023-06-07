@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
 
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace Microsoft.SqlTools.ResourceProvider.Core
 
                 ServiceResponse<TResult>[] resultList = new ServiceResponse<TResult>[inputList.Count];
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                var tasks = Enumerable.Range(0, inputList.Count())
+                var tasks = Enumerable.Range(0, inputList.Count)
                     .Select(async i =>
                     {
                         ServiceResponse<TResult> result = await GetResult(config, inputList[i], lookupKey, cancellationToken,

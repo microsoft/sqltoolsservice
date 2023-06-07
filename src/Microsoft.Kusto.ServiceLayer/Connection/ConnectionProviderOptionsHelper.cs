@@ -4,6 +4,7 @@
 //
 
 using Microsoft.SqlTools.Hosting.Contracts;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.Kusto.ServiceLayer.Connection
 {
@@ -50,7 +51,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                         CategoryValues = new CategoryValue[]
                         { new CategoryValue { DisplayName = "SQL Login", Name = "SqlLogin" },
                           new CategoryValue { DisplayName = "Windows Authentication", Name = "Integrated" },
-                          new CategoryValue { DisplayName = "Azure Active Directory - Universal with MFA support", Name = "AzureMFA" }
+                          new CategoryValue { DisplayName = "Azure Active Directory - Universal with MFA support", Name = AzureMFA }
                         },
                         IsIdentity = true,
                         IsRequired = true,
@@ -88,14 +89,6 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                             new CategoryValue { Name = "ReadWrite", DisplayName = "ReadWrite" },
                             new CategoryValue {Name = "ReadOnly", DisplayName = "ReadOnly" }
                         },
-                        GroupName = "Initialization"
-                    },
-                    new ConnectionOption
-                    {
-                        Name = "asynchronousProcessing",
-                        DisplayName = "Asynchronous processing enabled",
-                        Description = "When true, enables usage of the Asynchronous functionality in the .Net Framework Data Provider",
-                        ValueType = ConnectionOption.ValueTypeBoolean,
                         GroupName = "Initialization"
                     },
                     new ConnectionOption

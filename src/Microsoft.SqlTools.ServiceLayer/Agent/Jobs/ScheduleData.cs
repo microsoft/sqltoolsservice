@@ -3,17 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Diagnostics;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -23,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
     /// simple job schedule structure.
     /// </summary>
 
-    public struct SimpleJobSchedule
+    public partial struct SimpleJobSchedule
     {
         #region consts
         private const int EndOfDay = 235959;
@@ -43,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         private FrequencyTypes frequencyTypes;
         private FrequencySubDayTypes frequencySubDayTypes;
         private FrequencyRelativeIntervals frequencyRelativeIntervals;
-        private System.Boolean isEnabled;
+        private bool isEnabled;
         #endregion
 
         #region Init
@@ -99,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public static DateTime ConvertIntToDateTime(int source)
         {
             return new DateTime(source / 10000
-                                , (source / 100) % 100
+                                , source / 100 % 100
                                 , source % 100);
         }
         /// <summary>
@@ -125,7 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         public static TimeSpan ConvertIntToTimeSpan(int source)
         {
             return new TimeSpan(source / 10000
-                                , (source / 100) % 100
+                                , source / 100 % 100
                                 , source % 100);
         }
         /// <summary>
@@ -149,13 +150,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <returns>JobScheduleData object</returns>
         public JobScheduleData ToJobScheduleData()
         {
-            JobScheduleData data = new JobScheduleData();
+            var data = new JobScheduleData();
             data.Name = this.Name;
             data.Enabled = this.IsEnabled;
-            data.ActiveStartDate = SimpleJobSchedule.ConvertIntToDateLocalized(this.ActiveStartDate);
-            data.ActiveStartTime = SimpleJobSchedule.ConvertIntToTimeSpan(this.ActiveStartTimeOfDay);
-            data.ActiveEndDate = SimpleJobSchedule.ConvertIntToDateLocalized(this.ActiveEndDate);
-            data.ActiveEndTime = SimpleJobSchedule.ConvertIntToTimeSpan(this.ActiveEndTimeOfDay);
+            data.ActiveStartDate = ConvertIntToDateLocalized(this.ActiveStartDate);
+            data.ActiveStartTime = ConvertIntToTimeSpan(this.ActiveStartTimeOfDay);
+            data.ActiveEndDate = ConvertIntToDateLocalized(this.ActiveEndDate);
+            data.ActiveEndTime = ConvertIntToTimeSpan(this.ActiveEndTimeOfDay);
             data.FrequencyTypes = this.FrequencyTypes;
             data.FrequencyInterval = this.FrequencyInterval;
             data.FrequencyRecurranceFactor = this.FrequencyRecurrenceFactor;
@@ -172,15 +173,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <returns>new SimpleJobSchedule</returns>
         public static SimpleJobSchedule FromJobScheduleData(JobScheduleData source)
         {
-            SimpleJobSchedule schedule = new SimpleJobSchedule();
+            var schedule = new SimpleJobSchedule();
 
             schedule.Name = source.Name;
             schedule.ID = source.ID;
             schedule.IsEnabled = source.Enabled;
-            schedule.ActiveStartDate = SimpleJobSchedule.ConvertDateTimeToInt(source.ActiveStartDate);
-            schedule.ActiveStartTimeOfDay = SimpleJobSchedule.ConvertTimeSpanToInt(source.ActiveStartTime);
-            schedule.ActiveEndDate = SimpleJobSchedule.ConvertDateTimeToInt(source.ActiveEndDate);
-            schedule.ActiveEndTimeOfDay = SimpleJobSchedule.ConvertTimeSpanToInt(source.ActiveEndTime);
+            schedule.ActiveStartDate = ConvertDateTimeToInt(source.ActiveStartDate);
+            schedule.ActiveStartTimeOfDay = ConvertTimeSpanToInt(source.ActiveStartTime);
+            schedule.ActiveEndDate = ConvertDateTimeToInt(source.ActiveEndDate);
+            schedule.ActiveEndTimeOfDay = ConvertTimeSpanToInt(source.ActiveEndTime);
             schedule.FrequencyTypes = source.FrequencyTypes;
             schedule.FrequencyInterval = source.FrequencyInterval;
             schedule.FrequencyRecurrenceFactor = source.FrequencyRecurranceFactor;
@@ -292,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     return string.Empty;
                 }
 
-                StringBuilder daysOfWeek = new StringBuilder();
+                var daysOfWeek = new StringBuilder();
                 // Start matching with Monday. GetLocalizedDaysOfWeek() must start with Monday too.
                 WeekDays dayOfWeek = WeekDays.Monday;
                 foreach (string localizedDayOfWeek in GetLocalizedDaysOfWeek())
@@ -308,7 +309,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
                     // There's no easy way to advance to the next enum value, so since we know
                     // it's a bitfield mask we do a left shift ourselves.
-                    int nextDay = ((int)dayOfWeek) << 1;
+                    int nextDay = (int)dayOfWeek << 1;
                     dayOfWeek = (WeekDays)nextDay;
                     if (dayOfWeek > WeekDays.Saturday)
                     {
@@ -448,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             get
             {            
-                MonthlyRelativeWeekDays relativeDays = (MonthlyRelativeWeekDays) this.FrequencyInterval;
+                var relativeDays = (MonthlyRelativeWeekDays) this.FrequencyInterval;
                 
                 switch (relativeDays)
                 {
@@ -670,23 +671,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <returns></returns>
         string ExpandFormatString(string format)
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             int lastIndex = 0;
 
-            MatchCollection matches = Regex.Matches(format, @"\{(?<property>\w+)\}");
+            MatchCollection matches = GetPropertyDescriptorRegex().Matches(format);
 
             if (matches.Count > 0)
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(this);
 
-                foreach (Match match in matches)
+                foreach (Match match in matches.Cast<Match>())
                 {
                     string propertyName = match.Groups["property"].Value;
                     PropertyDescriptor property = properties[propertyName];                 
                     if (property != null)
                     {
                         object propertyValue = property.GetValue(this);
-                        propertyValue = propertyValue != null ? propertyValue.ToString() : String.Empty;
+                        propertyValue = propertyValue != null ? propertyValue.ToString() : string.Empty;
 
                         stringBuilder.Append(format.Substring(lastIndex, match.Index - lastIndex));
                         stringBuilder.Append(propertyValue as string);
@@ -703,6 +704,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         {
             return new string[] { "SR.Monday", "SR.Tuesday", "SR.Wednesday", "SR.Thursday", "SR.Friday", "SR.Saturday", "SR.Sunday" };
         }
+
+        [GeneratedRegex("\\{(?<property>\\w+)\\}")]
+        private static partial Regex GetPropertyDescriptorRegex();
 
         #endregion
     }

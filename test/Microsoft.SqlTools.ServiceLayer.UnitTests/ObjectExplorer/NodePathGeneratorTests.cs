@@ -3,24 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System;
+#nullable disable
+
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Moq;
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -61,7 +50,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 "testServer/Databases/testDatabase/Tables/testSchema.testTable",
                 "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable",
                 "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable",
-                "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable"
+                "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable",
+                "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable",
+                "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -74,11 +65,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void FindCorrectPathsForTableWithDatabaseRoot()
         {
-            var paths = NodePathGenerator.FindNodePaths(databaseSession, "Table", "testSchema", "testTable", null);
+            var paths = NodePathGenerator.FindNodePaths(databaseSession, "Table", "testSchema", "testTable", string.Empty);
             var expectedPaths = new List<string>
             {
                 "testServer/testDatabase/Tables/testSchema.testTable",
-                "testServer/testDatabase/Tables/System Tables/testSchema.testTable"
+                "testServer/testDatabase/Tables/System Tables/testSchema.testTable",
+                "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -95,13 +87,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             var expectedPaths = new List<string>
             {
                 "testServer/Databases/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/System Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/System Databases/testDatabase/Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
-                "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
+                "testServer/Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Views/System Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn",
+                "testServer/Databases/System Databases/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -118,9 +126,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             var expectedPaths = new List<string>
             {
                 "testServer/testDatabase/Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/testDatabase/Tables/System Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Tables/System Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Tables/Dropped Ledger Tables/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
                 "testServer/testDatabase/Views/testSchema.testTable/Columns/testColumn",
-                "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn"
+                "testServer/testDatabase/Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Views/System Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn",
+                "testServer/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/testColumn",
+                "testServer/testDatabase/Views/Dropped Ledger Views/testSchema.testTable/Columns/Dropped Ledger Columns/testColumn"
             };
 
             Assert.AreEqual(expectedPaths.Count, paths.Count);
@@ -133,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void FindCorrectPathsForDatabase()
         {
-            var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", null, databaseName, null);
+            var paths = NodePathGenerator.FindNodePaths(serverSession, "Database", null, databaseName, string.Empty);
             var expectedPaths = new List<string>
             {
                 "testServer/Databases/testDatabase",

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,7 +14,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using System.Diagnostics;
@@ -78,6 +79,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         private bool? isTailLogBackupWithNoRecoveryPossible = null;
         private string backupMediaList = string.Empty;
         private Server server;
+        private static readonly DeviceType[] managedInstanceSupportedDeviceTypes = { DeviceType.Url };
+        private static readonly DeviceType[] defaultSupportedDeviceTypes = { DeviceType.File, DeviceType.Url };
+        private static readonly Dictionary<Edition, DeviceType[]> specialEngineEditionSupportedDeviceTypes = new Dictionary<Edition, DeviceType[]>
+        {
+            { Edition.SqlManagedInstance, managedInstanceSupportedDeviceTypes },
+        };
 
         public RestoreDatabaseTaskDataObject(Server server, String databaseName)
         {
@@ -196,8 +203,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
         /// Add a backup file to restore plan media list
         /// </summary>
         /// <param name="filePaths"></param>
-        public void AddFiles(string filePaths)
+        /// <param name="deviceType"></deviceType>
+        public void AddDevices(string filePaths, DeviceType deviceType)
         {
+            ThrowIfUnsupportedDeviceType(this.Server.EngineEdition, deviceType);
             backupMediaList = filePaths;
             PlanUpdateRequired = true;
             if (!string.IsNullOrWhiteSpace(filePaths))
@@ -210,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     {
                         this.RestorePlanner.BackupMediaList.Add(new BackupDeviceItem
                         {
-                            DeviceType = DeviceType.File,
+                            DeviceType = deviceType,
                             Name = file
                         });
                     }
@@ -222,6 +231,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
                     this.RestorePlanner.BackupMediaList.Remove(item);
                 }
             }
+        }
+
+        private void ThrowIfUnsupportedDeviceType(Edition engineEdition, DeviceType deviceType)
+        {
+            if (!IsSupportedDeviceType(engineEdition, deviceType))
+            {
+                throw new UnsupportedDeviceTypeException(engineEdition, deviceType);
+            }
+        }
+
+        private bool IsSupportedDeviceType(Edition engineEdition, DeviceType deviceType)
+        {
+            return (defaultSupportedDeviceTypes.Contains(deviceType) && !specialEngineEditionSupportedDeviceTypes.ContainsKey(engineEdition))
+                || (specialEngineEditionSupportedDeviceTypes.ContainsKey(engineEdition) && specialEngineEditionSupportedDeviceTypes[engineEdition].Contains(deviceType));
         }
 
         
@@ -318,7 +341,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             catch(Exception ex)
             {
                 Logger.Write(TraceEventType.Information, $"Failed to execute restore task. error: {ex.Message}");
-                throw ex;
+                throw;
             }
             finally
             {
@@ -1369,7 +1392,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
             if (!string.IsNullOrEmpty(RestoreParams.BackupFilePaths) && RestoreParams.ReadHeaderFromMedia)
             {
-                AddFiles(RestoreParams.BackupFilePaths);
+                AddDevices(RestoreParams.BackupFilePaths, (DeviceType)RestoreParams.DeviceType);
             }
             else
             {

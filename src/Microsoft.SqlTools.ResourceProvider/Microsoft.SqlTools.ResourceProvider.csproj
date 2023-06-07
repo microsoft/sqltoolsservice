@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(ResourceProviderTargetFramework)</TargetFramework>
     <PackageId>SqlToolsResourceProviderService</PackageId>
     <AssemblyName>SqlToolsResourceProviderService</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -10,15 +9,18 @@
     <Copyright>� Microsoft Corporation. All rights reserved.</Copyright>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-    <RuntimeIdentifiers>win7-x64;win7-x86;ubuntu.14.04-x64;ubuntu.16.04-x64;centos.7-x64;rhel.7.2-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;osx.10.11-x64;linux-x64;win10-arm;win10-arm64</RuntimeIdentifiers>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+    <RuntimeIdentifiers>$(ToolsServiceTargetRuntimes)</RuntimeIdentifiers>
+	<!-- Disable CA1852 (Seal internal types) as it depends on SrGen Tool -->
+	<NoWarn>$(NoWarn);CA1852</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_0;NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages"/>
+    <PackageReference Include="System.Text.Encoding.CodePages" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
@@ -27,9 +29,5 @@
     -->
     <ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.DefaultImpl\Microsoft.SqlTools.ResourceProvider.DefaultImpl.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Localization\sr.resx" />
-    <None Include="Localization\sr.strings" />
   </ItemGroup>
 </Project>

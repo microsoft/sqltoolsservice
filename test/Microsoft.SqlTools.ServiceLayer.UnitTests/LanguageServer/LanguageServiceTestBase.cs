@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -19,7 +21,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
-using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -93,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             requestContext = new Mock<RequestContext<T[]>>();
             requestContext.Setup(rc => rc.SendResult(It.IsAny<T[]>()))
                 .Returns(Task.FromResult(0));
-            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(0));
+            requestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
             requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<TelemetryParams>>(), It.IsAny<TelemetryParams>())).Returns(Task.FromResult(0));
             requestContext.Setup(r => r.SendEvent(It.IsAny<EventType<StatusChangeParams>>(), It.IsAny<StatusChangeParams>())).Returns(Task.FromResult(0));
 

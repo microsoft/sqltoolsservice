@@ -68,13 +68,13 @@ namespace Microsoft.SqlTools.ResourceProvider.Core.Contracts
     public class ProviderSettings
     {
         /// <summary>
-        /// Display name of the provider 
+        /// Display name of the provider
         /// </summary>
         public string DisplayName;
 
         /// <summary>
         /// ID of the provider
-        /// </summary>    
+        /// </summary>
         public string Id;
         /// <summary>
         /// Settings for the provider itself

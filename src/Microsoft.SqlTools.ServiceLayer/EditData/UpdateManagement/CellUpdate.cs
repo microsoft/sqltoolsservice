@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -16,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
     /// <summary>
     /// Representation of a cell that should have a value inserted or updated
     /// </summary>
-    public sealed class CellUpdate
+    public sealed partial class CellUpdate
     {
         private const string NullString = @"NULL";
         private const string TextNullString = @"'NULL'";
-        private static readonly Regex HexRegex = new Regex("0x[0-9A-F]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex HexRegex = GetCharacterRegex();
         private static readonly TimeSpan MaxTimespan = TimeSpan.FromHours(24);
 
         /// <summary>
@@ -229,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         private void ProcessTimespanColumn(string valueAsString)
         {
-            TimeSpan ts = TimeSpan.Parse(valueAsString, CultureInfo.CurrentCulture);
+            var ts = TimeSpan.Parse(valueAsString, CultureInfo.CurrentCulture);
             if (ts >= MaxTimespan)
             {
                 throw new InvalidOperationException(SR.EditDataTimeOver24Hrs);
@@ -267,6 +269,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             
             ValueAsString = valueAsString;
         }
+
+        [GeneratedRegex("0x[0-9A-F]+", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+        private static partial Regex GetCharacterRegex();
 
         #endregion
     }

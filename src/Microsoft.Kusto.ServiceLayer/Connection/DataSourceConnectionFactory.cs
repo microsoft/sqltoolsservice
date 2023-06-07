@@ -4,6 +4,7 @@
 //
 
 using System.Composition;
+using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
@@ -17,14 +18,22 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
     [Export(typeof(IDataSourceConnectionFactory))]
     public class DataSourceConnectionFactory : IDataSourceConnectionFactory
     {
+        private readonly IDataSourceFactory _dataSourceFactory;
+
+        [ImportingConstructor]
+        public DataSourceConnectionFactory(IDataSourceFactory dataSourceFactory)
+        {
+            _dataSourceFactory = dataSourceFactory;
+        }
+        
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
-        public ReliableDataSourceConnection CreateDataSourceConnection(string connectionString, string azureAccountToken)
+        public ReliableDataSourceConnection CreateDataSourceConnection(ConnectionDetails connectionDetails, string ownerUri)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            return new ReliableDataSourceConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
+            return new ReliableDataSourceConnection(connectionDetails, connectionRetryPolicy, commandRetryPolicy, _dataSourceFactory, ownerUri);
         }
     }
 }

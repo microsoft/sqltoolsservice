@@ -1,12 +1,16 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 {
@@ -21,18 +25,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="stream">The stream that will be written to</param>
         /// <param name="requestParams">The SaveAs request parameters</param>
-        protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams)
+        /// <param name="columns">
+        /// The entire list of columns for the result set. Used to determine which columns to
+        /// output.
+        /// </param>
+        protected SaveAsStreamWriter(Stream stream, SaveResultsRequestParams requestParams, IReadOnlyList<DbColumnWrapper> columns)
         {
+            Validate.IsNotNull(nameof(stream), stream);
+            Validate.IsNotNull(nameof(columns), columns);
+
             FileStream = stream;
-            var saveParams = requestParams;
             if (requestParams.IsSaveSelection)
             {
                 // ReSharper disable PossibleInvalidOperationException  IsSaveSelection verifies these values exist
-                ColumnStartIndex = saveParams.ColumnStartIndex.Value;
-                ColumnEndIndex = saveParams.ColumnEndIndex.Value;
-                ColumnCount = saveParams.ColumnEndIndex.Value - saveParams.ColumnStartIndex.Value + 1;
+                ColumnStartIndex = requestParams.ColumnStartIndex.Value;
+                ColumnEndIndex = requestParams.ColumnEndIndex.Value;
                 // ReSharper restore PossibleInvalidOperationException
             }
+            else
+            {
+                // Save request was for the entire result set, use default start/end
+                ColumnStartIndex = 0;
+                ColumnEndIndex = columns.Count - 1;
+            }
+
+            ColumnCount = ColumnEndIndex - ColumnStartIndex + 1;
         }
 
         #region Properties
@@ -40,22 +57,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Index of the first column to write to the output file
         /// </summary>
-        protected int? ColumnStartIndex { get; private set; }
+        protected int ColumnStartIndex { get; }
 
         /// <summary>
         /// Number of columns to write to the output file
         /// </summary>
-        protected int? ColumnCount { get; private set; }
+        protected int ColumnCount { get; }
 
         /// <summary>
-        /// Index of the last column to write to the output file
+        /// Index of the last column to write to the output file (inclusive).
         /// </summary>
-        protected int? ColumnEndIndex { get; private set; }
+        protected int ColumnEndIndex { get; }
 
         /// <summary>
         /// The file stream to use to write the output file
         /// </summary>
-        protected Stream FileStream { get; private set; }
+        protected Stream FileStream { get; }
 
         #endregion
 
@@ -73,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="row">The row of data to output</param>
         /// <param name="columns">The list of columns to output</param>
-        public abstract void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
+        public abstract void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns);
 
         /// <summary>
         /// Not implemented, do not use.
@@ -90,6 +107,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         public void FlushBuffer()
         {
             FileStream.Flush();
+        }
+
+        /// <summary>
+        /// Attempts to parse the provided <paramref name="encoding"/> and return an encoding that
+        /// matches the encoding name or codepage number.
+        /// </summary>
+        /// <param name="encoding">Encoding name or codepage number to parse.</param>
+        /// <param name="fallbackEncoding">
+        /// Encoding to return if no encoding of provided name/codepage number exists.
+        /// </param>
+        /// <returns>
+        /// Desired encoding object or the <paramref name="fallbackEncoding"/> if the desired
+        /// encoding could not be found.
+        /// </returns>
+        protected static Encoding ParseEncoding(string encoding, Encoding fallbackEncoding)
+        {
+            // If the encoding is a number, we try to look up a codepage encoding using the
+            // parsed number as a codepage. If it is not a number, attempt to look up an
+            // encoding with the provided encoding name. If getting the encoding fails in
+            // either case, we will return the fallback encoding.
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            try
+            {
+                return int.TryParse(encoding, out int codePage)
+                    ? Encoding.GetEncoding(codePage)
+                    : Encoding.GetEncoding(encoding);
+            }
+            catch
+            {
+                return fallbackEncoding;
+            }
         }
 
         #region IDisposable Implementation

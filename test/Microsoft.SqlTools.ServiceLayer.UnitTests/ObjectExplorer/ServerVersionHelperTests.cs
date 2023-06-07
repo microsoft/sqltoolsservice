@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using NUnit.Framework;
@@ -20,17 +22,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.AreEqual(validforFlag, expected);
         }
 
-        [Test]
-        public void GetValidForFlagShouldReturnTheFlagCorrectlyGivenValidVersion()
+        [TestCase(SqlServerType.AzureV12, ValidForFlag.AzureV12)]
+        [TestCase(SqlServerType.Sql2005, ValidForFlag.Sql2005)]
+        [TestCase(SqlServerType.Sql2008, ValidForFlag.Sql2008)]
+        [TestCase(SqlServerType.Sql2012, ValidForFlag.Sql2012)]
+        [TestCase(SqlServerType.Sql2014, ValidForFlag.Sql2014)]
+        [TestCase(SqlServerType.Sql2016, ValidForFlag.Sql2016)]
+        [TestCase(SqlServerType.Sql2017, ValidForFlag.Sql2017)]
+        [TestCase(SqlServerType.Sql2019, ValidForFlag.Sql2019)]
+        [TestCase(SqlServerType.Sql2022, ValidForFlag.Sql2022)]
+        [TestCase(SqlServerType.SqlOnDemand, ValidForFlag.SqlOnDemand)]
+        public void GetValidForFlagShouldReturnTheFlagCorrectlyGivenValidVersion(SqlServerType serverType, ValidForFlag validForFlag)
         {
-            VerifyGetValidForFlag(SqlServerType.AzureV12, ValidForFlag.AzureV12);
-            VerifyGetValidForFlag(SqlServerType.Sql2005, ValidForFlag.Sql2005);
-            VerifyGetValidForFlag(SqlServerType.Sql2008, ValidForFlag.Sql2008);
-            VerifyGetValidForFlag(SqlServerType.Sql2012, ValidForFlag.Sql2012);
-            VerifyGetValidForFlag(SqlServerType.Sql2014, ValidForFlag.Sql2014);
-            VerifyGetValidForFlag(SqlServerType.Sql2016, ValidForFlag.Sql2016);
-            VerifyGetValidForFlag(SqlServerType.Sql2017, ValidForFlag.Sql2017);
-            VerifyGetValidForFlag(SqlServerType.SqlOnDemand, ValidForFlag.SqlOnDemand);
+            ValidForFlag validforFlag = ServerVersionHelper.GetValidForFlag(serverType);
+            ValidForFlag expected = validForFlag;
+
+            Assert.That(validforFlag, Is.EqualTo(expected));
         }
 
         [Test]
@@ -42,53 +49,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.AreEqual(validforFlag, expected);
         }
 
-        [Test]
-        public void CalculateServerTypeShouldReturnSql2005Given2005Version()
+        [TestCase("9.1.2.3", SqlServerType.Sql2005)]
+        [TestCase("10.1.2.3", SqlServerType.Sql2008)]
+        [TestCase("11.1.2.3", SqlServerType.Sql2012)]
+        [TestCase("12.1.2.3", SqlServerType.Sql2014)]
+        [TestCase("13.1.2.3", SqlServerType.Sql2016)]
+        [TestCase("14.1.2.3", SqlServerType.Sql2017)]
+        [TestCase("15.1.2.3", SqlServerType.Sql2019)]
+        [TestCase("16.1.2.3", SqlServerType.Sql2022)]
+        public void CalculateServerTypeShouldReturnExpectedValue(string serverVersion, SqlServerType expectedServerType)
         {
-            string serverVersion = "9.1.2.3";
-            SqlServerType expected = SqlServerType.Sql2005;
-            VerifyCalculateServerType(serverVersion, expected);
-
-        }
-
-        [Test]
-        public void CalculateServerTypeShouldReturnSql2008Given2008Version()
-        {
-            string serverVersion = "10.1.2.3";
-            SqlServerType expected = SqlServerType.Sql2008;
-            VerifyCalculateServerType(serverVersion, expected);
-        }
-
-        [Test]
-        public void CalculateServerTypeShouldReturnSql2012Given2012Version()
-        {
-            string serverVersion = "11.1.2.3";
-            SqlServerType expected = SqlServerType.Sql2012;
-            VerifyCalculateServerType(serverVersion, expected);
-        }
-
-        [Test]
-        public void CalculateServerTypeShouldReturnSql2014Given2014Version()
-        {
-            string serverVersion = "12.1.2.3";
-            SqlServerType expected = SqlServerType.Sql2014;
-            VerifyCalculateServerType(serverVersion, expected);
-        }
-
-        [Test]
-        public void CalculateServerTypeShouldReturnSql2016Given2016Version()
-        {
-            string serverVersion = "13.1.2.3";
-            SqlServerType expected = SqlServerType.Sql2016;
-            VerifyCalculateServerType(serverVersion, expected);
-        }
-
-        [Test]
-        public void CalculateServerTypeShouldReturnSql2017Given2017Version()
-        {
-            string serverVersion = "14.1.2.3";
-            SqlServerType expected = SqlServerType.Sql2017;
-            VerifyCalculateServerType(serverVersion, expected);
+            ServerInfo serverInfo = new ServerInfo
+            {
+                ServerVersion = serverVersion
+            };
+            SqlServerType actual = ServerVersionHelper.CalculateServerType(serverInfo);
+            Assert.That(expectedServerType, Is.EqualTo(actual));
         }
 
         [Test]
@@ -150,16 +126,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.AreEqual(expected, actual);
         }
 
-        private void VerifyCalculateServerType(string serverVersion, SqlServerType expected)
-        {
-            ServerInfo serverInfo = new ServerInfo
-            {
-                ServerVersion = serverVersion
-            };
-            SqlServerType actual = ServerVersionHelper.CalculateServerType(serverInfo);
-            Assert.AreEqual(expected, actual);
-        }
-
         private void VerifyCalculateServerTypeForEngineEdition(int engineEdition, SqlServerType expected)
         {
             ServerInfo serverInfo = new ServerInfo
@@ -169,14 +135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             SqlServerType actual = ServerVersionHelper.CalculateServerType(serverInfo);
             Assert.True(actual == expected, $"Verify server type based on Engine Edition. Actual value: {actual}, Expected value: {expected}");
-        }
-
-        private void VerifyGetValidForFlag(SqlServerType serverType, ValidForFlag validForFlag)
-        {
-            ValidForFlag validforFlag = ServerVersionHelper.GetValidForFlag(serverType);
-            ValidForFlag expected = validForFlag;
-
-            Assert.AreEqual(validforFlag, expected);
         }
     }
 }

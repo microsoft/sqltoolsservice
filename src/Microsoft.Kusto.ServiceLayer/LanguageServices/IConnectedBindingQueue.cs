@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Threading;
 using Microsoft.Kusto.ServiceLayer.Connection;
 
@@ -7,9 +12,7 @@ namespace Microsoft.Kusto.ServiceLayer.LanguageServices
     public interface IConnectedBindingQueue
     {
         event BindingQueue<ConnectedBindingContext>.UnhandledExceptionDelegate OnUnhandledException;
-        
-        void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
-        void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
+
         string AddConnectionContext(ConnectionInfo connInfo, bool needMetadata, string featureName = null, bool overwrite = false);
         void Dispose();
         bool IsBindingContextConnected(string key);

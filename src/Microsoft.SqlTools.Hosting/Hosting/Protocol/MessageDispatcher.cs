@@ -27,13 +27,21 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         internal Dictionary<string, Func<Message, MessageWriter, Task>> requestHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
 
+        internal Dictionary<string, bool> requestHandlerParallelismMap =
+            new Dictionary<string, bool>();
+
         internal Dictionary<string, Func<Message, MessageWriter, Task>> eventHandlers =
             new Dictionary<string, Func<Message, MessageWriter, Task>>();
+
+        internal Dictionary<string, bool> eventHandlerParallelismMap =
+            new Dictionary<string, bool>();
 
         private Action<Message> responseHandler;
 
         private CancellationTokenSource messageLoopCancellationToken =
             new CancellationTokenSource();
+
+        private SemaphoreSlim semaphore = new SemaphoreSlim(10); // Limit to 10 threads to begin with, ideally there shouldn't be any limitation
 
         #endregion
 
@@ -55,6 +63,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         protected MessageReader MessageReader { get; private set; }
 
         protected MessageWriter MessageWriter { get; private set; }
+
+
+        /// <summary>
+        /// Whether the message should be handled without blocking the main thread.
+        /// </summary>
+        public bool ParallelMessageProcessing { get; set; }
 
 
         #endregion
@@ -106,7 +120,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public void SetRequestHandler<TParams, TResult>(
             RequestType<TParams, TResult> requestType,
             Func<TParams, RequestContext<TResult>, Task> requestHandler,
-            bool overrideExisting)
+            bool overrideExisting,
+            bool isParallelProcessingSupported = false)
         {
             if (overrideExisting)
             {
@@ -114,29 +129,62 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 this.requestHandlers.Remove(requestType.MethodName);
             }
 
+            this.requestHandlerParallelismMap.Add(requestType.MethodName, isParallelProcessingSupported);
             this.requestHandlers.Add(
                 requestType.MethodName,
-                (requestMessage, messageWriter) =>
+                async (requestMessage, messageWriter) =>
                 {
+                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     var requestContext =
                         new RequestContext<TResult>(
                             requestMessage,
                             messageWriter);
-
-                    TParams typedParams = default(TParams);
-                    if (requestMessage.Contents != null)
+                    try
                     {
-                        // TODO: Catch parse errors!
-                        typedParams = requestMessage.Contents.ToObject<TParams>();
-                    }
+                        TParams typedParams = default(TParams);
+                        if (requestMessage.Contents != null)
+                        {
+                            try
+                            {
+                                typedParams = requestMessage.Contents.ToObject<TParams>();
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Error parsing message contents {requestMessage.Contents}", ex);
+                            }
+                        }
 
-                    return requestHandler(typedParams, requestContext);
+                        await requestHandler(typedParams, requestContext);
+                        Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"{requestType.MethodName} : {GetErrorMessage(ex, true)}");
+                        await requestContext.SendError(GetErrorMessage(ex));
+                    }
                 });
         }
 
+        private string GetErrorMessage(Exception e, bool includeStackTrace = false)
+        {
+            List<string> errors = new List<string>();
+
+            while (e != null)
+            {
+                errors.Add(e.Message);
+                if (includeStackTrace)
+                {
+                    errors.Add(e.StackTrace);
+                }
+                e = e.InnerException;
+            }
+
+            return errors.Count > 0 ? string.Join(includeStackTrace ? Environment.NewLine : " ---> ", errors) : string.Empty;
+        }
+
         public void SetEventHandler<TParams>(
-            EventType<TParams> eventType,
-            Func<TParams, EventContext, Task> eventHandler)
+           EventType<TParams> eventType,
+           Func<TParams, EventContext, Task> eventHandler)
         {
             this.SetEventHandler(
                 eventType,
@@ -147,7 +195,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public void SetEventHandler<TParams>(
             EventType<TParams> eventType,
             Func<TParams, EventContext, Task> eventHandler,
-            bool overrideExisting)
+            bool overrideExisting,
+            bool isParallelProcessingSupported = false)
         {
             if (overrideExisting)
             {
@@ -155,26 +204,35 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 this.eventHandlers.Remove(eventType.MethodName);
             }
 
+            this.eventHandlerParallelismMap.Add(eventType.MethodName, isParallelProcessingSupported);
             this.eventHandlers.Add(
                 eventType.MethodName,
-                (eventMessage, messageWriter) =>
+                async (eventMessage, messageWriter) =>
                 {
+                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     var eventContext = new EventContext(messageWriter);
-
                     TParams typedParams = default(TParams);
-                    if (eventMessage.Contents != null)
+                    try
                     {
-                        try
+                        if (eventMessage.Contents != null)
                         {
-                            typedParams = eventMessage.Contents.ToObject<TParams>();
+                            try
+                            {
+                                typedParams = eventMessage.Contents.ToObject<TParams>();
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Error parsing message contents {eventMessage.Contents}", ex);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.Write(TraceEventType.Verbose, ex.ToString());
-                        }
+                        await eventHandler(typedParams, eventContext);
+                        Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     }
-
-                    return eventHandler(typedParams, eventContext);
+                    catch (Exception ex)
+                    {
+                        // There's nothing on the client side to send an error back to so just log the error and move on
+                        Logger.Error($"{eventType.MethodName} : {ex}");
+                    }
                 });
         }
 
@@ -256,22 +314,16 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         }
 
         protected async Task DispatchMessage(
-            Message messageToDispatch, 
+            Message messageToDispatch,
             MessageWriter messageWriter)
         {
-            Task handlerToAwait = null;
+            Func<Message, MessageWriter, Task> handlerToAwait = null;
+            bool isParallelProcessingSupported = false;
 
             if (messageToDispatch.MessageType == MessageType.Request)
             {
-                Func<Message, MessageWriter, Task> requestHandler = null;
-                if (this.requestHandlers.TryGetValue(messageToDispatch.Method, out requestHandler))
-                {
-                    handlerToAwait = requestHandler(messageToDispatch, messageWriter);
-                }
-                // else
-                // {
-                //     // TODO: Message not supported error
-                // }
+                this.requestHandlers.TryGetValue(messageToDispatch.Method, out handlerToAwait);
+                this.requestHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
             }
             else if (messageToDispatch.MessageType == MessageType.Response)
             {
@@ -282,15 +334,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
             else if (messageToDispatch.MessageType == MessageType.Event)
             {
-                Func<Message, MessageWriter, Task> eventHandler = null;
-                if (this.eventHandlers.TryGetValue(messageToDispatch.Method, out eventHandler))
-                {
-                    handlerToAwait = eventHandler(messageToDispatch, messageWriter);
-                }
-                else
-                {
-                    // TODO: Message not supported error
-                }
+                this.eventHandlers.TryGetValue(messageToDispatch.Method, out handlerToAwait);
+                this.eventHandlerParallelismMap.TryGetValue(messageToDispatch.Method, out isParallelProcessingSupported);
             }
             // else
             // {
@@ -301,19 +346,34 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 try
                 {
-                    await handlerToAwait;
+                    if (this.ParallelMessageProcessing && isParallelProcessingSupported)
+                    {
+                        // Run the task in a separate thread so that the main
+                        // thread is not blocked. Use semaphore to limit the degree of parallelism.
+                        await semaphore.WaitAsync();
+                        _ = Task.Run(async () =>
+                        {
+                            await handlerToAwait(messageToDispatch, messageWriter);
+                            semaphore.Release();
+                        });
+                    }
+                    else
+                    {
+                        await handlerToAwait(messageToDispatch, messageWriter);
+                    }
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException e)
                 {
                     // Some tasks may be cancelled due to legitimate
                     // timeouts so don't let those exceptions go higher.
+                    Logger.Write(TraceEventType.Verbose, string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
                 }
                 catch (Exception e)
                 {
-                    if (!(e is AggregateException && ((AggregateException)e).InnerExceptions[0] is TaskCanceledException))
+                    if (!(e is AggregateException exception && exception.InnerExceptions[0] is TaskCanceledException))
                     {
                         // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
-                        Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured in the request handler: {0}", e.ToString()));
+                        Logger.Write(TraceEventType.Error, string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
                     }
                 }
             }

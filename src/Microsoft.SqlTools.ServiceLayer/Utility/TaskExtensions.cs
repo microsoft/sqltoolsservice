@@ -3,10 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
@@ -118,7 +119,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <summary>
         /// This will enforce time out to run an async task without returning result
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
         /// <param name="task">The async task to run</param>
         /// <param name="timeout">Time out in milliseconds</param>
         /// <returns></returns>

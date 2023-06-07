@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="ja">
+    <body>
+      <trans-unit id="AzureServerNotFound">
+        <source>The server you specified {0} does not exist in any subscription in {1}. Either you have signed in with an incorrect account or your server was removed from subscription(s) in this account. Please check your account and try again.</source>
+        <target state="translated">指定したサーバー {0} は、{1} のいずれのサブスクリプションにも存在しません。サインインしたアカウントが正しくないか、サーバーがこのアカウントのサブスクリプションから削除されています。アカウントを確認して、もう一度お試しください。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="AzureSubscriptionFailedErrorMessage">
+        <source>An error occurred while getting Azure subscriptions: {0}</source>
+        <target state="translated">Azure サブスクリプションの取得中にエラーが発生しました: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DatabaseDiscoveryFailedErrorMessage">
+        <source>An error occurred while getting databases from servers of type {0} from {1}</source>
+        <target state="translated">{1} の種類 {0} のサーバーからデータベースを取得するときにエラーが発生しました</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleAccessForbidden">
+        <source>{0} does not have permission to change the server firewall rule. Try again with a different account that is an Owner or Contributor of the Azure subscription or the server.</source>
+        <target state="translated">{0} にはサーバーのファイアウォール規則を変更するためのアクセス許可がありません。Azure サブスクリプションかサーバーの所有者または共同作成者のアカウントでもう一度試してください。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidIpAddress">
+        <source>Invalid IP address</source>
+        <target state="translated">無効な IP アドレス</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidServerTypeErrorMessage">
+        <source>Server Type is invalid.</source>
+        <target state="translated">サーバーの種類が正しくありません。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="LoadingExportableFailedGeneralErrorMessage">
+        <source>A required dll cannot be loaded. Please repair your application.</source>
+        <target state="translated">必要な dll を読み込むことができません。アプリケーションを修復してください。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailed">
+        <source>An error occurred while creating a new firewall rule.</source>
+        <target state="translated">新しいファイアウォール規則を作成中にエラーが発生しました。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleUnsupportedConnectionType">
+        <source>Cannot open a firewall rule for the specified connection type</source>
+        <target state="translated">指定された接続の種類のファイアウォール規則を開けません</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FirewallRuleCreationFailedWithError">
+        <source>An error occurred while creating a new firewall rule: '{0}'</source>
+        <target state="translated">新しいファイアウォール規則を作成中にエラーが発生しました: '{0}'</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NoSubscriptionsFound">
+        <source>No subscriptions were found for the currently logged in user account.</source>
+        <target state="translated">現在ログインしているユーザー アカウントのサブスクリプションが見つかりませんでした。</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -50,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         private Dictionary<string, string> objectScriptMap = new Dictionary<string, string>();
 
-        internal Scripter() {}
+        internal Scripter() { }
 
         /// <summary>
         /// Initialize a Peek Definition helper object
@@ -63,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             this.tempPath = FileUtilities.GetPeekDefinitionTempFolder();
             Initialize();
         }
-        
+
         internal Database Database
         {
             get
@@ -187,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string tokenType = GetTokenTypeFromQuickInfo(quickInfoText, tokenText, caseSensitivity);
             if (tokenType != null)
             {
-                if (sqlObjectTypesFromQuickInfo.ContainsKey(tokenType.ToLowerInvariant()))
+                if (sqlObjectTypesFromQuickInfo.TryGetValue(tokenType.ToLowerInvariant(), out string sqlObjectType))
                 {
                     // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                     // This workaround ensures that a schema name is present by attempting
@@ -201,8 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     Location[] locations = GetSqlObjectDefinition(
                                 tokenText,
                                 schemaName,
-                                sqlObjectTypesFromQuickInfo[tokenType.ToLowerInvariant()]
-                            );
+                                sqlObjectType);
                     DefinitionResult result = new DefinitionResult
                     {
                         IsErrorResult = this.error,
@@ -230,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <returns></returns>
         internal DefinitionResult GetDefinitionUsingDeclarationType(DeclarationType type, string databaseQualifiedName, string tokenText, string schemaName)
         {
-            if (sqlObjectTypes.ContainsKey(type))
+            if (sqlObjectTypes.TryGetValue(type, out string sqlObjectType))
             {
                 // With SqlLogin authentication, the defaultSchema property throws an Exception when accessed.
                 // This workaround ensures that a schema name is present by attempting
@@ -244,8 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 Location[] locations = GetSqlObjectDefinition(
                             tokenText,
                             schemaName,
-                            sqlObjectTypes[type]
-                        );
+                            sqlObjectType);
                 DefinitionResult result = new DefinitionResult
                 {
                     IsErrorResult = this.error,
@@ -286,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string[] lines = File.ReadAllLines(tempFileName);
             int lineCount = 0;
             string createSyntax = null;
-            if (objectScriptMap.ContainsKey(objectType.ToLower()))
+            if (objectScriptMap.ContainsKey(objectType.ToLower(System.Globalization.CultureInfo.InvariantCulture)))
             {
                 createSyntax = string.Format("CREATE");
                 foreach (string line in lines)
@@ -351,12 +351,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 tempFileName = new Uri(tempFileName).AbsoluteUri;
             }
             // Create a location array containing the tempFile Uri, as expected by VSCode.
-            Location[] locations = new[] 
+            Location[] locations = new[]
             {
-                    new Location 
+                    new Location
                     {
                         Uri = tempFileName,
-                        Range = new Range 
+                        Range = new Range
                         {
                             Start = new Position { Line = lineNumber, Character = 0},
                             End = new Position { Line = lineNumber + 1, Character = 0}
@@ -397,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // extract full object name from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
             List<string> tokenList = tokens.Where(el => el.IndexOf(tokenText, caseSensitivity) >= 0).ToList();
-            return (tokenList?.Count() > 0) ? tokenList[0] : null;
+            return (tokenList?.Count > 0) ? tokenList[0] : null;
         }
 
         /// <summary>
@@ -416,7 +416,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // extract string denoting the token type from quickInfo text
             string[] tokens = quickInfoText.Split(' ');
             List<int> indexList = tokens.Select((s, i) => new { i, s }).Where(el => (el.s).IndexOf(tokenText, caseSensitivity) >= 0).Select(el => el.i).ToList();
-            return (indexList?.Count() > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
+            return (indexList?.Count > 0) ? String.Join(" ", tokens.Take(indexList[0])) : null;
         }
 
 
@@ -461,9 +461,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <param name="tempFileName"></param>
         /// <returns></returns>
         internal SmoScriptingOperation InitScriptOperation(string objectName, string schemaName, string objectType)
-        {            
+        {
             // object that has to be scripted
-            ScriptingObject scriptingObject = new ScriptingObject 
+            ScriptingObject scriptingObject = new ScriptingObject
             {
                 Name = objectName,
                 Schema = schemaName,
@@ -471,7 +471,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             };
 
             // scripting options
-            ScriptOptions options = new ScriptOptions 
+            ScriptOptions options = new ScriptOptions
             {
                 ScriptCreateDrop = "ScriptCreate",
                 TypeOfDataToScript = "SchemaOnly",
@@ -501,7 +501,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // create parameters for the scripting operation
 
-            ScriptingParams parameters = new ScriptingParams 
+            ScriptingParams parameters = new ScriptingParams
             {
                 ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
                 ScriptingObjects = objectList,
@@ -512,7 +512,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             return new ScriptAsScriptingOperation(parameters, serverConnection);
         }
 
-        internal string GetTargetDatabaseEngineEdition() 
+        internal string GetTargetDatabaseEngineEdition()
         {
             DatabaseEngineEdition dbEngineEdition = this.serverConnection.DatabaseEngineEdition;
             string dbEngineEditionString;
@@ -529,13 +529,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
         internal string GetTargetDatabaseEngineType()
         {
-           return connectionInfo.IsCloud ? "SqlAzure" : "SingleInstance";
+            return connectionInfo.IsCloud ? "SqlAzure" : "SingleInstance";
         }
 
         internal bool LineContainsObject(string line, string objectName, string createSyntax)
         {
             if (line.IndexOf(createSyntax, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >=0)
+                line.IndexOf(objectName, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return true;
             }
@@ -693,11 +693,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             // Check if we're called for EDIT for SQL2016+/Sterling+.
             // We need to omit temporal columns if such are present on this table.
-            if (server.Version.Major >= 13 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12))
+            if (server.Version.Major >= 13 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12 && !isDw))
             {
                 // We're called in order to generate a list of columns for EDIT TOP N rows.
                 // Don't return auto-generated, auto-populated, read-only temporal columns.
                 filterExpressions.Add("@GeneratedAlwaysType=0");
+            }
+
+            // Check if we're called for EDIT for SQL2022+/Sterling+.
+            // We need to omit dropped ledger columns if such are present
+            if (server.Version.Major >= 16 || (DatabaseEngineType.SqlAzureDatabase == server.DatabaseEngineType && server.Version.Major >= 12 && !isDw))
+            {
+                filterExpressions.Add("@IsDroppedLedgerColumn=0");
             }
 
             // Check if we're called for SQL2017/Sterling+.
@@ -718,7 +725,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 // We only want to show types 0, 2, 5, and 8:
                 filterExpressions.Add("(@GraphType=0 or @GraphType=2 or @GraphType=5 or @GraphType=8)");
             }
-            
+
             Request request = new Request();
             // If we have any filters on the columns, add them.
             if (filterExpressions.Count > 0)
@@ -752,7 +759,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 dt = ((DataSet)result).Tables[0];
             }
-            return dt;    
+            return dt;
         }
 
         internal string SelectFromTableOrView(Server server, Urn urn, bool isDw)
@@ -780,7 +787,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                                              ScriptingGlobals.RightDelimiter);
                 }
             }
-            else 
+            else
             {
                 selectQuery.Append("SELECT TOP (1000) * ");
             }
@@ -788,8 +795,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // from clause
             selectQuery.Append("  FROM ");
 
-            if(server.ServerType != DatabaseEngineType.SqlAzureDatabase)
-            {   
+            if (server.ServerType != DatabaseEngineType.SqlAzureDatabase)
+            {
                 // Azure doesn't allow qualifying object names with the DB, so only add it on if we're not in Azure database URN
                 Urn dbUrn = urn.Parent;
                 selectQuery.AppendFormat("{0}{1}{2}.",

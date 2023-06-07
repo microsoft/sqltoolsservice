@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Composition;
@@ -42,8 +44,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Write(TraceEventType.Verbose, "TSqlFormatter initialized");
-            serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest);
-            serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest);
+            serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest, true);
+            serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest, true);
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
@@ -78,23 +80,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         public async Task HandleDocFormatRequest(DocumentFormattingParams docFormatParams, RequestContext<TextEdit[]> requestContext)
         {
-            Func<Task<TextEdit[]>> requestHandler = () =>
-            {
-                return FormatAndReturnEdits(docFormatParams);
-            };
-            await HandleRequest(requestHandler, requestContext, "HandleDocFormatRequest");
-
+            Logger.Verbose("HandleDocFormatRequest");
+            TextEdit[] result = await FormatAndReturnEdits(docFormatParams);
+            await requestContext.SendResult(result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true));
         }
 
         public async Task HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams, RequestContext<TextEdit[]> requestContext)
         {
-            Func<Task<TextEdit[]>> requestHandler = () =>
-            {
-                return FormatRangeAndReturnEdits(docRangeFormatParams);
-            };
-            await HandleRequest(requestHandler, requestContext, "HandleDocRangeFormatRequest");
-
+            Logger.Verbose("HandleDocRangeFormatRequest");
+            TextEdit[] result = await FormatRangeAndReturnEdits(docRangeFormatParams);
+            await requestContext.SendResult(result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false));
         }
         private static TelemetryProperties CreateTelemetryProps(bool isDocFormat)
@@ -110,9 +106,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             };
         }
 
-        private async Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
+        private Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
         {
-            return await Task.Factory.StartNew(() =>
+            return Task.Run(() =>
             {
                 if (ShouldSkipFormatting(docFormatParams))
                 {
@@ -123,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 ScriptFile scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null)
                 {
-                    return new TextEdit[0];
+                    return Array.Empty<TextEdit>();
                 }
                 TextEdit textEdit = new TextEdit { Range = range };
                 string text = scriptFile.GetTextInRange(range.ToBufferRange());
@@ -142,9 +138,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
         }
 
-        private async Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
-        {            
-            return await Task.Factory.StartNew(() =>
+        private Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        {
+            return Task.Factory.StartNew(() =>
             {
                 if (ShouldSkipFormatting(docFormatParams))
                 {
@@ -155,7 +151,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 if (scriptFile == null
                     || scriptFile.FileLines.Count == 0)
                 {
-                    return new TextEdit[0];
+                    return Array.Empty<TextEdit>();
                 }
                 TextEdit textEdit = PrepareEdit(scriptFile);
                 string text = scriptFile.Contents;
@@ -205,12 +201,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 if (settings.PlaceSelectStatementReferencesOnNewLine.HasValue) { options.PlaceEachReferenceOnNewLineInQueryStatements = settings.PlaceSelectStatementReferencesOnNewLine.Value; }
 
                 if (settings.UseBracketForIdentifiers.HasValue) { options.EncloseIdentifiersInSquareBrackets = settings.UseBracketForIdentifiers.Value; }
-                
+
                 options.DatatypeCasing = settings.DatatypeCasing;
                 options.KeywordCasing = settings.KeywordCasing;
             }
         }
-        
+
         private ScriptFile GetFile(DocumentFormattingParams docFormatParams)
         {
             return WorkspaceService.Workspace.GetFile(docFormatParams.TextDocument.Uri);
@@ -229,23 +225,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             };
             return edit;
         }
-
-        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
-        {
-            Logger.Write(TraceEventType.Verbose, requestType);
-
-            try
-            {
-                T result = await handler();
-                await requestContext.SendResult(result);
-            }
-            catch (Exception ex)
-            {
-                await requestContext.SendError(ex.ToString());
-            }
-        }
-
-
 
         public string Format(TextReader input)
         {

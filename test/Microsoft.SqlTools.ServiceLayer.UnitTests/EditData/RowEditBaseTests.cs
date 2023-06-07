@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -80,7 +82,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             EditTableMetadata etm = Common.GetCustomEditTableMetadata(cols);
 
             RowEditTester rt = new RowEditTester(rs, etm);
-            rt.ValidateWhereClauseSingleKey(nullClause);
+            if (val == DBNull.Value)
+            {
+                rt.ValidateWhereClauseNullKey(nullClause);
+            }
+            else
+            {
+                rt.ValidateWhereClauseSingleKey(nullClause);
+            }
         }
 
         public static IEnumerable<object[]> GetWhereClauseIsNotNullData
@@ -95,7 +104,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                         DataType = typeof(byte[])
                     },
                     new byte[5],
-                    "IS NOT NULL"
+                    "= 0x0000000000"
                 };
                 yield return new object[]
                 {
@@ -105,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                         DataTypeName = "TEXT"
                     },
                     "abc",
-                    "IS NOT NULL"
+                    "= N'abc'"
                 };
                 yield return new object[]
                 {
@@ -116,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
                     },
                     "abc",
-                    "IS NOT NULL"
+                    "= N'abc'"
                 };
             }
         }
@@ -242,7 +251,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             return resultSet;
         }
 
-        private class RowEditTester : RowEditBase
+        private sealed class RowEditTester : RowEditBase
         {
             public RowEditTester(ResultSet rs, EditTableMetadata meta) : base(0, rs, meta) { }
 
@@ -252,11 +261,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             }
 
             // ReSharper disable once UnusedParameter.Local
-            public void ValidateWhereClauseSingleKey(string nullValue)
+            public void ValidateWhereClauseNullKey(string nullValue)
             {
                 // If: I generate a where clause with one is null column value
                 WhereClause wc = GetWhereClause(false);
-                
+
                 // Then:
                 // ... There should only be one component
                 Assert.AreEqual(1, wc.ClauseComponents.Count);
@@ -267,6 +276,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 Assert.AreEqual(
                     $"({AssociatedObjectMetadata.Columns.First().EscapedName} {nullValue})",
                     wc.ClauseComponents[0]);
+
+                // ... The complete clause should contain a single WHERE
+                Assert.AreEqual($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);
+            }
+
+            public void ValidateWhereClauseSingleKey(string clauseValue)
+            {
+                // If: I generate a where clause with one is null column value
+                WhereClause wc = GetWhereClause(false);
+
+                // Then:
+                // ... There should only be one component
+                Assert.AreEqual(1, wc.ClauseComponents.Count);
+
+                // ... Parameterization should be empty
+                Assert.IsEmpty(wc.Parameters);
+
+                // ... The component should contain the name of the column and the value
+                Assert.True(wc.ClauseComponents[0].Contains(AssociatedObjectMetadata.Columns.First().EscapedName));
+                Regex r = new Regex($@"\(CONVERT \([A-Z]*\(MAX\), {AssociatedObjectMetadata.Columns.First().EscapedName}\) {clauseValue}\)");
+                Assert.True(r.IsMatch(wc.ClauseComponents[0]));
 
                 // ... The complete clause should contain a single WHERE
                 Assert.AreEqual($"WHERE {wc.ClauseComponents[0]}", wc.CommandText);

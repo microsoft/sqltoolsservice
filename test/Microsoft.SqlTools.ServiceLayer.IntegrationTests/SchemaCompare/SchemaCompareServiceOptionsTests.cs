@@ -2,7 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -71,39 +74,42 @@ END
         private DeploymentOptions GetIgnoreColumnOptions()
         {
             var options = new DeploymentOptions();
-            options.IgnoreColumnOrder = true;
+            options.BooleanOptionsDictionary[nameof(DacDeployOptions.IgnoreColumnOrder)].Value = true;
             return options;
         }
 
         private DeploymentOptions GetExcludeTableValuedFunctionOptions()
         {
             var options = new DeploymentOptions();
-            options.ExcludeObjectTypes = new ObjectType[]{
-                ObjectType.ServerTriggers,
-                ObjectType.Routes,
-                ObjectType.LinkedServerLogins,
-                ObjectType.Endpoints,
-                ObjectType.ErrorMessages,
-                ObjectType.Filegroups,
-                ObjectType.Files,
-                ObjectType.Logins,
-                ObjectType.LinkedServers,
-                ObjectType.Credentials,
-                ObjectType.DatabaseScopedCredentials,
-                ObjectType.DatabaseEncryptionKeys,
-                ObjectType.MasterKeys,
-                ObjectType.DatabaseAuditSpecifications,
-                ObjectType.Audits,
-                ObjectType.ServerAuditSpecifications,
-                ObjectType.CryptographicProviders,
-                ObjectType.ServerRoles,
-                ObjectType.EventSessions,
-                ObjectType.DatabaseOptions,
-                ObjectType.EventNotifications,
-                ObjectType.ServerRoleMembership,
-                ObjectType.AssemblyFiles,
-                ObjectType.TableValuedFunctions, //added Functions to excluded types
-            };
+            options.ExcludeObjectTypes = new DeploymentOptionProperty<string[]>
+                (
+                    new string[]{
+                        Enum.GetName(ObjectType.ServerTriggers),
+                        Enum.GetName(ObjectType.Routes),
+                        Enum.GetName(ObjectType.LinkedServerLogins),
+                        Enum.GetName(ObjectType.Endpoints),
+                        Enum.GetName(ObjectType.ErrorMessages),
+                        Enum.GetName(ObjectType.Filegroups),
+                        Enum.GetName(ObjectType.Files),
+                        Enum.GetName(ObjectType.Logins),
+                        Enum.GetName(ObjectType.LinkedServers),
+                        Enum.GetName(ObjectType.Credentials),
+                        Enum.GetName(ObjectType.DatabaseScopedCredentials),
+                        Enum.GetName(ObjectType.DatabaseEncryptionKeys),
+                        Enum.GetName(ObjectType.MasterKeys),
+                        Enum.GetName(ObjectType.DatabaseAuditSpecifications),
+                        Enum.GetName(ObjectType.Audits),
+                        Enum.GetName(ObjectType.ServerAuditSpecifications),
+                        Enum.GetName(ObjectType.CryptographicProviders),
+                        Enum.GetName(ObjectType.ServerRoles),
+                        Enum.GetName(ObjectType.EventSessions),
+                        Enum.GetName(ObjectType.DatabaseOptions),
+                        Enum.GetName(ObjectType.EventNotifications),
+                        Enum.GetName(ObjectType.ServerRoleMembership),
+                        Enum.GetName(ObjectType.AssemblyFiles),
+                        Enum.GetName(ObjectType.TableValuedFunctions), //added Functions to excluded types
+                    }
+                );
             return options;
         }
 
@@ -137,6 +143,7 @@ END
                 SchemaCompareOperation schemaCompareOperation1 = new SchemaCompareOperation(schemaCompareParams1, null, null);
                 schemaCompareOperation1.Execute(TaskExecutionMode.Execute);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
+                Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
@@ -149,6 +156,7 @@ END
                 schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation2.ErrorMessage);
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);
@@ -192,6 +200,7 @@ END
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation1.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
                 var schemaCompareParams2 = new SchemaCompareParams
                 {
@@ -204,6 +213,7 @@ END
                 schemaCompareOperation2.Execute(TaskExecutionMode.Execute);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation2.ErrorMessage);
             }
             finally
             {
@@ -246,6 +256,7 @@ END
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsValid);
                 Assert.True(schemaCompareOperation1.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation1.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation1.ErrorMessage);
 
                 // generate script
                 var generateScriptParams1 = new SchemaCompareGenerateScriptParams
@@ -282,6 +293,7 @@ END
                 Assert.True(schemaCompareOperation2.ComparisonResult.IsValid);
                 Assert.False(schemaCompareOperation2.ComparisonResult.IsEqual);
                 Assert.NotNull(schemaCompareOperation2.ComparisonResult.Differences);
+                Assert.IsNull(schemaCompareOperation2.ErrorMessage);
 
                 // generate script
                 var generateScriptParams2 = new SchemaCompareGenerateScriptParams

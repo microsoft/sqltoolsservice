@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Composition;
@@ -20,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             return new SqlTableDefinitionFormatter(visitor, codeObject);
         }
     }
-    
+
     internal class SqlTableDefinitionFormatter : ASTNodeFormatterT<SqlTableDefinition>
     {
         private CommaSeparatedListFormatter CommaSeparatedListFormatter { get; set; }
@@ -40,12 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
                 {
                     if (child is SqlColumnDefinition && !(child is SqlComputedColumnDefinition))
                     {
-                        SqlIdentifier identifierChild = child.Children.ElementAtOrDefault(0) as SqlIdentifier;
-
-                        if (identifierChild == null)
-                        {
-                            throw new FormatFailedException("unexpected token at index start Token Index");
-                        }
+                        SqlIdentifier identifierChild = child.Children.ElementAtOrDefault(0) as SqlIdentifier ?? throw new FormatFailedException("unexpected token at index start Token Index");
 
                         string s1 = child.TokenManager.GetText(identifierChild.Position.startTokenNumber, identifierChild.Position.endTokenNumber);
                         range1MaxLength = Math.Max(range1MaxLength, s1.Length);

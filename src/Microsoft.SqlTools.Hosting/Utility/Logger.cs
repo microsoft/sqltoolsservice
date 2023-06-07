@@ -9,6 +9,10 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
+/**
+ * !!! IMPORTANT: DO NOT MOVE THIS CLASS OUT OF MICROSOFT.SQLTOOLS.HOSTING ASSEMBLY !!!
+ * VSCode Intellicode extension depends on this class from this library, do not alter it's namespace/assembly address.
+ */
 namespace Microsoft.SqlTools.Utility
 {
     /// <summary>
@@ -29,41 +33,45 @@ namespace Microsoft.SqlTools.Utility
     /// </summary>
     public static class Logger
     {
-        internal const SourceLevels defaultTracingLevel = SourceLevels.Critical; 
-        internal const string defaultTraceSource = "sqltools";
+        public const SourceLevels defaultTracingLevel = SourceLevels.Critical;
+        public const string defaultTraceSource = "sqltools";
         private static SourceLevels tracingLevel = defaultTracingLevel;
-        private static string logFileFullPath;
+        private static string? logFileFullPath;
 
-        internal static TraceSource TraceSource { get; set; }
-        internal static string LogFileFullPath
+        public static TraceSource? TraceSource { get; set; }
+
+        public static string LogFileFullPath
         {
-            get => logFileFullPath;
+            get => logFileFullPath!;
             private set
             {
-                //If the log file path has a directory component then ensure that the directory exists.
-                if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
+                if (value != null)
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(value));
-                }
+                    //If the log file path has a directory component then ensure that the directory exists.
+                    if (!string.IsNullOrEmpty(Path.GetDirectoryName(value)) && !Directory.Exists(Path.GetDirectoryName(value)))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(value)!);
+                    }
 
-                logFileFullPath = value;
+                    logFileFullPath = value;
+                }
                 ConfigureListener();
             }
         }
 
-        private static SqlToolsTraceListener Listener { get; set; }
+        private static SqlToolsTraceListener? Listener { get; set; }
 
         private static void ConfigureLogFile(string logFilePrefix) => LogFileFullPath = GenerateLogFilePath(logFilePrefix);
 
         /// <summary>
         /// Calling this method will turn on inclusion CallStack in the log for all future traces
         /// </summary>
-        public static void StartCallStack() => Listener.TraceOutputOptions |= TraceOptions.Callstack;
+        public static void StartCallStack() => Listener!.TraceOutputOptions |= TraceOptions.Callstack;
 
         /// <summary>
         /// Calling this method will turn off inclusion of CallStack in the log for all future traces
         /// </summary>
-        public static void StopCallStack() => Listener.TraceOutputOptions &= ~TraceOptions.Callstack;
+        public static void StopCallStack() => Listener!.TraceOutputOptions &= ~TraceOptions.Callstack;
 
         /// <summary>
         /// Calls flush on defaultTracingLevel configured listeners.
@@ -86,16 +94,18 @@ namespace Microsoft.SqlTools.Utility
             get => tracingLevel;
             set
             {
-                if(TraceSource != null)
+                if (TraceSource != null)
                 {
                     // configures the source level filter. This alone is not enough for tracing that is done via "Trace" class instead of "TraceSource" object
                     TraceSource.Switch = new SourceSwitch(TraceSource.Name, value.ToString());
                 }
                 // configure the listener level filter
                 tracingLevel = value;
-                Listener.Filter = new EventTypeFilter(tracingLevel);
+                Listener!.Filter = new EventTypeFilter(tracingLevel);
             }
         }
+
+        public static bool IsPiiEnabled { get; set; } = false;
 
         public static bool AutoFlush { get; set; } = false;
 
@@ -110,13 +120,18 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="traceSource">
         /// Optional. Specifies the tracesource name.
         /// </param>
+        /// <param name="autoFlush">
+        /// Optional. Specifies whether the log is flushed after every message
+        /// </param>
         public static void Initialize(
             SourceLevels tracingLevel = defaultTracingLevel,
-            string logFilePath = null,
+            bool piiEnabled = false,
+            string? logFilePath = null,
             string traceSource = defaultTraceSource,
             bool autoFlush = false)
         {
             Logger.tracingLevel = tracingLevel;
+            Logger.IsPiiEnabled = piiEnabled;
             Logger.AutoFlush = autoFlush;
             TraceSource = new TraceSource(traceSource, Logger.tracingLevel);
             if (string.IsNullOrWhiteSpace(logFilePath))
@@ -140,13 +155,18 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="traceSource">
         /// Optional. Specifies the tracesource name.
         /// </param>
-        public static void Initialize(string tracingLevel, string logFilePath = null, string traceSource = defaultTraceSource)
+        /// <param name="autoFlush">
+        /// Optional. Specifies whether the log is flushed after every message
+        /// </param>
+        public static void Initialize(string tracingLevel, bool piiEnabled, string? logFilePath = null, string traceSource = defaultTraceSource, bool autoFlush = false)
         {
             Initialize(Enum.TryParse<SourceLevels>(tracingLevel, out SourceLevels sourceTracingLevel)
                     ? sourceTracingLevel
                     : defaultTracingLevel
+                , piiEnabled
                 , logFilePath
-                , traceSource);
+                , traceSource
+                , autoFlush);
         }
 
         /// <summary>
@@ -162,7 +182,7 @@ namespace Microsoft.SqlTools.Utility
                 throw new ArgumentOutOfRangeException(nameof(logFilePrefix), $"LogfilePath cannot be configured if argument {nameof(logFilePrefix)} has not been set");
             }
             // Create the log directory
-            string logDir = Path.GetDirectoryName(logFilePrefix);
+            string? logDir = Path.GetDirectoryName(logFilePrefix);
             if (!string.IsNullOrWhiteSpace(logDir))
             {
                 if (!Directory.Exists(logDir))
@@ -182,7 +202,7 @@ namespace Microsoft.SqlTools.Utility
             int uniqueId;
             try
             {
-                uniqueId = Process.GetCurrentProcess().Id;
+                uniqueId = Environment.ProcessId;
             }
             catch (Exception ex)
             {
@@ -192,7 +212,7 @@ namespace Microsoft.SqlTools.Utility
             }
 
             string fileName;
-            try 
+            try
             {
                 var now = DateTime.Now;
                 fileName = string.Format(CultureInfo.InvariantCulture,
@@ -231,6 +251,52 @@ namespace Microsoft.SqlTools.Utility
         /// <param name="eventType">The level at which the message will be written.</param>
         /// <param name="logMessage">The message text to be written.</param>
         public static void Write(TraceEventType eventType, string logMessage) => Write(eventType, LogEvent.Default, logMessage);
+
+        /// <summary>
+        /// Writes a PII message to the log file with the Verbose event level when PII flag is enabled.
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Pii(string logMessage) {
+            if (IsPiiEnabled) {
+                Write(TraceEventType.Verbose, logMessage);
+            }
+        }
+
+        /// <summary>
+        /// Writes a message to the log file with the Verbose event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Verbose(string logMessage) => Write(TraceEventType.Verbose, logMessage);
+
+        /// <summary>
+        /// Writes a message to the log file with the Information event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Information(string logMessage) => Write(TraceEventType.Information, logMessage);
+
+        /// <summary>
+        /// Writes a message to the log file with the Warning event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Warning(string logMessage) => Write(TraceEventType.Warning, logMessage);
+
+        /// <summary>
+        /// Writes a message to the log file with the Error event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Error(string logMessage) => Write(TraceEventType.Error, logMessage);
+
+        /// <summary>
+        /// Writes an exception to the log file with the Error event level
+        /// </summary>
+        /// <param name="exception"></param>
+        public static void Error(Exception exception) => Write(TraceEventType.Error, exception.ToString());
+
+        /// <summary>
+        /// Writes a message to the log file with the Critical event level
+        /// </summary>
+        /// <param name="logMessage">The message text to be written.</param>
+        public static void Critical(string logMessage) => Write(TraceEventType.Critical, logMessage);
 
         /// <summary>
         /// Writes a message to the log file with accompanying callstack.
@@ -343,9 +409,9 @@ namespace Microsoft.SqlTools.Utility
              );
         }
         #region forward actual write/close/flush/dispose calls to the underlying listener.
-        public override void Write(string message) => Listener.Write(message);
+        public override void Write(string? message) => Listener.Write(message);
 
-        public override void WriteLine(string message) => Listener.WriteLine(message);
+        public override void WriteLine(string? message) => Listener.WriteLine(message);
 
         /// <Summary> 
         /// Closes the <see cref="System.Diagnostics.TextWriterTraceListener.Writer"> so that it no longer 
@@ -387,41 +453,41 @@ namespace Microsoft.SqlTools.Utility
         }
         #endregion
 
-        public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id)
+        public override void TraceEvent(TraceEventCache? eventCache, String source, TraceEventType eventType, int id)
         {
             TraceEvent(eventCache, source, eventType, id, String.Empty);
         }
 
         // All other TraceEvent methods come through this one.
-        public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string message)
+        public override void TraceEvent(TraceEventCache? eventCache, String source, TraceEventType eventType, int id, string? message)
         {
             if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
             {
                 return;
             }
 
-            WriteHeader(eventCache, source, eventType, id);
-            WriteLine(message);
-            WriteFooter(eventCache);
+            WriteHeader(eventCache!, source, eventType, id);
+            WriteLine(message!);
+            WriteFooter(eventCache!);
         }
 
-        public override void TraceEvent(TraceEventCache eventCache, String source, TraceEventType eventType, int id, string format, params object[] args)
+        public override void TraceEvent(TraceEventCache? eventCache, String source, TraceEventType eventType, int id, string? format, params object?[]? args)
         {
             if (Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
             {
                 return;
             }
 
-            WriteHeader(eventCache, source, eventType, id);
+            WriteHeader(eventCache!, source, eventType, id);
             if (args != null)
             {
-                WriteLine(String.Format(CultureInfo.InvariantCulture, format, args));
+                WriteLine(String.Format(CultureInfo.InvariantCulture, format!, args));
             }
             else
             {
-                WriteLine(format);
+                WriteLine(format!);
             }
-            WriteFooter(eventCache);
+            WriteFooter(eventCache!);
         }
 
         private void WriteHeader(TraceEventCache eventCache, String source, TraceEventType eventType, int id)

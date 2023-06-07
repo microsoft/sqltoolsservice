@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
@@ -93,8 +94,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             JobStep jobStep = null;
             if (jobData.Job != null)
             {
-                const string UrnFormatStr = "Server[@Name='{0}']/JobServer[@Name='{0}']/Job[@Name='{1}']/Step[@Name='{2}']";
-                string serverName = this.DataContainer.Server.Name.ToUpper();
+                const string UrnFormatStr = "Server/JobServer[@Name='{0}']/Job[@Name='{1}']/Step[@Name='{2}']";
+                string serverName = this.DataContainer.Server.Name.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
                 string urn = string.Format(UrnFormatStr, serverName, jobData.Job.Name, stepName);
                 jobStep = jobData.Job.Parent.Parent.GetSmoObject(urn) as JobStep;
             }

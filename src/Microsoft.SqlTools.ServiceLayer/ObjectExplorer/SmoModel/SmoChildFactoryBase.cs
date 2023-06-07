@@ -3,14 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 
@@ -19,32 +21,41 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     public class SmoChildFactoryBase : ChildFactory
     {
         private IEnumerable<NodeSmoProperty> smoProperties;
+
         public override IEnumerable<string> ApplicableParents()
         {
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<NodeFilter>? filters = null)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
             try
             {
-                OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
-                RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
-                OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken);
+                if (this.PutFoldersAfterNodes)
+                {
+                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
+                    OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
+                    RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
+                }
+                else
+                {
+                    OnExpandPopulateFoldersAndFilter(allChildren, parent, includeSystemObjects);
+                    RemoveFoldersFromInvalidSqlServerVersions(allChildren, parent);
+                    OnExpandPopulateNonFolders(allChildren, parent, refresh, name, cancellationToken, filters);
+                }
+
                 OnBeginAsyncOperations(parent);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}", 
+                string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}",
                     parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
-                throw ex;
+                throw;
             }
-            finally
-            {
-            }
+
             return allChildren;
         }
 
@@ -56,6 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 allChildren.RemoveAll(x => x.IsSystemObject);
             }
+
             if (context != null && context.ValidFor != 0 && context.ValidFor != ValidForFlag.All)
             {
                 allChildren.RemoveAll(x =>
@@ -64,6 +76,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     if (folderNode != null && !ServerVersionHelper.IsValidFor(context.ValidFor, folderNode.ValidFor))
                     {
                         return true;
+                    }
+                    return false;
+                });
+
+                // Remove the Dropped Ledger Columns folder if this isn't under a ledger table
+                allChildren.RemoveAll(x =>
+                {
+                    if (x.NodeTypeId == NodeTypes.DroppedLedgerColumns)
+                    {
+                        Table? parentTable = context.Parent as Table;
+                        if (parentTable == null ||
+                            !(parentTable.LedgerType == LedgerTableType.UpdatableLedgerTable ||
+                            parentTable.LedgerType == LedgerTableType.AppendOnlyLedgerTable))
+                        {
+                            return true;
+                        }
                     }
                     return false;
                 });
@@ -84,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, IEnumerable<NodeFilter>? appliedFilters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -102,18 +130,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 return;
             }
 
-            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(q => IsCompatibleQuerier(q));
+            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
+            var filterDefinitions = parent.FilterProperties;
             if (!string.IsNullOrEmpty(name))
             {
-                filters.Add(new NodeFilter
+                filters.Add(new NodePropertyFilter
                 {
                     Property = "Name",
                     Type = typeof(string),
                     Values = new List<object> { name },
                 });
             }
+            if (appliedFilters != null)
+            {
+                foreach (var f in appliedFilters)
+                {
+                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
+                    filters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
+                }
+            }
+
             foreach (var querier in queriers)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -121,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     continue;
                 }
-                string propertyFilter = GetProperyFilter(filters, querier.GetType(), serverValidFor);
+                string propertyFilter = INodeFilter.GetPropertyFilter(filters, querier.GetType(), serverValidFor);
                 try
                 {
                     var smoObjectList = querier.Query(context, propertyFilter, refresh, smoProperties).ToList();
@@ -145,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     string error = string.Format(CultureInfo.InvariantCulture, "Failed getting smo objects. parent:{0} querier: {1} error:{2} inner:{3} stacktrace:{4}",
                     parent != null ? parent.GetNodePath() : "", querier.GetType(), ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
                     Logger.Write(TraceEventType.Error, error);
-                    throw ex;
+                    throw;
                 }
             }
         }
@@ -163,22 +201,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
 
             return filterTheNode;
-        }
-
-        private string GetProperyFilter(IEnumerable<NodeFilter> filters, Type querierType, ValidForFlag validForFlag)
-        {
-            string filter = string.Empty;
-            if (filters != null)
-            {
-                var filtersToApply = filters.Where(f => f.CanApplyFilter(querierType, validForFlag)).ToList();
-                filter = string.Empty;
-                if (filtersToApply.Any())
-                {
-                    filter = NodeFilter.ConcatProperties(filtersToApply);
-                }
-            }
-
-            return filter;
         }
 
         private bool IsCompatibleQuerier(SmoQuerier querier)
@@ -260,11 +282,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        public override IEnumerable<NodeFilter> Filters
+        public override IEnumerable<INodeFilter> Filters
         {
             get
             {
-                return Enumerable.Empty<NodeFilter>();
+                return Enumerable.Empty<INodeFilter>();
             }
         }
 

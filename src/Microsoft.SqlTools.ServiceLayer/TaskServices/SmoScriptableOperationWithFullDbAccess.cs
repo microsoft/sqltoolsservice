@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.Utility;
@@ -27,10 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         {
             get
             {
-                if (lockedDatabaseManager == null)
-                {
-                    lockedDatabaseManager = ConnectionService.Instance.LockedDatabaseManager;
-                }
+                lockedDatabaseManager ??= ConnectionService.Instance.LockedDatabaseManager;
                 return lockedDatabaseManager;
             }
             set
@@ -65,13 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 hasAccessToDb = GainAccessToDatabase();
                 base.Execute(mode);
             }
-            catch (DatabaseFullAccessException databaseFullAccessException)
+            catch (DatabaseFullAccessException)
             {
                 Logger.Write(TraceEventType.Warning, $"Failed to gain access to database. server|database:{ServerName}|{DatabaseName}");
-                throw databaseFullAccessException;
-            }
-            catch
-            {
                 throw;
             }
             finally

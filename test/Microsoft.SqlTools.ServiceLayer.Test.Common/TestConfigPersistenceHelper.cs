@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     ///             "user": "sa",
     ///             "password": "[putvaluehere]",
     ///             "serverType":"OnPrem", 
-    ///             "VersionKey": "defaultSql2016"
+    ///             "VersionKey": "sqlOnPrem"
     ///         }
     ///     ]
     /// }
@@ -50,12 +52,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                 {
                     if (!string.IsNullOrEmpty(instance.Password))
                     {
-                        
+
                         if (!credentialService.SaveCredential(instance))
                         {
                             Console.WriteLine("Failed to store the password for server: " + instance.ServerName);
                         }
-                        
+
                         instance.Password = null; //Make sure the password is not stored in sqlConnectionSettings.json
                         instance.AuthenticationType = AuthenticationType.SqlLogin;
                     }
@@ -64,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
                         instance.AuthenticationType = AuthenticationType.Integrated;
                     }
                 }
-                
+
                 Console.WriteLine("The SQL connection instances will be written to " + DefaultSettingFileName);
                 string jsonContent = JsonConvert.SerializeObject(connectionSetting);
 
@@ -133,8 +135,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             {
                 testServerNameFilePath = FileUtils.TestServerNamesDefaultFileName;
             }
+            Console.WriteLine($"Test server name file path: {testServerNameFilePath}");
             string testServerNamesFileContent = string.IsNullOrEmpty(testServerNameFilePath) ? string.Empty : File.ReadAllText(testServerNameFilePath);
-
+            Console.WriteLine($"Test server name file content: {testServerNamesFileContent}");
             return testServerNamesFileContent;
         }
 
@@ -171,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
 
             string settingsFileContents = string.IsNullOrEmpty(settingsFileName) ? string.Empty : File.ReadAllText(settingsFileName);
-
+            Console.WriteLine($"SQL Connection settings file content: {settingsFileContents}");
             return settingsFileContents;
         }
     }

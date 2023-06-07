@@ -2,10 +2,11 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         public override void Execute()
         {
             DacPackage dacpac = DacPackage.Load(this.Parameters.PackageFilePath);
-            DacDeployOptions options = this.Parameters.DeploymentOptions != null ? SchemaCompareUtils.CreateSchemaCompareOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
+            DacDeployOptions options = this.Parameters.DeploymentOptions != null ? DacFxUtils.CreateDeploymentOptions(this.Parameters.DeploymentOptions) : this.GetDefaultDeployOptions();
 
             if (this.Parameters.SqlCommandVariableValues != null)
             {

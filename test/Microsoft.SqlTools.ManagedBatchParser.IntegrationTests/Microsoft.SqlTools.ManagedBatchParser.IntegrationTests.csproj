@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(TestProjectsTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DebugType>portable</DebugType>
     <AssemblyName>Microsoft.SqlTools.ManagedBatchParser.IntegrationTests</AssemblyName>
@@ -22,6 +21,10 @@
     <PackageReference Include="nunit" />
     <PackageReference Include="nunit3testadapter" />
     <PackageReference Include="nunit.console" />
+    <PackageReference Include="coverlet.collector">
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

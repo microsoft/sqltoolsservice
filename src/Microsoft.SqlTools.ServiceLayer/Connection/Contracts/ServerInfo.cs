@@ -3,6 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
@@ -66,6 +69,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// The Operating System version string of the machine running the SQL Server instance.
         /// </summary>
         public string MachineName { get; set; }
+
+        /// <summary>
+        /// The CPU count of the host running the server.
+        /// </summary>
+        public Nullable<int> CpuCount;
+
+        /// <summary>
+        /// The physical memory of the host running the server in MBs.
+        /// </summary>
+        public Nullable<int> PhysicalMemoryInMB;
 
         /// <summary>
         /// Server options

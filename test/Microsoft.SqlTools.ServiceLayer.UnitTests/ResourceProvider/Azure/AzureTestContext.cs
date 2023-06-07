@@ -1,6 +1,9 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ResourceProvider.Azure
     /// <summary>
     /// A container to create test data and mock classes to test azure services and providers 
     /// </summary>
-    internal class AzureTestContext
+    internal sealed class AzureTestContext
     {
         public AzureTestContext(Dictionary<string, List<string>> subscriptionToDatabaseMap)
         {

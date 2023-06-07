@@ -34,7 +34,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.BatchParser.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 {
@@ -70,7 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             _connectionRetryPolicy.RetryOccurred += RetryConnectionCallback;
             _commandRetryPolicy.RetryOccurred += RetryCommandCallback;
 
-            if (azureAccountToken != null)
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_underlyingConnection.ConnectionString);
+            if (builder.Authentication is SqlAuthenticationMethod.NotSpecified && azureAccountToken is not null)
             {
                 _underlyingConnection.AccessToken = azureAccountToken;
             }
@@ -478,10 +479,7 @@ SET NUMERIC_ROUNDABORT OFF;";
         {
             // Verify whether or not the connection is valid and is open. This code may be retried therefore
             // it is important to ensure that a connection is re-established should it have previously failed.
-            if (command.Connection == null)
-            {
-                command.Connection = this;
-            }
+            command.Connection ??= this;
 
             if (command.Connection.State != ConnectionState.Open)
             {

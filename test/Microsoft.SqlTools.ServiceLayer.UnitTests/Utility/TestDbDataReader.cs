@@ -3,13 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
-using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 {
@@ -70,10 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             {
                 throw new TestDbException();
             }
-            if (RowEnumerator == null)
-            {
-                RowEnumerator = ResultSetEnumerator.Current.GetEnumerator();
-            }
+            RowEnumerator ??= ResultSetEnumerator.Current.GetEnumerator();
             return RowEnumerator.MoveNext();
         }
 

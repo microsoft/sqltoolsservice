@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" original="sr.resx" source-language="en" target-language="pt-BR">
+    <body>
+      <trans-unit id="EE_BatchSqlMessageNoProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Line {3}</source>
+        <target state="translated">Mensagem {0}, Nível {1}, Estado {2}, Linha {3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageWithProcedureInfo">
+        <source>Msg {0}, Level {1}, State {2}, Procedure {3}, Line {4}</source>
+        <target state="translated">Mensagem {0}, Nível {1}, Estado {2}, Procedimento {3}, Linha {4}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchSqlMessageNoLineInfo">
+        <source>Msg {0}, Level {1}, State {2}</source>
+        <target state="translated">Mensagem {0}, Nível {1}, Estado {2}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchError_Exception">
+        <source>An error occurred while the batch was being processed. The error message is: {0}</source>
+        <target state="translated">Um erro ocorreu enquanto o lote era processado. A mensagem de erro é: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionInfo_RowsAffected">
+        <source>({0} row(s) affected)</source>
+        <target state="translated">({0} linha(s) afetada(s))</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionNotYetCompleteError">
+        <source>The previous execution is not yet complete.</source>
+        <target state="translated">A execução anterior ainda não foi concluída.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Error">
+        <source>A scripting error occurred.</source>
+        <target state="translated">Erro de script.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_ParsingSyntax">
+        <source>Incorrect syntax was encountered while {0} was being parsed.</source>
+        <target state="translated">Sintaxe incorreta encontrada durante a análise de {0}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_FatalError">
+        <source>A fatal error occurred.</source>
+        <target state="translated">Erro fatal.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_FinalizingLoop">
+        <source>Batch execution completed {0} times...</source>
+        <target state="translated">A execução do lote foi concluída {0} vezes...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_QueryCancelledbyUser">
+        <source>You cancelled the query.</source>
+        <target state="translated">Você cancelou a consulta.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Halting">
+        <source>An error occurred while the batch was being executed.</source>
+        <target state="translated">Um erro ocorreu enquanto o lote era executado.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_BatchExecutionError_Ignoring">
+        <source>An error occurred while the batch was being executed, but the error has been ignored.</source>
+        <target state="translated">Ocorreu um erro enquanto o lote era executado, mas esse erro foi ignorado.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionInfo_InitializingLoop">
+        <source>Beginning execution loop</source>
+        <target state="translated">Início do loop de execução</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_CommandNotSupported">
+        <source>Command {0} is not supported.</source>
+        <target state="translated">Comando {0} sem suporte.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ExecutionError_VariableNotFound">
+        <source>The variable {0} could not be found.</source>
+        <target state="translated">A variável {0} não foi encontrada.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineError">
+        <source>SQL Execution error: {0}</source>
+        <target state="translated">Erro de Execução SQL: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionError">
+        <source>Batch parser wrapper execution: {0} found... at line {1}: {2}    Description: {3}</source>
+        <target state="translated">Execução do wrapper do analisador de lotes: {0} encontrado... na linha {1}: {2}    Descrição: {3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchMessage">
+        <source>Batch parser wrapper execution engine batch message received:  Message: {0}    Detailed message: {1}</source>
+        <target state="translated">Mensagem em lotes do mecanismo de execução do wrapper analisador de lotes recebida: Mensagem: {0}    Mensagem detalhada: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetProcessing">
+        <source>Batch parser wrapper execution engine batch ResultSet processing: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</source>
+        <target state="translated">Processamento do ResultSet em lotes do mecanismo de execução do wrapper analisador de lotes: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchResultSetFinished">
+        <source>Batch parser wrapper execution engine batch ResultSet finished.</source>
+        <target state="translated">ResultSet em lotes do mecanismo de execução do wrapper analisador de lotes concluído.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParserWrapperExecutionEngineBatchCancelling">
+        <source>Canceling batch parser wrapper batch execution.</source>
+        <target state="translated">Cancelando a execução em lotes do wrapper analisador de lotes.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="EE_ScriptError_Warning">
+        <source>Scripting warning.</source>
+        <target state="translated">Aviso de script.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TroubleshootingAssistanceMessage">
+        <source>For more information about this error, see the troubleshooting topics in the product documentation.</source>
+        <target state="translated">Para obter mais informações sobre este erro, consulte os tópicos de solução de problemas na documentação do produto.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_CircularReference">
+        <source>File '{0}' recursively included.</source>
+        <target state="translated">Arquivo '{0}' incluído recursivamente.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_CommentNotTerminated">
+        <source>Missing end comment mark '*/'.</source>
+        <target state="translated">Marca de fim de comentário ausente '*/'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_StringNotTerminated">
+        <source>Unclosed quotation mark after the character string.</source>
+        <target state="translated">Aspas não fechadas depois da cadeia de caracteres.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_IncorrectSyntax">
+        <source>Incorrect syntax was encountered while parsing '{0}'.</source>
+        <target state="translated">A sintaxe incorreta foi encontrada ao analisar '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BatchParser_VariableNotDefined">
+        <source>Variable {0} is not defined.</source>
+        <target state="translated">Variável {0} não definida.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_PathInvalid">
+        <source>Path contains invalid characters.</source>
+        <target state="translated">O caminho contém caracteres inválidos.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_PathLong">
+        <source>Path too long.</source>
+        <target state="translated">O caminho é muito longo.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SqlCmd_FailedInclude">
+        <source>Could not find included file {0}.</source>
+        <target state="translated">Não foi possível encontrar o arquivo incluído {0}.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="NullEmptyOrWhitespaceString">
+        <source>Parameter contains a null, empty, or whitespace string.</source>
+        <target state="translated">O parâmetro contém uma cadeia de caracteres nula, vazia ou de espaço em branco.</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

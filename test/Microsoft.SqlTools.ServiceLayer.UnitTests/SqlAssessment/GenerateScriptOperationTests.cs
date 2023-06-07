@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,7 +13,6 @@ using Microsoft.SqlServer.Management.Assessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
@@ -44,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
                         DisplayName = "D N2",
                         HelpLink = "http://HL2",
                         Kind = AssessmentResultItemKind.Warning,
-                        Level = "Warning",
+                        Level = "Medium",
                         Message = "Msg'1",
                         TargetName = "proj[*]_devW",
                         TargetType = SqlObjectType.Database,
@@ -59,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
                         DisplayName = "D'N1",
                         HelpLink = "HL'1",
                         Kind = AssessmentResultItemKind.Error,
-                        Level = "Critical",
+                        Level = "High",
                         Message = "Msg'1",
                         TargetName = "proj[*]_devE",
                         TargetType = SqlObjectType.Server,
@@ -74,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
                         DisplayName = "D N2",
                         HelpLink = "http://HL2",
                         Kind = AssessmentResultItemKind.Note,
-                        Level = "Warning",
+                        Level = "Medium",
                         Message = "Msg'1",
                         TargetName = "proj[*]_dev",
                         TargetType = SqlObjectType.Database,
@@ -89,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlAssessment
                         DisplayName = "D'N1",
                         HelpLink = "HL'1",
                         Kind = AssessmentResultItemKind.Note,
-                        Level = "Critical",
+                        Level = "High",
                         Message = "Msg'1",
                         TargetName = "proj[*]_dev",
                         TargetType = SqlObjectType.Server,
@@ -121,19 +122,19 @@ INSERT INTO [dbo].[AssessmentResult] ([CheckName],[CheckId],[RulesetName],[Rules
     SELECT rpt.[CheckName],rpt.[CheckId],rpt.[RulesetName],rpt.[RulesetVersion],rpt.[Severity],rpt.[Message],rpt.[TargetPath],rpt.[TargetType],rpt.[HelpLink],rpt.[Timestamp]
     FROM (VALUES 
         ('DN1','C1','Microsoft Ruleset','1.3','Information','Msg''1','proj[*]_dev','Server','HL1','2001-05-25 01:42:00.000 +00:00'),
-        ('D N2','C-2','Microsoft Ruleset','1.3','Warning','Msg''1','proj[*]_dev','Database','http://HL2','2001-05-25 01:42:00.000 +03:00'),
-        ('D''N1','C''3','Microsoft Ruleset','1.3','Critical','Msg''1','proj[*]_dev','Server','HL''1','2001-05-25 01:42:00.000 -01:30')
+        ('D N2','C-2','Microsoft Ruleset','1.3','Medium','Msg''1','proj[*]_dev','Database','http://HL2','2001-05-25 01:42:00.000 +03:00'),
+        ('D''N1','C''3','Microsoft Ruleset','1.3','High','Msg''1','proj[*]_dev','Server','HL''1','2001-05-25 01:42:00.000 -01:30')
     ) rpt([CheckName],[CheckId],[RulesetName],[RulesetVersion],[Severity],[Message],[TargetPath],[TargetType],[HelpLink],[Timestamp])";
 
         [Test]
-        public void GenerateScriptTest()
+        public void GenerateSqlAssessmentScriptTest()
         {
             var scriptText = GenerateScriptOperation.GenerateScript(SampleParams, CancellationToken.None);
             Assert.AreEqual(SampleScript, scriptText);
         }
 
         [Test]
-        public void ExecuteTest()
+        public void ExecuteSqlAssessmentScriptTest()
         {
             var subject = new GenerateScriptOperation(SampleParams);
             var taskMetadata = new TaskMetadata();

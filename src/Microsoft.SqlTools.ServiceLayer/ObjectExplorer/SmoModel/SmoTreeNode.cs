@@ -3,7 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Globalization;
+#nullable disable
+
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
@@ -56,14 +57,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             SmoObject = smoObject;
             NodeValue = smoObject.Name;
-            ScriptSchemaObjectBase schemaBasecObject = smoObject as ScriptSchemaObjectBase;
+            ScriptSchemaObjectBase schemaBaseObject = smoObject as ScriptSchemaObjectBase;
             ObjectMetadata = new Metadata.Contracts.ObjectMetadata();
             ObjectMetadata.Name = smoObject.Name;
 
             try
             {
-                if(smoObject.Urn != null)
+                if (smoObject.Urn != null)
                 {
+                    ObjectMetadata.Urn = smoObject.Urn.Value;
                     ObjectMetadata.MetadataTypeName = smoObject.Urn.Type;
                 }
             }
@@ -72,16 +74,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 //Ignore the exception, sometimes the urn returns exception and I' not sure why
             }
             
-            if (schemaBasecObject != null)
+            if (schemaBaseObject != null)
             {
-                ObjectMetadata.Schema = schemaBasecObject.Schema;
+                ObjectMetadata.Schema = schemaBaseObject.Schema;
                 if (!string.IsNullOrEmpty(ObjectMetadata.Schema))
                 {
                     NodeValue = $"{ObjectMetadata.Schema}.{smoObject.Name}";
                 }
             }
+            else
+            {
+                // Try to read the schema from the parent object
+                var parent = smoObject?.ParentCollection?.ParentInstance as ScriptSchemaObjectBase;
+                if (parent != null)
+                {
+                    ObjectMetadata.Schema = parent.Schema;
+                    ObjectMetadata.ParentName = parent.Name;
+                    ObjectMetadata.ParentTypeName = parent.Urn.Type;
+                }
+            }
         }
-        
+
         public virtual NamedSmoObject GetParentSmoObject()
         {
             if (SmoObject != null)

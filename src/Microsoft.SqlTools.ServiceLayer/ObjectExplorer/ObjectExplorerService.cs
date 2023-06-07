@@ -1,7 +1,9 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 
 using System;
 using System.Collections.Concurrent;
@@ -9,10 +11,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -24,6 +27,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.Utility;
@@ -59,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         public ObjectExplorerService()
         {
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
-            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(() => PopulateFactories());
+            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
         }
 
@@ -109,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 connectionService.RegisterConnectedQueue(connectionName, bindingQueue);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Error, ex.Message);
             }
@@ -126,6 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             this.ConnectedBindingQueue.OnUnhandledException += OnUnhandledException;
 
+            // Not enabling parallel processing for OEService as it might cause OE to hang.
             // Register handlers for requests
             serviceHost.SetRequestHandler(CreateSessionRequest.Type, HandleCreateSessionRequest);
             serviceHost.SetRequestHandler(ExpandRequest.Type, HandleExpandRequest);
@@ -165,30 +170,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task HandleCreateSessionRequest(ConnectionDetails connectionDetails, RequestContext<CreateSessionResponse> context)
         {
-            try
+            Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
+            Func<Task<CreateSessionResponse>> doCreateSession = async () =>
             {
-                Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
-                Func<Task<CreateSessionResponse>> doCreateSession = async () =>
+                Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
+                Validate.IsNotNull(nameof(context), context);
+                return await Task.Run(() =>
                 {
-                    Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-                    Validate.IsNotNull(nameof(context), context);
-                    return await Task.Factory.StartNew(() =>
-                    {
-                        string uri = GenerateUri(connectionDetails);
+                    string uri = GenerateUri(connectionDetails);
 
-                        return new CreateSessionResponse { SessionId = uri };
-                    });
-                };
+                    return new CreateSessionResponse { SessionId = uri };
+                });
+            };
 
-                CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
-                if (response != null)
-                {
-                    RunCreateSessionTask(connectionDetails, response.SessionId);
-                }
-            }
-            catch (Exception ex)
+            CreateSessionResponse response = await HandleRequestAsync(doCreateSession, context, "HandleCreateSessionRequest");
+            if (response != null)
             {
-                await context.SendError(ex.ToString());
+                RunCreateSessionTask(connectionDetails, response.SessionId);
             }
 
         }
@@ -217,7 +215,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 else
                 {
-                    RunExpandTask(session, expandParams);
+                    bool refreshNeeded = session.ConnectionInfo.TryUpdateAccessToken(expandParams.SecurityToken);
+                    RunExpandTask(session, expandParams, refreshNeeded);
                     return true;
                 }
             };
@@ -226,34 +225,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal async Task HandleRefreshRequest(RefreshParams refreshParams, RequestContext<bool> context)
         {
-            try
-            {
-                Logger.Write(TraceEventType.Verbose, "HandleRefreshRequest");
-                Validate.IsNotNull(nameof(refreshParams), refreshParams);
-                Validate.IsNotNull(nameof(context), context);
+            Logger.Write(TraceEventType.Verbose, "HandleRefreshRequest");
+            Validate.IsNotNull(nameof(refreshParams), refreshParams);
+            Validate.IsNotNull(nameof(context), context);
 
-                string uri = refreshParams.SessionId;
-                ObjectExplorerSession session = null;
-                if (string.IsNullOrEmpty(uri) || !sessionMap.TryGetValue(uri, out session))
-                {
-                    Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
-                    await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
-                    {
-                        SessionId = refreshParams.SessionId,
-                        NodePath = refreshParams.NodePath,
-                        ErrorMessage = $"Couldn't find session for session: {uri}"
-                    });
-                }
-                else
-                {
-                    RunExpandTask(session, refreshParams, true);
-                }
-                await context.SendResult(true);
-            }
-            catch (Exception ex)
+            string uri = refreshParams.SessionId;
+            ObjectExplorerSession session = null;
+            if (string.IsNullOrEmpty(uri) || !sessionMap.TryGetValue(uri, out session))
             {
-                await context.SendError(ex.ToString());
+                Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                await serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
+                {
+                    SessionId = refreshParams.SessionId,
+                    NodePath = refreshParams.NodePath,
+                    ErrorMessage = $"Couldn't find session for session: {uri}"
+                });
             }
+            else
+            {
+                session.ConnectionInfo.TryUpdateAccessToken(refreshParams.SecurityToken);
+                RunExpandTask(session, refreshParams, true);
+            }
+            await context.SendResult(true);
         }
 
         internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
@@ -292,10 +285,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal async Task HandleFindNodesRequest(FindNodesParams findNodesParams, RequestContext<FindNodesResponse> context)
         {
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
-            if (foundNodes == null)
-            {
-                foundNodes = new List<TreeNode>();
-            }
+            foundNodes ??= new List<TreeNode>();
+
             await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
         }
 
@@ -305,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (sessionMap.TryGetValue(uri, out session))
             {
                 // Remove the session from active sessions and disconnect
-                if(sessionMap.TryRemove(session.Uri, out session))
+                if (sessionMap.TryRemove(session.Uri, out session))
                 {
                     if (session != null && session.ConnectionInfo != null)
                     {
@@ -332,13 +323,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                         settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout);
 
-                    if (result != null && !result.IsCompleted)
+                    if (result != null && !result.IsSuccessful)
                     {
                         cancellationTokenSource.Cancel();
                         SessionCreatedParameters response = new SessionCreatedParameters
                         {
                             Success = false,
                             SessionId = uri,
+                            ErrorNumber = result.Exception != null && result.Exception is SqlException sqlEx ? sqlEx.ErrorCode : null,
                             ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
 
                         };
@@ -376,6 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     Success = true,
                     RootNode = session.Root.ToNodeInfo(),
                     SessionId = uri,
+                    ErrorNumber = session.ErrorNumber,
                     ErrorMessage = session.ErrorMessage
                 };
                 await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
@@ -385,34 +378,58 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         }
 
-        internal async Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+        internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
-            return await Task.Factory.StartNew(() =>
-            {
-                return QueueExpandNodeRequest(session, nodePath, forceRefresh);
-            });
+            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
         }
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false)
+
+        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
             NodeInfo[] nodes = null;
-            TreeNode node = session.Root.FindNodeByPath(nodePath);
+            TreeNode? node = session.Root.FindNodeByPath(nodePath);
             ExpandResponse response = null;
+
+            // Performance Optimization for table designer to load the database model earlier based on user configuration.
+            if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
+            {
+                // The operation below are not blocking, but just in case, wrapping it with a task run to make sure it has no impact on the node expansion time.
+                var _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        var builder = ConnectionService.CreateConnectionStringBuilder(session.ConnectionInfo.ConnectionDetails);
+                        builder.InitialCatalog = node.NodeValue;
+                        builder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(builder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
+                        // Set Access Token only when authentication mode is not specified.
+                        var azureToken = builder.Authentication == SqlAuthenticationMethod.NotSpecified
+                            ? session.ConnectionInfo.ConnectionDetails.AzureAccountToken : null;
+                        TableDesignerCacheManager.StartDatabaseModelInitialization(builder.ToString(), azureToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Write(TraceEventType.Warning, $"Failed to start database initialization for table designer: {ex.Message}");
+                    }
+                });
+            }
 
             // This node was likely returned from a different node provider. Ignore expansion and return an empty array
             // since we don't need to add any nodes under this section of the tree.
             if (node == null)
             {
+                Logger.Verbose($"No node returned from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = string.Empty, SessionId = session.Uri, NodePath = nodePath };
                 response.Nodes = new NodeInfo[0];
                 return response;
             }
             else
             {
+                Logger.Verbose($"Got node from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
-
+            Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
             if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
             {
+                Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
                 try
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
@@ -422,13 +439,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
+                               if (!session.ConnectionInfo.IsAzureAuth)
+                               {
+                                   // explicitly set null here to prevent setting access token for non-Azure auth modes.
+                                   securityToken = null;
+                               }
+
                                if (forceRefresh)
                                {
-                                   nodes = node.Refresh(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
+                                   Logger.Verbose($"Forcing refresh for {nodePath}");
+                                   nodes = node.Refresh(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
-                                   nodes = node.Expand(cancelToken).Select(x => x.ToNodeInfo()).ToArray();
+                                   Logger.Verbose($"Expanding {nodePath}");
+                                   try
+                                   {
+                                       nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   }
+                                   catch (ConnectionFailureException ex)
+                                   {
+                                       var errorMessage = ex.InnerException?.Message ?? ex.Message;
+
+                                       Logger.Error($"Failed to expand node: {errorMessage}");
+                                       var errorNode = ErrorNodeInfo.Create(parentNodePath: nodePath, errorMessage: errorMessage);
+                                       nodes = new NodeInfo[] { errorNode };
+                                   }
                                }
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
@@ -440,15 +476,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                        bindingContext.ServerConnection.SqlConnectionObject.ChangeDatabase(bindingContext.ServerConnection.DatabaseName);
                                    }
                                }
-                               catch(Exception ex)
+                               catch (Exception ex)
                                {
                                    Logger.Write(TraceEventType.Warning, $"Failed to change the database in OE connection. error: {ex.Message}");
                                    // We should just try to change the connection. If it fails, there's not much we can do
                                }
                                return response;
                            });
-
+                    Logger.Verbose($"Queuing binding operation for {nodePath}");
                     queueItem.ItemProcessed.WaitOne();
+                    Logger.Verbose($"Done with binding operation for {nodePath}");
                     if (queueItem.GetResultAsT<ExpandResponse>() != null)
                     {
                         response = queueItem.GetResultAsT<ExpandResponse>();
@@ -512,12 +549,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
                 return session;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                await SendSessionFailedNotification(uri, ex.Message);
+                int? errorCode = ex is SqlException sqlEx ? sqlEx.ErrorCode : null;
+                await SendSessionFailedNotification(uri, ex.Message, errorCode);
                 return null;
             }
-        }        
+        }
 
         private async Task<ConnectionCompleteParams> Connect(ConnectParams connectParams, string uri)
         {
@@ -526,32 +564,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 // open connection based on request details
                 ConnectionCompleteParams result = await connectionService.Connect(connectParams);
-                connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}"  : string.Empty;
+                connectionErrorMessage = result != null ? $"{result.Messages} error code:{result.ErrorNumber}" : string.Empty;
                 if (result != null && !string.IsNullOrEmpty(result.ConnectionId))
                 {
                     return result;
                 }
                 else
                 {
-                    await SendSessionFailedNotification(uri, result.ErrorMessage);
+                    await SendSessionFailedNotification(uri, result.ErrorMessage, result.ErrorNumber);
                     return null;
                 }
-               
+
             }
             catch (Exception ex)
             {
-                await SendSessionFailedNotification(uri, ex.ToString());
+                int? errorNum = ex is SqlException sqlEx ? sqlEx.Number : null;
+                await SendSessionFailedNotification(uri, ex.ToString(), errorNum);
                 return null;
             }
         }
 
-        private async Task SendSessionFailedNotification(string uri, string errorMessage)
+        private async Task SendSessionFailedNotification(string uri, string errorMessage, int? errorCode)
         {
             Logger.Write(TraceEventType.Warning, $"Failed To create OE session: {errorMessage}");
             SessionCreatedParameters result = new SessionCreatedParameters()
             {
                 Success = false,
                 ErrorMessage = errorMessage,
+                ErrorNumber = errorCode,
                 SessionId = uri
             };
             await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, result);
@@ -572,18 +612,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private void RunExpandTask(ObjectExplorerSession session, ExpandParams expandParams, bool forceRefresh = false)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task task = ExpandNodeAsync(session, expandParams,  cancellationTokenSource.Token, forceRefresh);
+            Task task = ExpandNodeAsync(session, expandParams, cancellationTokenSource.Token, forceRefresh);
             ExpandTask = task;
             Task.Run(async () =>
             {
-                ObjectExplorerTaskResult result =  await RunTaskWithTimeout(task, 
+                ObjectExplorerTaskResult result = await RunTaskWithTimeout(task,
                     settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout);
 
-                if (result != null && !result.IsCompleted)
+                if (result != null && !result.IsSuccessful)
                 {
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
-                    response.ErrorMessage = result.Exception != null ? result.Exception.Message: $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
+                    response.ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;
@@ -595,9 +635,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             ObjectExplorerTaskResult result = new ObjectExplorerTaskResult();
             TimeSpan timeout = TimeSpan.FromSeconds(timeoutInSec);
             await Task.WhenAny(task, Task.Delay(timeout));
-            result.IsCompleted = task.IsCompleted;
-            if(task.Exception != null)
+            result.IsSuccessful = task.IsCompleted;
+            if (task.Exception != null)
             {
+                result.IsSuccessful = false;
                 result.Exception = task.Exception;
             }
             else if (!task.IsCompleted)
@@ -619,7 +660,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private async Task ExpandNodeAsync(ObjectExplorerSession session, ExpandParams expandParams, CancellationToken cancellationToken, bool forceRefresh = false)
         {
             ExpandResponse response = null;
-            response = await ExpandNode(session, expandParams.NodePath, forceRefresh);
+            response = await ExpandNode(session, expandParams.NodePath, forceRefresh, expandParams.SecurityToken, expandParams.Filters);
             if (cancellationToken.IsCancellationRequested)
             {
                 Logger.Write(TraceEventType.Verbose, "OE expand canceled");
@@ -645,7 +686,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }      
+        }
 
         public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
         {
@@ -684,11 +725,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         {
             if (serviceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
             if (connectionService == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
         }
 
@@ -736,8 +777,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal class ObjectExplorerTaskResult
         {
-            public bool IsCompleted { get; set; }
-            public Exception Exception { get; set; }
+            /// <summary>
+            /// Whether the task was successfully completed. False if an error of any kind occurred during execution.
+            /// </summary>
+            public bool IsSuccessful { get; set; }
+            /// <summary>
+            /// The Exception that occurred during execution, if any.
+            /// </summary>
+            public Exception? Exception { get; set; }
         }
 
         public void Dispose()
@@ -746,7 +793,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 bindingQueue.OnUnhandledException -= OnUnhandledException;
                 bindingQueue.Dispose();
-            }            
+            }
         }
 
         private async void OnUnhandledException(string queueKey, Exception ex)
@@ -799,6 +846,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public ConnectionInfo ConnectionInfo { get; set; }
 
+            public int? ErrorNumber { get; set; }
+
             public string ErrorMessage { get; set; }
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
@@ -812,9 +861,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     session.Root = databaseNode;
                 }
 
+                if (response?.ErrorMessage != null)
+                {
+                    session.ErrorMessage = response.ErrorMessage;
+                    session.ErrorNumber = response.ErrorNumber;
+                }
                 return session;
             }
-            
+
         }
     }
 

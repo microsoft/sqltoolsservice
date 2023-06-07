@@ -1,4 +1,9 @@
-﻿using System;
+﻿//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Kusto.ServiceLayer.Admin.Contracts;
@@ -59,24 +64,34 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
         /// <summary>
         /// Converts database details shown on cluster manage dashboard to DatabaseInfo type. Add DataSourceType as param if required to show different properties
         /// </summary>
-        /// <param name="clusterDBDetails"></param>
+        /// <param name="clusterDbDetails"></param>
         /// <returns></returns>
-        public static List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDBDetails)
+        public static List<DatabaseInfo> ConvertToDatabaseInfo(IEnumerable<DataSourceObjectMetadata> clusterDbDetails)
         {
-            var databaseDetails = new List<DatabaseInfo>();
-
-            if (typeof(DatabaseMetadata) == clusterDBDetails.FirstOrDefault().GetType())
+            if (clusterDbDetails.FirstOrDefault() is not DatabaseMetadata)
             {
-                foreach (var dbDetail in clusterDBDetails)
-                {
-                    DatabaseInfo databaseInfo = new DatabaseInfo();
-                    Int64.TryParse(dbDetail.SizeInMB.ToString(), out long sum_OriginalSize);
-                    databaseInfo.Options["name"] = dbDetail.Name;
-                    databaseInfo.Options["sizeInMB"] = (sum_OriginalSize / (1024 * 1024)).ToString();
-                    databaseDetails.Add(databaseInfo);
-                }
+                return new List<DatabaseInfo>();
             }
 
+            var databaseDetails = new List<DatabaseInfo>();
+            
+            foreach (var dataSourceObjectMetadata in clusterDbDetails)
+            {
+                var dbDetail = (DatabaseMetadata) dataSourceObjectMetadata;
+                long.TryParse(dbDetail.SizeInMB, out long sizeInMb);
+
+                var databaseInfo = new DatabaseInfo
+                {
+                    Options =
+                    {
+                        ["name"] = dbDetail.Name, 
+                        ["sizeInMB"] = (sizeInMb / (1024 * 1024)).ToString()
+                    }
+                };
+                
+                databaseDetails.Add(databaseInfo);
+            }
+            
             return databaseDetails;
         }
 
@@ -99,6 +114,18 @@ namespace Microsoft.Kusto.ServiceLayer.DataSource.Metadata
             }
 
             return databaseChildDetails;
+        }
+
+        public static DataSourceObjectMetadata CreateDataSourceObjectMetadata(DataSourceMetadataType datatype, string name, string urn)
+        {
+            return new DataSourceObjectMetadata
+            {
+                MetadataType = datatype,
+                MetadataTypeName = datatype.ToString(),
+                Name = name,
+                PrettyName = name,
+                Urn = $"{urn}",
+            };
         }
     }
 }

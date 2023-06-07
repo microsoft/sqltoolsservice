@@ -63,8 +63,8 @@
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true=">
       <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded=">
-          <xsd:element name="metadata=">
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
@@ -75,13 +75,13 @@
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="assembly=">
+          <xsd:element name="assembly">
             <xsd:complexType>
               <xsd:attribute name="alias" type="xsd:string" />
               <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="data=">
+          <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -93,7 +93,7 @@
               <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="resheader=">
+          <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -243,6 +243,10 @@
   </data>
   <data name="SqlCmd_FailedInclude" xml:space="preserve">
     <value>Could not find included file {0}.</value>
+    <comment></comment>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>Parameter contains a null, empty, or whitespace string.</value>
     <comment></comment>
   </data>
 </root>

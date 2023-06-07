@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
         /// </summary>
         public string Id
         {
-            get { return this.ClientUri.ToLower(); }
+            get { return this.ClientUri.ToLower(System.Globalization.CultureInfo.InvariantCulture); }
         }
 
         /// <summary>
@@ -443,6 +445,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
                     .Split('\n')
                     .Select(line => line.TrimEnd('\r'))
                     .ToList();
+        }
+
+        public override string ToString()
+        {
+            return $"ScriptFile:{this.FilePath}";
         }
 
         #endregion

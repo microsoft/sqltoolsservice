@@ -1,8 +1,12 @@
 ﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
@@ -10,24 +14,32 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Agent;
+using Microsoft.SqlTools.ServiceLayer.AzureBlob;
+using Microsoft.SqlTools.ServiceLayer.AzureFunctions;
 using Microsoft.SqlTools.ServiceLayer.Cms;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
 using Microsoft.SqlTools.ServiceLayer.DisasterRecovery;
 using Microsoft.SqlTools.ServiceLayer.EditData;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
 using Microsoft.SqlTools.ServiceLayer.FileBrowser;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility;
+using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
+using Microsoft.SqlTools.ServiceLayer.ModelManagement;
+using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
-using Microsoft.SqlTools.ServiceLayer.Security;
+using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.TableDesigner;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer
@@ -41,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer
         private static object lockObject = new object();
         private static bool isLoaded;
 
-        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext)
+        internal static ServiceHost CreateAndStartServiceHost(SqlToolsContext sqlToolsContext, ServiceLayerCommandOptions? commandOptions, Stream? inputStream = null, Stream? outputStream = null)
         {
             ServiceHost serviceHost = ServiceHost.Instance;
             lock (lockObject)
@@ -49,25 +61,29 @@ namespace Microsoft.SqlTools.ServiceLayer
                 if (!isLoaded)
                 {
                     // Grab the instance of the service host
-                    serviceHost.Initialize();
+                    serviceHost.Initialize(inputStream, outputStream);
 
-                    InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext);
+                    InitializeRequestHandlersAndServices(serviceHost, sqlToolsContext, commandOptions);
 
                     // Start the service only after all request handlers are setup. This is vital
                     // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
                     // is hooked up to receive the message
-                    serviceHost.Start().Wait();
+                    serviceHost.Start().GetAwaiter().GetResult();
                     isLoaded = true;
                 }
             }
             return serviceHost;
         }
 
-        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext)
+        private static void InitializeRequestHandlersAndServices(ServiceHost serviceHost, SqlToolsContext sqlToolsContext, ServiceLayerCommandOptions? commandOptions)
         {
             // Load extension provider, which currently finds all exports in current DLL. Can be changed to find based
             // on directory or assembly list quite easily in the future
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider(new string[] {
+                "microsofsqltoolscredentials.dll",
+                "microsoft.sqltools.hosting.dll",
+                "microsoftsqltoolsservicelayer.dll"
+            });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
 
@@ -80,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
             serviceProvider.RegisterSingleService(LanguageService.Instance);
 
-            ConnectionService.Instance.InitializeService(serviceHost);
+            ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
@@ -113,10 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             ProfilerService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ProfilerService.Instance);
 
-            SecurityService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(SecurityService.Instance);
-
-            DacFxService.Instance.InitializeService(serviceHost);
+            DacFxService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(DacFxService.Instance);
 
             CmsService.Instance.InitializeService(serviceHost);
@@ -125,20 +138,41 @@ namespace Microsoft.SqlTools.ServiceLayer
             SchemaCompare.SchemaCompareService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SchemaCompareService.Instance);
 
+            AzureFunctions.AzureFunctionsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(AzureFunctionsService.Instance);
+
             ServerConfigService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ServerConfigService.Instance);
 
             ExternalLanguageService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ExternalLanguageService.Instance);
-            
+
+            ModelManagementService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ModelManagementService.Instance);
+
             SqlAssessmentService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SqlAssessmentService.Instance);
 
             NotebookConvertService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(NotebookConvertService.Instance);
 
+            TableDesignerService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(TableDesignerService.Instance);
+
+            BlobService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(BlobService.Instance);
+
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
+
+            ExecutionPlanService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ExecutionPlanService.Instance);
+
+            ObjectManagementService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(ObjectManagementService.Instance);
+
+            SqlProjectsService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(SqlProjectsService.Instance);
 
             serviceHost.InitializeRequestHandlers();
         }
@@ -167,10 +201,10 @@ namespace Microsoft.SqlTools.ServiceLayer
                 IDisposable disposable = service as IDisposable;
                 if (serviceHost != null && disposable != null)
                 {
-                    serviceHost.RegisterShutdownTask(async (shutdownParams, shutdownRequestContext) =>
+                    serviceHost.RegisterShutdownTask((_, _) =>
                     {
                         disposable.Dispose();
-                        await Task.FromResult(0);
+                        return Task.FromResult(0);
                     });
                 }
             }

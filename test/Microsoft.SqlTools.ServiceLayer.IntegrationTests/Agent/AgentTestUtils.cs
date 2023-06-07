@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
-using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Security;
+using Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
@@ -79,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             return new AgentProxyInfo()
             {
                 AccountName = "Test Proxy",
-                CredentialName = SecurityTestUtils.TestCredentialName,
+                CredentialName = ObjectManagementTestUtils.TestCredentialName,
                 Description = "Test proxy description",
                 IsEnabled = true
             };
@@ -357,10 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             AgentNotebookInfo notebook = null)
         {
             var service = new AgentService();
-            if (notebook == null)
-            {
-                notebook = GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
-            }
+            notebook ??= GetTestNotebookInfo("myTestNotebookJob" + Guid.NewGuid().ToString(), "master");
             string tempNotebookPath = CreateTemplateNotebookFile();
 
             await AgentNotebookHelper.CreateNotebook(

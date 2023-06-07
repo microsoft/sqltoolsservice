@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Composition;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
@@ -21,7 +20,6 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
 
-    [Export(typeof(IHostedService))]
     public class SerializationService : HostedService<SerializationService>, IComposableService
     {
         private ConcurrentDictionary<string, DataSerializer> inProgressSerializations;

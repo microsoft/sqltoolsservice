@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -19,7 +21,7 @@ using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 {
-    public class ServiceBufferReaderWriterTests
+    public partial class ServiceBufferReaderWriterTests
     {
         [Test]
         public void ReaderStreamNull()
@@ -47,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(true);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object, new QueryExecutionSettings());
+                var obj = new ServiceBufferFileStreamReader(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
@@ -62,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(false);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamReader obj = new ServiceBufferFileStreamReader(invalidStream.Object, new QueryExecutionSettings());
+                var obj = new ServiceBufferFileStreamReader(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
@@ -93,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(true);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, new QueryExecutionSettings());
+                var obj = new ServiceBufferFileStreamWriter(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
@@ -108,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             invalidStream.SetupGet(s => s.CanSeek).Returns(false);
             Assert.Throws<InvalidOperationException>(() =>
             {
-                ServiceBufferFileStreamWriter obj = new ServiceBufferFileStreamWriter(invalidStream.Object, new QueryExecutionSettings());
+                var obj = new ServiceBufferFileStreamWriter(invalidStream.Object, new QueryExecutionSettings());
                 obj.Dispose();
             });
         }
@@ -126,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             
             // If:
             // ... I write a type T to the writer
-            using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), overrideSettings))
+            using (var writer = new ServiceBufferFileStreamWriter(new MemoryStream(storage), overrideSettings))
             {
                 int writtenBytes = writeFunc(writer, value);
                 Assert.AreEqual(valueLength, writtenBytes);
@@ -134,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // ... And read the type T back
             FileStreamReadResult outValue;
-            using (ServiceBufferFileStreamReader reader = new ServiceBufferFileStreamReader(new MemoryStream(storage), overrideSettings))
+            using (var reader = new ServiceBufferFileStreamReader(new MemoryStream(storage), overrideSettings))
             {
                 outValue = readFunc(reader, rowId);
             }
@@ -310,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATE column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTe"});
+            var col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTe"});
             
             foreach (DateTime value in testValues)
             {
@@ -318,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     (reader, rowId) => reader.ReadDateTime(0, rowId, col));
 
                 // Make sure the display value does not have a time string
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2}$"));
+                Assert.True(GetDateRegex().IsMatch(displayValue));
             }
         }
 
@@ -333,7 +335,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe"});
+            var col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe"});
 
             foreach (DateTime value in testValues)
             {
@@ -341,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     (reader, rowId) => reader.ReadDateTime(0, rowId, col));
 
                 // Make sure the display value has a time string with 3 milliseconds
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{3}$"));
+                Assert.True(GetDateTimeRegex().IsMatch(displayValue));
             }
         }
 
@@ -356,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn
+            var col = new DbColumnWrapper(new TestDbColumn
             {
                 DataTypeName = "DaTeTiMe2",
                 NumericScale = precision
@@ -368,7 +370,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     (reader, rowId) => reader.ReadDateTime(0, rowId, col));
 
                 // Make sure the display value has a time string with variable number of milliseconds
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}"));
+                Assert.True(GetTimeRegex().IsMatch(displayValue));
                 if (precision > 0)
                 {
                     Assert.True(Regex.IsMatch(displayValue, $@"\.[\d]{{{precision}}}$"));
@@ -387,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME2 column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe2", NumericScale = 0});
+            var col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe2", NumericScale = 0});
 
             foreach (DateTime value in testValues)
             {
@@ -395,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     (reader, rowId) => reader.ReadDateTime(0, rowId, col));
 
                 // Make sure the display value has a time string with 0 milliseconds
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}$"));
+                Assert.True(GetTimeRegex().IsMatch(displayValue));
             }
         }
 
@@ -410,7 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             };
 
             // Setup: Create a DATETIME2 column
-            DbColumnWrapper col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe2", NumericScale = 255});
+            var col = new DbColumnWrapper(new TestDbColumn {DataTypeName = "DaTeTiMe2", NumericScale = 255});
 
             foreach (DateTime value in testValues)
             {
@@ -418,7 +420,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     (reader, rowId) => reader.ReadDateTime(0, rowId, col));
 
                 // Make sure the display value has a time string with 7 milliseconds
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7}$"));
+                Assert.True(GetDateTime2Regex().IsMatch(displayValue));
 
             }
         }
@@ -432,14 +434,39 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             {
                 DateTimeOffset.Now, DateTimeOffset.UtcNow, DateTimeOffset.MinValue, DateTimeOffset.MaxValue
             };
+
+            // Setup: Create a DATETIMEOFFSET column
+            var col = new DbColumnWrapper(new TestDbColumn { DataTypeName = "datetimeoffset", NumericScale = 6 });
+
             foreach (DateTimeOffset value in testValues)
             {
                 string displayValue = VerifyReadWrite(sizeof(long)*2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
-                    (reader, rowId) => reader.ReadDateTimeOffset(0, rowId));
+                    (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
 
-                // Make sure the display value has a time string with 7 milliseconds and a time zone
-                Assert.True(Regex.IsMatch(displayValue, @"^[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\.[\d]{7} [+-][01][\d]:[\d]{2}$"));
+                // Make sure the display value has a time string with 6 milliseconds and a time zone
+                Assert.True(GetDateTimeOffset6Regex().IsMatch(displayValue));
+            }
+        }
 
+        [Test]
+        public void DateTimeOffsetZeroScaleTest()
+        {
+            // Setup: Create some test values
+            DateTimeOffset[] testValues =
+            {
+                DateTimeOffset.Now, DateTimeOffset.UtcNow, DateTimeOffset.MinValue, DateTimeOffset.MaxValue
+            };
+
+            // Setup: Create a DATETIMEOFFSET column
+            var col = new DbColumnWrapper(new TestDbColumn { DataTypeName = "datetimeoffset", NumericScale = 0 });
+
+            foreach (DateTimeOffset value in testValues)
+            {
+                string displayValue = VerifyReadWrite(sizeof(long) * 2 + 1, value, (writer, val) => writer.WriteDateTimeOffset(val),
+                    (reader, rowId) => reader.ReadDateTimeOffset(0, rowId, col));
+
+                // Make sure the display value has a time string with no millisecond and a time zone
+                Assert.True(GetDateTimeOffset0Regex().IsMatch(displayValue));
             }
         }
 
@@ -463,11 +490,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         public void StringNullTest()
         {
             // Setup: Create a mock file stream
-            using (MemoryStream stream = new MemoryStream(new byte[8192]))
+            using (var stream = new MemoryStream(new byte[8192]))
             {
                 // If:
                 // ... I write null as a string to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, new QueryExecutionSettings()))
+                using (var writer = new ServiceBufferFileStreamWriter(stream, new QueryExecutionSettings()))
                 {
                     // Then:
                     // ... I should get an argument null exception
@@ -487,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         {
             // Setup: 
             // ... Generate the test value
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < length; i++)
             {
                 sb.Append(values[i%values.Length]);
@@ -502,11 +529,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         public void BytesNullTest()
         {
             // Setup: Create a mock file stream wrapper
-            using (MemoryStream stream = new MemoryStream(new byte[8192]))
+            using (var stream = new MemoryStream(new byte[8192]))
             {
                 // If:
                 // ... I write null as a string to the writer
-                using (ServiceBufferFileStreamWriter writer = new ServiceBufferFileStreamWriter(stream, new QueryExecutionSettings()))
+                using (var writer = new ServiceBufferFileStreamWriter(stream, new QueryExecutionSettings()))
                 {
                     // Then:
                     // ... I should get an argument null exception
@@ -527,7 +554,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         {
             // Setup: 
             // ... Generate the test value
-            List<byte> sb = new List<byte>();
+            var sb = new List<byte>();
             for (int i = 0; i < length; i++)
             {
                 sb.Add(values[i % values.Length]);
@@ -575,5 +602,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
                     (reader, rowId) => reader.ReadMoney(0, rowId));
             }
         }
+
+        [GeneratedRegex("^[\\d]{4}-[\\d]{2}-[\\d]{2}$")]
+        private static partial Regex GetDateRegex();
+
+        [GeneratedRegex("^[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}")]
+        private static partial Regex GetTimeRegex();
+
+        [GeneratedRegex("^[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{3}$")]
+        private static partial Regex GetDateTimeRegex();
+
+        [GeneratedRegex("^[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{7}$")]
+        private static partial Regex GetDateTime2Regex();
+
+        [GeneratedRegex("^[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2}\\.[\\d]{6} [+-][01][\\d]:[\\d]{2}$")]
+        private static partial Regex GetDateTimeOffset6Regex();
+        [GeneratedRegex("^[\\d]{4}-[\\d]{2}-[\\d]{2} [\\d]{2}:[\\d]{2}:[\\d]{2} [+-][01][\\d]:[\\d]{2}$")]
+        private static partial Regex GetDateTimeOffset0Regex();
     }
 }

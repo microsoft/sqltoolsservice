@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -102,9 +104,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         public void InitializeService(ServiceHost serviceHost)
         {
             // Register handlers for requests
-            serviceHost.SetRequestHandler(InvokeRequest.Type, HandleInvokeRequest);
-            serviceHost.SetRequestHandler(GetAssessmentItemsRequest.Type, HandleGetAssessmentItemsRequest);
-            serviceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest);
+            serviceHost.SetRequestHandler(InvokeRequest.Type, HandleInvokeRequest, true);
+            serviceHost.SetRequestHandler(GetAssessmentItemsRequest.Type, HandleGetAssessmentItemsRequest, true);
+            serviceHost.SetRequestHandler(GenerateScriptRequest.Type, HandleGenerateScriptRequest, true);
 
             // Register handler for shutdown event
             serviceHost.RegisterShutdownTask((shutdownParams, requestContext) =>
@@ -384,14 +386,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         {
             var item = new AssessmentResultItem
                            {
-                               CheckId = r.Check.Id,
-                               Description = r.Check.Description,
-                               DisplayName = r.Check.DisplayName,
-                               HelpLink = r.Check.HelpLink,
-                               Level = r.Check.Level.ToString(),
+                               CheckId = r.Check?.Id ?? string.Empty,
+                               Description = r.Check?.Description ?? string.Empty,
+                               DisplayName = r.Check?.DisplayName ?? string.Empty,
+                               HelpLink = r.Check?.HelpLink ?? string.Empty,
+                               Level = r.Check?.Level.ToString() ?? string.Empty,
                                Message = r.Message,
                                TargetName = r.TargetPath,
-                               Tags = r.Check.Tags.ToArray(),
+                               Tags = r.Check?.Tags.ToArray() ?? Array.Empty<string>(),
                                TargetType = r.TargetType,
                                RulesetVersion = Engine.Configuration.DefaultRuleset.Version.ToString(),
                                RulesetName = Engine.Configuration.DefaultRuleset.Name,
@@ -420,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// <param name="server">Target server locator.</param>
         /// <param name="databaseName">Target database name.</param>
         /// <returns>Returns a locator for target database.</returns>
-        private static SqlObjectLocator GetDatabaseLocator(SqlObjectLocator server, string databaseName)
+        internal static SqlObjectLocator GetDatabaseLocator(SqlObjectLocator server, string databaseName)
         {
             return new SqlObjectLocator
             {
@@ -447,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         /// Returns a <see cref="SqlEngineEdition"/>
         /// corresponding to the <paramref name="representation"/>.
         /// </returns>
-        private static SqlEngineEdition GetEngineEdition(int representation)
+        internal static SqlEngineEdition GetEngineEdition(int representation)
         {
             switch (representation)
             {

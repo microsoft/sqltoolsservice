@@ -1,8 +1,9 @@
-﻿// 
-// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
@@ -24,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
     /// Class that represents a resultset the was generated from a query. Contains logic for
     /// storing and retrieving results. Is contained by a Batch class.
     /// </summary>
-    public class ResultSet : IDisposable
+    public partial class ResultSet : IDisposable
     {
         #region Constants
 
@@ -278,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         // ReSharper disable once AccessToDisposedClosure   The lambda is used immediately in string.Join call
                         IEnumerable<string> rowValues = fileOffsets.Select(rowOffset => fileStreamReader.ReadRow(rowOffset, 0, Columns)[0].DisplayValue);
                         string singleString = string.Join(string.Empty, rowValues);
-                        DbCellValue cellValue = new DbCellValue
+                        var cellValue = new DbCellValue
                         {
                             DisplayValue = singleString,
                             IsNull = false,
@@ -307,12 +308,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Generates the execution plan from the table returned 
+        /// Generates the execution plan from the table returned
         /// </summary>
         /// <returns>An execution plan object</returns>
-        public Task<ExecutionPlan> GetExecutionPlan()
+        public Task<Contracts.ExecutionPlan> GetExecutionPlan()
         {
-            // Process the action just in case it hasn't been yet 
+            // Process the action just in case it hasn't been yet
             ProcessSpecialAction();
 
             // Sanity check to make sure that results read has started
@@ -320,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            // Check that we this result set contains a showplan 
+            // Check that we this result set contains a showplan
             if (!specialAction.ExpectYukonXMLShowPlan)
             {
                 throw new Exception(SR.QueryServiceExecutionPlanNotFound);
@@ -328,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
 
             return Task.Factory.StartNew(() =>
-            { 
+            {
                 string content;
                 string format = null;
 
@@ -337,13 +338,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     // Determine the format and get the first col/row of XML
                     content = fileStreamReader.ReadRow(0, 0, Columns)[0].DisplayValue;
 
-                    if (specialAction.ExpectYukonXMLShowPlan) 
+                    if (specialAction.ExpectYukonXMLShowPlan)
                     {
                         format = "xml";
                     }
                 }
-                    
-                return new ExecutionPlan
+
+                return new Contracts.ExecutionPlan
                 {
                     Format = format,
                     Content = content
@@ -368,11 +369,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Verify the request hasn't been cancelled
                 cancellationToken.ThrowIfCancellationRequested();
 
-                StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+                var dataReader = new StorageDataReader(dbDataReader);
 
                 // Open a writer for the file
                 //
-                var fileWriter = fileStreamFactory.GetWriter(outputFileName);
+                var fileWriter = fileStreamFactory.GetWriter(outputFileName, null);
                 using (fileWriter)
                 {
                     // If we can initialize the columns using the column schema, use that
@@ -457,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
-        /// Updates the values in a row with the 
+        /// Updates the values in a row with the
         /// </summary>
         /// <param name="rowId"></param>
         /// <param name="dbDataReader"></param>
@@ -513,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             // Create the new task
-            Task saveAsTask = new Task(async () =>
+            var saveAsTask = new Task(async () =>
             {
                 try
                 {
@@ -529,7 +530,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
 
                     using (var fileReader = fileFactory.GetReader(outputFileName))
-                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath))
+                    using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
@@ -552,13 +553,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
             });
-            
+
             // Add exception handling to the save task
             Task taskWithHandling = saveAsTask.ContinueWithOnFaulted(async t =>
             {
                 if (failureHandler != null)
                 {
-                    await failureHandler(saveParams, t.Exception.Message);
+                    await failureHandler(saveParams, t.Exception?.Message);
                 }
             });
 
@@ -637,7 +638,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 //
                 sendResultsSemphore.Wait();
 
-                ResultSet currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+                var currentResultSetSnapshot = (ResultSet) MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.
                 {
                     // Fire off results Available task and await it
@@ -692,7 +693,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
             }
             finally
-            { 
+            {
                 // Release the sendResultsSemphore so the next invocation gets unblocked
                 //
                 sendResultsSemphore.Release();
@@ -707,7 +708,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         /// <summary>
         /// If the result set represented by this class corresponds to a single XML
-        /// column that contains results of "for xml" query, set isXml = true 
+        /// column that contains results of "for xml" query, set isXml = true
         /// If the result set represented by this class corresponds to a single JSON
         /// column that contains results of "for json" query, set isJson = true
         /// </summary>
@@ -738,13 +739,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         {
             if (Columns?.Length > 0 && RowCount != 0)
             {
-                Regex regex = new Regex(@"({.*?})");
                 var row = GetRow(0);
                 for (int i = 0; i < Columns.Length; i++)
                 {
                     if (Columns[i].DataTypeName.Equals("nvarchar"))
                     {
-                        if (regex.IsMatch(row[i].DisplayValue))
+                        if (GetJsonRegex().IsMatch(row[i].DisplayValue))
                         {
                             Columns[i].IsJson = true;
                         }
@@ -756,10 +756,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Determine the special action, if any, for this result set
         /// </summary>
-        private SpecialAction ProcessSpecialAction() 
-        {           
+        private SpecialAction ProcessSpecialAction()
+        {
 
-            // Check if this result set is a showplan 
+            // Check if this result set is a showplan
             if (Columns.Length == 1 && string.Compare(Columns[0].ColumnName, YukonXmlShowPlanColumn, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 specialAction.ExpectYukonXMLShowPlan = true;
@@ -781,18 +781,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetNotRead);
             }
-            // NOTE: We are no longer checking to see if the data reader has rows before reading 
+            // NOTE: We are no longer checking to see if the data reader has rows before reading
             // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
             // read. In order to get appropriate errors back to the user, we'll read first.
             // Returning false from .ReadAsync means there aren't any rows.
 
             // Create a storage data reader, read it, make sure there were results
-            StorageDataReader dataReader = new StorageDataReader(dbDataReader);
+            var dataReader = new StorageDataReader(dbDataReader);
             if (!await dataReader.ReadAsync(CancellationToken.None))
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
-            
+
             using (IFileStreamWriter writer = fileStreamFactory.GetWriter(outputFileName))
             {
                 // Write the row to the end of the file
@@ -802,6 +802,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return currentFileOffset;
             }
         }
+
+        [GeneratedRegex("({.*?})")]
+        private static partial Regex GetJsonRegex();
 
         #endregion
     }

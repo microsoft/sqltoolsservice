@@ -3,8 +3,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
-using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -39,24 +40,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// The server type 
+        /// The server type
         /// </summary>
         public SqlServerType SqlServerType { get; set; }
 
         /// <summary>
         /// The server SMO will query against
         /// </summary>
-        public Server Server { 
+        public Server Server
+        {
             get
             {
                 return GetObjectWithOpenedConnection(server);
-            } 
+            }
         }
 
         /// <summary>
         /// Optional Database context object to query against
         /// </summary>
-        public Database Database { 
+        public Database Database
+        {
             get
             {
                 return GetObjectWithOpenedConnection(database);
@@ -70,7 +73,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <summary>
         /// Parent of a give node to use for queries
         /// </summary>
-        public SmoObjectBase Parent { 
+        public SmoObjectBase Parent
+        {
             get
             {
                 return GetObjectWithOpenedConnection(parent);
@@ -86,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// for specific SMO types
         /// </summary>
         public IMultiServiceProvider ServiceProvider { get; private set; }
-        
+
         /// <summary>
         /// Helper method to cast a parent to a specific type
         /// </summary>
@@ -111,16 +115,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             if (ServiceProvider == null)
             {
-                throw new InvalidOperationException(SqlTools.Hosting.SR.ServiceProviderNotSet);
-            }
-            ObjectExplorerService service = ServiceProvider.GetService<ObjectExplorerService>();
-            if (service == null)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, 
-                    SqlTools.Hosting.SR.ServiceNotFound, nameof(ObjectExplorerService)));
+                throw new InvalidOperationException(SR.ServiceProviderNotSet);
             }
 
-            return service;
+            return ServiceProvider.GetService<ObjectExplorerService>()
+                ?? throw new InvalidOperationException(SR.ServiceNotFound(nameof(ObjectExplorerService)));
         }
 
         /// <summary>
@@ -147,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             get
             {
-                if(validFor == 0)
+                if (validFor == 0)
                 {
                     validFor = ServerVersionHelper.GetValidForFlag(SqlServerType, Database);
                 }
@@ -170,7 +169,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// Ensures the server objects connection context is open. This is used by all child objects, and 
+        /// Updates access token on parent connection context.
+        /// </summary>
+        /// <param name="accessToken">Acquired access token</param>
+        public void UpdateAccessToken(string? accessToken)
+        {
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                // Update all applicable nodes that could contain access token
+                // to prevent stale token from being re-used.
+                if (server != null)
+                {
+                    (server as SqlSmoObject).UpdateAccessToken(accessToken);
+                }
+                if (database != null)
+                {
+                    (database as SqlSmoObject).UpdateAccessToken(accessToken);
+                }
+                if (parent != null)
+                {
+                    (parent as SqlSmoObject).UpdateAccessToken(accessToken);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Ensures the server objects connection context is open. This is used by all child objects, and
         /// the only way to easily access is via the server object. This should be called during access of
         /// any of the object properties
         /// </summary>

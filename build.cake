@@ -1,4 +1,4 @@
-#addin "nuget:?package=Newtonsoft.Json&version=9.0.1"
+#addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
 #addin "mssql.ResX"
 #addin "mssql.XliffParser"
 
@@ -17,6 +17,7 @@ using XliffParser;
 // Basic arguments
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
+
 // Optional arguments
 var testConfiguration = Argument("test-configuration", "Debug");
 var installFolder = Argument("install-path",  System.IO.Path.Combine(Environment.GetEnvironmentVariable(IsRunningOnWindows() ? "USERPROFILE" : "HOME"),
@@ -36,6 +37,8 @@ var shellExtension = IsRunningOnWindows() ? "ps1" : "sh";
 /// </summary>
 public class BuildPlan
 {
+    public string[] FxBuildProjects { get; set; }
+    public string[] FxFrameworks { get; set; }
     public IDictionary<string, string[]> TestProjects { get; set; }
     public string BuildToolsFolder { get; set; }
     public string ArtifactsFolder { get; set; }
@@ -48,7 +51,18 @@ public class BuildPlan
     public string[] Frameworks { get; set; }
     public string[] Rids { get; set; }
     public string[] MainProjects { get; set; }
+    // The set of projects that we want to call dotnet pack on directly
     public string[] PackageProjects { get; set; }
+    // The set of projects that we want to call dotnet pack on which require publishing being done first
+    public string[] DotnetToolProjects { get; set; }
+    public Project[] Projects{ get; set; }
+}
+
+public class Project
+{
+    public string Name { get; set; }
+    public string[] PackageProjects { get; set; }
+    public string[] TestProjects { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -58,9 +72,11 @@ var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
 var dotnetFolder = System.IO.Path.Combine(workingDirectory, buildPlan.DotNetFolder);
 var dotnetcli = buildPlan.UseSystemDotNetPath ? "dotnet" : System.IO.Path.Combine(System.IO.Path.GetFullPath(dotnetFolder), "dotnet");
 var toolsFolder = System.IO.Path.Combine(workingDirectory, buildPlan.BuildToolsFolder);
+var nugetcli = System.IO.Path.Combine(toolsFolder, "nuget.exe");
 
 var sourceFolder = System.IO.Path.Combine(workingDirectory, "src");
 var testFolder = System.IO.Path.Combine(workingDirectory, "test");
+var packagesFolder = System.IO.Path.Combine(workingDirectory, "packages");
 
 var artifactFolder = System.IO.Path.Combine(workingDirectory, buildPlan.ArtifactsFolder);
 var publishFolder = System.IO.Path.Combine(artifactFolder, "publish");
@@ -106,10 +122,9 @@ Task("PopulateRuntimes")
     buildPlan.Rids = new string[]
             {
                 "default", // To allow testing the published artifact
-                "win7-x64",
-                "win7-x86",
-                "win10-arm",
-                "win10-arm64",
+                "win-x64",
+                "win-x86",
+                "win-arm64",
                 "ubuntu.14.04-x64",
                 "ubuntu.16.04-x64",
                 "centos.7-x64",
@@ -118,7 +133,10 @@ Task("PopulateRuntimes")
                 "fedora.23-x64",
                 "opensuse.13.2-x64",
                 "osx.10.11-x64",
-                "linux-x64"
+                "osx-x64",
+                "osx-arm64",
+                "linux-x64",
+                "linux-arm64"
             };
 });
 
@@ -211,6 +229,7 @@ Task("Restore")
 Task("BuildTest")
     .IsDependentOn("Setup")
     .IsDependentOn("Restore")
+    .IsDependentOn("BuildFx")
     .Does(() =>
 {
     foreach (var pair in buildPlan.TestProjects)
@@ -219,19 +238,50 @@ Task("BuildTest")
         {
             var project = pair.Key;
             var projectFolder = System.IO.Path.Combine(testFolder, project);
-            var runLog = new List<string>();
-            Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
+            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            using (var logWriter = new StreamWriter(logPath)) {
+                Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
                     new RunOptions
                     {
-                        StandardOutputListing = runLog
+                        StandardOutputWriter = logWriter,
+                        StandardErrorWriter = logWriter
                     })
-                .ExceptionOnError($"Building test {project} failed for {framework}.");
-            System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log"), runLog.ToArray());
+                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
+            }
+
         }
     }
 });
+
 /// <summary>
-///  Build Test projects.
+///  Build .NET Framework projects.
+/// </summary>
+Task("BuildFx")
+    .IsDependentOn("Setup")
+    .IsDependentOn("Restore")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.FxBuildProjects)
+    {
+        foreach (var framework in buildPlan.FxFrameworks)
+        {
+            var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            using (var logWriter = new StreamWriter(logPath)) {
+                Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
+                    new RunOptions
+                    {
+                        StandardOutputWriter = logWriter,
+                        StandardErrorWriter = logWriter
+                    })
+                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
+            }
+        }
+    }
+});
+
+/// <summary>
+///  Packages projects specified in PackageProjects
 /// </summary>
 Task("DotnetPack")
     .IsDependentOn("Cleanup")
@@ -244,22 +294,48 @@ Task("DotnetPack")
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-        var runLog = new List<string>();
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} \"{projectFolder}\"",
-            new RunOptions
-            {
-                StandardOutputListing = runLog
-            })
-        .ExceptionOnError($"Packaging {project} failed.");
-        System.IO.File.WriteAllLines(System.IO.Path.Combine(logFolder, $"{project}-pack.log"), runLog.ToArray());
+        DotnetPack(outputFolder, projectFolder, project);
     }
 });
+
+/// <summary>
+///  Packages projects specified in FxBuildProjects using available Nupecs, these projects require that publishing be done first. Note that we
+///  don't do the publishing here because we need the binaries to be signed before being packaged up and that is done by the pipeline
+///  currently.
+/// </summary>
+Task("DotnetPackNuspec")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.FxBuildProjects)
+    {
+        // For now, putting all nugets in the 1 directory
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(packagesFolder, project);
+        DotnetPackNuspec(outputFolder, projectFolder, project);
+    }
+});
+
+/// <summary>
+///  Packages dotnet tool projects specified in DotnetToolProjects.
+/// </summary>
+Task("DotnetPackServiceTools")
+    .Does(() =>
+{
+    foreach (var project in buildPlan.DotnetToolProjects)
+    {
+        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
+        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
+        DotnetPack(outputFolder, projectFolder, project);
+    }
+});
+
 /// <summary>
 ///  Run all tests for .NET Desktop and .NET Core
 /// </summary>
 Task("TestAll")
     .IsDependentOn("Test")
     .IsDependentOn("TestCore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>{});
 
 /// <summary>
@@ -268,10 +344,11 @@ Task("TestAll")
 Task("TestCore")
     .IsDependentOn("Setup")
     .IsDependentOn("Restore")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     var testProjects = buildPlan.TestProjects
-                                .Where(pair => pair.Value.Any(framework => framework.Contains("netcoreapp")))
+                                .Where(pair => pair.Value.Any(framework => framework.Contains("net")))
                                 .Select(pair => pair.Key)
                                 .ToList();
 
@@ -292,6 +369,7 @@ Task("Test")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .IsDependentOn("BuildTest")
+    .WithCriteria(c => HasArgument("runTests"))
     .Does(() =>
 {
     foreach (var pair in buildPlan.TestProjects)
@@ -299,7 +377,7 @@ Task("Test")
         foreach (var framework in pair.Value)
         {
             // Testing against core happens in TestCore
-            if (framework.Contains("netcoreapp"))
+            if (framework.Contains("net"))
             {
                 continue;
             }
@@ -341,9 +419,30 @@ Task("OnlyPublish")
 	.IsDependentOn("SRGen")
     .IsDependentOn("CodeGen")
     .Does(() =>
-{    
-	var packageName = buildPlan.PackageName;
-    foreach (var project in buildPlan.MainProjects)
+{
+    PublishProject(buildPlan.PackageName, buildPlan.MainProjects);
+});
+
+/// <summary>
+///  Build, publish and package artifacts.
+///  Targets all RIDs specified in build.json unless restricted by RestrictToLocalRuntime.
+///  No dependencies on other tasks to support quick builds.
+/// </summary>
+Task("PublishExternalProjects")
+    .IsDependentOn("Setup")
+    .IsDependentOn("SrGen")
+    .IsDependentOn("CodeGen")
+    .Does(() =>
+{
+    foreach(var project in buildPlan.Projects)
+    {
+        PublishProject(project.Name, project.PackageProjects);
+    }
+});
+
+void PublishProject(string packageName, string[] projects)
+{
+    foreach (var project in projects)
     {
         var projectFolder = System.IO.Path.Combine(sourceFolder, project);
         foreach (var framework in buildPlan.Frameworks)
@@ -354,7 +453,7 @@ Task("OnlyPublish")
                 var publishArguments = "publish";
                 if (!runtime.Equals("default"))
                 {
-                    publishArguments = $"{publishArguments} --runtime {runtime}";
+                    publishArguments = $"{publishArguments} --runtime {runtime} --self-contained";
                 }
                 publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
                 publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
@@ -364,12 +463,25 @@ Task("OnlyPublish")
                 //Only required for mac. We're assuming the openssl is installed in /usr/local/opt/openssl
                 //If that's not the case user has to run the command manually
                 if (!IsRunningOnWindows() && !IsRunningOnUnix() && runtime.Contains("osx"))
-                {    
+                {
                     Run("install_name_tool",  "-add_rpath /usr/local/opt/openssl/lib " + outputFolder + "/System.Security.Cryptography.Native.dylib");
                 }
             }
         }
 
+        if (buildPlan.FxBuildProjects.Contains(project))
+        {
+            foreach(var framework in buildPlan.FxFrameworks)
+            {
+                var outputFolder = System.IO.Path.Combine(publishFolder, packageName, "default", framework);
+                var publishArguments = "publish";
+                publishArguments = $"{publishArguments} --framework {framework} --configuration {configuration}";
+                publishArguments = $"{publishArguments} --output \"{outputFolder}\" \"{projectFolder}\"";
+                Run(dotnetcli, publishArguments)
+                    .ExceptionOnError($"Failed to publish {project} / {framework}");
+            }
+        }
+        
         if (requireArchive)
         {
                 foreach (var framework in buildPlan.Frameworks)
@@ -382,8 +494,10 @@ Task("OnlyPublish")
                 }
         }
         CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
-    }    
-});
+    }
+
+}
+
 
 /// <summary>
 ///  Alias for OnlyPublish.
@@ -392,6 +506,7 @@ Task("OnlyPublish")
 Task("AllPublish")
     .IsDependentOn("Restore")
     .IsDependentOn("OnlyPublish")
+    .IsDependentOn("PublishExternalProjects")
     .Does(() =>
 {
 });
@@ -414,6 +529,7 @@ Task("LocalPublish")
     .IsDependentOn("Restore")
     .IsDependentOn("RestrictToLocalRuntime")
     .IsDependentOn("OnlyPublish")
+    .IsDependentOn("PublishExternalProjects")
     .Does(() =>
 {
 });
@@ -561,17 +677,17 @@ Task("SRGen")
     try
     {
         var projects = System.IO.Directory.GetFiles(sourceFolder, "*.csproj", SearchOption.AllDirectories).ToList();
-        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization"); 
+        var locTemplateDir = System.IO.Path.Combine(sourceFolder, "../localization");
 
         foreach(var project in projects) {
             var projectDir = System.IO.Path.GetDirectoryName(project);
 
             // set current directory to this project so relative paths can be reliably
             // used. This is to address an issue with quoting differences between Windows
-            // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around 
+            // and MacOS.  On MacOS the dotnet command ends up calling SRGen with quotations around
             // the arguments stripped off.  This causes SRGen to interpret the arg values as options
             System.IO.Directory.SetCurrentDirectory(projectDir);
-            
+
             // build remaining paths relative to the project directory
             var localizationDir = System.IO.Path.Combine(".", "Localization");
             var projectName = (new System.IO.DirectoryInfo(projectDir)).Name;
@@ -600,13 +716,13 @@ Task("SRGen")
                 System.IO.File.Delete(outputCs);
             }
 
-            if (!System.IO.Directory.Exists(inputXliff)) 
+            if (!System.IO.Directory.Exists(inputXliff))
             {
                 System.IO.Directory.CreateDirectory(inputXliff);
             }
 
             // Run SRGen
-            var dotnetArgs = string.Format("{0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
+            var dotnetArgs = string.Format("--roll-forward LatestMajor {0} -or \"{1}\" -oc \"{2}\" -ns \"{3}\" -an \"{4}\" -cn SR -l CS -dnx \"{5}\"",
             srgenPath, outputResx, outputCs, projectName, projectNameSpace, projectStrings);
             Information("{0}", dotnetcli);
             Information("{0}", dotnetArgs);
@@ -631,23 +747,23 @@ Task("SRGen")
                 var xlfDoc = new XliffParser.XlfDocument(docName);
                 var xlfFile = xlfDoc.Files.Single();
 
-                // load a language template 
+                // load a language template
                 var templateFileLocation = System.IO.Path.Combine(locTemplateDir, System.IO.Path.GetFileName(docName) + ".template");
                 var templateDoc = new XliffParser.XlfDocument(templateFileLocation);
-                var templateFile = templateDoc.Files.Single(); 
+                var templateFile = templateDoc.Files.Single();
 
                 // iterate through our tranlation units and prune invalid units
                 foreach (var unit in xlfFile.TransUnits)
                 {
-                    // if a unit does not have a target it is invalid 
+                    // if a unit does not have a target it is invalid
                     if (unit.Target != null) {
                         templateFile.AddTransUnit(unit.Id, unit.Source, unit.Target, 0, 0);
                     }
-                } 
+                }
 
                 // export modified template to RESX
                 var newPath = System.IO.Path.Combine(localizationDir, System.IO.Path.GetFileName(docName));
-                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));        
+                templateDoc.SaveAsResX(newPath.Replace("xlf","resx"));
             }
         }
     }

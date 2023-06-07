@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -801,11 +803,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
         /// <returns>Job server object</returns>
         private JobServer GetJobServer()
         {
-            JobServer jobServer = this.dataContainer.Server.JobServer;
-            if (jobServer == null)
-            {
-                throw new ApplicationException(SR.JobServerIsNotAvailable);
-            }
+            JobServer jobServer = this.dataContainer.Server.JobServer ?? throw new ApplicationException(SR.JobServerIsNotAvailable);
             return jobServer;
         }
 

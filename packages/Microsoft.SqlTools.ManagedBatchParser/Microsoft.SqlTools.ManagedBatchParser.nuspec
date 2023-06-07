@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Microsoft.SqlTools.ManagedBatchParser</id>
+        <version>1.0.0</version>
+        <authors>Microsoft</authors>
+        <projectUrl>https://github.com/Microsoft/sqltoolsservice/</projectUrl>
+        <license type="expression">MIT</license>
+        <iconUrl>http://s.gravatar.com/avatar/6f39d8562df0a3509a8240fb281bc5bd?s=80</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Managed Batch parser for Sql Tools Services.</description>
+        <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+        <tags>SQL Tools XPLAT Managed Batch Parser</tags>
+        <dependencies>
+            <group targetFramework="net472">
+                <dependency id="Microsoft.Data.SqlClient" version="5.1.0" />
+                <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="170.12.0" />
+                <dependency id="Newtonsoft.Json" version="13.0.2" />
+                <dependency id="System.Configuration.ConfigurationManager" version="6.0.1" />
+            </group>
+            <group targetFramework="net7.0">
+                <dependency id="Microsoft.Data.SqlClient" version="5.1.0" />
+                <dependency id="Microsoft.SqlServer.SqlManagementObjects" version="170.12.0" />
+                <dependency id="Newtonsoft.Json" version="13.0.2" />
+                <dependency id="System.Configuration.ConfigurationManager" version="6.0.1" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\de" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\es" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\fr" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\it" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\ja" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\ko" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\pt-br" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\ru" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\zh-hans" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net472\zh-hant" />
+
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net472" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net472" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net472\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net472" />
+
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\de\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\de" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\es\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\es" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\fr\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\fr" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\it\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\it" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\ja\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\ja" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\ko\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\ko" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\pt-br\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\pt-br" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\ru\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\ru" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\zh-hans\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\zh-hans" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\zh-hant\Microsoft.SqlTools.ManagedBatchParser.resources.dll" target="lib\net7.0\zh-hant" />
+
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\Microsoft.SqlTools.ManagedBatchParser.dll" target="lib\net7.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\Microsoft.SqlTools.ManagedBatchParser.pdb" target="lib\net7.0" />
+        <file src="..\..\artifacts\publish\Microsoft.SqlTools.ServiceLayer\default\net7.0\Microsoft.SqlTools.ManagedBatchParser.xml" target="lib\net7.0" />
+    </files>
+</package>

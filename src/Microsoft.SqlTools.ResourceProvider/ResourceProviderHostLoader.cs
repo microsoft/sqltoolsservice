@@ -1,16 +1,18 @@
 //
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
 
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.Utility;
 
-namespace  Microsoft.SqlTools.ResourceProvider
+namespace Microsoft.SqlTools.ResourceProvider
 {
     /// <summary>
     /// Provides support for starting up a service host. This is a common responsibility
@@ -36,7 +38,7 @@ namespace  Microsoft.SqlTools.ResourceProvider
                     // Start the service only after all request handlers are setup. This is vital
                     // as otherwise the Initialize event can be lost - it's processed and discarded before the handler
                     // is hooked up to receive the message
-                    serviceHost.Start().Wait();
+                    serviceHost.Start().GetAwaiter().GetResult();
                     isLoaded = true;
                 }
             }

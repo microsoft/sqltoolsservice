@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -37,10 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
+                connectionService ??= ConnectionService.Instance;
                 return connectionService;
             }
 
@@ -52,9 +51,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
 
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(ServerConfigViewRequest.Type, this.HandleServerConfigViewRequest);
-            serviceHost.SetRequestHandler(ServerConfigUpdateRequest.Type, this.HandleServerConfigUpdateRequest);
-            serviceHost.SetRequestHandler(ServerConfigListRequest.Type, this.HandleServerConfigListRequest);
+            serviceHost.SetRequestHandler(ServerConfigViewRequest.Type, this.HandleServerConfigViewRequest, true);
+            serviceHost.SetRequestHandler(ServerConfigUpdateRequest.Type, this.HandleServerConfigUpdateRequest, true);
+            serviceHost.SetRequestHandler(ServerConfigListRequest.Type, this.HandleServerConfigListRequest, true);
         }
 
         /// <summary>

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -16,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
     public interface IFileStreamWriter : IDisposable
     {
         int WriteRow(StorageDataReader dataReader);
-        void WriteRow(IList<DbCellValue> row, IList<DbColumnWrapper> columns);
+        void WriteRow(IList<DbCellValue> row, IReadOnlyList<DbColumnWrapper> columns);
         void Seek(long offset);
         void FlushBuffer();
     }

@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
@@ -58,7 +60,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Scripting
 
             var scriptingParams = new ScriptingParams
             {
-                OwnerUri = ConnectionService.BuildConnectionString(result.ConnectionInfo.ConnectionDetails)
+                OwnerUri = result.ScriptFile.ClientUri
             };
             if (isSelectScript)
             {

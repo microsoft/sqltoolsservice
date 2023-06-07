@@ -2,11 +2,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-using System;
+
+#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.TaskServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
 {
@@ -29,6 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Gets or sets the target for extraction
         /// </summary>
         public DacExtractTarget ExtractTarget { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether permissions should be included in the extract
+        /// </summary>
+        public bool? IncludePermissions { get; set; }
     }
 
     /// <summary>

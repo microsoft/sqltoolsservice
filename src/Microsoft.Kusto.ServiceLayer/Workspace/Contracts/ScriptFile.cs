@@ -25,7 +25,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
         /// </summary>
         public string Id
         {
-            get { return this.ClientUri.ToLower(); }
+            get { return this.ClientUri.ToLower(System.Globalization.CultureInfo.InvariantCulture); }
         }
 
         /// <summary>
@@ -97,14 +97,6 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace.Contracts
         #endregion
 
         #region Constructors
-
-        /// <summary>
-        /// Add a default constructor for testing
-        /// </summary>
-        public ScriptFile()
-        {
-            ClientUri = "test.sql";
-        }
 
         /// <summary>
         /// Creates a new ScriptFile instance by reading file contents from

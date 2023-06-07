@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
@@ -31,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             // If:
             // ... I have a result set and I ask for a valid execution plan
             ResultSet planResultSet = b.ResultSets.First();
-            ExecutionPlan plan = planResultSet.GetExecutionPlan().Result;
+            ServiceLayer.QueryExecution.Contracts.ExecutionPlan plan = planResultSet.GetExecutionPlan().Result;
             Assert.AreEqual("xml", plan.Format);
             Assert.That(plan.Content, Does.Contain("Execution Plan"), "I should get the execution plan back");
         }
@@ -49,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then:
             // ... It should throw an exception
-            Assert.ThrowsAsync<Exception>(() => planResultSet.GetExecutionPlan());
+            Assert.ThrowsAsync<Exception>(planResultSet.GetExecutionPlan);
         }
 
         #endregion
@@ -63,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Batch b = Common.GetExecutedBatchWithExecutionPlan();
 
             // ... And I ask for a valid execution plan 
-            ExecutionPlan plan = b.GetExecutionPlan(0).Result;
+            ServiceLayer.QueryExecution.Contracts.ExecutionPlan plan = b.GetExecutionPlan(0).Result;
 
             Assert.AreEqual("xml", plan.Format);
             Assert.That(plan.Content, Does.Contain("Execution Plan"), "I should get the execution plan back");
@@ -199,11 +200,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // ... And I then ask for a valid execution plan from it 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
-            executionPlanRequest.Validate();
+            var contextMock = RequestContextMocks.Create<QueryExecutionPlanResult>(null);
+            Assert.That(() => queryService.HandleExecutionPlanRequest(executionPlanParams, contextMock.Object), Throws.InvalidOperationException);
         }
 
         [Test]
@@ -230,11 +228,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // ... And I then ask for an execution plan from a result set 
             var executionPlanParams = new QueryExecutionPlanParams { OwnerUri = Constants.OwnerUri, ResultSetIndex = 0, BatchIndex = 0 };
-            var executionPlanRequest = new EventFlowValidator<QueryExecutionPlanResult>()
-                .AddStandardErrorValidation()
-                .Complete();
-            await queryService.HandleExecutionPlanRequest(executionPlanParams, executionPlanRequest.Object);
-            executionPlanRequest.Validate();
+            var contextMock = RequestContextMocks.Create<QueryExecutionPlanResult>(null);
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => queryService.HandleExecutionPlanRequest(executionPlanParams, contextMock.Object));
         }
         
         #endregion

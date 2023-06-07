@@ -34,8 +34,18 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
             this.variableResolver = variableResolver;
             lexer = new Lexer(reader, name);
             tokenBuffer = new List<Token>();
+            DisableVariableSubstitution = variableResolver == null;
         }
 
+        /// <summary>
+        /// Whether to enable or disable the variable substitution.
+        /// </summary>
+        public bool DisableVariableSubstitution { get; set; }
+
+        /// <summary>
+        /// Whether to throw an error when a variable to be substituted was not specified.
+        /// </summary>
+        /// <remarks>When DisableVariableSubstitution is true, this value is ignored, i.e. no exception will be thrown.</remarks>
         public bool ThrowOnUnresolvedVariable { get; set; }
 
         private Token LookaheadToken
@@ -110,9 +120,9 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
 
         private void AddVariableReferences(Token token, int offset, IList<VariableReference> variableRefs)
         {
-            if (lexer.RecognizeSqlCmdSyntax == false)
+            if (!lexer.RecognizeSqlCmdSyntax || DisableVariableSubstitution)
             {
-                // variables are recognized only in sqlcmd mode.
+                // variables are recognized only in sqlcmd mode and the substitution was not explicitly disabled
                 return;
             }
 
@@ -608,18 +618,10 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         }
 
         internal void RaiseError(ErrorCode errorCode, string message = null)
-        {
-            RaiseError(errorCode, LookaheadToken, message);
-        }
+            => RaiseError(errorCode, LookaheadToken, message);
 
         internal static void RaiseError(ErrorCode errorCode, Token token, string message = null)
-        {
-            if (message == null)
-            {
-                message = string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text);
-            }
-            throw new BatchParserException(errorCode, token, message);
-        }
+            => throw new BatchParserException(errorCode, token, message ?? string.Format(CultureInfo.CurrentCulture, SR.BatchParser_IncorrectSyntax, token.Text));
 
         internal string ResolveVariables(Token inputToken, int offset, List<VariableReference> variableRefs)
         {
@@ -657,11 +659,15 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                     column: column,
                     offset: reference.Start - offset,
                     filename: inputToken.Filename);
-                string value = variableResolver.GetVariable(variablePos.Value, reference.VariableName);
+                // If the variableResolver is not defined (=null), then we are a little
+                // more robust and avoid throwing a NRE. It may just mean that the caller
+                // did not bother implementing the IVariableResolver interface, presumably
+                // because they were not interested in any variable replacement.
+                string value = variableResolver?.GetVariable(variablePos.Value, reference.VariableName);
                 if (value == null)
                 {
                     // Undefined variable
-                    if (ThrowOnUnresolvedVariable == true)
+                    if (ThrowOnUnresolvedVariable)
                     {
                         RaiseError(ErrorCode.VariableNotDefined, inputToken,
                             string.Format(CultureInfo.CurrentCulture, SR.BatchParser_VariableNotDefined, reference.VariableName));

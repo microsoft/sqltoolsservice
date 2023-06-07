@@ -3,11 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 //using Microsoft.SqlServer.Management.AzureCredential;
 using Microsoft.SqlServer.Management.Common;
 //using Microsoft.SqlServer.Management.Smo.RegSvrEnum;
-using SFC = Microsoft.SqlServer.Management.Sdk.Sfc;
 //using Microsoft.SqlServer.StorageClient;
 //using Microsoft.SqlServer.Management.SqlMgmt;
 

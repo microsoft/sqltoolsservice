@@ -2,16 +2,19 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+using static Microsoft.SqlTools.Utility.SqlConstants;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
@@ -19,24 +22,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// <summary>
     /// Internal class for utilities shared between multiple schema compare operations
     /// </summary>
-    internal static class SchemaCompareUtils
+    internal static partial class SchemaCompareUtils
     {
-        internal static DacDeployOptions CreateSchemaCompareOptions(DeploymentOptions deploymentOptions)
-        {
-            System.Reflection.PropertyInfo[] deploymentOptionsProperties = deploymentOptions.GetType().GetProperties();
-
-            DacDeployOptions dacOptions = new DacDeployOptions();
-            foreach (var deployOptionsProp in deploymentOptionsProperties)
-            {
-                var prop = dacOptions.GetType().GetProperty(deployOptionsProp.Name);
-                if (prop != null)
-                {
-                    prop.SetValue(dacOptions, deployOptionsProp.GetValue(deploymentOptions));
-                }
-            }
-            return dacOptions;
-        }
-
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
         {
             if (difference == null)
@@ -44,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 return null;
             }
 
-            DiffEntry diffEntry = new DiffEntry();
+            var diffEntry = new DiffEntry();
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
             diffEntry.Name = difference.Name;
@@ -99,8 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     return null;
                 }
-                ObjectIdentifier id = new ObjectIdentifier(sourceObj.NameParts);
-                SchemaComparisonExcludedObjectId excludedObjId = new SchemaComparisonExcludedObjectId(sourceObj.SqlObjectType, id);
+                var id = new ObjectIdentifier(sourceObj.NameParts);
+                var excludedObjId = new SchemaComparisonExcludedObjectId(sourceObj.SqlObjectType, id);
                 return excludedObjId;
             }
             catch (ArgumentException)
@@ -113,6 +100,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             switch (endpointInfo.EndpointType)
             {
+                case SchemaCompareEndpointType.Project:
+                    {
+                        return endpointInfo?.ExtractTarget != null
+                            ? new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider, (DacExtractTarget)endpointInfo?.ExtractTarget)
+                            : new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);
+                    }
                 case SchemaCompareEndpointType.Dacpac:
                     {
                         return new SchemaCompareDacpacEndpoint(endpointInfo.PackageFilePath);
@@ -120,7 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 case SchemaCompareEndpointType.Database:
                     {
                         string connectionString = GetConnectionString(connInfo, endpointInfo.DatabaseName);
-                        return connInfo.ConnectionDetails?.AzureAccountToken != null 
+
+                        // Set Access Token only when authentication mode is not specified.
+                        return connInfo.ConnectionDetails?.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA
                             ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(connInfo.ConnectionDetails.AzureAccountToken))
                             : new SchemaCompareDatabaseEndpoint(connectionString);
                     }
@@ -150,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // remove leading and trailing whitespace
                 script = script.Trim();
                 // replace all multiple spaces with single space
-                script = Regex.Replace(script, " {2,}", " ");
+                script = GetScriptRegex().Replace(script, " ");
             }
             return script;
         }
@@ -164,5 +159,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             return script;
         }
+
+        [GeneratedRegex(" {2,}")]
+        private static partial Regex GetScriptRegex();
     }
 }

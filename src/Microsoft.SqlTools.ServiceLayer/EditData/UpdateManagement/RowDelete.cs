@@ -3,9 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -89,9 +90,9 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
             WhereClause where = GetWhereClause(true);
             string commandText = GetCommandText(where.CommandText);
             string verifyText = GetVerifyText(where.CommandText);
-            if (!CheckForDuplicateDeleteRows(where, verifyText, connection))
+            if (HasDuplicateRows(where, verifyText, connection))
             {
-                throw new EditDataDeleteException("This action will delete more than one row!");
+                throw new EditDataDeleteException("Cannot delete: Action will delete more than one row");
             }
 
             DbCommand command = connection.CreateCommand();
@@ -103,34 +104,23 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
 
         /// <summary>
         /// Runs a query using the where clause to determine if duplicates are found (causes issues when deleting).
-        /// If no duplicates are found, the check passes, else it returns false;
+        /// If duplicates are found, the check returns true, else it returns false;
         /// </summary>
-        private bool CheckForDuplicateDeleteRows(WhereClause where, string input, DbConnection connection)
+        private bool HasDuplicateRows(WhereClause where, string input, DbConnection connection)
         {
             using (DbCommand command = connection.CreateCommand())
             {
                 command.CommandText = input;
                 command.Parameters.AddRange(where.Parameters.ToArray());
-                using (DbDataReader reader = command.ExecuteReader())
+                try
                 {
-                    try
-                    {
-                        while (reader.Read())
-                        {
-                            //If the count of the row is
-                            if (reader.GetInt32(0) != 1)
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Write(TraceEventType.Error, ex.ToString());
-                    }
+                    return (Convert.ToInt32(command.ExecuteScalar())) > 1;
+                }
+                finally
+                {
+                    command.Parameters.Clear();
                 }
             }
-            return true;
         }
 
         /// <summary>

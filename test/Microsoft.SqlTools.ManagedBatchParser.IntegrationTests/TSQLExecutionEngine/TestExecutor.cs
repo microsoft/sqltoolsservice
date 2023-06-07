@@ -3,17 +3,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode;
 using Microsoft.SqlTools.Utility;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.SqlTools.ManagedBatchParser.IntegrationTests.TSQLExecutionEngine
 {
-    internal class TestExecutor : IDisposable
+    public class TestExecutor : IDisposable
     {
         #region Private variables
 

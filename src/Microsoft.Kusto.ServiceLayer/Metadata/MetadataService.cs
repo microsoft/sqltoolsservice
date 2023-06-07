@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.Kusto.ServiceLayer.Connection;
 using Microsoft.Kusto.ServiceLayer.Metadata.Contracts;
-using Microsoft.Kusto.ServiceLayer.Utility;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 
@@ -20,81 +19,35 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
     /// </summary>
     public sealed class MetadataService
     {
+        private static IConnectionManager _connectionManager;
         private static readonly Lazy<MetadataService> LazyInstance = new Lazy<MetadataService>();
-
         public static MetadataService Instance => LazyInstance.Value;
-
-        private static ConnectionService connectionService = null;
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-
-            set
-            {
-                connectionService = value;
-            }
-        }
 
         /// <summary>
         /// Initializes the Metadata Service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        /// <param name="metadataFactory"></param>
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        /// <param name="connectionService"></param>
+        public void InitializeService(IProtocolEndpoint serviceHost, IConnectionManager connectionManager)
         {
+            _connectionManager = connectionManager;
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest);
         }
 
         /// <summary>
         /// Handle a metadata query request
         /// </summary>        
-        internal async Task HandleMetadataListRequest(
-            MetadataQueryParams metadataParams,
-            RequestContext<MetadataQueryResult> requestContext)
+        internal async Task HandleMetadataListRequest(MetadataQueryParams metadataParams, RequestContext<MetadataQueryResult> requestContext)
         {
             try
             {
-                Func<Task> requestHandler = async () =>
+                List<ObjectMetadata> metadata = await Task.Run(() => LoadMetadata(metadataParams));
+                
+                await requestContext.SendResult(new MetadataQueryResult
                 {
-                    ConnectionInfo connInfo;
-                    MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out connInfo);
-
-                    var metadata = new List<ObjectMetadata>();
-                    if (connInfo != null)
-                    {
-                        ReliableDataSourceConnection connection;
-                        connInfo.TryGetConnection("Default", out connection);
-                        IDataSource dataSource = connection.GetUnderlyingConnection();
-
-                        DataSourceObjectMetadata objectMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
-                        DataSourceObjectMetadata databaseMetadata = MetadataFactory.CreateDatabaseMetadata(objectMetadata, connInfo.ConnectionDetails.DatabaseName);
-
-                        IEnumerable<DataSourceObjectMetadata> databaseChildMetadataInfo = dataSource.GetChildObjects(databaseMetadata, true);
-                        metadata = MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
-                    }
-
-                    await requestContext.SendResult(new MetadataQueryResult
-                    {
-                        Metadata = metadata.ToArray()
-                    });
-                };
-
-                Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
-                {
-                    await requestContext.SendError(t.Exception.ToString());
+                    Metadata = metadata.ToArray()
                 });
-                MetadataListTask = task;
+                
             }
             catch (Exception ex)
             {
@@ -102,6 +55,24 @@ namespace Microsoft.Kusto.ServiceLayer.Metadata
             }
         }
 
-        internal Task MetadataListTask { get; set; }
+        private List<ObjectMetadata> LoadMetadata(MetadataQueryParams metadataParams)
+        {
+            _connectionManager.TryGetValue(metadataParams.OwnerUri, out ConnectionInfo connInfo);
+
+            if (connInfo == null)
+            {
+                return new List<ObjectMetadata>();
+            }
+
+            connInfo.TryGetConnection(ConnectionType.Default, out ReliableDataSourceConnection connection);
+            IDataSource dataSource = connection.GetUnderlyingConnection();
+            
+            var clusterMetadata = MetadataFactory.CreateClusterMetadata(connInfo.ConnectionDetails.ServerName);
+            var databaseMetadata = MetadataFactory.CreateDatabaseMetadata(clusterMetadata, connInfo.ConnectionDetails.DatabaseName);
+            var parentMetadata = dataSource.DataSourceType == DataSourceType.LogAnalytics ? clusterMetadata : databaseMetadata; 
+            
+            var databaseChildMetadataInfo = dataSource.GetChildObjects(parentMetadata, true);
+            return MetadataFactory.ConvertToObjectMetadata(databaseChildMetadataInfo);
+        }
     }
 }

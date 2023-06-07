@@ -2,27 +2,55 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
+
+#nullable disable
+using System.Collections.Generic;
+using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Collections.Generic;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
 {
+    /// <summary>
+    /// Types of schema compare endpoints
+    /// </summary>
     public enum SchemaCompareEndpointType
     {
-        Database,
-        Dacpac
+        Database = 0,
+        Dacpac = 1,
+        Project = 2
+        // must be kept in-sync with SchemaCompareEndpointType in Azure Data Studio
+        // located at \extensions\mssql\src\mssql.d.ts
     }
 
+    /// <summary>
+    /// Info needed from endpoints for schema comparison
+    /// </summary>
     public class SchemaCompareEndpointInfo
     {
         /// <summary>
         /// Gets or sets the type of the endpoint
         /// </summary>
         public SchemaCompareEndpointType EndpointType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project file path
+        /// </summary>
+        public string ProjectFilePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scripts included in project
+        /// </summary>
+        public string[] TargetScripts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project data schema provider
+        /// </summary>
+        public string DataSchemaProvider { get; set; }
 
         /// <summary>
         /// Gets or sets package filepath
@@ -43,6 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         /// Connection details
         /// </summary>
         public ConnectionDetails ConnectionDetails { get; set; }
+
+        /// <summary>
+        /// Extract target of the project used when extracting a database to file system or updating the project from database
+        /// </summary>
+        public DacExtractTarget? ExtractTarget { get; set; }
     }
 
     /// <summary>

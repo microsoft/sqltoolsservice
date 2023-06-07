@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.Kusto.ServiceLayer.Connection;
-using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Utility;
@@ -22,13 +21,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
     /// </summary>
     public sealed class ScriptingService : IDisposable
     {
-        private const int ScriptingOperationTimeout = 60000;
-
         private static readonly Lazy<ScriptingService> LazyInstance = new Lazy<ScriptingService>(() => new ScriptingService());
 
         public static ScriptingService Instance => LazyInstance.Value;
 
-        private static ConnectionService connectionService;
+        private IConnectionService _connectionService;
+
+        private IConnectionManager _connectionManager;
 
         private readonly Lazy<ConcurrentDictionary<string, ScriptingOperation>> operations =
             new Lazy<ConcurrentDictionary<string, ScriptingOperation>>(() => new ConcurrentDictionary<string, ScriptingOperation>());
@@ -36,25 +35,6 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         private bool disposed;
         
         private IScripter _scripter;
-
-        /// <summary>
-        /// Internal for testing purposes only
-        /// </summary>
-        internal static ConnectionService ConnectionServiceInstance
-        {
-            get
-            {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                }
-                return connectionService;
-            }
-            set
-            {
-                connectionService = value;
-            }
-        }
 
         /// <summary>
         /// The collection of active operations
@@ -65,10 +45,14 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// Initializes the Scripting Service instance
         /// </summary>
         /// <param name="serviceHost"></param>
-        /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, IScripter scripter)
+        /// <param name="scripter"></param>
+        /// <param name="connectionService"></param>
+        public void InitializeService(ServiceHost serviceHost, IScripter scripter, IConnectionService connectionService, IConnectionManager connectionManager)
         {
             _scripter = scripter;
+            _connectionService = connectionService;
+            _connectionManager = connectionManager;
+            
             serviceHost.SetRequestHandler(ScriptingRequest.Type, this.HandleScriptExecuteRequest);
             serviceHost.SetRequestHandler(ScriptingCancelRequest.Type, this.HandleScriptCancelRequest);
             serviceHost.SetRequestHandler(ScriptingListObjectsRequest.Type, this.HandleListObjectsRequest);
@@ -106,22 +90,18 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         /// </summary>
         public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
-            SmoScriptingOperation operation = null;
-
             try
             {
                 // if a connection string wasn't provided as a parameter then
                 // use the owner uri property to lookup its associated ConnectionInfo
                 // and then build a connection string out of that
-                ConnectionInfo connInfo = null;
-                string accessToken = null;
-                if (parameters.ConnectionString == null)
+                if (parameters.DatabaseName == null)
                 {
-                    ScriptingService.ConnectionServiceInstance.TryFindConnection(parameters.OwnerUri, out connInfo);
+                    ConnectionInfo connInfo;
+                    _connectionManager.TryGetValue(parameters.OwnerUri, out connInfo);
                     if (connInfo != null)
                     {
-                        parameters.ConnectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails);
-                        accessToken = connInfo.ConnectionDetails.AzureAccountToken;
+                        parameters.DatabaseName = connInfo.ConnectionDetails.DatabaseName;
                     }
                     else
                     {
@@ -131,13 +111,13 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
                 if (!ShouldCreateScriptAsOperation(parameters))
                 {
-                    operation = new ScriptingScriptOperation(parameters, accessToken);
+                    throw new InvalidOperationException("Unable to create script.");
                 }
-                else
-                {
-                    operation = new ScriptAsScriptingOperation(parameters, accessToken, _scripter);
-                }
+                
+                var datasource = _connectionService.GetOrOpenConnection(parameters.OwnerUri, ConnectionType.Default)
+                    .Result.GetUnderlyingConnection();
 
+                SmoScriptingOperation operation = new ScriptAsScriptingOperation(parameters, _scripter, datasource);
                 operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
                 operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
                 operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters.ScriptDestination);
@@ -156,17 +136,11 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             // Scripting as operation should be used to script one object.
             // Scripting data and scripting to file is not supported by scripting as operation
             // To script Select, alter and execute use scripting as operation. The other operation doesn't support those types
-            if( (parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
-                && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor") || 
-                parameters.Operation == ScriptingOperationType.Select || parameters.Operation == ScriptingOperationType.Execute || 
-                parameters.Operation == ScriptingOperationType.Alter) 
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return parameters.ScriptingObjects != null && parameters.ScriptingObjects.Count == 1 && parameters.ScriptOptions != null 
+                   && parameters.ScriptOptions.TypeOfDataToScript == "SchemaOnly" && parameters.ScriptDestination == "ToEditor" 
+                   || parameters.Operation == ScriptingOperationType.Select 
+                   || parameters.Operation == ScriptingOperationType.Execute 
+                   || parameters.Operation == ScriptingOperationType.Alter;
         }
 
         /// <summary>
@@ -247,7 +221,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
             {
                 disposed = true;
                 
-                foreach (ScriptingScriptOperation operation in this.ActiveOperations.Values)
+                foreach (var operation in this.ActiveOperations.Values)
                 {
                     operation.Dispose();
                 }

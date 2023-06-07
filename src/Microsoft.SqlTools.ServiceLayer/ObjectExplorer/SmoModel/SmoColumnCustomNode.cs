@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -89,6 +91,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 Name = "XmlDocumentConstraint",
                 ValidFor = ValidForFlag.NotSqlDw
+            },
+            new NodeSmoProperty
+            {
+                Name = "IsDroppedLedgerColumn",
+                ValidFor = ValidForFlag.Sql2022|ValidForFlag.AzureV12
             }
         });
 

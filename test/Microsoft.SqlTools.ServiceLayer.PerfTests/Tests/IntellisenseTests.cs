@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -283,10 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.PerfTests
             TestTimer timer = null,
             [CallerMemberName] string testName = "")
         {
-            if (timer == null)
-            {
-                timer = new TestTimer { PrintResult = false };
-            }
+            timer ??= new TestTimer { PrintResult = false };
             bool isReady = !waitForIntelliSense;
             await testService.ExecuteWithTimeout(timer, 550000, async () =>
             {

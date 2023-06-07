@@ -1,0 +1,4627 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConnectionServiceConnectErrorNullParams" xml:space="preserve">
+    <value>連線參數不能是 Null</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri 不能是 Null 或空白</value>
+  </data>
+  <data name="ConnectionServiceListDbErrorNotConnected" xml:space="preserve">
+    <value>SpecifiedUri '{0}' 沒有現有的連線</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
+    <value>AuthenticationType 值 "{0}" 無效。有效值為 'Integrated' 和 'SqlLogin'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
+    <value>ApplicationIntent 值 '{0}' 無效。有效值為 'ReadWrite' 和 'ReadOnly'。</value>
+  </data>
+  <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
+    <value>已取消連線</value>
+  </data>
+  <data name="ConnectionParamsValidateNullOwnerUri" xml:space="preserve">
+    <value>OwnerUri 不能是 Null 或空白</value>
+  </data>
+  <data name="ConnectionParamsValidateNullConnection" xml:space="preserve">
+    <value>連線詳細資料物件不能是 Null</value>
+  </data>
+  <data name="ConnectionParamsValidateNullServerName" xml:space="preserve">
+    <value>ServerName 不能是 Null 或空白</value>
+  </data>
+  <data name="ConnectionParamsValidateNullSqlAuth" xml:space="preserve">
+    <value>使用 SqlLogin 驗證時，{0} 不能是 Null 或是空白</value>
+  </data>
+  <data name="QueryServiceCancelAlreadyCompleted" xml:space="preserve">
+    <value>查詢已完成，無法取消</value>
+  </data>
+  <data name="QueryServiceCancelDisposeFailed" xml:space="preserve">
+    <value>已成功取消查詢，無法處置查詢。找不到擁有者 URI。</value>
+  </data>
+  <data name="QueryServiceQueryCancelled" xml:space="preserve">
+    <value>使用者已取消查詢</value>
+  </data>
+  <data name="QueryServiceSubsetBatchNotCompleted" xml:space="preserve">
+    <value>批次尚未完成</value>
+  </data>
+  <data name="QueryServiceSubsetBatchOutOfRange" xml:space="preserve">
+    <value>批次索引不能小於 0 或大於批次的總數</value>
+  </data>
+  <data name="QueryServiceSubsetResultSetOutOfRange" xml:space="preserve">
+    <value>結果集索引不能小於 0 或大於結果集的總數</value>
+  </data>
+  <data name="QueryServiceDataReaderByteCountInvalid" xml:space="preserve">
+    <value>傳回的最大位元組數目必須大於零</value>
+  </data>
+  <data name="QueryServiceDataReaderCharCountInvalid" xml:space="preserve">
+    <value>傳回的最大字元數目必須大於零</value>
+  </data>
+  <data name="QueryServiceDataReaderXmlCountInvalid" xml:space="preserve">
+    <value>傳回的最大 XML 位元組數目必須大於零</value>
+  </data>
+  <data name="QueryServiceFileWrapperWriteOnly" xml:space="preserve">
+    <value>存取方法不可以設為唯寫</value>
+  </data>
+  <data name="QueryServiceFileWrapperNotInitialized" xml:space="preserve">
+    <value>執行作業前，必須先初始化 FileStreamWrapper</value>
+  </data>
+  <data name="QueryServiceFileWrapperReadOnly" xml:space="preserve">
+    <value>這個 FileStreamWrapper 不能用於寫入</value>
+  </data>
+  <data name="QueryServiceAffectedOneRow" xml:space="preserve">
+    <value>(1 列受影響)</value>
+  </data>
+  <data name="QueryServiceAffectedRows" xml:space="preserve">
+    <value>({0} 個資料列受到影響)</value>
+  </data>
+  <data name="QueryServiceCompletedSuccessfully" xml:space="preserve">
+    <value>命令已順利完成。</value>
+  </data>
+  <data name="QueryServiceErrorFormat" xml:space="preserve">
+    <value>訊息 {0}，層級 {1}，狀態 {2}，第 {3} {4} {5} 行</value>
+  </data>
+  <data name="QueryServiceQueryFailed" xml:space="preserve">
+    <value>查詢失敗︰{0}</value>
+  </data>
+  <data name="QueryServiceColumnNull" xml:space="preserve">
+    <value>(沒有資料行名稱)</value>
+  </data>
+  <data name="QueryServiceRequestsNoQuery" xml:space="preserve">
+    <value>所要求的查詢不存在</value>
+  </data>
+  <data name="QueryServiceQueryInvalidOwnerUri" xml:space="preserve">
+    <value>因為 OwnerUri 無效，所以無法連線到資料庫</value>
+  </data>
+  <data name="QueryServiceQueryInProgress" xml:space="preserve">
+    <value>此編輯器工作階段正在進行一項查詢。請取消這項查詢，或等待查詢完成。</value>
+  </data>
+  <data name="QueryServiceMessageSenderNotSql" xml:space="preserve">
+    <value>OnInfoMessage 事件的傳送者必須是 SqlConnection</value>
+  </data>
+  <data name="QueryServiceSaveAsResultSetNotComplete" xml:space="preserve">
+    <value>完成查詢執行前無法儲存結果</value>
+  </data>
+  <data name="QueryServiceSaveAsMiscStartingError" xml:space="preserve">
+    <value>儲存工作啟動時，發生內部錯誤</value>
+  </data>
+  <data name="QueryServiceSaveAsInProgress" xml:space="preserve">
+    <value>相同路徑的儲存要求正在進行中</value>
+  </data>
+  <data name="QueryServiceSaveAsFail" xml:space="preserve">
+    <value>無法儲存 {0}: {1}</value>
+  </data>
+  <data name="QueryServiceResultSetNotRead" xml:space="preserve">
+    <value>從伺服器讀取結果前，無法讀取子集</value>
+  </data>
+  <data name="QueryServiceResultSetStartRowOutOfRange" xml:space="preserve">
+    <value>開始資料列不能小於 0 或大於結果集中的資料列總數</value>
+  </data>
+  <data name="QueryServiceResultSetRowCountOutOfRange" xml:space="preserve">
+    <value>資料列計數必須是正整數</value>
+  </data>
+  <data name="QueryServiceResultSetNoColumnSchema" xml:space="preserve">
+    <value>無法從結果集擷取資料行結構描述</value>
+  </data>
+  <data name="QueryServiceExecutionPlanNotFound" xml:space="preserve">
+    <value>無法從結果集擷取執行計畫</value>
+  </data>
+  <data name="PeekDefinitionAzureError" xml:space="preserve">
+    <value>Azure SQL DB 和資料倉儲目前不支援此功能︰{0}</value>
+  </data>
+  <data name="PeekDefinitionError" xml:space="preserve">
+    <value>瞄核定義執行過程中發生未預期的錯誤︰{0}</value>
+  </data>
+  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
+    <value>找不到任何結果。</value>
+  </data>
+  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
+    <value>未擷取資料庫物件。</value>
+  </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>請連線到伺服器。</value>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>作業逾時。</value>
+  </data>
+  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
+    <value>此功能目前不支援這種物件類型。</value>
+  </data>
+  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
+    <value>位置超出檔案行範圍</value>
+  </data>
+  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
+    <value>第 {0} 行位置超出資料行範圍</value>
+  </data>
+  <data name="WorkspaceServiceBufferPositionOutOfOrder" xml:space="preserve">
+    <value>開始位置 ({0}, {1}) 必須在結束位置之前或正好在結束位置上 ({2}, {3})</value>
+  </data>
+  <data name="TestLocalizationConstant" xml:space="preserve">
+    <value>測試</value>
+  </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>用空白字串取代空白字串。</value>
+  </data>
+  <data name="EditDataSessionNotFound" xml:space="preserve">
+    <value>編輯工作階段不存在。</value>
+  </data>
+  <data name="EditDataQueryNotCompleted" xml:space="preserve">
+    <value>查詢尚未執行完成</value>
+  </data>
+  <data name="EditDataQueryImproperResultSets" xml:space="preserve">
+    <value>查詢並非產生單一結果集</value>
+  </data>
+  <data name="EditDataFailedAddRow" xml:space="preserve">
+    <value>無法在更新快取中新增新資料列</value>
+  </data>
+  <data name="EditDataRowOutOfRange" xml:space="preserve">
+    <value>提供的資料列識別碼已超出編輯快取中資料列的範圍</value>
+  </data>
+  <data name="EditDataUpdatePending" xml:space="preserve">
+    <value>這個資料列已經有一個更新正在等待使用，因此必須先還原</value>
+  </data>
+  <data name="EditDataUpdateNotPending" xml:space="preserve">
+    <value>提供的資料列識別碼並沒有擱置的更新</value>
+  </data>
+  <data name="EditDataObjectMetadataNotFound" xml:space="preserve">
+    <value>找不到資料表或檢視表中繼資料</value>
+  </data>
+  <data name="EditDataInvalidFormatBinary" xml:space="preserve">
+    <value>二進位資料行格示錯誤</value>
+  </data>
+  <data name="EditDataInvalidFormatBoolean" xml:space="preserve">
+    <value>布林值欄位可填入的值為 1、0、"true" 或 "false"</value>
+  </data>
+  <data name="EditDataCreateScriptMissingValue" xml:space="preserve">
+    <value>資料行 '{0}' 已定義為 NOT NULL，但並未提供值</value>
+  </data>
+  <data name="EditDataDeleteSetCell" xml:space="preserve">
+    <value>即將刪除此資料列，無法套用儲存格更新</value>
+  </data>
+  <data name="EditDataColumnIdOutOfRange" xml:space="preserve">
+    <value>資料行識別碼必須在資料行範圍內才可查詢</value>
+  </data>
+  <data name="EditDataColumnCannotBeEdited" xml:space="preserve">
+    <value>無法編輯資料行</value>
+  </data>
+  <data name="EditDataColumnNoKeyColumns" xml:space="preserve">
+    <value>找不到索引鍵資料行</value>
+  </data>
+  <data name="EditDataScriptFilePathNull" xml:space="preserve">
+    <value>必須提供輸出檔名</value>
+  </data>
+  <data name="EditDataUnsupportedObjectType" xml:space="preserve">
+    <value>無法編輯資料庫物件 {0}。</value>
+  </data>
+  <data name="ConnectionServiceDbErrorDefaultNotConnected" xml:space="preserve">
+    <value>指定的 URI '{0}' 沒有預設的連線</value>
+  </data>
+  <data name="EditDataCommitInProgress" xml:space="preserve">
+    <value>認可的工作正在進行，請等待作業完成。</value>
+  </data>
+  <data name="SqlScriptFormatterDecimalMissingPrecision" xml:space="preserve">
+    <value>完全數值資料行缺少數值精確度或數值範圍</value>
+  </data>
+  <data name="EditDataComputedColumnPlaceholder" xml:space="preserve">
+    <value>&lt;TBD&gt;</value>
+  </data>
+  <data name="QueryServiceResultSetAddNoRows" xml:space="preserve">
+    <value>無法在結果緩衝區新增資料列，資料讀取器不包含資料列</value>
+  </data>
+  <data name="EditDataTimeOver24Hrs" xml:space="preserve">
+    <value>TIME 資料行的值範圍必須介於 00:00:00.0000000 和 23:59:59.9999999 之間</value>
+  </data>
+  <data name="EditDataNullNotAllowed" xml:space="preserve">
+    <value>此資料行不允許填入 NULL 值</value>
+  </data>
+  <data name="EditDataSessionAlreadyExists" xml:space="preserve">
+    <value>編輯工作階段已存在。</value>
+  </data>
+  <data name="EditDataSessionNotInitialized" xml:space="preserve">
+    <value>編輯工作階段尚未初始化</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitialized" xml:space="preserve">
+    <value>編輯工作階段已初始化</value>
+  </data>
+  <data name="EditDataSessionAlreadyInitializing" xml:space="preserve">
+    <value>編輯工作階段已初始化或正在初始化</value>
+  </data>
+  <data name="EditDataQueryFailed" xml:space="preserve">
+    <value>查詢執行失敗，請查看詳細資訊</value>
+  </data>
+  <data name="EditDataFilteringNegativeLimit" xml:space="preserve">
+    <value>結果限制不能為負</value>
+  </data>
+  <data name="QueryServiceCellNull" xml:space="preserve">
+    <value>NULL</value>
+  </data>
+  <data name="EditDataMetadataObjectNameRequired" xml:space="preserve">
+    <value>必須提供物件名稱</value>
+  </data>
+  <data name="EditDataMetadataTooManyIdentifiers" xml:space="preserve">
+    <value>不支援明確指定的伺服器或資料庫</value>
+  </data>
+  <data name="EditDataMetadataNotExtended" xml:space="preserve">
+    <value>資料表中繼資料沒有擴充屬性</value>
+  </data>
+  <data name="EditDataObjectNotFound" xml:space="preserve">
+    <value>找不到要編輯的資料表或檢視表</value>
+  </data>
+  <data name="TreeNodeError" xml:space="preserve">
+    <value>擴充時發生錯誤: {0}</value>
+  </data>
+  <data name="ServerNodeConnectionError" xml:space="preserve">
+    <value>連線至 {0} 時發生錯誤</value>
+  </data>
+  <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
+    <value>彙總</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
+    <value>伺服器角色</value>
+  </data>
+  <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
+    <value>應用程式角色</value>
+  </data>
+  <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
+    <value>組件</value>
+  </data>
+  <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
+    <value>組件檔</value>
+  </data>
+  <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
+    <value>非對稱金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
+    <value>非對稱金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
+    <value>資料壓縮選項</value>
+  </data>
+  <data name="SchemaHierarchy_Certificates" xml:space="preserve">
+    <value>憑證</value>
+  </data>
+  <data name="SchemaHierarchy_FileTables" xml:space="preserve">
+    <value>FileTable</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
+    <value>憑證</value>
+  </data>
+  <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
+    <value>檢查限制式</value>
+  </data>
+  <data name="SchemaHierarchy_Columns" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="SchemaHierarchy_Constraints" xml:space="preserve">
+    <value>限制式</value>
+  </data>
+  <data name="SchemaHierarchy_Contracts" xml:space="preserve">
+    <value>合約</value>
+  </data>
+  <data name="SchemaHierarchy_Credentials" xml:space="preserve">
+    <value>認證</value>
+  </data>
+  <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
+    <value>錯誤訊息</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
+    <value>伺服器角色成員資格</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
+    <value>資料庫選項</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
+    <value>資料庫角色</value>
+  </data>
+  <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
+    <value>角色成員資格</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
+    <value>資料庫觸發程序</value>
+  </data>
+  <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
+    <value>預設限制式</value>
+  </data>
+  <data name="SchemaHierarchy_Defaults" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="SchemaHierarchy_Sequences" xml:space="preserve">
+    <value>序列</value>
+  </data>
+  <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
+    <value>端點</value>
+  </data>
+  <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
+    <value>事件通知</value>
+  </data>
+  <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
+    <value>伺服器事件通知</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
+    <value>擴充屬性</value>
+  </data>
+  <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
+    <value>檔案群組</value>
+  </data>
+  <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
+    <value>外部索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
+    <value>全文檢索目錄</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
+    <value>全文檢索索引</value>
+  </data>
+  <data name="SchemaHierarchy_Functions" xml:space="preserve">
+    <value>函式</value>
+  </data>
+  <data name="SchemaHierarchy_Indexes" xml:space="preserve">
+    <value>索引</value>
+  </data>
+  <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
+    <value>內嵌函式</value>
+  </data>
+  <data name="SchemaHierarchy_Keys" xml:space="preserve">
+    <value>索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
+    <value>連結的伺服器</value>
+  </data>
+  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
+    <value>連結的伺服器登入</value>
+  </data>
+  <data name="SchemaHierarchy_Logins" xml:space="preserve">
+    <value>登入</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
+    <value>主要金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
+    <value>主要金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
+    <value>訊息類型</value>
+  </data>
+  <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="SchemaHierarchy_Parameters" xml:space="preserve">
+    <value>參數</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
+    <value>資料分割函式</value>
+  </data>
+  <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
+    <value>資料分割配置</value>
+  </data>
+  <data name="SchemaHierarchy_Permissions" xml:space="preserve">
+    <value>權限</value>
+  </data>
+  <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
+    <value>主索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_Programmability" xml:space="preserve">
+    <value>可程式性</value>
+  </data>
+  <data name="SchemaHierarchy_Queues" xml:space="preserve">
+    <value>佇列</value>
+  </data>
+  <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
+    <value>遠端服務繫結</value>
+  </data>
+  <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
+    <value>傳回的資料行</value>
+  </data>
+  <data name="SchemaHierarchy_Roles" xml:space="preserve">
+    <value>角色</value>
+  </data>
+  <data name="SchemaHierarchy_Routes" xml:space="preserve">
+    <value>路由</value>
+  </data>
+  <data name="SchemaHierarchy_Rules" xml:space="preserve">
+    <value>規則</value>
+  </data>
+  <data name="SchemaHierarchy_Schemas" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="SchemaHierarchy_Security" xml:space="preserve">
+    <value>安全性</value>
+  </data>
+  <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
+    <value>伺服器物件</value>
+  </data>
+  <data name="SchemaHierarchy_Management" xml:space="preserve">
+    <value>管理</value>
+  </data>
+  <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
+    <value>觸發程序</value>
+  </data>
+  <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="SchemaHierarchy_Services" xml:space="preserve">
+    <value>服務</value>
+  </data>
+  <data name="SchemaHierarchy_Signatures" xml:space="preserve">
+    <value>簽章</value>
+  </data>
+  <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
+    <value>記錄檔</value>
+  </data>
+  <data name="SchemaHierarchy_Statistics" xml:space="preserve">
+    <value>統計資料</value>
+  </data>
+  <data name="SchemaHierarchy_Storage" xml:space="preserve">
+    <value>儲存體</value>
+  </data>
+  <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
+    <value>預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
+    <value>對稱金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
+    <value>同義資料表</value>
+  </data>
+  <data name="SchemaHierarchy_Tables" xml:space="preserve">
+    <value>資料表</value>
+  </data>
+  <data name="SchemaHierarchy_Triggers" xml:space="preserve">
+    <value>觸發程序</value>
+  </data>
+  <data name="SchemaHierarchy_Types" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
+    <value>唯一索引鍵</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
+    <value>使用者定義資料類型</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
+    <value>使用者定義型別 (CLR)</value>
+  </data>
+  <data name="SchemaHierarchy_Users" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="SchemaHierarchy_Views" xml:space="preserve">
+    <value>檢視</value>
+  </data>
+  <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
+    <value>XML 索引</value>
+  </data>
+  <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
+    <value>XML 結構描述集合</value>
+  </data>
+  <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
+    <value>使用者定義資料表類型</value>
+  </data>
+  <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
+    <value>檔案</value>
+  </data>
+  <data name="MissingCaption" xml:space="preserve">
+    <value>遺漏標題</value>
+  </data>
+  <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
+    <value>訊息代理程式優先權</value>
+  </data>
+  <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
+    <value>密碼編譯提供者</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
+    <value>資料庫稽核規格</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
+    <value>資料庫加密金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
+    <value>事件工作階段</value>
+  </data>
+  <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
+    <value>全文檢索停用字詞表</value>
+  </data>
+  <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
+    <value>資源集區</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
+    <value>稽核</value>
+  </data>
+  <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
+    <value>伺服器稽核規格</value>
+  </data>
+  <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
+    <value>空間索引</value>
+  </data>
+  <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
+    <value>工作負載群組</value>
+  </data>
+  <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
+    <value>SQL 檔案</value>
+  </data>
+  <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
+    <value>伺服器函式</value>
+  </data>
+  <data name="SchemaHierarchy_SqlType" xml:space="preserve">
+    <value>SQL 類型</value>
+  </data>
+  <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
+    <value>伺服器選項</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
+    <value>資料庫圖表</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
+    <value>系統資料表</value>
+  </data>
+  <data name="SchemaHierarchy_Databases" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
+    <value>系統合約</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
+    <value>系統資料庫</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
+    <value>系統訊息類型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
+    <value>系統佇列</value>
+  </data>
+  <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
+    <value>系統服務</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
+    <value>系統預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
+    <value>系統檢視表</value>
+  </data>
+  <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
+    <value>資料層應用程式</value>
+  </data>
+  <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
+    <value>擴充預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
+    <value>彙總函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
+    <value>近似數值</value>
+  </data>
+  <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
+    <value>二進位字串</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
+    <value>字元字串</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
+    <value>CLR 資料類型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
+    <value>組態函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
+    <value>資料指標函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
+    <value>系統資料類型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
+    <value>日期與時間</value>
+  </data>
+  <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
+    <value>日期和時間函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
+    <value>精確數值</value>
+  </data>
+  <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
+    <value>系統函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
+    <value>階層識別碼函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
+    <value>數學函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
+    <value>中繼資料函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
+    <value>其他資料類型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
+    <value>其他函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
+    <value>資料列集函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
+    <value>安全性函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
+    <value>空間資料類型</value>
+  </data>
+  <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
+    <value>字串函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
+    <value>系統統計函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
+    <value>文字和影像函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
+    <value>Unicode 字元字串</value>
+  </data>
+  <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
+    <value>彙總函式</value>
+  </data>
+  <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
+    <value>純量值函式</value>
+  </data>
+  <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
+    <value>系統擴充預存程序</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
+    <value>內建類型</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
+    <value>內建伺服器角色</value>
+  </data>
+  <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
+    <value>有密碼的使用者</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
+    <value>搜尋屬性清單</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
+    <value>安全性原則</value>
+  </data>
+  <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
+    <value>安全性述詞</value>
+  </data>
+  <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
+    <value>伺服器角色</value>
+  </data>
+  <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
+    <value>搜尋屬性清單</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
+    <value>資料行儲存索引</value>
+  </data>
+  <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
+    <value>資料表類型索引</value>
+  </data>
+  <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
+    <value>選擇性 XML 索引</value>
+  </data>
+  <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
+    <value>XML 命名空間</value>
+  </data>
+  <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
+    <value>具 XML 類型的升階路徑</value>
+  </data>
+  <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
+    <value>具 T-SQL 類型的升階路徑</value>
+  </data>
+  <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
+    <value>資料庫範圍認證</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
+    <value>外部資料來源</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
+    <value>外部檔案格式</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
+    <value>外部資源</value>
+  </data>
+  <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
+    <value>外部資料表</value>
+  </data>
+  <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
+    <value>Always Encrypted 金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
+    <value>資料行主要金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
+    <value>資料行加密金鑰</value>
+  </data>
+  <data name="SchemaHierarchy_Server" xml:space="preserve">
+    <value>伺服器</value>
+  </data>
+  <data name="ScriptingParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>剖析屬性 ScriptingParams.ConnectionString 時發生錯誤</value>
+  </data>
+  <data name="ScriptingParams_FilePath_Property_Invalid" xml:space="preserve">
+    <value>ScriptingParams.FilePath 屬性指定的路徑是無效目錄。</value>
+  </data>
+  <data name="ScriptingListObjectsCompleteParams_ConnectionString_Property_Invalid" xml:space="preserve">
+    <value>剖析屬性 ScriptingListObjectsCompleteParams.ConnectionString 時發生錯誤</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
+    <value>{0} ({1}，{2}，{3})</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
+    <value>無預設值</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
+    <value>輸入</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
+    <value>輸入/輸出</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
+    <value>輸入/唯讀</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
+    <value>輸入/輸出/唯讀</value>
+  </data>
+  <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
+    <value>Null</value>
+  </data>
+  <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
+    <value>非 Null</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
+    <value>{0} ({1}，{2})</value>
+  </data>
+  <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
+    <value>{0} ({1} 已計算，{2}，{3})</value>
+  </data>
+  <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
+    <value>{0} ({1} 已計算)</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
+    <value>{0} (資料行集，{1})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
+    <value>{0} (資料行集，{1}{2}，{3})</value>
+  </data>
+  <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
+    <value>{0} (資料行集，{1}，{2}，{3})</value>
+  </data>
+  <data name="UniqueIndex_LabelPart" xml:space="preserve">
+    <value>唯一</value>
+  </data>
+  <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
+    <value>非唯一</value>
+  </data>
+  <data name="ClusteredIndex_LabelPart" xml:space="preserve">
+    <value>叢集</value>
+  </data>
+  <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
+    <value>非叢集</value>
+  </data>
+  <data name="History_LabelPart" xml:space="preserve">
+    <value>歷程</value>
+  </data>
+  <data name="SystemVersioned_LabelPart" xml:space="preserve">
+    <value>系統建立版本</value>
+  </data>
+  <data name="DatabaseNotAccessible" xml:space="preserve">
+    <value>無法存取資料庫 {0}。</value>
+  </data>
+  <data name="QueryServiceResultSetHasNoResults" xml:space="preserve">
+    <value>沒有查詢結果可以回傳</value>
+  </data>
+  <data name="QueryServiceResultSetTooLarge" xml:space="preserve">
+    <value>結果集因資料列過多而無法安全載入</value>
+  </data>
+  <data name="ConflictWithNoRecovery" xml:space="preserve">
+    <value>不允許使用 NORECOVERY 選項還原備份時，請指定這個選項。</value>
+  </data>
+  <data name="InvalidPathForDatabaseFile" xml:space="preserve">
+    <value>資料庫檔案的路徑無效: '{0}'</value>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>記錄</value>
+  </data>
+  <data name="RestorePlanFailed" xml:space="preserve">
+    <value>無法建立還原計畫</value>
+  </data>
+  <data name="RestoreNotSupported" xml:space="preserve">
+    <value>不支援還原資料庫</value>
+  </data>
+  <data name="RestoreTaskName" xml:space="preserve">
+    <value>還原資料庫</value>
+  </data>
+  <data name="RestoreCopyOnly" xml:space="preserve">
+    <value>(僅複製)</value>
+  </data>
+  <data name="RestoreBackupSetComponent" xml:space="preserve">
+    <value>元件</value>
+  </data>
+  <data name="RestoreBackupSetType" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="RestoreBackupSetServer" xml:space="preserve">
+    <value>伺服器</value>
+  </data>
+  <data name="RestoreBackupSetDatabase" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="RestoreBackupSetPosition" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="RestoreBackupSetFirstLsn" xml:space="preserve">
+    <value>第一個 LSN</value>
+  </data>
+  <data name="RestoreBackupSetLastLsn" xml:space="preserve">
+    <value>最後一個 LSN</value>
+  </data>
+  <data name="RestoreBackupSetCheckpointLsn" xml:space="preserve">
+    <value>檢查點 LSN</value>
+  </data>
+  <data name="RestoreBackupSetFullLsn" xml:space="preserve">
+    <value>完整 LSN</value>
+  </data>
+  <data name="RestoreBackupSetStartDate" xml:space="preserve">
+    <value>開始日期</value>
+  </data>
+  <data name="RestoreBackupSetFinishDate" xml:space="preserve">
+    <value>完成日期</value>
+  </data>
+  <data name="RestoreBackupSetSize" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="RestoreBackupSetUserName" xml:space="preserve">
+    <value>使用者名稱</value>
+  </data>
+  <data name="RestoreBackupSetExpiration" xml:space="preserve">
+    <value>逾期</value>
+  </data>
+  <data name="RestoreBackupSetName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="TheLastBackupTaken" xml:space="preserve">
+    <value>上次建立的備份 ({0})</value>
+  </data>
+  <data name="BackupTaskName" xml:space="preserve">
+    <value>備份資料庫</value>
+  </data>
+  <data name="TaskInProgress" xml:space="preserve">
+    <value>進行中</value>
+  </data>
+  <data name="TaskCompleted" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="ScriptTaskName" xml:space="preserve">
+    <value>指令碼</value>
+  </data>
+  <data name="ProfilerConnectionNotFound" xml:space="preserve">
+    <value>找不到連線</value>
+  </data>
+  <data name="AzureSystemDbProfilingError" xml:space="preserve">
+    <value>無法為 Azure 系統資料庫設立設定檔</value>
+  </data>
+  <data name="BackupPathIsFolderError" xml:space="preserve">
+    <value>請提供檔案路徑而非目錄路徑</value>
+  </data>
+  <data name="InvalidBackupPathError" xml:space="preserve">
+    <value>提供的路徑無效</value>
+  </data>
+  <data name="InvalidPathError" xml:space="preserve">
+    <value>無法存取伺服器上指定的路徑: {0}</value>
+  </data>
+  <data name="NoBackupsetsToRestore" xml:space="preserve">
+    <value>無選擇的備份集可還原</value>
+  </data>
+  <data name="AzureSqlDbEdition" xml:space="preserve">
+    <value>Azure SQL DB</value>
+  </data>
+  <data name="AzureSqlDwEdition" xml:space="preserve">
+    <value>Azure SQL 資料倉儲</value>
+  </data>
+  <data name="AzureSqlStretchEdition" xml:space="preserve">
+    <value>Azure SQL Stretch Database</value>
+  </data>
+  <data name="AzureSqlAnalyticsOnDemandEdition" xml:space="preserve">
+    <value>Azure SQL 隨需分析</value>
+  </data>
+  <data name="EditDataValueTooLarge" xml:space="preserve">
+    <value>數值 {0} 太大無法符合欄位類型 {1}</value>
+  </data>
+  <data name="EditDataInvalidFormat" xml:space="preserve">
+    <value>資料行 '{0}' 為無效格式，資料行定義為 {1}</value>
+  </data>
+  <data name="SqlScriptFormatterLengthTypeMissingSize" xml:space="preserve">
+    <value>包含長度的資料行缺少大小資訊</value>
+  </data>
+  <data name="SqlScriptFormatterScalarTypeMissingScale" xml:space="preserve">
+    <value>純量資料行缺少範圍</value>
+  </data>
+  <data name="StoredProcedureScriptParameterComment" xml:space="preserve">
+    <value>-- TODO: 在此處設定參數值。</value>
+  </data>
+  <data name="ScriptingGeneralError" xml:space="preserve">
+    <value>編寫物件指令碼時發生錯誤。</value>
+  </data>
+  <data name="ScriptingExecuteNotSupportedError" xml:space="preserve">
+    <value>僅預存程序支援指令碼執行</value>
+  </data>
+  <data name="External_LabelPart" xml:space="preserve">
+    <value>外部</value>
+  </data>
+  <data name="FileTable_LabelPart" xml:space="preserve">
+    <value>檔案資料表</value>
+  </data>
+  <data name="EditDataMultiTableNotSupported" xml:space="preserve">
+    <value>EditData 不支援多個目標資料表查詢</value>
+  </data>
+  <data name="EditDataAliasesNotSupported" xml:space="preserve">
+    <value>EditData 不支援資料行別名查詢</value>
+  </data>
+  <data name="EditDataExpressionsNotSupported" xml:space="preserve">
+    <value>EditData 不支援彙總或運算式資料行查詢</value>
+  </data>
+  <data name="EditDataDuplicateColumnsNotSupported" xml:space="preserve">
+    <value>EditData 不支援重覆資料行查詢</value>
+  </data>
+  <data name="EditDataIncorrectTable" xml:space="preserve">
+    <value>EditData 查詢必須查詢原始鎖定的資料表 '{0}'</value>
+  </data>
+  <data name="CategoryLocal" xml:space="preserve">
+    <value>[未分類 (本機)]</value>
+  </data>
+  <data name="CategoryFromMsx" xml:space="preserve">
+    <value>來自 MSX 的作業</value>
+  </data>
+  <data name="CategoryMultiServer" xml:space="preserve">
+    <value>[未分類 (多伺服器)]</value>
+  </data>
+  <data name="CategoryDBMaint" xml:space="preserve">
+    <value>資料庫維護</value>
+  </data>
+  <data name="CategoryWebAssistant" xml:space="preserve">
+    <value>Web 助理</value>
+  </data>
+  <data name="CategoryFullText" xml:space="preserve">
+    <value>全文</value>
+  </data>
+  <data name="CategoryReplDistribution" xml:space="preserve">
+    <value>REPL-分佈</value>
+  </data>
+  <data name="CategoryReplDistributionCleanup" xml:space="preserve">
+    <value>REPL-分佈清除</value>
+  </data>
+  <data name="CategoryReplHistoryCleanup" xml:space="preserve">
+    <value>REPL-歷程清除</value>
+  </data>
+  <data name="CategoryReplLogReader" xml:space="preserve">
+    <value>REPL-日誌閱讀器</value>
+  </data>
+  <data name="CategoryReplMerge" xml:space="preserve">
+    <value>REPL-合併</value>
+  </data>
+  <data name="CategoryReplSnapShot" xml:space="preserve">
+    <value>REPL-快照</value>
+  </data>
+  <data name="CategoryReplCheckup" xml:space="preserve">
+    <value>REPL-檢查</value>
+  </data>
+  <data name="CategoryReplCleanup" xml:space="preserve">
+    <value>REPL-訂用帳戶清除</value>
+  </data>
+  <data name="CategoryReplAlert" xml:space="preserve">
+    <value>REPL-警報回應</value>
+  </data>
+  <data name="CategoryReplQReader" xml:space="preserve">
+    <value>REPL-佇列閱讀器</value>
+  </data>
+  <data name="CategoryReplication" xml:space="preserve">
+    <value>複寫</value>
+  </data>
+  <data name="CategoryUncategorized" xml:space="preserve">
+    <value>[未分類]</value>
+  </data>
+  <data name="CategoryLogShipping" xml:space="preserve">
+    <value>記錄傳送</value>
+  </data>
+  <data name="CategoryDBEngineTuningAdvisor" xml:space="preserve">
+    <value>Database Engine Tuning Advisor</value>
+  </data>
+  <data name="CategoryDataCollector" xml:space="preserve">
+    <value>資料收集器</value>
+  </data>
+  <data name="JobAlreadyExists" xml:space="preserve">
+    <value>名為 '{0}' 的作業已存在。輸入該作業的唯一名稱。</value>
+  </data>
+  <data name="JobStepNameCannotBeBlank" xml:space="preserve">
+    <value>作業名稱步驟不能空白。</value>
+  </data>
+  <data name="JobStepNameAlreadyExists" xml:space="preserve">
+    <value>此作業已有名為 '{0}' 的步驟。您必須指定不同的名稱。</value>
+  </data>
+  <data name="AlertNameCannotBeBlank" xml:space="preserve">
+    <value>警示名稱不能空白。</value>
+  </data>
+  <data name="CannotCreateNewAlert" xml:space="preserve">
+    <value>無法建立新的警告。</value>
+  </data>
+  <data name="CannotAlterAlert" xml:space="preserve">
+    <value>無法修改警告。</value>
+  </data>
+  <data name="SysadminAccount" xml:space="preserve">
+    <value>SQL Server Agent 服務帳戶</value>
+  </data>
+  <data name="ProxyAccountNotFound" xml:space="preserve">
+    <value>伺服器上不存在 Proxy 帳戶 '{0}'。</value>
+  </data>
+  <data name="CredentialNoLongerExists" xml:space="preserve">
+    <value>伺服器上不再存在該物件。</value>
+  </data>
+  <data name="UnknownServerType" xml:space="preserve">
+    <value>未知的伺服器類型 '{0}'。</value>
+  </data>
+  <data name="SetOwnerFailed" xml:space="preserve">
+    <value>目前的登入沒有權限將資料庫擁有者設為 '{0}'  但已順利建立資料庫。</value>
+  </data>
+  <data name="TargetServerNotSelected" xml:space="preserve">
+    <value>您必須指定目標伺服器以執行此多伺服器作業。</value>
+  </data>
+  <data name="UnexpectedRunType" xml:space="preserve">
+    <value>未知的執行類型。</value>
+  </data>
+  <data name="UnknownSizeUnit" xml:space="preserve">
+    <value>未知的大小單位 {0}</value>
+  </data>
+  <data name="SessionNotFound" xml:space="preserve">
+    <value>找不到要求的 XEvent 工作階段</value>
+  </data>
+  <data name="StopSessionFailed" xml:space="preserve">
+    <value>無法停止工作階段: {0}</value>
+  </data>
+  <data name="StartSessionFailed" xml:space="preserve">
+    <value>無法開始工作階段: {0}</value>
+  </data>
+  <data name="CreateSessionFailed" xml:space="preserve">
+    <value>無法建立工作階段: {0}</value>
+  </data>
+  <data name="PauseSessionFailed" xml:space="preserve">
+    <value>無法暫停工作階段: {0}</value>
+  </data>
+  <data name="SessionAlreadyExists" xml:space="preserve">
+    <value>名為 {0} 的 XEvent 工作階段已存在</value>
+  </data>
+  <data name="InvalidScheduleTitle" xml:space="preserve">
+    <value>無效的排程</value>
+  </data>
+  <data name="InvalidWeeklySchedule" xml:space="preserve">
+    <value>請選取至少一天，成為每週排程的一部份。</value>
+  </data>
+  <data name="StartDateGreaterThanEndDate" xml:space="preserve">
+    <value>作業排程開始日期不能晚於結束日期。</value>
+  </data>
+  <data name="StartTimeGreaterThanEndTime" xml:space="preserve">
+    <value>作業排程開始時間不能晚於結束時間。</value>
+  </data>
+  <data name="EndTimeEqualToStartTime" xml:space="preserve">
+    <value>作業排程結束時間必須晚於開始時間。</value>
+  </data>
+  <data name="InvalidStartDate" xml:space="preserve">
+    <value>開始日期必須在 1990 年 1 月 1 日或之後。</value>
+  </data>
+  <data name="ScheduleNameAlreadyExists" xml:space="preserve">
+    <value>此作業已有名為 '{0}' 的排程。您必須指定不同的名稱。</value>
+  </data>
+  <data name="JobServerIsNotAvailable" xml:space="preserve">
+    <value>作業伺服器無法使用</value>
+  </data>
+  <data name="NeverBackedUp" xml:space="preserve">
+    <value>永不</value>
+  </data>
+  <data name="Error_InvalidDirectoryName" xml:space="preserve">
+    <value>路徑 {0} 不是有效的目錄</value>
+  </data>
+  <data name="Error_ExistingDirectoryName" xml:space="preserve">
+    <value>目錄 {0} 中已存在名為 {1} 的檔案</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>開始執行迴圈</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>執行此批次時發生錯誤，但已忽略錯誤。</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>已完成 {0} 次批次執行...</value>
+  </data>
+  <data name="BatchParserWrapperExecutionError" xml:space="preserve">
+    <value>批次剖析器包裝函式執行: 已找到 {0}，位於行 {1}: {2}    描述: {3}</value>
+  </data>
+  <data name="ExtractInvalidVersion" xml:space="preserve">
+    <value>已傳遞無效版本 '{0}'。版本格式必須是 x.x.x.x，其中 x 是數字。</value>
+  </data>
+  <data name="ExportBacpacTaskName" xml:space="preserve">
+    <value>匯出 bacpac</value>
+  </data>
+  <data name="ImportBacpacTaskName" xml:space="preserve">
+    <value>匯入 bacpac</value>
+  </data>
+  <data name="ExtractDacpacTaskName" xml:space="preserve">
+    <value>擷取 dacpac</value>
+  </data>
+  <data name="DeployDacpacTaskName" xml:space="preserve">
+    <value>部署 dacpac</value>
+  </data>
+  <data name="GenerateScriptTaskName" xml:space="preserve">
+    <value>產生指令碼</value>
+  </data>
+  <data name="PublishChangesTaskName" xml:space="preserve">
+    <value>套用結構描述比較變更</value>
+  </data>
+  <data name="SchemaCompareExcludeIncludeNodeNotFound" xml:space="preserve">
+    <value>在模型中找不到指定的變更</value>
+  </data>
+  <data name="OpenScmpConnectionBasedModelParsingError" xml:space="preserve">
+    <value>嘗試剖析包含錯誤訊息 '{1}' 的端點 '{0}' 連線資訊時發生錯誤</value>
+  </data>
+  <data name="SchemaCompareSessionNotFound" xml:space="preserve">
+    <value>找不到要取消的結構描述比較工作階段</value>
+  </data>
+  <data name="SerializationServiceUnsupportedFormat" xml:space="preserve">
+    <value>不支援的儲存格式: {0}</value>
+  </data>
+  <data name="SerializationServiceRequestInProgress" xml:space="preserve">
+    <value>正在進行檔案 {0} 的要求</value>
+  </data>
+  <data name="SerializationServiceRequestNotFound" xml:space="preserve">
+    <value>無法序列化更多資料，因為找不到檔案 {0} 的要求</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
+    <value>ComlumEncryption 的值 '{0}' 無效。有效值為 'Enabled' 及 'Disabled'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
+    <value>加密的值 '{0}' 無效。有效值為 'Optional'、'Mandatory'、'Strict'、'True'、'False'、'Yes' 和 'No'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
+    <value>證明通訊協定的無效值 '{0}'。有效的值為 'AAS'、'HGS' 及 [無]。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
+    <value>證明通訊協定與證明 URL 需要將具有安全記憶體保護區的 Always Encrypted 設定為 [已啟用]。</value>
+  </data>
+  <data name="SqlCmdExitOnError" xml:space="preserve">
+    <value>執行批次期間發生錯誤，結束中。</value>
+  </data>
+  <data name="SqlCmdUnsupportedToken" xml:space="preserve">
+    <value>發現不支援的權杖 {0}</value>
+  </data>
+  <data name="SqlAssessmentGenerateScriptTaskName" xml:space="preserve">
+    <value>產生 SQL 評定指令碼</value>
+  </data>
+  <data name="SqlAssessmentQueryInvalidOwnerUri" xml:space="preserve">
+    <value>未連線到伺服器</value>
+  </data>
+  <data name="SqlAssessmentConnectingError" xml:space="preserve">
+    <value>無法連線到伺服器</value>
+  </data>
+  <data name="SqlAssessmentUnsuppoertedEdition" xml:space="preserve">
+    <value>不支援的引擎版本 {0}</value>
+  </data>
+  <data name="ParameterizationDetails" xml:space="preserve">
+    <value>{0} 將會轉換成具下列屬性的 Microsoft.Data.SqlClient.SqlParameter 物件: SqlDbType = {1}，Size = {2}，Precision = {3}，Scale = {4}，SqlValue = {5}</value>
+  </data>
+  <data name="ErrorMessageHeader" xml:space="preserve">
+    <value>第 {0} 行</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)。常值: {2}</value>
+  </data>
+  <data name="DateTimeErrorMessage" xml:space="preserve">
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為其使用了不支援的日期/時間格式。請使用支援的日期/時間格式。常值: {2}</value>
+  </data>
+  <data name="BinaryLiteralPrefixMissingError" xml:space="preserve">
+    <value>無法將 {0} 轉換為 Microsoft.Data.SqlClient.SqlParameter 物件。指定的常值無法轉換為 {1}(Microsoft.Data.SqlDbType)，因為前置的 0x 應為二進位常值。常值: {2}</value>
+  </data>
+  <data name="ParsingErrorHeader" xml:space="preserve">
+    <value>第 {0} 行，第 {1} 欄</value>
+  </data>
+  <data name="ScriptTooLarge" xml:space="preserve">
+    <value>目前的指令碼對 Always Encrypted 的參數化而言太大，請在 [查詢選項] 中停用 Always Encrypted 的參數化 ([查詢] &gt; [查詢選項] &gt; [執行] &gt; [進階])。允許的長度上限: {0} 個字元，目前的指令碼長度: {1} 個字元</value>
+  </data>
+  <data name="ProjectExtractTaskName" xml:space="preserve">
+    <value>解壓縮專案檔</value>
+  </data>
+  <data name="ValidateStreamingJobTaskName" xml:space="preserve">
+    <value>驗證資料流作業</value>
+  </data>
+  <data name="StreamNotFoundInModel" xml:space="preserve">
+    <value>資料流查詢陳述式包含缺少 {0} 資料流 '{1}' 的參考。 您必須將其新增至資料庫模型。</value>
+  </data>
+  <data name="Input" xml:space="preserve">
+    <value>輸入</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>輸出</value>
+  </data>
+  <data name="StreamingJobValidationFailed" xml:space="preserve">
+    <value>外部資料流作業 '{0}' 的驗證失敗:</value>
+  </data>
+  <data name="FragmentShouldHaveOnlyOneBatch" xml:space="preserve">
+    <value>TSQL 片段必須只包含一個批次。</value>
+  </data>
+  <data name="NoCreateStreamingJobStatementFound" xml:space="preserve">
+    <value>找不到任何外部資料流作業建立 TSQL (EXEC sp_create_streaming_job 陳述式)。</value>
+  </data>
+  <data name="CouldntFindAzureFunction" xml:space="preserve">
+    <value>在 {1} 中找不到具有 FunctionName '{0}' 的 Azure 函數</value>
+  </data>
+  <data name="MoreThanOneAzureFunctionWithName" xml:space="preserve">
+    <value>在 {1} 中找到多個具有 FunctionName '{0}' 的 Azure 函數</value>
+  </data>
+  <data name="SqlBindingsNet5NotSupported" xml:space="preserve">
+    <value>.NET 5 不支援新增 SQL 繫結</value>
+  </data>
+  <data name="Statement" xml:space="preserve">
+    <value>陳述式</value>
+  </data>
+  <data name="StatementDesc" xml:space="preserve">
+    <value>大多數情況下，包含 Transact-SQL 陳述式的文字。若是 PLAN_ROW 類型的資料列，則包含作業的描述。</value>
+  </data>
+  <data name="PhysicalOperation" xml:space="preserve">
+    <value>實體作業</value>
+  </data>
+  <data name="PhysicalOperationDesc" xml:space="preserve">
+    <value>節點的實體實作演算法。只適用於 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="LogicalOperation" xml:space="preserve">
+    <value>邏輯作業</value>
+  </data>
+  <data name="LogicalOperationDesc" xml:space="preserve">
+    <value>此節點代表的關聯式代數運算子。只適用於 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="OperationDescriptionShort" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="OperationDescription" xml:space="preserve">
+    <value>作業描述。</value>
+  </data>
+  <data name="OperationArgumentShort" xml:space="preserve">
+    <value>引數</value>
+  </data>
+  <data name="OperationArgumentDescription" xml:space="preserve">
+    <value>提供關於執行之作業的補充資訊。這個資料行的內容依實體運算子而定。</value>
+  </data>
+  <data name="ObjectShort" xml:space="preserve">
+    <value>物件</value>
+  </data>
+  <data name="ObjectDescription" xml:space="preserve">
+    <value>物件。</value>
+  </data>
+  <data name="IndexKind" xml:space="preserve">
+    <value>索引種類</value>
+  </data>
+  <data name="IndexKindDescription" xml:space="preserve">
+    <value>所參考物件的索引類型。</value>
+  </data>
+  <data name="DefinedValues" xml:space="preserve">
+    <value>定義的值</value>
+  </data>
+  <data name="DefinedValuesDescription" xml:space="preserve">
+    <value>包含此運算子導入的逗號分隔值清單，可能是目前查詢中的計算運算式，也可能是查詢處理器為了處理此查詢所導入的內部值。只適用於 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="OutputList" xml:space="preserve">
+    <value>輸出清單</value>
+  </data>
+  <data name="OutputListDescription" xml:space="preserve">
+    <value>包含目前作業預計之資料行的逗號分隔清單。</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="WarningsDescription" xml:space="preserve">
+    <value>包含與目前作業相關之警告訊息的逗號分隔清單。警示訊息可能包含字串 'NO STATS:()' 及一串資料行。</value>
+  </data>
+  <data name="Parallel" xml:space="preserve">
+    <value>平行</value>
+  </data>
+  <data name="ParallelDescription" xml:space="preserve">
+    <value>運算子是否正在平行執行。</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecution" xml:space="preserve">
+    <value>每次執行的估計資料列數目</value>
+  </data>
+  <data name="EstimatedNumberOfRowsPerExecutionDescription" xml:space="preserve">
+    <value>此運算子所輸出的每次執行估計資料列數目。這僅適用於 PLAN_ROWS。</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutions" xml:space="preserve">
+    <value>所有執行的估計資料列數目</value>
+  </data>
+  <data name="EstimatedNumberOfRowsForAllExecutionsDescription" xml:space="preserve">
+    <value>此運算子所輸出的所有執行估計資料列數目。這僅適用於 PLAN_ROWS。</value>
+  </data>
+  <data name="EstimatedRowsRead" xml:space="preserve">
+    <value>估計要讀取的列數目</value>
+  </data>
+  <data name="EstimatedRowsReadDescription" xml:space="preserve">
+    <value>要由此運算子讀取的估計資料列數目。若運算子具有述詞，此值可能不同於「所有執行的估計資料列數目」。</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosure" xml:space="preserve">
+    <value>是 GraphDB 傳遞閉包</value>
+  </data>
+  <data name="IsGraphDBTransitiveClosureDescription" xml:space="preserve">
+    <value>序列是否會表示 GraphDB 傳遞閉包。</value>
+  </data>
+  <data name="IsInterleavedExecuted" xml:space="preserve">
+    <value>IsInterleavedExecuted</value>
+  </data>
+  <data name="IsInterleavedExecutedDescription" xml:space="preserve">
+    <value>運算子是否交錯執行。</value>
+  </data>
+  <data name="IsAdaptive" xml:space="preserve">
+    <value>是自適性</value>
+  </data>
+  <data name="IsAdaptiveDescription" xml:space="preserve">
+    <value>運算子是否為自適性。</value>
+  </data>
+  <data name="AdaptiveThresholdRows" xml:space="preserve">
+    <value>自適性臨界值資料列</value>
+  </data>
+  <data name="AdaptiveThresholdRowsDescription" xml:space="preserve">
+    <value>若此為自適性運算子，即為其採用的基數。</value>
+  </data>
+  <data name="EstimatedJoinType" xml:space="preserve">
+    <value>估計的聯結類型</value>
+  </data>
+  <data name="EstimatedJoinTypeDescription" xml:space="preserve">
+    <value>查詢最佳化工具會先估計聯結類型 (巢狀迴圈或雜湊聯結)，再加以採用。</value>
+  </data>
+  <data name="ActualJoinType" xml:space="preserve">
+    <value>實際聯結類型</value>
+  </data>
+  <data name="ActualJoinTypeDescription" xml:space="preserve">
+    <value>揀選作為自適性聯結執行的實際聯結 (巢狀迴圈或雜湊聯結)。</value>
+  </data>
+  <data name="EstimatedRowSize" xml:space="preserve">
+    <value>估計的資料列大小</value>
+  </data>
+  <data name="EstimatedRowSizeDescription" xml:space="preserve">
+    <value>透過此運算子傳遞之資料列的估計平均資料列大小。</value>
+  </data>
+  <data name="EstimatedIoCost" xml:space="preserve">
+    <value>估計的 I/O 成本</value>
+  </data>
+  <data name="EstimatedIoCostDescription" xml:space="preserve">
+    <value>此運算子的估計 I/O 成本。只適用於 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="EstimatedCpuCost" xml:space="preserve">
+    <value>估計的 CPU 成本</value>
+  </data>
+  <data name="EstimatedCpuCostDescription" xml:space="preserve">
+    <value>此運算子的估計 CPU 成本。只適用於 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="EstimatedNumberOfExecutions" xml:space="preserve">
+    <value>估計的執行數目</value>
+  </data>
+  <data name="EstimatedNumberOfExecutionsDescription" xml:space="preserve">
+    <value>執行目前查詢時，將會執行此運算子的估計次數。</value>
+  </data>
+  <data name="EstimatedOperatorCost" xml:space="preserve">
+    <value>估計的運算子成本</value>
+  </data>
+  <data name="EstimatedOperatorCostDescription" xml:space="preserve">
+    <value>此運算子的估計成本。</value>
+  </data>
+  <data name="EstimatedSubtreeCost" xml:space="preserve">
+    <value>估計的子樹成本</value>
+  </data>
+  <data name="EstimatedSubtreeCostDescription" xml:space="preserve">
+    <value>此作業和所有子作業的估計累計成本。</value>
+  </data>
+  <data name="NumberOfRows" xml:space="preserve">
+    <value>所有執行的實際資料列數目</value>
+  </data>
+  <data name="NumberOfRowsDescription" xml:space="preserve">
+    <value>此運算子所輸出的所有執行實際資料列數目。僅適用於 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="ActualRowsRead" xml:space="preserve">
+    <value>讀取的資料列數</value>
+  </data>
+  <data name="ActualRowsReadDescription" xml:space="preserve">
+    <value>在套用述詞篩選之前，從資料表或索引讀取的資料列數目。僅限 PLAN_ROWS 類型的資料列。</value>
+  </data>
+  <data name="NumberOfBatches" xml:space="preserve">
+    <value>實際批次數目</value>
+  </data>
+  <data name="NumberOfBatchesDescription" xml:space="preserve">
+    <value>此運算子輸出的實際批次數目。</value>
+  </data>
+  <data name="NumberOfExecutions" xml:space="preserve">
+    <value>執行數目</value>
+  </data>
+  <data name="NumberOfExecutionsDescription" xml:space="preserve">
+    <value>執行目前查詢時，此運算子將會執行的次數。</value>
+  </data>
+  <data name="EstimatedDataSize" xml:space="preserve">
+    <value>估計的資料大小</value>
+  </data>
+  <data name="EstimatedDataSizeDescription" xml:space="preserve">
+    <value>透過此運算子傳遞之資料的估計資料大小。</value>
+  </data>
+  <data name="ParameterList" xml:space="preserve">
+    <value>參數清單</value>
+  </data>
+  <data name="ParameterListDescription" xml:space="preserve">
+    <value>參數清單。</value>
+  </data>
+  <data name="MemoryFractions" xml:space="preserve">
+    <value>記憶體片段</value>
+  </data>
+  <data name="MemoryFractionsDescription" xml:space="preserve">
+    <value>記憶體片段。</value>
+  </data>
+  <data name="MemoryFractionsInput" xml:space="preserve">
+    <value>記憶體片段輸入</value>
+  </data>
+  <data name="MemoryFractionsInputDescription" xml:space="preserve">
+    <value>記憶體片段輸入。</value>
+  </data>
+  <data name="MemoryFractionsOutput" xml:space="preserve">
+    <value>記憶體片段輸出</value>
+  </data>
+  <data name="MemoryFractionsOutputDescription" xml:space="preserve">
+    <value>記憶體片段輸出。</value>
+  </data>
+  <data name="UdxName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="UdxNameDescription" xml:space="preserve">
+    <value>名稱。</value>
+  </data>
+  <data name="Values" xml:space="preserve">
+    <value>值</value>
+  </data>
+  <data name="ValuesDescription" xml:space="preserve">
+    <value>值。</value>
+  </data>
+  <data name="CachedPlanSize" xml:space="preserve">
+    <value>快取的計畫大小</value>
+  </data>
+  <data name="CachedPlanSizeDescription" xml:space="preserve">
+    <value>快取的計畫大小。</value>
+  </data>
+  <data name="UsePlan" xml:space="preserve">
+    <value>使用計畫</value>
+  </data>
+  <data name="ContainsInlineScalarTsqlUdfs" xml:space="preserve">
+    <value>包含內嵌純量 Tsql Udf</value>
+  </data>
+  <data name="DegreeOfParallelism" xml:space="preserve">
+    <value>平行處理原則的程度</value>
+  </data>
+  <data name="DegreeOfParallelismDescription" xml:space="preserve">
+    <value>平行處理原則的程度。</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelism" xml:space="preserve">
+    <value>平行處理原則的有效程度</value>
+  </data>
+  <data name="EffectiveDegreeOfParallelismDescription" xml:space="preserve">
+    <value>資料行存放區索引建立期間的最大平行處理原則程度。</value>
+  </data>
+  <data name="MemoryGrant" xml:space="preserve">
+    <value>記憶體授權</value>
+  </data>
+  <data name="MemoryGrantDescription" xml:space="preserve">
+    <value>記憶體授權。</value>
+  </data>
+  <data name="RemoteDestination" xml:space="preserve">
+    <value>遠端目的地</value>
+  </data>
+  <data name="RemoteDestinationDescription" xml:space="preserve">
+    <value>遠端物件。</value>
+  </data>
+  <data name="RemoteObject" xml:space="preserve">
+    <value>遠端物件</value>
+  </data>
+  <data name="RemoteObjectDescription" xml:space="preserve">
+    <value>遠端物件。</value>
+  </data>
+  <data name="RemoteSource" xml:space="preserve">
+    <value>遠端來源</value>
+  </data>
+  <data name="RemoteSourceDescription" xml:space="preserve">
+    <value>遠端來源。</value>
+  </data>
+  <data name="UsedUdxColumns" xml:space="preserve">
+    <value>使用的 UDX 資料行</value>
+  </data>
+  <data name="UsedUdxColumnsDescription" xml:space="preserve">
+    <value>使用的 UDX 資料行。</value>
+  </data>
+  <data name="InnerSideJoinColumns" xml:space="preserve">
+    <value>內部聯結資料行</value>
+  </data>
+  <data name="InnerSideJoinColumnsDescription" xml:space="preserve">
+    <value>內部聯結資料行。</value>
+  </data>
+  <data name="OuterSideJoinColumns" xml:space="preserve">
+    <value>外部聯結資料行</value>
+  </data>
+  <data name="OuterSideJoinColumnsDescription" xml:space="preserve">
+    <value>外部聯結資料行。</value>
+  </data>
+  <data name="WhereJoinColumns" xml:space="preserve">
+    <value>Where (聯結資料行)</value>
+  </data>
+  <data name="Residual" xml:space="preserve">
+    <value>剩餘</value>
+  </data>
+  <data name="ResidualDescription" xml:space="preserve">
+    <value>剩餘。</value>
+  </data>
+  <data name="PassThru" xml:space="preserve">
+    <value>通過</value>
+  </data>
+  <data name="PassThruDescription" xml:space="preserve">
+    <value>通過。</value>
+  </data>
+  <data name="ManyToMany" xml:space="preserve">
+    <value>多對多</value>
+  </data>
+  <data name="ManyToManyDescription" xml:space="preserve">
+    <value>多對多。</value>
+  </data>
+  <data name="PartitionColumns" xml:space="preserve">
+    <value>分割區資料行</value>
+  </data>
+  <data name="PartitionColumnsDescription" xml:space="preserve">
+    <value>分割區資料行。</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>遞增</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>遞減</value>
+  </data>
+  <data name="HashKeys" xml:space="preserve">
+    <value>雜湊索引鍵</value>
+  </data>
+  <data name="HashKeysDescription" xml:space="preserve">
+    <value>雜湊索引鍵。</value>
+  </data>
+  <data name="ProbeColumn" xml:space="preserve">
+    <value>探查資料行</value>
+  </data>
+  <data name="ProbeColumnDescription" xml:space="preserve">
+    <value>探查資料行。</value>
+  </data>
+  <data name="PartitioningType" xml:space="preserve">
+    <value>分割類型</value>
+  </data>
+  <data name="PartitioningTypeDescription" xml:space="preserve">
+    <value>分割類型。</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>群組依據</value>
+  </data>
+  <data name="GroupByDescription" xml:space="preserve">
+    <value>群組依據。</value>
+  </data>
+  <data name="GroupingSets" xml:space="preserve">
+    <value>群組集合</value>
+  </data>
+  <data name="GroupingSetsDescription" xml:space="preserve">
+    <value>群組集合清單。每個值都是 Group By 屬性中群組資料行的反向點陣圖。</value>
+  </data>
+  <data name="SegmentColumn" xml:space="preserve">
+    <value>區段資料行</value>
+  </data>
+  <data name="SegmentColumnDescription" xml:space="preserve">
+    <value>區段資料行。</value>
+  </data>
+  <data name="RankColumns" xml:space="preserve">
+    <value>排列資料行次序</value>
+  </data>
+  <data name="RankColumnsDescription" xml:space="preserve">
+    <value>排列資料行次序。</value>
+  </data>
+  <data name="Predicate" xml:space="preserve">
+    <value>述詞</value>
+  </data>
+  <data name="PredicateDescription" xml:space="preserve">
+    <value>述詞。</value>
+  </data>
+  <data name="OuterReferences" xml:space="preserve">
+    <value>外部參考</value>
+  </data>
+  <data name="OuterReferencesDescription" xml:space="preserve">
+    <value>外部參考。</value>
+  </data>
+  <data name="ScalarOperator" xml:space="preserve">
+    <value>純量運算子</value>
+  </data>
+  <data name="ActionColumn" xml:space="preserve">
+    <value>動作資料行</value>
+  </data>
+  <data name="ActionColumnDescription" xml:space="preserve">
+    <value>動作資料行。</value>
+  </data>
+  <data name="OriginalActionColumn" xml:space="preserve">
+    <value>原始動作資料行</value>
+  </data>
+  <data name="OriginalActionColumnDescription" xml:space="preserve">
+    <value>原始動作資料行。</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>排名最前面的資料列</value>
+  </data>
+  <data name="RowsDescription" xml:space="preserve">
+    <value>排名最前面的資料列。</value>
+  </data>
+  <data name="SeekPredicate" xml:space="preserve">
+    <value>搜尋述詞</value>
+  </data>
+  <data name="SeekPredicateDescription" xml:space="preserve">
+    <value>搜尋述詞。</value>
+  </data>
+  <data name="Partitioned" xml:space="preserve">
+    <value>已分割</value>
+  </data>
+  <data name="PartitionedDescription" xml:space="preserve">
+    <value>作業是否在分割區資料表或索引上。</value>
+  </data>
+  <data name="SeekKeys" xml:space="preserve">
+    <value>搜尋索引鍵</value>
+  </data>
+  <data name="SeekKeysDescription" xml:space="preserve">
+    <value>搜尋作業使用的索引鍵。</value>
+  </data>
+  <data name="PartitionsAccessed" xml:space="preserve">
+    <value>實際分割區已存取</value>
+  </data>
+  <data name="PartitionCount" xml:space="preserve">
+    <value>實際分割區計數</value>
+  </data>
+  <data name="TieColumns" xml:space="preserve">
+    <value>繫結資料行</value>
+  </data>
+  <data name="TieColumnsDescription" xml:space="preserve">
+    <value>繫結資料行。</value>
+  </data>
+  <data name="IsPercent" xml:space="preserve">
+    <value>為百分比</value>
+  </data>
+  <data name="IsPercentDescription" xml:space="preserve">
+    <value>為百分比。</value>
+  </data>
+  <data name="WithTies" xml:space="preserve">
+    <value>With Ties</value>
+  </data>
+  <data name="WithTiesDescription" xml:space="preserve">
+    <value>含繫結。</value>
+  </data>
+  <data name="PartitionId" xml:space="preserve">
+    <value>分割區識別碼</value>
+  </data>
+  <data name="PartitionIdDescription" xml:space="preserve">
+    <value>分割區識別碼。</value>
+  </data>
+  <data name="Ordered" xml:space="preserve">
+    <value>已訂購</value>
+  </data>
+  <data name="OrderedDescription" xml:space="preserve">
+    <value>已排序。</value>
+  </data>
+  <data name="ScanDirection" xml:space="preserve">
+    <value>掃描方向</value>
+  </data>
+  <data name="ScanDirectionDescription" xml:space="preserve">
+    <value>掃描作業的方向，順向或逆向。</value>
+  </data>
+  <data name="ForcedIndex" xml:space="preserve">
+    <value>強制索引</value>
+  </data>
+  <data name="ForcedIndexDescription" xml:space="preserve">
+    <value>強制索引。</value>
+  </data>
+  <data name="SetPredicate" xml:space="preserve">
+    <value>述詞</value>
+  </data>
+  <data name="SetPredicateDescription" xml:space="preserve">
+    <value>述詞</value>
+  </data>
+  <data name="TopExpression" xml:space="preserve">
+    <value>Top 運算式</value>
+  </data>
+  <data name="TopExpressionDescription" xml:space="preserve">
+    <value>Top 運算式。</value>
+  </data>
+  <data name="HashKeysBuild" xml:space="preserve">
+    <value>雜湊索引鍵建立</value>
+  </data>
+  <data name="HashKeysBuildDescription" xml:space="preserve">
+    <value>雜湊索引鍵建立。</value>
+  </data>
+  <data name="HashKeysProbe" xml:space="preserve">
+    <value>雜湊索引鍵探查</value>
+  </data>
+  <data name="HashKeysProbeDescription" xml:space="preserve">
+    <value>雜湊索引鍵探查。</value>
+  </data>
+  <data name="BuildResidual" xml:space="preserve">
+    <value>建立剩餘</value>
+  </data>
+  <data name="BuildResidualDescription" xml:space="preserve">
+    <value>建立剩餘。</value>
+  </data>
+  <data name="ProbeResidual" xml:space="preserve">
+    <value>探查剩餘</value>
+  </data>
+  <data name="ProbeResidualDescription" xml:space="preserve">
+    <value>探查剩餘。</value>
+  </data>
+  <data name="SeekPredicates" xml:space="preserve">
+    <value>搜尋述詞</value>
+  </data>
+  <data name="SeekPredicatesDescription" xml:space="preserve">
+    <value>搜尋述詞。</value>
+  </data>
+  <data name="SetOptions" xml:space="preserve">
+    <value>設定選項</value>
+  </data>
+  <data name="SetOptionsDescription" xml:space="preserve">
+    <value>設定選項。</value>
+  </data>
+  <data name="OptimizationLevel" xml:space="preserve">
+    <value>最佳化層級</value>
+  </data>
+  <data name="OptimizationLevelDescription" xml:space="preserve">
+    <value>最佳化層級。</value>
+  </data>
+  <data name="StatementOptmEarlyAbortReason" xml:space="preserve">
+    <value>陳述式最佳化提早終止的原因</value>
+  </data>
+  <data name="TimeOut" xml:space="preserve">
+    <value>逾時</value>
+  </data>
+  <data name="MemoryLimitExceeded" xml:space="preserve">
+    <value>已超過記憶體限制</value>
+  </data>
+  <data name="GoodEnoughPlanFound" xml:space="preserve">
+    <value>已找到夠完善的計畫</value>
+  </data>
+  <data name="EstimatedRebinds" xml:space="preserve">
+    <value>估計的重新繫結</value>
+  </data>
+  <data name="EstimatedRebindsDescription" xml:space="preserve">
+    <value>估計的重新繫結。</value>
+  </data>
+  <data name="EstimatedRewinds" xml:space="preserve">
+    <value>估計的倒轉</value>
+  </data>
+  <data name="EstimatedRewindsDescription" xml:space="preserve">
+    <value>估計的倒轉。</value>
+  </data>
+  <data name="ActualLocallyAggregatedRows" xml:space="preserve">
+    <value>本機彙總的實際資料列數目</value>
+  </data>
+  <data name="ActualLocallyAggregatedRowsDescription" xml:space="preserve">
+    <value>本機彙總的實際資料列數目</value>
+  </data>
+  <data name="ActualRebinds" xml:space="preserve">
+    <value>實際重新繫結</value>
+  </data>
+  <data name="ActualRebindsDescription" xml:space="preserve">
+    <value>實際重新繫結。</value>
+  </data>
+  <data name="ActualRewinds" xml:space="preserve">
+    <value>實際倒轉</value>
+  </data>
+  <data name="ActualRewindsDescription" xml:space="preserve">
+    <value>實際倒轉。</value>
+  </data>
+  <data name="ActualIOStatistics" xml:space="preserve">
+    <value>實際的 I/O 統計資料</value>
+  </data>
+  <data name="ActualIOStatisticsDescription" xml:space="preserve">
+    <value>實際的 I/O 統計資料</value>
+  </data>
+  <data name="ActualTimeStatistics" xml:space="preserve">
+    <value>實際時間統計資料</value>
+  </data>
+  <data name="ActualTimeStatisticsDescription" xml:space="preserve">
+    <value>實際時間統計資料</value>
+  </data>
+  <data name="ActualElapsedms" xml:space="preserve">
+    <value>實際經過時間 (毫秒)</value>
+  </data>
+  <data name="ActualElapsedmsDescription" xml:space="preserve">
+    <value>實際經過時間 (毫秒)</value>
+  </data>
+  <data name="ActualCPUms" xml:space="preserve">
+    <value>實際經過的 CPU 時間 (毫秒)</value>
+  </data>
+  <data name="ActualCPUmsDescription" xml:space="preserve">
+    <value>實際經過的 CPU 時間 (毫秒)</value>
+  </data>
+  <data name="ActualScans" xml:space="preserve">
+    <value>實際掃描次數</value>
+  </data>
+  <data name="ActualScansDescription" xml:space="preserve">
+    <value>實際掃描次數</value>
+  </data>
+  <data name="ActualLogicalReads" xml:space="preserve">
+    <value>實際的邏輯讀取次數</value>
+  </data>
+  <data name="ActualLogicalReadsDescription" xml:space="preserve">
+    <value>實際的邏輯讀取次數</value>
+  </data>
+  <data name="ActualPhysicalReads" xml:space="preserve">
+    <value>實際的實體讀取次數</value>
+  </data>
+  <data name="ActualPhysicalReadsDescription" xml:space="preserve">
+    <value>實際的實體讀取次數</value>
+  </data>
+  <data name="ActualPageServerReads" xml:space="preserve">
+    <value>實際頁面伺服器讀取數</value>
+  </data>
+  <data name="ActualPageServerReadsDescription" xml:space="preserve">
+    <value>實際頁面伺服器讀取數</value>
+  </data>
+  <data name="ActualReadAheads" xml:space="preserve">
+    <value>實際的預先讀取次數</value>
+  </data>
+  <data name="ActualReadAheadsDescription" xml:space="preserve">
+    <value>實際的預先讀取次數</value>
+  </data>
+  <data name="ActualPageServerReadAheads" xml:space="preserve">
+    <value>實際頁面伺服器讀取前讀取數</value>
+  </data>
+  <data name="ActualPageServerReadAheadsDescription" xml:space="preserve">
+    <value>實際頁面伺服器讀取前讀取數</value>
+  </data>
+  <data name="ActualLobLogicalReads" xml:space="preserve">
+    <value>實際的 LOB 邏輯讀取次數</value>
+  </data>
+  <data name="ActualLobLogicalReadsDescription" xml:space="preserve">
+    <value>實際的 LOB 邏輯讀取次數</value>
+  </data>
+  <data name="ActualLobPhysicalReads" xml:space="preserve">
+    <value>實際的 LOB 實體讀取次數</value>
+  </data>
+  <data name="ActualLobPhysicalReadsDescription" xml:space="preserve">
+    <value>實際的 LOB 實體讀取次數</value>
+  </data>
+  <data name="ActualLobPageServerReads" xml:space="preserve">
+    <value>實際 LOB 頁面伺服器讀取數</value>
+  </data>
+  <data name="ActualLobPageServerReadsDescription" xml:space="preserve">
+    <value>實際 LOB 頁面伺服器讀取數</value>
+  </data>
+  <data name="ActualLobReadAheads" xml:space="preserve">
+    <value>實際的 LOB 預先讀取次數</value>
+  </data>
+  <data name="ActualLobReadAheadsDescription" xml:space="preserve">
+    <value>實際的 LOB 預先讀取次數</value>
+  </data>
+  <data name="ActualLobPageServerReadAheads" xml:space="preserve">
+    <value>實際 LOB 頁面伺服器讀取前讀取數</value>
+  </data>
+  <data name="ActualLobPageServerReadAheadsDescription" xml:space="preserve">
+    <value>實際 LOB 頁面伺服器讀取前讀取數</value>
+  </data>
+  <data name="ActualMemoryGrantStats" xml:space="preserve">
+    <value>記憶體使用量</value>
+  </data>
+  <data name="HpcRowCount" xml:space="preserve">
+    <value>Hpc 資料列計數</value>
+  </data>
+  <data name="HpcRowCountDescription" xml:space="preserve">
+    <value>Hpc 裝置處理的資料列數。</value>
+  </data>
+  <data name="HpcKernelElapsedUs" xml:space="preserve">
+    <value>美國的 Hpc 核心已耗用時間</value>
+  </data>
+  <data name="HpcKernelElapsedUsDescription" xml:space="preserve">
+    <value>Hpc 裝置核心執行的已耗用時間 (以微秒為單位)。</value>
+  </data>
+  <data name="HpcHostToDeviceBytes" xml:space="preserve">
+    <value>Hpc 主機到裝置位元組數</value>
+  </data>
+  <data name="HpcHostToDeviceBytesDescription" xml:space="preserve">
+    <value>從主機傳輸到 Hpc 裝置的資料位元組數。</value>
+  </data>
+  <data name="HpcDeviceToHostBytes" xml:space="preserve">
+    <value>Hpc 裝置到主機位元組數</value>
+  </data>
+  <data name="HpcDeviceToHostBytesDescription" xml:space="preserve">
+    <value>從 Hpc 裝置傳輸到主機的資料位元組數。</value>
+  </data>
+  <data name="InputMemoryGrant" xml:space="preserve">
+    <value>輸入記憶體</value>
+  </data>
+  <data name="OutputMemoryGrant" xml:space="preserve">
+    <value>輸出記憶體</value>
+  </data>
+  <data name="UsedMemoryGrant" xml:space="preserve">
+    <value>已使用的記憶體</value>
+  </data>
+  <data name="Distinct" xml:space="preserve">
+    <value>相異</value>
+  </data>
+  <data name="DistinctDescription" xml:space="preserve">
+    <value>相異。</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>排序依據</value>
+  </data>
+  <data name="OrderByDescription" xml:space="preserve">
+    <value>排序依據。</value>
+  </data>
+  <data name="SpillOccurredDisplayString" xml:space="preserve">
+    <value>運算子使用了 tempdb 在執行期間溢寫資料</value>
+  </data>
+  <data name="ColumnsWithNoStatistics" xml:space="preserve">
+    <value>無統計資料的資料行</value>
+  </data>
+  <data name="ColumnsWithNoStatisticsDescription" xml:space="preserve">
+    <value>無統計資料警告的資料行。</value>
+  </data>
+  <data name="NoJoinPredicate" xml:space="preserve">
+    <value>無聯結述詞</value>
+  </data>
+  <data name="NoJoinPredicateDescription" xml:space="preserve">
+    <value>無聯結述詞的警告。</value>
+  </data>
+  <data name="SpillToTempDbOld" xml:space="preserve">
+    <value>運算子使用 tempdb 在執行期間溢寫資料，溢寫層級為 {0} </value>
+  </data>
+  <data name="SpillToTempDb" xml:space="preserve">
+    <value>運算子使用 tempdb 在執行期間溢寫資料，溢寫層級為 {0}，且有 {1} 個溢寫的執行緒</value>
+  </data>
+  <data name="SpillToTempDbDescription" xml:space="preserve">
+    <value>溢寫到 tempdb 警告。</value>
+  </data>
+  <data name="SortSpillDetails" xml:space="preserve">
+    <value>排序已對 tempdb 寫入 {0} 個頁面及讀取 {1} 個頁面，授權記憶體為 {2}KB，已用記憶體為 {3}KB</value>
+  </data>
+  <data name="SortSpillDetailsDescription" xml:space="preserve">
+    <value>排序溢寫詳細資料</value>
+  </data>
+  <data name="HashSpillDetails" xml:space="preserve">
+    <value>雜湊已對 tempdb 寫入 {0} 個頁面及讀取 {1} 個頁面，授權記憶體為 {2}KB，已用記憶體為 {3}KB</value>
+  </data>
+  <data name="HashSpillDetailsDescription" xml:space="preserve">
+    <value>雜湊溢寫詳細資料</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuild" xml:space="preserve">
+    <value>因為線上編製索引，而將部分更新轉換成完整更新</value>
+  </data>
+  <data name="FullUpdateForOnlineIndexBuildDescription" xml:space="preserve">
+    <value>線上編製索引的完整更新警告</value>
+  </data>
+  <data name="Wait" xml:space="preserve">
+    <value>查詢在執行期間必須等候 {1} {0} 秒</value>
+  </data>
+  <data name="WaitDescription" xml:space="preserve">
+    <value>查詢等候警告。</value>
+  </data>
+  <data name="PlanAffectingConvert" xml:space="preserve">
+    <value>運算式 ({0}) 中的類型轉換可能會影響到查詢計劃選擇中的 "{1}"</value>
+  </data>
+  <data name="PlanAffectingConvertDescription" xml:space="preserve">
+    <value>影響計畫的類型轉換警告。</value>
+  </data>
+  <data name="MemoryGrantWarning" xml:space="preserve">
+    <value>偵測到的查詢記憶體授與 "{0}" 可能會影響可靠性。授與大小: 初始為 {1} KB，最終為 {2} KB，已使用 {3} KB。</value>
+  </data>
+  <data name="MemoryGrantWarningDescription" xml:space="preserve">
+    <value>記憶體授與警告的詳細資料</value>
+  </data>
+  <data name="StartupExpression" xml:space="preserve">
+    <value>啟動運算式</value>
+  </data>
+  <data name="StartupExpressionDescription" xml:space="preserve">
+    <value>是否使用篩選啟動運算式。</value>
+  </data>
+  <data name="StartupExpressionPredicate" xml:space="preserve">
+    <value>啟動運算式述詞</value>
+  </data>
+  <data name="Query" xml:space="preserve">
+    <value>查詢</value>
+  </data>
+  <data name="Stack" xml:space="preserve">
+    <value>使用堆疊</value>
+  </data>
+  <data name="RowCount" xml:space="preserve">
+    <value>是資料列計數</value>
+  </data>
+  <data name="Optimized" xml:space="preserve">
+    <value>最佳化</value>
+  </data>
+  <data name="WithPrefetch" xml:space="preserve">
+    <value>指定預先提取</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>首碼</value>
+  </data>
+  <data name="StartRange" xml:space="preserve">
+    <value>啟動</value>
+  </data>
+  <data name="StartRangeDescription" xml:space="preserve">
+    <value>範圍的起點。</value>
+  </data>
+  <data name="EndRange" xml:space="preserve">
+    <value>結束</value>
+  </data>
+  <data name="EndRangeDescription" xml:space="preserve">
+    <value>範圍的終點。</value>
+  </data>
+  <data name="RangeColumns" xml:space="preserve">
+    <value>範圍資料行</value>
+  </data>
+  <data name="RangeExpressions" xml:space="preserve">
+    <value>範圍運算式</value>
+  </data>
+  <data name="ScanType" xml:space="preserve">
+    <value>掃描類型</value>
+  </data>
+  <data name="ColumnReference" xml:space="preserve">
+    <value>資料行參考</value>
+  </data>
+  <data name="ObjectServer" xml:space="preserve">
+    <value>伺服器</value>
+  </data>
+  <data name="ObjectServerDescription" xml:space="preserve">
+    <value>所參考物件的伺服器名稱。</value>
+  </data>
+  <data name="ObjectDatabase" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="ObjectDatabaseDescription" xml:space="preserve">
+    <value>所參考物件的資料庫名稱。</value>
+  </data>
+  <data name="ObjectIndex" xml:space="preserve">
+    <value>索引</value>
+  </data>
+  <data name="ObjectIndexDescription" xml:space="preserve">
+    <value>所參考物件的索引名稱。</value>
+  </data>
+  <data name="ObjectSchema" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="ObjectSchemaDescription" xml:space="preserve">
+    <value>所參考物件的結構描述名稱。</value>
+  </data>
+  <data name="ObjectTable" xml:space="preserve">
+    <value>資料表</value>
+  </data>
+  <data name="ObjectTableDescription" xml:space="preserve">
+    <value>所參考物件的資料表名稱。</value>
+  </data>
+  <data name="ObjectAlias" xml:space="preserve">
+    <value>別名</value>
+  </data>
+  <data name="ObjectAliasDescription" xml:space="preserve">
+    <value>用於所參考物件的別名。</value>
+  </data>
+  <data name="ObjectColumn" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="ObjectColumnDescription" xml:space="preserve">
+    <value>所參考物件的資料行名稱。</value>
+  </data>
+  <data name="ObjectComputedColumn" xml:space="preserve">
+    <value>計算的資料行</value>
+  </data>
+  <data name="ObjectComputedColumnDescription" xml:space="preserve">
+    <value>這是否為計算的資料行。</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>參數資料類型</value>
+  </data>
+  <data name="ParameterCompiledValue" xml:space="preserve">
+    <value>參數編譯值</value>
+  </data>
+  <data name="ParameterRuntimeValue" xml:space="preserve">
+    <value>參數執行值</value>
+  </data>
+  <data name="CursorPlan" xml:space="preserve">
+    <value>資料指標計畫</value>
+  </data>
+  <data name="CursorOperation" xml:space="preserve">
+    <value>資料指標作業</value>
+  </data>
+  <data name="CursorName" xml:space="preserve">
+    <value>資料指標名稱</value>
+  </data>
+  <data name="CursorActualType" xml:space="preserve">
+    <value>資料指標實際類型</value>
+  </data>
+  <data name="CursorRequestedType" xml:space="preserve">
+    <value>資料指標所要求的類型</value>
+  </data>
+  <data name="CursorConcurrency" xml:space="preserve">
+    <value>資料指標並行</value>
+  </data>
+  <data name="ForwardOnly" xml:space="preserve">
+    <value>順向</value>
+  </data>
+  <data name="QueryPlan" xml:space="preserve">
+    <value>查詢計劃</value>
+  </data>
+  <data name="OperationType" xml:space="preserve">
+    <value>作業類型</value>
+  </data>
+  <data name="NodeId" xml:space="preserve">
+    <value>節點識別碼</value>
+  </data>
+  <data name="PrimaryNodeId" xml:space="preserve">
+    <value>主要節點識別碼</value>
+  </data>
+  <data name="InternalInfo" xml:space="preserve">
+    <value>內部偵錯資訊</value>
+  </data>
+  <data name="ForeignKeyReferencesCount" xml:space="preserve">
+    <value>外部索引鍵參考計數</value>
+  </data>
+  <data name="NoMatchingIndexCount" xml:space="preserve">
+    <value>無相符索引計數</value>
+  </data>
+  <data name="PartialMatchingIndexCount" xml:space="preserve">
+    <value>部分相符索引計數</value>
+  </data>
+  <data name="LogicalOpCollapse" xml:space="preserve">
+    <value>摺疊</value>
+  </data>
+  <data name="LogicalOpConcatenation" xml:space="preserve">
+    <value>串連</value>
+  </data>
+  <data name="LogicalOpConstantScan" xml:space="preserve">
+    <value>固定掃描</value>
+  </data>
+  <data name="LogicalOpGatherStreams" xml:space="preserve">
+    <value>蒐集資料流</value>
+  </data>
+  <data name="LogicalOpRepartitionStreams" xml:space="preserve">
+    <value>重新分割資料流</value>
+  </data>
+  <data name="LogicalOpDistributeStreams" xml:space="preserve">
+    <value>散發資料流</value>
+  </data>
+  <data name="LogicalOpFilter" xml:space="preserve">
+    <value>篩選</value>
+  </data>
+  <data name="LogicalOpAssert" xml:space="preserve">
+    <value>判斷提示</value>
+  </data>
+  <data name="LogicalOpLogRowScan" xml:space="preserve">
+    <value>記錄檔資料列掃描</value>
+  </data>
+  <data name="LogicalOpPrint" xml:space="preserve">
+    <value>列印</value>
+  </data>
+  <data name="LogicalOpComputeScalar" xml:space="preserve">
+    <value>計算純量</value>
+  </data>
+  <data name="LogicalOpMergeInterval" xml:space="preserve">
+    <value>合併間隔</value>
+  </data>
+  <data name="LogicalOpRank" xml:space="preserve">
+    <value>排名</value>
+  </data>
+  <data name="LogicalOpSegment" xml:space="preserve">
+    <value>區段</value>
+  </data>
+  <data name="LogicalOpSequence" xml:space="preserve">
+    <value>順序</value>
+  </data>
+  <data name="LogicalOpSplit" xml:space="preserve">
+    <value>分隔</value>
+  </data>
+  <data name="LogicalOpAggregate" xml:space="preserve">
+    <value>彙總</value>
+  </data>
+  <data name="LogicalOpTableScan" xml:space="preserve">
+    <value>資料表掃描</value>
+  </data>
+  <data name="LogicalOpClusteredIndexScan" xml:space="preserve">
+    <value>叢集索引掃描</value>
+  </data>
+  <data name="LogicalOpClusteredIndexSeek" xml:space="preserve">
+    <value>叢集索引搜尋</value>
+  </data>
+  <data name="LogicalOpDeletedScan" xml:space="preserve">
+    <value>刪除的掃描</value>
+  </data>
+  <data name="LogicalOpInsertedScan" xml:space="preserve">
+    <value>插入的掃描</value>
+  </data>
+  <data name="LogicalOpParameterTableScan" xml:space="preserve">
+    <value>參數資料表掃描</value>
+  </data>
+  <data name="LogicalOpPut" xml:space="preserve">
+    <value>置入</value>
+  </data>
+  <data name="LogicalOpIndexScan" xml:space="preserve">
+    <value>索引掃描</value>
+  </data>
+  <data name="LogicalOpIndexSeek" xml:space="preserve">
+    <value>索引搜尋</value>
+  </data>
+  <data name="LogicalOpRemoteScan" xml:space="preserve">
+    <value>遠端掃描</value>
+  </data>
+  <data name="LogicalOpRemoteIndexScan" xml:space="preserve">
+    <value>遠端索引掃描</value>
+  </data>
+  <data name="LogicalOpRemoteIndexSeek" xml:space="preserve">
+    <value>遠端索引搜尋</value>
+  </data>
+  <data name="LogicalOpRemoteQuery" xml:space="preserve">
+    <value>遠端查詢</value>
+  </data>
+  <data name="LogicalOpRemoteInsert" xml:space="preserve">
+    <value>遠端插入</value>
+  </data>
+  <data name="LogicalOpRemoteUpdate" xml:space="preserve">
+    <value>遠端更新</value>
+  </data>
+  <data name="LogicalOpRemoteDelete" xml:space="preserve">
+    <value>遠端刪除</value>
+  </data>
+  <data name="LogicalOpClusteredUpdate" xml:space="preserve">
+    <value>叢集更新</value>
+  </data>
+  <data name="LogicalOpDistinctSort" xml:space="preserve">
+    <value>相異排序</value>
+  </data>
+  <data name="LogicalOpSort" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="LogicalOpTopNSort" xml:space="preserve">
+    <value>前 N 個排序</value>
+  </data>
+  <data name="LogicalOpEagerSpool" xml:space="preserve">
+    <value>急切的多工緩衝處理</value>
+  </data>
+  <data name="LogicalOpLazySpool" xml:space="preserve">
+    <value>延遲多工緩衝處理</value>
+  </data>
+  <data name="LogicalOpUpdate" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="LogicalOpInsert" xml:space="preserve">
+    <value>插入</value>
+  </data>
+  <data name="LogicalOpDelete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="LogicalOpMerge" xml:space="preserve">
+    <value>合併</value>
+  </data>
+  <data name="LogicalOpTop" xml:space="preserve">
+    <value>上方</value>
+  </data>
+  <data name="LogicalOpDistinct" xml:space="preserve">
+    <value>相異</value>
+  </data>
+  <data name="LogicalOpFlowDistinct" xml:space="preserve">
+    <value>流程相異</value>
+  </data>
+  <data name="LogicalOpPartialAggregate" xml:space="preserve">
+    <value>部分彙總</value>
+  </data>
+  <data name="LogicalOpInnerApply" xml:space="preserve">
+    <value>內部套用</value>
+  </data>
+  <data name="LogicalOpInnerJoin" xml:space="preserve">
+    <value>內部聯結</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiApply" xml:space="preserve">
+    <value>左方反向半套用</value>
+  </data>
+  <data name="LogicalOpLeftSemiApply" xml:space="preserve">
+    <value>左方半套用</value>
+  </data>
+  <data name="LogicalOpLeftOuterApply" xml:space="preserve">
+    <value>左方外部套用</value>
+  </data>
+  <data name="LogicalOpLeftOuterJoin" xml:space="preserve">
+    <value>左方外部聯結</value>
+  </data>
+  <data name="LogicalOpRightOuterJoin" xml:space="preserve">
+    <value>右方外部聯結</value>
+  </data>
+  <data name="LogicalOpFullOuterJoin" xml:space="preserve">
+    <value>完整外部聯結</value>
+  </data>
+  <data name="LogicalOpLeftSemiJoin" xml:space="preserve">
+    <value>左方半聯結</value>
+  </data>
+  <data name="LogicalOpLeftAntiSemiJoin" xml:space="preserve">
+    <value>左方反半聯結</value>
+  </data>
+  <data name="LogicalOpRightSemiJoin" xml:space="preserve">
+    <value>右方半聯結</value>
+  </data>
+  <data name="LogicalOpRightAntiSemiJoin" xml:space="preserve">
+    <value>右方反半聯結</value>
+  </data>
+  <data name="LogicalOpIntersect" xml:space="preserve">
+    <value>交集</value>
+  </data>
+  <data name="LogicalOpIntersectAll" xml:space="preserve">
+    <value>全部交集</value>
+  </data>
+  <data name="LogicalOpUnion" xml:space="preserve">
+    <value>等位</value>
+  </data>
+  <data name="LogicalOpLeftDiff" xml:space="preserve">
+    <value>左方擴散</value>
+  </data>
+  <data name="LogicalOpLeftDiffAll" xml:space="preserve">
+    <value>左方全部擴散</value>
+  </data>
+  <data name="LogicalOpRightDiff" xml:space="preserve">
+    <value>右方擴散</value>
+  </data>
+  <data name="LogicalOpRightDiffAll" xml:space="preserve">
+    <value>右方全部擴散</value>
+  </data>
+  <data name="LogicalOpAntiDiff" xml:space="preserve">
+    <value>防擴散</value>
+  </data>
+  <data name="LogicalOpCrossJoin" xml:space="preserve">
+    <value>交叉聯結</value>
+  </data>
+  <data name="LogicalOpBitmapCreate" xml:space="preserve">
+    <value>點陣圖建立</value>
+  </data>
+  <data name="LogicalOpUDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="LogicalOpWindow" xml:space="preserve">
+    <value>Window Spool</value>
+  </data>
+  <data name="LogicalOpSwitch" xml:space="preserve">
+    <value>切換</value>
+  </data>
+  <data name="LogicalOpMergeStats" xml:space="preserve">
+    <value>合併統計資料</value>
+  </data>
+  <data name="LogicalOpLocalStats" xml:space="preserve">
+    <value>本機統計資料</value>
+  </data>
+  <data name="LogicalOpTableValuedFunction" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="LogicalOpBatchHashTableBuild" xml:space="preserve">
+    <value>批次雜湊表建立</value>
+  </data>
+  <data name="LogicalOpForeignKeyReferencesCheck" xml:space="preserve">
+    <value>外部索引鍵參考檢查</value>
+  </data>
+  <data name="LogicalOpRIDLookup" xml:space="preserve">
+    <value>RID 查閱</value>
+  </data>
+  <data name="StoredProc" xml:space="preserve">
+    <value>預存程序</value>
+  </data>
+  <data name="Udf" xml:space="preserve">
+    <value>UDF</value>
+  </data>
+  <data name="ProcName" xml:space="preserve">
+    <value>程序名稱</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>儲存體</value>
+  </data>
+  <data name="StorageDesc" xml:space="preserve">
+    <value>儲存體</value>
+  </data>
+  <data name="ActualExecMode" xml:space="preserve">
+    <value>實際的執行模式</value>
+  </data>
+  <data name="ActualExecModeDesc" xml:space="preserve">
+    <value>實際的執行模式</value>
+  </data>
+  <data name="EstimatedExecMode" xml:space="preserve">
+    <value>估計的執行模式</value>
+  </data>
+  <data name="EstimatedExecModeDesc" xml:space="preserve">
+    <value>估計的執行模式</value>
+  </data>
+  <data name="CostFormat" xml:space="preserve">
+    <value>成本: {0} %</value>
+  </data>
+  <data name="RemoteDataAccess" xml:space="preserve">
+    <value>遠端資料存取</value>
+  </data>
+  <data name="RemoteDataAccessDescription" xml:space="preserve">
+    <value>操作員是否使用遠端程序呼叫 (RPC) 存取遠端資料。</value>
+  </data>
+  <data name="CloneAccessScope" xml:space="preserve">
+    <value>複製品存取範圍</value>
+  </data>
+  <data name="CloneAccessScopeDescription" xml:space="preserve">
+    <value>操作員可以存取的複製品。</value>
+  </data>
+  <data name="PrimaryClones" xml:space="preserve">
+    <value>主要複製品</value>
+  </data>
+  <data name="SecondaryClones" xml:space="preserve">
+    <value>次要複製品</value>
+  </data>
+  <data name="BothClones" xml:space="preserve">
+    <value>所有複製品</value>
+  </data>
+  <data name="EitherClones" xml:space="preserve">
+    <value>主要或次要複製品</value>
+  </data>
+  <data name="ExactMatchClones" xml:space="preserve">
+    <value>單一複製品相符</value>
+  </data>
+  <data name="Remoting" xml:space="preserve">
+    <value>遠端</value>
+  </data>
+  <data name="RemotingDescription" xml:space="preserve">
+    <value>操作員是否可以從遠端執行。</value>
+  </data>
+  <data name="Activation" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="BrickRouting" xml:space="preserve">
+    <value>磚塊路由</value>
+  </data>
+  <data name="FragmentIdColumn" xml:space="preserve">
+    <value>片段識別碼資料行</value>
+  </data>
+  <data name="EditQueryText" xml:space="preserve">
+    <value>編輯來自執行程序表 XML 的查詢文字 (可能已截斷)</value>
+  </data>
+  <data name="UnknownShowPlanSource" xml:space="preserve">
+    <value>無法辨識執行計畫來源類型。</value>
+  </data>
+  <data name="SavePlanFilter" xml:space="preserve">
+    <value>Sql 計畫檔 (*.SqlPlan)|*.SqlPlan|所有檔案 (*.*)|*.*</value>
+  </data>
+  <data name="NoXmlPlanData" xml:space="preserve">
+    <value>不能使用 XML 格式的計畫資料。只能儲存 SQL Server Yukon 的計畫。</value>
+  </data>
+  <data name="PerThreadCounterDescription" xml:space="preserve">
+    <value>個別執行緒計數器資訊。</value>
+  </data>
+  <data name="RuntimeCounterThread" xml:space="preserve">
+    <value>執行緒 {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadOnInstance" xml:space="preserve">
+    <value>執行個體 {1} 上的執行緒 {0}</value>
+  </data>
+  <data name="RuntimeCounterThreadAll" xml:space="preserve">
+    <value>所有執行緒</value>
+  </data>
+  <data name="ConnectionPropertiesLabel" xml:space="preserve">
+    <value>檢視連接屬性</value>
+  </data>
+  <data name="UnknownAssignType" xml:space="preserve">
+    <value>未知的指派類型。</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>SQL Server</value>
+  </data>
+  <data name="ZoomLevelShouldBeBetween" xml:space="preserve">
+    <value>顯示比例層級必須是介於 {0} 和 {1} 之間的整數值。</value>
+  </data>
+  <data name="UnknownNodeType" xml:space="preserve">
+    <value>未知的節點類型。</value>
+  </data>
+  <data name="UnknownCursorPlanOperation" xml:space="preserve">
+    <value>未知的資料指標計畫作業 '{0}'。</value>
+  </data>
+  <data name="UnknownStatementType" xml:space="preserve">
+    <value>無法辨識陳述式類型。</value>
+  </data>
+  <data name="RollupInfo" xml:space="preserve">
+    <value>彙總資訊</value>
+  </data>
+  <data name="RollupInfoDescription" xml:space="preserve">
+    <value>彙總資訊。</value>
+  </data>
+  <data name="HighestLevel" xml:space="preserve">
+    <value>最高層級</value>
+  </data>
+  <data name="HighestLevelDescription" xml:space="preserve">
+    <value>此彙總中所計算群組屬性的最高層級。</value>
+  </data>
+  <data name="RollupLevel" xml:space="preserve">
+    <value>彙總層級</value>
+  </data>
+  <data name="RollupLevelDescription" xml:space="preserve">
+    <value>此彙總中所計算群組屬性的所有層級。</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>層級</value>
+  </data>
+  <data name="LevelDescription" xml:space="preserve">
+    <value>此彙總中所計算群組屬性的層級。</value>
+  </data>
+  <data name="RemoteQuery" xml:space="preserve">
+    <value>遠端查詢</value>
+  </data>
+  <data name="RemoteQueryDescription" xml:space="preserve">
+    <value>傳送 SQL 查詢至目前 SQL Server 以外的伺服器。</value>
+  </data>
+  <data name="ComputeScalar" xml:space="preserve">
+    <value>計算純量</value>
+  </data>
+  <data name="MergeInterval" xml:space="preserve">
+    <value>合併間隔</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>列印</value>
+  </data>
+  <data name="Segment" xml:space="preserve">
+    <value>區段</value>
+  </data>
+  <data name="Split" xml:space="preserve">
+    <value>分隔</value>
+  </data>
+  <data name="BatchHashTableBuild" xml:space="preserve">
+    <value>批次雜湊表建立</value>
+  </data>
+  <data name="Bitmap" xml:space="preserve">
+    <value>點陣圖</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>摺疊</value>
+  </data>
+  <data name="TableSpool" xml:space="preserve">
+    <value>資料表多工緩衝處理</value>
+  </data>
+  <data name="RepartitionStreams" xml:space="preserve">
+    <value>重新分割資料流</value>
+  </data>
+  <data name="Assert" xml:space="preserve">
+    <value>判斷提示</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>上方</value>
+  </data>
+  <data name="SequenceProject" xml:space="preserve">
+    <value>順序專案</value>
+  </data>
+  <data name="Spool" xml:space="preserve">
+    <value>多工緩衝處理</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Window Spool</value>
+  </data>
+  <data name="Parallelism" xml:space="preserve">
+    <value>平行處理原則</value>
+  </data>
+  <data name="RowCountSpool" xml:space="preserve">
+    <value>資料列計數多工緩衝處理</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="UnknownDescription" xml:space="preserve">
+    <value>未知的運算子。</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>結果</value>
+  </data>
+  <data name="ResultDescription" xml:space="preserve">
+    <value>結果。</value>
+  </data>
+  <data name="CollapseDescription" xml:space="preserve">
+    <value>將同值的插入與刪除，群組為大幅更新計畫中的一項更新。</value>
+  </data>
+  <data name="Concatenation" xml:space="preserve">
+    <value>串連</value>
+  </data>
+  <data name="ConcatenationDescription" xml:space="preserve">
+    <value>附加多個輸入資料表以構成輸出資料表。</value>
+  </data>
+  <data name="ConstantScan" xml:space="preserve">
+    <value>固定掃描</value>
+  </data>
+  <data name="ConstantScanDescription" xml:space="preserve">
+    <value>掃描內部常數資料表。</value>
+  </data>
+  <data name="ParallelismDescription" xml:space="preserve">
+    <value>關於平行處理原則的作業。</value>
+  </data>
+  <data name="Put" xml:space="preserve">
+    <value>置入</value>
+  </data>
+  <data name="PutDescription" xml:space="preserve">
+    <value>從本機資料表或外部資料表將資料列輸出至外部資料表。</value>
+  </data>
+  <data name="DistributeStreams" xml:space="preserve">
+    <value>散發資料流</value>
+  </data>
+  <data name="DistributeStreamsDescription" xml:space="preserve">
+    <value>散發資料流。</value>
+  </data>
+  <data name="GatherStreams" xml:space="preserve">
+    <value>蒐集資料流</value>
+  </data>
+  <data name="GatherStreamsDescription" xml:space="preserve">
+    <value>收集資料流。</value>
+  </data>
+  <data name="RepartitionStreamsDescription" xml:space="preserve">
+    <value>重新分割資料流。</value>
+  </data>
+  <data name="EagerSpool" xml:space="preserve">
+    <value>急切的多工緩衝處理</value>
+  </data>
+  <data name="EagerSpoolDescription" xml:space="preserve">
+    <value>積極式多工緩衝處理。</value>
+  </data>
+  <data name="LazySpool" xml:space="preserve">
+    <value>延遲多工緩衝處理</value>
+  </data>
+  <data name="LazySpoolDescription" xml:space="preserve">
+    <value>消極式多工緩衝處理。</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>篩選</value>
+  </data>
+  <data name="FilterDescription" xml:space="preserve">
+    <value>依據述詞限制資料列的集合。</value>
+  </data>
+  <data name="AssertDescription" xml:space="preserve">
+    <value>用於確認指定的條件存在。</value>
+  </data>
+  <data name="HashMatch" xml:space="preserve">
+    <value>雜湊比對</value>
+  </data>
+  <data name="HashMatchDescription" xml:space="preserve">
+    <value>使用頂端輸入的每一個資料列來建立雜湊表，並使用底端輸入的每一個資料列來探查雜湊表，然後輸出所有符合的資料列。</value>
+  </data>
+  <data name="HashMatchTeam" xml:space="preserve">
+    <value>雜湊比對小組</value>
+  </data>
+  <data name="HashMatchTeamDescription" xml:space="preserve">
+    <value>多個合作雜湊作業中的參與者。</value>
+  </data>
+  <data name="HashMatchRoot" xml:space="preserve">
+    <value>雜湊比對根</value>
+  </data>
+  <data name="HashMatchRootDescription" xml:space="preserve">
+    <value>共用通用雜湊函數及磁碟分割策略之連接雜湊運算子小組的根成員</value>
+  </data>
+  <data name="BookmarkLookup" xml:space="preserve">
+    <value>書籤查閱</value>
+  </data>
+  <data name="BookmarkLookupDescription" xml:space="preserve">
+    <value>使用書籤 (RID 或叢集索引鍵) 查閱資料表或叢集索引中對應的資料列。</value>
+  </data>
+  <data name="LogRowScan" xml:space="preserve">
+    <value>記錄檔資料列掃描</value>
+  </data>
+  <data name="LogRowScanDescription" xml:space="preserve">
+    <value>掃描記錄檔中的資料列。</value>
+  </data>
+  <data name="MergeJoin" xml:space="preserve">
+    <value>合併聯結</value>
+  </data>
+  <data name="MergeJoinDescription" xml:space="preserve">
+    <value>根據其排序次序，針對兩個經過排序之輸入資料表的資料列進行比對。</value>
+  </data>
+  <data name="NestedLoops" xml:space="preserve">
+    <value>巢狀迴圈</value>
+  </data>
+  <data name="NestedLoopsDescription" xml:space="preserve">
+    <value>對每個頂端 (外部) 輸入中的資料列，請掃描底端 (內部) 輸入，並輸出符合的資料列。</value>
+  </data>
+  <data name="PrintDescription" xml:space="preserve">
+    <value>列印。</value>
+  </data>
+  <data name="ComputeScalarDescription" xml:space="preserve">
+    <value>利用資料列中現有的值計算新值。</value>
+  </data>
+  <data name="MergeIntervalDescription" xml:space="preserve">
+    <value>合併間隔。</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>排名</value>
+  </data>
+  <data name="RankDescription" xml:space="preserve">
+    <value>利用資料表中現有資料行的數值次序來建立計算的資料行。</value>
+  </data>
+  <data name="RowCountSpoolDescription" xml:space="preserve">
+    <value>將輸入的資料儲存到暫存資料表中，以最佳化倒轉。</value>
+  </data>
+  <data name="SegmentDescription" xml:space="preserve">
+    <value>區段。</value>
+  </data>
+  <data name="Sequence" xml:space="preserve">
+    <value>順序</value>
+  </data>
+  <data name="SequenceDescription" xml:space="preserve">
+    <value>從上到下依序處理每項輸入。</value>
+  </data>
+  <data name="SequenceProjectDescription" xml:space="preserve">
+    <value>加入資料行以執行已排序集合的計算。</value>
+  </data>
+  <data name="SplitDescription" xml:space="preserve">
+    <value>分割。</value>
+  </data>
+  <data name="StreamAggregate" xml:space="preserve">
+    <value>資料流彙總</value>
+  </data>
+  <data name="StreamAggregateDescription" xml:space="preserve">
+    <value>計算適當排序的資料流中資料列群組的摘要值。</value>
+  </data>
+  <data name="TableScan" xml:space="preserve">
+    <value>資料表掃描</value>
+  </data>
+  <data name="TableScanDescription" xml:space="preserve">
+    <value>掃描資料表中的資料列。</value>
+  </data>
+  <data name="ClusteredIndexScan" xml:space="preserve">
+    <value>叢集索引掃描</value>
+  </data>
+  <data name="ClusteredIndexScanDescription" xml:space="preserve">
+    <value>掃描整個叢集索引，或只掃描一個範圍。</value>
+  </data>
+  <data name="ClusteredIndexSeek" xml:space="preserve">
+    <value>叢集索引搜尋</value>
+  </data>
+  <data name="ClusteredIndexSeekDescription" xml:space="preserve">
+    <value>掃描叢集索引中特定範圍的資料列。</value>
+  </data>
+  <data name="DeletedScan" xml:space="preserve">
+    <value>刪除的掃描</value>
+  </data>
+  <data name="DeletedScanDescription" xml:space="preserve">
+    <value>掃描在觸發程序內 '刪除' 的虛擬資料表。</value>
+  </data>
+  <data name="InsertedScan" xml:space="preserve">
+    <value>插入的掃描</value>
+  </data>
+  <data name="InsertedScanDescription" xml:space="preserve">
+    <value>掃描在觸發程序內 '插入' 的虛擬資料表。</value>
+  </data>
+  <data name="ParameterTableScan" xml:space="preserve">
+    <value>參數資料表掃描</value>
+  </data>
+  <data name="ParameterTableScanDescription" xml:space="preserve">
+    <value>掃描參數值的內部資料表。</value>
+  </data>
+  <data name="IndexScan" xml:space="preserve">
+    <value>索引掃描</value>
+  </data>
+  <data name="IndexScanDescription" xml:space="preserve">
+    <value>掃描整個或某個範圍的非叢集索引。</value>
+  </data>
+  <data name="IndexSeek" xml:space="preserve">
+    <value>索引搜尋</value>
+  </data>
+  <data name="IndexSeekDescription" xml:space="preserve">
+    <value>掃描非叢集索引中一個特定範圍的資料列。</value>
+  </data>
+  <data name="ColumnstoreIndexScan" xml:space="preserve">
+    <value>資料行存放區索引掃描</value>
+  </data>
+  <data name="ColumnstoreIndexScanDescription" xml:space="preserve">
+    <value>完整掃描資料行存放區索引，或只掃描一個範圍。</value>
+  </data>
+  <data name="ColumnstoreIndexUpdate" xml:space="preserve">
+    <value>資料行存放區索引更新</value>
+  </data>
+  <data name="ColumnstoreIndexUpdateDescription" xml:space="preserve">
+    <value>更新資料行存放區索引中的資料列。</value>
+  </data>
+  <data name="ColumnstoreIndexInsert" xml:space="preserve">
+    <value>資料行存放區索引插入</value>
+  </data>
+  <data name="ColumnstoreIndexInsertDescription" xml:space="preserve">
+    <value>將資料列插入資料行存放區索引。</value>
+  </data>
+  <data name="ColumnstoreIndexMerge" xml:space="preserve">
+    <value>資料行存放區索引合併</value>
+  </data>
+  <data name="ColumnstoreIndexMergeDescription" xml:space="preserve">
+    <value>合併資料行存放區索引中的資料列。</value>
+  </data>
+  <data name="ColumnstoreIndexDelete" xml:space="preserve">
+    <value>資料行存放區索引刪除</value>
+  </data>
+  <data name="ColumnstoreIndexDeleteDescription" xml:space="preserve">
+    <value>從叢集資料行存放區索引刪除資料列。</value>
+  </data>
+  <data name="RemoteScan" xml:space="preserve">
+    <value>遠端掃描</value>
+  </data>
+  <data name="RemoteScanDescription" xml:space="preserve">
+    <value>掃描儲存在目前資料庫伺服器以外的資料庫或檔案中之資料表的資料列。</value>
+  </data>
+  <data name="RemoteIndexScan" xml:space="preserve">
+    <value>遠端索引掃描</value>
+  </data>
+  <data name="RemoteIndexScanDescription" xml:space="preserve">
+    <value>掃描儲存在資料庫或檔案中的索引，而非掃描目前資料庫伺服器。</value>
+  </data>
+  <data name="RemoteIndexSeek" xml:space="preserve">
+    <value>遠端索引搜尋</value>
+  </data>
+  <data name="RemoteIndexSeekDescription" xml:space="preserve">
+    <value>掃描儲存在資料庫或檔案中之叢集索引的特定資料列範圍，而非掃描目前資料庫伺服器。</value>
+  </data>
+  <data name="RemoteInsert" xml:space="preserve">
+    <value>遠端插入</value>
+  </data>
+  <data name="RemoteInsertDescription" xml:space="preserve">
+    <value>將資料列插入儲存在目前資料庫伺服器以外的資料庫或檔案中的資料表。</value>
+  </data>
+  <data name="RemoteUpdate" xml:space="preserve">
+    <value>遠端更新</value>
+  </data>
+  <data name="RemoteUpdateDescription" xml:space="preserve">
+    <value>更新儲存在目前資料庫伺服器以外的資料庫或檔案中之資料表的資料列。</value>
+  </data>
+  <data name="RemoteDelete" xml:space="preserve">
+    <value>遠端刪除</value>
+  </data>
+  <data name="RemoteDeleteDescription" xml:space="preserve">
+    <value>刪除儲存在目前資料庫伺服器以外的資料庫或檔案中之資料表的資料列。</value>
+  </data>
+  <data name="ClusteredUpdate" xml:space="preserve">
+    <value>叢集更新</value>
+  </data>
+  <data name="ClusteredUpdateDescription" xml:space="preserve">
+    <value>叢集更新。</value>
+  </data>
+  <data name="SortDescription" xml:space="preserve">
+    <value>將輸入排序。</value>
+  </data>
+  <data name="TableSpoolDescription" xml:space="preserve">
+    <value>將輸入的資料儲存到暫存資料表中，以最佳化倒轉。</value>
+  </data>
+  <data name="IndexSpool" xml:space="preserve">
+    <value>索引多工緩衝處理</value>
+  </data>
+  <data name="IndexSpoolDescription" xml:space="preserve">
+    <value>將輸入的資料重新格式化到暫存索引中，以便在利用所提供的搜尋述詞進行搜尋時使用。</value>
+  </data>
+  <data name="TableUpdate" xml:space="preserve">
+    <value>資料表更新</value>
+  </data>
+  <data name="TableUpdateDescription" xml:space="preserve">
+    <value>更新 [引數] 欄位中指定之資料表的輸入資料列。</value>
+  </data>
+  <data name="TableInsert" xml:space="preserve">
+    <value>資料表插入</value>
+  </data>
+  <data name="TableInsertDescription" xml:space="preserve">
+    <value>將輸入資料列插入 [引數] 欄位中指定的資料表。</value>
+  </data>
+  <data name="TableDelete" xml:space="preserve">
+    <value>資料表刪除</value>
+  </data>
+  <data name="TableDeleteDescription" xml:space="preserve">
+    <value>刪除 [引數] 欄位中指定之資料表的輸入資料列。</value>
+  </data>
+  <data name="TableMerge" xml:space="preserve">
+    <value>資料表合併</value>
+  </data>
+  <data name="TableMergeDescription" xml:space="preserve">
+    <value>合併 [引數] 欄位中所指定資料表的輸入資料行。</value>
+  </data>
+  <data name="IndexUpdate" xml:space="preserve">
+    <value>索引更新</value>
+  </data>
+  <data name="IndexUpdateDescription" xml:space="preserve">
+    <value>更新索引中的資料列。</value>
+  </data>
+  <data name="IndexInsert" xml:space="preserve">
+    <value>索引插入</value>
+  </data>
+  <data name="IndexInsertDescription" xml:space="preserve">
+    <value>將資料列插入索引中。</value>
+  </data>
+  <data name="IndexDelete" xml:space="preserve">
+    <value>索引刪除</value>
+  </data>
+  <data name="IndexDeleteDescription" xml:space="preserve">
+    <value>刪除索引的資料列。</value>
+  </data>
+  <data name="ClusteredIndexUpdate" xml:space="preserve">
+    <value>叢集索引更新</value>
+  </data>
+  <data name="ClusteredIndexUpdateDescription" xml:space="preserve">
+    <value>更新叢集索引中的資料列。</value>
+  </data>
+  <data name="ClusteredIndexInsert" xml:space="preserve">
+    <value>叢集索引插入</value>
+  </data>
+  <data name="ClusteredIndexInsertDescription" xml:space="preserve">
+    <value>將資料列插入叢集索引。</value>
+  </data>
+  <data name="ClusteredIndexMerge" xml:space="preserve">
+    <value>叢集索引合併</value>
+  </data>
+  <data name="ClusteredIndexMergeDescription" xml:space="preserve">
+    <value>合併叢集索引中的資料列。</value>
+  </data>
+  <data name="ClusteredIndexDelete" xml:space="preserve">
+    <value>叢集索引刪除</value>
+  </data>
+  <data name="ClusteredIndexDeleteDescription" xml:space="preserve">
+    <value>從叢集索引刪除資料列。</value>
+  </data>
+  <data name="TopDescription" xml:space="preserve">
+    <value>根據排序次序選取前幾個資料列。</value>
+  </data>
+  <data name="BitmapDescription" xml:space="preserve">
+    <value>點陣圖。</value>
+  </data>
+  <data name="UDX" xml:space="preserve">
+    <value>UDX</value>
+  </data>
+  <data name="UDXDescription" xml:space="preserve">
+    <value>UDX。</value>
+  </data>
+  <data name="WindowDescription" xml:space="preserve">
+    <value>將每一列展開成一組資料列，分別代表與其關聯的視窗。</value>
+  </data>
+  <data name="WindowAggregate" xml:space="preserve">
+    <value>Window 彙總</value>
+  </data>
+  <data name="WindowAggregateDescription" xml:space="preserve">
+    <value>計算 OVER 子句所定義不同視窗的函數值。輸入資料列集是適當排序的資料流。</value>
+  </data>
+  <data name="BatchHashTableBuildDescription" xml:space="preserve">
+    <value>批次建立雜湊表。</value>
+  </data>
+  <data name="Switch" xml:space="preserve">
+    <value>切換</value>
+  </data>
+  <data name="SwitchDescription" xml:space="preserve">
+    <value>切換。</value>
+  </data>
+  <data name="TFP" xml:space="preserve">
+    <value>預測</value>
+  </data>
+  <data name="TFPDescription" xml:space="preserve">
+    <value>將訓練後的機器學習模型套用至輸入資料</value>
+  </data>
+  <data name="TableValueFunction" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="TableValueFunctionDescription" xml:space="preserve">
+    <value>資料表值函式。</value>
+  </data>
+  <data name="Aggregate" xml:space="preserve">
+    <value>彙總</value>
+  </data>
+  <data name="AggregateDescription" xml:space="preserve">
+    <value>計算包含 SUM、COUNT、MIN、MAX 或 AVG 的運算式。</value>
+  </data>
+  <data name="ArithmeticExpression" xml:space="preserve">
+    <value>算術運算式</value>
+  </data>
+  <data name="ArithmeticExpressionDescription" xml:space="preserve">
+    <value>利用資料列中現有的值計算新值。</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="DeleteDescription" xml:space="preserve">
+    <value>從指定資料表中移除指定資料列。</value>
+  </data>
+  <data name="Insert" xml:space="preserve">
+    <value>插入</value>
+  </data>
+  <data name="InsertDescription" xml:space="preserve">
+    <value>將資料列加入至資料表。</value>
+  </data>
+  <data name="Locate" xml:space="preserve">
+    <value>尋找</value>
+  </data>
+  <data name="LocateDescription" xml:space="preserve">
+    <value>從堆積或叢集索引中提取一整個資料列。</value>
+  </data>
+  <data name="SpoolDescription" xml:space="preserve">
+    <value>暫時儲存一個立即的查詢結果。</value>
+  </data>
+  <data name="SQL" xml:space="preserve">
+    <value>SQL</value>
+  </data>
+  <data name="SQLDescription" xml:space="preserve">
+    <value>SQL。</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="UpdateDescription" xml:space="preserve">
+    <value>修改指定資料表中的值。</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>指派</value>
+  </data>
+  <data name="AssignDescription" xml:space="preserve">
+    <value>驗證參考完整性條件約束。</value>
+  </data>
+  <data name="Convert" xml:space="preserve">
+    <value>轉換</value>
+  </data>
+  <data name="ConvertDescription" xml:space="preserve">
+    <value>以隱含性或外顯性的方式，將一種純量資料類型轉換成另一種純量資料類型。</value>
+  </data>
+  <data name="Declare" xml:space="preserve">
+    <value>宣告</value>
+  </data>
+  <data name="DeclareDescription" xml:space="preserve">
+    <value>配置區域變數。</value>
+  </data>
+  <data name="If" xml:space="preserve">
+    <value>若</value>
+  </data>
+  <data name="IfDescription" xml:space="preserve">
+    <value>依據運算式的條件式處理。</value>
+  </data>
+  <data name="Intrinsic" xml:space="preserve">
+    <value>內建</value>
+  </data>
+  <data name="IntrinsicDescription" xml:space="preserve">
+    <value>叫用內部 Transact-SQL 函數。</value>
+  </data>
+  <data name="SetFunction" xml:space="preserve">
+    <value>Set 函數</value>
+  </data>
+  <data name="SetFunctionDescription" xml:space="preserve">
+    <value>Set 函數。</value>
+  </data>
+  <data name="Dynamic" xml:space="preserve">
+    <value>動態</value>
+  </data>
+  <data name="DynamicDescription" xml:space="preserve">
+    <value>可以查看所有其他人所做變更的資料指標。</value>
+  </data>
+  <data name="FetchQuery" xml:space="preserve">
+    <value>提取查詢</value>
+  </data>
+  <data name="FetchQueryDescription" xml:space="preserve">
+    <value>在對資料指標發出提取時，用來擷取資料列的查詢。</value>
+  </data>
+  <data name="FastForward" xml:space="preserve">
+    <value>向前快轉</value>
+  </data>
+  <data name="FastForwardDescription" xml:space="preserve">
+    <value>向前快轉。</value>
+  </data>
+  <data name="Keyset" xml:space="preserve">
+    <value>索引鍵集</value>
+  </data>
+  <data name="KeysetDescription" xml:space="preserve">
+    <value>可以查看但無法插入其他人所做更新的資料指標。</value>
+  </data>
+  <data name="PopulationQuery" xml:space="preserve">
+    <value>母體擴展查詢</value>
+  </data>
+  <data name="PopulationQueryDescription" xml:space="preserve">
+    <value>在資料指標開啟時用來擴展資料指標工作資料表的查詢。</value>
+  </data>
+  <data name="RefreshQuery" xml:space="preserve">
+    <value>重新整理查詢</value>
+  </data>
+  <data name="RefreshQueryDescription" xml:space="preserve">
+    <value>提取目前在提取緩衝區中資料列的資料。</value>
+  </data>
+  <data name="Snapshot" xml:space="preserve">
+    <value>快照集</value>
+  </data>
+  <data name="SnapshotDescription" xml:space="preserve">
+    <value>看不到其他人所做之變更的資料指標。</value>
+  </data>
+  <data name="RIDLookup" xml:space="preserve">
+    <value>RID 查閱</value>
+  </data>
+  <data name="RIDLookupDescription" xml:space="preserve">
+    <value>RID 查閱</value>
+  </data>
+  <data name="KeyLookup" xml:space="preserve">
+    <value>索引鍵查閱</value>
+  </data>
+  <data name="KeyLookupDescription" xml:space="preserve">
+    <value>使用所提供的叢集索引鍵查閱具有叢集索引鍵的資料表。</value>
+  </data>
+  <data name="LogicalKeyLookup" xml:space="preserve">
+    <value>索引鍵查閱</value>
+  </data>
+  <data name="AdaptiveJoin" xml:space="preserve">
+    <value>自適性聯結</value>
+  </data>
+  <data name="AdaptiveJoinDescription" xml:space="preserve">
+    <value>動態地在雜湊聯結與巢狀迴圈之間選擇。</value>
+  </data>
+  <data name="ForeignKeyReferencesCheck" xml:space="preserve">
+    <value>外部索引鍵參考檢查</value>
+  </data>
+  <data name="ForeignKeyReferencesCheckDescription" xml:space="preserve">
+    <value>檢查刪除作業的參考完整性。</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>套用</value>
+  </data>
+  <data name="ApplyDescription" xml:space="preserve">
+    <value>套用作業。</value>
+  </data>
+  <data name="Broadcast" xml:space="preserve">
+    <value>廣播</value>
+  </data>
+  <data name="BroadcastDescription" xml:space="preserve">
+    <value>廣播資料移動。</value>
+  </data>
+  <data name="ComputeToControlNode" xml:space="preserve">
+    <value>計算到控制節點</value>
+  </data>
+  <data name="ComputeToControlNodeDescription" xml:space="preserve">
+    <value>從計算節點到控制節點的資料流程。</value>
+  </data>
+  <data name="ConstTableGet" xml:space="preserve">
+    <value>常數資料表取得</value>
+  </data>
+  <data name="ConstTableGetDescription" xml:space="preserve">
+    <value>從常數資料表取得 Tuple。</value>
+  </data>
+  <data name="ControlToComputeNodes" xml:space="preserve">
+    <value>控制到計算節點</value>
+  </data>
+  <data name="ControlToComputeNodesDescription" xml:space="preserve">
+    <value>從控制節點到計算節點的資料流程。</value>
+  </data>
+  <data name="ExternalBroadcast" xml:space="preserve">
+    <value>外部廣播</value>
+  </data>
+  <data name="ExternalBroadcastDescription" xml:space="preserve">
+    <value>外部資料表的廣播資料移動。</value>
+  </data>
+  <data name="ExternalExport" xml:space="preserve">
+    <value>外部匯出</value>
+  </data>
+  <data name="ExternalExportDescription" xml:space="preserve">
+    <value>外部資料表的匯出資料移動。</value>
+  </data>
+  <data name="ExternalLocalStreaming" xml:space="preserve">
+    <value>外部本機資料流</value>
+  </data>
+  <data name="ExternalLocalStreamingDescription" xml:space="preserve">
+    <value>外部資料表與本機資料表之間的資料流資料移動。</value>
+  </data>
+  <data name="ExternalRoundRobin" xml:space="preserve">
+    <value>外部 RoundRobin</value>
+  </data>
+  <data name="ExternalRoundRobinDescription" xml:space="preserve">
+    <value>外部資料表的 RoundRobin 資料移動。</value>
+  </data>
+  <data name="ExternalShuffle" xml:space="preserve">
+    <value>外部隨機顯示</value>
+  </data>
+  <data name="ExternalShuffleDescription" xml:space="preserve">
+    <value>隨機顯示外部資料表的資料移動。</value>
+  </data>
+  <data name="Get" xml:space="preserve">
+    <value>取得</value>
+  </data>
+  <data name="GetDescription" xml:space="preserve">
+    <value>從資料表取得 Tuple。</value>
+  </data>
+  <data name="GbApply" xml:space="preserve">
+    <value>Group by 並套用</value>
+  </data>
+  <data name="GbApplyDescription" xml:space="preserve">
+    <value>Group by 並套用。</value>
+  </data>
+  <data name="GbAgg" xml:space="preserve">
+    <value>根據彙總分組</value>
+  </data>
+  <data name="GbAggDescription" xml:space="preserve">
+    <value>根據彙總分組。</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>加入</value>
+  </data>
+  <data name="JoinDescription" xml:space="preserve">
+    <value>聯結資料表。</value>
+  </data>
+  <data name="LocalCube" xml:space="preserve">
+    <value>Rollup 彙總</value>
+  </data>
+  <data name="LocalCubeDescription" xml:space="preserve">
+    <value>這代表 ROLLUP 運算子或 CUBE 運算子。</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>專案</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>專案資料行。</value>
+  </data>
+  <data name="Shuffle" xml:space="preserve">
+    <value>隨機顯示</value>
+  </data>
+  <data name="ShuffleDescription" xml:space="preserve">
+    <value>隨機顯示資料移動。</value>
+  </data>
+  <data name="SingleSourceRoundRobin" xml:space="preserve">
+    <value>單一來源 RoundRobin</value>
+  </data>
+  <data name="SingleSourceRoundRobinDescription" xml:space="preserve">
+    <value>單一來源 RoundRobin 資料移動。</value>
+  </data>
+  <data name="SingleSourceShuffle" xml:space="preserve">
+    <value>單一來源隨機顯示</value>
+  </data>
+  <data name="SingleSourceShuffleDescription" xml:space="preserve">
+    <value>單一來源隨機顯示資料移動。</value>
+  </data>
+  <data name="Trim" xml:space="preserve">
+    <value>修剪</value>
+  </data>
+  <data name="TrimDescription" xml:space="preserve">
+    <value>修剪資料。</value>
+  </data>
+  <data name="Union" xml:space="preserve">
+    <value>等位</value>
+  </data>
+  <data name="UnionDescription" xml:space="preserve">
+    <value>聯集資料表。</value>
+  </data>
+  <data name="UnionAll" xml:space="preserve">
+    <value>聯集全部</value>
+  </data>
+  <data name="UnionAllDescription" xml:space="preserve">
+    <value>聯集所有資料表。</value>
+  </data>
+  <data name="NameValuePair" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="SizeInBytesFormat" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeInKiloBytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeInMegaBytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeInGigaBytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="SizeInTeraBytesFormat" xml:space="preserve">
+    <value>{0} TB</value>
+  </data>
+  <data name="TableNotInitializedException" xml:space="preserve">
+    <value>識別碼為 '{0}' 的資料表未正確初始化</value>
+  </data>
+  <data name="TableColumnIdentityGroupName" xml:space="preserve">
+    <value>識別值規格</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyTitle" xml:space="preserve">
+    <value>為識別值</value>
+  </data>
+  <data name="TableColumnIsIdentityPropertyDescription" xml:space="preserve">
+    <value>指定資料行是否為資料表的識別資料行。</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyTitle" xml:space="preserve">
+    <value>識別值增量</value>
+  </data>
+  <data name="TableColumnIdentityIncrementPropertyDescription" xml:space="preserve">
+    <value>顯示在產生下一個識別值時要加入到最大現有資料列識別值的值。</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyTitle" xml:space="preserve">
+    <value>識別值種子</value>
+  </data>
+  <data name="TableColumnIdentitySeedPropertyDescription" xml:space="preserve">
+    <value>顯示識別資料行的起始資料列值。</value>
+  </data>
+  <data name="TableEditPathNotProvidedException" xml:space="preserve">
+    <value>資料表變更資訊中的路徑不可為空白</value>
+  </data>
+  <data name="InvalidTableEditPathException" xml:space="preserve">
+    <value>資料表變更資訊中的路徑 '{0}' 對以下編輯類型無效: '{1}'</value>
+  </data>
+  <data name="OperatorDisplayCost" xml:space="preserve">
+    <value>{0:0.#######} ({1}%)</value>
+  </data>
+  <data name="ActualOfEstimated" xml:space="preserve">
+    <value>{0} 之
+{1} ({2}%)</value>
+  </data>
+  <data name="TableDesignerIsEnabledPropertyTitle" xml:space="preserve">
+    <value>已啟用</value>
+  </data>
+  <data name="ForeignKeyIsEnabledDescription" xml:space="preserve">
+    <value>指定外部索引鍵是否已啟用</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationTitle" xml:space="preserve">
+    <value>不可複寫</value>
+  </data>
+  <data name="ForeignKeyIsNotForReplicationDescription" xml:space="preserve">
+    <value>啟用或停用複寫程式插入之資料的限制式。</value>
+  </data>
+  <data name="SqlForeignKeyAction_NoAction" xml:space="preserve">
+    <value>沒有動作</value>
+  </data>
+  <data name="SqlForeignKeyAction_Cascade" xml:space="preserve">
+    <value>重疊顯示</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetNull" xml:space="preserve">
+    <value>設為 Null</value>
+  </data>
+  <data name="SqlForeignKeyAction_SetDefault" xml:space="preserve">
+    <value>設為預設值</value>
+  </data>
+  <data name="CheckConstraintIsEnabledDescription" xml:space="preserve">
+    <value>指定是否啟用檢查條件約束</value>
+  </data>
+  <data name="QueryServiceUnsupportedSqlVariantType" xml:space="preserve">
+    <value>基礎類型 "{0}" 無法解析 SQL 變體資料行 "{1} "。</value>
+  </data>
+  <data name="IndexIsEnabledPropertyDescription" xml:space="preserve">
+    <value>指定是否已啟用索引。</value>
+  </data>
+  <data name="IndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>索引是否為叢集索引。一個資料表中只允許一個叢集索引。</value>
+  </data>
+  <data name="TableDesignerIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>為叢集</value>
+  </data>
+  <data name="IndexIsUniquePropertyDescription" xml:space="preserve">
+    <value>輸入此索引的資料是否必須是唯一的。</value>
+  </data>
+  <data name="TableDesignerIsUniquePropertyTitle" xml:space="preserve">
+    <value>是唯一的</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyDescription" xml:space="preserve">
+    <value>指定資料行的排序次序。</value>
+  </data>
+  <data name="IndexColumnIsAscendingPropertyTitle" xml:space="preserve">
+    <value>為遞增</value>
+  </data>
+  <data name="TableDesignerColumnsDisplayValueTitle" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="TableDesignerDeleteColumnConfirmationMessage" xml:space="preserve">
+    <value>移除資料行也會將它從索引和外部索引鍵移除。確定要繼續嗎?</value>
+  </data>
+  <data name="MissingIndexFormat" xml:space="preserve">
+    <value>遺漏索引 (影響 {0}): {1}</value>
+  </data>
+  <data name="MissingIndexDetailsTitle" xml:space="preserve">
+    <value>/*
+遺漏 {0} 的索引詳細資料
+查詢處理器預估若實作下列索引則可改善 {1}% 的查詢成本。
+*/</value>
+  </data>
+  <data name="CreateSasForBlobContainerFailed" xml:space="preserve">
+    <value>無法為 Blob 容器產生 SAS URI。</value>
+  </data>
+  <data name="WriteSASCredentialToSqlServerFailed" xml:space="preserve">
+    <value>在 SQL Server 上儲存共用存取簽章權杖失敗。</value>
+  </data>
+  <data name="UnsupportedDeviceType" xml:space="preserve">
+    <value>引擎版本 {1} 不支援的裝置類型 {0}。</value>
+  </data>
+  <data name="NotSupportedCloudCreateSas" xml:space="preserve">
+    <value>雲端執行個體不支援建立共用存取簽章。</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeTitle" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeEdge" xml:space="preserve">
+    <value>Edge</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNode" xml:space="preserve">
+    <value>節點</value>
+  </data>
+  <data name="TableDesignerGraphTableGroupTitle" xml:space="preserve">
+    <value>圖形資料表</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintsTabTitle" xml:space="preserve">
+    <value>邊緣條件約束</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintObjectType" xml:space="preserve">
+    <value>邊緣條件約束</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyDescription" xml:space="preserve">
+    <value>條件約束的名稱。</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintNamePropertyTitle" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyDescription" xml:space="preserve">
+    <value>指定是否已啟用索引。</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintIsEnabledPropertyTitle" xml:space="preserve">
+    <value>已啟用</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyDescription" xml:space="preserve">
+    <value>使用者嘗試刪除資料列時的行為，此資料列內含外部索引鍵關聯性中涉及的資料。</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintOnDeleteActionPropertyTitle" xml:space="preserve">
+    <value>刪除動作時</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyDescription" xml:space="preserve">
+    <value>邊緣條件約束子句。</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClausesPropertyTitle" xml:space="preserve">
+    <value>子句</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseObjectType" xml:space="preserve">
+    <value>子句</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseFromTablePropertyName" xml:space="preserve">
+    <value>從資料表</value>
+  </data>
+  <data name="TableDesignerEdgeConstraintClauseToTablePropertyName" xml:space="preserve">
+    <value>目標表格</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeNone" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="TableDesignerGraphTableTypeDescription" xml:space="preserve">
+    <value>指定資料表類型。</value>
+  </data>
+  <data name="UnknownEnumString" xml:space="preserve">
+    <value>未知的列舉值: {0}。</value>
+  </data>
+  <data name="SqlTableDurability_SchemaAndData" xml:space="preserve">
+    <value>結構描述及資料</value>
+  </data>
+  <data name="SqlTableDurability_SchemaOnly" xml:space="preserve">
+    <value>僅結構描述</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_None" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowStart" xml:space="preserve">
+    <value>列開始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_RowEnd" xml:space="preserve">
+    <value>列結尾</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledTitle" xml:space="preserve">
+    <value>已啟用系統版本設定</value>
+  </data>
+  <data name="TableDesignerIsSystemVersioningEnabledDescription" xml:space="preserve">
+    <value>指定資料表是否已啟用系統版本設定。</value>
+  </data>
+  <data name="TableDesignerSystemVersioningGroupTitle" xml:space="preserve">
+    <value>系統版本設定</value>
+  </data>
+  <data name="TableDesignerHistoryTableDescription" xml:space="preserve">
+    <value>目前資料表的歷程記錄資料表。</value>
+  </data>
+  <data name="TableDesignerHistoryTableTitle" xml:space="preserve">
+    <value>記錄資料表</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>指出資料表是否已經過記憶體最佳化。</value>
+  </data>
+  <data name="TableDesignerMemoryOptimizedGroupTitle" xml:space="preserve">
+    <value>記憶體最佳化</value>
+  </data>
+  <data name="TableDesignerIsMemoryOptimizedTitle" xml:space="preserve">
+    <value>記憶體最佳化</value>
+  </data>
+  <data name="TableDesignerDurabilityDescription" xml:space="preserve">
+    <value>指定資料表的持久性設定。</value>
+  </data>
+  <data name="TableDesignerDurabilityTitle" xml:space="preserve">
+    <value>持久性</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsDescription" xml:space="preserve">
+    <value>指定系統版本設定資料表期間設定的開始或結束。</value>
+  </data>
+  <data name="TableDesignerColumnGeneratedAlwaysAsTitle" xml:space="preserve">
+    <value>一律產生為</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenTitle" xml:space="preserve">
+    <value>已隱藏</value>
+  </data>
+  <data name="TableDesignerColumnIsHiddenDescription" xml:space="preserve">
+    <value>指定 select 語句是否要傳回資料行。</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableDescription" xml:space="preserve">
+    <value>指定引擎是否應自動建立歷程記錄資料表。</value>
+  </data>
+  <data name="TableDesignerAutoCreateHistoryTableTitle" xml:space="preserve">
+    <value>自動建立歷程記錄資料表</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableDescription" xml:space="preserve">
+    <value>指定新歷程記錄資料表的名稱。</value>
+  </data>
+  <data name="TableDesignerNewHistoryTableTitle" xml:space="preserve">
+    <value>記錄資料表名稱</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyDescription" xml:space="preserve">
+    <value>指定預設條件約束名稱。</value>
+  </data>
+  <data name="TableColumnDefaultConstraintNamePropertyTitle" xml:space="preserve">
+    <value>預設條件約束名稱</value>
+  </data>
+  <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
+    <value>新增邊緣限制式</value>
+  </data>
+  <data name="AddNewClauseLabel" xml:space="preserve">
+    <value>新增子句</value>
+  </data>
+  <data name="WarningOverlayTooltip" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ParallelismOverlayTooltip" xml:space="preserve">
+    <value>並行執行</value>
+  </data>
+  <data name="TableColumnComputedGroupTitle" xml:space="preserve">
+    <value>計算資料行規格</value>
+  </data>
+  <data name="TableColumnIsComputedTitle" xml:space="preserve">
+    <value>是計算的</value>
+  </data>
+  <data name="TableColumnIsComputedDescription" xml:space="preserve">
+    <value>指定資料行是否計算資料行</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedTitle" xml:space="preserve">
+    <value>為永續性</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedDescription" xml:space="preserve">
+    <value>計算結果欄是否與資料來源一起儲存</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableTitle" xml:space="preserve">
+    <value>為永續性且可為 Null</value>
+  </data>
+  <data name="TableColumnIsComputedPersistedNullableDescription" xml:space="preserve">
+    <value>計算資料行能否有 NULL 值 (只有當資料行為永續性，才能指定非 NULL)</value>
+  </data>
+  <data name="TableColumnComputedFormulaDescription" xml:space="preserve">
+    <value>定義計算資料行值的運算式。[詳細資訊](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-computed-column-definition-transact-sql#computed_column_expression)</value>
+  </data>
+  <data name="TableColumnComputedFormulaTitle" xml:space="preserve">
+    <value>公式</value>
+  </data>
+  <data name="IndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>索引 '{0}' 沒有任何相關聯的資料行。</value>
+  </data>
+  <data name="ForeignKeyMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>外部索引鍵 '{0}' 未指定任何資料行。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已新增至索引 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已新增至外部索引鍵 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInForeignKeyRuleForeignColumnDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的外部索引鍵資料行已新增至外部索引鍵 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="NoDuplicateConstraintNameRuleDescription" xml:space="preserve">
+    <value>名稱 '{0}' 已由另一個限制式使用。列號: {1}。</value>
+  </data>
+  <data name="NoDuplicateColumnNameRuleDescription" xml:space="preserve">
+    <value>名稱 '{0}' 已由另一個資料行使用。列號: {1}。</value>
+  </data>
+  <data name="NoDuplicateIndexNameRuleDescription" xml:space="preserve">
+    <value>名稱 '{0}' 已由另一個索引使用。列號: {1}。</value>
+  </data>
+  <data name="EdgeConstraintMustHaveClausesRuleDescription" xml:space="preserve">
+    <value>邊緣限制式 '{0}' 未指定任何子句。</value>
+  </data>
+  <data name="EdgeConstraintNoRepeatingClausesRuleDescription" xml:space="preserve">
+    <value>配對 '{0}' 已由邊緣限制式中的另一個子句定義。列號: {1}。</value>
+  </data>
+  <data name="MemoryOptimizedTableMustHaveNonClusteredPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>經記憶體最佳化的資料表必須具有非叢集主索引鍵。</value>
+  </data>
+  <data name="TemporalTableMustHavePrimaryKeyRuleDescription" xml:space="preserve">
+    <value>系統版本資料表必須有主索引鍵。</value>
+  </data>
+  <data name="TemporalTableMustHavePeriodColumnsRuleDescription" xml:space="preserve">
+    <value>由系統設定版本的資料表必須定義週期資料行。</value>
+  </data>
+  <data name="PeriodColumnsRuleMoreThanOneIssueDescription" xml:space="preserve">
+    <value>週期資料行 (一律產生為開始/結束) 只能定義一次。</value>
+  </data>
+  <data name="PeriodColumnsRuleNotMatchIssueDescription" xml:space="preserve">
+    <value>週期資料行 (一律產生為開始/結束) 必須配對定義。如果定義了一個，也必須定義另一個。</value>
+  </data>
+  <data name="ColumnsInPrimaryKeyCannotBeNullableRuleDescription" xml:space="preserve">
+    <value>主索引鍵中的資料行不可為 Null。</value>
+  </data>
+  <data name="OnlyDurableMemoryOptimizedTableCanBeSystemVersionedRuleDescription" xml:space="preserve">
+    <value>只有耐久性 (DURABILITY = SCHEMA_AND_DATA) 經記憶體最佳化的資料表可以由系統設定版本。</value>
+  </data>
+  <data name="TableMustHaveAtLeastOneColumnRuleDescription" xml:space="preserve">
+    <value>資料表必須至少定義一個非計算資料行。</value>
+  </data>
+  <data name="MemoryOptimizedTableIdentityColumnRuleDescription" xml:space="preserve">
+    <value>經記憶體最佳化的資料表不支援使用種子和 1 以外的遞增值。</value>
+  </data>
+  <data name="TableShouldAvoidHavingMultipleEdgeConstraintsRuleDescription" xml:space="preserve">
+    <value>資料表上有一個以上的邊緣限制式。這只有在修改現有邊緣限制式時，才可作為暫存狀態，不應該用於其他案例中。</value>
+  </data>
+  <data name="ColumnCannotBeListedMoreThanOnceInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>無法在主索引鍵使用重複的資料行名稱，資料行名稱: {0}</value>
+  </data>
+  <data name="MemoryOptimizedCannotBeEnabledWhenNotSupportedRuleDescription" xml:space="preserve">
+    <value>此資料庫不支援經記憶體最佳化的資料表。</value>
+  </data>
+  <data name="MutipleCreateTableStatementsInScriptRuleDescription" xml:space="preserve">
+    <value>指令碼中有多個資料表定義，只能編輯設計工具中第一個資料表。</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>作業</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>物件</value>
+  </data>
+  <data name="EstimatedCost" xml:space="preserve">
+    <value>預估成本 %</value>
+  </data>
+  <data name="EstimatedSubtree" xml:space="preserve">
+    <value>預估的樹狀子目錄成本</value>
+  </data>
+  <data name="ActualRows" xml:space="preserve">
+    <value>實際資料列數</value>
+  </data>
+  <data name="EstimatedRows" xml:space="preserve">
+    <value>預估的資料列數</value>
+  </data>
+  <data name="ActualExecutions" xml:space="preserve">
+    <value>實際執行次數</value>
+  </data>
+  <data name="EstimatedExecutions" xml:space="preserve">
+    <value>預估的執行數</value>
+  </data>
+  <data name="EstimatedCpu" xml:space="preserve">
+    <value>預估的 CPU 成本</value>
+  </data>
+  <data name="EstimatedIO" xml:space="preserve">
+    <value>預估的 I/O 成本</value>
+  </data>
+  <data name="ActualDataSize" xml:space="preserve">
+    <value>實際資料大小</value>
+  </data>
+  <data name="AverageRowSize" xml:space="preserve">
+    <value>平均資料列大小</value>
+  </data>
+  <data name="IndexIncludedColumnsGroupTitle" xml:space="preserve">
+    <value>包含的資料行</value>
+  </data>
+  <data name="IndexIncludedColumnsPropertyDescription" xml:space="preserve">
+    <value>索引所包含的欄標籤</value>
+  </data>
+  <data name="IndexIncludedColumnsAddColumn" xml:space="preserve">
+    <value>加入資料行</value>
+  </data>
+  <data name="IndexIncludedColumnsColumnPropertyName" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>篩選索引的述詞</value>
+  </data>
+  <data name="IndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>篩選述詞</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>叢集索引不支援所包含的欄標籤。</value>
+  </data>
+  <data name="ClusteredIndexCannotHaveFilterPredicateRuleDescription" xml:space="preserve">
+    <value>叢集索引不支援篩選述詞。</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInIndexIncludedColumnsRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已包含於索引 '{1}' 中。列數: {2}。</value>
+  </data>
+  <data name="ColumnCannotDuplicateWitIndexKeyColumnsRuleDescription" xml:space="preserve">
+    <value>所包含名為 '{0}' 已是索引 '{1}' 的一部分，因此無法包含在內。列數: {2}。</value>
+  </data>
+  <data name="UpdatableLedger_LabelPart" xml:space="preserve">
+    <value>可更新總帳</value>
+  </data>
+  <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
+    <value>僅限附加總帳</value>
+  </data>
+  <data name="Ledger_LabelPart" xml:space="preserve">
+    <value>總帳</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
+    <value>已卸除的總帳資料表</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
+    <value>已卸除的總帳檢視</value>
+  </data>
+  <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
+    <value>已卸除的總帳資料行</value>
+  </data>
+  <data name="SqlProjectModelNotFound" xml:space="preserve">
+    <value>在專案中找不到 SQL 模型: {0}。</value>
+  </data>
+  <data name="UnsupportedModelType" xml:space="preserve">
+    <value>不支援的模型類型: {0}。</value>
+  </data>
+  <data name="GetUserDefinedObjectsFromModelFailed" xml:space="preserve">
+    <value>無法從模型取得使用者定義物件。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedAndNotNullInPrimaryKeyRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的計算資料行必須保存且不可為 Null，才能成為主索引鍵的一部分。</value>
+  </data>
+  <data name="ComputedColumnNeedToBePersistedInForeignKeyRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的計算資料行必須保存，才能成為外部索引鍵 '{1}' 的一部分。</value>
+  </data>
+  <data name="HashIndexNotSupportedInNonMemoryOptimizedTableRuleDescription" xml:space="preserve">
+    <value>未經記憶體最佳化的資料表不支援名稱為 '{0}' 的雜湊索引。</value>
+  </data>
+  <data name="HashIndexMustHaveBucketCountRuleDescription" xml:space="preserve">
+    <value>雜湊索引 '{0}' 沒有貯體計數。</value>
+  </data>
+  <data name="IndexIsHashPropertyDescription" xml:space="preserve">
+    <value>索引是否為雜湊索引</value>
+  </data>
+  <data name="IndexIsHashPropertyTitle" xml:space="preserve">
+    <value>是雜湊</value>
+  </data>
+  <data name="IndexBucketCountPropertyDescription" xml:space="preserve">
+    <value>雜湊索引的貯體計數，請注意，值一律會自動四捨五入到下一個 2 次方。</value>
+  </data>
+  <data name="IndexBucketCountPropertyTitle" xml:space="preserve">
+    <value>貯體計數</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyTitle" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="ColumnStoreIndexNamePropertyDescription" xml:space="preserve">
+    <value>資料行存放區索引的名稱</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyTitle" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="ColumnStoreIndexDescriptionPropertyDescription" xml:space="preserve">
+    <value>資料行存放區索引的描述</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyDescription" xml:space="preserve">
+    <value>資料行存放區索引是否為叢集。</value>
+  </data>
+  <data name="ColumnStoreIndexIsClusteredPropertyTitle" xml:space="preserve">
+    <value>為叢集</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyDescription" xml:space="preserve">
+    <value>資料行存放區索引的篩選述詞。</value>
+  </data>
+  <data name="ColumnStoreIndexFilterPredicatePropertyTitle" xml:space="preserve">
+    <value>篩選述詞</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsPropertyDescription" xml:space="preserve">
+    <value>此資料行存放區索引中的資料行</value>
+  </data>
+  <data name="ColumnStoreIndexColumnsGroupTitle" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="ColumnStoreIndexAddColumn" xml:space="preserve">
+    <value>新增資料行</value>
+  </data>
+  <data name="ColumnStoreIndexColumnPropertyName" xml:space="preserve">
+    <value>資料行</value>
+  </data>
+  <data name="ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription" xml:space="preserve">
+    <value>名稱為 '{0}' 的資料行已新增至非叢集的資料行存放區索引 '{1}'。列號: {2}。</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexesTableTitle" xml:space="preserve">
+    <value>資料行存放區索引</value>
+  </data>
+  <data name="TableDesignerColumnStoreIndexObjectType" xml:space="preserve">
+    <value>資料行存放區索引</value>
+  </data>
+  <data name="AddNewColumnStoreIndexLabel" xml:space="preserve">
+    <value>新的資料行存放區索引</value>
+  </data>
+  <data name="NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription" xml:space="preserve">
+    <value>非叢集資料行存放區索引 '{0}' 沒有任何與其相關的資料行。</value>
+  </data>
+  <data name="TableDesignerConfirmationText" xml:space="preserve">
+    <value>我已閱讀摘要並瞭解潛在風險。</value>
+  </data>
+  <data name="ErrorConnectionNotFound" xml:space="preserve">
+    <value>找不到該連接</value>
+  </data>
+  <data name="ActualCpu" xml:space="preserve">
+    <value>實際 CPU 成本</value>
+  </data>
+  <data name="PasswordChangeEmptyPassword" xml:space="preserve">
+    <value>新密碼不能空白。</value>
+  </data>
+  <data name="PasswordChangeEmptyPasswordRetry" xml:space="preserve">
+    <value>請按 [確定] 輸入不是空白的新密碼。</value>
+  </data>
+  <data name="PasswordChangeDNMReqsRetry" xml:space="preserve">
+    <value>請按 [確定] 輸入符合作業系統原則需求的新密碼。</value>
+  </data>
+  <data name="PasswordChangePWCannotBeUsedRetry" xml:space="preserve">
+    <value>請按 [確定] 輸入其他密碼。</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdStart" xml:space="preserve">
+    <value>交易識別碼開始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_TransactionIdEnd" xml:space="preserve">
+    <value>交易識別碼結束</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberStart" xml:space="preserve">
+    <value>序號開始</value>
+  </data>
+  <data name="GeneratedAlwaysColumnType_SequenceNumberEnd" xml:space="preserve">
+    <value>序號結束</value>
+  </data>
+  <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
+    <value>內建結構描述</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
+    <value>具有證明通訊協定的選取值時，證明 URL 不可為空白。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
+    <value>安全記憶體保護區的無效值 '{0}'。有效的值為 [已啟用] 和 [已停用]。</value>
+  </data>
+  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
+    <value>無法在證明通訊協定為 [無] 的情況下指定證明 URL。請設定適當的證明通訊協定，或從連線屬性移除證明 URL。</value>
+  </data>
+  <data name="DefaultLanguagePlaceholder" xml:space="preserve">
+    <value>&lt;預設&gt;</value>
+  </data>
+  <data name="ResetPasswordWhileUnlocking" xml:space="preserve">
+    <value>解除鎖定時重設登入密碼。</value>
+  </data>
+  <data name="ObjectNotRenamable" xml:space="preserve">
+    <value>無法重新命名物件。URN: '{0}'。</value>
+  </data>
+  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
+    <value>安全記憶體保護區啟用時，證明通訊協定不可為空白。</value>
+  </data>
+  <data name="Permission_Alter" xml:space="preserve">
+    <value>改變</value>
+  </data>
+  <data name="Permission_Connect" xml:space="preserve">
+    <value>連線</value>
+  </data>
+  <data name="Permission_Control" xml:space="preserve">
+    <value>控制</value>
+  </data>
+  <data name="Permission_Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="Permission_Execute" xml:space="preserve">
+    <value>執行</value>
+  </data>
+  <data name="Permission_Impersonate" xml:space="preserve">
+    <value>模擬</value>
+  </data>
+  <data name="Permission_Insert" xml:space="preserve">
+    <value>插入</value>
+  </data>
+  <data name="Permission_Receive" xml:space="preserve">
+    <value>接收</value>
+  </data>
+  <data name="Permission_References" xml:space="preserve">
+    <value>參考</value>
+  </data>
+  <data name="Permission_Select" xml:space="preserve">
+    <value>選取</value>
+  </data>
+  <data name="Permission_Send" xml:space="preserve">
+    <value>傳送</value>
+  </data>
+  <data name="Permission_TakeOwnership" xml:space="preserve">
+    <value>取得擁有權</value>
+  </data>
+  <data name="Permission_Update" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Permission_ViewDefinition" xml:space="preserve">
+    <value>檢視定義</value>
+  </data>
+  <data name="Permission_ViewChangeTracking" xml:space="preserve">
+    <value>檢視變更追蹤</value>
+  </data>
+  <data name="Permission_AlterAnyApplicationRole" xml:space="preserve">
+    <value>改變任何應用程式角色</value>
+  </data>
+  <data name="Permission_AlterAnyAssembly" xml:space="preserve">
+    <value>改變任何組件</value>
+  </data>
+  <data name="Permission_AlterAnyAsymmetricKey" xml:space="preserve">
+    <value>改變任何非對稱金鑰</value>
+  </data>
+  <data name="Permission_AlterAnyCertificate" xml:space="preserve">
+    <value>改變任何憑證</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseAudit" xml:space="preserve">
+    <value>改變任何資料庫稽核</value>
+  </data>
+  <data name="Permission_AlterAnyContract" xml:space="preserve">
+    <value>改變任何合約</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseDdlTrigger" xml:space="preserve">
+    <value>改變任何資料庫 DDL 觸發程序</value>
+  </data>
+  <data name="Permission_AlterAnyDatabaseEventNotification" xml:space="preserve">
+    <value>改變任何資料庫事件通知</value>
+  </data>
+  <data name="Permission_AlterAnyDataspace" xml:space="preserve">
+    <value>改變任何資料空間</value>
+  </data>
+  <data name="Permission_AlterAnyExternalDataSource" xml:space="preserve">
+    <value>改變任何外部資料來源</value>
+  </data>
+  <data name="Permission_AlterAnyExternalFileFormat" xml:space="preserve">
+    <value>改變任何外部檔案格式</value>
+  </data>
+  <data name="Permission_AlterAnyFulltextCatalog" xml:space="preserve">
+    <value>改變任何全文檢索目錄</value>
+  </data>
+  <data name="Permission_AlterAnyMask" xml:space="preserve">
+    <value>改變任何遮罩</value>
+  </data>
+  <data name="Permission_AlterAnyMessageType" xml:space="preserve">
+    <value>改變任何訊息類型</value>
+  </data>
+  <data name="Permission_AlterAnyRemoteServiceBinding" xml:space="preserve">
+    <value>改變任何遠端服務繫結</value>
+  </data>
+  <data name="Permission_AlterAnyRole" xml:space="preserve">
+    <value>改變任何角色</value>
+  </data>
+  <data name="Permission_AlterAnyRoute" xml:space="preserve">
+    <value>改變任何路由</value>
+  </data>
+  <data name="Permission_AlterAnySchema" xml:space="preserve">
+    <value>改變任何結構描述</value>
+  </data>
+  <data name="Permission_AlterAnySecurityPolicy" xml:space="preserve">
+    <value>改變任何安全性原則</value>
+  </data>
+  <data name="Permission_AlterAnySensitivityClassification" xml:space="preserve">
+    <value>改變所有敏感度分類</value>
+  </data>
+  <data name="Permission_AlterAnyService" xml:space="preserve">
+    <value>改變任何服務</value>
+  </data>
+  <data name="Permission_AlterAnyUser" xml:space="preserve">
+    <value>改變任何使用者</value>
+  </data>
+  <data name="Permission_AlterAnySymmetricKey" xml:space="preserve">
+    <value>改變任何對稱金鑰</value>
+  </data>
+  <data name="Permission_Authenticate" xml:space="preserve">
+    <value>驗證</value>
+  </data>
+  <data name="Permission_BackupDatabase" xml:space="preserve">
+    <value>備份資料庫</value>
+  </data>
+  <data name="Permission_BackupLog" xml:space="preserve">
+    <value>備份記錄檔</value>
+  </data>
+  <data name="Permission_Checkpoint" xml:space="preserve">
+    <value>檢查點</value>
+  </data>
+  <data name="Permission_ConnectReplication" xml:space="preserve">
+    <value>連線複寫</value>
+  </data>
+  <data name="Permission_CreateAggregate" xml:space="preserve">
+    <value>建立彙總</value>
+  </data>
+  <data name="Permission_CreateAssembly" xml:space="preserve">
+    <value>建立組件</value>
+  </data>
+  <data name="Permission_CreateAsymmetricKey" xml:space="preserve">
+    <value>建立非對稱金鑰</value>
+  </data>
+  <data name="Permission_CreateCertificate" xml:space="preserve">
+    <value>建立憑證</value>
+  </data>
+  <data name="Permission_CreateContract" xml:space="preserve">
+    <value>建立合約</value>
+  </data>
+  <data name="Permission_CreateDatabase" xml:space="preserve">
+    <value>建立資料庫</value>
+  </data>
+  <data name="Permission_CreateDatabaseDdlEventNotification" xml:space="preserve">
+    <value>建立資料庫 DDL 事件通知</value>
+  </data>
+  <data name="Permission_CreateDefault" xml:space="preserve">
+    <value>建立預設值</value>
+  </data>
+  <data name="Permission_CreateFulltextCatalog" xml:space="preserve">
+    <value>建立全文檢索目錄</value>
+  </data>
+  <data name="Permission_CreateFunction" xml:space="preserve">
+    <value>建立函數</value>
+  </data>
+  <data name="Permission_CreateMessageType" xml:space="preserve">
+    <value>建立訊息類型</value>
+  </data>
+  <data name="Permission_CreateProcedure" xml:space="preserve">
+    <value>建立程序</value>
+  </data>
+  <data name="Permission_CreateQueue" xml:space="preserve">
+    <value>建立佇列</value>
+  </data>
+  <data name="Permission_CreateRemoteServiceBinding" xml:space="preserve">
+    <value>建立遠端服務繫結</value>
+  </data>
+  <data name="Permission_CreateRole" xml:space="preserve">
+    <value>建立角色</value>
+  </data>
+  <data name="Permission_CreateRoute" xml:space="preserve">
+    <value>建立路由</value>
+  </data>
+  <data name="Permission_CreateRule" xml:space="preserve">
+    <value>建立規則</value>
+  </data>
+  <data name="Permission_CreateSchema" xml:space="preserve">
+    <value>建立結構描述</value>
+  </data>
+  <data name="Permission_CreateService" xml:space="preserve">
+    <value>建立服務</value>
+  </data>
+  <data name="Permission_CreateSymmetricKey" xml:space="preserve">
+    <value>建立對稱金鑰</value>
+  </data>
+  <data name="Permission_CreateSynonym" xml:space="preserve">
+    <value>建立同義字</value>
+  </data>
+  <data name="Permission_CreateSequence" xml:space="preserve">
+    <value>建立順序</value>
+  </data>
+  <data name="Permission_CreateTable" xml:space="preserve">
+    <value>建立資料表</value>
+  </data>
+  <data name="Permission_CreateType" xml:space="preserve">
+    <value>建立類型</value>
+  </data>
+  <data name="Permission_CreateView" xml:space="preserve">
+    <value>建立檢視</value>
+  </data>
+  <data name="Permission_CreateXmlSchemaCollection" xml:space="preserve">
+    <value>建立 XML 結構描述集合</value>
+  </data>
+  <data name="Permission_Showplan" xml:space="preserve">
+    <value>顯示計畫</value>
+  </data>
+  <data name="Permission_SubscribeQueryNotifications" xml:space="preserve">
+    <value>訂閱查詢通知</value>
+  </data>
+  <data name="Permission_Unmask" xml:space="preserve">
+    <value>取消遮罩</value>
+  </data>
+  <data name="Permission_ViewAnyColumnEncryptionKeyDefinition" xml:space="preserve">
+    <value>檢視任何資料行的加密金鑰定義</value>
+  </data>
+  <data name="Permission_ViewAnyColumnMasterKeyDefinition" xml:space="preserve">
+    <value>檢視任何資料行的主要金鑰定義</value>
+  </data>
+  <data name="Permission_ViewAnySensitivityClassification" xml:space="preserve">
+    <value>檢視所有敏感度分類</value>
+  </data>
+  <data name="Permission_ViewDatabaseState" xml:space="preserve">
+    <value>檢視資料庫狀態</value>
+  </data>
+  <data name="Permission_AdministerBulkOperations" xml:space="preserve">
+    <value>管理大量作業</value>
+  </data>
+  <data name="Permission_AlterAnyServerAudit" xml:space="preserve">
+    <value>改變任何伺服器稽核</value>
+  </data>
+  <data name="Permission_AlterAnyConnection" xml:space="preserve">
+    <value>改變任何連線</value>
+  </data>
+  <data name="Permission_AlterAnyCredential" xml:space="preserve">
+    <value>改變任何認證</value>
+  </data>
+  <data name="Permission_AlterAnyDatabase" xml:space="preserve">
+    <value>改變任何資料庫</value>
+  </data>
+  <data name="Permission_AlterAnyEndpoint" xml:space="preserve">
+    <value>改變任何端點</value>
+  </data>
+  <data name="Permission_AlterAnyEventNotification" xml:space="preserve">
+    <value>改變任何事件通知</value>
+  </data>
+  <data name="Permission_AlterAnyEventSession" xml:space="preserve">
+    <value>改變任何事件工作階段</value>
+  </data>
+  <data name="Permission_AlterAnyLinkedServer" xml:space="preserve">
+    <value>改變任何連結的伺服器</value>
+  </data>
+  <data name="Permission_AlterAnyLogin" xml:space="preserve">
+    <value>改變任何登入</value>
+  </data>
+  <data name="Permission_AlterAnyServerRole" xml:space="preserve">
+    <value>改變任何伺服器角色</value>
+  </data>
+  <data name="Permission_AlterResources" xml:space="preserve">
+    <value>改變資源</value>
+  </data>
+  <data name="Permission_AlterServerState" xml:space="preserve">
+    <value>改變伺服器狀態</value>
+  </data>
+  <data name="Permission_AlterSettings" xml:space="preserve">
+    <value>改變設定</value>
+  </data>
+  <data name="Permission_AlterTrace" xml:space="preserve">
+    <value>改變追蹤</value>
+  </data>
+  <data name="Permission_AuthenticateServer" xml:space="preserve">
+    <value>驗證伺服器</value>
+  </data>
+  <data name="Permission_ConnectSql" xml:space="preserve">
+    <value>連接 SQL</value>
+  </data>
+  <data name="Permission_ControlServer" xml:space="preserve">
+    <value>控制伺服器</value>
+  </data>
+  <data name="Permission_CreateAnyDatabase" xml:space="preserve">
+    <value>建立任何資料庫</value>
+  </data>
+  <data name="Permission_CreateDdlEventNotification" xml:space="preserve">
+    <value>建立 DDL 事件通知</value>
+  </data>
+  <data name="Permission_CreateEndpoint" xml:space="preserve">
+    <value>建立端點</value>
+  </data>
+  <data name="Permission_CreateTraceEventNotification" xml:space="preserve">
+    <value>建立追蹤事件通知</value>
+  </data>
+  <data name="Permission_CreateServerRole" xml:space="preserve">
+    <value>建立伺服器角色</value>
+  </data>
+  <data name="Permission_ExternalAccessAssembly" xml:space="preserve">
+    <value>外部存取組件</value>
+  </data>
+  <data name="Permission_Shutdown" xml:space="preserve">
+    <value>關機</value>
+  </data>
+  <data name="Permission_UnsafeAssembly" xml:space="preserve">
+    <value>不安全的組件</value>
+  </data>
+  <data name="Permission_ViewAnyDatabase" xml:space="preserve">
+    <value>檢視任何資料庫</value>
+  </data>
+  <data name="Permission_ViewAnyDefinition" xml:space="preserve">
+    <value>檢視任何定義</value>
+  </data>
+  <data name="Permission_ViewServerState" xml:space="preserve">
+    <value>檢視伺服器狀態</value>
+  </data>
+  <data name="Permission_AlterAnyAvailabilityGroup" xml:space="preserve">
+    <value>改變任何可用性群組</value>
+  </data>
+  <data name="Permission_CreateAvailabilityGroup" xml:space="preserve">
+    <value>建立可用性群組</value>
+  </data>
+  <data name="Permission_SelectAllUserSecurables" xml:space="preserve">
+    <value>選取所有使用者安全性實體</value>
+  </data>
+  <data name="Permission_ConnectAnyDatabase" xml:space="preserve">
+    <value>連接任何資料庫</value>
+  </data>
+  <data name="Permission_ImpersonateAnyLogin" xml:space="preserve">
+    <value>模擬任何登入</value>
+  </data>
+  <data name="FilterName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="FilterNameDescription" xml:space="preserve">
+    <value>根據名稱或名稱的一部分，包含或排除物件。</value>
+  </data>
+  <data name="FilterSchema" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="FilterSchemaDescription" xml:space="preserve">
+    <value> 根據結構描述或結構描述名稱的一部分，包含或排除物件。</value>
+  </data>
+  <data name="FilterOwner" xml:space="preserve">
+    <value>擁有者</value>
+  </data>
+  <data name="FilterOwnerDescription" xml:space="preserve">
+    <value>根據擁有者或擁有者名稱的一部分，包含或排除物件。</value>
+  </data>
+  <data name="FilterDurabilityType" xml:space="preserve">
+    <value>持久性類型</value>
+  </data>
+  <data name="FilterDurabilityTypeDescription" xml:space="preserve">
+    <value>根據持久性類型決定包含或排除物件。</value>
+  </data>
+  <data name="FilterIsMemoryOptimized" xml:space="preserve">
+    <value>已記憶體最佳化</value>
+  </data>
+  <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
+    <value>根據物件是否已記憶體最佳化來決定包含或排除物件。</value>
+  </data>
+  <data name="FilterCreateDate" xml:space="preserve">
+    <value>建立日期</value>
+  </data>
+  <data name="FilterCreateDateDescription" xml:space="preserve">
+    <value>選取或輸入日期，以包含或排除建立於該日期任何時間的物件，或輸入起訖日期，以包含或排除建立於包含起訖日期範圍內的物件。</value>
+  </data>
+  <data name="FilterIsNativelyCompiled" xml:space="preserve">
+    <value>以原生方式編譯</value>
+  </data>
+  <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
+    <value>根據物件是否以原生方式編譯來決定包含或排除物件。</value>
+  </data>
+  <data name="ServiceProviderNotSet" xml:space="preserve">
+    <value>未呼叫 SetServiceProvider() 來建立必要的服務提供者</value>
+  </data>
+  <data name="ServiceNotFound" xml:space="preserve">
+    <value>在服務提供者中找不到服務 {0}</value>
+  </data>
+  <data name="objectType_functionTable_plural" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="objectType_externalDataSource_singular" xml:space="preserve">
+    <value>外部資料來源</value>
+  </data>
+  <data name="objectType_serverRole_singular" xml:space="preserve">
+    <value>伺服器角色</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_singular" xml:space="preserve">
+    <value>XML 結構描述集合</value>
+  </data>
+  <data name="objectType_storedProcedure_plural" xml:space="preserve">
+    <value>預存程序</value>
+  </data>
+  <data name="objectType_endpoint_plural" xml:space="preserve">
+    <value>端點</value>
+  </data>
+  <data name="objectType_sequence_singular" xml:space="preserve">
+    <value>順序</value>
+  </data>
+  <data name="objectType_userDefinedDataType_singular" xml:space="preserve">
+    <value>使用者定義資料類型</value>
+  </data>
+  <data name="objectType_fullTextCatalog_plural" xml:space="preserve">
+    <value>全文檢索目錄</value>
+  </data>
+  <data name="objectType_credential_singular" xml:space="preserve">
+    <value>認證</value>
+  </data>
+  <data name="objectType_databaseRole_plural" xml:space="preserve">
+    <value>資料庫角色</value>
+  </data>
+  <data name="objectType_endpoint_singular" xml:space="preserve">
+    <value>端點</value>
+  </data>
+  <data name="objectType_view_plural" xml:space="preserve">
+    <value>檢視</value>
+  </data>
+  <data name="objectType_assembly_singular" xml:space="preserve">
+    <value>組件</value>
+  </data>
+  <data name="objectType_functionScalar_singular" xml:space="preserve">
+    <value>純量函式</value>
+  </data>
+  <data name="objectType_server_plural" xml:space="preserve">
+    <value>伺服器</value>
+  </data>
+  <data name="objectType_table_singular" xml:space="preserve">
+    <value>資料表</value>
+  </data>
+  <data name="objectType_serviceQueue_singular" xml:space="preserve">
+    <value>佇列</value>
+  </data>
+  <data name="objectType_login_plural" xml:space="preserve">
+    <value>登入</value>
+  </data>
+  <data name="objectType_storedProcedure_singular" xml:space="preserve">
+    <value>預存程序</value>
+  </data>
+  <data name="objectType_default_plural" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="objectType_symmetricKey_singular" xml:space="preserve">
+    <value>對稱金鑰</value>
+  </data>
+  <data name="objectType_userDefinedTableType_singular" xml:space="preserve">
+    <value>使用者定義資料表類型</value>
+  </data>
+  <data name="objectType_functionInline_singular" xml:space="preserve">
+    <value>內嵌函式</value>
+  </data>
+  <data name="objectType_serverRole_plural" xml:space="preserve">
+    <value>伺服器角色</value>
+  </data>
+  <data name="objectType_agentjob_singular" xml:space="preserve">
+    <value>代理程式作業</value>
+  </data>
+  <data name="objectType_databaseRole_singular" xml:space="preserve">
+    <value>資料庫角色</value>
+  </data>
+  <data name="objectType_synonym_singular" xml:space="preserve">
+    <value>同義字</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_singular" xml:space="preserve">
+    <value>可用性群組</value>
+  </data>
+  <data name="objectType_externalFileFormat_plural" xml:space="preserve">
+    <value>外部檔案格式</value>
+  </data>
+  <data name="objectType_database_singular" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="objectType_symmetricKey_plural" xml:space="preserve">
+    <value>對稱金鑰</value>
+  </data>
+  <data name="objectType_securityPolicy_singular" xml:space="preserve">
+    <value>安全性原則</value>
+  </data>
+  <data name="objectType_externalFileFormat_singular" xml:space="preserve">
+    <value>外部檔案格式</value>
+  </data>
+  <data name="objectType_applicationRole_singular" xml:space="preserve">
+    <value>應用程式角色</value>
+  </data>
+  <data name="objectType_assembly_plural" xml:space="preserve">
+    <value>組件</value>
+  </data>
+  <data name="objectType_sequence_plural" xml:space="preserve">
+    <value>序列</value>
+  </data>
+  <data name="objectType_userDefinedDataType_plural" xml:space="preserve">
+    <value>使用者定義資料類型</value>
+  </data>
+  <data name="objectType_server_singular" xml:space="preserve">
+    <value>伺服器</value>
+  </data>
+  <data name="objectType_aggregateFunction_singular" xml:space="preserve">
+    <value>彙總函式</value>
+  </data>
+  <data name="objectType_fullTextCatalog_singular" xml:space="preserve">
+    <value>全文檢索目錄</value>
+  </data>
+  <data name="objectType_certificate_plural" xml:space="preserve">
+    <value>憑證</value>
+  </data>
+  <data name="objectType_AvailabilityGroup_plural" xml:space="preserve">
+    <value>可用性群組</value>
+  </data>
+  <data name="objectType_database_plural" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="objectType_view_singular" xml:space="preserve">
+    <value>檢視</value>
+  </data>
+  <data name="objectType_schema_plural" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="objectType_rule_plural" xml:space="preserve">
+    <value>規則</value>
+  </data>
+  <data name="objectType_certificate_singular" xml:space="preserve">
+    <value>憑證</value>
+  </data>
+  <data name="objectType_user_singular" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="objectType_agentjob_plural" xml:space="preserve">
+    <value>代理程式作業</value>
+  </data>
+  <data name="objectType_synonym_plural" xml:space="preserve">
+    <value>同義字</value>
+  </data>
+  <data name="objectType_aggregateFunction_plural" xml:space="preserve">
+    <value>彙總函式</value>
+  </data>
+  <data name="objectType_functionTable_singular" xml:space="preserve">
+    <value>資料表值函式</value>
+  </data>
+  <data name="objectType_rule_singular" xml:space="preserve">
+    <value>規則</value>
+  </data>
+  <data name="objectType_serviceQueue_plural" xml:space="preserve">
+    <value>佇列</value>
+  </data>
+  <data name="objectType_asymmetricKey_plural" xml:space="preserve">
+    <value>非對稱金鑰</value>
+  </data>
+  <data name="objectType_applicationRole_plural" xml:space="preserve">
+    <value>應用程式角色</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_singular" xml:space="preserve">
+    <value>擴充預存程序</value>
+  </data>
+  <data name="objectType_login_singular" xml:space="preserve">
+    <value>登入</value>
+  </data>
+  <data name="objectType_functionInline_plural" xml:space="preserve">
+    <value>內嵌函數</value>
+  </data>
+  <data name="objectType_user_plural" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="objectType_externalDataSource_plural" xml:space="preserve">
+    <value>外部資料來源</value>
+  </data>
+  <data name="objectType_functionScalar_plural" xml:space="preserve">
+    <value>純量函式</value>
+  </data>
+  <data name="objectType_table_plural" xml:space="preserve">
+    <value>資料表</value>
+  </data>
+  <data name="objectType_credential_plural" xml:space="preserve">
+    <value>認證</value>
+  </data>
+  <data name="objectType_schema_singular" xml:space="preserve">
+    <value>結構描述</value>
+  </data>
+  <data name="objectType_userDefinedTableType_plural" xml:space="preserve">
+    <value>使用者定義資料表類型</value>
+  </data>
+  <data name="objectType_securityPolicy_plural" xml:space="preserve">
+    <value>安全性原則</value>
+  </data>
+  <data name="objectType_xmlSchemaCollection_plural" xml:space="preserve">
+    <value>XML 結構描述集合</value>
+  </data>
+  <data name="objectType_extendedStoredProcedure_plural" xml:space="preserve">
+    <value>擴充預存程序</value>
+  </data>
+  <data name="objectType_asymmetricKey_singular" xml:space="preserve">
+    <value>非對稱金鑰</value>
+  </data>
+  <data name="objectType_default_singular" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="FilterInPrimaryKey" xml:space="preserve">
+    <value>在主索引鍵中</value>
+  </data>
+  <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
+    <value>根據資料行是否在主索引鍵中，包含或排除物件。</value>
+  </data>
+  <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
+    <value>僅結構描述</value>
+  </data>
+  <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
+    <value>結構描述及資料</value>
+  </data>
+</root>

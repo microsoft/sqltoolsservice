@@ -3,6 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
+using System;
+
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
 {
     /// <summary>
@@ -29,5 +33,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         /// Object Explorer specific settings
         /// </summary>
         ObjectExplorerSettings ObjectExplorer { get; set; }
+
+        /// <summary>
+        /// PII Logging setting
+        /// </summary>
+        Boolean PiiLogging { get; set; }
     }
 }

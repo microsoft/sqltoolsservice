@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -120,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => { throw new Exception("Batch startup callback should not have been called."); },
                 b => { throw new Exception("Batch completion callback was called"); },
-                m => messages.Add(m));
+                messages.Add);
 
             // If:
             // ... I Then execute the query
@@ -233,7 +235,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => { throw new Exception("Batch start handler was called"); },
                 b => { throw new Exception("Batch completed handler was called"); },
-                m => messages.Add(m));
+                messages.Add);
 
             // .. I then execute the query
             query.Execute();
@@ -269,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             BatchCallbackHelper(query,
                 b => batchStartCallbacksReceived++,
                 b => batchCompletionCallbacksReceived++,
-                m => messages.Add(m));
+                messages.Add);
 
             // ... I then execute the query
             query.Execute();

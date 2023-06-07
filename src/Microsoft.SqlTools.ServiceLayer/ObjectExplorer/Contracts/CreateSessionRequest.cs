@@ -3,6 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 
@@ -46,6 +48,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// </summary>
         public NodeInfo RootNode { get; set; }
 
+        /// <summary>
+        /// Error number returned from the engine, if any.
+        /// </summary>
+        public int? ErrorNumber { get; set; }
 
         /// <summary>
         /// Error message returned from the engine for a object explorer session failure reason, if any.

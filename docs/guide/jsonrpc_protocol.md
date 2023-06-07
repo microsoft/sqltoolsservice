@@ -5,7 +5,7 @@ The API provides easily consumable operations that allow simple integration into
 
 ## Launching the Host Process
 
-From your host process, launch `Microsoft.SqlTools.ServiceLayer(.exe)` using an host-native process 
+From your host process, launch `Microsoft.SqlTools.ServiceLayer(.exe)` using an host-native process
 API that allows you to read and write this process' standard in/out streams.  All communication
 with the host process occurs via this channel.
 
@@ -19,52 +19,81 @@ which contains all of the user's SQL script files for a given project.
 
 ## Messages Overview
 
-The SQL Tools Service implements portions of the 
+The SQL Tools Service implements portions of the
 [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md)
-defined by VS Code.  Some portions of this protocol reference have been duplicated here for 
-convenience.  
+defined by VS Code.  Some portions of this protocol reference have been duplicated here for
+convenience.
 
 It additionally implements several other API to provide database management
 services such as connection management or query execution.
 
-This document provides the protocol specification for all the service's JSON-RPC APIs.
+This document provides the protocol specification for all the service's JSON-RPC APIs and some useful events.
+
+### Object Explorer
+
+* :leftwards_arrow_with_hook: [objectexplorer/createSession](#objectexplorer_createsession)
+* :leftwards_arrow_with_hook: [objectexplorer/expand](#objectexplorer_expand)
+* :leftwards_arrow_with_hook: [objectexplorer/refresh](#objectexplorer_refresh)
+* :leftwards_arrow_with_hook: [objectexplorer/closeSession](#objectexplorer_closesession)
+* :leftwards_arrow_with_hook: [objectexplorer/findNodes](#objectexplorer_findnodes)
+* :arrow_left: [objectexplorer/sessionCreated](#objectexplorer_sessioncreated)
+* :arrow_left: [objectexplorer/sessionDisconnected](#objectexplorer_sessiondisconnected)
+* :arrow_left: [objectexplorer/expandCompleted](#objectexplorer_expandcompleted)
 
 ### Connection Management
 
-* :leftwards_arrow_with_hook: [connection/connect](#connect_connect)
+* :leftwards_arrow_with_hook: [connection/connect](#connection_connect)
 * :leftwards_arrow_with_hook: [connection/cancelconnect](#connect_cancelconnect)
-* :arrow_right: [connection/connectionchanged](#connection_connectionchanged)
-* :arrow_right: [connection/complete](#connection_complete)
 * :arrow_right: [connection/disconnect](#connection_disconnect)
+* :arrow_right: [connection/listdatabases](#connection_listdatabases)
+* :arrow_right: [connection/changedatabase](#connection_changedatabase)
+* :arrow_right: [connection/getconnectionstring](#connection_getconnectionstring)
+* :arrow_right: [connection/buildconnectioninfo](#connection_buildconnectioninfo)
+* :arrow_left: [connection/connectionchanged](#connection_connectionchanged)
+* :arrow_left: [connection/complete](#connection_complete)
+
 
 ### Query Execution
-* :leftwards_arrow_with_hook: [query/execute](#query_execute)
+* :leftwards_arrow_with_hook: [query/executeString](#query_executeString)
+* :leftwards_arrow_with_hook: [query/executeDocumentSelection](#query_executeDocumentSelection)
+* :leftwards_arrow_with_hook: [query/executedocumentstatement](#query_executedocumentstatement)
 * :leftwards_arrow_with_hook: [query/subset](#query_subset)
+* :leftwards_arrow_with_hook: [query/dispose](#query_dispose)
+* :leftwards_arrow_with_hook: [query/cancel](#query_cancel)
+* :arrow_right: [query/connectionUriChanged](#query_connectionUriChanged)
 * :leftwards_arrow_with_hook: [query/saveCsv](#query_saveCsv)
+* :leftwards_arrow_with_hook: [query/saveExcel](#query_saveExcel)
 * :leftwards_arrow_with_hook: [query/saveJson](#query_saveJson)
+* :leftwards_arrow_with_hook: [query/saveXml](#query_saveXml)
+* :leftwards_arrow_with_hook: [query/executionPlan](#query_executionPlan)
+* :leftwards_arrow_with_hook: [query/simpleexecute](#query_simpleexecute)
+* :leftwards_arrow_with_hook: [query/setexecutionoptions](#query_setexecutionoptions)
+* :arrow_left: [query/message](#query_message)
+* :arrow_left: [query/complete](#query_complete)
+
 
 ### Language Service Protocol
 
-Documentation for the Language Service Protocol is available at 
+Documentation for the Language Service Protocol is available at
 [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md).
 The SQL Tools Service implements the following portion Language Service Protocol.
 
-* :leftwards_arrow_with_hook: [initialize](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#initialize) 
-* :leftwards_arrow_with_hook: [shutdown](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#shutdown) 
-* :arrow_right: [exit](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#exit) 
-* :arrow_right: [workspace/didChangeConfiguration](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspace_didChangeConfiguration) 
-* :arrow_right: [workspace/didChangeWatchedFiles](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspace_didChangeWatchedFiles) 
-* :arrow_left: [textDocument/publishDiagnostics](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_publishDiagnostics) 
-* :arrow_right: [textDocument/didChange](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didChange)  
-* :arrow_right: [textDocument/didClose](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didClose) 
-* :arrow_right: [textDocument/didOpen](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didOpen) 
-* :arrow_right: [textDocument/didSave](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didSave) 
-* :leftwards_arrow_with_hook: [textDocument/completion](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_completion) 
-* :leftwards_arrow_with_hook: [completionItem/resolve](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#completionItem_resolve) 
-* :leftwards_arrow_with_hook: [textDocument/hover](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_hover) 
-* :leftwards_arrow_with_hook: [textDocument/signatureHelp](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_signatureHelp) 
-* :leftwards_arrow_with_hook: [textDocument/references](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_references) 
-* :leftwards_arrow_with_hook: [textDocument/definition](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_definition) 
+* :leftwards_arrow_with_hook: [initialize](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#initialize)
+* :leftwards_arrow_with_hook: [shutdown](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#shutdown)
+* :arrow_right: [exit](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#exit)
+* :arrow_right: [workspace/didChangeConfiguration](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspace_didChangeConfiguration)
+* :arrow_right: [workspace/didChangeWatchedFiles](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspace_didChangeWatchedFiles)
+* :arrow_left: [textDocument/publishDiagnostics](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_publishDiagnostics)
+* :arrow_right: [textDocument/didChange](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didChange)
+* :arrow_right: [textDocument/didClose](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didClose)
+* :arrow_right: [textDocument/didOpen](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didOpen)
+* :arrow_right: [textDocument/didSave](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_didSave)
+* :leftwards_arrow_with_hook: [textDocument/completion](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_completion)
+* :leftwards_arrow_with_hook: [completionItem/resolve](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#completionItem_resolve)
+* :leftwards_arrow_with_hook: [textDocument/hover](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_hover)
+* :leftwards_arrow_with_hook: [textDocument/signatureHelp](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_signatureHelp)
+* :leftwards_arrow_with_hook: [textDocument/references](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_references)
+* :leftwards_arrow_with_hook: [textDocument/definition](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#textDocument_definition)
 
 ### Language Service Protocol Extensions
 
@@ -131,9 +160,9 @@ separated by a '\r\n'.
 
 The header part consists of header fields. Each header field is comprised of a name and a value,
 separated by ': ' (a colon and a space).
-Each header field is terminated by '\r\n'. 
+Each header field is terminated by '\r\n'.
 Considering the last header field and the overall header itself are each terminated with '\r\n',
-and that at least one header is mandatory, this means that two '\r\n' sequences always 
+and that at least one header is mandatory, this means that two '\r\n' sequences always
 immediately precede the content part of a message.
 
 Currently the following header fields are supported:
@@ -147,7 +176,7 @@ The header part is encoded using the 'ascii' encoding. This includes the '\r\n' 
 
 ### Content Part
 
-Contains the actual content of the message. The content part of a message uses [JSON-RPC](http://www.jsonrpc.org/) to describe requests, responses and notifications. The content part is encoded using the charset provided in the Content-Type field. It defaults to 'utf8', which is the only encoding supported right now. 
+Contains the actual content of the message. The content part of a message uses [JSON-RPC](http://www.jsonrpc.org/) to describe requests, responses and notifications. The content part is encoded using the charset provided in the Content-Type field. It defaults to 'utf8', which is the only encoding supported right now.
 
 ### Example:
 
@@ -157,7 +186,7 @@ Content-Length: ...\r\n
 {
 	"jsonrpc": "2.0",
 	"id": 1,
-	"method": "textDocument/didOpen", 
+	"method": "textDocument/didOpen",
 	"params": {
 		...
 	}
@@ -176,7 +205,7 @@ interface Message {
 	jsonrpc: string;
 }
 ```
-#### RequestMessage 
+#### RequestMessage
 
 A request message to describe a request between the client and the server. Every processed request must send a response back to the sender of the request.
 
@@ -272,7 +301,7 @@ interface NotificationMessage extends Message {
 
 ## Example JSON-RPC Message Format
 
-See the [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md) 
+See the [language service protocol](https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md)
 for more details on the protocol formats for these Language Service events.  Below is an example of the JSON-RPC
 message format for the `textDocument/didChange` message.
 
@@ -315,10 +344,91 @@ No response is needed for this command.
 
 # Database Management Protocol
 
-The follow section describes the message protocol format for the common database management 
-functionality provided by the SQL Tools Service.  The message formats are described as 
+The follow section describes the message protocol format for the common database management
+functionality provided by the SQL Tools Service.  The message formats are described as
 C# classes.  These classes are packaged inside the common message structures documented above
 and serialized to JSON using JSON.Net.
+
+## Object Explorer
+
+### <a name="objectexplorer_createsession"></a>`objectExplorer/createSession`
+
+#### Request
+
+Typescript: [azdata.ConnectionInfo](https://github.com/microsoft/azuredatastudio/blob/main/src/sql/azdata.d.ts#L368)
+C#: [ConnectionDetails](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/Connection/Contracts/ConnectionDetails.cs#L18)
+
+#### Response
+
+Typescript: [CreateSessionResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L7)
+C#: [CreateSessionResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CreateSessionRequest.cs#L18)
+
+### <a name="objectexplorer_expand"></a>`objectExplorer/expand`
+
+#### Request
+
+Typescript: [ExpandParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L67)
+C#: [ExpandParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/ExpandRequest.cs#L43)
+
+#### Response
+
+`bool`
+
+### <a name="objectexplorer_refresh"></a>`objectExplorer/refresh`
+
+#### Request
+
+Typescript: [ExpandParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L67)
+C#: [ExpandParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/ExpandRequest.cs#L43)
+
+#### Response
+
+`bool`
+
+### <a name="objectexplorer_closesession"></a>`objectExplorer/closeSession`
+
+#### Request
+
+Typescript: [CloseSessionParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L72)
+C#: [CloseSessionParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CloseSessionRequest.cs#L34)
+
+#### Response
+
+Typescript: [CloseSessionResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L76)
+C#: [CloseSessionResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CloseSessionRequest.cs#L17)
+
+### <a name="objectexplorer_findnodes"></a>`objectExplorer/findNodes`
+
+#### Request
+
+Typescript: [FindNodesParams](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L81)
+C#: [FindNodesParams](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/FindNodesRequest.cs#L27)
+
+#### Response
+
+Typescript: [FindNodesResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L90)
+C#: [FindNodesResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/FindNodesRequest.cs#L16)
+
+### <a name="objectexplorer_sessioncreated"></a>`objectExplorer/sessionCreated`
+
+#### Notification
+
+Typescript: [SessionCreatedParameters](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L19)
+C#: [SessionCreatedParameters](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CreateSessionRequest.cs#L33)
+
+### <a name="objectexplorer_sessiondisconnected"></a>`objectExplorer/sessionDisconnected`
+
+#### Notification
+
+Typescript: [SessionDisconnectedParameters](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L42)
+C#: [SessionDisconnectedParameters](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/CloseSessionRequest.cs#L47)
+
+### <a name="objectexplorer_expandcompleted"></a>`objectExplorer/expandCompleted`
+
+#### Notification
+
+Typescript: [ExpandResponse](https://github.com/Microsoft/sqlops-dataprotocolclient/blob/main/src/types.ts#L49)
+C#: [ExpandResponse](https://github.com/microsoft/sqltoolsservice/blob/main/src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/Contracts/ExpandRequest.cs#L16)
 
 ## Connection Management
 
@@ -328,29 +438,61 @@ Establish a connection to a database server.
 
 #### Request
 
-```typescript
+```csharp
     public class ConnectParams
     {
         /// <summary>
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// or a virtual file representing an object in a database.
         /// </summary>
-        public string OwnerUri { get; set;  }
+        public string OwnerUri { get; set; }
+
         /// <summary>
         /// Contains the required parameters to initialize a connection to a database.
         /// A connection will identified by its server name, database name and user name.
-        /// This may be changed in the future to support multiple connections with different 
+        /// This may be changed in the future to support multiple connections with different
         /// connection properties to the same database.
         /// </summary>
         public ConnectionDetails Connection { get; set; }
+
+        /// <summary>
+        /// The type of this connection. By default, this is set to ConnectionType.Default.
+        /// </summary>
+        public string Type { get; set; } = ConnectionType.Default;
+
+        /// <summary>
+        /// The porpose of the connection to keep track of open connections
+        /// </summary>
+        public string Purpose { get; set; } = ConnectionType.GeneralConnection;
     }
+```
+
+#### Request Case
+```json
+Content-length: {the length of the JSON below}
+
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "connection/connect",
+    "params": {
+        "ownerUri": "{An id or a filename, which is binding with this connection}",
+        "connection": {
+            "serverName": "{your server name}",
+            "userName": "{your user name}",
+            "password": "{your password}",
+            "databaseName": "{your database name}"
+        }
+    }
+}
 ```
 
 #### Response
 
-```typescript
+```csharp
     bool
 ```
+
 
 ### <a name="connect_cancelconnect"></a>`connect/cancelconnect`
 
@@ -358,35 +500,173 @@ Cancel an active connection request.
 
 #### Request
 
-```typescript
+```csharp
     public class CancelConnectParams
     {
         /// <summary>
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// or a virtual file representing an object in a database.
         /// </summary>
-        public string OwnerUri { get; set;  }
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// The type of connection we are trying to cancel
+        /// </summary>
+        public string Type { get; set; } = ConnectionType.Default;
     }
 ```
 
 #### Response
 
-```typescript
+```csharp
     bool
+```
+
+
+### <a name="connection_disconnect"></a>`connection/disconnect`
+
+Disconnect the connection specified in the request.
+
+#### Request
+
+```csharp
+    public class DisconnectParams
+    {
+        /// <summary>
+        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
+        /// or a virtual file representing an object in a database.
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// The type of connection we are disconnecting. If null, we will disconnect all connections.
+        /// connections.
+        /// </summary>
+        public string Type { get; set; }
+    }
+```
+
+#### Response
+
+```csharp
+    bool
+```
+
+### <a name="connection_listdatabases"></a>`connection/listdatabases`
+
+Return a list of databases on the server associated with the active connection.
+
+#### Request
+
+```csharp
+    public class ListDatabasesParams
+    {
+        /// <summary>
+        /// URI of the owner of the connection requesting the list of databases.
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// whether to include the details of the databases.
+        /// </summary>
+        public bool? IncludeDetails { get; set; }
+    }
+```
+
+#### Response
+
+```csharp
+    public class ListDatabasesResponse
+    {
+        /// <summary>
+        /// Gets or sets the list of database names.
+        /// </summary>
+        public string[] DatabaseNames { get; set; }
+    }
+```
+
+### <a name="connection_changedatabase"></a>`connection/changedatabase`
+
+Change the database for a connection.
+
+#### Request
+```csharp
+    public class ChangeDatabaseParams
+    {
+        /// <summary>
+        /// URI of the owner of the connection requesting the list of databases.
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// The database to change to
+        /// </summary>
+        public string NewDatabase { get; set; }
+    }
+```
+#### Response
+```csharp
+    bool
+```
+
+### <a name="connection_getconnectionstring"></a>`connection/getconnectionstring`
+
+Get a connection string for the provided connection.
+
+#### Request
+```csharp
+    public class GetConnectionStringParams
+    {
+        /// <summary>
+        /// URI of the owner of the connection
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// Connection info of the connection
+        /// </summary>
+        public ConnectionDetails ConnectionDetails { get; set; }
+        /// <summary>
+
+        /// Indicates whether the password should be return in the connection string. Default is false.
+        /// </summary>
+        public bool IncludePassword { get; set; }
+
+        /// <summary>
+        /// Indicates whether the application name should be return in the connection string. Default is true.
+        /// </summary>
+        public bool? IncludeApplicationName { get; set;}
+    }
+```
+#### Response
+```csharp
+    string
+```
+
+### <a name="connection_buildconnectioninfo"></a>`connection/buildconnectioninfo`
+
+Serialize a connection string.
+
+#### Request
+```csharp
+    string
+```
+#### Response
+```csharp
+    ConnectionDetails
 ```
 
 ### <a name="connection_connectionchanged"></a>`connection/connectionchanged`
 
-Connection changed notification
+Connection changed notification.
 
 #### Request
 
-```typescript
+```csharp
     public class ConnectionChangedParams
     {
         /// <summary>
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// or a virtual file representing an object in a database.
         /// </summary>
         public string OwnerUri { get; set; }
         /// <summary>
@@ -402,12 +682,12 @@ Connection complete event.
 
 #### Request
 
-```typescript
+```csharp
     public class ConnectionCompleteParams
     {
         /// <summary>
         /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.         
+        /// or a virtual file representing an object in a database.
         /// </summary>
         public string OwnerUri { get; set;  }
 
@@ -440,94 +720,113 @@ Connection complete event.
         /// Gets or sets the actual Connection established, including Database Name
         /// </summary>
         public ConnectionSummary ConnectionSummary { get; set; }
-    }
-```
 
-### <a name="connection_disconnect"></a>`connection/disconnect`
-
-Disconnect the connection specified in the request.
-
-#### Request
-
-```typescript
-    public class DisconnectParams
-    {
         /// <summary>
-        /// A URI identifying the owner of the connection. This will most commonly be a file in the workspace
-        /// or a virtual file representing an object in a database.
+        /// The type of connection that this notification is for
         /// </summary>
-        public string OwnerUri { get; set; }
+        public string Type { get; set; } = ConnectionType.Default;
     }
 ```
 
-#### Response
-
-```typescript
-    bool
-```
-
-### <a name="connection_listdatabases"></a>`connection/listdatabases`
-
-Return a list of databases on the server associated with the active connection.
-
-#### Request
-
-```typescript
-    public class ListDatabasesParams
-    {
-        /// <summary>
-        /// URI of the owner of the connection requesting the list of databases.
-        /// </summary>
-        public string OwnerUri { get; set; }
-    }
-```
-
-#### Response
-
-```typescript
-    public class ListDatabasesResponse
-    {
-        /// <summary>
-        /// Gets or sets the list of database names.
-        /// </summary>
-        public string[] DatabaseNames { get; set; }
-    }
-```
 
 ## Query Execution
 
-### <a name="query_execute"></a>`query/execute`
+### <a name="query/executeString"></a>`query/executeString`
 
 Execute a SQL script.
 
 #### Request
+```csharp
+    public class ExecuteStringParams : ExecuteRequestParamsBase
+    {
+        /// <summary>
+        /// The query to execute
+        /// </summary>
+        public string Query { get; set; }
+    }
+    public abstract class ExecuteRequestParamsBase
+    {
+        /// <summary>
+        /// URI for the editor that is asking for the query execute
+        /// </summary>
+        public string OwnerUri { get; set; }
 
-```typescript
-    public class QueryExecuteParams
+        /// <summary>
+        /// Execution plan options
+        /// </summary>
+        public ExecutionPlanOptions ExecutionPlanOptions { get; set; }
+
+        /// <summary>
+        /// Flag to get full column schema via additional queries.
+        /// </summary>
+        public bool GetFullColumnSchema { get; set; }
+    }
+```
+
+#### Response
+
+This response has no message but only the JSON-RPC version and the request-id.
+
+```csharp
+    public class ExecuteRequestResult
+    {
+    }
+```
+
+### <a name="query_executeDocumentSelection"></a>`query/executeDocumentSelection`
+
+Execute a selection of a document in the workspace service.
+
+#### Request
+```csharp
+    public class ExecuteDocumentSelectionParams : ExecuteRequestParamsBase
     {
         /// <summary>
         /// The selection from the document
         /// </summary>
         public SelectionData QuerySelection { get; set; }
-
-        /// <summary>
-        /// URI for the editor that is asking for the query execute
-        /// </summary>
-        public string OwnerUri { get; set; }
     }
 ```
-
 #### Response
 
-```typescript
-    public class QueryExecuteResult
+This response has no message but only the JSON-RPC version and the request-id.
+
+```csharp
+    public class ExecuteRequestResult
     {
-        /// <summary>
-        /// Informational messages from the query runner. Optional, can be set to null.
-        /// </summary>
-        public string Messages { get; set; }
     }
 ```
+
+
+### <a name="query_executedocumentstatement"></a>`query/executedocumentstatement`
+
+Execute a selection of a document in the workspace service.
+
+#### Request
+```csharp
+    public class ExecuteDocumentStatementParams : ExecuteRequestParamsBase
+    {
+        /// <summary>
+        /// Line in the document for the location of the SQL statement
+        /// </summary>
+        public int Line { get; set; }
+
+        /// <summary>
+        /// Column in the document for the location of the SQL statement
+        /// </summary>
+        public int Column { get; set; }
+    }
+```
+#### Response
+
+This response has no message but only the JSON-RPC version and the request-id.
+
+```csharp
+    public class ExecuteRequestResult
+    {
+    }
+```
+
 
 ### <a name="query_subset"></a>`query/subset`
 
@@ -535,8 +834,8 @@ Retrieve a subset of a query results.
 
 #### Request
 
-```typescript
-    public class QueryExecuteSubsetParams
+```csharp
+    public class SubsetParams
     {
         /// <summary>
         /// URI for the file that owns the query to look up the results for
@@ -557,10 +856,10 @@ Retrieve a subset of a query results.
         /// Beginning index of the rows to return from the selected resultset. This index will be
         /// included in the results.
         /// </summary>
-        public int RowsStartIndex { get; set; }
+        public long RowsStartIndex { get; set; }
 
         /// <summary>
-        /// Number of rows to include in the result of this request. If the number of the rows 
+        /// Number of rows to include in the result of this request. If the number of the rows
         /// exceeds the number of rows available after the start index, all available rows after
         /// the start index will be returned.
         /// </summary>
@@ -568,20 +867,138 @@ Retrieve a subset of a query results.
     }
 ```
 
+#### Request Case
+
+```json
+Content-length: {the length of the JSON below}
+
+{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "query/subset",
+    "params": {
+        "ownerUri": "{the owner uri}",
+        "batchIndex": 0,
+        "resultSetIndex": 0,
+        "rowsStartIndex": 0,
+        "rowsCount": 1
+    }
+}
+```
+
 #### Response
 
-```typescript
-    public class QueryExecuteSubsetResult
+```csharp
+    public class SubsetResult
     {
-        /// <summary>
-        /// Subset request error messages. Optional, can be set to null to indicate no errors
-        /// </summary>
-        public string Message { get; set; }
-
         /// <summary>
         /// The requested subset of results. Optional, can be set to null to indicate an error
         /// </summary>
         public ResultSetSubset ResultSubset { get; set; }
+    }
+
+    public class ResultSetSubset
+    {
+        /// <summary>
+        /// The number of rows returned from result set, useful for determining if less rows were
+        /// returned than requested.
+        /// </summary>
+        public int RowCount { get; set; }
+
+        /// <summary>
+        /// 2D array of the cell values requested from result set
+        /// </summary>
+        public DbCellValue[][] Rows { get; set; }
+    }
+```
+
+
+#### Response Case
+
+```json
+Content-length: {the length of the JSON below}
+
+{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "result": {
+        "resultSubset": {
+            "rowCount": 1,
+            "rows": [
+                [
+                    {
+                        "displayValue": "Alice",
+                        "isNull": false,
+                        "invariantCultureDisplayValue": null,
+                        "rowId": 0
+                    },
+                    {
+                        "displayValue": "Bob",
+                        "isNull": false,
+                        "invariantCultureDisplayValue": null,
+                        "rowId": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
+```
+
+
+### <a name="query_dispose"></a>`query/dispose`
+
+Dispose the query for the owner uri.
+
+#### Request
+```csharp
+    public class QueryDisposeParams
+    {
+        public string OwnerUri { get; set; }
+    }
+```
+#### Response
+
+This response has no message but only the JSON-RPC version and the request-id.
+
+```csharp
+    public class QueryDisposeResult
+    {
+    }
+```
+
+### <a name="query_cancel"></a>`query/cancel`
+
+Cancel the query in progress for the owner uri.
+
+#### Request
+```csharp
+    public class QueryCancelParams
+    {
+        public string OwnerUri { get; set; }
+    }
+```
+#### Response
+```csharp
+    public class QueryCancelResult
+    {
+        /// <summary>
+        /// Any error messages that occurred during disposing the result set. Optional, can be set
+        /// to null if there were no errors.
+        /// </summary>
+        public string Messages { get; set; }
+    }
+```
+### <a name="query_connectionUriChanged"></a>`query/connectionUriChanged`
+
+Change the uri associated with a query.
+
+#### Notification
+```csharp
+    public class ConnectionUriChangedParams
+    {
+        public string NewOwnerUri { get; set; }
+        public string OriginalOwnerUri { get; set; 
     }
 ```
 
@@ -591,7 +1008,35 @@ Save a resultset as CSV to a file.
 
 #### Request
 
-```typescript
+```csharp
+    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Include headers of columns in CSV
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+
+        /// <summary>
+        /// Delimiter for separating data items in CSV
+        /// </summary>
+        public string Delimiter { get; set; }
+
+        /// <summary>
+        /// either CR, CRLF or LF to seperate rows in CSV
+        /// </summary>
+        public string LineSeperator { get; set; }
+
+        /// <summary>
+        /// Text identifier for alphanumeric columns in CSV
+        /// </summary>
+        public string TextIdentifier { get; set; }
+
+        /// <summary>
+        /// Encoding of the CSV file
+        /// </summary>
+        public string Encoding { get; set; }
+    }
+
     public class SaveResultsRequestParams
     {
         /// <summary>
@@ -649,19 +1094,11 @@ Save a resultset as CSV to a file.
             }
         }
     }
-
-    public class SaveResultsAsCsvRequestParams: SaveResultsRequestParams
-    {
-        /// <summary>
-        /// Include headers of columns in CSV
-        /// </summary>
-        public bool IncludeHeaders { get; set; }
-    }
 ```
 
 #### Response
 
-```typescript
+```csharp
     public class SaveResultRequestResult
     {
         /// <summary>
@@ -670,6 +1107,36 @@ Save a resultset as CSV to a file.
         public string Messages { get; set; }
     }
 ```
+
+### <a name="query_saveExcel"></a>`query/saveExcel`
+
+Save a resultset to a file in Excel format.
+
+#### Request
+
+```csharp
+    public class SaveResultsAsExcelRequestParams : SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Include headers of columns in Excel
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+    }
+```
+#### Response
+
+```csharp
+    public class SaveResultRequestResult
+    {
+        /// <summary>
+        /// Error messages for saving to file.
+        /// </summary>
+        public string Messages { get; set; }
+    }
+```
+
+
+
 
 ### <a name="query_saveJson"></a>`query/saveJson`
 
@@ -677,13 +1144,66 @@ Save a resultset as JSON to a file.
 
 #### Request
 
-```typescript
-    public class SaveResultsRequestParams
+```csharp
+    public class SaveResultsAsJsonRequestParams: SaveResultsRequestParams
+    {
+    }
+```
+
+#### Response
+
+```csharp
+    public class SaveResultRequestResult
     {
         /// <summary>
-        /// The path of the file to save results in
+        /// Error messages for saving to file.
         /// </summary>
-        public string FilePath { get; set; }
+        public string Messages { get; set; }
+    }
+```
+
+### <a name="query_saveXml"></a>`query/saveXml`
+
+Save a resultset to a file in XML format.
+
+#### Request
+```csharp
+    public class SaveResultsAsXmlRequestParams: SaveResultsRequestParams
+    {
+        /// <summary>
+        /// Formatting of the XML file
+        /// </summary>
+        public bool Formatted { get; set; }
+
+        /// <summary>
+        /// Encoding of the XML file
+        /// </summary>
+        public string Encoding { get; set; }
+    }
+```
+#### Response
+```csharp
+    public class SaveResultRequestResult
+    {
+        /// <summary>
+        /// Error messages for saving to file.
+        /// </summary>
+        public string Messages { get; set; }
+    }
+```
+
+### <a name="query_executionPlan"></a>`query/executionPlan`
+
+Get an execution plan
+
+#### Request
+```csharp
+    public class QueryExecutionPlanParams
+    {
+        /// <summary>
+        /// URI for the file that owns the query to look up the results for
+        /// </summary>
+        public string OwnerUri { get; set; }
 
         /// <summary>
         /// Index of the batch to get the results from
@@ -695,58 +1215,328 @@ Save a resultset as JSON to a file.
         /// </summary>
         public int ResultSetIndex { get; set; }
 
+    }
+```
+#### Response
+```csharp
+    public class QueryExecutionPlanResult
+    {
         /// <summary>
-        /// URI for the editor that called save results
+        /// The requested execution plan. Optional, can be set to null to indicate an error
+        /// </summary>
+        public ExecutionPlan ExecutionPlan { get; set; }
+    }
+    public class ExecutionPlan
+    {
+        /// <summary>
+        /// The format of the execution plan
+        /// </summary>
+        public string Format { get; set; }
+
+        /// <summary>
+        /// The execution plan content
+        /// </summary>
+        public string Content { get; set; }
+    }
+```
+
+
+### <a name="query_simpleexecute"></a>`query/simpleexecute`
+
+Execute a string.
+
+#### Request
+```csharp
+    public class SimpleExecuteParams
+    {
+        /// <summary>
+        /// The string to execute
+        /// </summary>
+        public string QueryString { get; set; }
+
+        /// <summary>
+        /// The owneruri to get connection from
         /// </summary>
         public string OwnerUri { get; set; }
-
-        /// <summary>
-        /// Start index of the selected rows (inclusive)
-        /// </summary>
-        public int? RowStartIndex { get; set; }
-
-        /// <summary>
-        /// End index of the selected rows (inclusive)
-        /// </summary>
-        public int? RowEndIndex { get; set; }
-
-        /// <summary>
-        /// Start index of the selected columns (inclusive)
-        /// </summary>
-        /// <returns></returns>
-        public int? ColumnStartIndex { get; set; }
-
-        /// <summary>
-        /// End index of the selected columns (inclusive)
-        /// </summary>
-        /// <returns></returns>
-        public int? ColumnEndIndex { get; set; }
-
-        /// <summary>
-        /// Check if request is a subset of result set or whole result set
-        /// </summary>
-        /// <returns></returns>
-        internal bool IsSaveSelection
-        {
-            get
-            {
-                return ColumnStartIndex.HasValue && ColumnEndIndex.HasValue
-                       && RowStartIndex.HasValue && RowEndIndex.HasValue;
-            }
-        }
     }
 ```
 
 #### Response
+```csharp
+    public class SimpleExecuteResult
+    {
 
-```typescript
-    public class SaveResultRequestResult
+        /// <summary>
+        /// The number of rows that was returned with the resultset
+        /// </summary>
+        public long RowCount { get; set; }
+
+        /// <summary>
+        /// Details about the columns that are provided as solutions
+        /// </summary>
+        public DbColumnWrapper[] ColumnInfo { get; set; }
+
+        /// <summary>
+        /// 2D array of the cell values requested from result set
+        /// </summary>
+        public DbCellValue[][] Rows { get; set; }
+    }
+```
+
+### <a name="query_setexecutionoptions"></a>`query/setexecutionoptions`
+
+Set query execution options.
+
+#### Request
+```csharp
+    public class QueryExecutionOptionsParams
+    {
+        public string OwnerUri { get; set; }
+
+        public QueryExecutionSettings Options { get; set; }
+    }
+```
+#### Response
+```csharp
+    bool
+```
+
+
+### <a name="query_message"></a>`query/message`
+
+Send the query message.
+
+#### Request
+```csharp
+    public class MessageParams
     {
         /// <summary>
-        /// Error messages for saving to file.
+        /// URI for the editor that owns the query
         /// </summary>
-        public string Messages { get; set; }
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// The message that is being returned
+        /// </summary>
+        public ResultMessage Message { get; set; }
     }
+        public class ResultMessage
+    {
+        /// <summary>
+        /// ID of the batch that generated this message. If null, this message
+        /// was not generated as part of a batch
+        /// </summary>
+        public int? BatchId { get; set; }
+
+        /// <summary>
+        /// Whether or not this message is an error
+        /// </summary>
+        public bool IsError { get; set; }
+
+        /// <summary>
+        /// Timestamp of the message
+        /// Stored in UTC ISO 8601 format; should be localized before displaying to any user
+        /// </summary>
+        public string Time { get; set; }
+
+        /// <summary>
+        /// Message contents
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// Constructor with default "Now" time
+        /// </summary>
+        public ResultMessage(string message, bool isError, int? batchId)
+        {
+            BatchId = batchId;
+            IsError = isError;
+            Time = DateTime.Now.ToString("o");
+            Message = message;
+        }
+
+        /// <summary>
+        /// Default constructor, used for deserializing JSON RPC only
+        /// </summary>
+        public ResultMessage()
+        {
+        }
+        public override string ToString() => $"Message on Batch Id:'{BatchId}', IsError:'{IsError}', Message:'{Message}'";
+    }
+```
+
+#### Request Case
+
+```json
+Content-length: {the length of the JSON below}
+
+{
+    "jsonrpc": "2.0",
+    "method": "query/message",
+    "params": {
+        "ownerUri": "{the owner uri}",
+        "message": {
+            "batchId": 0,
+            "isError": false,
+            "time": "{timestamp}",
+            "message": "(1 rows affected)"
+        }
+    }
+}
+```
+
+### <a name="query_complete"></a>`query/complete`
+
+Send the query summaries including the batch summaries and the result set summaries.
+
+#### Request
+```csharp
+    public class QueryCompleteParams
+    {
+        /// <summary>
+        /// URI for the editor that owns the query
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Summaries of the result sets that were returned with the query
+        /// </summary>
+        public BatchSummary[] BatchSummaries { get; set; }
+    }
+
+        public class BatchSummary
+    {
+        /// <summary>
+        /// Localized timestamp for how long it took for the execution to complete
+        /// </summary>
+        public string ExecutionElapsed { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution completed.
+        /// </summary>
+        public string ExecutionEnd { get; set; }
+
+        /// <summary>
+        /// Localized timestamp for when the execution started.
+        /// </summary>
+        public string ExecutionStart { get; set; }
+
+        /// <summary>
+        /// Whether or not the batch encountered an error that halted execution
+        /// </summary>
+        public bool HasError { get; set; }
+
+        /// <summary>
+        /// The ID of the result set within the query results
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// The selection from the file for this batch
+        /// </summary>
+        public SelectionData Selection { get; set; }
+
+        /// <summary>
+        /// The summaries of the result sets inside the batch
+        /// </summary>
+        public ResultSetSummary[] ResultSetSummaries { get; set; }
+
+        /// <summary>
+        /// The special action of the batch
+        /// </summary>
+        public SpecialAction SpecialAction { get; set; }
+
+        public override string ToString() => $"Batch Id:'{Id}', Elapsed:'{ExecutionElapsed}', HasError:'{HasError}'";
+    }
+
+    public class ResultSetSummary
+    {
+        /// <summary>
+        /// The ID of the result set within the batch results
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// The ID of the batch set within the query
+        /// </summary>
+        public int BatchId { get; set; }
+
+        /// <summary>
+        /// The number of rows that are available for the resultset thus far
+        /// </summary>
+        public long RowCount { get; set; }
+
+        /// <summary>
+        /// If true it indicates that all rows have been fetched and the RowCount being sent across is final for this ResultSet
+        /// </summary>
+        public bool Complete { get; set; }
+
+        /// <summary>
+        /// Details about the columns that are provided as solutions
+        /// </summary>
+        public DbColumnWrapper[] ColumnInfo { get; set; }
+
+        /// <summary>
+        /// The special action definition of the result set
+        /// </summary>
+        public SpecialAction SpecialAction { get; set; }
+
+        /// <summary>
+        /// The visualization options for the client to render charts.
+        /// </summary>
+        public VisualizationOptions Visualization { get; set; }
+
+        /// <summary>
+        /// Returns a string represents the current object.
+        /// </summary>
+        public override string ToString() => $"Result Summary Id:{Id}, Batch Id:'{BatchId}', RowCount:'{RowCount}', Complete:'{Complete}', SpecialAction:'{SpecialAction}', Visualization:'{Visualization}'";
+    }
+```
+
+
+#### Request Case
+
+This case only shows some important attributes in JSON.
+
+```json
+Content-length: {the length of the JSON below}
+
+{
+    "jsonrpc": "2.0",
+    "method": "query/complete",
+    "params": {
+        "ownerUri": "{the owner uri}",
+        "batchSummaries": [
+            {
+                "executionElapsed": "{time}",
+                "executionEnd": "{time stamp}",
+                "executionStart": "{time stamp}",
+                "hasError": false,
+                "id": 0,
+                "resultSetSummaries": [
+                    {
+                        "id": 0,
+                        "batchId": 0,
+                        "rowCount": 2,
+                        "complete": true,
+                        "columnInfo": [
+                            {
+                                "columnName": "id",
+                                "columnSize": 100,
+                                "dataTypeName": "varchar"
+                            },
+                            {
+                                "columnName": "name",
+                                "columnSize": 100,
+                                "dataTypeName": "varchar"
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+}
 ```
 
 ## Language Service Protocol Extensions
@@ -757,7 +1547,7 @@ Load a completion extension.
 
 #### Request
 
-```typescript
+```csharp
     public class CompletionExtensionParams
     {
         /// <summary>
@@ -779,6 +1569,6 @@ Load a completion extension.
 
 #### Response
 
-```typescript
+```csharp
     bool
 ```
