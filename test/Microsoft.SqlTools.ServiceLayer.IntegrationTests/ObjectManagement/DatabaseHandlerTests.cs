@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public void GetAzureBackupLevelsTest()
+        public void GetAzureBackupRedundancyLevelsTest()
         {
             var actualLevels = DatabaseHandler.AzureBackupLevels;
             var expectedLevels = new string[] { "Geo", "Local", "Zone" };
@@ -192,7 +192,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
-        public void GetAzureServiceLevelsTest()
+        public void GetAzureServiceLevelObjectivesTest()
         {
             var actualLevelsMap = new Dictionary<string, string[]>();
             foreach (AzureEditionDetails serviceDetails in DatabaseHandler.AzureServiceLevels)
