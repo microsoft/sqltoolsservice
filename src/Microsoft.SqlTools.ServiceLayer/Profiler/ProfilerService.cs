@@ -26,7 +26,6 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-
 using Microsoft.SqlServer.XEvent.XELite;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
@@ -119,18 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             this.ServiceHost.SetRequestHandler(GetXEventSessionsRequest.Type, HandleGetXEventSessionsRequest);
             this.ServiceHost.SetRequestHandler(DisconnectSessionRequest.Type, HandleDisconnectSessionRequest);
             this.SessionMonitor.AddSessionListener(this);
-        }
-
-        private List<ProfilerEvent> fileSessionEvents = null;
-
-        internal async Task HandleXEvent(IXEvent xEvent)
-        {
-            ProfilerEvent profileEvent = new ProfilerEvent(xEvent.Name, xEvent.Timestamp.ToString());
-            foreach (var kvp in xEvent.Fields) 
-            {
-                profileEvent.Values.Add(kvp.Key, kvp.Value.ToString());
-            }
-            fileSessionEvents.Add(profileEvent);
         }
 
         /// <summary>

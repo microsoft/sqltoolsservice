@@ -217,7 +217,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         /// Test notifications for stopped sessions
         /// </summary>
         [Test]
-        public async Task TestStoppedSessionNotification()
+        public void TestStoppedSessionNotification()
         {
             bool sessionStopped = false;
             string testUri = "profiler_uri";
