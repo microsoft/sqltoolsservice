@@ -4624,4 +4624,415 @@
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>スキーマとデータ</value>
   </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>{0} の自動拡張を変更</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>{0} の最大サイズの変更</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>自動拡張の変更</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>最大サイズの変更</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>新しいデータベース</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>6.0 または 6.5 互換性モードのデータベースの場合、データベースのプロパティを設定または表示できません。</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>既存のデータベース ファイルのパスは変更できません。</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>"{0}" という名前のデータベースは既にサーバーに存在します。</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>データベースのプロパティ</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>ファイル名が空です。ファイルの名前を指定してください。</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>'{0}' には無効な文字 '{1}' が含まれているので、この名前のファイルを作成できません。</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>'{0}' は先頭が空白文字なので、この名前のファイルを作成できません。</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>データベース名をすべて空白文字で構成することはできません。</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>現在の既定のファイル グループ: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>{0} の新しいファイル グループ</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>既定</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>読み取り専用</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>すべてのファイルを自動拡張</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>自動拡張 / 最大サイズ</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;default&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>ファイル グループ</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>論理名</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>ファイルの種類</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>初期サイズ (MB)</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>サイズ (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;new filegroup&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>パス</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>ファイル名</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;raw device&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>一括ログ</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>完全</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>データベース所有者の選択</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>拡張プロパティ</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>ファイル グループ</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>全般</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>オプション</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>SLO の構成</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>新しいデータベース</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>{0} MB 単位で {1} MB に制限</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>{0} % 単位で {1} MB に制限 </value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>{0} MB 単位で無制限</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>{0} % 単位で無制限</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>無制限</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>{0} MB に制限</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>照合順序</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>カーソル</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>復元</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>状態</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL 既定値 </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULL 有効 </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI PADDING 有効 </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>ANSI 警告有効 </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>算術アボート有効 </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>自動終了 </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>統計の自動作成 </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>自動圧縮 </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>統計の自動更新 </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>統計の非同期的自動更新</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>大文字と小文字を区別 </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>コミットでカーソルを閉じる </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>照合順序</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>NULL との連結で NULL を使用 </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>データベース互換レベル </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>データベース状態 </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>既定のカーソル </value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>フルテキスト インデックス有効 </value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>数値丸め処理アボート </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Page Verify </value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>引用符で囲まれた識別子有効 </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>読み取り専用データベース </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>再帰トリガー有効 </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>アクセスの制限 </value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Select Into/一括コピー </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Broker の優先度の許可</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Service Broker 識別子</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker が有効</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>チェックポイント時のログ切り捨て </value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>複数データベースのチェーン所有権有効</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>信頼可能</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>日付の相関関係の最適化有効</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>パラメーター化</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>強制</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>行データ</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>ログ</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM データ</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>適用なし</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;default path&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>接続を開く</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>データベースのプロパティを変更するには、SQL Server では他の接続をすべて閉じる必要があります。他のすべての接続を閉じて、プロパティを変更しますか?</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>EMERGENCY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>アクセス不可</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>OFFLINE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>RECOVERING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>RECOVERY PENDING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>RESTORING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>SHUTDOWN</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>STANDBY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>SUSPECT</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBAL</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOCAL</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>CHECKSUM</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>NONE</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>VarDecimal ストレージ形式有効</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>暗号化が有効</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>オン</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>プライマリ</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>ディストリビューション ポリシーが HASH の場合、先頭のハッシュ列の数は任意ですが、1 ～ 16 の範囲で指定する必要があります</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>部分的</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>FILESTREAM ファイル</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>適用できるファイル グループなし</value>
+  </data>
 </root>

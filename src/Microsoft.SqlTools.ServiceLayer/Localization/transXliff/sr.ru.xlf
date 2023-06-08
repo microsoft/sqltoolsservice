@@ -7596,6 +7596,691 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">Схема и данные</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="autogrowth_dialog_title">
+        <source>Change Autogrowth for {0}</source>
+        <target state="translated">Изменение авторасширения для {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_filestreamtitle">
+        <source>Change Maxsize for {0}</source>
+        <target state="translated">Изменение максимального размера для {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_defaulttitle">
+        <source>Change Autogrowth</source>
+        <target state="translated">Изменение параметров автоматического увеличения</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_defaultfilestreamtitle">
+        <source>Change Maxsize</source>
+        <target state="translated">Изменение максимального размера</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_shiloh">
+        <source>SQL Server 2000 (80)</source>
+        <target state="translated">SQL Server 2000 (80)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sphinx">
+        <source>SQL Server 7.0 (70)</source>
+        <target state="translated">SQL Server 7.0 (70)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_yukon">
+        <source>SQL Server 2005 (90)</source>
+        <target state="translated">SQL Server 2005 (90)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="createDatabase_title">
+        <source>New Database</source>
+        <target state="translated">Создание базы данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_60compatibility">
+        <source>Database properties cannot be set or viewed for databases in 6.0 or 6.5 compatibility mode.</source>
+        <target state="translated">В режиме совместимости версий 6.0 и 6.5 свойства баз данных нельзя задать или просмотреть.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_cantModifyExistingFilePath">
+        <source>You cannot modify the path for existing database files.</source>
+        <target state="translated">Нельзя изменить путь к существующим файлам базы данных.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_databaseAlreadyExists">
+        <source>There is already a database named "{0}" on the server.</source>
+        <target state="translated">На сервере уже существует база данных с именем "{0}".</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_databaseProperties_title">
+        <source>Database Properties</source>
+        <target state="translated">Свойства базы данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_emptyFileName">
+        <source>File name was empty. Provide a file name for the file.</source>
+        <target state="translated">Имя файла не было задано. Введите имя файла.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_fileNameContainsIllegalCharacter">
+        <source>Cannot create a file with name '{0}' because it contains the invalid character '{1}'.</source>
+        <target state="translated">Невозможно создать файл с именем "{0}", поскольку в имени использован недопустимый знак "{1}".</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_fileNameStartsWithSpace">
+        <source>Cannot create a file with name '{0}' because it begins with a space character.</source>
+        <target state="translated">Невозможно создать файл с именем "{0}", поскольку имя начинается с пробела.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_whitespaceDatabaseName">
+        <source>A database name cannot consist of all whitespace characters.</source>
+        <target state="translated">Имя базы данных не может состоять только из пробельных символов.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroup_dialog_defaultFilegroup">
+        <source>Current default filegroup: {0}</source>
+        <target state="translated">Текущая файловая группа по умолчанию: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroup_dialog_title">
+        <source>New Filegroup for {0}</source>
+        <target state="translated">Создание файловой группы для {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_default">
+        <source>Default</source>
+        <target state="translated">По умолчанию</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_files">
+        <source>Files</source>
+        <target state="translated">Файлы</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_name">
+        <source>Name</source>
+        <target state="translated">Имя</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_readonly">
+        <source>Read-Only</source>
+        <target state="translated">Только для чтения</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_autogrowAllFiles">
+        <source>Autogrow All Files</source>
+        <target state="translated">Автоматическое увеличение всех файлов</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_autogrowth">
+        <source>Autogrowth / Maxsize</source>
+        <target state="translated">Автоматическое увеличение/максимальный размер</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_builderText">
+        <source>...</source>
+        <target state="new">...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_default">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;по умолчанию&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_fileGroup">
+        <source>Filegroup</source>
+        <target state="translated">Файловая группа</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_fileName">
+        <source>Logical Name</source>
+        <target state="translated">Логическое имя</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_fileType">
+        <source>File Type</source>
+        <target state="translated">Тип файла</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_initialSize">
+        <source>Initial Size (MB)</source>
+        <target state="translated">Начальный размер (МБ)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_currentSize">
+        <source>Size (MB)</source>
+        <target state="translated">Размер (МБ)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_newFilegroup">
+        <source>&lt;new filegroup&gt;</source>
+        <target state="translated">&lt;создать файловую группу&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_path">
+        <source>Path</source>
+        <target state="translated">Путь</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_physicalFileName">
+        <source>File Name</source>
+        <target state="translated">Имя файла</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_rawDevice">
+        <source>&lt;raw device&gt;</source>
+        <target state="translated">&lt;неформатированный носитель&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_bulkLogged">
+        <source>Bulk-logged</source>
+        <target state="translated">С неполным протоколированием</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_full">
+        <source>Full</source>
+        <target state="translated">Полный</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_simple">
+        <source>Simple</source>
+        <target state="translated">Простой</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_titleSearchOwner">
+        <source>Select Database Owner</source>
+        <target state="translated">Выбор владельца базы данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_extendedPropertiesNode_name">
+        <source>Extended Properties</source>
+        <target state="translated">Расширенные свойства</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_filegroupsNode_name">
+        <source>Filegroups</source>
+        <target state="translated">Файловые группы</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_generalNode_name">
+        <source>General</source>
+        <target state="translated">Общие</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_optionsNode_name">
+        <source>Options</source>
+        <target state="translated">Параметры</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_capabilitiesNode_name">
+        <source>Configure SLO</source>
+        <target state="translated">Настройка целевого уровня обслуживания</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_topNode_name">
+        <source>New Database</source>
+        <target state="translated">Создание базы данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_disabled">
+        <source>None</source>
+        <target state="translated">Нет</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_restrictedGrowthByMB">
+        <source>By {0} MB, Limited to {1} MB</source>
+        <target state="translated">С шагом по {0} МБ до {1} МБ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_restrictedGrowthByPercent">
+        <source>By {0} percent, Limited to {1} MB </source>
+        <target state="translated">С шагом по {0}% до {1} МБ </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByMB">
+        <source>By {0} MB, Unlimited</source>
+        <target state="translated">С шагом по {0} МБ, без ограничений</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByPercent">
+        <source>By {0} percent, Unlimited</source>
+        <target state="translated">С шагом по {0} %, без ограничений</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unlimitedfilestream">
+        <source>Unlimited</source>
+        <target state="translated">Без ограничений</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_limitedfilestream">
+        <source>Limited to {0} MB</source>
+        <target state="translated">Ограничено {0} МБ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_automatic">
+        <source>Automatic</source>
+        <target state="translated">Автоматический</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_servicebroker">
+        <source>Service Broker</source>
+        <target state="translated">Service Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_collation">
+        <source>Collation</source>
+        <target state="translated">Параметры сортировки</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_cursor">
+        <source>Cursor</source>
+        <target state="translated">Курсор</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_misc">
+        <source>Miscellaneous</source>
+        <target state="translated">Разное</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_recovery">
+        <source>Recovery</source>
+        <target state="translated">Восстановление</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_state">
+        <source>State</source>
+        <target state="translated">Состояние</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiNullDefault">
+        <source>ANSI NULL Default </source>
+        <target state="translated">ANSI NULL по умолчанию </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiNulls">
+        <source>ANSI NULLS Enabled </source>
+        <target state="translated">Значения ANSI NULLS включены </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiPadding">
+        <source>ANSI Padding Enabled </source>
+        <target state="translated">Включено заполнение ANSI </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiWarnings">
+        <source>ANSI Warnings Enabled </source>
+        <target state="translated">Включены предупреждения ANSI </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_arithabort">
+        <source>Arithmetic Abort Enabled </source>
+        <target state="translated">Включено арифметическое прерывание </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoClose">
+        <source>Auto Close </source>
+        <target state="translated">Автоматическое закрытие </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoCreateStatistics">
+        <source>Auto Create Statistics </source>
+        <target state="translated">Статистика автоматического создания </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoShrink">
+        <source>Auto Shrink </source>
+        <target state="translated">Автоматическое сжатие </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoUpdateStatistics">
+        <source>Auto Update Statistics </source>
+        <target state="translated">Автоматическое обновление статистики </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoUpdateStatisticsAsync">
+        <source>Auto Update Statistics Asynchronously</source>
+        <target state="translated">Асинхронное автоматическое обновление статистики</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_caseSensitive">
+        <source>Case Sensitive </source>
+        <target state="translated">С учетом регистра </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_closeCursorOnCommit">
+        <source>Close Cursor on Commit Enabled </source>
+        <target state="translated">Закрывать курсор при разрешении фиксации </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_collation">
+        <source>Collation</source>
+        <target state="translated">Параметры сортировки</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_concatNullYieldsNull">
+        <source>Concatenate Null Yields Null </source>
+        <target state="translated">Объединение со значением NULL дает NULL </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseCompatibilityLevel">
+        <source>Database Compatibility Level </source>
+        <target state="translated">Уровень совместимости базы данных </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState">
+        <source>Database State </source>
+        <target state="translated">Состояние базы данных </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor">
+        <source>Default Cursor </source>
+        <target state="translated">Курсор по умолчанию </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_fullTextIndexing">
+        <source>Full-Text Indexing Enabled </source>
+        <target state="translated">Полнотекстовое индексирование включено </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_numericRoundAbort">
+        <source>Numeric Round-Abort </source>
+        <target state="translated">Прерывание округления </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify">
+        <source>Page Verify </source>
+        <target state="translated">Проверка страниц </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_quotedIdentifier">
+        <source>Quoted Identifiers Enabled </source>
+        <target state="translated">Включены идентификаторы с разделителем </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_readOnly">
+        <source>Database Read-Only </source>
+        <target state="translated">База данных доступна только для чтения </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_recursiveTriggers">
+        <source>Recursive Triggers Enabled </source>
+        <target state="translated">Включены рекурсивные триггеры </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess">
+        <source>Restrict Access </source>
+        <target state="translated">Ограничение доступа </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_selectIntoBulkCopy">
+        <source>Select Into/Bulk Copy </source>
+        <target state="translated">Выбор/массовое копирование </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_honorBrokerPriority">
+        <source>Honor Broker Priority</source>
+        <target state="translated">Учитывать приоритет компонента Service Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_serviceBrokerGuid">
+        <source>Service Broker Identifier</source>
+        <target state="translated">Идентификатор компонента Service Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_brokerEnabled">
+        <source>Broker Enabled</source>
+        <target state="translated">Включен компонент Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_truncateLogOnCheckpoint">
+        <source>Truncate Log on Checkpoint </source>
+        <target state="translated">Усечение журнала на контрольной точке </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_dbChaining">
+        <source>Cross-database Ownership Chaining Enabled</source>
+        <target state="translated">Включены межбазовые цепочки владения.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_trustworthy">
+        <source>Trustworthy</source>
+        <target state="translated">Достоверность данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
+        <source>Date Correlation Optimization Enabled</source>
+        <target state="translated">Включена оптимизация корреляции дат</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="translated">Параметризация</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization_value_forced">
+        <source>Forced</source>
+        <target state="translated">Принудительное</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization_value_simple">
+        <source>Simple</source>
+        <target state="translated">Простой</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_dataFile">
+        <source>ROWS Data</source>
+        <target state="translated">Данные СТРОК</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_logFile">
+        <source>LOG</source>
+        <target state="translated">ЖУРНАЛ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_filestreamFile">
+        <source>FILESTREAM Data</source>
+        <target state="translated">Данные ФАЙЛОВОГО ПОТОКА</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_noFileGroup">
+        <source>Not Applicable</source>
+        <target state="translated">Нет данных</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_defaultpathstring">
+        <source>&lt;default path&gt;</source>
+        <target state="translated">&lt;путь по умолчанию&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="title_openConnectionsMustBeClosed">
+        <source>Open Connections</source>
+        <target state="translated">Открытые соединения</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="warning_openConnectionsMustBeClosed">
+        <source>To change the database properties, SQL Server must close all other connections to the database. Are you sure you want to change the properties and close all other connections?</source>
+        <target state="translated">Чтобы изменить свойства базы данных, SQL Server должен закрыть все остальные соединения с этой базой данных. Изменить свойства и закрыть остальные соединения?</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_autoClosed">
+        <source>AUTO_CLOSED</source>
+        <target state="translated">ЗАКРЫТО_АВТОМАТИЧЕСКИ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_emergency">
+        <source>EMERGENCY</source>
+        <target state="translated">АВАРИЙНЫЙ РЕЖИМ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_inaccessible">
+        <source>INACCESSIBLE</source>
+        <target state="translated">НЕДОСТУПНО</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_normal">
+        <source>NORMAL</source>
+        <target state="translated">НОРМАЛЬНЫЙ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_offline">
+        <source>OFFLINE</source>
+        <target state="translated">АВТОНОМНЫЙ РЕЖИМ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_recovering">
+        <source>RECOVERING</source>
+        <target state="translated">ВОССТАНОВЛЕНИЕ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_recoveryPending">
+        <source>RECOVERY PENDING</source>
+        <target state="translated">ОЖИДАНИЕ ВОССТАНОВЛЕНИЯ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_restoring">
+        <source>RESTORING</source>
+        <target state="translated">ВОССТАНОВЛЕНИЕ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_shutdown">
+        <source>SHUTDOWN</source>
+        <target state="translated">ЗАВЕРШЕНИЕ РАБОТЫ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_standby">
+        <source>STANDBY</source>
+        <target state="translated">РЕЖИМ ОЖИДАНИЯ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_suspect">
+        <source>SUSPECT</source>
+        <target state="translated">ПОДОЗРИТЕЛЬНЫЙ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor_value_global">
+        <source>GLOBAL</source>
+        <target state="translated">ГЛОБАЛЬНЫЙ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor_value_local">
+        <source>LOCAL</source>
+        <target state="translated">ЛОКАЛЬНЫЙ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_multiple">
+        <source>MULTI_USER</source>
+        <target state="translated">НЕСКОЛЬКО_ПОЛЬЗОВАТЕЛЕЙ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_restricted">
+        <source>RESTRICTED_USER</source>
+        <target state="translated">ОГРАНИЧЕННЫЙ_ПОЛЬЗОВАТЕЛЬ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_single">
+        <source>SINGLE_USER</source>
+        <target state="translated">ОДИН_ПОЛЬЗОВАТЕЛЬ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_checksum">
+        <source>CHECKSUM</source>
+        <target state="translated">КОНТРОЛЬНАЯ СУММА</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_none">
+        <source>NONE</source>
+        <target state="translated">НЕТ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_tornPageDetection">
+        <source>TORN_PAGE_DETECTION</source>
+        <target state="translated">ОБНАРУЖЕНИЕ_ПОВРЕЖДЕННОЙ_СТРАНИЦЫ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_varDecimalEnabled">
+        <source>VarDecimal Storage Format Enabled</source>
+        <target state="translated">Включен формат хранения VarDecimal</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_katmai">
+        <source>SQL Server 2008 (100)</source>
+        <target state="translated">SQL Server 2008 (100)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_encryptionEnabled">
+        <source>Encryption Enabled</source>
+        <target state="translated">Шифрование включено</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_off">
+        <source>OFF</source>
+        <target state="translated">ВЫКЛ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_on">
+        <source>ON</source>
+        <target state="translated">ВКЛ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
+        <source>PRIMARY</source>
+        <target state="translated">ПЕРВИЧНЫЙ</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_db_prop_invalidleadingColumns">
+        <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</source>
+        <target state="translated">Для политики распространения HASH количество начальных хэш-столбцов указывать не обязательно. Оно может составлять от 1 до 16 столбцов</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_denali">
+        <source>SQL Server 2012 (110)</source>
+        <target state="translated">SQL Server 2012 (110)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql14">
+        <source>SQL Server 2014 (120)</source>
+        <target state="translated">SQL Server 2014 (120)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql15">
+        <source>SQL Server 2016 (130)</source>
+        <target state="translated">SQL Server 2016 (130)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql2017">
+        <source>SQL Server 2017 (140)</source>
+        <target state="translated">SQL Server 2017 (140)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sqlv150">
+        <source>SQL Server 2019 (150)</source>
+        <target state="translated">SQL Server 2019 (150)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sqlv160">
+        <source>SQL Server 2022 (160)</source>
+        <target state="translated">SQL Server 2022 (160)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_containmentType_None">
+        <source>None</source>
+        <target state="translated">Нет</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_containmentType_Partial">
+        <source>Partial</source>
+        <target state="translated">Частичное</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_filestreamFiles">
+        <source>FILESTREAM Files</source>
+        <target state="translated">Файлы FILESTREAM</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_noApplicableFileGroup">
+        <source>No Applicable Filegroup</source>
+        <target state="translated">Применимая файловая группа отсутствует</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
