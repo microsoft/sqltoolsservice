@@ -4624,4 +4624,415 @@ El procesador de consultas estima que la implementación del siguiente índice p
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>Esquema y datos</value>
   </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>Cambiar crecimiento automático para {0}</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>Cambiar tamaño máximo de {0}</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>Cambiar crecimiento automático</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>Cambiar tamaño máximo</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>Nueva base de datos</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>Las propiedades de la base de datos no pueden establecerse ni verse para bases de datos en modo de compatibilidad 6.0 o 6.5.</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>No puede modificar la ruta de los archivos de las bases de datos existentes.</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>Ya hay una base de datos denominada '{0}' en el servidor.</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>Propiedades de la base de datos</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>El nombre del archivo estaba vacío. Proporcione un nombre para el archivo.</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>No puede crearse un archivo con el nombre '{0}' porque contiene el carácter no válido '{1}'.</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>No puede crearse un archivo con el nombre '{0}' porque comienza con un carácter de espacio.</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>Un nombre de base de datos no puede componerse solo de caracteres de espacios en blanco.</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Grupo de archivos predeterminado actual: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>Nuevo grupo de archivos para {0}</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>Predeterminado</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Archivos</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Solo lectura</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>Crecimiento automático de todos los archivos</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Crecimiento automático/tamaño máximo</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;predeterminado&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Grupo de archivos</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Nombre lógico</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>Tipo de archivo</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>Tamaño inicial (MB)</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>Tamaño (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;nuevo grupo de archivos&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Ruta de acceso</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>Nombre de archivo</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;dispositivo sin formato&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>Registro masivo</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Completo</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Sencillo</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Seleccionar propietario de la base de datos</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>Propiedades extendidas</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>Grupos de archivos</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>Opciones</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>Configurar SLO</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>Nueva base de datos</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>En {0} MB, limitado a {1} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>En un {0}%, limitado a {1} MB </value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>En {0} MB, sin límite</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>En un {0} %, sin límite</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Sin límites</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>Limitado a {0} MB</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Automático</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Intercalación</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>Cursor</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Varios</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Recuperación</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>Valor NULL ANSI predeterminado </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>Valores NULL ANSI habilitados </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>Relleno ANSI habilitado </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>Advertencias ANSI habilitadas </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Anulación aritmética habilitada </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Cerrar automáticamente </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Crear estadísticas automáticamente </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Reducción automática </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Actualizar estadísticas automáticamente </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>Actualizar estadísticas automáticamente de forma asincrónica</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>Distinguir mayúsculas de minúsculas </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>Cierre del cursor al confirmar habilitado </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Intercalación</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Concatenar valores NULL produce NULL </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Nivel de compatibilidad de la base de datos </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Estado de la base de datos </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Cursor predeterminado </value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Indización de texto completo habilitada </value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Anulación exacta numérica </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Comprobación de páginas </value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Identificadores entre comillas habilitados </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>Base de datos de solo lectura </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Desencadenadores recursivos habilitados </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Restringir acceso </value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Select Into o copia masiva </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Respetar prioridad de Broker</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Identificador de Service Broker</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker habilitado</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Truncar registro en punto de comprobación </value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Encadenamiento de propiedad entre bases de datos habilitado</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>De confianza</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Optimización de correlación de fechas habilitada</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Parametrización</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Forzada</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Sencillo</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>Datos de FILAS</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>REGISTRO</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>Datos de FILESTREAM</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>No aplicable</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;ruta predeterminada&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Conexiones abiertas</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Para cambiar las propiedades de la base de datos, SQL Server debe cerrar todas las otras conexiones con la base de datos. ¿Está seguro de que desea cambiar las propiedades y cerrar todas las otras conexiones?</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>EMERGENCIA</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>INACCESIBLE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>DESCONECTADO</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>RECUPERANDO</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>RECUPERACIÓN PENDIENTE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>RESTAURANDO</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>APAGADO</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>EN ESPERA</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>SOSPECHOSO</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBAL</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOCAL</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTIUSUARIO</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>USUARIOS_RESTRINGIDOS</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>USUARIO_ÚNICO</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>SUMA DE COMPROBACIÓN</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>NONE</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>DDETECCIÓN_DE_VUELTA_DE_PÁGINA</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>Formato de almacenamiento VarDecimal habilitado</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Cifrado habilitado</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>Activado</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>PRINCIPAL</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>Para la directiva de distribución HASH, el número de columnas de hash iniciales es opcional, pero debe ser de 1 a 16 columnas</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Parcial</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>Archivos FILESTREAM</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>No hay ningún grupo de archivos aplicable</value>
+  </data>
 </root>
