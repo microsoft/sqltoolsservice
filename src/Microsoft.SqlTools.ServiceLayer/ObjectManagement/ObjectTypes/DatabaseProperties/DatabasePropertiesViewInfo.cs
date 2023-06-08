@@ -8,16 +8,5 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabasePropertiesViewInfo : SqlObjectViewInfo
     {
-        public string[] CollationNames { get; set; }
-        public string DateCreated { get; set; }
-        public string LastDatabaseBackup { get; set; }
-        public string LastDatabaseLogBackup { get; set; }
-        public string MemoryAllocatedToMemoryOptimizedObjects { get; set; }
-        public string MemoryUsedByMemoryOptimizedObjects { get; set; }
-        public string NumberOfUsers { get; set; }
-        public string Owner { get; set; }
-        public string Size { get; set; }
-        public string SpaceAvailable { get; set; }
-        public string Status { get; set; }
     }
 }

@@ -14,12 +14,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? DateCreated { get; set; }
         public string? LastDatabaseBackup { get; set; }
         public string? LastDatabaseLogBackup { get; set; }
-        public string? MemoryAllocatedToMemoryOptimizedObjects { get; set; }
-        public string? MemoryUsedByMemoryOptimizedObjects { get; set; }
+        public string? MemoryAllocatedToMemoryOptimizedObjectsInMb { get; set; }
+        public string? MemoryUsedByMemoryOptimizedObjectsInMb { get; set; }
         public string? NumberOfUsers { get; set; }
         public string? Owner { get; set; }
-        public string? Size { get; set; }
-        public string? SpaceAvailable { get; set; }
+        public string? SizeInMb { get; set; }
+        public string? SpaceAvailableInMb { get; set; }
         public string? Status { get; set; }
     }
 }
