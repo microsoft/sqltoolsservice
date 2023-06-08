@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.Authentication
     /// <summary>
     /// Provides APIs to acquire access token using MSAL.NET v4 with provided <see cref="AuthenticationParams"/>.
     /// </summary>
-    public class Authenticator: IAuthenticator
+    public class Authenticator : IAuthenticator
     {
         private AuthenticatorConfiguration configuration;
 
@@ -58,10 +58,27 @@ namespace Microsoft.SqlTools.Authentication
                 IEnumerator<IAccount>? accounts = (await publicClientApplication.GetAccountsAsync().ConfigureAwait(false)).GetEnumerator();
                 IAccount? account = default;
 
-                if (!string.IsNullOrEmpty(@params.UserName) && accounts.MoveNext())
+                if (!string.IsNullOrEmpty(@params.UserName))
                 {
-                    // Handle username format to extract email: "John Doe - johndoe@constoso.com"
-                    string username = @params.UserName.Contains(" - ") ? @params.UserName.Split(" - ")[1] : @params.UserName;
+                    // Handle username format to extract email: "John Doe - johndoe@constoso.com" as received from ADS/VSCode-MSSQL
+
+                    // Additional possible usernames to consider:
+                    //    John Doe (Role - Department) - johndoe@constoso.com
+                    //    John - Doe - johndoe@constoso.com
+                    //    John Doe - john-doe@constoso.com
+                    //    John Doe - john-doe@constoso.org-name.com
+
+                    // A different way of implementing this is by sending user's email directly to STS in 'username' property but that would cause incompatibility
+                    // with saved connection profiles and reading from settings.json, therefore this solution is used as of now.
+
+                    string emailSeparator = " - ";
+                    string username = @params.UserName;
+                    if (username.Contains(emailSeparator))
+                    {
+                        int startIndex = username.LastIndexOf(emailSeparator) + emailSeparator.Length;
+                        username = username.Substring(startIndex);
+                    }
+
                     if (!Utils.isValidEmail(username))
                     {
                         SqlToolsLogger.Pii($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Unexpected username format, email not retreived: {@params.UserName}. " +
@@ -69,33 +86,41 @@ namespace Microsoft.SqlTools.Authentication
                         throw new Exception($"Invalid email address format for user: [{username}] received for Azure Active Directory authentication.");
                     }
 
-                    do
+                    if (accounts.MoveNext())
                     {
-                        IAccount? currentVal = accounts.Current;
-                        if (string.Compare(username, currentVal.Username, StringComparison.InvariantCultureIgnoreCase) == 0)
+                        do
                         {
-                            account = currentVal;
-                            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | User account found in MSAL Cache: {account.HomeAccountId}");
-                            break;
+                            IAccount? currentVal = accounts.Current;
+                            if (string.Compare(username, currentVal.Username, StringComparison.InvariantCultureIgnoreCase) == 0)
+                            {
+                                account = currentVal;
+                                SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | User account found in MSAL Cache: {account.HomeAccountId}");
+                                break;
+                            }
                         }
-                    }
-                    while (accounts.MoveNext());
+                        while (accounts.MoveNext());
 
-                    if (null != account)
-                    {
-                        try
+                        if (null != account)
                         {
-                            // Fetch token silently
-                            var result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
-                                .ExecuteAsync(cancellationToken: cancellationToken)
-                                .ConfigureAwait(false);
-                            accessToken = new AccessToken(result!.AccessToken, result!.ExpiresOn);
+                            try
+                            {
+                                // Fetch token silently
+                                var result = await publicClientApplication.AcquireTokenSilent(@params.Scopes, account)
+                                    .ExecuteAsync(cancellationToken: cancellationToken)
+                                    .ConfigureAwait(false);
+                                accessToken = new AccessToken(result!.AccessToken, result!.ExpiresOn);
+                            }
+                            catch (Exception e)
+                            {
+                                SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed for resource {@params.Resource} for ConnectionId {@params.ConnectionId}.");
+                                SqlToolsLogger.Error(e);
+                                throw;
+                            }
                         }
-                        catch (Exception e)
+                        else
                         {
-                            SqlToolsLogger.Verbose($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Silent authentication failed for resource {@params.Resource} for ConnectionId {@params.ConnectionId}.");
-                            SqlToolsLogger.Error(e);
-                            throw;
+                            SqlToolsLogger.Error($"{nameof(Authenticator)}.{nameof(GetTokenAsync)} | Account not found in MSAL cache for user.");
+                            throw new Exception($"User account '{username}' not found in MSAL cache, please add linked account or refresh account credentials.");
                         }
                     }
                     else

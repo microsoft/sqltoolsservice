@@ -66,6 +66,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? HostNameInCertificate { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string? TrustServerCertificate { get; set; }
+
         public TestServerType ServerType { get; set; }
 
         public AuthenticationType AuthenticationType { get; set; }
