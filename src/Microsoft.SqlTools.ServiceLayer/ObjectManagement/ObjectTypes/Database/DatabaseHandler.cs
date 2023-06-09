@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
             AzureEditionNames = GetAzureEditions();
-            AzureBackupLevels = GetAzureBackupLevels();
+            AzureBackupLevels = AzureSqlDbHelper.BackupStorageRedundancyLevels;
             AzureMaxSizes = GetAzureMaxSizes(AzureEditionNames);
             AzureServiceLevels = GetAzureServiceLevels(AzureEditionNames);
         }
@@ -617,14 +617,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             // previous loop did not find the prototype compatibility level in this server's compatability options, so treat compatibility levels as unsupported for this server
             return Array.Empty<string>();
-        }
-
-        /// <summary>
-        /// Get supported backup redundancy levels for this Azure server.
-        /// </summary>
-        private static string[] GetAzureBackupLevels()
-        {
-            return AzureSqlDbHelper.BackupStorageRedundancyLevels;
         }
 
         /// <summary>
