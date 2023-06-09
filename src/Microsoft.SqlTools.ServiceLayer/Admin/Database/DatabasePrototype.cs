@@ -1742,7 +1742,6 @@ WHERE do.database_id = @DbID
                 if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
                 {
                     // Azure instances don't have a model database we can query, so just use the defaults
-                    context.Server.SetDefaultInitFields(typeof(Database), databaseDefaultInitFields);
                     this.originalState = new DatabaseData(context);
                 }
                 else
