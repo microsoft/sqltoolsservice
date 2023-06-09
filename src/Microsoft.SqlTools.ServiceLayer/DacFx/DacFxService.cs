@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 metadata.DatabaseName = parameters.DatabaseName;
                 metadata.Name = SR.GenerateScriptTaskName;
 
-                SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                operation.SqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new DacFxResult()
                 {
@@ -371,13 +371,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     // put appropriate database name since connection passed was to master
                     metadata.DatabaseName = parameters.DatabaseName;
-                    SqlTask sqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
+                    operation.SqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
 
-                    await sqlTask.RunAsync();
+                    await operation.SqlTask.RunAsync();
                     await requestContext.SendResult(new DacFxResult()
                     {
                         OperationId = operation.OperationId,
-                        Success = sqlTask.TaskStatus == SqlTaskStatus.Succeeded,
+                        Success = operation.SqlTask.TaskStatus == SqlTaskStatus.Succeeded,
                         ErrorMessage = string.Empty
                     });
                 }
