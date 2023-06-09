@@ -169,18 +169,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public void GetAzureEditionsTest()
         {
-            var actualEditions = DatabaseHandler.AzureEditions;
-            var expectedEditions = new string[]
-            {
-                AzureEdition.Basic.DisplayName,
-                AzureEdition.Standard.DisplayName,
-                AzureEdition.Premium.DisplayName,
-                AzureEdition.DataWarehouse.DisplayName,
-                AzureEdition.BusinessCritical.DisplayName,
-                AzureEdition.GeneralPurpose.DisplayName,
-                AzureEdition.Hyperscale.DisplayName
-            };
-            Assert.That(actualEditions, Is.EquivalentTo(expectedEditions));
+            var actualEditionNames = DatabaseHandler.AzureEditionNames;
+            var expectedEditionNames = AzureSqlDbHelper.GetValidAzureEditionOptions().Select(edition => edition.DisplayName);
+            Assert.That(actualEditionNames, Is.EquivalentTo(expectedEditionNames));
         }
 
         [Test]

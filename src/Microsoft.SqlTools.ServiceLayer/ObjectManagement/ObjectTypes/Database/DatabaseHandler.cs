@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
 
-        internal static readonly string[] AzureEditions;
+        internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
@@ -78,10 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
-            AzureEditions = GetAzureEditions();
+            AzureEditionNames = GetAzureEditions();
             AzureBackupLevels = GetAzureBackupLevels();
-            AzureMaxSizes = GetAzureMaxSizes(AzureEditions);
-            AzureServiceLevels = GetAzureServiceLevels(AzureEditions);
+            AzureMaxSizes = GetAzureMaxSizes(AzureEditionNames);
+            AzureServiceLevels = GetAzureServiceLevels(AzureEditionNames);
         }
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                             databaseViewInfo.AzureBackupRedundancyLevels = AzureBackupLevels;
                             databaseViewInfo.AzureServiceLevelObjectives = AzureServiceLevels;
-                            databaseViewInfo.AzureEditions = AzureEditions;
+                            databaseViewInfo.AzureEditions = AzureEditionNames;
                             databaseViewInfo.AzureMaxSizes = AzureMaxSizes;
                         }
                         else
