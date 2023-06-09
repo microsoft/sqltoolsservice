@@ -26,8 +26,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// </summary>
     class DacFxService
     {
-        private static ConnectionService? connectionService = null;
-        private SqlTaskManager? sqlTaskManagerInstance = null;
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private static Version? serviceVersion = LoadServiceVersion();
         private const string TelemetryDefaultApplicationName = "sqltoolsservice";
@@ -397,12 +395,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             get
             {
-                sqlTaskManagerInstance ??= SqlTaskManager.Instance;
-                return sqlTaskManagerInstance;
-            }
-            set
-            {
-                sqlTaskManagerInstance = value;
+               return SqlTaskManager.Instance;
             }
         }
 
@@ -413,12 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             get
             {
-                connectionService ??= ConnectionService.Instance;
-                return connectionService;
-            }
-            set
-            {
-                connectionService = value;
+                return ConnectionService.Instance;
             }
         }
 
