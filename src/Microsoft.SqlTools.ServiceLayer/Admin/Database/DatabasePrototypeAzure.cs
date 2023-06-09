@@ -16,6 +16,8 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.AzureEdition;
 using System;
 using System.Data;
+using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -137,10 +139,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
                 else
                 {
-                    //Can't really do much if we fail to parse the display name so just leave it as is and log a message
-                    System.Diagnostics.Debug.Assert(false,
-                        string.Format(CultureInfo.InvariantCulture,
-                            "Failed to parse edition display name '{0}' back into AzureEdition", value));
+                    // Can't really do much if we fail to parse the display name so just leave it as is and log a message
+                    Logger.Write(TraceEventType.Error, $"Failed to parse edition display name '{value}' back into AzureEdition");
                 }
             }
         }
