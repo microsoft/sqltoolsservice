@@ -6,11 +6,14 @@
 #nullable disable
 
 using System;
-using System.IO;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using TextCopy;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -75,9 +78,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             get
             {
                 BufferFileStreamFactory ??= new ServiceBufferFileStreamFactory
-                    {
-                        QueryExecutionSettings = Settings.QueryExecutionSettings
-                    };
+                {
+                    QueryExecutionSettings = Settings.QueryExecutionSettings
+                };
                 return BufferFileStreamFactory;
             }
         }
@@ -187,6 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             serviceHost.SetRequestHandler(QueryExecutionPlanRequest.Type, HandleExecutionPlanRequest, true);
             serviceHost.SetRequestHandler(SimpleExecuteRequest.Type, HandleSimpleExecuteRequest, true);
             serviceHost.SetRequestHandler(QueryExecutionOptionsRequest.Type, HandleQueryExecutionOptionsRequest, true);
+            serviceHost.SetRequestHandler(CopyResultsRequest.Type, HandleCopyResultsRequest, true);
 
             // Register the file open update handler
             WorkspaceService<SqlToolsSettings>.Instance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
@@ -713,6 +717,90 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Handles the copy results.
+        /// </summary>
+        internal async Task HandleCopyResultsRequest(CopyResultsRequestParams requestParams, RequestContext<CopyResultsRequestResult> requestContext)
+        {
+            var valueSeparator = "\t";
+            var columnRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromColumn, End = selection.ToColumn }).ToList());
+            var rowRanges = this.MergeRanges(requestParams.Selections.Select(selection => new Range() { Start = selection.FromRow, End = selection.ToRow }).ToList());
+            var lastColumnIndex = columnRanges.Last().End;
+            var lastRowIndex = rowRanges.Last().End;
+            var builder = new StringBuilder();
+            var pageSize = 200;
+            if (requestParams.IncludeHeaders)
+            {
+                Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
+                Query query;
+                if (!ActiveQueries.TryGetValue(requestParams.OwnerUri, out query))
+                {
+                    throw new ArgumentOutOfRangeException(SR.QueryServiceRequestsNoQuery);
+                }
+                var columnNames = query.GetColumnNames(requestParams.BatchIndex, requestParams.ResultSetIndex);
+                var selectedColumns = new List<string>();
+                for (int i = 0; i < columnNames.Count; i++)
+                {
+                    if (columnRanges.Any(range => i >= range.Start && i <= range.End))
+                    {
+                        selectedColumns.Add(columnNames[i]);
+                    }
+                }
+                builder.Append(string.Join(valueSeparator, selectedColumns));
+                builder.Append(Environment.NewLine);
+            }
+
+            for (int rowRangeIndex = 0; rowRangeIndex < rowRanges.Count; rowRangeIndex++)
+            {
+                var rowRange = rowRanges[rowRangeIndex];
+                var pageStartRowIndex = rowRange.Start;
+                // Read the rows in batches to avoid holding all rows in memory
+                do
+                {
+                    var rowsToFetch = Math.Min(pageSize, rowRange.End - pageStartRowIndex + 1);
+                    ResultSetSubset subset = await InterServiceResultSubset(new SubsetParams()
+                    {
+                        OwnerUri = requestParams.OwnerUri,
+                        ResultSetIndex = requestParams.ResultSetIndex,
+                        BatchIndex = requestParams.BatchIndex,
+                        RowsStartIndex = pageStartRowIndex,
+                        RowsCount = rowsToFetch
+                    });
+                    for (int rowIndex = 0; rowIndex < subset.Rows.Length; rowIndex++)
+                    {
+                        var row = subset.Rows[rowIndex];
+                        for (int columnRangeIndex = 0; columnRangeIndex < columnRanges.Count; columnRangeIndex++)
+                        {
+                            var columnRange = columnRanges[columnRangeIndex];
+                            for (int columnIndex = columnRange.Start; columnIndex <= columnRange.End; columnIndex++)
+                            {
+                                if (requestParams.Selections.Any(selection =>
+                                selection.FromRow <= rowIndex + rowRange.Start &&
+                                selection.ToRow >= rowIndex + rowRange.Start &&
+                                selection.FromColumn <= columnIndex &&
+                                selection.ToColumn >= columnIndex))
+                                {
+                                    builder.Append(requestParams.RemoveNewLine ? row[columnIndex].DisplayValue.ReplaceLineEndings(" ") : row[columnIndex].DisplayValue);
+                                }
+                                if (columnIndex != lastColumnIndex)
+                                {
+                                    builder.Append(valueSeparator);
+                                }
+                            }
+                        }
+                        // Add line break if this is not the last row in all selections.
+                        if (rowIndex + pageStartRowIndex != lastRowIndex)
+                        {
+                            builder.Append(Environment.NewLine);
+                        }
+                    }
+                    pageStartRowIndex += rowsToFetch;
+                } while (pageStartRowIndex < rowRange.End);
+            }
+            await ClipboardService.SetTextAsync(builder.ToString());
+            await requestContext.SendResult(new CopyResultsRequestResult());
+        }
+
         #endregion
 
         #region Private Helpers
@@ -1056,6 +1144,35 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return Task.FromResult(0);
         }
 
+        internal class Range
+        {
+            public int Start { get; set; }
+            public int End { get; set; }
+        }
+
+        internal List<Range> MergeRanges(List<Range> ranges)
+        {
+            var mergedRanges = new List<Range>();
+            ranges.Sort((range1, range2) => (range1.Start - range2.Start));
+            foreach (var range in ranges)
+            {
+                bool merged = false;
+                foreach (var mergedRange in mergedRanges)
+                {
+                    if (range.Start <= mergedRange.End)
+                    {
+                        mergedRange.End = Math.Max(range.End, mergedRange.End);
+                        merged = true;
+                        break;
+                    }
+                }
+                if (!merged)
+                {
+                    mergedRanges.Add(range);
+                }
+            }
+            return mergedRanges;
+        }
         #endregion
 
         #region IDisposable Implementation
