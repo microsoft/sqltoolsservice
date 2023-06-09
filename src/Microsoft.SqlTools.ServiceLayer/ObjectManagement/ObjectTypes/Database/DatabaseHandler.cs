@@ -17,6 +17,8 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
+using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -642,6 +644,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, Details = serviceLevelsList.ToArray() };
                     levels.Add(details);
                 }
+                else
+                {
+                    Logger.Write(TraceEventType.Error, $"Failed to get service level objective info for edition '{edition.Name}'");
+                }
             }
             return levels.ToArray();
         }
@@ -667,6 +673,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
                     var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, Details = sizeInfoList.Select(info => info.ToString()).ToArray() };
                     sizes.Add(details);
+                }
+                else
+                {
+                    Logger.Write(TraceEventType.Error, $"Failed to get database size info for edition '{edition.Name}'");
                 }
             }
             return sizes.ToArray();
