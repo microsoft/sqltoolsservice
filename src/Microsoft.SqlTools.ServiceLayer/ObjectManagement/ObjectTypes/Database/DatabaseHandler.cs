@@ -78,10 +78,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
-            AzureEditionNames = GetAzureEditions();
+            var editions = AzureSqlDbHelper.GetValidAzureEditionOptions();
+            AzureEditionNames = editions.Select(edition => edition.DisplayName).ToArray();
             AzureBackupLevels = AzureSqlDbHelper.BackupStorageRedundancyLevels;
-            AzureMaxSizes = GetAzureMaxSizes(AzureEditionNames);
-            AzureServiceLevels = GetAzureServiceLevels(AzureEditionNames);
+            AzureMaxSizes = GetAzureMaxSizes(editions);
+            AzureServiceLevels = GetAzureServiceLevels(editions);
         }
 
         public DatabaseHandler(ConnectionService connectionService) : base(connectionService)
@@ -622,64 +623,50 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported service level objectives for this Azure server.
         /// </summary>
-        private static AzureEditionDetails[] GetAzureServiceLevels(string[] editionDisplayNames)
+        private static AzureEditionDetails[] GetAzureServiceLevels(IEnumerable<AzureEdition> editions)
         {
             var levels = new List<AzureEditionDetails>();
-            foreach (string displayName in editionDisplayNames)
+            foreach (AzureEdition edition in editions)
             {
-                if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(displayName, out var azureEdition))
+                if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(edition, out var serviceInfoPair))
                 {
-                    if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(azureEdition, out var serviceInfoPair))
+                    // Move default value to the front of the list
+                    var serviceLevelsList = new List<string>(serviceInfoPair.Value);
+                    var defaultIndex = serviceInfoPair.Key;
+                    if (defaultIndex >= 0 && defaultIndex < serviceLevelsList.Count)
                     {
-                        // Move default value to the front of the list
-                        var serviceLevelsList = new List<string>(serviceInfoPair.Value);
-                        var defaultIndex = serviceInfoPair.Key;
-                        if (defaultIndex >= 0 && defaultIndex < serviceLevelsList.Count)
-                        {
-                            var defaultServiceObjective = serviceLevelsList[defaultIndex];
-                            serviceLevelsList.RemoveAt(defaultIndex);
-                            serviceLevelsList.Insert(0, defaultServiceObjective);
-                        }
-                        var details = new AzureEditionDetails() { EditionDisplayName = displayName, Details = serviceLevelsList.ToArray() };
-                        levels.Add(details);
+                        var defaultServiceObjective = serviceLevelsList[defaultIndex];
+                        serviceLevelsList.RemoveAt(defaultIndex);
+                        serviceLevelsList.Insert(0, defaultServiceObjective);
                     }
+                    var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, Details = serviceLevelsList.ToArray() };
+                    levels.Add(details);
                 }
             }
             return levels.ToArray();
         }
 
         /// <summary>
-        /// Get supported editions for this Azure server.
-        /// </summary>
-        private static string[] GetAzureEditions()
-        {
-            return AzureSqlDbHelper.GetValidAzureEditionOptions().Select(edition => edition.DisplayName).ToArray();
-        }
-
-        /// <summary>
         /// Get supported maximum sizes for this Azure server.
         /// </summary>
-        private static AzureEditionDetails[] GetAzureMaxSizes(string[] editionDisplayNames)
+        private static AzureEditionDetails[] GetAzureMaxSizes(IEnumerable<AzureEdition> editions)
         {
             var sizes = new List<AzureEditionDetails>();
-            foreach (string displayName in editionDisplayNames)
+            foreach (AzureEdition edition in editions)
             {
-                if (AzureSqlDbHelper.TryGetAzureEditionFromDisplayName(displayName, out var azureEdition))
+                if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(edition, out var sizeInfoPair))
                 {
-                    if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(azureEdition, out var sizeInfoPair))
+                    // Move default value to the front of the list
+                    var sizeInfoList = new List<DbSize>(sizeInfoPair.Value);
+                    var defaultIndex = sizeInfoPair.Key;
+                    if (defaultIndex >= 0 && defaultIndex < sizeInfoList.Count)
                     {
-                        // Move default value to the front of the list
-                        var sizeInfoList = new List<DbSize>(sizeInfoPair.Value);
-                        var defaultIndex = sizeInfoPair.Key;
-                        if (defaultIndex >= 0 && defaultIndex < sizeInfoList.Count)
-                        {
-                            var defaultSizeInfo = sizeInfoList[defaultIndex];
-                            sizeInfoList.RemoveAt(defaultIndex);
-                            sizeInfoList.Insert(0, defaultSizeInfo);
-                        }
-                        var details = new AzureEditionDetails() { EditionDisplayName = displayName, Details = sizeInfoList.Select(info => info.ToString()).ToArray() };
-                        sizes.Add(details);
+                        var defaultSizeInfo = sizeInfoList[defaultIndex];
+                        sizeInfoList.RemoveAt(defaultIndex);
+                        sizeInfoList.Insert(0, defaultSizeInfo);
                     }
+                    var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, Details = sizeInfoList.Select(info => info.ToString()).ToArray() };
+                    sizes.Add(details);
                 }
             }
             return sizes.ToArray();
