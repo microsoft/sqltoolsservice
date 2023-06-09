@@ -26,8 +26,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     /// </summary>
     class DacFxService
     {
-        private static ConnectionService connectionService = null;
-        private SqlTaskManager sqlTaskManagerInstance = null;
+        private static ConnectionService? connectionService = null;
+        private SqlTaskManager? sqlTaskManagerInstance = null;
         private static readonly Lazy<DacFxService> instance = new Lazy<DacFxService>(() => new DacFxService());
         private static Version? serviceVersion = LoadServiceVersion();
         private const string TelemetryDefaultApplicationName = "sqltoolsservice";
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Handles request to import a bacpac
         /// </summary>
         /// <returns></returns>
-        public async Task HandleImportRequest(ImportParams parameters, RequestContext<DacFxResult> requestContext)
+        public Task HandleImportRequest(ImportParams parameters, RequestContext<DacFxResult> requestContext)
         {
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
@@ -116,6 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 ImportOperation operation = new ImportOperation(parameters, connInfo);
                 ExecuteOperation(operation, parameters, SR.ImportBacpacTaskName, requestContext);
             }
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -170,7 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             if (connInfo != null)
             {
                 GenerateDeployScriptOperation operation = new GenerateDeployScriptOperation(parameters, connInfo);
-                SqlTask sqlTask = null;
                 TaskMetadata metadata = new TaskMetadata();
                 metadata.TaskOperation = operation;
                 metadata.TaskExecutionMode = parameters.TaskExecutionMode;
@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 metadata.DatabaseName = parameters.DatabaseName;
                 metadata.Name = SR.GenerateScriptTaskName;
 
-                sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
+                SqlTask sqlTask = SqlTaskManagerInstance.CreateAndRun<SqlTask>(metadata);
 
                 await requestContext.SendResult(new DacFxResult()
                 {
@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     out connInfo);
             if (connInfo != null)
             {
-                await BaseService.RunWithErrorHandling(async () =>
+                await BaseService.RunWithErrorHandling(() =>
                 {
                     GenerateDeployPlanOperation operation = new GenerateDeployPlanOperation(parameters, connInfo);
                     operation.Execute(parameters.TaskExecutionMode);
@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <returns></returns>
         public async Task HandleGetOptionsFromProfileRequest(GetOptionsFromProfileParams parameters, RequestContext<DacFxOptionsResult> requestContext)
         {
-            DeploymentOptions options = null;
+            DeploymentOptions? options = null;
             if (parameters.ProfilePath != null)
             {
                 DacProfile profile = DacProfile.Load(parameters.ProfilePath);
@@ -366,7 +366,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 try
                 {
                     // show file location for export and extract operations 
-                    string targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
+                    string? targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
                     TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
 
                     // put appropriate database name since connection passed was to master
@@ -458,8 +458,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             try
             {
-                string fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
-                if (Version.TryParse(fileVersion, out Version version))
+                string? fileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
+                if (Version.TryParse(fileVersion, out Version? version))
                 {
                     return version;
                 }
