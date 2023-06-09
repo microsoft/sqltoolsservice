@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         /// <summary>
         /// Whether to remove the line break from cell values.
         /// </summary>
-        public bool RemoveNewLine { get; set; }
+        public bool RemoveNewLines { get; set; }
 
         /// <summary>
         /// Whether to include the column headers.

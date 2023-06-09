@@ -780,7 +780,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 selection.FromColumn <= columnIndex &&
                                 selection.ToColumn >= columnIndex))
                                 {
-                                    builder.Append(requestParams.RemoveNewLine ? row[columnIndex].DisplayValue.ReplaceLineEndings(" ") : row[columnIndex].DisplayValue);
+                                    builder.Append(requestParams.RemoveNewLines ? row[columnIndex].DisplayValue.ReplaceLineEndings(" ") : row[columnIndex].DisplayValue);
                                 }
                                 if (columnIndex != lastColumnIndex)
                                 {
