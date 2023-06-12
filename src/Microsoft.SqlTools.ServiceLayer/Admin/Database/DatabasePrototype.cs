@@ -551,7 +551,7 @@ WHERE do.database_id = @DbID
                     this.delayedDurability = db.DelayedDurability;
                 }
 
-                if (db.IsSupportedProperty("IsLedger")) 
+                if (db.IsSupportedProperty("IsLedger"))
                 {
                     this.isLedger = db.IsLedger;
                 }
@@ -1739,29 +1739,37 @@ WHERE do.database_id = @DbID
             }
             else
             {
-                try
+                if (context.Server.DatabaseEngineType == DatabaseEngineType.SqlAzureDatabase)
+                {
+                    // Azure instances don't have a model database we can query, so just use the defaults
+                    this.originalState = new DatabaseData(context);
+                }
+                else
                 {
                     try
                     {
-                        //First try to get the properties, if attempt fails get 
-                        //only the minimal set of properties by setting the DefaultInitFields value to false
-                        this.originalState = new DatabaseData(context, "model");
+                        try
+                        {
+                            //First try to get the properties, if attempt fails get 
+                            //only the minimal set of properties by setting the DefaultInitFields value to false
+                            this.originalState = new DatabaseData(context, "model");
+                        }
+                        catch (Exception)
+                        {
+                            //Now try again with the optimized(DefaultInitFields set to false) properties    
+                            context.Server.SetDefaultInitFields(typeof(Database), false);
+                            this.originalState = new DatabaseData(context, "model");
+                            //Set the DefaultInitFields to its original value
+                            context.Server.SetDefaultInitFields(typeof(Database), databaseDefaultInitFields);
+                        }
+                        this.originalState.owner = String.Empty;
                     }
                     catch (Exception)
                     {
-                        //Now try again with the optimized(DefaultInitFields set to false) properties    
-                        context.Server.SetDefaultInitFields(typeof(Database), false);
-                        this.originalState = new DatabaseData(context, "model");
                         //Set the DefaultInitFields to its original value
                         context.Server.SetDefaultInitFields(typeof(Database), databaseDefaultInitFields);
+                        this.originalState = new DatabaseData(context);
                     }
-                    this.originalState.owner = String.Empty;
-                }
-                catch (Exception)
-                {
-                    //Set the DefaultInitFields to its original value
-                    context.Server.SetDefaultInitFields(typeof(Database), databaseDefaultInitFields);
-                    this.originalState = new DatabaseData(context);
                 }
 
                 // New database should not inherit ReadOnly from model database (Fix TFS 885072)                
@@ -2635,7 +2643,7 @@ WHERE do.database_id = @DbID
         /// <returns>Desired engine edition</returns>
         private DatabaseEngineEdition GetDefaultDatabaseEngineEdition(Server svr)
         {
-            if (svr != null && (svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance || 
+            if (svr != null && (svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance ||
                 svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand ||
                 svr.DatabaseEngineEdition == DatabaseEngineEdition.SqlAzureArcManagedInstance))
             {
