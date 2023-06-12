@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal async Task HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<DetachDatabaseRequestResponse> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            await handler.Detach(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.ThrowIfNotExist);
+            await handler.Detach(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.DropConnections, requestParams.UpdateStatistics, requestParams.ThrowIfNotExist);
             await requestContext.SendResult(new DetachDatabaseRequestResponse());
         }
 
