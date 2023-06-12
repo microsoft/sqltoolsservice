@@ -646,7 +646,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 else
                 {
-                    Logger.Write(TraceEventType.Error, $"Failed to get service level objective info for edition '{edition.Name}'");
+                    Logger.Error($"Failed to get service level objective info for edition '{edition.Name}'");
                 }
             }
             return levels.ToArray();
@@ -676,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 else
                 {
-                    Logger.Write(TraceEventType.Error, $"Failed to get database size info for edition '{edition.Name}'");
+                    Logger.Error($"Failed to get database size info for edition '{edition.Name}'");
                 }
             }
             return sizes.ToArray();
