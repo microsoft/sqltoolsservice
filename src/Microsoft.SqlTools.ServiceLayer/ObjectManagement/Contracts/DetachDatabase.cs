@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// </summary>
         public bool DropConnections { get; set; }
         /// <summary>
-        /// Whether to drop the database's optimization statistics
+        /// Whether to update the optimization statistics related to this database
         /// </summary>
         public bool UpdateStatistics { get; set; }
         /// <summary>
