@@ -18,7 +18,6 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
