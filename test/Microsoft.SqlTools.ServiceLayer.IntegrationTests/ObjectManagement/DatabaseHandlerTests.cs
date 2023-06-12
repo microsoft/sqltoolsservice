@@ -3,15 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
+using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -158,6 +162,102 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 finally
                 {
                     DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
+        [Test]
+        public void GetAzureEditionsTest()
+        {
+            var actualEditionNames = DatabaseHandler.AzureEditionNames;
+            var expectedEditionNames = AzureSqlDbHelper.GetValidAzureEditionOptions().Select(edition => edition.DisplayName);
+            Assert.That(actualEditionNames, Is.EquivalentTo(expectedEditionNames));
+        }
+
+        [Test]
+        public void GetAzureBackupRedundancyLevelsTest()
+        {
+            var actualLevels = DatabaseHandler.AzureBackupLevels;
+            var expectedLevels = new string[] { "Geo", "Local", "Zone" };
+            Assert.That(actualLevels, Is.EquivalentTo(expectedLevels));
+        }
+
+        [Test]
+        public void GetAzureServiceLevelObjectivesTest()
+        {
+            var actualLevelsMap = new Dictionary<string, string[]>();
+            foreach (AzureEditionDetails serviceDetails in DatabaseHandler.AzureServiceLevels)
+            {
+                actualLevelsMap.Add(serviceDetails.EditionDisplayName, serviceDetails.Details);
+            }
+
+            var expectedDefaults = new Dictionary<AzureEdition, string>()
+            {
+                { AzureEdition.Basic, "Basic" },
+                { AzureEdition.Standard, "S0" },
+                { AzureEdition.Premium, "P1" },
+                { AzureEdition.DataWarehouse, "DW400" },
+                { AzureEdition.BusinessCritical, "BC_Gen5_2" },
+                { AzureEdition.GeneralPurpose, "GP_Gen5_2" },
+                { AzureEdition.Hyperscale, "HS_Gen5_2" }
+            };
+            Assert.That(actualLevelsMap.Count, Is.EqualTo(expectedDefaults.Count), "Did not get expected number of editions for DatabaseHandler's service levels");
+            foreach(AzureEdition edition in expectedDefaults.Keys)
+            {
+                if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(edition, out var expectedLevelInfo))
+                {
+                    var expectedServiceLevels = expectedLevelInfo.Value;
+                    var actualServiceLevels = actualLevelsMap[edition.DisplayName];
+                    Assert.That(actualServiceLevels, Is.EquivalentTo(expectedServiceLevels), "Did not get expected SLO list for edition '{0}'", edition.DisplayName);
+
+                    var expectedDefaultIndex = expectedLevelInfo.Key;
+                    var expectedDefault = expectedServiceLevels[expectedDefaultIndex];
+                    var actualDefault =  actualServiceLevels[0];
+                    Assert.That(actualDefault, Is.EqualTo(expectedDefault), "Did not get expected default SLO for edition '{0}'", edition.DisplayName);
+                }
+                else
+                {
+                    Assert.Fail("Could not retrieve SLO info for Azure edition '{0}'", edition.DisplayName);
+                }
+            }
+        }
+
+        [Test]
+        public void GetAzureMaxSizesTest()
+        {
+            var actualSizesMap = new Dictionary<string, string[]>();
+            foreach (AzureEditionDetails sizeDetails in DatabaseHandler.AzureMaxSizes)
+            {
+                actualSizesMap.Add(sizeDetails.EditionDisplayName, sizeDetails.Details);
+            }
+
+            var expectedDefaults = new Dictionary<AzureEdition, string>()
+            {
+                { AzureEdition.Basic, "2GB" },
+                { AzureEdition.Standard, "250GB" },
+                { AzureEdition.Premium, "500GB" },
+                { AzureEdition.DataWarehouse, "10240GB" },
+                { AzureEdition.BusinessCritical, "32GB" },
+                { AzureEdition.GeneralPurpose, "32GB" },
+                { AzureEdition.Hyperscale, "0MB" }
+            };
+            Assert.That(actualSizesMap.Count, Is.EqualTo(expectedDefaults.Count), "Did not get expected number of editions for DatabaseHandler's max sizes");
+            foreach(AzureEdition edition in expectedDefaults.Keys)
+            {
+                if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(edition, out var expectedSizeInfo))
+                {
+                    var expectedSizes = expectedSizeInfo.Value.Select(size => size.ToString()).ToArray();
+                    var actualSizes = actualSizesMap[edition.DisplayName];
+                    Assert.That(actualSizes, Is.EquivalentTo(expectedSizes), "Did not get expected size list for edition '{0}'", edition.DisplayName);
+
+                    var expectedDefaultIndex = expectedSizeInfo.Key;
+                    var expectedDefault = expectedSizes[expectedDefaultIndex];
+                    var actualDefault =  actualSizes[0];
+                    Assert.That(actualDefault, Is.EqualTo(expectedDefault.ToString()), "Did not get expected default size for edition '{0}'", edition.DisplayName);
+                }
+                else
+                {
+                    Assert.Fail("Could not retrieve max size info for Azure edition '{0}'", edition.DisplayName);
                 }
             }
         }
