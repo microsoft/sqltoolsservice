@@ -39,7 +39,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.objectTypeHandlers.Add(new DatabaseRoleHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new ServerRoleHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new DatabaseHandler(ConnectionService.Instance));
-            this.objectTypeHandlers.Add(new DatabasePropertiesHandler(ConnectionService.Instance));
         }
 
         /// <summary>
@@ -86,8 +85,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal async Task HandleInitializeViewRequest(InitializeViewRequestParams requestParams, RequestContext<SqlObjectViewInfo> requestContext)
         {
-            var objectType = requestParams.DialogType == PropertiesDialogType ? SqlObjectType.DatabaseProperties : requestParams.ObjectType;
-            var handler = this.GetObjectTypeHandler(objectType);
+            var handler = this.GetObjectTypeHandler(requestParams.ObjectType);
             var result = await handler.InitializeObjectView(requestParams);
             contextMap[requestParams.ContextId] = result.Context;
             await requestContext.SendResult(result.ViewInfo);

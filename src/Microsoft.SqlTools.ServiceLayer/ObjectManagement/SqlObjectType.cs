@@ -31,8 +31,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         [EnumMember(Value = "View")]
         View,
         [EnumMember(Value = "Database")]
-        Database,
-        [EnumMember(Value = "DatabaseProperties")]
-        DatabaseProperties
+        Database
     }
 }

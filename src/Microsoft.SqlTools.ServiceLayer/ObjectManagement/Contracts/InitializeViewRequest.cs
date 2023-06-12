@@ -39,10 +39,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// Urn of the object. Only set when the view is for an existing object.
         /// </summary>
         public string ObjectUrn { get; set; }
-        /// <summary>
-        /// Type of the dialog that is currently processing ex:Edit/New/Properties
-        /// </summary>
-        public string DialogType { get; set; }
     }
 
     public class InitializeViewRequest
