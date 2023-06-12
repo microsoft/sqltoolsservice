@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -18,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public GenerateDeployPlanParams Parameters { get; }
 
-        public string DeployReport { get; set; }
+        public string? DeployReport { get; set; }
 
         public GenerateDeployPlanOperation(GenerateDeployPlanParams parameters, ConnectionInfo connInfo): base(connInfo)
         {
