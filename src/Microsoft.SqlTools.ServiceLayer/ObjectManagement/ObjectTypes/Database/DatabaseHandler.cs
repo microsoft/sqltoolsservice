@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, databaseExists: false))
             {
                 if (dataContainer.Server == null)
                 {
@@ -217,15 +217,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
-        public Task Detach(string connectionUri, string objectUrn, bool throwIfNotExist)
+        public Task Detach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            using (CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true))
+            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, databaseExists: true))
             {
                 try
                 {
-                    dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
-                    // TODO
+                    var smoObject = dataContainer.Server!.GetSmoObject(objectUrn);
+                    if (smoObject != null && smoObject is Database db)
+                    {
+                        if (dropConnections)
+                        {
+                            dataContainer.Server.KillAllProcesses(db.Name);
+                            db.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                            db.Alter(SqlServer.Management.Smo.TerminationClause.RollbackTransactionsImmediately);
+                            // TODO rollback access chang eon SmoException
+                        }
+                        dataContainer.Server.DetachDatabase(db.Name, updateStatistics);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
+                    }
                 }
                 catch (FailedOperationException ex)
                 {
@@ -238,15 +252,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.CompletedTask;
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo? database = null)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, bool databaseExists, DatabaseInfo? database = null)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: configAction != ConfigAction.Create);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists);
             if (dataContainer.Server == null)
             {
                 throw new InvalidOperationException(serverNotExistsError);
             }
-            string objectUrn = (configAction != ConfigAction.Create && database != null)
+            string objectUrn = (databaseExists && database != null)
                 ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server/Database[@Name='{0}']",
                     Urn.EscapeString(database.Name))
@@ -263,7 +277,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database))
+            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, databaseExists: configAction != ConfigAction.Create, database))
             {
                 if (dataContainer.Server == null)
                 {
