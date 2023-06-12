@@ -217,6 +217,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
+        public Task Detach(string connectionUri, string objectUrn, bool throwIfNotExist)
+        {
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            using (CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: true))
+            {
+                try
+                {
+                    dataContainer.SqlDialogSubject = dataContainer.Server?.GetSmoObject(objectUrn);
+                    // TODO
+                }
+                catch (FailedOperationException ex)
+                {
+                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
+                    {
+                        throw;
+                    }
+                }
+            }
+            return Task.CompletedTask;
+        }
+
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo? database = null)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
