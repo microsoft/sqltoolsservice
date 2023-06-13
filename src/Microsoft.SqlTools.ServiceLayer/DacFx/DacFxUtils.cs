@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     {
                         List<ObjectType> finalExcludeObjects = new List<ObjectType> { };
                         var val = deployOptionsProp.GetValue(deploymentOptions);
-                        string[] excludeObjectTypeOptionsArray = (string[])val?.GetType()?.GetProperty("Value")?.GetValue(val);
+                        string[]? excludeObjectTypeOptionsArray = (string[]?)val?.GetType()?.GetProperty("Value")?.GetValue(val);
 
                         if (excludeObjectTypeOptionsArray != null)
                         {
