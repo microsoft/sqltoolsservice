@@ -527,10 +527,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             yield return AzureEdition.Basic;
             yield return AzureEdition.Standard;
             yield return AzureEdition.Premium;
-            yield return AzureEdition.DataWarehouse;
-            yield return AzureEdition.BusinessCritical;
             yield return AzureEdition.GeneralPurpose;
             yield return AzureEdition.Hyperscale;
+            yield return AzureEdition.BusinessCritical;
+            // Excluding DataWarehouse here since creating a new one is deprecated
         }
     }
 }
