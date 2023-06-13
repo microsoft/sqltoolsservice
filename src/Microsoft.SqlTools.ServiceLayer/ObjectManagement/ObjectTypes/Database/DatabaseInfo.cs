@@ -15,5 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? RecoveryModel { get; set; }
         public string? CompatibilityLevel { get; set; }
         public string? ContainmentType { get; set; }
+
+        public string? AzureBackupRedundancyLevel { get; set; }
+        public string? AzureServiceLevelObjective { get; set; }
+        public string? AzureEdition { get; set; }
+        public string? AzureMaxSize { get; set; }
     }
 }

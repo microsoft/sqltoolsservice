@@ -18,6 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// Type of system database
         /// </summary>
         public SystemDatabase SystemDatabase { get; set; }
+
+        /// <summary>
+        /// Type of reference - ArtifactReference or PackageReference
+        /// </summary>
+        public ReferenceType ReferenceType { get; set; }
     }
 
     /// <summary>
