@@ -6760,4 +6760,36 @@ The Query Processor estimates that implementing the following index could improv
     <value>No Applicable Filegroup</value>
     <comment></comment>
   </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Basic</value>
+    <comment></comment>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+    <comment></comment>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+    <comment></comment>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+    <comment></comment>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>General Purpose</value>
+    <comment></comment>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Business Critical</value>
+    <comment></comment>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Edition value is not valid</value>
+    <comment></comment>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hyperscale</value>
+    <comment></comment>
+  </data>
 </root>

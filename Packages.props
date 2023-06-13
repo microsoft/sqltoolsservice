@@ -29,7 +29,7 @@
 		<PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Assessment" Version="1.0.20230301.46" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20230407.56" />
-		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.7.0" />
+		<PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="170.9.0" />
 		<PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.20230403.55" />
 		<PackageReference Update="Microsoft.Azure.OperationalInsights" Version="1.0.0" />
 		<PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.10.0" />
@@ -47,12 +47,13 @@
 		<PackageReference Update="Azure.Storage.Blobs" Version="12.10.0" />
 		<PackageReference Update="coverlet.collector" Version="3.1.2" />
 		<PackageReference Update="coverlet.msbuild" Version="3.1.2" />
+		<PackageReference Update="TextCopy" Version="6.2.1" />
 	</ItemGroup>
 
 	<!-- When updating version of Dependencies in the below section, please also update the version in the following files:
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
 	<ItemGroup>
-		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.0" />
+		<PackageReference Update="Microsoft.Data.SqlClient" Version="5.1.1" />
 		<PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="170.12.0" />
 		<PackageReference Update="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Update="System.Configuration.ConfigurationManager" Version="6.0.1" />

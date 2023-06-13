@@ -12,6 +12,8 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using System.Linq;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.PermissionsData;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -132,6 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
             List<SearchResultItem> res = new List<SearchResultItem>();
+            var schemaTypes = SecurableUtils.GetSchemaTypes(dataContainer.Server).Select(Securable.GetSearchableObjectType).ToHashSet();
 
             foreach (string type in requestParams.ObjectTypes)
             {
@@ -143,30 +146,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     continue;
                 }
 
-                SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
-
-                if (requestParams.SearchText != null)
+                // only schema-Scoped securableTypes support schema level search
+                if (!string.IsNullOrEmpty(requestParams.Schema) && !schemaTypes.Contains(searchableObjectType))
                 {
-                    if (desc.IsDatabaseObject)
+                    continue;
+                }
+
+                SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
+                
+                if (desc.IsDatabaseObject)
+                {
+                    if (!string.IsNullOrEmpty(requestParams.Schema))
                     {
-                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText, false, true);
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText ?? string.Empty, false, requestParams.Schema, true, true);
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(requestParams.SearchText))
+                        {
+                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, requestParams.SearchText, false, true);
+                        }
+                        else
+                        {
+                            SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, true);
+                        }
+                    }
+                }
+                else
+                {
+                    // server object
+                    if (string.IsNullOrEmpty(requestParams.SearchText))
+                    {
+                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, true);
                     }
                     else
                     {
                         SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, requestParams.SearchText, false, true);
                     }
-                }
-                else
-                {
-                    if (desc.IsDatabaseObject)
-                    {
-                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, context.Parameters.Database, true);
-                    }
-                    else
-                    {
-                        SearchableObject.Search(result, searchableObjectType, dataContainer.ConnectionInfo, true);
-                    }
-
                 }
 
                 foreach (SearchableObject obj in result)

@@ -24,5 +24,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? SizeInMb { get; set; }
         public string? SpaceAvailableInMb { get; set; }
         public string? Status { get; set; }
+        public string? AzureBackupRedundancyLevel { get; set; }
+        public string? AzureServiceLevelObjective { get; set; }
+        public string? AzureEdition { get; set; }
+        public string? AzureMaxSize { get; set; }
     }
 }
