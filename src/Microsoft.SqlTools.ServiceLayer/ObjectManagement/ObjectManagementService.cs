@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public class ObjectManagementService
     {
         public const string ApplicationName = "object-management";
-        public const string PropertiesDialogType = "Properties";
         private static Lazy<ObjectManagementService> objectManagementServiceInstance = new Lazy<ObjectManagementService>(() => new ObjectManagementService());
         public static ObjectManagementService Instance => objectManagementServiceInstance.Value;
         public static ConnectionService connectionService;

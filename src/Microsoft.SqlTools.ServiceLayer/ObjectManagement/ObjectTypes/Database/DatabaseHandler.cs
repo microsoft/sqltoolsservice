@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Urn.EscapeString(database.Name))
                 : string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     "Server")) : requestParams.ObjectUrn;
-            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn) as Database;
+            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
             return dataContainer;
         }
 
