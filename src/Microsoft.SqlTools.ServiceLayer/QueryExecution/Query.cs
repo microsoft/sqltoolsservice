@@ -143,10 +143,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 .Select((batchDefinition, index) =>
                     new Batch(batchDefinition.BatchText,
                         new SelectionData(
-                            batchDefinition.StartLine-1,
-                            batchDefinition.StartColumn-1,
-                            batchDefinition.EndLine-1,
-                            batchDefinition.EndColumn-1),
+                            batchDefinition.StartLine - 1,
+                            batchDefinition.StartColumn - 1,
+                            batchDefinition.EndLine - 1,
+                            batchDefinition.EndColumn - 1),
                         index, outputFactory,
                         batchDefinition.SqlCmdCommand,
                         batchDefinition.BatchExecutionCount,
@@ -348,6 +348,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         }
 
         /// <summary>
+        /// Retrieves the column names for a result set inside a batch.
+        /// </summary>
+        /// <param name="batchIndex">The index for selecting the batch item</param>
+        /// <param name="resultSetIndex">The index for selecting the result set</param>
+        /// <returns>The column names</returns>
+        public List<string> GetColumnNames(int batchIndex, int resultSetIndex)
+        {
+            if (batchIndex < 0 || batchIndex >= Batches.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(batchIndex));
+            }
+            return Batches[batchIndex].ResultSets[resultSetIndex].Columns.Select(c => c.ColumnName).ToList();
+        }
+
+        /// <summary>
         /// Retrieves a subset of the result sets
         /// </summary>
         /// <param name="batchIndex">The index for selecting the batch item</param>
@@ -388,7 +403,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Changes the OwnerURI for the editor connection.
         /// </summary>
-        public String ConnectionOwnerURI { 
+        public String ConnectionOwnerURI
+        {
             get
             {
                 return this.editorConnection.OwnerUri;
@@ -433,7 +449,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Locate and setup the connection
                 queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
-                onErrorAction = OnErrorAction.Ignore; 
+                onErrorAction = OnErrorAction.Ignore;
                 sqlConn = queryConnection as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
@@ -642,12 +658,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 if (settings.StatisticsIO)
                 {
                     builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsIOString(true));
-                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString (false));
+                    builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsIOString(false));
                 }
 
                 if (settings.StatisticsTime)
                 {
-                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString (true));
+                    builderBefore.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(true));
                     builderAfter.AppendFormat("{0} ", helper.GetSetStatisticsTimeString(false));
                 }
             }
@@ -660,7 +676,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // append first part of exec options
             builderBefore.AppendFormat("{0} {1} {2}",
-                helper.SetRowCountString,  helper.SetTextSizeString,  helper.SetNoCountString);
+                helper.SetRowCountString, helper.SetTextSizeString, helper.SetNoCountString);
 
             if (!connection.IsSqlDW)
             {

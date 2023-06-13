@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using System.IO;
 using System.Threading;
 using Microsoft.SqlServer.Dac;
@@ -21,7 +20,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
     {
         public GenerateDeployScriptParams Parameters { get; }
 
-        public PublishResult Result { get; set; }
+        public PublishResult? Result { get; set; }
 
         public GenerateDeployScriptOperation(GenerateDeployScriptParams parameters, ConnectionInfo connInfo) : base(connInfo)
         {
