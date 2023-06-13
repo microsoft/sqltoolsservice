@@ -201,6 +201,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
+            string[] dbRolesInDb;
+            if (isSqlAzure && string.Compare(parameters.Database, "master", true) == 0)
+            {
+                dbRolesInDb = currentUserPrototype.DatabaseRoleNames.Where(SecurableUtils.SpecialDbRolesInSqlDbMaster.Contains).ToArray();
+            }
+            else
+            {
+                dbRolesInDb = currentUserPrototype.DatabaseRoleNames.ToArray();
+            }
+
             UserViewInfo userViewInfo = new UserViewInfo()
             {
                 ObjectInfo = new UserInfo()
@@ -219,7 +229,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Languages = languageOptionsList.ToArray(),
                 Schemas = currentUserPrototype.SchemaNames.ToArray(),
                 Logins = logins,
-                DatabaseRoles = currentUserPrototype.DatabaseRoleNames.ToArray(),
+                DatabaseRoles = dbRolesInDb,
                 SupportedSecurableTypes = SecurableUtils.GetSecurableTypeMetadata(SqlObjectType.User, dataContainer.Server.Version, parameters.Database, dataContainer.Server.DatabaseEngineType, dataContainer.Server.DatabaseEngineEdition)
             };
             var context = new UserViewContext(parameters, dataContainer.ServerConnection, currentUserPrototype.CurrentState);
