@@ -1044,17 +1044,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    int totalCount = 0;
-                    foreach (KeyValuePair<string, ConnectionInfo> entry in OwnerToConnectionMap)
-                    {
-                        foreach (DbConnection value in entry.Value.AllConnections) {
-                            if(value.ConnectionString == connection.ConnectionString) {
-                                totalCount++;
+                    bool disconnect = false; 
+                    if (connection.ConnectionString != null){
+                        int totalCount = 0;
+                        foreach (KeyValuePair<string, ConnectionInfo> entry in OwnerToConnectionMap)
+                        {
+                            foreach (DbConnection value in entry.Value.AllConnections) {
+                                if(value.ConnectionString == connection.ConnectionString) {
+                                    totalCount++;
+                                }
                             }
                         }
-                    }
 
-                    if(totalCount == 1) {
+                        if(totalCount == 1) {
+                           disconnect = true;
+                        }
+                    }
+                    else {
+                        disconnect = true;
+                    }
+                    
+                    if(disconnect) {
                         connection.Close();
                     }
                 }
