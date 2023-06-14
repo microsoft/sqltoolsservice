@@ -5,15 +5,13 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Diagnostics.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
 {
     public class GetDiagnosticsParams
     {
-        public Number errorCode { get; set; }
+        public int errorCode { get; set; }
 
         public string errorMessage { get; set; }
 

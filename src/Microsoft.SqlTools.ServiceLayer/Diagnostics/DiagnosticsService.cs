@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Diagnostics
         {
             await requestContext.SendResult(new GetDiagnosticsResult
             {
-                recommendation = 'test';
+                recommendation = "test"
             });
         }
 
