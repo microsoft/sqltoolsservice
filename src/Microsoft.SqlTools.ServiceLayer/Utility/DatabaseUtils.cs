@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         /// <returns>Returns as double type</returns>
         public static double ConvertKbtoMb(double valueInKb)
         {
-            return (Math.Round(valueInKb / 1000, 2));
+            return (Math.Round(valueInKb / 1024, 2));
         }
     }
 }
