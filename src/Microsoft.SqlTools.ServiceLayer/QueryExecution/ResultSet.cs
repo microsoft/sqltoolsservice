@@ -79,7 +79,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <summary>
         /// Row count to use in special scenarios where we want to override the number of rows.
         /// </summary>
-        private long? rowCountOverride=null;
+        private long? rowCountOverride = null;
 
         /// <summary>
         /// The special action which applied to this result set
@@ -532,12 +532,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     using (var fileReader = fileFactory.GetReader(outputFileName))
                     using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
+                        Logger.Verbose($"Started exportig {RowCount} rows to file: {outputFileName}");
+                        var recentLogTime = DateTime.Now;
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
                         {
                             var row = fileReader.ReadRow(fileOffsets[i], i, Columns);
                             fileWriter.WriteRow(row, Columns);
+                            if (DateTime.Now.Subtract(recentLogTime).TotalSeconds > 1)
+                            {
+                                Logger.Verbose($"Export progress: {i - rowStartIndex + 1}/{RowCount}.");
+                                recentLogTime = DateTime.Now;
+                            }
                         }
+                        Logger.Verbose($"Exported {RowCount} rows to file: {outputFileName}");
                         if (successHandler != null)
                         {
                             await successHandler(saveParams);
@@ -622,7 +630,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Sends the ResultsUpdated message if the number of rows has changed since last send.
         /// </summary>
         /// <param name="stateInfo"></param>
-        private void SendResultAvailableOrUpdated (object stateInfo = null)
+        private void SendResultAvailableOrUpdated(object stateInfo = null)
         {
             // Make the call to send current results and synchronously wait for it to finish
             //
@@ -638,7 +646,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 //
                 sendResultsSemphore.Wait();
 
-                var currentResultSetSnapshot = (ResultSet) MemberwiseClone();
+                var currentResultSetSnapshot = (ResultSet)MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.
                 {
                     // Fire off results Available task and await it
