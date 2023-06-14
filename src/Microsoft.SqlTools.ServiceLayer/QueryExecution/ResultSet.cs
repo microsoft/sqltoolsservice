@@ -532,7 +532,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     using (var fileReader = fileFactory.GetReader(outputFileName))
                     using (var fileWriter = fileFactory.GetWriter(saveParams.FilePath, Columns))
                     {
-                        Logger.Verbose($"Started exportig {RowCount} rows to file: {outputFileName}");
+                        Logger.Verbose($"Started exporting {RowCount} rows to file: {outputFileName}");
                         var recentLogTime = DateTime.Now;
                         // Iterate over the rows that are in the selected row set
                         for (long i = rowStartIndex; i < rowEndIndex; ++i)
