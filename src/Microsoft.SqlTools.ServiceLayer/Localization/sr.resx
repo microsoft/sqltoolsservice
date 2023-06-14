@@ -838,10 +838,6 @@
     <value>Linked Servers</value>
     <comment></comment>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Linked Server Logins</value>
-    <comment></comment>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>Logins</value>
     <comment></comment>
