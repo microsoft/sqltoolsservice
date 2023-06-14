@@ -131,12 +131,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 DateCreated = smoDatabase.CreateDate.ToString(),
                                 LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? "None" : smoDatabase.LastBackupDate.ToString(),
                                 LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? "None" : smoDatabase.LastLogBackupDate.ToString(),
-                                MemoryAllocatedToMemoryOptimizedObjectsInMb = ConvertKbtoMbString(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
-                                MemoryUsedByMemoryOptimizedObjectsInMb = ConvertKbtoMbString(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
-                                NumberOfUsers = smoDatabase.Users.Count.ToString(),
-                                Owner = smoDatabase.Owner.ToString(),
-                                SizeInMb = smoDatabase.Size.ToString("0.00") + " MB",
-                                SpaceAvailableInMb = ConvertKbtoMbString(smoDatabase.SpaceAvailable),
+                                MemoryAllocatedToMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                MemoryUsedByMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                NumberOfUsers = smoDatabase.Users.Count,
+                                Owner = smoDatabase.Owner,
+                                SizeInMb = smoDatabase.Size,
+                                SpaceAvailableInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.SpaceAvailable),
                                 Status = smoDatabase.Status.ToString()
                             };
                         }
@@ -247,14 +247,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new InvalidOperationException(serverNotExistsError);
             }
             string objectUrn = requestParams.ObjectUrn;
-            if (!requestParams.IsNewObject)
+            if (requestParams.IsNewObject)
             {
-                objectUrn = ((configAction != ConfigAction.Create && database != null)
+                objectUrn = (configAction != ConfigAction.Create && database != null)
                     ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
                         "Server/Database[@Name='{0}']",
                         Urn.EscapeString(database.Name))
                     : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        "Server"));
+                        "Server");
             }
             dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
             return dataContainer;
@@ -704,16 +704,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return sizes.ToArray();
-        }
-
-        /// <summary>
-        /// Converts value in KBs to MBs with two decimal places
-        /// </summary>
-        /// <param name="valueInKb">value in kilo bytes</param>
-        /// <returns>Returns as String</returns>
-        private string ConvertKbtoMbString(double valueInKb)
-        {
-            return (Math.Round(valueInKb / 1000, 2)).ToString("0.00") + " MB";
         }
     }
 }

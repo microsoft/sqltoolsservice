@@ -18,11 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? DateCreated { get; set; }
         public string? LastDatabaseBackup { get; set; }
         public string? LastDatabaseLogBackup { get; set; }
-        public string? MemoryAllocatedToMemoryOptimizedObjectsInMb { get; set; }
-        public string? MemoryUsedByMemoryOptimizedObjectsInMb { get; set; }
-        public string? NumberOfUsers { get; set; }
-        public string? SizeInMb { get; set; }
-        public string? SpaceAvailableInMb { get; set; }
+        public double? MemoryAllocatedToMemoryOptimizedObjectsInMb { get; set; }
+        public double? MemoryUsedByMemoryOptimizedObjectsInMb { get; set; }
+        public int? NumberOfUsers { get; set; }
+        public double? SizeInMb { get; set; }
+        public double? SpaceAvailableInMb { get; set; }
         public string? Status { get; set; }
         public string? AzureBackupRedundancyLevel { get; set; }
         public string? AzureServiceLevelObjective { get; set; }

@@ -345,5 +345,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             return new string(nameChars);
         }
         private static readonly HashSet<char> illegalFilenameCharacters = new HashSet<char>(new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' });
+
+        /// <summary>
+        /// Converts value in KBs to MBs
+        /// </summary>
+        /// <param name="valueInKb">value in kilo bytes</param>
+        /// <returns>Returns as double type</returns>
+        public static double ConvertKbtoMb(double valueInKb)
+        {
+            return (Math.Round(valueInKb / 1000, 2));
+        }
     }
 }
