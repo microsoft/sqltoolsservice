@@ -182,7 +182,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        propertyValue = $"'{propertyValue}'";
+                        if (FilterType == FilterType.STARTSWITH)
+                        {
+                            propertyValue = $"'{propertyValue}%'";
+                        }
+                        else
+                        {
+                            propertyValue = $"'{propertyValue}'";
+                        }
                     }
                     else if (Type == typeof(Enum))
                     {
@@ -219,6 +226,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                             break;
                         case FilterType.ISNULL:
                             filterText = $"isnull(@{Property})";
+                            break;
+                        case FilterType.STARTSWITH:
+                        case FilterType.LIKE:
+                            filterText = $"like(@{Property}, {propertyValue})";
                             break;
                     }
                 }
@@ -276,6 +287,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         LESSTHANOREQUAL,
         GREATERTHANOREQUAL,
         BETWEEN,
-        NOTBETWEEN
+        NOTBETWEEN,
+        STARTSWITH,
+        LIKE
     }
 }

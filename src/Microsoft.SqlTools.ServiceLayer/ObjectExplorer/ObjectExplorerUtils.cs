@@ -143,6 +143,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     filterType = FilterType.NOTBETWEEN;
                     isNotFilter = true;
                     break;
+                case NodeFilterOperator.StartsWith:
+                    filterType = FilterType.STARTSWITH;
+                    break;
+                case NodeFilterOperator.Like:
+                    filterType = FilterType.LIKE;
+                    break;
             }
 
 

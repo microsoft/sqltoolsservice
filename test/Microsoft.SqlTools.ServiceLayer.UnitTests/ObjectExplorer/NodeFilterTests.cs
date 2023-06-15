@@ -610,5 +610,45 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
             Assert.Throws<IndexOutOfRangeException>(() => INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All), "Error not thrown when the array contains single value for between operator");
         }
+
+        [Test]
+        public void TestStartsWithFilter()
+        {
+            // Testing text filter with starts with operator
+            var filterList = new List<NodePropertyFilter>
+            {
+                new NodePropertyFilter()
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    ValidFor = ValidForFlag.All,
+                    Values = new List<object> { "test" },
+                    FilterType = FilterType.STARTSWITH,
+                    IsDateTime = false
+                }
+            };
+            var filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
+            Assert.AreEqual("[(like(@Name, 'test%'))]", filterString, "Error parsing text filter with starts with operator");
+        }
+
+        [Test]
+        public void TestLikeFilter()
+        {
+            // Testing text filter with like operator
+            var filterList = new List<NodePropertyFilter>
+            {
+                new NodePropertyFilter()
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    ValidFor = ValidForFlag.All,
+                    Values = new List<object> { "test%" },
+                    FilterType = FilterType.LIKE,
+                    IsDateTime = false
+                }
+            };
+            var filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
+            Assert.AreEqual("[(like(@Name, 'test%'))]", filterString, "Error parsing text filter with like operator");
+        }
     }
 }
