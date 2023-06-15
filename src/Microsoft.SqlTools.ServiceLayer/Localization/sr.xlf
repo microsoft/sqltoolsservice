@@ -8321,6 +8321,11 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">Hyperscale</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="new">None</target>
+        <note></note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

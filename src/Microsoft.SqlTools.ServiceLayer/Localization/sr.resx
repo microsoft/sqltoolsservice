@@ -6760,6 +6760,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>No Applicable Filegroup</value>
     <comment></comment>
   </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
   <data name="BasicAzureEdition" xml:space="preserve">
     <value>Basic</value>
     <comment></comment>
