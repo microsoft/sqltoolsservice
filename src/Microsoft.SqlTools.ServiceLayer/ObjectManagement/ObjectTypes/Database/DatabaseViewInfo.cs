@@ -14,5 +14,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] CompatibilityLevels { get; set; }
         public string[] ContainmentTypes { get; set; }
         public string[] RecoveryModels { get; set; }
+
+        public bool IsAzureDB { get; set; }
+        public string[] AzureBackupRedundancyLevels { get; set; }
+        public AzureEditionDetails[] AzureServiceLevelObjectives { get; set; }
+        public string[] AzureEditions { get; set; }
+        public AzureEditionDetails[] AzureMaxSizes { get; set; }
+    }
+
+    public class AzureEditionDetails
+    {
+        public string EditionDisplayName { get; set; }
+        public string[] Details { get; set; }
     }
 }

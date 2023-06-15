@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>Связанные серверы</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Имена входа на связанный сервер</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>Имена для входа</value>
   </data>
@@ -4623,5 +4620,440 @@
   </data>
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>Схема и данные</value>
+  </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>Изменение авторасширения для {0}</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>Изменение максимального размера для {0}</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>Изменение параметров автоматического увеличения</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>Изменение максимального размера</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>Создание базы данных</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>В режиме совместимости версий 6.0 и 6.5 свойства баз данных нельзя задать или просмотреть.</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>Нельзя изменить путь к существующим файлам базы данных.</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>На сервере уже существует база данных с именем "{0}".</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>Свойства базы данных</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>Имя файла не было задано. Введите имя файла.</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>Невозможно создать файл с именем "{0}", поскольку в имени использован недопустимый знак "{1}".</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>Невозможно создать файл с именем "{0}", поскольку имя начинается с пробела.</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>Имя базы данных не может состоять только из пробельных символов.</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>Текущая файловая группа по умолчанию: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>Создание файловой группы для {0}</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>Файлы</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>Только для чтения</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>Автоматическое увеличение всех файлов</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>Автоматическое увеличение/максимальный размер</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;по умолчанию&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>Файловая группа</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>Логическое имя</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>Тип файла</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>Начальный размер (МБ)</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>Размер (МБ)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;создать файловую группу&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>Путь</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>Имя файла</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;неформатированный носитель&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>С неполным протоколированием</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>Полный</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>Простой</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>Выбор владельца базы данных</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>Расширенные свойства</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>Файловые группы</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>Общие</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>Параметры</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>Настройка целевого уровня обслуживания</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>Создание базы данных</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>С шагом по {0} МБ до {1} МБ</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>С шагом по {0}% до {1} МБ </value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>С шагом по {0} МБ, без ограничений</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>С шагом по {0} %, без ограничений</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>Без ограничений</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>Ограничено {0} МБ</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>Автоматический</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>Параметры сортировки</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>Курсор</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>Разное</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>Восстановление</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>Состояние</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL по умолчанию </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>Значения ANSI NULLS включены </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>Включено заполнение ANSI </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>Включены предупреждения ANSI </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>Включено арифметическое прерывание </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>Автоматическое закрытие </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>Статистика автоматического создания </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>Автоматическое сжатие </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>Автоматическое обновление статистики </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>Асинхронное автоматическое обновление статистики</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>С учетом регистра </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>Закрывать курсор при разрешении фиксации </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>Параметры сортировки</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>Объединение со значением NULL дает NULL </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>Уровень совместимости базы данных </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>Состояние базы данных </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>Курсор по умолчанию </value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>Полнотекстовое индексирование включено </value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>Прерывание округления </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>Проверка страниц </value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>Включены идентификаторы с разделителем </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>База данных доступна только для чтения </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>Включены рекурсивные триггеры </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>Ограничение доступа </value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Выбор/массовое копирование </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>Учитывать приоритет компонента Service Broker</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Идентификатор компонента Service Broker</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Включен компонент Broker</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>Усечение журнала на контрольной точке </value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>Включены межбазовые цепочки владения.</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>Достоверность данных</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>Включена оптимизация корреляции дат</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>Параметризация</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>Принудительное</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>Простой</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>Данные СТРОК</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>ЖУРНАЛ</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>Данные ФАЙЛОВОГО ПОТОКА</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>Нет данных</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;путь по умолчанию&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Открытые соединения</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>Чтобы изменить свойства базы данных, SQL Server должен закрыть все остальные соединения с этой базой данных. Изменить свойства и закрыть остальные соединения?</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>ЗАКРЫТО_АВТОМАТИЧЕСКИ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>АВАРИЙНЫЙ РЕЖИМ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>НЕДОСТУПНО</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>НОРМАЛЬНЫЙ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>АВТОНОМНЫЙ РЕЖИМ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>ВОССТАНОВЛЕНИЕ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>ОЖИДАНИЕ ВОССТАНОВЛЕНИЯ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>ВОССТАНОВЛЕНИЕ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>ЗАВЕРШЕНИЕ РАБОТЫ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>РЕЖИМ ОЖИДАНИЯ</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>ПОДОЗРИТЕЛЬНЫЙ</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>ГЛОБАЛЬНЫЙ</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>ЛОКАЛЬНЫЙ</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>НЕСКОЛЬКО_ПОЛЬЗОВАТЕЛЕЙ</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>ОГРАНИЧЕННЫЙ_ПОЛЬЗОВАТЕЛЬ</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>ОДИН_ПОЛЬЗОВАТЕЛЬ</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>КОНТРОЛЬНАЯ СУММА</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>НЕТ</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>ОБНАРУЖЕНИЕ_ПОВРЕЖДЕННОЙ_СТРАНИЦЫ</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>Включен формат хранения VarDecimal</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>Шифрование включено</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>ВЫКЛ</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>ВКЛ</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>ПЕРВИЧНЫЙ</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>Для политики распространения HASH количество начальных хэш-столбцов указывать не обязательно. Оно может составлять от 1 до 16 столбцов</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>Частичное</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>Файлы FILESTREAM</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>Применимая файловая группа отсутствует</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Базовый</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Стандартный</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Премиум</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>Хранилище данных</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Общего назначения</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Критически важный для бизнеса</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Недопустимое значение выпуска</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Гипермасштабирование</value>
   </data>
 </root>

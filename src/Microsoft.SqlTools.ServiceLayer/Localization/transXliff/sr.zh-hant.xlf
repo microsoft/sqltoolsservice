@@ -657,11 +657,6 @@
         <target state="translated">連結的伺服器</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">連結的伺服器登入</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
         <target state="translated">登入</target>
@@ -7594,6 +7589,731 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="FilterDurabilitySchemaAndData">
         <source>Schema and Data</source>
         <target state="translated">結構描述及資料</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_title">
+        <source>Change Autogrowth for {0}</source>
+        <target state="translated">變更 {0} 的自動成長</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_filestreamtitle">
+        <source>Change Maxsize for {0}</source>
+        <target state="translated">變更 {0} 的大小上限</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_defaulttitle">
+        <source>Change Autogrowth</source>
+        <target state="translated">變更自動成長</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="autogrowth_dialog_defaultfilestreamtitle">
+        <source>Change Maxsize</source>
+        <target state="translated">變更大小上限</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_shiloh">
+        <source>SQL Server 2000 (80)</source>
+        <target state="translated">SQL Server 2000 (80)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sphinx">
+        <source>SQL Server 7.0 (70)</source>
+        <target state="translated">SQL Server 7.0 (70)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_yukon">
+        <source>SQL Server 2005 (90)</source>
+        <target state="translated">SQL Server 2005 (90)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="createDatabase_title">
+        <source>New Database</source>
+        <target state="translated">新增資料庫</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_60compatibility">
+        <source>Database properties cannot be set or viewed for databases in 6.0 or 6.5 compatibility mode.</source>
+        <target state="translated">無法設定或檢視 6.0 或 6.5 相容性模式之資料庫的資料庫屬性。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_cantModifyExistingFilePath">
+        <source>You cannot modify the path for existing database files.</source>
+        <target state="translated">您不能修改現有資料庫檔案的路徑。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_databaseAlreadyExists">
+        <source>There is already a database named "{0}" on the server.</source>
+        <target state="translated">伺服器上已經有名稱為 "{0}" 的資料庫。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_databaseProperties_title">
+        <source>Database Properties</source>
+        <target state="translated">資料庫屬性</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_emptyFileName">
+        <source>File name was empty. Provide a file name for the file.</source>
+        <target state="translated">檔案名稱是空的。請為檔案提供檔案名稱。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_fileNameContainsIllegalCharacter">
+        <source>Cannot create a file with name '{0}' because it contains the invalid character '{1}'.</source>
+        <target state="translated">無法建立名稱為 '{0}' 的檔案，因為其中包含無效字元 '{1}'。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_fileNameStartsWithSpace">
+        <source>Cannot create a file with name '{0}' because it begins with a space character.</source>
+        <target state="translated">無法建立名稱為 '{0}' 的檔案，因為它的開頭是空格字元。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_whitespaceDatabaseName">
+        <source>A database name cannot consist of all whitespace characters.</source>
+        <target state="translated">資料庫名稱不能全部是空白字元。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroup_dialog_defaultFilegroup">
+        <source>Current default filegroup: {0}</source>
+        <target state="translated">目前的預設檔案群組: {0}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroup_dialog_title">
+        <source>New Filegroup for {0}</source>
+        <target state="translated">為 {0} 新增檔案群組</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_default">
+        <source>Default</source>
+        <target state="translated">預設</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_files">
+        <source>Files</source>
+        <target state="translated">檔案</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_name">
+        <source>Name</source>
+        <target state="translated">名稱</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_readonly">
+        <source>Read-Only</source>
+        <target state="translated">唯讀</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_autogrowAllFiles">
+        <source>Autogrow All Files</source>
+        <target state="translated">自動成長所有檔案</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_autogrowth">
+        <source>Autogrowth / Maxsize</source>
+        <target state="translated">自動成長/大小上限</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_builderText">
+        <source>...</source>
+        <target state="new">...</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_default">
+        <source>&lt;default&gt;</source>
+        <target state="translated">&lt;預設&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_fileGroup">
+        <source>Filegroup</source>
+        <target state="translated">檔案群組</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_fileName">
+        <source>Logical Name</source>
+        <target state="translated">邏輯名稱</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_fileType">
+        <source>File Type</source>
+        <target state="translated">檔案類型</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_initialSize">
+        <source>Initial Size (MB)</source>
+        <target state="translated">初始大小 (MB)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_currentSize">
+        <source>Size (MB)</source>
+        <target state="translated">大小 (MB)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_newFilegroup">
+        <source>&lt;new filegroup&gt;</source>
+        <target state="translated">&lt;新增檔案群組&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_path">
+        <source>Path</source>
+        <target state="translated">路徑</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_physicalFileName">
+        <source>File Name</source>
+        <target state="translated">檔案名稱</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_rawDevice">
+        <source>&lt;raw device&gt;</source>
+        <target state="translated">&lt;原始裝置&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_bulkLogged">
+        <source>Bulk-logged</source>
+        <target state="translated">大量記錄</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_full">
+        <source>Full</source>
+        <target state="translated">完整</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_recoveryModel_simple">
+        <source>Simple</source>
+        <target state="translated">簡單</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_titleSearchOwner">
+        <source>Select Database Owner</source>
+        <target state="translated">選取資料庫擁有者</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_extendedPropertiesNode_name">
+        <source>Extended Properties</source>
+        <target state="translated">擴充屬性</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_filegroupsNode_name">
+        <source>Filegroups</source>
+        <target state="translated">檔案群組</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_generalNode_name">
+        <source>General</source>
+        <target state="translated">一般</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_optionsNode_name">
+        <source>Options</source>
+        <target state="translated">選項</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_capabilitiesNode_name">
+        <source>Configure SLO</source>
+        <target state="translated">設定 SLO</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="leftPane_topNode_name">
+        <source>New Database</source>
+        <target state="translated">新增資料庫</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_disabled">
+        <source>None</source>
+        <target state="translated">無</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_restrictedGrowthByMB">
+        <source>By {0} MB, Limited to {1} MB</source>
+        <target state="translated">以 {0} MB 為單位，限制為 {1} MB</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_restrictedGrowthByPercent">
+        <source>By {0} percent, Limited to {1} MB </source>
+        <target state="translated">以百分之 {0} 為單位，限制為 {1} MB </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByMB">
+        <source>By {0} MB, Unlimited</source>
+        <target state="translated">以 {0} MB 為單位，無限制</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unrestrictedGrowthByPercent">
+        <source>By {0} percent, Unlimited</source>
+        <target state="translated">以百分之 {0} 為單位，無限制</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_unlimitedfilestream">
+        <source>Unlimited</source>
+        <target state="translated">無限制</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_autogrowth_limitedfilestream">
+        <source>Limited to {0} MB</source>
+        <target state="translated">限制為 {0} MB</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_automatic">
+        <source>Automatic</source>
+        <target state="translated">自動</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_servicebroker">
+        <source>Service Broker</source>
+        <target state="translated">Service Broker</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_collation">
+        <source>Collation</source>
+        <target state="translated">定序</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_cursor">
+        <source>Cursor</source>
+        <target state="translated">資料指標</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_misc">
+        <source>Miscellaneous</source>
+        <target state="translated">其他</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_recovery">
+        <source>Recovery</source>
+        <target state="translated">復原</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_category_state">
+        <source>State</source>
+        <target state="translated">狀態</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiNullDefault">
+        <source>ANSI NULL Default </source>
+        <target state="translated">ANSI NULL 預設值 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiNulls">
+        <source>ANSI NULLS Enabled </source>
+        <target state="translated">ANSI NULLS 已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiPadding">
+        <source>ANSI Padding Enabled </source>
+        <target state="translated">ANSI 填補已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_ansiWarnings">
+        <source>ANSI Warnings Enabled </source>
+        <target state="translated">ANSI 警告已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_arithabort">
+        <source>Arithmetic Abort Enabled </source>
+        <target state="translated">算術中止已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoClose">
+        <source>Auto Close </source>
+        <target state="translated">自動關閉 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoCreateStatistics">
+        <source>Auto Create Statistics </source>
+        <target state="translated">自動建立統計資料 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoShrink">
+        <source>Auto Shrink </source>
+        <target state="translated">自動壓縮 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoUpdateStatistics">
+        <source>Auto Update Statistics </source>
+        <target state="translated">自動更新統計資料 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_autoUpdateStatisticsAsync">
+        <source>Auto Update Statistics Asynchronously</source>
+        <target state="translated">自動非同步更新統計資料</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_caseSensitive">
+        <source>Case Sensitive </source>
+        <target state="translated">區分大小寫 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_closeCursorOnCommit">
+        <source>Close Cursor on Commit Enabled </source>
+        <target state="translated">認可時關閉資料指標已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_collation">
+        <source>Collation</source>
+        <target state="translated">定序</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_concatNullYieldsNull">
+        <source>Concatenate Null Yields Null </source>
+        <target state="translated">串連 Null 產生 Null </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseCompatibilityLevel">
+        <source>Database Compatibility Level </source>
+        <target state="translated">資料庫相容性層級 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState">
+        <source>Database State </source>
+        <target state="translated">資料庫狀態 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor">
+        <source>Default Cursor </source>
+        <target state="translated">預設資料指標 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_fullTextIndexing">
+        <source>Full-Text Indexing Enabled </source>
+        <target state="translated">已啟用全文檢索索引 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_numericRoundAbort">
+        <source>Numeric Round-Abort </source>
+        <target state="translated">數值四捨五入中止 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify">
+        <source>Page Verify </source>
+        <target state="translated">頁面驗證 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_quotedIdentifier">
+        <source>Quoted Identifiers Enabled </source>
+        <target state="translated">引號識別項已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_readOnly">
+        <source>Database Read-Only </source>
+        <target state="translated">資料庫唯讀 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_recursiveTriggers">
+        <source>Recursive Triggers Enabled </source>
+        <target state="translated">遞迴觸發程序已啟用 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess">
+        <source>Restrict Access </source>
+        <target state="translated">限制存取 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_selectIntoBulkCopy">
+        <source>Select Into/Bulk Copy </source>
+        <target state="translated">Select Into/大量複製 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_honorBrokerPriority">
+        <source>Honor Broker Priority</source>
+        <target state="translated">接受 Broker 優先權</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_serviceBrokerGuid">
+        <source>Service Broker Identifier</source>
+        <target state="translated">Service Broker 識別碼</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_brokerEnabled">
+        <source>Broker Enabled</source>
+        <target state="translated">Broker 已啟用</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_truncateLogOnCheckpoint">
+        <source>Truncate Log on Checkpoint </source>
+        <target state="translated">在檢查點截斷記錄 </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_dbChaining">
+        <source>Cross-database Ownership Chaining Enabled</source>
+        <target state="translated">已啟用跨資料庫擁有權鏈結</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_trustworthy">
+        <source>Trustworthy</source>
+        <target state="translated">可信任</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_dateCorrelationOptimization">
+        <source>Date Correlation Optimization Enabled</source>
+        <target state="translated">已啟用日期相互關聯最佳化</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization">
+        <source>Parameterization</source>
+        <target state="translated">參數化</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization_value_forced">
+        <source>Forced</source>
+        <target state="translated">強制</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_parameterization_value_simple">
+        <source>Simple</source>
+        <target state="translated">簡單</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_dataFile">
+        <source>ROWS Data</source>
+        <target state="translated">資料列資料</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_logFile">
+        <source>LOG</source>
+        <target state="translated">記錄</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_filestreamFile">
+        <source>FILESTREAM Data</source>
+        <target state="translated">FILESTREAM 資料</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_noFileGroup">
+        <source>Not Applicable</source>
+        <target state="translated">不適用</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_defaultpathstring">
+        <source>&lt;default path&gt;</source>
+        <target state="translated">&lt;預設路徑&gt;</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="title_openConnectionsMustBeClosed">
+        <source>Open Connections</source>
+        <target state="translated">開啟連線</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="warning_openConnectionsMustBeClosed">
+        <source>To change the database properties, SQL Server must close all other connections to the database. Are you sure you want to change the properties and close all other connections?</source>
+        <target state="translated">若要變更資料庫屬性，SQL Server 必須關閉至資料庫的其他所有連接。您確定要變更屬性，並關閉其他所有連接嗎?</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_autoClosed">
+        <source>AUTO_CLOSED</source>
+        <target state="translated">AUTO_CLOSED</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_emergency">
+        <source>EMERGENCY</source>
+        <target state="translated">EMERGENCY</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_inaccessible">
+        <source>INACCESSIBLE</source>
+        <target state="translated">INACCESSIBLE</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_normal">
+        <source>NORMAL</source>
+        <target state="translated">NORMAL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_offline">
+        <source>OFFLINE</source>
+        <target state="translated">OFFLINE</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_recovering">
+        <source>RECOVERING</source>
+        <target state="translated">RECOVERING</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_recoveryPending">
+        <source>RECOVERY PENDING</source>
+        <target state="translated">RECOVERY PENDING</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_restoring">
+        <source>RESTORING</source>
+        <target state="translated">RESTORING</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_shutdown">
+        <source>SHUTDOWN</source>
+        <target state="translated">SHUTDOWN</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_standby">
+        <source>STANDBY</source>
+        <target state="translated">STANDBY</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databaseState_value_suspect">
+        <source>SUSPECT</source>
+        <target state="translated">SUSPECT</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor_value_global">
+        <source>GLOBAL</source>
+        <target state="translated">GLOBAL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_defaultCursor_value_local">
+        <source>LOCAL</source>
+        <target state="translated">LOCAL</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_multiple">
+        <source>MULTI_USER</source>
+        <target state="translated">MULTI_USER</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_restricted">
+        <source>RESTRICTED_USER</source>
+        <target state="translated">RESTRICTED_USER</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_restrictAccess_value_single">
+        <source>SINGLE_USER</source>
+        <target state="translated">SINGLE_USER</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_checksum">
+        <source>CHECKSUM</source>
+        <target state="translated">CHECKSUM</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_none">
+        <source>NONE</source>
+        <target state="translated">NONE</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_pageVerify_value_tornPageDetection">
+        <source>TORN_PAGE_DETECTION</source>
+        <target state="translated">TORN_PAGE_DETECTION</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_varDecimalEnabled">
+        <source>VarDecimal Storage Format Enabled</source>
+        <target state="translated">VarDecimal 儲存格式已啟用</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_katmai">
+        <source>SQL Server 2008 (100)</source>
+        <target state="translated">SQL Server 2008 (100)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_encryptionEnabled">
+        <source>Encryption Enabled</source>
+        <target state="translated">已啟用加密</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_off">
+        <source>OFF</source>
+        <target state="translated">OFF</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_on">
+        <source>ON</source>
+        <target state="translated">ON</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
+        <source>PRIMARY</source>
+        <target state="translated">PRIMARY</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="error_db_prop_invalidleadingColumns">
+        <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</source>
+        <target state="translated">散發原則 HASH 的前置雜湊資料行是選擇性的，但應該介於 1 到 16 個資料行之間。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_denali">
+        <source>SQL Server 2012 (110)</source>
+        <target state="translated">SQL Server 2012 (110)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql14">
+        <source>SQL Server 2014 (120)</source>
+        <target state="translated">SQL Server 2014 (120)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql15">
+        <source>SQL Server 2016 (130)</source>
+        <target state="translated">SQL Server 2016 (130)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sql2017">
+        <source>SQL Server 2017 (140)</source>
+        <target state="translated">SQL Server 2017 (140)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sqlv150">
+        <source>SQL Server 2019 (150)</source>
+        <target state="translated">SQL Server 2019 (150)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="compatibilityLevel_sqlv160">
+        <source>SQL Server 2022 (160)</source>
+        <target state="translated">SQL Server 2022 (160)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_containmentType_None">
+        <source>None</source>
+        <target state="translated">無</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="general_containmentType_Partial">
+        <source>Partial</source>
+        <target state="translated">部分</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="filegroups_filestreamFiles">
+        <source>FILESTREAM Files</source>
+        <target state="translated">FILESTREAM 檔案</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_file_noApplicableFileGroup">
+        <source>No Applicable Filegroup</source>
+        <target state="translated">沒有適用的檔案群組</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="translated">基本</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="translated">標準</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="translated">進階版</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="translated">DataWarehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="translated">一般目的</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="translated">商務關鍵性</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="translated">版本值無效</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="translated">超大規模資料庫</target>
         <note></note>
       </trans-unit>
     </body>

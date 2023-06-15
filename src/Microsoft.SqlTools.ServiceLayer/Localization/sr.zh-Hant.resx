@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>連結的伺服器</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>連結的伺服器登入</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>登入</value>
   </data>
@@ -4623,5 +4620,440 @@
   </data>
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
     <value>結構描述及資料</value>
+  </data>
+  <data name="autogrowth_dialog_title" xml:space="preserve">
+    <value>變更 {0} 的自動成長</value>
+  </data>
+  <data name="autogrowth_dialog_filestreamtitle" xml:space="preserve">
+    <value>變更 {0} 的大小上限</value>
+  </data>
+  <data name="autogrowth_dialog_defaulttitle" xml:space="preserve">
+    <value>變更自動成長</value>
+  </data>
+  <data name="autogrowth_dialog_defaultfilestreamtitle" xml:space="preserve">
+    <value>變更大小上限</value>
+  </data>
+  <data name="compatibilityLevel_shiloh" xml:space="preserve">
+    <value>SQL Server 2000 (80)</value>
+  </data>
+  <data name="compatibilityLevel_sphinx" xml:space="preserve">
+    <value>SQL Server 7.0 (70)</value>
+  </data>
+  <data name="compatibilityLevel_yukon" xml:space="preserve">
+    <value>SQL Server 2005 (90)</value>
+  </data>
+  <data name="createDatabase_title" xml:space="preserve">
+    <value>新增資料庫</value>
+  </data>
+  <data name="error_60compatibility" xml:space="preserve">
+    <value>無法設定或檢視 6.0 或 6.5 相容性模式之資料庫的資料庫屬性。</value>
+  </data>
+  <data name="error_cantModifyExistingFilePath" xml:space="preserve">
+    <value>您不能修改現有資料庫檔案的路徑。</value>
+  </data>
+  <data name="error_databaseAlreadyExists" xml:space="preserve">
+    <value>伺服器上已經有名稱為 "{0}" 的資料庫。</value>
+  </data>
+  <data name="error_databaseProperties_title" xml:space="preserve">
+    <value>資料庫屬性</value>
+  </data>
+  <data name="error_emptyFileName" xml:space="preserve">
+    <value>檔案名稱是空的。請為檔案提供檔案名稱。</value>
+  </data>
+  <data name="error_fileNameContainsIllegalCharacter" xml:space="preserve">
+    <value>無法建立名稱為 '{0}' 的檔案，因為其中包含無效字元 '{1}'。</value>
+  </data>
+  <data name="error_fileNameStartsWithSpace" xml:space="preserve">
+    <value>無法建立名稱為 '{0}' 的檔案，因為它的開頭是空格字元。</value>
+  </data>
+  <data name="error_whitespaceDatabaseName" xml:space="preserve">
+    <value>資料庫名稱不能全部是空白字元。</value>
+  </data>
+  <data name="filegroup_dialog_defaultFilegroup" xml:space="preserve">
+    <value>目前的預設檔案群組: {0}</value>
+  </data>
+  <data name="filegroup_dialog_title" xml:space="preserve">
+    <value>為 {0} 新增檔案群組</value>
+  </data>
+  <data name="filegroups_default" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="filegroups_files" xml:space="preserve">
+    <value>檔案</value>
+  </data>
+  <data name="filegroups_name" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="filegroups_readonly" xml:space="preserve">
+    <value>唯讀</value>
+  </data>
+  <data name="filegroups_autogrowAllFiles" xml:space="preserve">
+    <value>自動成長所有檔案</value>
+  </data>
+  <data name="general_autogrowth" xml:space="preserve">
+    <value>自動成長/大小上限</value>
+  </data>
+  <data name="general_builderText" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="general_default" xml:space="preserve">
+    <value>&lt;預設&gt;</value>
+  </data>
+  <data name="general_fileGroup" xml:space="preserve">
+    <value>檔案群組</value>
+  </data>
+  <data name="general_fileName" xml:space="preserve">
+    <value>邏輯名稱</value>
+  </data>
+  <data name="general_fileType" xml:space="preserve">
+    <value>檔案類型</value>
+  </data>
+  <data name="general_initialSize" xml:space="preserve">
+    <value>初始大小 (MB)</value>
+  </data>
+  <data name="general_currentSize" xml:space="preserve">
+    <value>大小 (MB)</value>
+  </data>
+  <data name="general_newFilegroup" xml:space="preserve">
+    <value>&lt;新增檔案群組&gt;</value>
+  </data>
+  <data name="general_path" xml:space="preserve">
+    <value>路徑</value>
+  </data>
+  <data name="general_physicalFileName" xml:space="preserve">
+    <value>檔案名稱</value>
+  </data>
+  <data name="general_rawDevice" xml:space="preserve">
+    <value>&lt;原始裝置&gt;</value>
+  </data>
+  <data name="general_recoveryModel_bulkLogged" xml:space="preserve">
+    <value>大量記錄</value>
+  </data>
+  <data name="general_recoveryModel_full" xml:space="preserve">
+    <value>完整</value>
+  </data>
+  <data name="general_recoveryModel_simple" xml:space="preserve">
+    <value>簡單</value>
+  </data>
+  <data name="general_titleSearchOwner" xml:space="preserve">
+    <value>選取資料庫擁有者</value>
+  </data>
+  <data name="leftPane_extendedPropertiesNode_name" xml:space="preserve">
+    <value>擴充屬性</value>
+  </data>
+  <data name="leftPane_filegroupsNode_name" xml:space="preserve">
+    <value>檔案群組</value>
+  </data>
+  <data name="leftPane_generalNode_name" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="leftPane_optionsNode_name" xml:space="preserve">
+    <value>選項</value>
+  </data>
+  <data name="leftPane_capabilitiesNode_name" xml:space="preserve">
+    <value>設定 SLO</value>
+  </data>
+  <data name="leftPane_topNode_name" xml:space="preserve">
+    <value>新增資料庫</value>
+  </data>
+  <data name="prototype_autogrowth_disabled" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByMB" xml:space="preserve">
+    <value>以 {0} MB 為單位，限制為 {1} MB</value>
+  </data>
+  <data name="prototype_autogrowth_restrictedGrowthByPercent" xml:space="preserve">
+    <value>以百分之 {0} 為單位，限制為 {1} MB </value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByMB" xml:space="preserve">
+    <value>以 {0} MB 為單位，無限制</value>
+  </data>
+  <data name="prototype_autogrowth_unrestrictedGrowthByPercent" xml:space="preserve">
+    <value>以百分之 {0} 為單位，無限制</value>
+  </data>
+  <data name="prototype_autogrowth_unlimitedfilestream" xml:space="preserve">
+    <value>無限制</value>
+  </data>
+  <data name="prototype_autogrowth_limitedfilestream" xml:space="preserve">
+    <value>限制為 {0} MB</value>
+  </data>
+  <data name="prototype_db_category_automatic" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="prototype_db_category_servicebroker" xml:space="preserve">
+    <value>Service Broker</value>
+  </data>
+  <data name="prototype_db_category_collation" xml:space="preserve">
+    <value>定序</value>
+  </data>
+  <data name="prototype_db_category_cursor" xml:space="preserve">
+    <value>資料指標</value>
+  </data>
+  <data name="prototype_db_category_misc" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="prototype_db_category_recovery" xml:space="preserve">
+    <value>復原</value>
+  </data>
+  <data name="prototype_db_category_state" xml:space="preserve">
+    <value>狀態</value>
+  </data>
+  <data name="prototype_db_prop_ansiNullDefault" xml:space="preserve">
+    <value>ANSI NULL 預設值 </value>
+  </data>
+  <data name="prototype_db_prop_ansiNulls" xml:space="preserve">
+    <value>ANSI NULLS 已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_ansiPadding" xml:space="preserve">
+    <value>ANSI 填補已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_ansiWarnings" xml:space="preserve">
+    <value>ANSI 警告已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_arithabort" xml:space="preserve">
+    <value>算術中止已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_autoClose" xml:space="preserve">
+    <value>自動關閉 </value>
+  </data>
+  <data name="prototype_db_prop_autoCreateStatistics" xml:space="preserve">
+    <value>自動建立統計資料 </value>
+  </data>
+  <data name="prototype_db_prop_autoShrink" xml:space="preserve">
+    <value>自動壓縮 </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatistics" xml:space="preserve">
+    <value>自動更新統計資料 </value>
+  </data>
+  <data name="prototype_db_prop_autoUpdateStatisticsAsync" xml:space="preserve">
+    <value>自動非同步更新統計資料</value>
+  </data>
+  <data name="prototype_db_prop_caseSensitive" xml:space="preserve">
+    <value>區分大小寫 </value>
+  </data>
+  <data name="prototype_db_prop_closeCursorOnCommit" xml:space="preserve">
+    <value>認可時關閉資料指標已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_collation" xml:space="preserve">
+    <value>定序</value>
+  </data>
+  <data name="prototype_db_prop_concatNullYieldsNull" xml:space="preserve">
+    <value>串連 Null 產生 Null </value>
+  </data>
+  <data name="prototype_db_prop_databaseCompatibilityLevel" xml:space="preserve">
+    <value>資料庫相容性層級 </value>
+  </data>
+  <data name="prototype_db_prop_databaseState" xml:space="preserve">
+    <value>資料庫狀態 </value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor" xml:space="preserve">
+    <value>預設資料指標 </value>
+  </data>
+  <data name="prototype_db_prop_fullTextIndexing" xml:space="preserve">
+    <value>已啟用全文檢索索引 </value>
+  </data>
+  <data name="prototype_db_prop_numericRoundAbort" xml:space="preserve">
+    <value>數值四捨五入中止 </value>
+  </data>
+  <data name="prototype_db_prop_pageVerify" xml:space="preserve">
+    <value>頁面驗證 </value>
+  </data>
+  <data name="prototype_db_prop_quotedIdentifier" xml:space="preserve">
+    <value>引號識別項已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_readOnly" xml:space="preserve">
+    <value>資料庫唯讀 </value>
+  </data>
+  <data name="prototype_db_prop_recursiveTriggers" xml:space="preserve">
+    <value>遞迴觸發程序已啟用 </value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess" xml:space="preserve">
+    <value>限制存取 </value>
+  </data>
+  <data name="prototype_db_prop_selectIntoBulkCopy" xml:space="preserve">
+    <value>Select Into/大量複製 </value>
+  </data>
+  <data name="prototype_db_prop_honorBrokerPriority" xml:space="preserve">
+    <value>接受 Broker 優先權</value>
+  </data>
+  <data name="prototype_db_prop_serviceBrokerGuid" xml:space="preserve">
+    <value>Service Broker 識別碼</value>
+  </data>
+  <data name="prototype_db_prop_brokerEnabled" xml:space="preserve">
+    <value>Broker 已啟用</value>
+  </data>
+  <data name="prototype_db_prop_truncateLogOnCheckpoint" xml:space="preserve">
+    <value>在檢查點截斷記錄 </value>
+  </data>
+  <data name="prototype_db_prop_dbChaining" xml:space="preserve">
+    <value>已啟用跨資料庫擁有權鏈結</value>
+  </data>
+  <data name="prototype_db_prop_trustworthy" xml:space="preserve">
+    <value>可信任</value>
+  </data>
+  <data name="prototype_db_prop_dateCorrelationOptimization" xml:space="preserve">
+    <value>已啟用日期相互關聯最佳化</value>
+  </data>
+  <data name="prototype_db_prop_parameterization" xml:space="preserve">
+    <value>參數化</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_forced" xml:space="preserve">
+    <value>強制</value>
+  </data>
+  <data name="prototype_db_prop_parameterization_value_simple" xml:space="preserve">
+    <value>簡單</value>
+  </data>
+  <data name="prototype_file_dataFile" xml:space="preserve">
+    <value>資料列資料</value>
+  </data>
+  <data name="prototype_file_logFile" xml:space="preserve">
+    <value>記錄</value>
+  </data>
+  <data name="prototype_file_filestreamFile" xml:space="preserve">
+    <value>FILESTREAM 資料</value>
+  </data>
+  <data name="prototype_file_noFileGroup" xml:space="preserve">
+    <value>不適用</value>
+  </data>
+  <data name="prototype_file_defaultpathstring" xml:space="preserve">
+    <value>&lt;預設路徑&gt;</value>
+  </data>
+  <data name="title_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>開啟連線</value>
+  </data>
+  <data name="warning_openConnectionsMustBeClosed" xml:space="preserve">
+    <value>若要變更資料庫屬性，SQL Server 必須關閉至資料庫的其他所有連接。您確定要變更屬性，並關閉其他所有連接嗎?</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_autoClosed" xml:space="preserve">
+    <value>AUTO_CLOSED</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_emergency" xml:space="preserve">
+    <value>EMERGENCY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_inaccessible" xml:space="preserve">
+    <value>INACCESSIBLE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_normal" xml:space="preserve">
+    <value>NORMAL</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_offline" xml:space="preserve">
+    <value>OFFLINE</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recovering" xml:space="preserve">
+    <value>RECOVERING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_recoveryPending" xml:space="preserve">
+    <value>RECOVERY PENDING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_restoring" xml:space="preserve">
+    <value>RESTORING</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_shutdown" xml:space="preserve">
+    <value>SHUTDOWN</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_standby" xml:space="preserve">
+    <value>STANDBY</value>
+  </data>
+  <data name="prototype_db_prop_databaseState_value_suspect" xml:space="preserve">
+    <value>SUSPECT</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_global" xml:space="preserve">
+    <value>GLOBAL</value>
+  </data>
+  <data name="prototype_db_prop_defaultCursor_value_local" xml:space="preserve">
+    <value>LOCAL</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_multiple" xml:space="preserve">
+    <value>MULTI_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_restricted" xml:space="preserve">
+    <value>RESTRICTED_USER</value>
+  </data>
+  <data name="prototype_db_prop_restrictAccess_value_single" xml:space="preserve">
+    <value>SINGLE_USER</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_checksum" xml:space="preserve">
+    <value>CHECKSUM</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_none" xml:space="preserve">
+    <value>NONE</value>
+  </data>
+  <data name="prototype_db_prop_pageVerify_value_tornPageDetection" xml:space="preserve">
+    <value>TORN_PAGE_DETECTION</value>
+  </data>
+  <data name="prototype_db_prop_varDecimalEnabled" xml:space="preserve">
+    <value>VarDecimal 儲存格式已啟用</value>
+  </data>
+  <data name="compatibilityLevel_katmai" xml:space="preserve">
+    <value>SQL Server 2008 (100)</value>
+  </data>
+  <data name="prototype_db_prop_encryptionEnabled" xml:space="preserve">
+    <value>已啟用加密</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_off" xml:space="preserve">
+    <value>OFF</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_on" xml:space="preserve">
+    <value>ON</value>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_primary" xml:space="preserve">
+    <value>PRIMARY</value>
+  </data>
+  <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">
+    <value>散發原則 HASH 的前置雜湊資料行是選擇性的，但應該介於 1 到 16 個資料行之間。</value>
+  </data>
+  <data name="compatibilityLevel_denali" xml:space="preserve">
+    <value>SQL Server 2012 (110)</value>
+  </data>
+  <data name="compatibilityLevel_sql14" xml:space="preserve">
+    <value>SQL Server 2014 (120)</value>
+  </data>
+  <data name="compatibilityLevel_sql15" xml:space="preserve">
+    <value>SQL Server 2016 (130)</value>
+  </data>
+  <data name="compatibilityLevel_sql2017" xml:space="preserve">
+    <value>SQL Server 2017 (140)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv150" xml:space="preserve">
+    <value>SQL Server 2019 (150)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv160" xml:space="preserve">
+    <value>SQL Server 2022 (160)</value>
+  </data>
+  <data name="general_containmentType_None" xml:space="preserve">
+    <value>無</value>
+  </data>
+  <data name="general_containmentType_Partial" xml:space="preserve">
+    <value>部分</value>
+  </data>
+  <data name="filegroups_filestreamFiles" xml:space="preserve">
+    <value>FILESTREAM 檔案</value>
+  </data>
+  <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
+    <value>沒有適用的檔案群組</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>標準</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>進階版</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>一般目的</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>商務關鍵性</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>版本值無效</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>超大規模資料庫</value>
   </data>
 </root>

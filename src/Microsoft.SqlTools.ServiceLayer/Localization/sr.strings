@@ -410,8 +410,6 @@ SchemaHierarchy_Keys = Keys
 
 SchemaHierarchy_LinkedServers = Linked Servers
 
-SchemaHierarchy_LinkedServerLogins = Linked Server Logins
-
 SchemaHierarchy_Logins = Logins
 
 SchemaHierarchy_MasterKey = Master Key
@@ -2802,3 +2800,15 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+
+############################################################################
+# Azure SQL DB
+
+BasicAzureEdition = Basic
+StandardAzureEdition = Standard
+PremiumAzureEdition = Premium
+DataWarehouseAzureEdition = DataWarehouse
+GeneralPurposeAzureEdition = General Purpose
+BusinessCriticalAzureEdition = Business Critical
+ErrorInvalidEdition = Edition value is not valid
+HyperscaleAzureEdition = Hyperscale

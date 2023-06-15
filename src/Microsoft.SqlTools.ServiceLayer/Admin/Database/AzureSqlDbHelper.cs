@@ -21,19 +21,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         [DebuggerDisplay("{Name,nq}")]
         public class AzureEdition
         {
-            public static readonly AzureEdition Basic = new AzureEdition("Basic", "SR.BasicAzureEdition");
-            public static readonly AzureEdition Standard = new AzureEdition("Standard", "SR.StandardAzureEdition");
-            public static readonly AzureEdition Premium = new AzureEdition("Premium", "SR.PremiumAzureEdition");
-            public static readonly AzureEdition DataWarehouse = new AzureEdition("DataWarehouse", "SR.DataWarehouseAzureEdition");
-            public static readonly AzureEdition GeneralPurpose = new AzureEdition("GeneralPurpose", "SR.GeneralPurposeAzureEdition");
-            public static readonly AzureEdition BusinessCritical = new AzureEdition("BusinessCritical", "SR.BusinessCriticalAzureEdition");
-
-            public static readonly AzureEdition Hyperscale = new AzureEdition("Hyperscale", "SR.HyperscaleAzureEdition");
-            // Free does not offer DatabaseSize >=1GB, hence it's not "supported".
-            //public static readonly AzureEdition Free = new AzureEdition("Free", SR.FreeAzureEdition);
-            // Stretch and system do not seem to be applicable, so I'm commenting them out
-            //public static readonly AzureEdition Stretch = new AzureEdition("Stretch", SR.StretchAzureEdition);
-            //public static readonly AzureEdition System = new AzureEdition("System", SR.SystemAzureEdition);
+            public static readonly AzureEdition Basic = new AzureEdition("Basic", SR.BasicAzureEdition);
+            public static readonly AzureEdition Standard = new AzureEdition("Standard", SR.StandardAzureEdition);
+            public static readonly AzureEdition Premium = new AzureEdition("Premium", SR.PremiumAzureEdition);
+            public static readonly AzureEdition DataWarehouse = new AzureEdition("DataWarehouse", SR.DataWarehouseAzureEdition);
+            public static readonly AzureEdition GeneralPurpose = new AzureEdition("GeneralPurpose", SR.GeneralPurposeAzureEdition);
+            public static readonly AzureEdition BusinessCritical = new AzureEdition("BusinessCritical", SR.BusinessCriticalAzureEdition);
+            public static readonly AzureEdition Hyperscale = new AzureEdition("Hyperscale", SR.HyperscaleAzureEdition);
 
             internal string Name { get; private set; }
             internal string DisplayName { get; private set; }
@@ -320,6 +314,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             { "LRS", "Local" },
             { "ZRS", "Zone" }
         };
+        private static readonly string[] backupRedundancyLevels = bsrAPIToUIValueMapping.Values.ToArray();
+
+        /// <summary>
+        /// All valid backup storage redundancy levels for an Azure SQL database
+        /// </summary>
+        public static string[] BackupStorageRedundancyLevels
+        {
+            get
+            {
+                return backupRedundancyLevels;
+            }
+        }
 
         //KeyValuePair contains the BackupStorageRedundancy values for all azure editions.
         private static readonly KeyValuePair<int, string[]> keyValuePair = new KeyValuePair<int, string[]>(0, bsrAPIToUIValueMapping.Values.ToArray());
@@ -516,18 +522,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         /// We do this so that the AzureEdition enum can have values such as NONE or DEFAULT added
         /// without requiring clients to explicitly filter out those values themselves each time. 
         /// <returns></returns>
-        public static IEnumerable<AzureEdition> GetValidAzureEditionOptions(object unused)
+        public static IEnumerable<AzureEdition> GetValidAzureEditionOptions()
         {
             yield return AzureEdition.Basic;
             yield return AzureEdition.Standard;
             yield return AzureEdition.Premium;
-            yield return AzureEdition.DataWarehouse;
-            yield return AzureEdition.BusinessCritical;
             yield return AzureEdition.GeneralPurpose;
-            //yield return AzureEdition.Free;
             yield return AzureEdition.Hyperscale;
-            //yield return AzureEdition.Stretch;
-            //yield return AzureEdition.System;
+            yield return AzureEdition.BusinessCritical;
+            // Excluding DataWarehouse here since creating a new one is deprecated
         }
     }
 }

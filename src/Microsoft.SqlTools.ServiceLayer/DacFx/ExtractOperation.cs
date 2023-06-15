@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -34,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
         public static Version ParseVersion(string incomingVersion)
         {
-            Version parsedVersion;
+            Version? parsedVersion;
             if (!Version.TryParse(incomingVersion, out parsedVersion))
             {
                 throw new ArgumentException(string.Format(SR.ExtractInvalidVersion, incomingVersion));

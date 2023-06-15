@@ -54,6 +54,7 @@
 		<PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom.NRT">
 			<Aliases>ASAScriptDom</Aliases>
 		</PackageReference>
+		<PackageReference Include="TextCopy" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
