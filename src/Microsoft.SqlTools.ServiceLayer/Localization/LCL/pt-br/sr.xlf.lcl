@@ -866,7 +866,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Business Critical]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Essencial Para os Negócios]]></Val>
+            <Val><![CDATA[Comercialmente Crítico]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
