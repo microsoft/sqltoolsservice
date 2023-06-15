@@ -182,13 +182,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        if (FilterType == FilterType.STARTSWITH)
+                        switch(FilterType)
                         {
-                            propertyValue = $"'{propertyValue}%'";
-                        }
-                        else
-                        {
-                            propertyValue = $"'{propertyValue}'";
+                            case FilterType.STARTSWITH:
+                                propertyValue = $"'{propertyValue}%'";
+                                break;
+                            case FilterType.ENDSWITH:
+                                propertyValue = $"'%{propertyValue}'";
+                                break;
+                            default:
+                                propertyValue = $"'%{propertyValue}%'";
+                                break;
                         }
                     }
                     else if (Type == typeof(Enum))
@@ -228,6 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                             filterText = $"isnull(@{Property})";
                             break;
                         case FilterType.STARTSWITH:
+                        case FilterType.ENDSWITH:
                         case FilterType.LIKE:
                             filterText = $"like(@{Property}, {propertyValue})";
                             break;
@@ -289,6 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         BETWEEN,
         NOTBETWEEN,
         STARTSWITH,
+        ENDSWITH,
         LIKE
     }
 }

@@ -146,8 +146,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 case NodeFilterOperator.StartsWith:
                     filterType = FilterType.STARTSWITH;
                     break;
+                case NodeFilterOperator.NotStartsWith:
+                    filterType = FilterType.STARTSWITH;
+                    isNotFilter = true;
+                    break;
+                case NodeFilterOperator.EndsWith:
+                    filterType = FilterType.ENDSWITH;
+                    break;
+                case NodeFilterOperator.NotEndsWith:
+                    filterType = FilterType.ENDSWITH;
+                    isNotFilter = true;
+                    break;
                 case NodeFilterOperator.Like:
                     filterType = FilterType.LIKE;
+                    break;
+                case NodeFilterOperator.NotLike:
+                    filterType = FilterType.LIKE;
+                    isNotFilter = true;
                     break;
             }
 

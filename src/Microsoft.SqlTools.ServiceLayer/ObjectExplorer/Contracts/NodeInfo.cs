@@ -160,7 +160,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         IsNull = 10,
 		IsNotNull = 11,
         StartsWith = 12,
-        Like = 13
+        NotStartsWith = 13,
+        EndsWith = 14,
+        NotEndsWith = 15,
+        Like = 16,
+        NotLike = 17
     }
 
     /// <summary>
