@@ -98,7 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams, ConfigAction.Create))
+            ConfigAction configAction = requestParams.IsNewObject ? ConfigAction.Create : ConfigAction.Update;
+            var databaseInfo = !requestParams.IsNewObject ? new DatabaseInfo() { Name = requestParams.Database } : null;
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams, configAction, databaseInfo))
             {
                 if (dataContainer.Server == null)
                 {
@@ -246,16 +248,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 throw new InvalidOperationException(serverNotExistsError);
             }
-            string objectUrn = requestParams.ObjectUrn;
-            if (requestParams.IsNewObject)
-            {
-                objectUrn = (configAction != ConfigAction.Create && database != null)
-                    ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        "Server/Database[@Name='{0}']",
-                        Urn.EscapeString(database.Name))
-                    : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        "Server");
-            }
+            string objectUrn = configAction != ConfigAction.Create && database != null 
+                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,"Server/Database[@Name='{0}']",Urn.EscapeString(database.Name))
+                : string.Format(System.Globalization.CultureInfo.InvariantCulture,"Server");
+
             dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
             return dataContainer;
         }
