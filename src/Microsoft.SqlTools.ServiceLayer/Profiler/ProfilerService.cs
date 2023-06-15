@@ -8,17 +8,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlServer.XEvent.XELite;
 
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
@@ -115,56 +114,46 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         internal async Task HandleCreateXEventSessionRequest(CreateXEventSessionParams parameters, RequestContext<CreateXEventSessionResult> requestContext)
         {
-            await Task.Run(async () =>
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            if (connInfo == null)
             {
+                throw new ProfilerException(SR.ProfilerConnectionNotFound);
+            }
+            else if (parameters.SessionName == null)
+            {
+                throw new ArgumentNullException("SessionName");
+            }
+            else if (parameters.Template == null)
+            {
+                throw new ArgumentNullException("Template");
+            }
+            else
+            {
+                IXEventSession xeSession = null;
+
+                // first check whether the session with the given name already exists.
+                // if so skip the creation part. An exception will be thrown if no session with given name can be found,
+                // and it can be ignored.
                 try
                 {
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo == null)
-                    {
-                        throw new ProfilerException(SR.ProfilerConnectionNotFound);
-                    }
-                    else if (parameters.SessionName == null)
-                    {
-                        throw new ArgumentNullException("SessionName");
-                    }
-                    else if (parameters.Template == null)
-                    {
-                        throw new ArgumentNullException("Template");
-                    }
-                    else
-                    {
-                        IXEventSession xeSession = null;
-
-                        // first check whether the session with the given name already exists.
-                        // if so skip the creation part. An exception will be thrown if no session with given name can be found,
-                        // and it can be ignored.
-                        try
-                        {
-                            xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        }
-                        catch { }
-
-                        // create a new XEvent session and Profiler session, if it doesn't exist
-                        xeSession ??= this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
-
-                        // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
-
-                        var result = new CreateXEventSessionResult();
-                        await requestContext.SendResult(result);
-
-                        SessionCreatedNotification(parameters.OwnerUri, parameters.SessionName, parameters.Template.Name);
-                    }
+                    xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
                 }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(new ProfilerException(SR.CreateSessionFailed(e.Message), e));
-                }
-            });
+                catch { }
+
+                // create a new XEvent session and Profiler session, if it doesn't exist
+                xeSession ??= this.XEventSessionFactory.CreateXEventSession(parameters.Template.CreateStatement, parameters.SessionName, connInfo);
+
+                // start monitoring the profiler session
+                monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+
+                var result = new CreateXEventSessionResult();
+                await requestContext.SendResult(result);
+
+                SessionCreatedNotification(parameters.OwnerUri, parameters.SessionName, parameters.Template.Name);
+            }
         }
 
         /// <summary>
@@ -172,48 +161,51 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         internal async Task HandleStartProfilingRequest(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
         {
-            await Task.Run(async () =>
+            if (parameters.SessionType == ProfilingSessionType.LocalFile)
             {
-                try
-                {
-                    if (parameters.SessionType == ProfilingSessionType.LocalFile)
-                    {
-                        await StartLocalFileSession(parameters, requestContext);
-                        return;
-                    }
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo != null)
-                    {
-                        // create a new XEvent session and Profiler session
-                        var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
-                        // start monitoring the profiler session
-                        monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                await StartLocalFileSession(parameters, requestContext);
+                return;
+            }
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            if (connInfo != null)
+            {
+                // create a new XEvent session and Profiler session
+                var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+                // start monitoring the profiler session
+                monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
-                        var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
-                        await requestContext.SendResult(result);
-                    }
-                    else
-                    {
-                        throw new ProfilerException(SR.ProfilerConnectionNotFound);
-                    }
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(new ProfilerException(SR.StartSessionFailed(e.Message), e));
-                }
-            });
+                var result = new StartProfilingResult() { CanPause = true, UniqueSessionId = xeSession.Id.ToString() };
+                await requestContext.SendResult(result);
+            }
+            else
+            {
+                throw new ProfilerException(SR.ProfilerConnectionNotFound);
+            }
         }
 
         private async Task StartLocalFileSession(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
         {
-            var xeSession = XEventSessionFactory.OpenLocalFileSession(parameters.SessionName);
-            monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
-            xeSession.Start();
-            var result = new StartProfilingResult() { UniqueSessionId = xeSession.Id.ToString(), CanPause = false };
-            await requestContext.SendResult(result);
+            try
+            {
+                var xeSession = XEventSessionFactory.OpenLocalFileSession(parameters.SessionName);
+                monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+                xeSession.Start();
+                var result = new StartProfilingResult() { UniqueSessionId = xeSession.Id.ToString(), CanPause = false };
+                await requestContext.SendResult(result);
+            } catch (Exception ex)
+            {
+                throw new ProfilerException(ex.ToString());
+            }
+            
+        }
+
+        public IXEventSession OpenLocalFileSession(string filePath)
+        {
+            var xeventFetcher = new XEventFetcher(filePath);
+            return new ObservableXEventSession(xeventFetcher, new SessionId(filePath));
         }
 
         /// <summary>
@@ -221,47 +213,37 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         internal async Task HandleStopProfilingRequest(StopProfilingParams parameters, RequestContext<StopProfilingResult> requestContext)
         {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    monitor.StopMonitoringSession(parameters.OwnerUri, out ProfilerSession session);
+            monitor.StopMonitoringSession(parameters.OwnerUri, out ProfilerSession session);
 
-                    if (session != null)
-                    {
-                        // Occasionally we might see the InvalidOperationException due to a read is 
-                        // in progress, add the following retry logic will solve the problem.
-                        int remainingAttempts = 3;
-                        while (true)
-                        {
-                            try
-                            {
-                                session.XEventSession.Stop();
-                                session.Dispose();
-                                await requestContext.SendResult(new StopProfilingResult { });
-                                break;
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                remainingAttempts--;
-                                if (remainingAttempts == 0)
-                                {
-                                    throw;
-                                }
-                                Thread.Sleep(500);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new ProfilerException(SR.SessionNotFound);
-                    }
-                }
-                catch (Exception e)
+            if (session != null)
+            {
+                // Occasionally we might see the InvalidOperationException due to a read is 
+                // in progress, add the following retry logic will solve the problem.
+                int remainingAttempts = 3;
+                while (true)
                 {
-                    await requestContext.SendError(new ProfilerException(SR.StopSessionFailed(e.Message), e));
+                    try
+                    {
+                        session.XEventSession.Stop();
+                        session.Dispose();
+                        await requestContext.SendResult(new StopProfilingResult { });
+                        break;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        remainingAttempts--;
+                        if (remainingAttempts == 0)
+                        {
+                            throw;
+                        }
+                        await Task.Delay(500);
+                    }
                 }
-            });
+            }
+            else
+            {
+                throw new ProfilerException(SR.SessionNotFound);
+            }
         }
 
         /// <summary>
@@ -269,19 +251,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         internal async Task HandlePauseProfilingRequest(PauseProfilingParams parameters, RequestContext<PauseProfilingResult> requestContext)
         {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    monitor.PauseViewer(parameters.OwnerUri);
+            monitor.PauseViewer(parameters.OwnerUri);
 
-                    await requestContext.SendResult(new PauseProfilingResult { });
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(new ProfilerException(SR.PauseSessionFailed(e.Message), e));
-                }
-            });
+            await requestContext.SendResult(new PauseProfilingResult { });
         }
 
         /// <summary>
@@ -289,49 +261,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         internal async Task HandleGetXEventSessionsRequest(GetXEventSessionsParams parameters, RequestContext<GetXEventSessionsResult> requestContext)
         {
-            await Task.Run(async () =>
+            var result = new GetXEventSessionsResult();
+            ConnectionInfo connInfo;
+            ConnectionServiceInstance.TryFindConnection(
+                parameters.OwnerUri,
+                out connInfo);
+            if (connInfo == null)
             {
-                try
-                {
-                    var result = new GetXEventSessionsResult();
-                    ConnectionInfo connInfo;
-                    ConnectionServiceInstance.TryFindConnection(
-                        parameters.OwnerUri,
-                        out connInfo);
-                    if (connInfo == null)
-                    {
-                        await requestContext.SendError(new ProfilerException(SR.ProfilerConnectionNotFound));
-                    }
-                    else
-                    {
-                        List<string> sessions = GetXEventSessionList(connInfo);
-                        result.Sessions = sessions;
-                        await requestContext.SendResult(result);
-                    }
-                }
-                catch (Exception e)
-                {
-                    await requestContext.SendError(e);
-                }
-            });
+                await requestContext.SendError(new ProfilerException(SR.ProfilerConnectionNotFound));
+            }
+            else
+            {
+                List<string> sessions = GetXEventSessionList(connInfo);
+                result.Sessions = sessions;
+                await requestContext.SendResult(result);
+            }
         }
 
         /// <summary>
         /// Handle request to disconnect a session
         /// </summary>
-        internal async Task HandleDisconnectSessionRequest(DisconnectSessionParams parameters, RequestContext<DisconnectSessionResult> requestContext)
+        internal Task HandleDisconnectSessionRequest(DisconnectSessionParams parameters, RequestContext<DisconnectSessionResult> requestContext)
         {
-            await Task.Run(async () =>
-                       {
-                           try
-                           {
-                               monitor.StopMonitoringSession(parameters.OwnerUri, out _);
-                           }
-                           catch (Exception e)
-                           {
-                               await requestContext.SendError(e);
-                           }
-                       });
+            monitor.StopMonitoringSession(parameters.OwnerUri, out _);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -494,12 +447,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 disposed = true;
             }
-        }
-
-        public IXEventSession OpenLocalFileSession(string filePath)
-        {
-            var xeventFetcher = new XEFileEventStreamer(filePath);
-            return new ObservableXEventSession(xeventFetcher, new SessionId(filePath));
         }
     }
 }

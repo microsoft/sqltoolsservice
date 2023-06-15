@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Microsoft.SqlTools.ServiceLayer.Profiler
 {
     /// <summary>
-    /// Wrapper XEventSession for IXEventFetcher instances
+    /// Wrapper XEventSession for XEventFetcher instances
     /// </summary>
     class ObservableXEventSession : XEventSession, IObservableXEventSession
     {
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             Session?.Stop();
         }
 
-        public ObservableXEventSession(IXEventFetcher xeventFetcher, SessionId sessionId)
+        public ObservableXEventSession(XEventFetcher xeventFetcher, SessionId sessionId)
         {
             observableSession = new XeStreamObservable(xeventFetcher);
             this.sessionId = sessionId;
@@ -48,20 +48,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     }
 
     /// <summary>
-    /// Source of ProfilerEvent push notifications. Wraps IXEventFetcher.
+    /// Source of ProfilerEvent push notifications. Wraps XEventFetcher.
     /// </summary>
     public class XeStreamObservable : IObservable<ProfilerEvent>
     {
         private readonly object syncObj = new object();
         private readonly List<IObserver<ProfilerEvent>> observers = new List<IObserver<ProfilerEvent>>();
         private CancellationTokenSource cancellationTokenSource;
-        private readonly IXEventFetcher xeventFetcher;
+        private readonly XEventFetcher xeventFetcher;
 
         /// <summary>
         /// Constructs a new XeStreamObservable that converts xevent data from the fetcher to ProfilerEvent instances
         /// </summary>
         /// <param name="fetcher"></param>
-        public XeStreamObservable(IXEventFetcher fetcher)
+        public XeStreamObservable(XEventFetcher fetcher)
         {
             xeventFetcher = fetcher;
         }
@@ -157,6 +157,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                     _observers.Remove(_observer);
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Wrapper for IXEventFetcher, to emulate delayed construction of object
+    /// </summary>
+    public class XEventFetcher : IXEventFetcher
+    {
+        private IXEventFetcher iXEventFetcher;
+        private string filePath;
+        public XEventFetcher(string filePath)
+        {
+            this.filePath = filePath;
+        }
+        public Task ReadEventStream(HandleXEvent xeEventHandler, CancellationToken cancellationToken)
+        {
+            iXEventFetcher ??= new XEFileEventStreamer(filePath);
+            return iXEventFetcher.ReadEventStream(xeEventHandler, cancellationToken);
+        }
+
+        public Task ReadEventStream(HandleMetadata xeMetdataHandler, HandleXEvent xeEventHandler, CancellationToken cancellationToken)
+        {
+            iXEventFetcher ??= new XEFileEventStreamer(filePath);
+            return iXEventFetcher.ReadEventStream(xeMetdataHandler, xeEventHandler, cancellationToken);
         }
     }
 }

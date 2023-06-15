@@ -48,9 +48,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     public class SessionId
     {
         private readonly string sessionId;
+
         // SQL Server starts session counters at around 64k, so it's unlikely that this process-scoped counter would collide with a real session id
         // Eventually the profiler extension in ADS will use the string instead of the number.
         private static int numericIdCurrent = -1;
+
         /// <summary>
         /// Constructs a new sessionId 
         /// </summary>

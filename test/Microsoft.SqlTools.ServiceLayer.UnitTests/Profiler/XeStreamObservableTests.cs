@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using System.Reflection;
-using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using System.Threading;
@@ -44,10 +43,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             });
         }
 
+        [Test]
+        public void XeStreamObservable_calls_OnError_when_the_fetcher_fails()
+        {
+            var observer = InitializeFileObserver("thispathdoesnotexist.xel");
+            Assert.Throws<FileNotFoundException>(observer.Observable.Start);    // exception handled in StartLocalFileSession task (ProfilerServic.cs)
+            // exception not thrown unless the file is been accessed
+        }
+
         private XeStreamObserver InitializeFileObserver(string filePath = null)
         {
             filePath ??= Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Profiler", "TestXel_0.xel");
-            var fetcher = new XEFileEventStreamer(filePath);
+            var fetcher = new XEventFetcher(filePath);
             var observable = new XeStreamObservable(fetcher);
             var observer = new XeStreamObserver() { Observable = observable };
             observable.Subscribe(observer);

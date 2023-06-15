@@ -128,6 +128,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Profiler
             var requestContext = new Mock<RequestContext<CreateXEventSessionResult>>();
             requestContext.Setup(c => c.SendResult(It.IsAny<CreateXEventSessionResult>()))
               .Returns<CreateXEventSessionResult>((result) => { return Task.FromResult(0); });
+            var serviceHostMock = new Mock<IProtocolEndpoint>();
+            profilerService.ServiceHost = serviceHostMock.Object;
             await profilerService.HandleCreateXEventSessionRequest(createParams, requestContext.Object);
             return sessionName;
         }

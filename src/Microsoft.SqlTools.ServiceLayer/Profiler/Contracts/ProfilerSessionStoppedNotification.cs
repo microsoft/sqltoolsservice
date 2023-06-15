@@ -29,6 +29,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         public string ErrorMessage { get; set; }
     }
 
+    /// <summary>
+    /// Profiler Session stopped notification mapping entry 
+    /// </summary>
     public class ProfilerSessionStoppedNotification
     {
         public static readonly
