@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
     /// </summary>
     internal static partial class SchemaCompareUtils
     {
-        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent)
+        internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
         {
             if (difference == null)
             {
@@ -56,15 +56,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 // set source and target scripts
                 if (difference.SourceObject != null)
                 {
-                    string sourceScript;
-                    difference.SourceObject.TryGetScript(out sourceScript);
-                    diffEntry.SourceScript = FormatScript(sourceScript);
+                    string sourceScript = schemaComparisonResult.GetDiffEntrySourceScript(difference);
+
+                    // don't add scripts that start with alter because those are handled by a top level element's create
+                    // ex: if a column changes, then the parent table's script will show an alter, but GetDiffEntrySourceScript()
+                    // will return an alter table script for that column when getting the child script
+                    if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
+                    {
+                        diffEntry.SourceScript = FormatScript(sourceScript);
+                    }
                 }
                 if (difference.TargetObject != null)
                 {
-                    string targetScript;
-                    difference.TargetObject.TryGetScript(out targetScript);
-                    diffEntry.TargetScript = FormatScript(targetScript);
+                    string targetScript = schemaComparisonResult.GetDiffEntryTargetScript(difference);
+
+                    // don't add scripts that start with alter because those are handled by a top level element's create
+                    // ex: if a column changes, then the parent table's script will show an alter, but GetDiffEntrySourceScript()
+                    // will return an alter table script for that column when getting the child script
+                    if (!targetScript.ToLowerInvariant().StartsWith("alter"))
+                    {
+                        diffEntry.TargetScript = FormatScript(targetScript);
+                    }
                 }
             }
 
@@ -72,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
             foreach (SchemaDifference child in difference.Children)
             {
-                diffEntry.Children.Add(CreateDiffEntry(child, diffEntry));
+                diffEntry.Children.Add(CreateDiffEntry(child, diffEntry, schemaComparisonResult));
             }
 
             return diffEntry;

@@ -71,21 +71,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 if(this.Parameters.IncludeRequest)
                 {
                     IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                 }
                 else
                 {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
                     if(this.Success)
                     {
                         IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                        this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                        this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                     }
                     // if not successful, send back the exclude dependencies that caused it to fail
                     else
                     {
                         IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
                         blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
-                        this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null)).ToList();
+                        this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
                     }
                    
                 }
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
         {
             bool result = true;
             // Create a diff entry from difference and check if it matches the diff entry passed
-            DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null);
+            DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
 
             System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
             foreach (var prop in properties)
