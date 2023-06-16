@@ -8303,7 +8303,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
       </trans-unit>
       <trans-unit id="BusinessCriticalAzureEdition">
         <source>Business Critical</source>
-        <target state="translated">Essencial Para os Negócios</target>
+        <target state="translated">Comercialmente Crítico</target>
         <note></note>
       </trans-unit>
       <trans-unit id="ErrorInvalidEdition">

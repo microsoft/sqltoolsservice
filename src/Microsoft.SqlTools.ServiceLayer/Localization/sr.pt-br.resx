@@ -5048,7 +5048,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Uso Geral</value>
   </data>
   <data name="BusinessCriticalAzureEdition" xml:space="preserve">
-    <value>Essencial Para os Negócios</value>
+    <value>Comercialmente Crítico</value>
   </data>
   <data name="ErrorInvalidEdition" xml:space="preserve">
     <value>O valor de edição não é válido</value>
