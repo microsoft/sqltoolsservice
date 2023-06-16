@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -106,6 +107,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (!string.IsNullOrEmpty(details.GroupId))
             {
                 key += "_" + details.GroupId;
+            }
+
+            if (!string.IsNullOrEmpty(details.ConnectionName))
+            {
+                key += "_" + details.ConnectionName;
+            }
+
+            // Additional properties that are used to distinguish the connection (besides password)
+            // These are so that multiple connections can connect to the same target, with different settings.
+            foreach (KeyValuePair<string, object> entry in details.Options)
+            {
+                // Filter out properties we already have or don't want (password)
+                if (entry.Key != "server" && entry.Key != "database" && entry.Key != "user"
+                && entry.Key != "authenticationType" && entry.Key != "databaseDisplayName"
+                && entry.Key != "groupId" && entry.Key != "password" && entry.Key != "connectionName")
+                {
+                    // Boolean values are explicitly labeled true or false instead of undefined.
+                    if (entry.Value is bool)
+                    {
+                        if ((bool)entry.Value)
+                        {
+                            key += "_" + entry.Key + ":true";
+                        }
+                        else
+                        {
+                            key += "_" + entry.Key + ":false";
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(entry.Value as String))
+                    {
+                        key += "_" + entry.Key + ":" + entry.Value;
+                    }
+                }
             }
 
             return Uri.EscapeUriString(key);
