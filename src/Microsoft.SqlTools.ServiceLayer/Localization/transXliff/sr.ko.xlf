@@ -657,11 +657,6 @@
         <target state="translated">연결된 서버</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">연결된 서버 로그인</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
         <target state="translated">로그인</target>
@@ -8279,6 +8274,46 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="prototype_file_noApplicableFileGroup">
         <source>No Applicable Filegroup</source>
         <target state="translated">해당 파일 그룹 없음</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="translated">기본</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="translated">표준</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="translated">프리미엄</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="translated">DataWarehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="translated">범용</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="translated">중요 비즈니스용</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="translated">버전 값이 유효하지 않습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="translated">하이퍼스케일</target>
         <note></note>
       </trans-unit>
     </body>

@@ -410,8 +410,6 @@ SchemaHierarchy_Keys = Keys
 
 SchemaHierarchy_LinkedServers = Linked Servers
 
-SchemaHierarchy_LinkedServerLogins = Linked Server Logins
-
 SchemaHierarchy_Logins = Logins
 
 SchemaHierarchy_MasterKey = Master Key

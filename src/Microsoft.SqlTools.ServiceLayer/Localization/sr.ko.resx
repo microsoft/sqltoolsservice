@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>연결된 서버</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>연결된 서버 로그인</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>로그인</value>
   </data>
@@ -5034,5 +5031,29 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>해당 파일 그룹 없음</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>기본</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>표준</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>프리미엄</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>범용</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>중요 비즈니스용</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>버전 값이 유효하지 않습니다.</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>하이퍼스케일</value>
   </data>
 </root>

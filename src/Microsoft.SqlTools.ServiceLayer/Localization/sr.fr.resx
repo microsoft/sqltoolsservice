@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>Serveurs liés</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Connexions de serveur lié</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>Connexions</value>
   </data>
@@ -5034,5 +5031,29 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>Aucun groupe de fichiers applicable</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>De base</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Usage général</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Critique pour l’entreprise</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Valeur d'édition non valide</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hyperscale</value>
   </data>
 </root>

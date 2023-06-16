@@ -657,11 +657,6 @@
         <target state="translated">链接服务器</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">链接服务器登录名</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
         <target state="translated">登录名</target>
@@ -8279,6 +8274,46 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="prototype_file_noApplicableFileGroup">
         <source>No Applicable Filegroup</source>
         <target state="translated">无适用文件组</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="translated">基本</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="translated">标准</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="translated">Premium</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="translated">数据仓库</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="translated">常规用途</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="translated">业务关键型</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="translated">版本值无效</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="translated">超大规模</target>
         <note></note>
       </trans-unit>
     </body>

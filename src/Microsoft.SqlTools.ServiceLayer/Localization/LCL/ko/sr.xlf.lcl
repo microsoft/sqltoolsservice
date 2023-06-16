@@ -724,6 +724,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";BasicAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Basic]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기본]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";BatchHashTableBuild" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Batch Hash Table Build]]></Val>
@@ -849,6 +858,15 @@
           <Val><![CDATA[Build residual.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[작성 후 남은 항목입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";BusinessCriticalAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Business Critical]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[중요 비즈니스용]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2047,6 +2065,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";DataWarehouseAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DataWarehouse]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DataWarehouse]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";DatabaseNotAccessible" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The database {0} is not accessible.]]></Val>
@@ -2718,6 +2745,15 @@
           <Val><![CDATA[Replacement of an empty string by an empty string.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[빈 문자열을 빈 문자열로 바꾸기]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";ErrorInvalidEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Edition value is not valid]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[버전 값이 유효하지 않습니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3616,6 +3652,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";GeneralPurposeAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[General Purpose]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[범용]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";GenerateScriptTaskName" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Generate script]]></Val>
@@ -4002,6 +4047,15 @@
           <Val><![CDATA[Number of rows processed by Hpc devices.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[HPC 디바이스에서 처리된 행의 수입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";HyperscaleAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Hyperscale]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[하이퍼스케일]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7783,6 +7837,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";PremiumAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Premium]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프리미엄]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";PrimaryClones" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Primary Clones]]></Val>
@@ -11355,6 +11418,15 @@
           <Val><![CDATA[With Stack]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[스택 포함]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";StandardAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Standard]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[표준]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

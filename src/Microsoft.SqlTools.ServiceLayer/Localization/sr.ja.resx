@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>リンク サーバー</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>リンク サーバー ログイン</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>ログイン</value>
   </data>
@@ -5034,5 +5031,29 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>適用できるファイル グループなし</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>General Purpose</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Business Critical</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>エディション値が無効です</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hyperscale</value>
   </data>
 </root>

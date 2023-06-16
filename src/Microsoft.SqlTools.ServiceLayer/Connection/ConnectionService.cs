@@ -1044,7 +1044,29 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    connection.Close();
+                    bool disconnect = false; 
+                    if (connection.ConnectionString != null){
+                        int totalCount = 0;
+                        foreach (KeyValuePair<string, ConnectionInfo> entry in OwnerToConnectionMap)
+                        {
+                            foreach (DbConnection value in entry.Value.AllConnections) {
+                                if(value.ConnectionString == connection.ConnectionString) {
+                                    totalCount++;
+                                }
+                            }
+                        }
+
+                        if(totalCount == 1) {
+                           disconnect = true;
+                        }
+                    }
+                    else {
+                        disconnect = true;
+                    }
+                    
+                    if(disconnect) {
+                        connection.Close();
+                    }
                 }
                 catch (Exception)
                 {
