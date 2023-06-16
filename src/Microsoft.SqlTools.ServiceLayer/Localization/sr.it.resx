@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>Server collegati</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Accessi server collegato</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>Account di accesso</value>
   </data>
@@ -5034,5 +5031,29 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>Nessun Filegroup applicabile</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Utilizzo generico</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Business Critical</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Il valore dell'edizione non è valido</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hyperscale</value>
   </data>
 </root>

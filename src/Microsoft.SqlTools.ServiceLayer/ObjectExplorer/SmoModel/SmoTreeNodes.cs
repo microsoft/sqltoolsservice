@@ -316,13 +316,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
             currentChildren.Add(new FolderNode {
-                NodeValue = SR.SchemaHierarchy_LinkedServerLogins,
-                NodeTypeId = NodeTypes.ServerLevelLinkedServerLogins,
-                IsSystemObject = false,
-                ValidFor = ValidForFlag.AllOnPrem,
-                SortPriority = SmoTreeNode.NextSortPriority,
-            });
-            currentChildren.Add(new FolderNode {
                 NodeValue = SR.SchemaHierarchy_Logins,
                 NodeTypeId = NodeTypes.ServerLevelLogins,
                 IsSystemObject = false,
@@ -450,30 +443,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         public override TreeNode CreateChild(TreeNode parent, object context)
         {
             var child = new DatabaseTreeNode();
-            InitializeChild(parent, child, context);
-            return child;
-        }
-    }
-
-    [Export(typeof(ChildFactory))]
-    [Shared]
-    internal partial class ServerLevelLinkedServerLoginsChildFactory : SmoChildFactoryBase
-    {
-        public override IEnumerable<string> ApplicableParents() { return new[] { nameof(NodeTypes.ServerLevelLinkedServerLogins) }; }
-
-        internal override Type[] ChildQuerierTypes
-        {
-            get
-            {
-                return new [] { typeof(SqlLinkedServerLoginQuerier), };
-            }
-        }
-
-        public override TreeNode CreateChild(TreeNode parent, object context)
-        {
-            var child = new SmoTreeNode();
-            child.IsAlwaysLeaf = true;
-            child.NodeType = "ServerLevelLinkedServerLogin";
             InitializeChild(parent, child, context);
             return child;
         }

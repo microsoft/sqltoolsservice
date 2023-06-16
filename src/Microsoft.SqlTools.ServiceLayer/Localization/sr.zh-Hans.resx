@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>链接服务器</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>链接服务器登录名</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>登录名</value>
   </data>
@@ -5034,5 +5031,29 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>无适用文件组</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>标准</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>数据仓库</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>常规用途</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>业务关键型</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>版本值无效</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>超大规模</value>
   </data>
 </root>

@@ -196,7 +196,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 { AzureEdition.Basic, "Basic" },
                 { AzureEdition.Standard, "S0" },
                 { AzureEdition.Premium, "P1" },
-                { AzureEdition.DataWarehouse, "DW400" },
                 { AzureEdition.BusinessCritical, "BC_Gen5_2" },
                 { AzureEdition.GeneralPurpose, "GP_Gen5_2" },
                 { AzureEdition.Hyperscale, "HS_Gen5_2" }
@@ -236,7 +235,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 { AzureEdition.Basic, "2GB" },
                 { AzureEdition.Standard, "250GB" },
                 { AzureEdition.Premium, "500GB" },
-                { AzureEdition.DataWarehouse, "10240GB" },
                 { AzureEdition.BusinessCritical, "32GB" },
                 { AzureEdition.GeneralPurpose, "32GB" },
                 { AzureEdition.Hyperscale, "0MB" }

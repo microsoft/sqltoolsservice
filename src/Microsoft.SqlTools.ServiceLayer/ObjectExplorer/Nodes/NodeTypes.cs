@@ -79,7 +79,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         ServerLevelCryptographicProviders,
         ServerLevelEndpoints,
         ServerLevelErrorMessages,
-        ServerLevelLinkedServerLogins,
         ServerLevelLinkedServers,
         ServerLevelLogins,
         ServerLevelSecurity,

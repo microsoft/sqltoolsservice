@@ -18,7 +18,6 @@
     <Child Name="SystemDatabases" IsSystemObject="1"/>
   </Node>
   <Node Name="ServerLevelSecurity" LocLabel="SR.SchemaHierarchy_Security" BaseClass="ModelBased" ValidFor="All">
-    <Child Name="ServerLevelLinkedServerLogins"/>
     <Child Name="ServerLevelLogins"/>
     <Child Name="ServerLevelServerRoles"/>
     <Child Name="ServerLevelCredentials"/>
@@ -49,7 +48,6 @@
   <Node Name="ServerLevelEventNotifications" LocLabel="SR.SchemaHierarchy_ServerEventNotifications" BaseClass="ModelBased" Strategy="MultipleElementsOfType" ChildQuerierTypes="SqlServerEventNotification"/>
   -->
 
-  <Node Name="ServerLevelLinkedServerLogins" LocLabel="SR.SchemaHierarchy_LinkedServerLogins" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelLinkedServerLogin" ChildQuerierTypes="SqlLinkedServerLogin" ValidFor="AllOnPrem"/>
   <Node Name="ServerLevelLogins" LocLabel="SR.SchemaHierarchy_Logins" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelLogin" ChildQuerierTypes="SqlLogin"/>
   <Node Name="ServerLevelServerRoles" LocLabel="SR.SchemaHierarchy_ServerRoles" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelServerRole" ChildQuerierTypes="SqlServerRole" ValidFor="AllOnPrem"/>
   <Node Name="ServerLevelCredentials" LocLabel="SR.SchemaHierarchy_Credentials" BaseClass="ModelBased" Strategy="MultipleElementsOfType" NodeType="ServerLevelCredential" ChildQuerierTypes="SqlCredential" ValidFor="AllOnPrem"/>

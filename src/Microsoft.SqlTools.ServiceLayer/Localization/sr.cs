@@ -1141,14 +1141,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SchemaHierarchy_LinkedServerLogins
-        {
-            get
-            {
-                return Keys.GetString(Keys.SchemaHierarchy_LinkedServerLogins);
-            }
-        }
-
         public static string SchemaHierarchy_Logins
         {
             get
@@ -13466,9 +13458,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_LinkedServers = "SchemaHierarchy_LinkedServers";
-
-
-            public const string SchemaHierarchy_LinkedServerLogins = "SchemaHierarchy_LinkedServerLogins";
 
 
             public const string SchemaHierarchy_Logins = "SchemaHierarchy_Logins";
