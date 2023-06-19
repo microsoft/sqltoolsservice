@@ -268,10 +268,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         builder.AppendLine("GO");
                         if (dropConnections)
                         {
-                            builder.AppendLine($"ALTER DATABASE [{db.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE");;
+                            builder.AppendLine($"ALTER DATABASE [{db.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
                             builder.AppendLine("GO");
                         }
-                        builder.AppendLine($"EXEC master.dbo.sp_detach_db @dbname = N'{db.Name}', @skipchecks = '{!updateStatistics}'");
+                        builder.Append($"EXEC master.dbo.sp_detach_db @dbname = N'{db.Name}'");
+                        if (updateStatistics)
+                        {
+                            builder.Append($", @skipchecks = 'false'");
+                        }
+                        builder.AppendLine();
                         builder.AppendLine("GO");
                     }
                     else
