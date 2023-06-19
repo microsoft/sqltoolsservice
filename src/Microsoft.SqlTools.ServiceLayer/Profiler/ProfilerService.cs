@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
+using Microsoft.SqlServer.XEvent.XELite;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
@@ -173,6 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             {
                 // create a new XEvent session and Profiler session
                 var xeSession = this.XEventSessionFactory.GetXEventSession(parameters.SessionName, connInfo);
+
                 // start monitoring the profiler session
                 monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
 
@@ -187,24 +189,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         private async Task StartLocalFileSession(StartProfilingParams parameters, RequestContext<StartProfilingResult> requestContext)
         {
-            try
-            {
-                var xeSession = XEventSessionFactory.OpenLocalFileSession(parameters.SessionName);
-                monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
-                xeSession.Start();
-                var result = new StartProfilingResult() { UniqueSessionId = xeSession.Id.ToString(), CanPause = false };
-                await requestContext.SendResult(result);
-            } catch (Exception ex)
-            {
-                throw new ProfilerException(ex.ToString());
-            }
-            
+            var xeSession = XEventSessionFactory.OpenLocalFileSession(parameters.SessionName);
+            monitor.StartMonitoringSession(parameters.OwnerUri, xeSession);
+            xeSession.Start();
+            var result = new StartProfilingResult() { UniqueSessionId = xeSession.Id.ToString(), CanPause = false };
+            await requestContext.SendResult(result);
         }
 
         public IXEventSession OpenLocalFileSession(string filePath)
         {
-            var xeventFetcher = new XEventFetcher(filePath);
-            return new ObservableXEventSession(xeventFetcher, new SessionId(filePath));
+            return new ObservableXEventSession(() =>
+            {
+                Task<IXEventFetcher> task1 = initIXEventFetcher(filePath);
+
+                var iXEventFetcher = task1.GetAwaiter().GetResult();
+                return iXEventFetcher;
+            }, new SessionId(filePath));
+        }
+
+        public Task<IXEventFetcher> initIXEventFetcher(string filePath)
+        {
+            try
+            {
+                var xeventFetcher = new XEFileEventStreamer(filePath);
+                return Task.Run(() => (IXEventFetcher)xeventFetcher);
+            }
+            catch (Exception e)
+            {
+                return Task.FromException<IXEventFetcher>(e);
+            }
         }
 
         /// <summary>

@@ -14,6 +14,9 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using System.Threading;
 using System.Linq;
+using Microsoft.SqlServer.XEvent.XELite;
+using Moq;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
@@ -46,19 +49,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void XeStreamObservable_calls_OnError_when_the_fetcher_fails()
         {
-            var observer = InitializeFileObserver("thispathdoesnotexist.xel");
-            Assert.Throws<FileNotFoundException>(observer.Observable.Start);    // exception handled in StartLocalFileSession task (ProfilerServic.cs)
-            // exception not thrown unless the file is been accessed
+            string filePath = "thispathdoesnotexist.xel";
+            var profilerService = SetupProfilerService(filePath);
+            Assert.Throws<FileNotFoundException>(() =>
+            {
+                Task<IXEventFetcher > task1 = profilerService.initIXEventFetcher(filePath);
+                var iXEventFetcher = task1.GetAwaiter().GetResult();
+            });
         }
 
         private XeStreamObserver InitializeFileObserver(string filePath = null)
         {
             filePath ??= Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Profiler", "TestXel_0.xel");
-            var fetcher = new XEventFetcher(filePath);
-            var observable = new XeStreamObservable(fetcher);
-            var observer = new XeStreamObserver() { Observable = observable };
-            observable.Subscribe(observer);
+            var profilerService = SetupProfilerService(filePath);
+            var xeStreamObservable = new XeStreamObservable(() =>
+            {
+                Task<IXEventFetcher> task1 = profilerService.initIXEventFetcher(filePath);
+                var iXEventFetcher = task1.GetAwaiter().GetResult();
+                return iXEventFetcher;
+            });
+            var observer = new XeStreamObserver() { Observable = xeStreamObservable };
+            xeStreamObservable.Subscribe(observer);
             return observer;
+        }
+
+        private ProfilerService SetupProfilerService (string filePath = null)
+        {
+            filePath ??= Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Profiler", "TestXel_0.xel");
+            var sessionFactory = new Mock<IXEventSessionFactory>();
+            var profilerService = new ProfilerService() { XEventSessionFactory = sessionFactory.Object };
+            return profilerService;
         }
     }
 
