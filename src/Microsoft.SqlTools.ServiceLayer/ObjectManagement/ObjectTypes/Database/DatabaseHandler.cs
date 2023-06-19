@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using System.Text;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -250,6 +251,47 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return Task.CompletedTask;
+        }
+
+        public string ScriptDetach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
+        {
+            var builder = new StringBuilder();
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, databaseExists: true))
+            {
+                try
+                {
+                    var smoObject = dataContainer.Server!.GetSmoObject(objectUrn);
+                    if (smoObject != null && smoObject is Database db)
+                    {
+                        builder.AppendLine("USE [master]");
+                        builder.AppendLine("GO");
+                        if (dropConnections)
+                        {
+                            builder.AppendLine($"ALTER DATABASE [{db.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE");;
+                            builder.AppendLine("GO");
+                        }
+                        builder.AppendLine($"EXEC master.dbo.sp_detach_db @dbname = N'{db.Name}', @skipchecks = '{!updateStatistics}'");
+                        builder.AppendLine("GO");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
+                    }
+                }
+                catch (FailedOperationException ex)
+                {
+                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
+                    {
+                        throw;
+                    }
+                }
+            }
+            if (builder.Length == 0)
+            {
+                throw new InvalidOperationException("Failed to generate script for detach database operation.");
+            }
+            return builder.ToString();
         }
 
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, bool databaseExists, DatabaseInfo? database = null)
