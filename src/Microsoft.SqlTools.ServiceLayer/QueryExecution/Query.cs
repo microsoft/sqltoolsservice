@@ -448,7 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Locate and setup the connection
-                queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Query);
+                queryConnection = await ConnectionService.Instance.GetOrOpenConnection(editorConnection.OwnerUri, ConnectionType.Default);
                 onErrorAction = OnErrorAction.Ignore;
                 sqlConn = queryConnection as ReliableSqlConnection;
                 if (sqlConn != null)
