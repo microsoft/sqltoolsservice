@@ -182,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        propertyValue = $"'%{propertyValue}%'";
+                        propertyValue = $"'{propertyValue}'";
                     }
                     else if (Type == typeof(Enum))
                     {
