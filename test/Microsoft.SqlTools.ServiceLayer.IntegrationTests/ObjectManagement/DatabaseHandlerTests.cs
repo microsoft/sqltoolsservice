@@ -262,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
         [Test]
         /// This test validates the newly created database properties and verifies with some default values
-        public async Task VerifyDatabaseProperties()
+        public async Task VerifyDatabasePropertiesTest()
         {
             // setup, drop database if exists.
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
