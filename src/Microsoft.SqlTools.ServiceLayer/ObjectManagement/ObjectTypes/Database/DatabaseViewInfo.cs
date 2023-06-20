@@ -31,7 +31,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class DatabaseFile
     {
-        public string FileType { get; set; }
-        public string FilePath { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Path { get; set; }
+        public string FileGroup { get; set; }
     }
 }

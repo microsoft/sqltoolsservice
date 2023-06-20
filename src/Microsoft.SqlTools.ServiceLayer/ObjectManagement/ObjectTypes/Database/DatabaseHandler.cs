@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Text;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -591,11 +592,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private DatabaseFile[] GetDatabaseFiles(Database database)
         {
             var filesList = new List<DatabaseFile>();
-            foreach(DataFile file in database.FileGroups[0].Files) {
+            foreach (FileGroup fileGroup in database.FileGroups)
+            {
+                foreach (DataFile file in fileGroup.Files)
+                {
+                    filesList.Add(new DatabaseFile()
+                    {
+                        Name = file.Name,
+                        Type = FileType.Data.ToString(),
+                        Path = Path.GetDirectoryName(file.FileName),
+                        FileGroup = fileGroup.Name
+                    });
+                }
+            }
+            foreach (LogFile file in database.LogFiles)
+            {
                 filesList.Add(new DatabaseFile()
                 {
-                    FileType = file.IsPrimaryFile ? FileType.Data.ToString() : FileType.Log.ToString(),
-                    FilePath = file.Name
+                    Name = file.Name,
+                    Type = FileType.Log.ToString(),
+                    Path = Path.GetDirectoryName(file.FileName),
+                    FileGroup = string.Empty
                 });
             }
             return filesList.ToArray();
