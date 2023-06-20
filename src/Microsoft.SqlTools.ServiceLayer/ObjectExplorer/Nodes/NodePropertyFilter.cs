@@ -182,18 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        switch(FilterType)
-                        {
-                            case FilterType.STARTSWITH:
-                                propertyValue = $"'{propertyValue}%'";
-                                break;
-                            case FilterType.ENDSWITH:
-                                propertyValue = $"'%{propertyValue}'";
-                                break;
-                            default:
-                                propertyValue = $"'%{propertyValue}%'";
-                                break;
-                        }
+                        propertyValue = $"'%{propertyValue}%'";
                     }
                     else if (Type == typeof(Enum))
                     {
@@ -222,17 +211,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         case FilterType.DATETIME:
                             filterText = $"@{Property} = datetime({propertyValue})";
                             break;
-                        case FilterType.CONTAINS:
-                            filterText = $"contains(@{Property}, {propertyValue})";
-                            break;
                         case FilterType.FALSE:
                             filterText = $"@{Property} = false()";
                             break;
                         case FilterType.ISNULL:
                             filterText = $"isnull(@{Property})";
                             break;
-                        case FilterType.STARTSWITH:
-                        case FilterType.ENDSWITH:
                         case FilterType.LIKE:
                             filterText = $"like(@{Property}, {propertyValue})";
                             break;
@@ -283,7 +267,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     {
         EQUALS,
         DATETIME,
-        CONTAINS,
         FALSE,
         ISNULL,
         NOTEQUALS,
@@ -293,8 +276,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         GREATERTHANOREQUAL,
         BETWEEN,
         NOTBETWEEN,
-        STARTSWITH,
-        ENDSWITH,
         LIKE
     }
 }
