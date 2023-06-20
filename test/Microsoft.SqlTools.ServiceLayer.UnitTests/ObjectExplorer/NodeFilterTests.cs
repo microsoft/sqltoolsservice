@@ -615,7 +615,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
         [Test]
-        public void TestLikeFilter()
+        public void TestContainsFilter()
         {
             // Testing text filter with ends with operator
             var filterList = new List<NodePropertyFilter>
@@ -625,13 +625,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     Property = "Name",
                     Type = typeof(string),
                     ValidFor = ValidForFlag.All,
-                    Values = new List<object> { "%test" },
-                    FilterType = FilterType.LIKE,
+                    Values = new List<object> { "test" },
+                    FilterType = FilterType.CONTAINS,
                     IsDateTime = false
                 }
             };
             var filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(like(@Name, '%test'))]", filterString, "Error parsing text filter with like operator");
+            Assert.AreEqual("[(contains(@Name, 'test'))]", filterString, "Error parsing text filter with contains operator");
         }
 
         public static IEnumerable<TestCaseData> ConvertExpandNodeFilterToNodeFilterTestCases
@@ -691,7 +691,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     new NodeFilter()
                     {
                         Name = "Name",
-                        Operator = NodeFilterOperator.Like,
+                        Operator = NodeFilterOperator.Contains,
                         Value = "test"
                     },
                     new NodeFilterProperty()
@@ -705,7 +705,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                         Type = typeof(string),
                         Values = new List<object> { "test" },
                         IsNotFilter = false,
-                        FilterType = FilterType.LIKE,
+                        FilterType = FilterType.CONTAINS,
                         IsDateTime = false
                     }
                 );
@@ -715,7 +715,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     new NodeFilter()
                     {
                         Name = "Name",
-                        Operator = NodeFilterOperator.NotLike,
+                        Operator = NodeFilterOperator.NotContains,
                         Value = "test"
                     },
                     new NodeFilterProperty()
@@ -729,7 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                         Type = typeof(string),
                         Values = new List<object> { "test" },
                         IsNotFilter = true,
-                        FilterType = FilterType.LIKE,
+                        FilterType = FilterType.CONTAINS,
                         IsDateTime = false
                     }
                 );
@@ -803,6 +803,102 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                         IsNotFilter = true,
                         FilterType = FilterType.NOTBETWEEN,
                         IsDateTime = true
+                    }
+                );
+
+                // test case for date with starts with operator
+                yield return new TestCaseData(
+                    new NodeFilter()
+                    {
+                        Name = "Name",
+                        Operator = NodeFilterOperator.StartsWith,
+                        Value = "test"
+                    },
+                    new NodeFilterProperty()
+                    {
+                        Name = "Name",
+                        Type = NodeFilterPropertyDataType.String
+                    },
+                    new NodePropertyFilter()
+                    {
+                        Property = "Name",
+                        Type = typeof(string),
+                        Values = new List<object> { "test" },
+                        IsNotFilter = false,
+                        FilterType = FilterType.STARTSWITH,
+                        IsDateTime = false
+                    }
+                );
+
+                // test case for date with not starts with operator
+                yield return new TestCaseData(
+                    new NodeFilter()
+                    {
+                        Name = "Name",
+                        Operator = NodeFilterOperator.NotStartsWith,
+                        Value = "test"
+                    },
+                    new NodeFilterProperty()
+                    {
+                        Name = "Name",
+                        Type = NodeFilterPropertyDataType.String
+                    },
+                    new NodePropertyFilter()
+                    {
+                        Property = "Name",
+                        Type = typeof(string),
+                        Values = new List<object> { "test" },
+                        IsNotFilter = true,
+                        FilterType = FilterType.STARTSWITH,
+                        IsDateTime = false
+                    }
+                );
+
+                // test case for date with ends with operator
+                yield return new TestCaseData(
+                    new NodeFilter()
+                    {
+                        Name = "Name",
+                        Operator = NodeFilterOperator.EndsWith,
+                        Value = "test"
+                    },
+                    new NodeFilterProperty()
+                    {
+                        Name = "Name",
+                        Type = NodeFilterPropertyDataType.String
+                    },
+                    new NodePropertyFilter()
+                    {
+                        Property = "Name",
+                        Type = typeof(string),
+                        Values = new List<object> { "test" },
+                        IsNotFilter = false,
+                        FilterType = FilterType.ENDSWITH,
+                        IsDateTime = false
+                    }
+                );
+
+                // test case for date with not ends with operator
+                yield return new TestCaseData(
+                    new NodeFilter()
+                    {
+                        Name = "Name",
+                        Operator = NodeFilterOperator.NotEndsWith,
+                        Value = "test"
+                    },
+                    new NodeFilterProperty()
+                    {
+                        Name = "Name",
+                        Type = NodeFilterPropertyDataType.String
+                    },
+                    new NodePropertyFilter()
+                    {
+                        Property = "Name",
+                        Type = typeof(string),
+                        Values = new List<object> { "test" },
+                        IsNotFilter = true,
+                        FilterType = FilterType.ENDSWITH,
+                        IsDateTime = false
                     }
                 );
             }

@@ -8,6 +8,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.SqlTools.ServiceLayer.Management;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -182,7 +184,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        propertyValue = $"'{propertyValue}'";
+                        var escapedString = CUtils.EscapeStringSQuote((string)propertyValue);
+                        switch (FilterType)
+                        {
+                            case FilterType.STARTSWITH:
+                                propertyValue = $"'{escapedString}%'"; 
+                                break;
+                            case FilterType.ENDSWITH:
+                                propertyValue = $"'%{escapedString}'"; 
+                                break;
+                            default:
+                                propertyValue = $"'{escapedString}'";
+                                break;
+                        }
                     }
                     else if (Type == typeof(Enum))
                     {
@@ -217,7 +231,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         case FilterType.ISNULL:
                             filterText = $"isnull(@{Property})";
                             break;
-                        case FilterType.LIKE:
+                        case FilterType.CONTAINS:
+                            filterText = $"contains(@{Property}, {propertyValue})";
+                            break;
+                        case FilterType.STARTSWITH:
+                        case FilterType.ENDSWITH:
                             filterText = $"like(@{Property}, {propertyValue})";
                             break;
                     }
@@ -276,6 +294,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         GREATERTHANOREQUAL,
         BETWEEN,
         NOTBETWEEN,
-        LIKE
+        CONTAINS,
+        STARTSWITH,
+        ENDSWITH
     }
 }
