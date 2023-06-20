@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// </summary>
         public string ObjectUrn { get; set; }
         /// <summary>
-        /// Connection uri
+        /// URI of the underlying connection for this request
         /// </summary>
         public string ConnectionUri { get; set; }
         /// <summary>
