@@ -686,7 +686,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     }
                 );
 
-                // Test case for contains operator with string value 
+                // Test case for like operator with string value 
                 yield return new TestCaseData(
                     new NodeFilter()
                     {
