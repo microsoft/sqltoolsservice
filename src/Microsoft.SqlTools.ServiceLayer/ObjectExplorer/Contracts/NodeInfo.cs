@@ -155,10 +155,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         GreaterThanOrEquals = 5,
         Between = 6,
         NotBetween = 7,
-        IsNull = 8,
-		IsNotNull = 9,
-        Like = 10,
-        NotLike = 11
+        Like = 8,
+        NotLike = 9
     }
 
     /// <summary>
