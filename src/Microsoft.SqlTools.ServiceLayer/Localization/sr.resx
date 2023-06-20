@@ -1507,7 +1507,7 @@
     <comment></comment>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</value>
+    <value>Include or exclude objects based on their creation date.</value>
     <comment></comment>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
