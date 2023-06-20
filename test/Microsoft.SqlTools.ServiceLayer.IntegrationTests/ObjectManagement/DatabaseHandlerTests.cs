@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 { AzureEdition.Hyperscale, "HS_Gen5_2" }
             };
             Assert.That(actualLevelsMap.Count, Is.EqualTo(expectedDefaults.Count), "Did not get expected number of editions for DatabaseHandler's service levels");
-            foreach(AzureEdition edition in expectedDefaults.Keys)
+            foreach (AzureEdition edition in expectedDefaults.Keys)
             {
                 if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(edition, out var expectedLevelInfo))
                 {
@@ -211,7 +211,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
                     var expectedDefaultIndex = expectedLevelInfo.Key;
                     var expectedDefault = expectedServiceLevels[expectedDefaultIndex];
-                    var actualDefault =  actualServiceLevels[0];
+                    var actualDefault = actualServiceLevels[0];
                     Assert.That(actualDefault, Is.EqualTo(expectedDefault), "Did not get expected default SLO for edition '{0}'", edition.DisplayName);
                 }
                 else
@@ -240,7 +240,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 { AzureEdition.Hyperscale, "0MB" }
             };
             Assert.That(actualSizesMap.Count, Is.EqualTo(expectedDefaults.Count), "Did not get expected number of editions for DatabaseHandler's max sizes");
-            foreach(AzureEdition edition in expectedDefaults.Keys)
+            foreach (AzureEdition edition in expectedDefaults.Keys)
             {
                 if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(edition, out var expectedSizeInfo))
                 {
@@ -250,12 +250,84 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
                     var expectedDefaultIndex = expectedSizeInfo.Key;
                     var expectedDefault = expectedSizes[expectedDefaultIndex];
-                    var actualDefault =  actualSizes[0];
+                    var actualDefault = actualSizes[0];
                     Assert.That(actualDefault, Is.EqualTo(expectedDefault.ToString()), "Did not get expected default size for edition '{0}'", edition.DisplayName);
                 }
                 else
                 {
                     Assert.Fail("Could not retrieve max size info for Azure edition '{0}'", edition.DisplayName);
+                }
+            }
+        }
+
+        [Test]
+        public async Task DetachDatabaseScriptTest()
+        {
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+
+                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+                try
+                {
+                    // create and update
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+
+                    var handler = new DatabaseHandler(ConnectionService.Instance);
+                    var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
+
+                    // Default use case
+                    var actualScript = handler.ScriptDetach(connectionUri, objUrn, false, false, true);
+                    var expectedScript =
+$@"USE [master]
+GO
+EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}'
+GO
+";
+                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+
+                    // Drop connections only
+                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, false, true);
+                    expectedScript =
+$@"USE [master]
+GO
+ALTER DATABASE [{testDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+GO
+EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}'
+GO
+";
+                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+
+                    // Update statistics only
+                    actualScript = handler.ScriptDetach(connectionUri, objUrn, false, true, true);
+                    expectedScript =
+$@"USE [master]
+GO
+EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}', @skipchecks = 'false'
+GO
+";
+                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+
+                    // Both drop and update
+                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, true, true);
+                    expectedScript =
+$@"USE [master]
+GO
+ALTER DATABASE [{testDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+GO
+EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}', @skipchecks = 'false'
+GO
+";
+                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+                }
+                finally
+                {
+                    DropDatabase(server, testDatabase.Name!);
                 }
             }
         }
