@@ -9,7 +9,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
@@ -99,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, databaseExists: false))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn))
             {
                 if (dataContainer.Server == null)
                 {
@@ -162,6 +161,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
                             databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
                             databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
+                            if (!requestParams.IsNewObject)
+                            {
+                                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                                if (smoDatabase != null)
+                                {
+                                    databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
+                                }
+                            }
                         }
 
                         // Skip adding logins if running against an Azure SQL DB
@@ -201,7 +208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
             ConfigureDatabase(
-                context.Parameters.ConnectionUri,
+                context.Parameters,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow);
@@ -211,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
             var script = ConfigureDatabase(
-                context.Parameters.ConnectionUri,
+                context.Parameters,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.ScriptToWindow);
@@ -221,21 +228,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public Task Detach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, databaseExists: true))
+            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, objectUrn))
             {
                 try
                 {
-                    var smoObject = dataContainer.Server!.GetSmoObject(objectUrn);
-                    if (smoObject != null && smoObject is Database db)
+                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                    if (smoDatabase != null)
                     {
                         if (dropConnections)
                         {
-                            dataContainer.Server.KillAllProcesses(db.Name);
-                            db.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                            db.Alter(SqlServer.Management.Smo.TerminationClause.RollbackTransactionsImmediately);
-                            // TODO rollback access chang eon SmoException
+                            dataContainer.Server!.KillAllProcesses(smoDatabase.Name);
+                            smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                            smoDatabase.Alter(SqlServer.Management.Smo.TerminationClause.RollbackTransactionsImmediately);
+                            // TODO rollback access change on SmoException
                         }
-                        dataContainer.Server.DetachDatabase(db.Name, updateStatistics);
+                        dataContainer.Server!.DetachDatabase(smoDatabase.Name, updateStatistics);
                     }
                     else
                     {
@@ -257,21 +264,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var builder = new StringBuilder();
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, databaseExists: true))
+            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, objectUrn))
             {
                 try
                 {
-                    var smoObject = dataContainer.Server!.GetSmoObject(objectUrn);
-                    if (smoObject != null && smoObject is Database db)
+                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                    if (smoDatabase != null)
                     {
                         builder.AppendLine("USE [master]");
                         builder.AppendLine("GO");
                         if (dropConnections)
                         {
-                            builder.AppendLine($"ALTER DATABASE [{db.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
+                            builder.AppendLine($"ALTER DATABASE [{smoDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
                             builder.AppendLine("GO");
                         }
-                        builder.Append($"EXEC master.dbo.sp_detach_db @dbname = N'{db.Name}'");
+                        builder.Append($"EXEC master.dbo.sp_detach_db @dbname = N'{smoDatabase.Name}'");
                         if (updateStatistics)
                         {
                             builder.Append($", @skipchecks = 'false'");
@@ -299,32 +306,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return builder.ToString();
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, bool databaseExists, DatabaseInfo? database = null)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: objectURN != null);
             if (dataContainer.Server == null)
             {
                 throw new InvalidOperationException(serverNotExistsError);
             }
-            string objectUrn = (databaseExists && database != null)
-                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(database.Name))
-                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server");
-            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
+            if (string.IsNullOrEmpty(objectURN))
+            {
+                objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
+            }
+            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
             return dataContainer;
         }
 
-        private string ConfigureDatabase(string connectionUri, DatabaseInfo database, ConfigAction configAction, RunType runType)
+        private string ConfigureDatabase(InitializeViewRequestParams viewParams, DatabaseInfo database, ConfigAction configAction, RunType runType)
         {
             if (database.Name == null)
             {
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, databaseExists: configAction != ConfigAction.Create, database))
+            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn))
             {
                 if (dataContainer.Server == null)
                 {
@@ -581,6 +586,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return recoveryModels.ToArray();
+        }
+
+        private DatabaseFile[] GetDatabaseFiles(Database database)
+        {
+            var filesList = new List<DatabaseFile>();
+            foreach(DataFile file in database.FileGroups[0].Files) {
+                filesList.Add(new DatabaseFile()
+                {
+                    FileType = file.IsPrimaryFile ? FileType.Data.ToString() : FileType.Log.ToString(),
+                    FilePath = file.Name
+                });
+            }
+            return filesList.ToArray();
         }
 
         /// <summary>

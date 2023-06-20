@@ -14,6 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] CompatibilityLevels { get; set; }
         public string[] ContainmentTypes { get; set; }
         public string[] RecoveryModels { get; set; }
+        public DatabaseFile[] Files { get; set; }
 
         public bool IsAzureDB { get; set; }
         public string[] AzureBackupRedundancyLevels { get; set; }
@@ -26,5 +27,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         public string EditionDisplayName { get; set; }
         public string[] Details { get; set; }
+    }
+
+    public class DatabaseFile
+    {
+        public string FileType { get; set; }
+        public string FilePath { get; set; }
     }
 }
