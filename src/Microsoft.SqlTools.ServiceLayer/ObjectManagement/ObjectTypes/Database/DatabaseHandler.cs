@@ -231,31 +231,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(connectionUri, objectUrn))
             {
-                try
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
                 {
-                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                    if (smoDatabase != null)
+                    DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                    try
                     {
                         if (dropConnections)
                         {
                             dataContainer.Server!.KillAllProcesses(smoDatabase.Name);
                             smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                             smoDatabase.Alter(SqlServer.Management.Smo.TerminationClause.RollbackTransactionsImmediately);
-                            // TODO rollback access change on SmoException
                         }
                         dataContainer.Server!.DetachDatabase(smoDatabase.Name, updateStatistics);
                     }
-                    else
+                    catch (SmoException ex)
                     {
-                        throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
+                        // Revert to previous level of user access if we changed it before encountering the exception
+                        if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                        {
+                            smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                        }
+                        if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
+                        {
+                            throw;
+                        }
                     }
                 }
-                catch (FailedOperationException ex)
+                else
                 {
-                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
-                    {
-                        throw;
-                    }
+                    throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
                 }
             }
             return Task.CompletedTask;
