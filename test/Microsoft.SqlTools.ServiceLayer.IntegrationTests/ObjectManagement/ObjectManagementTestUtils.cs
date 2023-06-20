@@ -70,7 +70,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 CollationName = "SQL_Latin1_General_CP1_CI_AS",
                 CompatibilityLevel = "SQL Server 2022 (160)",
                 ContainmentType = "None",
-                RecoveryModel = "Full"
+                RecoveryModel = "Full",
+                NumberOfUsers = 4,
+                SizeInMb = 16,
+                LastDatabaseBackup = "None",
+                LastDatabaseLogBackup = "None"
             };
         }
 
@@ -150,6 +154,26 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
                 .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
             await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+        }
+
+        internal static async Task<DatabaseViewInfo> GetDatabaseObject(InitializeViewRequestParams parameters, SqlObject obj)
+        {
+            // Initialize the view
+            DatabaseViewInfo databaseViewInfo = new DatabaseViewInfo();
+            var initViewRequestContext = new Mock<RequestContext<SqlObjectViewInfo>>();
+            initViewRequestContext
+                .Setup(x => x.SendResult(It.IsAny<SqlObjectViewInfo>()))
+                .Returns(Task.FromResult<SqlObjectViewInfo>(null))
+                .Callback<DatabaseViewInfo>(r => databaseViewInfo = r);
+            await Service.HandleInitializeViewRequest(parameters, initViewRequestContext.Object);
+
+            // Dispose the view
+            var disposeViewRequestContext = new Mock<RequestContext<DisposeViewRequestResponse>>();
+            disposeViewRequestContext.Setup(x => x.SendResult(It.IsAny<DisposeViewRequestResponse>()))
+                .Returns(Task.FromResult<DisposeViewRequestResponse>(new DisposeViewRequestResponse()));
+            await Service.HandleDisposeViewRequest(new DisposeViewRequestParams { ContextId = parameters.ContextId }, disposeViewRequestContext.Object);
+
+            return databaseViewInfo;
         }
 
         internal static async Task<string> ScriptObject(InitializeViewRequestParams parameters, SqlObject obj)

@@ -260,6 +260,50 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             }
         }
 
+        [Test]
+        /// This test validates the newly created database properties and verifies with some default values
+        public async Task VerifyDatabaseProperties()
+        {
+            // setup, drop database if exists.
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+
+                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+                try
+                {
+                    // create database
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+
+                    // Get database properties and verify
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
+                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    Assert.That(databaseViewInfo.ObjectInfo, Is.Not.Null, $"Expected result should not be empty");
+                    Assert.That(databaseViewInfo.ObjectInfo.Name, Is.EqualTo(testDatabase.Name), $"database name should be matched");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DateCreated, Is.Not.Null, $"database name should be matched");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).NumberOfUsers, Is.EqualTo(testDatabase.NumberOfUsers), $"Default database users should be four");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup, Is.EqualTo(testDatabase.LastDatabaseBackup), $"Should have no database last backup date");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup, Is.EqualTo(testDatabase.LastDatabaseLogBackup), $"Should have no database backup log date");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).SizeInMb, Is.EqualTo(testDatabase.SizeInMb), $"Should have default database size when created");
+
+                    // cleanup
+                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), Is.False, $"Database '{testDatabase.Name}' was not dropped succesfully");
+                }
+                finally
+                {
+                    // Cleanup using SMO if Drop didn't work
+                    DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
         private bool DatabaseExists(string dbName, Server server)
         {
             server.Databases.Refresh();
