@@ -226,6 +226,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.FromResult(script);
         }
 
+        /// <summary>
+        /// Used to detach the specified database from a server.
+        /// </summary>
+        /// <param name="connectionUri">URI of the underlying connection for the detach request</param>
+        /// <param name="objectUrn">URN of the database to detach</param>
+        /// <param name="dropConnections">Whether to drop active connections to the database before detaching it</param>
+        /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
+        /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
         public Task Detach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
@@ -267,6 +275,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Used to produce a TSQL script for detaching the specified database from a server.
+        /// </summary>
+        /// <param name="connectionUri">URI of the underlying connection for the detach request</param>
+        /// <param name="objectUrn">URN of the database to detach</param>
+        /// <param name="dropConnections">Whether to drop active connections to the database before detaching it</param>
+        /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
+        /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
+        /// <returns>A string representing the generated TSQL script</returns>
         public string ScriptDetach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
         {
             var builder = new StringBuilder();
