@@ -686,7 +686,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     }
                 );
 
-                // Test case for contains operator with string value 
+                // Test case for like operator with string value 
                 yield return new TestCaseData(
                     new NodeFilter()
                     {
@@ -710,7 +710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     }
                 );
 
-                // Test case for not contains operator with string value
+                // Test case for not like operator with string value
                 yield return new TestCaseData(
                     new NodeFilter()
                     {
