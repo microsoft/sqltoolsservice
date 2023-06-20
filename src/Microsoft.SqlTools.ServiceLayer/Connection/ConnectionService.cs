@@ -491,13 +491,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (connectionParams != null && connectionParams.Type == ConnectionType.Default && !string.IsNullOrWhiteSpace(connectionParams.OwnerUri))
             {
-                if (connectionParams.OwnerUri.ToLowerInvariant().StartsWith("dashboard://"))
+                var uri = connectionParams.OwnerUri.ToLowerInvariant();
+                if (uri.StartsWith("dashboard://"))
                 {
                     connectionParams.Purpose = ConnectionType.Dashboard;
                 }
-                else if (connectionParams.OwnerUri.ToLowerInvariant().StartsWith("connection://"))
+                else if (uri.StartsWith("connection://"))
                 {
                     connectionParams.Purpose = ConnectionType.GeneralConnection;
+                }
+                else if (uri.StartsWith("untitled:sqlquery") || (uri.StartsWith("file://") && uri.EndsWith(".sql")))
+                {
+                    connectionParams.Purpose = ConnectionType.Query;
                 }
             }
             else if (connectionParams != null)
@@ -1044,7 +1049,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 try
                 {
-                    connection.Close();
+                    bool disconnect = false;
+                    if (connection.ConnectionString != null)
+                    {
+                        int totalCount = 0;
+                        foreach (KeyValuePair<string, ConnectionInfo> entry in OwnerToConnectionMap)
+                        {
+                            foreach (DbConnection value in entry.Value.AllConnections)
+                            {
+                                if (value.ConnectionString == connection.ConnectionString)
+                                {
+                                    totalCount++;
+                                }
+                            }
+                        }
+
+                        if (totalCount == 1)
+                        {
+                            disconnect = true;
+                        }
+                    }
+                    else
+                    {
+                        disconnect = true;
+                    }
+
+                    if (disconnect)
+                    {
+                        connection.Close();
+                    }
                 }
                 catch (Exception)
                 {
@@ -1848,7 +1881,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
 
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                if (shouldForceDisablePooling) {
+                if (shouldForceDisablePooling)
+                {
                     connInfo.ConnectionDetails.Pooling = false;
                 }
                 connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);

@@ -45,8 +45,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.Execute();
                 query.ExecutionTask.Wait();
 
-                // We should see two DbConnections
-                Assert.AreEqual(2, connectionInfo.CountConnections);
+                // We should see 1 DbConnections
+                Assert.AreEqual(1, connectionInfo.CountConnections);
 
                 // If we run another query
                 query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
