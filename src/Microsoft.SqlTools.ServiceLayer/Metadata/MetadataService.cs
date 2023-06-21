@@ -55,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
+            serviceHost.SetRequestHandler(AllMetadataRequest.Type, HandleGetAllServerMetadataRequest, true);
         }
 
         /// <summary>
@@ -113,6 +114,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             RequestContext<TableMetadataResult> requestContext)
         {
             await HandleGetTableOrViewRequest(metadataParams, "view", requestContext);
+        }
+
+        /// <summary>
+        /// Handles the request for getting all server metadata
+        /// </summary>
+        internal static async Task HandleGetAllServerMetadataRequest(AllServerMetadataParams metadataParams,
+            RequestContext<AllServerMetadataResult> requestContext)
+        {
+            
         }
 
         /// <summary>
