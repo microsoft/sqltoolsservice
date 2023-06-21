@@ -45,8 +45,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.Execute();
                 query.ExecutionTask.Wait();
 
-                // We should see two DbConnections
-                Assert.AreEqual(2, connectionInfo.CountConnections);
+                // We should see 1 DbConnections
+                Assert.AreEqual(1, connectionInfo.CountConnections);
 
                 // If we run another query
                 query = new Query(Constants.StandardQuery, connectionInfo, new QueryExecutionSettings(), fileStreamFactory);
@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.ExecutionTask.Wait();
 
                 // We should still have 2 DbConnections
-                Assert.AreEqual(2, connectionInfo.CountConnections);
+                Assert.AreEqual(1, connectionInfo.CountConnections);
 
                 // If we disconnect, we should remain in a consistent state to do it over again
                 // e.g. loop and do it over again
