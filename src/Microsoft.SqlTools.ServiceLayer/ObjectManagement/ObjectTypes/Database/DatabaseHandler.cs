@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using System.Text;
 using System.IO;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -229,11 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Used to detach the specified database from a server.
         /// </summary>
-        /// <param name="connectionUri">URI of the underlying connection for the detach request</param>
-        /// <param name="objectUrn">URN of the database to detach</param>
-        /// <param name="dropConnections">Whether to drop active connections to the database before detaching it</param>
-        /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
-        /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
+        /// <param name="detachParams">The various parameters needed for the Detach operation</param>
         public string Detach(DetachDatabaseRequestParams detachParams)
         {
             var sqlScript = string.Empty;
@@ -243,51 +240,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
                 {
-                    var parentServer = smoDatabase.Parent;
                     if (detachParams.GenerateScript)
                     {
-                        parentServer.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                        sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
                     }
-                    DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                    try
+                    else
                     {
-                        if (detachParams.DropConnections)
+                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                        try
                         {
-                            parentServer.KillAllProcesses(smoDatabase.Name);
-                            smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                        }
-                        parentServer.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
-
-                        if (detachParams.GenerateScript)
-                        {
-                            var builder = new StringBuilder();
-                            foreach (string? sqlText in parentServer.ConnectionContext.CapturedSql.Text)
+                            if (detachParams.DropConnections)
                             {
-                                if (sqlText != null)
-                                {
-                                    builder.AppendLine(sqlText);
-                                }
+                                smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                             }
-                            sqlScript = builder.ToString();
+                            smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
                         }
-                    }
-                    catch (SmoException)
-                    {
-                        // Revert to previous level of user access if we changed it before encountering the exception
-                        if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                        catch (SmoException)
                         {
-                            smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                        }
-                        throw;
-                    }
-                    finally
-                    {
-                        // Revert capture sql mode if we only generated a script
-                        if (detachParams.GenerateScript)
-                        {
-                            parentServer.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                            // Revert to previous level of user access if we changed it before encountering the exception
+                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            throw;
                         }
                     }
                 }
@@ -297,6 +275,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return sqlScript;
+        }
+
+        private string CreateDetachScript(DetachDatabaseRequestParams detachParams, string databaseName)
+        {
+            var escapedName = ToSqlScript.FormatIdentifier(databaseName);
+            var builder = new StringBuilder();
+            builder.AppendLine("USE [master]");
+            builder.AppendLine("GO");
+            if (detachParams.DropConnections)
+            {
+                builder.AppendLine($"ALTER DATABASE {escapedName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
+                builder.AppendLine("GO");
+            }
+            builder.AppendLine($"EXEC master.dbo.sp_detach_db @dbname = N'{databaseName}', @skipchecks = '{!detachParams.UpdateStatistics}'");
+            builder.AppendLine("GO");
+            return builder.ToString();
         }
 
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase)

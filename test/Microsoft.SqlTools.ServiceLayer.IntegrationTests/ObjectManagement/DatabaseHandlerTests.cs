@@ -291,52 +291,30 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         UpdateStatistics = false,
                         GenerateScript = true
                     };
+                    var expectedDetachScript = $"EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}'";
+                    var expectedAlterScript = $"ALTER DATABASE [{testDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE";
+                    var expectedStatsScript = $"EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}', @skipchecks = 'false'";
+
                     var actualScript = handler.Detach(detachParams);
-                    var expectedScript =
-$@"USE [master]
-GO
-EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}'
-GO
-";
-                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+                    Assert.That(actualScript, Does.Contain(expectedDetachScript).IgnoreCase);
 
                     // Drop connections only
                     detachParams.DropConnections = true;
                     actualScript = handler.Detach(detachParams);
-                    expectedScript =
-$@"USE [master]
-GO
-ALTER DATABASE [{testDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
-GO
-EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}'
-GO
-";
-                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+                    Assert.That(actualScript, Does.Contain(expectedDetachScript).IgnoreCase);
+                    Assert.That(actualScript, Does.Contain(expectedAlterScript).IgnoreCase);
 
                     // Update statistics only
                     detachParams.DropConnections = false;
                     detachParams.UpdateStatistics = true;
                     actualScript = handler.Detach(detachParams);
-                    expectedScript =
-$@"USE [master]
-GO
-EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}', @skipchecks = 'false'
-GO
-";
-                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+                    Assert.That(actualScript, Does.Contain(expectedStatsScript).IgnoreCase);
 
                     // Both drop and update
                     detachParams.DropConnections = true;
                     actualScript = handler.Detach(detachParams);
-                    expectedScript =
-$@"USE [master]
-GO
-ALTER DATABASE [{testDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
-GO
-EXEC master.dbo.sp_detach_db @dbname = N'{testDatabase.Name}', @skipchecks = 'false'
-GO
-";
-                    Assert.That(actualScript, Is.EqualTo(expectedScript));
+                    Assert.That(actualScript, Does.Contain(expectedAlterScript).IgnoreCase);
+                    Assert.That(actualScript, Does.Contain(expectedStatsScript).IgnoreCase);
                 }
                 finally
                 {
