@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.SqlTools.ServiceLayer.Management;
 
 
@@ -184,18 +185,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        var escapedString = CUtils.EscapeStringSQuote((string)propertyValue);
-                        switch (FilterType)
+
+                        var escapedString = CUtils.EscapeStringSQuote(propertyValue.ToString());
+                        if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
-                            case FilterType.STARTSWITH:
-                                propertyValue = $"'{escapedString}%'"; 
-                                break;
-                            case FilterType.ENDSWITH:
-                                propertyValue = $"'%{escapedString}'"; 
-                                break;
-                            default:
-                                propertyValue = $"'{escapedString}'";
-                                break;
+                            var regex = new Regex(@"%|_|\[|\]|\^");
+                            escapedString = regex.Replace(escapedString, "[$0]");
+                            if (this.FilterType == FilterType.STARTSWITH)
+                            {
+                                propertyValue = $"'{escapedString}%'";
+                            }
+                            else if (this.FilterType == FilterType.ENDSWITH)
+                            {
+                                propertyValue = $"'%{escapedString}'";
+                            }
+                        }
+                        else
+                        {
+                            propertyValue = $"'{escapedString}'";
                         }
                     }
                     else if (Type == typeof(Enum))

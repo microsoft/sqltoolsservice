@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             string filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-01 23:59:59.999'))]", filterString, "Error parsing date filter with equals operator");
+            Assert.That(filterString, Is.EqualTo("[(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-01 23:59:59.999'))]"), "Error parsing date filter with equals operator");
 
 
             // Testing date filter with less than
@@ -262,7 +262,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@CreateDate < datetime('2021-01-01 00:00:00.000'))]", filterString, "Error parsing date filter with less than operator");
+            Assert.That(filterString, Is.EqualTo("[(@CreateDate < datetime('2021-01-01 00:00:00.000'))]"), "Error parsing date filter with less than operator");
 
             // Testing date filter with greater than
             filterList = new List<NodePropertyFilter>
@@ -279,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@CreateDate > datetime('2021-01-01 23:59:59.999'))]", filterString, "Error parsing date filter with greater than operator");
+            Assert.That(filterString, Is.EqualTo("[(@CreateDate > datetime('2021-01-01 23:59:59.999'))]"), "Error parsing date filter with greater than operator");
 
             // Testing date filter with between
             filterList = new List<NodePropertyFilter>
@@ -296,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-02 23:59:59.999'))]", filterString, "Error parsing date filter with between operator");
+            Assert.That(filterString, Is.EqualTo("[(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-02 23:59:59.999'))]"), "Error parsing date filter with between operator");
 
 
             // Testing date filter with not equals
@@ -314,7 +314,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(not(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-01 23:59:59.999')))]", filterString, "Error parsing date filter with not equals operator");
+            Assert.That(filterString, Is.EqualTo("[(not(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-01 23:59:59.999')))]"), "Error parsing date filter with not equals operator");
 
             // Testing date filter with not between
 
@@ -331,7 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(not(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-02 23:59:59.999')))]", filterString, "Error parsing date filter with not between operator");
+            Assert.That(filterString, Is.EqualTo("[(not(@CreateDate >= datetime('2021-01-01 00:00:00.000') and @CreateDate <= datetime('2021-01-02 23:59:59.999')))]"), "Error parsing date filter with not between operator");
 
             // Testing date filter LessThanOrEquals
             filterList = new List<NodePropertyFilter>
@@ -347,7 +347,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@CreateDate <= datetime('2021-01-01 23:59:59.999'))]", filterString, "Error parsing date filter with LessThanOrEquals operator");
+            Assert.That(filterString, Is.EqualTo("[(@CreateDate <= datetime('2021-01-01 23:59:59.999'))]"), "Error parsing date filter with LessThanOrEquals operator");
 
             // Testing date filter GreaterThanOrEquals
             filterList = new List<NodePropertyFilter>
@@ -363,7 +363,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@CreateDate >= datetime('2021-01-01 00:00:00.000'))]", filterString, "Error parsing date filter with GreaterThanOrEquals operator");
+            Assert.That(filterString, Is.EqualTo("[(@CreateDate >= datetime('2021-01-01 00:00:00.000'))]"), "Error parsing date filter with GreaterThanOrEquals operator");
 
 
             // Testing date filter with invalid date
@@ -441,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             string filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount = 100)]", filterString, "Error parsing numeric filter with equals operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount = 100)]"), "Error parsing numeric filter with equals operator");
 
             // Testing numeric filter with less than
             filterList = new List<NodePropertyFilter>
@@ -458,7 +458,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount < 100)]", filterString, "Error parsing numeric filter with less than operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount < 100)]"), "Error parsing numeric filter with less than operator");
 
             // Testing numeric filter with greater than
             filterList = new List<NodePropertyFilter>
@@ -475,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             };
 
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount > 100)]", filterString, "Error parsing numeric filter with greater than operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount > 100)]"), "Error parsing numeric filter with greater than operator");
 
             // Testing numeric filter with between
             filterList = new List<NodePropertyFilter>
@@ -491,7 +491,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount >= 100 and @RowCount <= 200)]", filterString, "Error parsing numeric filter with between operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount >= 100 and @RowCount <= 200)]"), "Error parsing numeric filter with between operator");
 
             // Testing numeric filter with not equals
             filterList = new List<NodePropertyFilter>
@@ -507,7 +507,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount != 100)]", filterString, "Error parsing numeric filter with not equals operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount != 100)]"), "Error parsing numeric filter with not equals operator");
 
             // Testing numeric filter with not between
             filterList = new List<NodePropertyFilter>
@@ -523,7 +523,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(not(@RowCount >= 100 and @RowCount <= 200))]", filterString, "Error parsing numeric filter with not between operator");
+            Assert.That(filterString, Is.EqualTo("[(not(@RowCount >= 100 and @RowCount <= 200))]"), "Error parsing numeric filter with not between operator");
 
             // Testing numeric filter LessThanOrEquals
             filterList = new List<NodePropertyFilter>
@@ -539,7 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount <= 100)]", filterString, "Error parsing numeric filter with LessThanOrEquals operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount <= 100)]"), "Error parsing numeric filter with LessThanOrEquals operator");
 
             // Testing numeric filter GreaterThanOrEquals
             filterList = new List<NodePropertyFilter>
@@ -555,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(@RowCount >= 100)]", filterString, "Error parsing numeric filter with GreaterThanOrEquals operator");
+            Assert.That(filterString, Is.EqualTo("[(@RowCount >= 100)]"), filterString, "Error parsing numeric filter with GreaterThanOrEquals operator");
 
             // Testing numeric filter with invalid value
             filterList = new List<NodePropertyFilter>
@@ -631,7 +631,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 }
             };
             var filterString = INodeFilter.GetPropertyFilter(filterList, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
-            Assert.AreEqual("[(contains(@Name, 'test'))]", filterString, "Error parsing text filter with contains operator");
+            Assert.That(filterString, Is.EqualTo("[(contains(@Name, 'test'))]"), "Error parsing text filter with contains operator");
         }
 
         public static IEnumerable<TestCaseData> ConvertExpandNodeFilterToNodeFilterTestCases
@@ -764,7 +764,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     {
                         Name = "Date",
                         Operator = NodeFilterOperator.Between,
-                        Value =  JArray.FromObject(new string[] {"2020-01-01", "2020-01-02" })
+                        Value = JArray.FromObject(new string[] { "2020-01-01", "2020-01-02" })
                     },
                     new NodeFilterProperty()
                     {
@@ -775,7 +775,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     {
                         Property = "Date",
                         Type = typeof(string),
-                        Values = new List<object> { new string[] {"2020-01-01", "2020-01-02"} },
+                        Values = new List<object> { new string[] { "2020-01-01", "2020-01-02" } },
                         IsNotFilter = false,
                         FilterType = FilterType.BETWEEN,
                         IsDateTime = true
@@ -909,11 +909,56 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void TestConvertExpandNodeFilterToNodeFilter(NodeFilter filter, NodeFilterProperty prop, INodeFilter expectedParsedFilter)
         {
             INodeFilter actualParsedFilter = ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(filter, prop);
-            Assert.AreEqual(
-                JsonConvert.SerializeObject(expectedParsedFilter),
+            Assert.That(
                 JsonConvert.SerializeObject(actualParsedFilter),
+                Is.EqualTo(JsonConvert.SerializeObject(expectedParsedFilter)),
                 $"Error parsing node filter '{prop.Name} ({prop.Type.ToString()})' with operator '{filter.Operator.ToString()}' and value '{filter.Value}'"
             );
+        }
+
+        [Test]
+        [TestCase("test''test", "[(@Name = 'test''''test')]", "[(like(@Name, 'test''''test%'))]")]
+        [TestCase("test'test", "[(@Name = 'test''test')]", "[(like(@Name, 'test''test%'))]")]
+        [TestCase("test'test'test", "[(@Name = 'test''test''test')]", "[(like(@Name, 'test''test''test%'))]")]
+        [TestCase("test'[test]test", "[(@Name = 'test''[test]test')]", "[(like(@Name, 'test''[[]test[]]test%'))]")]
+        [TestCase("test^][%test", "[(@Name = 'test^][%test')]", "[(like(@Name, 'test[^][]][[][%]test%'))]")]
+        [TestCase("test%test", "[(@Name = 'test%test')]", "[(like(@Name, 'test[%]test%'))]")]
+        [TestCase("test[test", "[(@Name = 'test[test')]", "[(like(@Name, 'test[[]test%'))]")]
+        [TestCase("test]test", "[(@Name = 'test]test')]", "[(like(@Name, 'test[]]test%'))]")]
+        [TestCase("test%%'%%test", "[(@Name = 'test%%''%%test')]", "[(like(@Name, 'test[%][%]''[%][%]test%'))]")]
+        public void TestFilterValuesWithSpecialCharacters(string input, string expectedFilterValue, string expectedLikeFilterValue)
+        {
+            var nonLikeFilter = new List<NodePropertyFilter>
+            {
+                new NodePropertyFilter()
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    ValidFor = ValidForFlag.All,
+                    Values = new List<object> { input },
+                    FilterType = FilterType.EQUALS,
+                    IsDateTime = false
+                }
+            };
+
+            var actualFilterValue = INodeFilter.GetPropertyFilter(nonLikeFilter, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
+            Assert.That(actualFilterValue, Is.EqualTo(expectedFilterValue));
+
+            var likeFilter = new List<NodePropertyFilter>
+            {
+                new NodePropertyFilter()
+                {
+                    Property = "Name",
+                    Type = typeof(string),
+                    ValidFor = ValidForFlag.All,
+                    Values = new List<object> { input },
+                    FilterType = FilterType.STARTSWITH,
+                    IsDateTime = false
+                }
+            };
+
+            var actualLikeFilterValue = INodeFilter.GetPropertyFilter(likeFilter, typeof(SqlHistoryTableQuerier), ValidForFlag.All);
+            Assert.That(actualLikeFilterValue, Is.EqualTo(expectedLikeFilterValue));
         }
     }
 }
