@@ -27,10 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// Whether to update the optimization statistics related to this database
         /// </summary>
         public bool UpdateStatistics { get; set; }
-        /// <summary>
-        /// Whether to throw an error if the object does not exist. The default value is false.
-        /// </summary>
-        public bool ThrowIfNotExist { get; set; } = false;
     }
 
     public class DetachDatabaseRequestResponse { }

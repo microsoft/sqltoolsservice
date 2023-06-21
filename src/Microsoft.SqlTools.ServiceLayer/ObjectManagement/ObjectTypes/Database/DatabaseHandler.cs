@@ -234,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="dropConnections">Whether to drop active connections to the database before detaching it</param>
         /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
         /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
-        public Task Detach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
+        public Task Detach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(connectionUri, objectUrn))
@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         dataContainer.Server!.DetachDatabase(smoDatabase.Name, updateStatistics);
                     }
-                    catch (SmoException ex)
+                    catch (SmoException)
                     {
                         // Revert to previous level of user access if we changed it before encountering the exception
                         if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
@@ -261,10 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             smoDatabase.DatabaseOptions.UserAccess = originalAccess;
                             smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
-                        if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
-                        {
-                            throw;
-                        }
+                        throw;
                     }
                 }
                 else
@@ -284,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
         /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
         /// <returns>A string representing the generated TSQL script</returns>
-        public string ScriptDetach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics, bool throwIfNotExist)
+        public string ScriptDetach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics)
         {
             var builder = new StringBuilder();
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
@@ -315,12 +312,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
                     }
                 }
-                catch (FailedOperationException ex)
+                catch (FailedOperationException)
                 {
-                    if (!(ex.InnerException is MissingObjectException) || (ex.InnerException is MissingObjectException && throwIfNotExist))
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
             if (builder.Length == 0)
