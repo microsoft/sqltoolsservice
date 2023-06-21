@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
 
                     // Default use case
-                    var actualScript = handler.ScriptDetach(connectionUri, objUrn, false, false, true);
+                    var actualScript = handler.ScriptDetach(connectionUri, objUrn, false, false);
                     var expectedScript =
 $@"USE [master]
 GO
@@ -292,7 +292,7 @@ GO
                     Assert.That(actualScript, Is.EqualTo(expectedScript));
 
                     // Drop connections only
-                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, false, true);
+                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, false);
                     expectedScript =
 $@"USE [master]
 GO
@@ -304,7 +304,7 @@ GO
                     Assert.That(actualScript, Is.EqualTo(expectedScript));
 
                     // Update statistics only
-                    actualScript = handler.ScriptDetach(connectionUri, objUrn, false, true, true);
+                    actualScript = handler.ScriptDetach(connectionUri, objUrn, false, true);
                     expectedScript =
 $@"USE [master]
 GO
@@ -314,7 +314,7 @@ GO
                     Assert.That(actualScript, Is.EqualTo(expectedScript));
 
                     // Both drop and update
-                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, true, true);
+                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, true);
                     expectedScript =
 $@"USE [master]
 GO
