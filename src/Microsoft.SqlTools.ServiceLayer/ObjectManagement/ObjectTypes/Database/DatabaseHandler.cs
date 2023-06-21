@@ -243,25 +243,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
                 {
+                    var parentServer = smoDatabase.Parent;
                     if (detachParams.GenerateScript)
                     {
-                        smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                        parentServer.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
                     }
                     DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
                     try
                     {
                         if (detachParams.DropConnections)
                         {
-                            smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                            parentServer.KillAllProcesses(smoDatabase.Name);
                             smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                             smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
-                        smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+                        parentServer.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
 
                         if (detachParams.GenerateScript)
                         {
                             var builder = new StringBuilder();
-                            foreach (string? sqlText in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
+                            foreach (string? sqlText in parentServer.ConnectionContext.CapturedSql.Text)
                             {
                                 if (sqlText != null)
                                 {
@@ -286,7 +287,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // Revert capture sql mode if we only generated a script
                         if (detachParams.GenerateScript)
                         {
-                            smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                            parentServer.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
                             smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
                     }
