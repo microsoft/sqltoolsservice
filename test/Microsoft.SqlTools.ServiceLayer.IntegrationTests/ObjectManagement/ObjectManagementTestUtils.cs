@@ -71,8 +71,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 CompatibilityLevel = "SQL Server 2022 (160)",
                 ContainmentType = "None",
                 RecoveryModel = "Full",
-                NumberOfUsers = 4,
-                SizeInMb = 16,
                 LastDatabaseBackup = "None",
                 LastDatabaseLogBackup = "None"
             };

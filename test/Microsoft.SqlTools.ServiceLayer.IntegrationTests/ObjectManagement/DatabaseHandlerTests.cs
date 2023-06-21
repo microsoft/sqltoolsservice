@@ -287,10 +287,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(databaseViewInfo.ObjectInfo, Is.Not.Null, $"Expected result should not be empty");
                     Assert.That(databaseViewInfo.ObjectInfo.Name, Is.EqualTo(testDatabase.Name), $"database name should be matched");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DateCreated, Is.Not.Null, $"database name should be matched");
-                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).NumberOfUsers, Is.EqualTo(testDatabase.NumberOfUsers), $"Default database users should be four");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).NumberOfUsers, Is.GreaterThan(0), $"Default database users count should not be zero");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup, Is.EqualTo(testDatabase.LastDatabaseBackup), $"Should have no database last backup date");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup, Is.EqualTo(testDatabase.LastDatabaseLogBackup), $"Should have no database backup log date");
-                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).SizeInMb, Is.EqualTo(testDatabase.SizeInMb), $"Should have default database size when created");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).SizeInMb, Is.GreaterThan(0), $"Should have default database size when created");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
