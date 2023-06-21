@@ -42,6 +42,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 
     public class ScriptDetachDatabaseRequest
     {
-        public static readonly RequestType<DetachDatabaseRequestParams, string> Type = RequestType<DetachDatabaseRequestParams, string>.Create("objectManagement/scriptDetach");
+        public static readonly RequestType<DetachDatabaseRequestParams, string> Type = RequestType<DetachDatabaseRequestParams, string>.Create("objectManagement/scriptDetachDatabase");
     }
 }
