@@ -13,6 +13,7 @@ using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
@@ -282,7 +283,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
 
                     // Default use case
-                    var actualScript = handler.ScriptDetach(connectionUri, objUrn, false, false);
+                    var detachParams = new DetachDatabaseRequestParams()
+                    {
+                        ConnectionUri = connectionUri,
+                        ObjectUrn = objUrn,
+                        DropConnections = false,
+                        UpdateStatistics = false,
+                        GenerateScript = true
+                    };
+                    var actualScript = handler.Detach(detachParams);
                     var expectedScript =
 $@"USE [master]
 GO
@@ -292,7 +301,8 @@ GO
                     Assert.That(actualScript, Is.EqualTo(expectedScript));
 
                     // Drop connections only
-                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, false);
+                    detachParams.DropConnections = true;
+                    actualScript = handler.Detach(detachParams);
                     expectedScript =
 $@"USE [master]
 GO
@@ -304,7 +314,9 @@ GO
                     Assert.That(actualScript, Is.EqualTo(expectedScript));
 
                     // Update statistics only
-                    actualScript = handler.ScriptDetach(connectionUri, objUrn, false, true);
+                    detachParams.DropConnections = false;
+                    detachParams.UpdateStatistics = true;
+                    actualScript = handler.Detach(detachParams);
                     expectedScript =
 $@"USE [master]
 GO
@@ -314,7 +326,8 @@ GO
                     Assert.That(actualScript, Is.EqualTo(expectedScript));
 
                     // Both drop and update
-                    actualScript = handler.ScriptDetach(connectionUri, objUrn, true, true);
+                    detachParams.DropConnections = true;
+                    actualScript = handler.Detach(detachParams);
                     expectedScript =
 $@"USE [master]
 GO

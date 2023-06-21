@@ -27,17 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// Whether to update the optimization statistics related to this database
         /// </summary>
         public bool UpdateStatistics { get; set; }
+        /// <summary>
+        /// Whether to generate a TSQL script for the operation instead of detaching the database
+        /// </summary>
+        public bool GenerateScript { get; set; }
     }
-
-    public class DetachDatabaseRequestResponse { }
 
     public class DetachDatabaseRequest
     {
-        public static readonly RequestType<DetachDatabaseRequestParams, DetachDatabaseRequestResponse> Type = RequestType<DetachDatabaseRequestParams, DetachDatabaseRequestResponse>.Create("objectManagement/detachDatabase");
-    }
-
-    public class ScriptDetachDatabaseRequest
-    {
-        public static readonly RequestType<DetachDatabaseRequestParams, string> Type = RequestType<DetachDatabaseRequestParams, string>.Create("objectManagement/scriptDetachDatabase");
+        public static readonly RequestType<DetachDatabaseRequestParams, string> Type = RequestType<DetachDatabaseRequestParams, string>.Create("objectManagement/detachDatabase");
     }
 }

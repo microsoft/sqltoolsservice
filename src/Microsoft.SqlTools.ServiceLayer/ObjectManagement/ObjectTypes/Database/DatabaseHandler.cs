@@ -234,24 +234,42 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <param name="dropConnections">Whether to drop active connections to the database before detaching it</param>
         /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
         /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
-        public Task Detach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics)
+        public string Detach(DetachDatabaseRequestParams detachParams)
         {
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, objectUrn, false))
+            var sqlScript = string.Empty;
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
                 {
+                    if (detachParams.GenerateScript)
+                    {
+                        smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                    }
                     DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
                     try
                     {
-                        if (dropConnections)
+                        if (detachParams.DropConnections)
                         {
-                            dataContainer.Server!.KillAllProcesses(smoDatabase.Name);
+                            smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
                             smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                            smoDatabase.Alter(SqlServer.Management.Smo.TerminationClause.RollbackTransactionsImmediately);
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
-                        dataContainer.Server!.DetachDatabase(smoDatabase.Name, updateStatistics);
+                        smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+
+                        if (detachParams.GenerateScript)
+                        {
+                            var builder = new StringBuilder();
+                            foreach (string? sqlText in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
+                            {
+                                if (sqlText != null)
+                                {
+                                    builder.AppendLine(sqlText);
+                                }
+                            }
+                            sqlScript = builder.ToString();
+                        }
                     }
                     catch (SmoException)
                     {
@@ -263,65 +281,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         throw;
                     }
+                    finally
+                    {
+                        // Revert capture sql mode if we only generated a script
+                        if (detachParams.GenerateScript)
+                        {
+                            smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                        }
+                    }
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
+                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
                 }
             }
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Used to produce a TSQL script for detaching the specified database from a server.
-        /// </summary>
-        /// <param name="connectionUri">URI of the underlying connection for the detach request</param>
-        /// <param name="objectUrn">URN of the database to detach</param>
-        /// <param name="dropConnections">Whether to drop active connections to the database before detaching it</param>
-        /// <param name="updateStatistics">Whether to update the query optimization statistics related to the database</param>
-        /// <param name="throwIfNotExist">Whether to throw an exception if the specified database doesn't exist</param>
-        /// <returns>A string representing the generated TSQL script</returns>
-        public string ScriptDetach(string connectionUri, string objectUrn, bool dropConnections, bool updateStatistics)
-        {
-            var builder = new StringBuilder();
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, objectUrn, false))
-            {
-                try
-                {
-                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                    if (smoDatabase != null)
-                    {
-                        builder.AppendLine("USE [master]");
-                        builder.AppendLine("GO");
-                        if (dropConnections)
-                        {
-                            builder.AppendLine($"ALTER DATABASE [{smoDatabase.Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
-                            builder.AppendLine("GO");
-                        }
-                        builder.Append($"EXEC master.dbo.sp_detach_db @dbname = N'{smoDatabase.Name}'");
-                        if (updateStatistics)
-                        {
-                            builder.Append($", @skipchecks = 'false'");
-                        }
-                        builder.AppendLine();
-                        builder.AppendLine("GO");
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Provided URN '{objectUrn}' did not correspond to an existing database.");
-                    }
-                }
-                catch (FailedOperationException)
-                {
-                    throw;
-                }
-            }
-            if (builder.Length == 0)
-            {
-                throw new InvalidOperationException("Failed to generate script for detach database operation.");
-            }
-            return builder.ToString();
+            return sqlScript;
         }
 
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase)

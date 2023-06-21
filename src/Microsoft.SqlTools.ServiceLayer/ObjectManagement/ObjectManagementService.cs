@@ -69,7 +69,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
             this.serviceHost.SetRequestHandler(SearchRequest.Type, HandleSearchRequest, true);
             this.serviceHost.SetRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest, true);
-            this.serviceHost.SetRequestHandler(ScriptDetachDatabaseRequest.Type, HandleScriptDetachDatabaseRequest, true);
         }
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
@@ -199,18 +198,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(res.ToArray());
         }
 
-        internal async Task HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<DetachDatabaseRequestResponse> requestContext)
+        internal async Task HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            await handler.Detach(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.DropConnections, requestParams.UpdateStatistics);
-            await requestContext.SendResult(new DetachDatabaseRequestResponse());
-        }
-
-        internal async Task HandleScriptDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
-        {
-            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
-            var query =  handler.ScriptDetach(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.DropConnections, requestParams.UpdateStatistics);
-            await requestContext.SendResult(query);
+            var sqlScript = handler.Detach(requestParams);
+            await requestContext.SendResult(sqlScript);
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)
