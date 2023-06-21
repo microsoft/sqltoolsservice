@@ -288,7 +288,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         if (detachParams.GenerateScript)
                         {
                             parentServer.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
-                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
                     }
                 }
