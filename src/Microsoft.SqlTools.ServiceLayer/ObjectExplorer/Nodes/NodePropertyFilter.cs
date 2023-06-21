@@ -185,10 +185,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-
+                        //Replacing quotes with double quotes
                         var escapedString = CUtils.EscapeStringSQuote(propertyValue.ToString());
                         if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
+                            // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ], ^
+                            // we do this by wrapping them in square brackets eg: [%], [_], [[], []], [^]
                             var regex = new Regex(@"%|_|\[|\]|\^");
                             escapedString = regex.Replace(escapedString, "[$0]");
                             if (this.FilterType == FilterType.STARTSWITH)
