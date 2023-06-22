@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
     /// <summary>
     /// Has information for filtering a SMO object by properties 
     /// </summary>
-    public class NodePropertyFilter : INodeFilter
+    public partial class NodePropertyFilter : INodeFilter
     {
         /// <summary>
         /// Property name
@@ -189,8 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         var escapedString = CUtils.EscapeStringSQuote(propertyValue.ToString());
                         if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
-                            escapedString = EscapeLikeURN.EscapeLikeURNString(escapedString);
-                            
+                            escapedString = EscapeLikeURNRegex().Replace(escapedString, "[$0]");
+
                             if (this.FilterType == FilterType.STARTSWITH)
                             {
                                 propertyValue = $"'{escapedString}%'";
@@ -286,19 +286,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     return false;
             }
         }
-    }
 
-    public static partial class EscapeLikeURN
-    {
         // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ], ^
         // we do this by wrapping them in square brackets eg: [%], [_], [[], []], [^]
         [GeneratedRegexAttribute(@"%|_|\[|\]|\^")]
         public static partial Regex EscapeLikeURNRegex();
-
-        public static string EscapeLikeURNString(string input)
-        {
-            return EscapeLikeURNRegex().Replace(input, "[$0]");
-        }
     }
 
     public enum FilterType
