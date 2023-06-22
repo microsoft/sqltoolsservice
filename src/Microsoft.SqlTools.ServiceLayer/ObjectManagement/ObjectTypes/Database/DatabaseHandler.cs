@@ -273,6 +273,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
                         try
                         {
+                            // In order to drop all connections to the database, we switch it to single
+                            // user access mode so that only our current connection to the database stays open.
+                            // Any pending operations are terminated and rolled back.
                             if (detachParams.DropConnections)
                             {
                                 smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
@@ -283,7 +286,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         catch (SmoException)
                         {
-                            // Revert to previous level of user access if we changed it before encountering the exception
+                            // Revert to database's previous user access level if we changed it as part of dropping connections
+                            // before hitting this exception.
                             if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
                             {
                                 smoDatabase.DatabaseOptions.UserAccess = originalAccess;
