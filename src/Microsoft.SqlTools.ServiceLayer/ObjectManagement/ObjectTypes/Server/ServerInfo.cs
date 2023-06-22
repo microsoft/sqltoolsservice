@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.ServiceLayer.ServerConfigurations.Contracts;
-
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
