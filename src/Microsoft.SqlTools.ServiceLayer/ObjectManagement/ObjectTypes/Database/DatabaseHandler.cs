@@ -98,7 +98,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create))
+            ConfigAction configAction = requestParams.IsNewObject ? ConfigAction.Create : ConfigAction.Update;
+            var databaseInfo = !requestParams.IsNewObject ? new DatabaseInfo() { Name = requestParams.Database } : null;
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams, configAction, databaseInfo))
             {
                 if (dataContainer.Server == null)
                 {
@@ -119,6 +121,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             ObjectInfo = new DatabaseInfo(),
                             IsAzureDB = isAzureDB
                         };
+
+                        // Collect the Database properties information
+                        if (!requestParams.IsNewObject)
+                        {
+                            var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                            databaseViewInfo.ObjectInfo = new DatabaseInfo()
+                            {
+                                Name = smoDatabase.Name,
+                                CollationName = smoDatabase.Collation,
+                                DateCreated = smoDatabase.CreateDate.ToString(),
+                                LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
+                                LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
+                                MemoryAllocatedToMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                MemoryUsedByMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                NumberOfUsers = smoDatabase.Users.Count,
+                                Owner = smoDatabase.Owner,
+                                SizeInMb = smoDatabase.Size,
+                                SpaceAvailableInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.SpaceAvailable),
+                                Status = smoDatabase.Status.ToString()
+                            };
+                        }
 
                         // azure sql db doesn't have a sysadmin fixed role
                         var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
@@ -200,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
             ConfigureDatabase(
-                context.Parameters.ConnectionUri,
+                context.Parameters,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow);
@@ -210,39 +233,37 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
             var script = ConfigureDatabase(
-                context.Parameters.ConnectionUri,
+                context.Parameters,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.ScriptToWindow);
             return Task.FromResult(script);
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo? database = null)
+        private CDataContainer CreateDatabaseDataContainer(InitializeViewRequestParams requestParams, ConfigAction configAction, DatabaseInfo? database = null)
         {
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: configAction != ConfigAction.Create);
             if (dataContainer.Server == null)
             {
                 throw new InvalidOperationException(serverNotExistsError);
             }
-            string objectUrn = (configAction != ConfigAction.Create && database != null)
-                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(database.Name))
-                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server");
+            string objectUrn = configAction != ConfigAction.Create && database != null
+                ? string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[@Name='{0}']", Urn.EscapeString(database.Name))
+                : string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
+
             dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
             return dataContainer;
         }
 
-        private string ConfigureDatabase(string connectionUri, DatabaseInfo database, ConfigAction configAction, RunType runType)
+        private string ConfigureDatabase(InitializeViewRequestParams requestParams, DatabaseInfo database, ConfigAction configAction, RunType runType)
         {
             if (database.Name == null)
             {
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams, configAction, database))
             {
                 if (dataContainer.Server == null)
                 {
