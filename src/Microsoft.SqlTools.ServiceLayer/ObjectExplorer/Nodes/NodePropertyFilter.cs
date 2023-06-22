@@ -287,9 +287,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
         }
 
-        // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ], ^
-        // we do this by wrapping them in square brackets eg: [%], [_], [[], []], [^]
-        [GeneratedRegexAttribute(@"%|_|\[|\]|\^")]
+        // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ^
+        // we do this by wrapping them in square brackets eg: [%], [_], [[], [^]
+        [GeneratedRegexAttribute(@"%|_|\[|\^")]
         public static partial Regex EscapeLikeURNRegex();
     }
 
