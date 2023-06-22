@@ -61,9 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     ServerCollation = serverSmo.Collation,
                     ServiceTier = serverSmo.ServiceTier,
                     StorageSpaceUsageInGB = serverSmo.UsedStorageSizeMB,
-                    Version = serverSmo.Version.ToString(),
-                    MaxServerMemory = this.configService.GetConfigByName(this.server, "max server memory (MB)"),
-                    MinServerMemory = this.configService.GetConfigByName(this.server, "min server memory (MB)")
+                    Version = serverSmo.Version.ToString()
                 };
 
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
@@ -72,8 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(ServerViewContext context, ServerInfo serverInfo)
         {
-            updateServerMemoryOptions(context, serverInfo);
-            return Task.CompletedTask;
+            throw new NotImplementedException();
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
@@ -88,20 +85,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 string objectUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
                 var serverSmo = server.GetSmoObject(new Urn(objectUrn)) as Server ?? throw new InvalidOperationException(serverNotExistsError);
                 return Task.FromResult(serverSmo);
-            }
-        }
-
-        public void updateServerMemoryOptions(ServerViewContext context, ServerInfo serverInfo)
-        {
-            var currentMaxServerMemory = this.configService.GetConfigByName(this.server, "max server memory (MB)").ConfigValue;
-            var currentMinServerMemory = this.configService.GetConfigByName(this.server, "min server memory (MB)").ConfigValue;
-            if (currentMaxServerMemory != serverInfo.MaxServerMemory.ConfigValue)
-            {
-                this.configService.UpdateConfig(context.Connection, serverInfo.MaxServerMemory.Number, serverInfo.MaxServerMemory.ConfigValue);
-            }
-            if (currentMinServerMemory != serverInfo.MinServerMemory.ConfigValue)
-            {
-                this.configService.UpdateConfig(context.Connection, serverInfo.MinServerMemory.Number, serverInfo.MinServerMemory.ConfigValue);
             }
         }
     }
