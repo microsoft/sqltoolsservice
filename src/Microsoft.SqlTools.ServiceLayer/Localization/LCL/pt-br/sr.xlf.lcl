@@ -3309,10 +3309,13 @@
       </Item>
       <Item ItemId=";FilterCreateDateDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.]]></Val>
+          <Val><![CDATA[Include or exclude objects based on their creation date.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selecione ou digite uma data de criação para incluir ou excluir objetos criados a qualquer momento nessa data, ou digite uma data de início e de término para incluir ou excluir objetos criados nesse intervalo de datas inclusivo.]]></Val>
+            <Val><![CDATA[Inclua ou exclua objetos com base em sua data de criação.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9654,15 +9657,6 @@
           <Val><![CDATA[Keys]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Chaves]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";SchemaHierarchy_LinkedServerLogins" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Linked Server Logins]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Logons de servidor vinculado]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
