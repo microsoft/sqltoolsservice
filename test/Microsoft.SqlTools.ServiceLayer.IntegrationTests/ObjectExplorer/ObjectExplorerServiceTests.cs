@@ -267,29 +267,118 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
                 Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t1"), "Non legacy schema node t1 should be found in database node when group by schema is enabled");
                 Assert.True(databaseChildren.Nodes.Any(t => t.Label == "t2"), "Non legacy schema node t2 should be found in database node when group by schema is enabled");
-                string[] legacySchemas = new string[] 
-                { 
-                    "db_accessadmin", 
-                    "db_backupoperator", 
-                    "db_datareader", 
-                    "db_datawriter", 
-                    "db_ddladmin", 
-                    "db_denydatareader", 
-                    "db_denydatawriter", 
-                    "db_owner", 
-                    "db_securityadmin" 
+                string[] legacySchemas = new string[]
+                {
+                    "db_accessadmin",
+                    "db_backupoperator",
+                    "db_datareader",
+                    "db_datawriter",
+                    "db_ddladmin",
+                    "db_denydatareader",
+                    "db_denydatawriter",
+                    "db_owner",
+                    "db_securityadmin"
                 };
-                foreach(var nodes in databaseChildren.Nodes)
+                foreach (var nodes in databaseChildren.Nodes)
                 {
                     Assert.That(legacySchemas, Does.Not.Contain(nodes.Label), "Legacy schema node should not be found in database node when group by schema is enabled");
                 }
                 var legacySchemasNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_BuiltInSchema);
                 var legacySchemasChildren = await _service.ExpandNode(session, legacySchemasNode.NodePath);
-                foreach(var nodes in legacySchemasChildren.Nodes)
+                foreach (var nodes in legacySchemasChildren.Nodes)
                 {
                     Assert.That(legacySchemas, Does.Contain(nodes.Label), "Legacy schema nodes should be found in legacy schemas folder when group by schema is enabled");
                 }
                 WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
+            });
+        }
+
+        [Test]
+        public async Task VerifyOEFilters()
+        {
+            string query = @"
+            Create table ""table['^__']"" (id int);
+            Create table ""table['^__']2"" (id int);
+            Create table ""table['^%%2"" (id int);
+            Create table ""testTable"" (id int);
+            ";
+
+            string databaseName = "#testDb#";
+            await RunTest(databaseName, query, "Testdb", async (testDbName, session) =>
+            {
+                var databaseNode = session.Root.ToNodeInfo();
+                var databaseChildren = await _service.ExpandNode(session, databaseNode.NodePath);
+                Assert.True(databaseChildren.Nodes.Any(t => t.Label == SR.SchemaHierarchy_Tables), "Tables node should be found in database node");
+                var tablesNode = databaseChildren.Nodes.First(t => t.Label == SR.SchemaHierarchy_Tables);
+                var NameProperty = tablesNode.FilterableProperties.First(t => t.Name == "Name");
+                Assert.True(NameProperty != null, "Name property should be found in tables node");
+
+                // Testing contains operator
+                NodeFilter filter = new NodeFilter()
+                {
+                    Name = NameProperty.Name,
+                    Value = "table",
+                    Operator = NodeFilterOperator.Contains
+                };
+                var tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should be found in tables node");
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should be found in tables node");
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should be found in tables node");
+
+                // Testing starts with operator
+                filter = new NodeFilter()
+                {
+                    Name = NameProperty.Name,
+                    Value = "table['^__']",
+                    Operator = NodeFilterOperator.StartsWith
+                };
+                tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should not be found in tables node");
+
+                // Testing starts with operator
+                filter = new NodeFilter()
+                {
+                    Name = NameProperty.Name,
+                    Value = "table['^%%2",
+                    Operator = NodeFilterOperator.StartsWith
+                };
+                tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
+
+
+                // Testing ends with operator
+                filter = new NodeFilter()
+                {
+                    Name = NameProperty.Name,
+                    Value = "table['^__']",
+                    Operator = NodeFilterOperator.EndsWith
+                };
+                tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should not be found in tables node");
+
+                // Testing equals operator
+                filter = new NodeFilter()
+                {
+                    Name = NameProperty.Name,
+                    Value = "table['^__']",
+                    Operator = NodeFilterOperator.Equals
+                };
+                tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
+                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
+                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should not be found in tables node");
+                
             });
         }
 
