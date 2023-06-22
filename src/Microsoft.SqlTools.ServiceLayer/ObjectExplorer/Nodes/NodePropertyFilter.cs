@@ -189,10 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         var escapedString = CUtils.EscapeStringSQuote(propertyValue.ToString());
                         if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
-                            // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ], ^
-                            // we do this by wrapping them in square brackets eg: [%], [_], [[], []], [^]
-                            var regex = new Regex(@"%|_|\[|\]|\^");
-                            escapedString = regex.Replace(escapedString, "[$0]");
+                            escapedString = EscapeLikeURN.EscapeLikeURNString(escapedString);
+                            
                             if (this.FilterType == FilterType.STARTSWITH)
                             {
                                 propertyValue = $"'{escapedString}%'";
@@ -287,6 +285,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                 default:
                     return false;
             }
+        }
+    }
+
+    public static partial class EscapeLikeURN
+    {
+        // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ], ^
+        // we do this by wrapping them in square brackets eg: [%], [_], [[], []], [^]
+        [GeneratedRegexAttribute(@"%|_|\[|\]|\^")]
+        public static partial Regex EscapeLikeURNRegex();
+
+        public static string EscapeLikeURNString(string input)
+        {
+            return EscapeLikeURNRegex().Replace(input, "[$0]");
         }
     }
 

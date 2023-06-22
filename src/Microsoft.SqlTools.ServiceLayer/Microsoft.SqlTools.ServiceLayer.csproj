@@ -15,7 +15,7 @@
 		<AssemblyTitle>SqlTools Editor Services Host Protocol Library</AssemblyTitle>
 		<Description>Provides message types and client/server APIs for the SqlTools Editor Services JSON protocol.</Description>
 		<!-- False alerts, disabled due to issue: https://github.com/dotnet/roslyn/issues/65850 -->
-		<NoWarn>$(NoWarn);CS8795;SYSLIB1045</NoWarn>
+		<NoWarn>$(NoWarn);CS8795</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup>
