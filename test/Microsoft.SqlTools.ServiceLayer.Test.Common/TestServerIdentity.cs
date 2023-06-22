@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
     public enum AuthenticationType
     {
         Integrated,
-        SqlLogin
+        SqlLogin,
+        AzureMFA
     }
 }
