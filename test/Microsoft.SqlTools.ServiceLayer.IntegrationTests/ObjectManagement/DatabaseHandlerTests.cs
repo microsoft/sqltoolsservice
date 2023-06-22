@@ -323,6 +323,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     // Create database to test with
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
 
                     var handler = new DatabaseHandler(ConnectionService.Instance);
                     var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
@@ -331,30 +332,36 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     {
                         ConnectionUri = connectionUri,
                         ObjectUrn = objUrn,
-                        DropConnections = false,
-                        UpdateStatistics = false,
+                        DropConnections = true,
+                        UpdateStatistics = true,
                         GenerateScript = false
                     };
 
                     // Get databases's files so we can reattach it later before dropping it
+                    var fileCollection = new StringCollection();
                     var smoDatabase = server.GetSmoObject(objUrn) as Database;
-                    var dataFile = smoDatabase!.FileGroups[0].Files[0];
+                    foreach (FileGroup fileGroup in smoDatabase!.FileGroups)
+                    {
+                        foreach (DataFile file in fileGroup.Files)
+                        {
+                            fileCollection.Add(file.FileName);
+                        }
+                    }
+                    foreach (LogFile file in smoDatabase.LogFiles)
+                    {
+                        fileCollection.Add(file.FileName);
+                    }
 
                     var script = handler.Detach(detachParams);
-                    // 
                     Assert.That(script, Is.Empty, "Should only return an empty string if GenerateScript is false");
 
                     server.Databases.Refresh();
-                    smoDatabase = server.GetSmoObject(objUrn) as Database;
-                    Assert.That(smoDatabase, Is.Null, $"Database '{testDatabase.Name}' was not detached successfully.");
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), Is.False, $"Expected database '{testDatabase.Name}' was not detached succesfully");
 
-                    var fileCollection = new StringCollection();
-                    fileCollection.Add(dataFile.FileName);
                     server.AttachDatabase(testDatabase.Name, fileCollection);
 
                     server.Databases.Refresh();
-                    smoDatabase = server.GetSmoObject(objUrn) as Database;
-                    Assert.That(smoDatabase, Is.Not.Null, $"Database '{testDatabase.Name}' was not re-attached successfully.");
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not re-attached succesfully");
                 }
                 finally
                 {
