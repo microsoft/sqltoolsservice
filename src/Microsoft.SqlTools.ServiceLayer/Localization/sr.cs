@@ -12429,6 +12429,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string databaseBackupDate_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.databaseBackupDate_None);
+            }
+        }
+
         public static string BasicAzureEdition
         {
             get
@@ -17845,6 +17853,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string databaseBackupDate_None = "databaseBackupDate_None";
 
 
             public const string BasicAzureEdition = "BasicAzureEdition";

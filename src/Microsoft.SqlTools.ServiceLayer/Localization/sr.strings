@@ -2800,6 +2800,7 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+databaseBackupDate_None = None
 
 ############################################################################
 # Azure SQL DB

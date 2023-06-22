@@ -122,6 +122,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             IsAzureDB = isAzureDB
                         };
 
+                        // Collect the Database properties information
+                        if (!requestParams.IsNewObject)
+                        {
+                            var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                            databaseViewInfo.ObjectInfo = new DatabaseInfo()
+                            {
+                                Name = smoDatabase.Name,
+                                CollationName = smoDatabase.Collation,
+                                DateCreated = smoDatabase.CreateDate.ToString(),
+                                LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
+                                LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
+                                MemoryAllocatedToMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                MemoryUsedByMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                NumberOfUsers = smoDatabase.Users.Count,
+                                Owner = smoDatabase.Owner,
+                                SizeInMb = smoDatabase.Size,
+                                SpaceAvailableInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.SpaceAvailable),
+                                Status = smoDatabase.Status.ToString()
+                            };
+                        }
+
                         // azure sql db doesn't have a sysadmin fixed role
                         var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
                         if (isAzureDB)
