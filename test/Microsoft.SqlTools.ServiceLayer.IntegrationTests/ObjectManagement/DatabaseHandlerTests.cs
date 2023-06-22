@@ -4,6 +4,7 @@
 //
 
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -262,6 +263,63 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         }
 
         [Test]
+        public async Task DetachDatabaseTest()
+        {
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+
+                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+                try
+                {
+                    // Create database to test with
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+
+                    var handler = new DatabaseHandler(ConnectionService.Instance);
+                    var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
+
+                    var detachParams = new DetachDatabaseRequestParams()
+                    {
+                        ConnectionUri = connectionUri,
+                        ObjectUrn = objUrn,
+                        DropConnections = false,
+                        UpdateStatistics = false,
+                        GenerateScript = false
+                    };
+
+                    // Get databases's files so we can reattach it later before dropping it
+                    var smoDatabase = server.GetSmoObject(objUrn) as Database;
+                    var dataFile = smoDatabase!.FileGroups[0].Files[0];
+
+                    var script = handler.Detach(detachParams);
+                    // 
+                    Assert.That(script, Is.Empty, "Should only return an empty string if GenerateScript is false");
+
+                    server.Databases.Refresh();
+                    smoDatabase = server.GetSmoObject(objUrn) as Database;
+                    Assert.That(smoDatabase, Is.Null, $"Database '{testDatabase.Name}' was not detached successfully.");
+
+                    var fileCollection = new StringCollection();
+                    fileCollection.Add(dataFile.FileName);
+                    server.AttachDatabase(testDatabase.Name, fileCollection);
+
+                    server.Databases.Refresh();
+                    smoDatabase = server.GetSmoObject(objUrn) as Database;
+                    Assert.That(smoDatabase, Is.Not.Null, $"Database '{testDatabase.Name}' was not re-attached successfully.");
+                }
+                finally
+                {
+                    DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
+        [Test]
         public async Task DetachDatabaseScriptTest()
         {
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master");
@@ -275,7 +333,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
                 try
                 {
-                    // create and update
+                    // Create database to test with
                     var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
                     await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
 
