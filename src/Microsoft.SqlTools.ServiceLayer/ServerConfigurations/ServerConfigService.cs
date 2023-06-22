@@ -240,5 +240,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             }
         }
 
+        public ServerConfigProperty GetConfigByName(Server server, string configName)
+        {
+            try
+            {
+                ConfigProperty serverConfig = null;
+                foreach (ConfigProperty configProperty in server.Configuration.Properties)
+                {
+                    if (configProperty.DisplayName == configName)
+                    {
+                        serverConfig = configProperty;
+                        break;
+                    }
+                }
+
+                return serverConfig != null ? ServerConfigProperty.ToServerConfigProperty(serverConfig) : null;
+            }
+            catch (Exception ex)
+            {
+                throw new ServerConfigException($"Failed to get config. config name: ${configName}", ex);
+            }
+        }
     }
 }

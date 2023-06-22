@@ -61,8 +61,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     ServerCollation = serverSmo.Collation,
                     ServiceTier = serverSmo.ServiceTier,
                     StorageSpaceUsageInGB = serverSmo.UsedStorageSizeMB,
-                    Version = serverSmo.Version.ToString()
-                };
+                    Version = serverSmo.Version.ToString(),
+                    MinServerMemory = configService.GetConfigByName(this.server, "min server memory (MB)").ConfigValue,
+                    MaxServerMemory = configService.GetConfigByName(this.server, "max server memory (MB)").ConfigValue
+            };
 
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
             }

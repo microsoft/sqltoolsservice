@@ -27,5 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? ServiceTier { get; set; }
         public int? StorageSpaceUsageInGB { get; set; }
         public string? Version { get; set; }
+        public int? MaxServerMemory { get; set; }
+        public int? MinServerMemory { get; set; }
     }
 }
