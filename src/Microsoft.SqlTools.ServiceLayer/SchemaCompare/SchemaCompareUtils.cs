@@ -58,9 +58,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     string sourceScript = schemaComparisonResult.GetDiffEntrySourceScript(difference);
 
-                    // don't add scripts that start with alter because those are handled by a top level element's create
-                    // ex: if a column changes, then the parent table's script will show an alter, but GetDiffEntrySourceScript()
-                    // will return an alter table script for that column when getting the child script
+                    // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
+                    // Don't add scripts that start with alter because those are handled by a top level element's create
+                    // ex: if a column changes, then the parent table's script will have the column updated, but GetDiffEntrySourceScript() on the child
+                    // will return an alter table statement for updating that column when getting the child script. The child's alter script is unecessary
+                    // for displaying the script in schema compare because the comparison displays the create scripts
                     if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
@@ -70,9 +72,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     string targetScript = schemaComparisonResult.GetDiffEntryTargetScript(difference);
 
-                    // don't add scripts that start with alter because those are handled by a top level element's create
-                    // ex: if a column changes, then the parent table's script will show an alter, but GetDiffEntrySourceScript()
-                    // will return an alter table script for that column when getting the child script
+                    // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
+                    // Don't add scripts that start with alter because those are handled by a top level element's create
+                    // ex: if a column changes, then the parent table's script will have the column updated, but GetDiffEntrySourceScript() on the child
+                    // will return an alter table script for updating that column when getting the child script. The child's alter script is unecessary
+                    // for displaying the script in schema compare because the comparison displays the create scripts
                     if (!targetScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
