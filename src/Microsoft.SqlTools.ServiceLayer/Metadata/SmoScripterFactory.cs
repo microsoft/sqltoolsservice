@@ -62,15 +62,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         private static ServerConnection ConnectToServerWithSmo(SqlConnection connection)
         {
             // Connect with SMO and get the metadata for the table
-            ServerConnection serverConnection;
-            if (connection.AccessToken == null)
-            {
-                serverConnection = new ServerConnection(connection);
-            }
-            else
-            {
-                serverConnection = new ServerConnection(connection, new AzureAccessToken(connection.AccessToken));
-            }
+            var serverConnection = (connection.AccessToken == null)
+                ? new ServerConnection(connection)
+                : new ServerConnection(connection, new AzureAccessToken(connection.AccessToken));
 
             return serverConnection;
         }
