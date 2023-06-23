@@ -7188,8 +7188,8 @@ El procesador de consultas estima que la implementación del siguiente índice p
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">Seleccione o escriba una fecha de creación para incluir o excluir objetos creados en cualquier momento de esa fecha o bien escriba una fecha de inicio y una fecha de finalización para incluir o excluir objetos creados en ese intervalo de fechas.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">Incluir o excluir objetos en función de su fecha de creación.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8314,6 +8314,11 @@ El procesador de consultas estima que la implementación del siguiente índice p
       <trans-unit id="HyperscaleAzureEdition">
         <source>Hyperscale</source>
         <target state="translated">Hiperescala</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">Ninguno</target>
         <note></note>
       </trans-unit>
     </body>

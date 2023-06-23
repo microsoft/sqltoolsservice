@@ -4379,7 +4379,7 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
     <value>Date de création</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Sélectionnez ou tapez une date de création pour inclure ou exclure des objets créés à n'importe quelle heure à cette date, ou entrez une date de début et une date de fin pour inclure ou exclure les objets créés dans cette plage de dates inclusive.</value>
+    <value>Incluez ou excluez des objets en fonction de leur date de création.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>Est compilé(e) en mode natif</value>
@@ -5055,5 +5055,8 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>Hyperscale</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Aucun</value>
   </data>
 </root>
