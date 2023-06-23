@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Collections.Specialized;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
@@ -122,7 +123,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static async Task HandleGetAllServerMetadataRequest(AllServerMetadataParams metadataParams,
             RequestContext<AllServerMetadataResult> requestContext)
         {
+            StringCollection scripts = new StringCollection();
+            MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
             
+            if (connectionInfo != null)
+            {
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
+                {
+                    scripts = new SmoScriptorFactory().GetAllScripts(sqlConn);
+                }
+            }
+
+            await requestContext.SendResult(new AllServerMetadataResult
+            {
+                Scripts = scripts?.ToString() ?? string.Empty
+            });
         }
 
         /// <summary>
