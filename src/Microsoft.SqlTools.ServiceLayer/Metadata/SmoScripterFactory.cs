@@ -16,22 +16,23 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
-    internal class SmoScriptorFactory
+    internal class SmoScripterFactory
     {
         public StringCollection GetAllScripts(DbConnection connection)
         {
-            var serverConnection = GetServerConnection(connection);
+            var serverConnection = SmoScripterFactory.GetServerConnection(connection);
             if (serverConnection == null)
             {
                 return null;
             }
 
             Server server = new Server(serverConnection);
-            var stringCollection = GenerateAllScripts(server);
+            var stringCollection = SmoScripterFactory.GenerateAllScripts(server);
+
             return stringCollection;
         }
 
-        private ServerConnection GetServerConnection(DbConnection connection)
+        private static ServerConnection GetServerConnection(DbConnection connection)
         {
             // Get a connection to the database for SMO purposes
             SqlConnection sqlConnection = connection as SqlConnection;
@@ -63,9 +64,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
         
-        private StringCollection GenerateAllScripts(Server server)
+        private static StringCollection GenerateAllScripts(Server server)
         {
-            var urns = GetAllServerObjectUrns(server).ToArray();
+            var urns = SmoScripterFactory.GetAllServerObjectUrns(server).ToArray();
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -99,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return stringCollection;
         }
 
-        private UrnCollection GetAllServerObjectUrns(Server server)
+        private static UrnCollection GetAllServerObjectUrns(Server server)
         {
             UrnCollection urnCollection = new UrnCollection();
             urnCollection.Add(server.Urn);
