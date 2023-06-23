@@ -52,10 +52,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                 using (StreamReader sr = new StreamReader(tempFilePath))
                 {
-                    var line = sr.ReadLine();
-                    if (line != null)
+                    while (!sr.EndOfStream)
                     {
-                        stringCollection.Add(line);
+                        var line = sr.ReadLine();
+                        if (line != null)
+                        {
+                            stringCollection.Add(line);
+                        }
                     }
                 }
             }
