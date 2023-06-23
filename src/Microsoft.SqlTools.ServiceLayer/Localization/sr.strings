@@ -731,7 +731,7 @@ FilterDurabilitySchemaAndData = Schema and Data
 FilterIsMemoryOptimized = Is Memory Optimized
 FilterIsMemoryOptimizedDescription = Include or exclude objects based on whether the object is memory optimized.
 FilterCreateDate = Create Date
-FilterCreateDateDescription = Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.
+FilterCreateDateDescription = Include or exclude objects based on their creation date.
 FilterIsNativelyCompiled = Is Natively Compiled
 FilterIsNativelyCompiledDescription = Include or exclude objects based on whether the object is natively compiled.
 FilterInPrimaryKey = In Primary Key
@@ -2800,6 +2800,7 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+databaseBackupDate_None = None
 
 ############################################################################
 # Azure SQL DB

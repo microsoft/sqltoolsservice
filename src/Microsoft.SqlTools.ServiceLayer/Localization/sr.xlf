@@ -7188,8 +7188,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="new">Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="new">Include or exclude objects based on their creation date.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8314,6 +8314,11 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="HyperscaleAzureEdition">
         <source>Hyperscale</source>
         <target state="new">Hyperscale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="new">None</target>
         <note></note>
       </trans-unit>
     </body>

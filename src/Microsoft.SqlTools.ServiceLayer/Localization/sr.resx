@@ -1507,7 +1507,7 @@
     <comment></comment>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</value>
+    <value>Include or exclude objects based on their creation date.</value>
     <comment></comment>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
@@ -6754,6 +6754,10 @@ The Query Processor estimates that implementing the following index could improv
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>No Applicable Filegroup</value>
+    <comment></comment>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>None</value>
     <comment></comment>
   </data>
   <data name="BasicAzureEdition" xml:space="preserve">
