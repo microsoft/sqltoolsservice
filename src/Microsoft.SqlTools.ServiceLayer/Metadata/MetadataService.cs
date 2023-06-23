@@ -149,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                                 MetadataScriptCacher.WriteToCache(sqlConn.Database, scripts);
                                 await requestContext.SendResult(new AllServerMetadataResult
                                 {
-                                    Scripts = scripts?.ToString() ?? string.Empty
+                                    Scripts = scripts.ToString()
                                 });
                             }
                             else
