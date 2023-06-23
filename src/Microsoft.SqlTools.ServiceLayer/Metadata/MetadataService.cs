@@ -140,28 +140,30 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             if (scripts != null)
                             {
                                 MetadataScriptCacher.WriteToCache(sqlConn.Database, scripts);
+                                await requestContext.SendResult(new AllServerMetadataResult
+                                {
+                                    Scripts = scripts?.ToString() ?? string.Empty
+                                });
                             }
-
-                            await requestContext.SendResult(new AllServerMetadataResult
+                            else
                             {
-                                Scripts = scripts?.ToString() ?? string.Empty
-                            });
-
-                            return;
+                                Logger.Error($"Failed to generate server scripts");
+                                await requestContext.SendError("Unable to generate scripts for server");
+                            }
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error($"Failed to generate server scripts. Error ${ex.Message}");
+                            Logger.Error($"An error was encountered during the script generation process. Error ${ex.Message}");
                             await requestContext.SendError(ex);
-
-                            return;
                         }
                     }
                 }
             }
-
-            Logger.Error("Failed to establish connection to server.");
-            await requestContext.SendError("Failed to establish connection to server.");
+            else
+            {
+                Logger.Error("Failed to establish connection to server.");
+                await requestContext.SendError("Failed to establish connection to server.");
+            }
         }
 
         /// <summary>
