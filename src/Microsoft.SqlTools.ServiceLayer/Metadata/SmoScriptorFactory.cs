@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             var serverConnection = GetServerConnection(connection);
             if (serverConnection == null)
             {
-                return new StringCollection();
+                return null;
             }
 
             Server server = new Server(serverConnection);

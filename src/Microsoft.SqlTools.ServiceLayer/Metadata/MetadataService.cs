@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static async Task HandleGetAllServerMetadataRequest(AllServerMetadataParams metadataParams,
             RequestContext<AllServerMetadataResult> requestContext)
         {
-            StringCollection scripts = new StringCollection();
+            StringCollection scripts = null;
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
             
             if (connectionInfo != null)
