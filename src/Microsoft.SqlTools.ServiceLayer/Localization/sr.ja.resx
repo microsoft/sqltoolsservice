@@ -4379,7 +4379,7 @@
     <value>作成日</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>指定した日付の任意の時刻に作成したオブジェクトを包含したり除外するために、作成日を選択または入力してください。または、指定した日付範囲内に作成したオブジェクトを包含したり除外するために、範囲の開始日と終了日を入力してください。</value>
+    <value>作成日に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>ネイティブ コンパイル済み</value>
@@ -5055,5 +5055,8 @@
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>Hyperscale</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>なし</value>
   </data>
 </root>

@@ -4379,7 +4379,7 @@ El procesador de consultas estima que la implementación del siguiente índice p
     <value>Fecha de creación</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Seleccione o escriba una fecha de creación para incluir o excluir objetos creados en cualquier momento de esa fecha o bien escriba una fecha de inicio y una fecha de finalización para incluir o excluir objetos creados en ese intervalo de fechas.</value>
+    <value>Incluir o excluir objetos en función de su fecha de creación.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>Está compilado de forma nativa</value>
@@ -5055,5 +5055,8 @@ El procesador de consultas estima que la implementación del siguiente índice p
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>Hiperescala</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Ninguno</value>
   </data>
 </root>
