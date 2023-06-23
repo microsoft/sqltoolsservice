@@ -131,6 +131,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                 {
                     scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
+                    if (scripts != null)
+                    {
+                        MetadataScriptCacher.WriteToCache(sqlConn.Database, scripts);
+                    }
                 }
             }
 
