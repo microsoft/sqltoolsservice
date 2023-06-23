@@ -118,16 +118,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     urnCollection.Add(t.Urn);
                 }
-
-                //foreach (SqlServer.Management.Smo.View v in db.Views)
-                //{
-                //    urnCollection.Add(v.Urn);
-                //}
-
-                //foreach (StoredProcedure sp in db.StoredProcedures)
-                //{
-                //    urnCollection.Add(sp.Urn);
-                //}
             }
 
             return urnCollection;
