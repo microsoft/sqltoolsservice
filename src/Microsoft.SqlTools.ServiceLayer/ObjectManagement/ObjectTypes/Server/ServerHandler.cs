@@ -20,7 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     /// </summary>
     public class ServerHandler : ObjectTypeHandler<ServerInfo, ServerViewContext>
     {
-        private const string serverNotExistsError = "Server was not created for data container";
         private ServerViewInfo serverViewInfo = new ServerViewInfo();
         private ServerConfigService configService = new ServerConfigService();
         private Server server = null;
@@ -42,29 +41,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
                 var serverSmo = CreateServerSmoObject(context).Result;
-                this.serverViewInfo.ObjectInfo = new ServerInfo()
+                if(serverSmo != null)
                 {
-                    Name = serverSmo.Name,
-                    HardwareGeneration = serverSmo.HardwareGeneration,
-                    Language = serverSmo.Language,
-                    MemoryInMB = serverSmo.PhysicalMemory,
-                    OperatingSystem = serverSmo.HostDistribution,
-                    Platform = serverSmo.HostPlatform,
-                    Processors = serverSmo.Processors,
-                    IsClustered = serverSmo.IsClustered,
-                    IsHadrEnabled = serverSmo.IsHadrEnabled,
-                    IsPolyBaseInstalled = serverSmo.IsPolyBaseInstalled,
-                    IsXTPSupported = serverSmo.IsXTPSupported,
-                    Product = serverSmo.Product,
-                    ReservedStorageSizeMB = serverSmo.ReservedStorageSizeMB,
-                    RootDirectory = serverSmo.RootDirectory,
-                    ServerCollation = serverSmo.Collation,
-                    ServiceTier = serverSmo.ServiceTier,
-                    StorageSpaceUsageInGB = serverSmo.UsedStorageSizeMB,
-                    Version = serverSmo.Version.ToString(),
-                    MinServerMemory = configService.GetConfigByName(this.server, "min server memory (MB)").ConfigValue,
-                    MaxServerMemory = configService.GetConfigByName(this.server, "max server memory (MB)").ConfigValue
-            };
+                    this.serverViewInfo.ObjectInfo = new ServerInfo()
+                    {
+                        Name = serverSmo.Name,
+                        HardwareGeneration = serverSmo.HardwareGeneration,
+                        Language = serverSmo.Language,
+                        MemoryInMB = serverSmo.PhysicalMemory,
+                        OperatingSystem = serverSmo.HostDistribution,
+                        Platform = serverSmo.HostPlatform,
+                        Processors = serverSmo.Processors,
+                        IsClustered = serverSmo.IsClustered,
+                        IsHadrEnabled = serverSmo.IsHadrEnabled,
+                        IsPolyBaseInstalled = serverSmo.IsPolyBaseInstalled,
+                        IsXTPSupported = serverSmo.IsXTPSupported,
+                        Product = serverSmo.Product,
+                        ReservedStorageSizeMB = serverSmo.ReservedStorageSizeMB,
+                        RootDirectory = serverSmo.RootDirectory,
+                        ServerCollation = serverSmo.Collation,
+                        ServiceTier = serverSmo.ServiceTier,
+                        StorageSpaceUsageInGB = serverSmo.UsedStorageSizeMB,
+                        Version = serverSmo.Version.ToString(),
+                        MinServerMemory = configService.GetConfigByName(this.server, "min server memory (MB)").ConfigValue,
+                        MaxServerMemory = configService.GetConfigByName(this.server, "max server memory (MB)").ConfigValue
+                    };
+                }
 
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
             }
@@ -72,20 +74,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(ServerViewContext context, ServerInfo serverInfo)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
-        public Task<Server> CreateServerSmoObject(ServerViewContext context)
+        public Task<Server?> CreateServerSmoObject(ServerViewContext context)
         {
             using (context.Connection.SqlConnectionObject)
             {
                 this.server = new Server(context.Connection);
                 string objectUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
-                var serverSmo = server.GetSmoObject(new Urn(objectUrn)) as Server ?? throw new InvalidOperationException(serverNotExistsError);
+                var serverSmo = server.GetSmoObject(new Urn(objectUrn)) as Server;
                 return Task.FromResult(serverSmo);
             }
         }

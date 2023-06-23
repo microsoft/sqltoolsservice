@@ -258,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             }
             catch (Exception ex)
             {
-                throw new ServerConfigException($"Failed to get config. config name: ${configName}", ex);
+                throw new ServerConfigException($"Failed to get config. config name: ${configName} for  server {server.Name}", ex);
             }
         }
     }
