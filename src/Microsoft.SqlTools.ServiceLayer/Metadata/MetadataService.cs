@@ -15,6 +15,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using System.Collections.Specialized;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
@@ -125,23 +126,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         {
             StringCollection scripts = null;
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
-            
+
             if (connectionInfo != null)
             {
-                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
+                scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
+                if (scripts.Count == 0)
                 {
-                    scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
-                    if (scripts != null)
+                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                     {
-                        MetadataScriptCacher.WriteToCache(sqlConn.Database, scripts);
+                        try
+                        {
+                            scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
+                            if (scripts != null)
+                            {
+                                MetadataScriptCacher.WriteToCache(sqlConn.Database, scripts);
+                            }
+
+                            await requestContext.SendResult(new AllServerMetadataResult
+                            {
+                                Scripts = scripts?.ToString() ?? string.Empty
+                            });
+
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error($"Failed to generate server scripts. Error ${ex.Message}");
+                            await requestContext.SendError(ex);
+
+                            return;
+                        }
                     }
                 }
             }
 
-            await requestContext.SendResult(new AllServerMetadataResult
-            {
-                Scripts = scripts?.ToString() ?? string.Empty
-            });
+            Logger.Error("Failed to establish connection to server.");
+            await requestContext.SendError("Failed to establish connection to server.");
         }
 
         /// <summary>

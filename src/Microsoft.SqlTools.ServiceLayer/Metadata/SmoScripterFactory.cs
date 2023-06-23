@@ -27,9 +27,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
 
             Server server = new Server(serverConnection);
-            var stringCollection = SmoScripterFactory.GenerateAllScripts(server);
+            var scripts = SmoScripterFactory.GenerateAllScripts(server);
 
-            return stringCollection;
+            return scripts;
         }
 
         private static ServerConnection GetServerConnection(DbConnection connection)
@@ -68,7 +68,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             return serverConnection;
         }
-        
+
         private static StringCollection GenerateAllScripts(Server server)
         {
             var urns = SmoScripterFactory.GetAllServerObjectUrns(server).ToArray();
@@ -100,9 +100,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             var scripter = new Scripter(server);
             scripter.Options = scriptingOptions;
-            var stringCollection = scripter.Script(urns);
+            var scripts = scripter.Script(urns);
 
-            return stringCollection;
+            return scripts;
         }
 
         private static UrnCollection GetAllServerObjectUrns(Server server)
