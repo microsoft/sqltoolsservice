@@ -657,11 +657,6 @@
         <target state="translated">リンク サーバー</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">リンク サーバー ログイン</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
         <target state="translated">ログイン</target>
@@ -7193,8 +7188,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">指定した日付の任意の時刻に作成したオブジェクトを包含したり除外するために、作成日を選択または入力してください。または、指定した日付範囲内に作成したオブジェクトを包含したり除外するために、範囲の開始日と終了日を入力してください。</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">作成日に基づいてオブジェクトを含めるか除外します。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8279,6 +8274,51 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="prototype_file_noApplicableFileGroup">
         <source>No Applicable Filegroup</source>
         <target state="translated">適用できるファイル グループなし</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="translated">Basic</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="translated">Standard</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="translated">Premium</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="translated">DataWarehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="translated">General Purpose</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="translated">Business Critical</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="translated">エディション値が無効です</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="translated">Hyperscale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">なし</target>
         <note></note>
       </trans-unit>
     </body>

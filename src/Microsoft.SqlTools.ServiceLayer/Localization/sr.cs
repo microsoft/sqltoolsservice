@@ -1141,14 +1141,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string SchemaHierarchy_LinkedServerLogins
-        {
-            get
-            {
-                return Keys.GetString(Keys.SchemaHierarchy_LinkedServerLogins);
-            }
-        }
-
         public static string SchemaHierarchy_Logins
         {
             get
@@ -12437,6 +12429,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string databaseBackupDate_None
+        {
+            get
+            {
+                return Keys.GetString(Keys.databaseBackupDate_None);
+            }
+        }
+
         public static string BasicAzureEdition
         {
             get
@@ -13458,9 +13458,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SchemaHierarchy_LinkedServers = "SchemaHierarchy_LinkedServers";
-
-
-            public const string SchemaHierarchy_LinkedServerLogins = "SchemaHierarchy_LinkedServerLogins";
 
 
             public const string SchemaHierarchy_Logins = "SchemaHierarchy_Logins";
@@ -17856,6 +17853,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_file_noApplicableFileGroup = "prototype_file_noApplicableFileGroup";
+
+
+            public const string databaseBackupDate_None = "databaseBackupDate_None";
 
 
             public const string BasicAzureEdition = "BasicAzureEdition";

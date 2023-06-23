@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>Servidores vinculados</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Logons de servidor vinculado</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>Logons</value>
   </data>
@@ -4382,7 +4379,7 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
     <value>Data de Criação</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Selecione ou digite uma data de criação para incluir ou excluir objetos criados a qualquer momento nessa data, ou digite uma data de início e de término para incluir ou excluir objetos criados nesse intervalo de datas inclusivo.</value>
+    <value>Inclua ou exclua objetos com base em sua data de criação.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>É Compilado Nativamente</value>
@@ -5034,5 +5031,32 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>Nenhum Grupo de Arquivos Aplicável</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Básico</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Uso Geral</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Comercialmente Crítico</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>O valor de edição não é válido</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hiperescala</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Nenhum</value>
   </data>
 </root>

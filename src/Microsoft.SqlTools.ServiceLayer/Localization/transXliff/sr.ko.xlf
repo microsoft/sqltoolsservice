@@ -657,11 +657,6 @@
         <target state="translated">연결된 서버</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">연결된 서버 로그인</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
         <target state="translated">로그인</target>
@@ -7193,8 +7188,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">특정 날짜에 생성된 개체를 포함하거나 제외하려면 만든 날짜를 선택 또는 입력하고, 특정 날짜를 포함하는 날짜 범위 내에서 생성된 개체를 포함하거나 제외하려면 시작 및 종료 날짜를 입력하십시오.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">만든 날짜에 따라 개체를 포함하거나 제외합니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8279,6 +8274,51 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="prototype_file_noApplicableFileGroup">
         <source>No Applicable Filegroup</source>
         <target state="translated">해당 파일 그룹 없음</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="translated">기본</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="translated">표준</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="translated">프리미엄</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="translated">DataWarehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="translated">범용</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="translated">중요 비즈니스용</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="translated">버전 값이 유효하지 않습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="translated">하이퍼스케일</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">없음</target>
         <note></note>
       </trans-unit>
     </body>

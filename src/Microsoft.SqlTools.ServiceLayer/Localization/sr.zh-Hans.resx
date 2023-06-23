@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>链接服务器</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>链接服务器登录名</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>登录名</value>
   </data>
@@ -4382,7 +4379,7 @@
     <value>创建日期</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>选择或键入创建日期，以包含或排除在该日期的任何时间创建的对象；或者输入开始日期和结束日期，以包含或排除在该日期范围内创建的对象。</value>
+    <value>根据对象的创建日期包括或排除对象。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>已本机编译</value>
@@ -5034,5 +5031,32 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>无适用文件组</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>标准</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>数据仓库</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>常规用途</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>业务关键型</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>版本值无效</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>超大规模</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>无</value>
   </data>
 </root>

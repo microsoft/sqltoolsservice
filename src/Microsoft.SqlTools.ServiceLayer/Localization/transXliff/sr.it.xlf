@@ -657,11 +657,6 @@
         <target state="translated">Server collegati</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="SchemaHierarchy_LinkedServerLogins">
-        <source>Linked Server Logins</source>
-        <target state="translated">Accessi server collegato</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="SchemaHierarchy_Logins">
         <source>Logins</source>
         <target state="translated">Account di accesso</target>
@@ -7193,8 +7188,8 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">Selezionare o digitare una data di creazione per includere o escludere gli oggetti creati a qualunque ora della data specificata. In alternativa, immettere una data di inizio e una data di fine per includere o escludere gli oggetti creati nell'intervallo di date specificato.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">Includere o escludere oggetti in base alla data di creazione.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8279,6 +8274,51 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
       <trans-unit id="prototype_file_noApplicableFileGroup">
         <source>No Applicable Filegroup</source>
         <target state="translated">Nessun Filegroup applicabile</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BasicAzureEdition">
+        <source>Basic</source>
+        <target state="translated">Basic</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StandardAzureEdition">
+        <source>Standard</source>
+        <target state="translated">Standard</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PremiumAzureEdition">
+        <source>Premium</source>
+        <target state="translated">Premium</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DataWarehouseAzureEdition">
+        <source>DataWarehouse</source>
+        <target state="translated">DataWarehouse</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="GeneralPurposeAzureEdition">
+        <source>General Purpose</source>
+        <target state="translated">Utilizzo generico</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="BusinessCriticalAzureEdition">
+        <source>Business Critical</source>
+        <target state="translated">Business Critical</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorInvalidEdition">
+        <source>Edition value is not valid</source>
+        <target state="translated">Il valore dell'edizione non è valido</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HyperscaleAzureEdition">
+        <source>Hyperscale</source>
+        <target state="translated">Hyperscale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">Nessuno</target>
         <note></note>
       </trans-unit>
     </body>

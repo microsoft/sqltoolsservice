@@ -69,6 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(ScriptObjectRequest.Type, HandleScriptObjectRequest, true);
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
             this.serviceHost.SetRequestHandler(SearchRequest.Type, HandleSearchRequest, true);
+            this.serviceHost.SetRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest, true);
         }
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
@@ -196,6 +197,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             await requestContext.SendResult(res.ToArray());
+        }
+
+        internal async Task HandleDetachDatabaseRequest(DetachDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        {
+            var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
+            var sqlScript = handler.Detach(requestParams);
+            await requestContext.SendResult(sqlScript);
         }
 
         private IObjectTypeHandler GetObjectTypeHandler(SqlObjectType objectType)

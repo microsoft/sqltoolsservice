@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>リンク サーバー</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>リンク サーバー ログイン</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>ログイン</value>
   </data>
@@ -4382,7 +4379,7 @@
     <value>作成日</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>指定した日付の任意の時刻に作成したオブジェクトを包含したり除外するために、作成日を選択または入力してください。または、指定した日付範囲内に作成したオブジェクトを包含したり除外するために、範囲の開始日と終了日を入力してください。</value>
+    <value>作成日に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>ネイティブ コンパイル済み</value>
@@ -5034,5 +5031,32 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>適用できるファイル グループなし</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Premium</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>General Purpose</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Business Critical</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>エディション値が無効です</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Hyperscale</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>なし</value>
   </data>
 </root>

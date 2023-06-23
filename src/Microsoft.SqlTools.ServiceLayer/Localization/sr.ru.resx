@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>Связанные серверы</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>Имена входа на связанный сервер</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>Имена для входа</value>
   </data>
@@ -4382,7 +4379,7 @@
     <value>Дата создания</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Выберите или введите дату создания, чтобы включить или исключить объекты, созданные в течение указанного дня, либо введите начальную и конечную даты для включения или исключения объектов, созданных в заданный этими датами период (включительно).</value>
+    <value>Включите или исключите объекты на основе даты их создания.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>Скомпилировано в собственном коде</value>
@@ -5034,5 +5031,32 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>Применимая файловая группа отсутствует</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>Базовый</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>Стандартный</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>Премиум</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>Хранилище данных</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>Общего назначения</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>Критически важный для бизнеса</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>Недопустимое значение выпуска</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>Гипермасштабирование</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Нет</value>
   </data>
 </root>

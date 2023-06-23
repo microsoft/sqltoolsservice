@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>연결된 서버</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>연결된 서버 로그인</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>로그인</value>
   </data>
@@ -4382,7 +4379,7 @@
     <value>만든 날짜</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>특정 날짜에 생성된 개체를 포함하거나 제외하려면 만든 날짜를 선택 또는 입력하고, 특정 날짜를 포함하는 날짜 범위 내에서 생성된 개체를 포함하거나 제외하려면 시작 및 종료 날짜를 입력하십시오.</value>
+    <value>만든 날짜에 따라 개체를 포함하거나 제외합니다.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>고유하게 컴파일됨</value>
@@ -5034,5 +5031,32 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>해당 파일 그룹 없음</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>기본</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>표준</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>프리미엄</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>범용</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>중요 비즈니스용</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>버전 값이 유효하지 않습니다.</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>하이퍼스케일</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>없음</value>
   </data>
 </root>

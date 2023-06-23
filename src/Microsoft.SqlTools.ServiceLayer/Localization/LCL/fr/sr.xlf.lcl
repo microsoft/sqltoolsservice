@@ -724,6 +724,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";BasicAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Basic]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[De base]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";BatchHashTableBuild" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Batch Hash Table Build]]></Val>
@@ -849,6 +858,15 @@
           <Val><![CDATA[Build residual.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Génération du résiduel.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";BusinessCriticalAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Business Critical]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Critique pour l’entreprise]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2047,6 +2065,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";DataWarehouseAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DataWarehouse]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DataWarehouse]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";DatabaseNotAccessible" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The database {0} is not accessible.]]></Val>
@@ -2722,6 +2749,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";ErrorInvalidEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Edition value is not valid]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Valeur d'édition non valide]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";ErrorMessage" ItemType="0" PsrId="308" InstFlg="true" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}]]></Val>
@@ -3273,10 +3309,13 @@
       </Item>
       <Item ItemId=";FilterCreateDateDescription" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.]]></Val>
+          <Val><![CDATA[Include or exclude objects based on their creation date.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sélectionnez ou tapez une date de création pour inclure ou exclure des objets créés à n'importe quelle heure à cette date, ou entrez une date de début et une date de fin pour inclure ou exclure les objets créés dans cette plage de dates inclusive.]]></Val>
+            <Val><![CDATA[Incluez ou excluez des objets en fonction de leur date de création.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3612,6 +3651,15 @@
           <Val><![CDATA[Group by and Apply.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Regroupe et applique.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";GeneralPurposeAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[General Purpose]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Usage général]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4002,6 +4050,15 @@
           <Val><![CDATA[Number of rows processed by Hpc devices.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Nombre de lignes traitées par les appareils Hpc.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";HyperscaleAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Hyperscale]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Hyperscale]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7783,6 +7840,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";PremiumAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Premium]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Premium]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";PrimaryClones" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Primary Clones]]></Val>
@@ -9595,15 +9661,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";SchemaHierarchy_LinkedServerLogins" ItemType="0" PsrId="308" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Linked Server Logins]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Connexions de serveur lié]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";SchemaHierarchy_LinkedServers" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Linked Servers]]></Val>
@@ -11359,6 +11416,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";StandardAzureEdition" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Standard]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Standard]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";StartDateGreaterThanEndDate" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The job schedule starting date cannot be greater than the ending date.]]></Val>
@@ -13080,6 +13146,15 @@
           <Val><![CDATA[New Database]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Nouvelle base de données]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";databaseBackupDate_None" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[None]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aucun]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

@@ -501,9 +501,6 @@
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
     <value>連結的伺服器</value>
   </data>
-  <data name="SchemaHierarchy_LinkedServerLogins" xml:space="preserve">
-    <value>連結的伺服器登入</value>
-  </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
     <value>登入</value>
   </data>
@@ -4382,7 +4379,7 @@
     <value>建立日期</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>選取或輸入日期，以包含或排除建立於該日期任何時間的物件，或輸入起訖日期，以包含或排除建立於包含起訖日期範圍內的物件。</value>
+    <value>根據物件的建立日期包含或排除物件。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>以原生方式編譯</value>
@@ -5034,5 +5031,32 @@
   </data>
   <data name="prototype_file_noApplicableFileGroup" xml:space="preserve">
     <value>沒有適用的檔案群組</value>
+  </data>
+  <data name="BasicAzureEdition" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="StandardAzureEdition" xml:space="preserve">
+    <value>標準</value>
+  </data>
+  <data name="PremiumAzureEdition" xml:space="preserve">
+    <value>進階版</value>
+  </data>
+  <data name="DataWarehouseAzureEdition" xml:space="preserve">
+    <value>DataWarehouse</value>
+  </data>
+  <data name="GeneralPurposeAzureEdition" xml:space="preserve">
+    <value>一般目的</value>
+  </data>
+  <data name="BusinessCriticalAzureEdition" xml:space="preserve">
+    <value>商務關鍵性</value>
+  </data>
+  <data name="ErrorInvalidEdition" xml:space="preserve">
+    <value>版本值無效</value>
+  </data>
+  <data name="HyperscaleAzureEdition" xml:space="preserve">
+    <value>超大規模資料庫</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>無</value>
   </data>
 </root>

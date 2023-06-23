@@ -70,6 +70,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     </params>
 </formdescription>";
 
+        // This is a set of special database roles exist only in the virtual master database of SQL DB. 
+        // https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/database-level-roles?view=azuresqldb-current
+        public static HashSet<string> SpecialDbRolesInSqlDbMaster = new HashSet<string>(){"dbmanager", "loginmanager"};
+
         public static SecurableTypeMetadata[] GetSecurableTypeMetadata(SqlObjectType objectType, Version serverVersion, string databaseName,DatabaseEngineType databaseEngineType, DatabaseEngineEdition engineEdition)
         {
             List<SecurableTypeMetadata> res = new List<SecurableTypeMetadata>();

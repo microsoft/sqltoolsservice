@@ -9,7 +9,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
@@ -18,6 +17,9 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using System.Text;
+using System.IO;
+using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -98,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, ConfigAction.Create))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject))
             {
                 if (dataContainer.Server == null)
                 {
@@ -119,6 +121,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             ObjectInfo = new DatabaseInfo(),
                             IsAzureDB = isAzureDB
                         };
+
+                        // Collect the Database properties information
+                        if (!requestParams.IsNewObject)
+                        {
+                            var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                            if (smoDatabase != null)
+                            {
+                                databaseViewInfo.ObjectInfo = new DatabaseInfo()
+                                {
+                                    Name = smoDatabase.Name,
+                                    CollationName = smoDatabase.Collation,
+                                    DateCreated = smoDatabase.CreateDate.ToString(),
+                                    LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
+                                    LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
+                                    MemoryAllocatedToMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                    MemoryUsedByMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                    NumberOfUsers = smoDatabase.Users.Count,
+                                    Owner = smoDatabase.Owner,
+                                    SizeInMb = smoDatabase.Size,
+                                    SpaceAvailableInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.SpaceAvailable),
+                                    Status = smoDatabase.Status.ToString()
+                                };
+                            }
+                        }
 
                         // azure sql db doesn't have a sysadmin fixed role
                         var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
@@ -161,6 +187,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
                             databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
                             databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
+                            if (!requestParams.IsNewObject)
+                            {
+                                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                                if (smoDatabase != null)
+                                {
+                                    databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
+                                }
+                            }
                         }
 
                         // Skip adding logins if running against an Azure SQL DB
@@ -200,7 +234,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task Save(DatabaseViewContext context, DatabaseInfo obj)
         {
             ConfigureDatabase(
-                context.Parameters.ConnectionUri,
+                context.Parameters,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.RunNow);
@@ -210,39 +244,112 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<string> Script(DatabaseViewContext context, DatabaseInfo obj)
         {
             var script = ConfigureDatabase(
-                context.Parameters.ConnectionUri,
+                context.Parameters,
                 obj,
                 context.Parameters.IsNewObject ? ConfigAction.Create : ConfigAction.Update,
                 RunType.ScriptToWindow);
             return Task.FromResult(script);
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, ConfigAction configAction, DatabaseInfo? database = null)
+        /// <summary>
+        /// Used to detach the specified database from a server.
+        /// </summary>
+        /// <param name="detachParams">The various parameters needed for the Detach operation</param>
+        public string Detach(DetachDatabaseRequestParams detachParams)
+        {
+            var sqlScript = string.Empty;
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false))
+            {
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
+                {
+                    if (detachParams.GenerateScript)
+                    {
+                        sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
+                    }
+                    else
+                    {
+                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                        try
+                        {
+                            // In order to drop all connections to the database, we switch it to single
+                            // user access mode so that only our current connection to the database stays open.
+                            // Any pending operations are terminated and rolled back.
+                            if (detachParams.DropConnections)
+                            {
+                                smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+                        }
+                        catch (SmoException)
+                        {
+                            // Revert to database's previous user access level if we changed it as part of dropping connections
+                            // before hitting this exception.
+                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            throw;
+                        }
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                }
+            }
+            return sqlScript;
+        }
+
+        private string CreateDetachScript(DetachDatabaseRequestParams detachParams, string databaseName)
+        {
+            var escapedName = ToSqlScript.FormatIdentifier(databaseName);
+            var builder = new StringBuilder();
+            builder.AppendLine("USE [master]");
+            builder.AppendLine("GO");
+            if (detachParams.DropConnections)
+            {
+                builder.AppendLine($"ALTER DATABASE {escapedName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
+                builder.AppendLine("GO");
+            }
+            builder.Append($"EXEC master.dbo.sp_detach_db @dbname = N'{databaseName}'");
+            if (detachParams.UpdateStatistics)
+            {
+                builder.Append($", @skipchecks = 'false'");
+            }
+            builder.AppendLine();
+            builder.AppendLine("GO");
+            return builder.ToString();
+        }
+
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: configAction != ConfigAction.Create);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
             if (dataContainer.Server == null)
             {
                 throw new InvalidOperationException(serverNotExistsError);
             }
-            string objectUrn = (configAction != ConfigAction.Create && database != null)
-                ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server/Database[@Name='{0}']",
-                    Urn.EscapeString(database.Name))
-                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "Server");
-            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectUrn);
+            if (string.IsNullOrEmpty(objectURN))
+            {
+                objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
+            }
+            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
             return dataContainer;
         }
 
-        private string ConfigureDatabase(string connectionUri, DatabaseInfo database, ConfigAction configAction, RunType runType)
+        private string ConfigureDatabase(InitializeViewRequestParams viewParams, DatabaseInfo database, ConfigAction configAction, RunType runType)
         {
             if (database.Name == null)
             {
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(connectionUri, configAction, database))
+            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject))
             {
                 if (dataContainer.Server == null)
                 {
@@ -499,6 +606,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return recoveryModels.ToArray();
+        }
+
+        private DatabaseFile[] GetDatabaseFiles(Database database)
+        {
+            var filesList = new List<DatabaseFile>();
+            foreach (FileGroup fileGroup in database.FileGroups)
+            {
+                foreach (DataFile file in fileGroup.Files)
+                {
+                    filesList.Add(new DatabaseFile()
+                    {
+                        Name = file.Name,
+                        Type = FileType.Data.ToString(),
+                        Path = Path.GetDirectoryName(file.FileName),
+                        FileGroup = fileGroup.Name
+                    });
+                }
+            }
+            foreach (LogFile file in database.LogFiles)
+            {
+                filesList.Add(new DatabaseFile()
+                {
+                    Name = file.Name,
+                    Type = FileType.Log.ToString(),
+                    Path = Path.GetDirectoryName(file.FileName),
+                    FileGroup = string.Empty
+                });
+            }
+            return filesList.ToArray();
         }
 
         /// <summary>
