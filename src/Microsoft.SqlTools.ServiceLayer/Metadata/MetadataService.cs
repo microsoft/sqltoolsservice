@@ -146,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
                             if (scripts != null)
                             {
-                                MetadataScriptCacher.WriteToCache(sqlConn.Database, scripts);
+                                MetadataScriptCacher.WriteToCache(connectionInfo.ConnectionDetails.ServerName, scripts);
                                 await requestContext.SendResult(new AllServerMetadataResult
                                 {
                                     Scripts = scripts.ToString()
