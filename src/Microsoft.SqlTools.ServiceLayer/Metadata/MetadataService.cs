@@ -130,7 +130,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             if (connectionInfo != null)
             {
                 scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
-                if (scripts.Count == 0)
+                if (scripts.Count != 0)
+                {
+                    await requestContext.SendResult(new AllServerMetadataResult
+                    {
+                        Scripts = scripts.ToString()
+                    });
+                }
+                else
                 {
                     using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                     {
