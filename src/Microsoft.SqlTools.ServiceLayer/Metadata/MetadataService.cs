@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             {
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                 {
-                    scripts = new SmoScriptorFactory().GetAllScripts(sqlConn);
+                    scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
                 }
             }
 

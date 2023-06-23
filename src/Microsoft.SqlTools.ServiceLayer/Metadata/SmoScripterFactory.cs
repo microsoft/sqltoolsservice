@@ -16,9 +16,9 @@ using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
-    internal class SmoScripterFactory
+    internal static class SmoScripterFactory
     {
-        public StringCollection GetAllScripts(DbConnection connection)
+        public static StringCollection GenerateAllServerScripts(DbConnection connection)
         {
             var serverConnection = SmoScripterFactory.GetServerConnection(connection);
             if (serverConnection == null)
@@ -35,30 +35,41 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         private static ServerConnection GetServerConnection(DbConnection connection)
         {
             // Get a connection to the database for SMO purposes
-            SqlConnection sqlConnection = connection as SqlConnection;
+            SqlConnection sqlConnection = connection as SqlConnection ?? SmoScripterFactory.TryFindingReliableSqlConnection(connection);
             if (sqlConnection == null)
             {
-                // It's not actually a SqlConnection, so let's try a reliable SQL connection
-                ReliableSqlConnection reliableConn = connection as ReliableSqlConnection;
-                if (reliableConn == null)
-                {
-                    // If we don't have connection we can use with SMO, just give up on using SMO
-                    return null;
-                }
-
-                // We have a reliable connection, use the underlying connection
-                sqlConnection = reliableConn.GetUnderlyingConnection();
+                return null;
             }
 
+            var serverConnection = SmoScripterFactory.ConnectToServerWithSmo(sqlConnection);
+            return serverConnection;
+        }
+
+        private static SqlConnection TryFindingReliableSqlConnection(DbConnection connection)
+        {
+            // It's not actually a SqlConnection, so let's try a reliable SQL connection
+            ReliableSqlConnection reliableConnection = connection as ReliableSqlConnection;
+            if (reliableConnection == null)
+            {
+                // If we don't have connection we can use with SMO, just give up on using SMO
+                return null;
+            }
+
+            // We have a reliable connection, use the underlying connection
+            return reliableConnection.GetUnderlyingConnection();
+        }
+
+        private static ServerConnection ConnectToServerWithSmo(SqlConnection connection)
+        {
             // Connect with SMO and get the metadata for the table
             ServerConnection serverConnection;
-            if (sqlConnection.AccessToken == null)
+            if (connection.AccessToken == null)
             {
-                serverConnection = new ServerConnection(sqlConnection);
+                serverConnection = new ServerConnection(connection);
             }
             else
             {
-                serverConnection = new ServerConnection(sqlConnection, new AzureAccessToken(sqlConnection.AccessToken));
+                serverConnection = new ServerConnection(connection, new AzureAccessToken(connection.AccessToken));
             }
 
             return serverConnection;
