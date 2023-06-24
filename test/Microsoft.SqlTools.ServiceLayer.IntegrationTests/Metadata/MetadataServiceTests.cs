@@ -31,6 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
     {
         private string testTableSchema = "dbo";
         private string testTableName = "MetadataTestTable";
+        private string testTableName2 = "SecondMetadataTestTable";
 
         private LiveConnectionHelper.TestConnectionResult GetLiveAutoCompleteTestObjects()
         {
@@ -49,20 +50,20 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             return result;
         }
 
-        private void CreateTestTable(SqlConnection sqlConn)
+        private void CreateTestTable(SqlConnection sqlConn, string testTableSchema, string testTableName)
         {
             string sql = string.Format("IF OBJECT_ID('{0}.{1}', 'U') IS NULL CREATE TABLE {0}.{1}(id int)",
-                this.testTableSchema, this.testTableName);
+                testTableSchema, testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
                 sqlCommand.ExecuteNonQuery(); 
             }            
         }
 
-        private void DeleteTestTable(SqlConnection sqlConn)
+        private void DeleteTestTable(SqlConnection sqlConn, string testTableSchema, string testTableName)
         {
             string sql = string.Format("IF OBJECT_ID('{0}.{1}', 'U') IS NOT NULL DROP TABLE {0}.{1}",
-                this.testTableSchema, this.testTableName);
+                testTableSchema, testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
                 sqlCommand.ExecuteNonQuery();
@@ -81,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
             Assert.NotNull(sqlConn);
 
-            CreateTestTable(sqlConn);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
             var metadata = new List<ObjectMetadata>();
             MetadataService.ReadMetadata(sqlConn, metadata);
@@ -99,7 +100,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             }
             Assert.True(foundTestTable);
 
-            DeleteTestTable(sqlConn);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
         }
 
         [Test]
@@ -110,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var result = GetLiveAutoCompleteTestObjects();
             var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
 
-            CreateTestTable(sqlConn);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
 
             var requestContext = new Mock<RequestContext<TableMetadataResult>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
@@ -124,7 +125,35 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             await MetadataService.HandleGetTableRequest(metadataParmas, requestContext.Object);
 
-            DeleteTestTable(sqlConn);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+
+            requestContext.VerifyAll();
+        }
+
+        [Test]
+        public async Task VerifyGetAllServerMetadataRequest()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+
+            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var requestContext = new Mock<RequestContext<AllServerMetadataResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<AllServerMetadataResult>())).Returns(Task.FromResult(new object()));
+
+            var allServerMetadataParams = new AllServerMetadataParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            await MetadataService.HandleGetAllServerMetadataRequest(allServerMetadataParams, requestContext.Object);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             requestContext.VerifyAll();
         }
