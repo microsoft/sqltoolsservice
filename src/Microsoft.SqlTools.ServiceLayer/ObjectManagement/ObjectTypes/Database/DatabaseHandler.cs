@@ -115,11 +115,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         var azurePrototype = prototype as DatabasePrototypeAzure;
                         bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
                         bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
+                        bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
 
                         var databaseViewInfo = new DatabaseViewInfo()
                         {
                             ObjectInfo = new DatabaseInfo(),
-                            IsAzureDB = isAzureDB
+                            IsAzureDB = isAzureDB,
+                            databaseEngineEdition = dataContainer.Server.DatabaseEngineEdition.ToString(),
                         };
 
                         // Collect the Database properties information
@@ -139,8 +141,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 Owner = smoDatabase.Owner,
                                 SizeInMb = smoDatabase.Size,
                                 SpaceAvailableInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.SpaceAvailable),
-                                Status = smoDatabase.Status.ToString()
+                                Status = smoDatabase.Status.ToString(),
+                                AutoCreateIncrementalStatistics = smoDatabase.AutoCreateIncrementalStatisticsEnabled,
+                                AutoCreateStatistics = smoDatabase.AutoCreateStatisticsEnabled,
+                                AutoShrink = smoDatabase.AutoShrink,
+                                AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
+                                AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
+                                DatabaseReadOnly = smoDatabase.ReadOnly,
+                                EncryptionEnabled = smoDatabase.EncryptionEnabled,
+                                RestrictAccess = smoDatabase.UserAccess.ToString(),
                             };
+
+                            if (!isManagedInstance)
+                            {
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = smoDatabase.UserAccess.ToString();
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = smoDatabase.PageVerify.ToString();
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                databaseViewInfo.PageVerifyOptions = GetPageVerifyOptions();
+                                databaseViewInfo.restrictAccessOptions = GetUserAccessOptions();
+                            }
+
+
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role
@@ -404,6 +427,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 collationItems.Insert(0, firstCollation);
             }
             return collationItems.ToArray();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> GetPageVerifyOptions()
+        {
+            var pageVerifyOptions  = new Dictionary<string, string>();
+
+            pageVerifyOptions.Add(PageVerify.None.ToString(), SR.prototype_db_prop_pageVerify_value_none);
+            pageVerifyOptions.Add(PageVerify.Checksum.ToString(), SR.prototype_db_prop_pageVerify_value_checksum);
+            pageVerifyOptions.Add(PageVerify.TornPageDetection.ToString(), SR.prototype_db_prop_pageVerify_value_tornPageDetection);
+
+            return pageVerifyOptions;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        private Dictionary<string, string> GetUserAccessOptions()
+        {
+            
+            var userAccessOptions = new Dictionary<string, string>();
+
+            userAccessOptions.Add(DatabaseUserAccess.Restricted.ToString(), SR.prototype_db_prop_restrictAccess_value_restricted);
+            userAccessOptions.Add(DatabaseUserAccess.Multiple.ToString(), SR.prototype_db_prop_restrictAccess_value_multiple);
+            userAccessOptions.Add(DatabaseUserAccess.Single.ToString(), SR.prototype_db_prop_restrictAccess_value_single);
+
+            return userAccessOptions;
         }
 
         /// <summary>

@@ -5,6 +5,8 @@
 //
 #nullable disable
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabaseViewInfo : SqlObjectViewInfo
@@ -14,12 +16,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] CompatibilityLevels { get; set; }
         public string[] ContainmentTypes { get; set; }
         public string[] RecoveryModels { get; set; }
-
         public bool IsAzureDB { get; set; }
         public string[] AzureBackupRedundancyLevels { get; set; }
         public AzureEditionDetails[] AzureServiceLevelObjectives { get; set; }
         public string[] AzureEditions { get; set; }
         public AzureEditionDetails[] AzureMaxSizes { get; set; }
+        public Dictionary<string, string> PageVerifyOptions { get; set; }
+        public Dictionary<string, string> restrictAccessOptions { get; set; }
+        public string databaseEngineEdition { get; set; }
     }
 
     public class AzureEditionDetails
