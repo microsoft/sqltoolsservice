@@ -438,9 +438,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var pageVerifyOptions  = new Dictionary<string, string>();
 
-            pageVerifyOptions.Add(PageVerify.None.ToString(), SR.prototype_db_prop_pageVerify_value_none);
             pageVerifyOptions.Add(PageVerify.Checksum.ToString(), SR.prototype_db_prop_pageVerify_value_checksum);
             pageVerifyOptions.Add(PageVerify.TornPageDetection.ToString(), SR.prototype_db_prop_pageVerify_value_tornPageDetection);
+            pageVerifyOptions.Add(PageVerify.None.ToString(), SR.prototype_db_prop_pageVerify_value_none);
 
             return pageVerifyOptions;
         }
@@ -455,9 +455,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             
             var userAccessOptions = new Dictionary<string, string>();
 
-            userAccessOptions.Add(DatabaseUserAccess.Restricted.ToString(), SR.prototype_db_prop_restrictAccess_value_restricted);
             userAccessOptions.Add(DatabaseUserAccess.Multiple.ToString(), SR.prototype_db_prop_restrictAccess_value_multiple);
             userAccessOptions.Add(DatabaseUserAccess.Single.ToString(), SR.prototype_db_prop_restrictAccess_value_single);
+            userAccessOptions.Add(DatabaseUserAccess.Restricted.ToString(), SR.prototype_db_prop_restrictAccess_value_restricted);
 
             return userAccessOptions;
         }
