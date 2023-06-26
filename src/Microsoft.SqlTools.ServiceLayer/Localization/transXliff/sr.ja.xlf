@@ -7188,8 +7188,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">指定した日付の任意の時刻に作成したオブジェクトを包含したり除外するために、作成日を選択または入力してください。または、指定した日付範囲内に作成したオブジェクトを包含したり除外するために、範囲の開始日と終了日を入力してください。</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">作成日に基づいてオブジェクトを含めるか除外します。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8314,6 +8314,11 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="HyperscaleAzureEdition">
         <source>Hyperscale</source>
         <target state="translated">Hyperscale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">なし</target>
         <note></note>
       </trans-unit>
     </body>

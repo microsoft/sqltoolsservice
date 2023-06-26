@@ -7188,8 +7188,8 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">Wählen Sie ein Erstellungsdatum aus, oder geben Sie ein Erstellungsdatum ein, um Objekte ein- oder auszuschließen, die zu einer beliebigen Uhrzeit an diesem Datum erstellt wurden. Sie können jedoch auch ein Anfangs- und Enddatum eingeben, um Objekte ein- oder auszuschließen, die in diesem Zeitraum (einschließlich Anfangs- und Enddatum) erstellt wurden.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">Objekte werden basierend auf ihrem Namen oder Erstellungsdatum ein- oder ausgeschlossen.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8314,6 +8314,11 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
       <trans-unit id="HyperscaleAzureEdition">
         <source>Hyperscale</source>
         <target state="translated">Hyperscale</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">Keine</target>
         <note></note>
       </trans-unit>
     </body>

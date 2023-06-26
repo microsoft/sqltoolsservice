@@ -13150,6 +13150,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";databaseBackupDate_None" ItemType="0" PsrId="308" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[None]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nessuno]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error_60compatibility" ItemType="0" PsrId="308" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Database properties cannot be set or viewed for databases in 6.0 or 6.5 compatibility mode.]]></Val>

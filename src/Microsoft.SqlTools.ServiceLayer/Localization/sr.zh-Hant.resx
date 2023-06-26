@@ -4379,7 +4379,7 @@
     <value>建立日期</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>選取或輸入日期，以包含或排除建立於該日期任何時間的物件，或輸入起訖日期，以包含或排除建立於包含起訖日期範圍內的物件。</value>
+    <value>根據物件的建立日期包含或排除物件。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>以原生方式編譯</value>
@@ -5055,5 +5055,8 @@
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>超大規模資料庫</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>無</value>
   </data>
 </root>

@@ -7188,8 +7188,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">選取或輸入日期，以包含或排除建立於該日期任何時間的物件，或輸入起訖日期，以包含或排除建立於包含起訖日期範圍內的物件。</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">根據物件的建立日期包含或排除物件。</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8314,6 +8314,11 @@ The Query Processor estimates that implementing the following index could improv
       <trans-unit id="HyperscaleAzureEdition">
         <source>Hyperscale</source>
         <target state="translated">超大規模資料庫</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">無</target>
         <note></note>
       </trans-unit>
     </body>

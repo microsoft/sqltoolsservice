@@ -4379,7 +4379,7 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
     <value>Erstellungsdatum</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Wählen Sie ein Erstellungsdatum aus, oder geben Sie ein Erstellungsdatum ein, um Objekte ein- oder auszuschließen, die zu einer beliebigen Uhrzeit an diesem Datum erstellt wurden. Sie können jedoch auch ein Anfangs- und Enddatum eingeben, um Objekte ein- oder auszuschließen, die in diesem Zeitraum (einschließlich Anfangs- und Enddatum) erstellt wurden.</value>
+    <value>Objekte werden basierend auf ihrem Namen oder Erstellungsdatum ein- oder ausgeschlossen.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>Wird systemintern kompiliert</value>
@@ -5055,5 +5055,8 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>Hyperscale</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Keine</value>
   </data>
 </root>

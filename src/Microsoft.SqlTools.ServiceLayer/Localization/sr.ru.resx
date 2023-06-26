@@ -4379,7 +4379,7 @@
     <value>Дата создания</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Выберите или введите дату создания, чтобы включить или исключить объекты, созданные в течение указанного дня, либо введите начальную и конечную даты для включения или исключения объектов, созданных в заданный этими датами период (включительно).</value>
+    <value>Включите или исключите объекты на основе даты их создания.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>Скомпилировано в собственном коде</value>
@@ -5055,5 +5055,8 @@
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>Гипермасштабирование</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>Нет</value>
   </data>
 </root>
