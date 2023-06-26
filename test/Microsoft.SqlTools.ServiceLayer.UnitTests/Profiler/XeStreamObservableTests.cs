@@ -49,12 +49,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
         [Test]
         public void XeStreamObservable_calls_OnError_when_the_fetcher_fails()
         {
-            string filePath = "thispathdoesnotexist.xel";
-            var profilerService = SetupProfilerService(filePath);
-            Assert.Throws<FileNotFoundException>(() =>
+            var observer = InitializeFileObserver("thispathdoesnotexist.xel");
+            observer.Observable.Start();
+            var retries = 10;
+            while (!observer.Completed && retries-- > 0)
             {
-                Task<IXEventFetcher > task1 = profilerService.initIXEventFetcher(filePath);
-                var iXEventFetcher = task1.GetAwaiter().GetResult();
+                Thread.Sleep(100);
+            }
+            Assert.Multiple(() =>
+            {
+                Assert.That(observer.Completed, Is.True, $"Reading the missing file didn't complete in 1 second.");
+                Assert.That(observer.Error?.GetBaseException(), Is.InstanceOf<FileNotFoundException>(), $"Expected Error from missing file. Error:{observer.Error}");
             });
         }
 
@@ -64,9 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             var profilerService = SetupProfilerService(filePath);
             var xeStreamObservable = new XeStreamObservable(() =>
             {
-                Task<IXEventFetcher> task1 = profilerService.initIXEventFetcher(filePath);
-                var iXEventFetcher = task1.GetAwaiter().GetResult();
-                return iXEventFetcher;
+                return profilerService.initIXEventFetcher(filePath);
             });
             var observer = new XeStreamObserver() { Observable = xeStreamObservable };
             xeStreamObservable.Subscribe(observer);

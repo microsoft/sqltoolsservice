@@ -71,10 +71,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// </summary>
         public void Start()
         {
-            cancellationTokenSource = new CancellationTokenSource();
-            var xeventFetcherFuncCallBack = xeventFetcher();
-            var xeventFetcherTask = xeventFetcherFuncCallBack.ReadEventStream(OnEventRead, cancellationTokenSource.Token);
-            xeventFetcherTask.ContinueWith(OnStreamClosed);
+            try
+            {
+                cancellationTokenSource = new CancellationTokenSource();
+                var xeventFetcherFuncCallBack = xeventFetcher();
+                var xeventFetcherTask = xeventFetcherFuncCallBack.ReadEventStream(OnEventRead, cancellationTokenSource.Token);
+                xeventFetcherTask.ContinueWith(OnStreamClosed);
+            } catch (Exception ex)
+            {
+                Task.FromException<IXEventFetcher>(ex).ContinueWith(OnStreamClosed);
+            }
+            
         }
 
         /// <summary>

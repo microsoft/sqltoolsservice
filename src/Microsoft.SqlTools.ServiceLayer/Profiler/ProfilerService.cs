@@ -198,26 +198,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
 
         public IXEventSession OpenLocalFileSession(string filePath)
         {
-            return new ObservableXEventSession(() =>
-            {
-                Task<IXEventFetcher> task1 = initIXEventFetcher(filePath);
-
-                var iXEventFetcher = task1.GetAwaiter().GetResult();
-                return iXEventFetcher;
-            }, new SessionId(filePath));
+            return new ObservableXEventSession(() => initIXEventFetcher(filePath), new SessionId(filePath));
         }
 
-        public Task<IXEventFetcher> initIXEventFetcher(string filePath)
+        public IXEventFetcher initIXEventFetcher(string filePath)
         {
-            try
-            {
-                var xeventFetcher = new XEFileEventStreamer(filePath);
-                return Task.Run(() => (IXEventFetcher)xeventFetcher);
-            }
-            catch (Exception e)
-            {
-                return Task.FromException<IXEventFetcher>(e);
-            }
+            return new XEFileEventStreamer(filePath);
         }
 
         /// <summary>
