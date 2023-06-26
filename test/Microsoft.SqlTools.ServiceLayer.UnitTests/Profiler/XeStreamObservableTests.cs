@@ -14,9 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Profiler.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using System.Threading;
 using System.Linq;
-using Microsoft.SqlServer.XEvent.XELite;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 {
