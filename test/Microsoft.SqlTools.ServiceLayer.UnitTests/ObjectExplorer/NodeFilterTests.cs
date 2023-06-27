@@ -920,11 +920,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [TestCase("test''test", "[(@Name = 'test''''test')]", "[(like(@Name, 'test''''test%'))]")]
         [TestCase("test'test", "[(@Name = 'test''test')]", "[(like(@Name, 'test''test%'))]")]
         [TestCase("test'test'test", "[(@Name = 'test''test''test')]", "[(like(@Name, 'test''test''test%'))]")]
-        [TestCase("test'[test]test", "[(@Name = 'test''[test]test')]", "[(like(@Name, 'test''[[]test[]]test%'))]")]
-        [TestCase("test^][%test", "[(@Name = 'test^][%test')]", "[(like(@Name, 'test[^][]][[][%]test%'))]")]
+        [TestCase("test'[test]test", "[(@Name = 'test''[test]test')]", "[(like(@Name, 'test''[[]test]test%'))]")]
+        [TestCase("test^][%test", "[(@Name = 'test^][%test')]", "[(like(@Name, 'test[^]][[][%]test%'))]")]
         [TestCase("test%test", "[(@Name = 'test%test')]", "[(like(@Name, 'test[%]test%'))]")]
         [TestCase("test[test", "[(@Name = 'test[test')]", "[(like(@Name, 'test[[]test%'))]")]
-        [TestCase("test]test", "[(@Name = 'test]test')]", "[(like(@Name, 'test[]]test%'))]")]
+        [TestCase("test]test", "[(@Name = 'test]test')]", "[(like(@Name, 'test]test%'))]")]
         [TestCase("test%%'%%test", "[(@Name = 'test%%''%%test')]", "[(like(@Name, 'test[%][%]''[%][%]test%'))]")]
         public void TestFilterValuesWithSpecialCharacters(string input, string expectedFilterValue, string expectedLikeFilterValue)
         {
