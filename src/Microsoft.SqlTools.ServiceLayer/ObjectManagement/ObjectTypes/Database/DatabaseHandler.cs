@@ -158,11 +158,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = smoDatabase.UserAccess.ToString();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = smoDatabase.PageVerify.ToString();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
                                     databaseViewInfo.PageVerifyOptions = GetPageVerifyOptions();
                                     databaseViewInfo.restrictAccessOptions = GetUserAccessOptions();
+
+                                    // To support Local database, as these properties does not available on local instances
+                                    if (dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.Express) {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                    }
                                 }
                             }
 
@@ -408,7 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null)
+                        if (database.Owner != null && viewParams.IsNewObject)
                         {
                             prototype.Owner = database.Owner;
                         }
@@ -428,6 +432,33 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
                         }
+                        
+                        // Update the options Tab properties
+                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
+                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
+                        prototype.AutoShrink= database.AutoShrink;
+                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
+                        prototype.RestrictAccess = database.RestrictAccess;
+
+                        if (prototype is DatabasePrototype80 db80)
+                        {
+                            db80.IsReadOnly = database.DatabaseReadOnly;
+                        }
+
+                        if (prototype is DatabasePrototype90 db90)
+                        {
+                            db90.AutoUpdateStatisticsAsync = database.AutoUpdateStatisticsAsynchronously;
+                            db90.PageVerifyDisplay = database.PageVerify;
+                        }
+                        if (prototype is DatabasePrototype100 db100)
+                        {
+                            db100.EncryptionEnabled = database.EncryptionEnabled;
+                        }
+                        if (prototype is DatabasePrototype110 db_110)
+                        {
+                            db_110.TargetRecoveryTime = database.TargetRecoveryTimeInSec;
+                        }
+                        //prototype.ledgerDatabase = database.IsLedgerDatabase;
 
                         if (prototype is DatabasePrototypeAzure dbAz)
                         {

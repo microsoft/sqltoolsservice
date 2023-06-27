@@ -28,16 +28,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? AzureServiceLevelObjective { get; set; }
         public string? AzureEdition { get; set; }
         public string? AzureMaxSize { get; set; }
-        public bool? AutoCreateIncrementalStatistics { get; set; }
-        public bool? AutoCreateStatistics { get; set; }
-        public bool? AutoShrink { get; set; }
-        public bool? AutoUpdateStatistics { get; set; }
-        public bool? AutoUpdateStatisticsAsynchronously { get; set; }
+        public bool AutoCreateIncrementalStatistics { get; set; }
+        public bool AutoCreateStatistics { get; set; }
+        public bool AutoShrink { get; set; }
+        public bool AutoUpdateStatistics { get; set; }
+        public bool AutoUpdateStatisticsAsynchronously { get; set; }
         public bool? IsLedgerDatabase { get; set; }
         public string? PageVerify { get; set; }
-        public int? TargetRecoveryTimeInSec { get; set; }
-        public bool? DatabaseReadOnly { get; set; }
-        public bool? EncryptionEnabled { get; set; }
+        public int TargetRecoveryTimeInSec { get; set; }
+        public bool DatabaseReadOnly { get; set; }
+        public bool EncryptionEnabled { get; set; }
         public string? RestrictAccess { get; set; }
     }
 }
