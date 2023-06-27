@@ -28,9 +28,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public bool RemoveNewLines { get; set; }
 
         /// <summary>
-        /// Whether to avoid adding a line break between rows during row concatenation for copying result when the previous row already has a trailing line break.
+        /// Whether to skip adding a line break between rows when copying results when the previous row already has a trailing line break.
         /// </summary>
-        public bool AvoidNewLineAfterTailingLineBreak { get; set; }
+        public bool SkipNewLineAfterTrailingLineBreak { get; set; }
 
         /// <summary>
         /// Whether to include the column headers.

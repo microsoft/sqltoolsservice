@@ -789,7 +789,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || !requestParams.AvoidNewLineAfterTailingLineBreak))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || !requestParams.SkipNewLineAfterTrailingLineBreak))
                         {
                             builder.Append(Environment.NewLine);
                         }
