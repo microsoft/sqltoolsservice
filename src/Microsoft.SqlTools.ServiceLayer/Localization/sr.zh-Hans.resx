@@ -4379,7 +4379,7 @@
     <value>创建日期</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>选择或键入创建日期，以包含或排除在该日期的任何时间创建的对象；或者输入开始日期和结束日期，以包含或排除在该日期范围内创建的对象。</value>
+    <value>根据对象的创建日期包括或排除对象。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>已本机编译</value>
@@ -5055,5 +5055,8 @@
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>超大规模</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>无</value>
   </data>
 </root>

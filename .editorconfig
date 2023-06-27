@@ -18,6 +18,9 @@ dotnet_analyzer_diagnostic.severity = error
 dotnet_diagnostic.CS0414.severity = error
 # The private field 'class member' is never used
 dotnet_diagnostic.CS0169.severity = error
+# Converting null literal or possible null value to non-nullable type
+# Enabled for "strict null" checking in .NET code
+dotnet_diagnostic.CS8600.severity = error
 
 # Errors flagged when this file was added. These should be
 # investigated and either fixed or marked as acceptable with
