@@ -428,18 +428,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
                         }
-                        if (prototype is DatabasePrototype110 db110 && database.ContainmentType != null)
-                        {
-                            db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
-                        }
-                        
-                        // Update the options Tab properties
-                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
-                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
-                        prototype.AutoShrink= database.AutoShrink;
-                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        prototype.RestrictAccess = database.RestrictAccess;
-
                         if (prototype is DatabasePrototype80 db80)
                         {
                             db80.IsReadOnly = database.DatabaseReadOnly;
@@ -454,11 +442,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             db100.EncryptionEnabled = database.EncryptionEnabled;
                         }
-                        if (prototype is DatabasePrototype110 db_110)
+                        if (prototype is DatabasePrototype110 db110)
                         {
-                            db_110.TargetRecoveryTime = database.TargetRecoveryTimeInSec;
+                            db110.TargetRecoveryTime = database.TargetRecoveryTimeInSec;
+
+                            if (database.ContainmentType != null)
+                            {
+                                db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                            }
                         }
-                        //prototype.ledgerDatabase = database.IsLedgerDatabase;
+                        if (prototype is DatabasePrototype160 db160 && dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.Express)
+                        {
+                            db160.IsLedger = database.IsLedgerDatabase;
+                        }
+
+                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
+                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
+                        prototype.AutoShrink= database.AutoShrink;
+                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
+                        prototype.RestrictAccess = database.RestrictAccess;
 
                         if (prototype is DatabasePrototypeAzure dbAz)
                         {

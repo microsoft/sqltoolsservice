@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool AutoShrink { get; set; }
         public bool AutoUpdateStatistics { get; set; }
         public bool AutoUpdateStatisticsAsynchronously { get; set; }
-        public bool? IsLedgerDatabase { get; set; }
+        public bool IsLedgerDatabase { get; set; }
         public string? PageVerify { get; set; }
         public int TargetRecoveryTimeInSec { get; set; }
         public bool DatabaseReadOnly { get; set; }
