@@ -45,6 +45,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
 
+        private static readonly Dictionary<string, string> pageVerifyOptions = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> userAccessOptions = new Dictionary<string, string>();
+
         static DatabaseHandler()
         {
             displayCompatLevels.Add(CompatibilityLevel.Version70, SR.compatibilityLevel_sphinx);
@@ -64,6 +67,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRecoveryModels.Add(RecoveryModel.Full, SR.general_recoveryModel_full);
             displayRecoveryModels.Add(RecoveryModel.BulkLogged, SR.general_recoveryModel_bulkLogged);
             displayRecoveryModels.Add(RecoveryModel.Simple, SR.general_recoveryModel_simple);
+
+            pageVerifyOptions.Add(PageVerify.Checksum.ToString(), SR.prototype_db_prop_pageVerify_value_checksum);
+            pageVerifyOptions.Add(PageVerify.TornPageDetection.ToString(), SR.prototype_db_prop_pageVerify_value_tornPageDetection);
+            pageVerifyOptions.Add(PageVerify.None.ToString(), SR.prototype_db_prop_pageVerify_value_none);
+
+            userAccessOptions.Add(DatabaseUserAccess.Multiple.ToString(), SR.prototype_db_prop_restrictAccess_value_multiple);
+            userAccessOptions.Add(DatabaseUserAccess.Single.ToString(), SR.prototype_db_prop_restrictAccess_value_single);
+            userAccessOptions.Add(DatabaseUserAccess.Restricted.ToString(), SR.prototype_db_prop_restrictAccess_value_restricted);
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -156,12 +167,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                 if (!isManagedInstance)
                                 {
+                                    databaseViewInfo.PageVerifyOptions = pageVerifyOptions;
+                                    databaseViewInfo.userAccessOptions = userAccessOptions;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess = smoDatabase.UserAccess.ToString();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = smoDatabase.PageVerify.ToString();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess = userAccessOptions[smoDatabase.UserAccess.ToString()];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = pageVerifyOptions[smoDatabase.PageVerify.ToString()];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
-                                    databaseViewInfo.PageVerifyOptions = GetPageVerifyOptions();
-                                    databaseViewInfo.userAccessOptions = GetUserAccessOptions();
 
                                     // To support Local database, as these properties does not available on local instances
                                     if (dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.Express) {
@@ -456,6 +467,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             db160.IsLedger = database.IsLedgerDatabase;
                         }
 
+                        // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
                         prototype.AutoShrink= database.AutoShrink;
@@ -546,36 +558,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 collationItems.Insert(0, firstCollation);
             }
             return collationItems.ToArray();
-        }
-
-        /// <summary>
-        /// Prepares the page verify dropdown options dictionary from PageVerify Enum
-        /// </summary>
-        /// <returns>dictionary of page verify options</returns>
-        private Dictionary<string, string> GetPageVerifyOptions()
-        {
-            var pageVerifyOptions  = new Dictionary<string, string>();
-
-            pageVerifyOptions.Add(PageVerify.Checksum.ToString(), SR.prototype_db_prop_pageVerify_value_checksum);
-            pageVerifyOptions.Add(PageVerify.TornPageDetection.ToString(), SR.prototype_db_prop_pageVerify_value_tornPageDetection);
-            pageVerifyOptions.Add(PageVerify.None.ToString(), SR.prototype_db_prop_pageVerify_value_none);
-
-            return pageVerifyOptions;
-        }
-
-        /// <summary>
-        /// Prepares the User access options dictionary from DatabaseUserAccess Enum
-        /// </summary>
-        /// <returns>dictionary of database user access options</returns>
-        private Dictionary<string, string> GetUserAccessOptions()
-        {            
-            var userAccessOptions = new Dictionary<string, string>();
-
-            userAccessOptions.Add(DatabaseUserAccess.Multiple.ToString(), SR.prototype_db_prop_restrictAccess_value_multiple);
-            userAccessOptions.Add(DatabaseUserAccess.Single.ToString(), SR.prototype_db_prop_restrictAccess_value_single);
-            userAccessOptions.Add(DatabaseUserAccess.Restricted.ToString(), SR.prototype_db_prop_restrictAccess_value_restricted);
-
-            return userAccessOptions;
         }
 
         /// <summary>
