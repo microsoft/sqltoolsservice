@@ -18,6 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private SqlToolsSettingsValues mssqlTools = null; 
         private SqlToolsSettingsValues allSqlTools = null; 
         private TelemetrySettingsValues telemetrySettings = null;
+        private QueryEditorSettingsValues queryEditorSettings = null;
 
         public ISqlToolsSettingsValues SqlTools 
         { 
@@ -80,6 +81,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set
             {
                 this.telemetrySettings = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the underlying query editor settings value object
+        /// </summary>
+        [JsonProperty("queryEditor")]
+        public QueryEditorSettingsValues QueryEditorSettings
+        {
+            get
+            {
+                this.queryEditorSettings ??= new QueryEditorSettingsValues();
+                return this.queryEditorSettings;
+            }
+            set
+            {
+                this.queryEditorSettings = value;
             }
         }
 

@@ -729,7 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             var lastRowIndex = rowRanges.Last().End;
             var builder = new StringBuilder();
             var pageSize = 200;
-            if (requestParams.IncludeHeaders)
+            if (Settings.QueryEditorSettings.Results.CopyIncludeHeaders)
             {
                 Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
                 Query query;
@@ -780,7 +780,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 selection.FromColumn <= columnIndex &&
                                 selection.ToColumn >= columnIndex))
                                 {
-                                    builder.Append(requestParams.RemoveNewLines ? row[columnIndex].DisplayValue.ReplaceLineEndings(" ") : row[columnIndex].DisplayValue);
+                                    builder.Append(Settings.QueryEditorSettings.Results.CopyRemoveNewLine ? row[columnIndex].DisplayValue.ReplaceLineEndings(" ") : row[columnIndex].DisplayValue);
                                 }
                                 if (columnIndex != lastColumnIndex)
                                 {
@@ -789,7 +789,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                             }
                         }
                         // Add line break if this is not the last row in all selections.
-                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || !requestParams.AvoidNewLineAfterTailingLineBreak))
+                        if (rowIndex + pageStartRowIndex != lastRowIndex && (!builder.ToString().EndsWith(Environment.NewLine) || !Settings.QueryEditorSettings.Results.SkipNewLineAfterTrailingLineBreak))
                         {
                             builder.Append(Environment.NewLine);
                         }
@@ -1141,6 +1141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         internal Task UpdateSettings(SqlToolsSettings newSettings, SqlToolsSettings oldSettings, EventContext eventContext)
         {
             Settings.QueryExecutionSettings.Update(newSettings.QueryExecutionSettings);
+            Settings.QueryEditorSettings.Update(newSettings.QueryEditorSettings);
             return Task.FromResult(0);
         }
 
