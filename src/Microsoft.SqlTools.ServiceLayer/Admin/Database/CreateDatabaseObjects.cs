@@ -1419,7 +1419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (this.Exists)
             {
-                file = db.FileGroups[this.FileGroup.Name].Files[this.originalState.name];
+                file = db.FileGroups[this.FileGroup.Name].Files[this.currentState.name != null ? this.currentState.name : this.originalState.name];
 
                 if (!file.Name.Equals(this.Name))
                 {
@@ -1646,7 +1646,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
             if (this.Exists)
             {
-                file = db.LogFiles[this.originalState.name];
+                file = db.LogFiles[this.currentState.name != null ? this.currentState.name : this.originalState.name];
 
                 if (!file.Name.Equals(this.Name))
                 {
