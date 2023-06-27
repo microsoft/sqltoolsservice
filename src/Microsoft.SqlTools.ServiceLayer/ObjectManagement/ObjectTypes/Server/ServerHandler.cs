@@ -75,12 +75,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(ServerViewContext context, ServerInfo serverInfo)
         {
-            throw new NotSupportedException();
+            var ex = new NotSupportedException();
+            ex.Data["UserMessage"] += "ServerHandler does not support Save method";
+            throw ex;
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
         {
-            throw new NotSupportedException();
+            var ex = new NotSupportedException();
+            ex.Data["UserMessage"] += "ServerHandler does not support Script method";
+            throw ex;
         }
         public Task<Server?> CreateServerSmoObject(ServerViewContext context)
         {
