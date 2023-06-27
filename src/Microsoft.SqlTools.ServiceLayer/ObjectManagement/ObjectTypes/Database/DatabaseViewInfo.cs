@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] AzureEditions { get; set; }
         public AzureEditionDetails[] AzureMaxSizes { get; set; }
         public Dictionary<string, string> PageVerifyOptions { get; set; }
-        public Dictionary<string, string> restrictAccessOptions { get; set; }
+        public Dictionary<string, string> userAccessOptions { get; set; }
         public string databaseEngineEdition { get; set; }
     }
 

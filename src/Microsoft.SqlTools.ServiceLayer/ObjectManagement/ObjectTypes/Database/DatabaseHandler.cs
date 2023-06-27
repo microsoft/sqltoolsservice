@@ -151,17 +151,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     DatabaseReadOnly = smoDatabase.ReadOnly,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    RestrictAccess = smoDatabase.UserAccess.ToString(),
+                                    UserAccess = smoDatabase.UserAccess.ToString(),
                                 };
 
                                 if (!isManagedInstance)
                                 {
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = smoDatabase.UserAccess.ToString();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess = smoDatabase.UserAccess.ToString();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = smoDatabase.PageVerify.ToString();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
                                     databaseViewInfo.PageVerifyOptions = GetPageVerifyOptions();
-                                    databaseViewInfo.restrictAccessOptions = GetUserAccessOptions();
+                                    databaseViewInfo.userAccessOptions = GetUserAccessOptions();
 
                                     // To support Local database, as these properties does not available on local instances
                                     if (dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.Express) {
@@ -460,7 +460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
                         prototype.AutoShrink= database.AutoShrink;
                         prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        prototype.RestrictAccess = database.RestrictAccess;
+                        prototype.RestrictAccess = database.UserAccess;
 
                         if (prototype is DatabasePrototypeAzure dbAz)
                         {
@@ -549,10 +549,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
-        /// 
+        /// Prepares the page verify dropdown options dictionary from PageVerify Enum
         /// </summary>
-        /// <param name="server"></param>
-        /// <returns></returns>
+        /// <returns>dictionary of page verify options</returns>
         private Dictionary<string, string> GetPageVerifyOptions()
         {
             var pageVerifyOptions  = new Dictionary<string, string>();
@@ -565,10 +564,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
-        /// 
+        /// Prepares the User access options dictionary from DatabaseUserAccess Enum
         /// </summary>
-        /// <param name="server"></param>
-        /// <returns></returns>
+        /// <returns>dictionary of database user access options</returns>
         private Dictionary<string, string> GetUserAccessOptions()
         {            
             var userAccessOptions = new Dictionary<string, string>();

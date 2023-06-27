@@ -38,6 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public int TargetRecoveryTimeInSec { get; set; }
         public bool DatabaseReadOnly { get; set; }
         public bool EncryptionEnabled { get; set; }
-        public string? RestrictAccess { get; set; }
+        public string? UserAccess { get; set; }
     }
 }
