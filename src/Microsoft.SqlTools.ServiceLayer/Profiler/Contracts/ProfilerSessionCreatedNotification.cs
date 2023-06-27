@@ -18,6 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         public string TemplateName { get; set; }
     }
 
+    /// <summary>
+    /// Profiler Session created notification mapping entry 
+    /// </summary>
     public class ProfilerSessionCreatedNotification
     {
         public static readonly

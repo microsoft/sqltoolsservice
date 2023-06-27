@@ -19,6 +19,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler.Contracts
         public bool EventsLost { get; set; }
     }
 
+    /// <summary>
+    /// Profiler Event available notification mapping entry 
+    /// </summary>
     public class ProfilerEventsAvailableNotification
     {
         public static readonly
