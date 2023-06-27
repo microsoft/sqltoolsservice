@@ -12,6 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -61,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         RootDirectory = serverSmo.RootDirectory,
                         ServerCollation = serverSmo.Collation,
                         ServiceTier = serverSmo.ServiceTier,
-                        StorageSpaceUsageInGB = serverSmo.UsedStorageSizeMB,
+                        StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(serverSmo.UsedStorageSizeMB),
                         Version = serverSmo.Version.ToString(),
                         MinServerMemory = configService.GetConfigByName(this.server, "min server memory (MB)").ConfigValue,
                         MaxServerMemory = configService.GetConfigByName(this.server, "max server memory (MB)").ConfigValue
