@@ -1568,7 +1568,7 @@ WITH VALUES
                 Assert.IsNull(schemaCompareOperation.ErrorMessage);
 
                 // try to exclude
-                DiffEntry t2Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null);
+                DiffEntry t2Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null, schemaCompareOperation.ComparisonResult);
                 SchemaCompareNodeParams t2ExcludeParams = new SchemaCompareNodeParams()
                 {
                     OperationId = schemaCompareOperation.OperationId,
@@ -1585,7 +1585,7 @@ WITH VALUES
                 Assert.True(t2ExcludeOperation.BlockingDependencies[0].SourceValue[1] == "v1", "Dependency should be View v1");
 
                 // exclude view v1, then t2 should also get excluded by this
-                DiffEntry v1Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First(), null);
+                DiffEntry v1Diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "v1").First(), null, schemaCompareOperation.ComparisonResult);
                 SchemaCompareNodeParams v1ExcludeParams = new SchemaCompareNodeParams()
                 {
                     OperationId = schemaCompareOperation.OperationId,
@@ -1712,7 +1712,7 @@ WITH VALUES
             }
 
             // create Diff Entry from Difference
-            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
+            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null, schemaCompareOperation.ComparisonResult);
 
             int initial = schemaCompareOperation.ComparisonResult.Differences.Count();
             SchemaCompareNodeParams schemaCompareExcludeNodeParams = new SchemaCompareNodeParams()
@@ -1761,7 +1761,7 @@ WITH VALUES
             string initialScript = generateScriptOperation.ScriptGenerationResult.Script;
 
             // create Diff Entry from on Difference
-            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null);
+            DiffEntry diff = SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.First(), null, schemaCompareOperation.ComparisonResult);
 
             //Validate Diff Entry creation for object type
             ValidateDiffEntryCreation(diff, schemaCompareOperation.ComparisonResult.Differences.First());
