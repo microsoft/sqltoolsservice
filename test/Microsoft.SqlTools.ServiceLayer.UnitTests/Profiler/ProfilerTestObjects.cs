@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
@@ -37,21 +38,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
     public class TestSessionListener : IProfilerSessionListener
     {
-        public string PreviousSessionId { get; set; }
+        public readonly Dictionary<string, List<ProfilerEvent>> AllEvents = new Dictionary<string, List<ProfilerEvent>>();
 
-        public List<ProfilerEvent> PreviousEvents { get; set; }
-
-        public bool Stopped { get; set; }
+        public readonly List<string> StoppedSessions = new List<string>();
+        public readonly List<string> ErrorMessages = new List<string>();
 
         public void EventsAvailable(string sessionId, List<ProfilerEvent> events, bool eventsLost)
         {
-            this.PreviousSessionId = sessionId;
-            this.PreviousEvents = events;
+            if (!AllEvents.ContainsKey(sessionId))
+            {
+                AllEvents[sessionId] = new List<ProfilerEvent>();
+            }
+            AllEvents[sessionId].AddRange(events);            
         }
 
-        public void SessionStopped(string viewerId, int sessionId)
+        public void SessionStopped(string viewerId, SessionId sessionId, string errorMessage)
         {
-            Stopped = true;
+            StoppedSessions.Add(viewerId);
+            ErrorMessages.Add(errorMessage);
         }
     }
 
@@ -197,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
 
 
 
-        public int Id { get { return 51; } }
+        public SessionId Id { get { return new SessionId("testsession_51"); } }
 
         public void Start(){}
 
@@ -282,7 +286,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "	</event>" +
             "</RingBufferTarget>";
 
-        public int Id { get { return 1; } }
+        public SessionId Id { get { return new SessionId("testsession_1"); } }
 
         public void Start(){}
 
@@ -373,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             "	</event>" +
             "</RingBufferTarget>";
 
-        public int Id { get { return 2; } }
+        public SessionId Id { get { return new SessionId("testsession_2"); } }
 
         public void Start(){}
 
@@ -419,6 +423,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
                 sessionNum = 1;
                 return new TestXEventSession2();
             }
+        }
+
+        public IXEventSession OpenLocalFileSession(string filePath)
+        {
+            throw new NotImplementedException();
         }
     }
 }

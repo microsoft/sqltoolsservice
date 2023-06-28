@@ -45,4 +45,9 @@
 	<ItemGroup>
 		<EmbeddedResource Include="ShowPlan\TestShowPlanRecommendations.xml" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Profiler\TestXel_0.xel">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 
                     foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                     {
-                        DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null);
+                        DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
                         this.Differences.Add(diffEntry);
                     }
                 }

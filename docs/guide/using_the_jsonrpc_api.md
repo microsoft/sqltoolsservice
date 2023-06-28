@@ -1,4 +1,5 @@
 # Using the SQL Tools JSON-RPC API
+
 The SQL Tools JSON-RPC API is the best way to consume the services
 functionality in SQL tools.  The JSON-RPC API available through stdio
 of the SQL Tools Service process.
@@ -9,7 +10,7 @@ of the SQL Tools Service process.
 ## Download SQL Tools Service binaries
 
 To get started using the SQL Tools Service you'll need to install the service binaries.
-Download the SQL Tools Service binaries from the 
+Download the SQL Tools Service binaries from the
 [sqltoolsservice release page](https://github.com/Microsoft/sqltoolsservice/releases).  
 
 Daily development builds will end with "-alpha".  Release builds will end with " Release".
@@ -26,7 +27,7 @@ for this sample.
 
 ```typescript
 internal static async Task ExecuteQuery(string query)
-{    
+{
     // create a temporary "workspace" file
     using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
     // create the client helper which wraps the client driver objects
@@ -74,7 +75,7 @@ internal static async Task ExecuteQuery(string query)
                     }
                     Console.Write(Environment.NewLine);
                 }
-            }                    
+            }
         }
 
         // close database connection
