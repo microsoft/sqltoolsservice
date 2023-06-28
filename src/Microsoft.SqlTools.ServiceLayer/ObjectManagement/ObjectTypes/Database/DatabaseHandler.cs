@@ -35,6 +35,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
         private static readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
+        private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
+        private static readonly Dictionary<DatabaseUserAccess, string> displayUserAccessOptions = new Dictionary<DatabaseUserAccess, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -68,13 +70,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRecoveryModels.Add(RecoveryModel.BulkLogged, SR.general_recoveryModel_bulkLogged);
             displayRecoveryModels.Add(RecoveryModel.Simple, SR.general_recoveryModel_simple);
 
-            pageVerifyOptions.Add(PageVerify.Checksum.ToString(), SR.prototype_db_prop_pageVerify_value_checksum);
-            pageVerifyOptions.Add(PageVerify.TornPageDetection.ToString(), SR.prototype_db_prop_pageVerify_value_tornPageDetection);
-            pageVerifyOptions.Add(PageVerify.None.ToString(), SR.prototype_db_prop_pageVerify_value_none);
+            displayPageVerifyOptions.Add(PageVerify.Checksum, SR.prototype_db_prop_pageVerify_value_checksum);
+            displayPageVerifyOptions.Add(PageVerify.TornPageDetection, SR.prototype_db_prop_pageVerify_value_tornPageDetection);
+            displayPageVerifyOptions.Add(PageVerify.None, SR.prototype_db_prop_pageVerify_value_none);
 
-            userAccessOptions.Add(DatabaseUserAccess.Multiple.ToString(), SR.prototype_db_prop_restrictAccess_value_multiple);
-            userAccessOptions.Add(DatabaseUserAccess.Single.ToString(), SR.prototype_db_prop_restrictAccess_value_single);
-            userAccessOptions.Add(DatabaseUserAccess.Restricted.ToString(), SR.prototype_db_prop_restrictAccess_value_restricted);
+            displayUserAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
+            displayUserAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
+            displayUserAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -145,9 +147,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     Name = smoDatabase.Name,
                                     CollationName = smoDatabase.Collation,
-                                    CompatibilityLevel = smoDatabase.CompatibilityLevel.ToString(),
-                                    ContainmentType = smoDatabase.ContainmentType.ToString(),
-                                    RecoveryModel = smoDatabase.RecoveryModel.ToString(),
+                                    CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
+                                    ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType],
+                                    RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel],
                                     DateCreated = smoDatabase.CreateDate.ToString(),
                                     LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
                                     LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
@@ -170,11 +172,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                 if (!isManagedInstance)
                                 {
-                                    databaseViewInfo.PageVerifyOptions = pageVerifyOptions;
-                                    databaseViewInfo.userAccessOptions = userAccessOptions;
+                                    databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
+                                    databaseViewInfo.userAccessOptions = displayUserAccessOptions.Values.ToArray();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess = userAccessOptions[smoDatabase.UserAccess.ToString()];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = pageVerifyOptions[smoDatabase.PageVerify.ToString()];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess = displayUserAccessOptions[smoDatabase.UserAccess];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
 
                                     // To support Local database, as these properties does not available on local instances
