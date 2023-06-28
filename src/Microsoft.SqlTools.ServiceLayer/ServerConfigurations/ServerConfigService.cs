@@ -218,7 +218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             return list;
         }
 
-        private ConfigProperty GetSmoConfig(Server server, int configNumber)
+        public ConfigProperty GetSmoConfig(Server server, int configNumber)
         {
             try
             {
@@ -237,28 +237,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             catch (Exception ex)
             {
                 throw new ServerConfigException($"Failed to get config. config number: ${configNumber}", ex);
-            }
-        }
-
-        public ServerConfigProperty GetConfigByName(Server server, string configName)
-        {
-            try
-            {
-                ConfigProperty serverConfig = null;
-                foreach (ConfigProperty configProperty in server.Configuration.Properties)
-                {
-                    if (configProperty.DisplayName == configName)
-                    {
-                        serverConfig = configProperty;
-                        break;
-                    }
-                }
-
-                return serverConfig != null ? ServerConfigProperty.ToServerConfigProperty(serverConfig) : null;
-            }
-            catch (Exception ex)
-            {
-                throw new ServerConfigException($"Failed to get config. config name: ${configName} for  server {server.Name}", ex);
             }
         }
     }

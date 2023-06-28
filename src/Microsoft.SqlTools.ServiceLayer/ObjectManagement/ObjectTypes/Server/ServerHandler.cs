@@ -64,8 +64,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         ServiceTier = serverSmo.ServiceTier,
                         StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(serverSmo.UsedStorageSizeMB),
                         Version = serverSmo.Version.ToString(),
-                        MinServerMemory = configService.GetConfigByName(this.server, "min server memory (MB)").ConfigValue,
-                        MaxServerMemory = configService.GetConfigByName(this.server, "max server memory (MB)").ConfigValue
+                        MinServerMemory = GetServerMinMemory(),
+                        MaxServerMemory = GetServerMaxMemory()
                     };
                 }
 
@@ -95,6 +95,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var serverSmo = server.GetSmoObject(new Urn(objectUrn)) as Server;
                 return Task.FromResult(serverSmo);
             }
+        }
+
+        private int GetServerMaxMemory()
+        {
+            return configService.GetSmoConfig(server, 1544).ConfigValue;
+        }
+
+        private int GetServerMinMemory()
+        {
+            return configService.GetSmoConfig(server, 1543).ConfigValue;
         }
     }
 }
