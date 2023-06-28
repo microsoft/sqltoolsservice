@@ -145,6 +145,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     Name = smoDatabase.Name,
                                     CollationName = smoDatabase.Collation,
+                                    CompatibilityLevel = smoDatabase.CompatibilityLevel.ToString(),
+                                    ContainmentType = smoDatabase.ContainmentType.ToString(),
+                                    RecoveryModel = smoDatabase.RecoveryModel.ToString(),
                                     DateCreated = smoDatabase.CreateDate.ToString(),
                                     LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
                                     LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
@@ -162,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     DatabaseReadOnly = smoDatabase.ReadOnly,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    UserAccess = smoDatabase.UserAccess.ToString(),
+                                    UserAccess = smoDatabase.UserAccess.ToString()
                                 };
 
                                 if (!isManagedInstance)
