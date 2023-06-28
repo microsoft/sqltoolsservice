@@ -6,7 +6,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
@@ -41,29 +40,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
-                var serverSmo = CreateServerSmoObject(context).Result;
-                if(serverSmo != null)
+                this.server = new Server(context.Connection); ;
+                if(this.server != null)
                 {
                     this.serverViewInfo.ObjectInfo = new ServerInfo()
                     {
-                        Name = serverSmo.Name,
-                        HardwareGeneration = serverSmo.HardwareGeneration,
-                        Language = serverSmo.Language,
-                        MemoryInMB = serverSmo.PhysicalMemory,
-                        OperatingSystem = serverSmo.HostDistribution,
-                        Platform = serverSmo.HostPlatform,
-                        Processors = serverSmo.Processors,
-                        IsClustered = serverSmo.IsClustered,
-                        IsHadrEnabled = serverSmo.IsHadrEnabled,
-                        IsPolyBaseInstalled = serverSmo.IsPolyBaseInstalled,
-                        IsXTPSupported = serverSmo.IsXTPSupported,
-                        Product = serverSmo.Product,
-                        ReservedStorageSizeMB = serverSmo.ReservedStorageSizeMB,
-                        RootDirectory = serverSmo.RootDirectory,
-                        ServerCollation = serverSmo.Collation,
-                        ServiceTier = serverSmo.ServiceTier,
-                        StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(serverSmo.UsedStorageSizeMB),
-                        Version = serverSmo.Version.ToString(),
+                        Name = server.Name,
+                        HardwareGeneration = server.HardwareGeneration,
+                        Language = server.Language,
+                        MemoryInMB = server.PhysicalMemory,
+                        OperatingSystem = server.HostDistribution,
+                        Platform = server.HostPlatform,
+                        Processors = server.Processors,
+                        IsClustered = server.IsClustered,
+                        IsHadrEnabled = server.IsHadrEnabled,
+                        IsPolyBaseInstalled = server.IsPolyBaseInstalled,
+                        IsXTPSupported = server.IsXTPSupported,
+                        Product = server.Product,
+                        ReservedStorageSizeMB = server.ReservedStorageSizeMB,
+                        RootDirectory = server.RootDirectory,
+                        ServerCollation = server.Collation,
+                        ServiceTier = server.ServiceTier,
+                        StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(server.UsedStorageSizeMB),
+                        Version = server.Version.ToString(),
                         MinServerMemory = GetServerMinMemory(),
                         MaxServerMemory = GetServerMaxMemory()
                     };
@@ -75,26 +74,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(ServerViewContext context, ServerInfo serverInfo)
         {
-            var ex = new NotSupportedException();
-            ex.Data["UserMessage"] += "ServerHandler does not support Save method";
-            throw ex;
+            throw new NotSupportedException("ServerHandler does not support Save method");
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
         {
-            var ex = new NotSupportedException();
-            ex.Data["UserMessage"] += "ServerHandler does not support Script method";
-            throw ex;
-        }
-        public Task<Server?> CreateServerSmoObject(ServerViewContext context)
-        {
-            using (context.Connection.SqlConnectionObject)
-            {
-                this.server = new Server(context.Connection);
-                string objectUrn = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
-                var serverSmo = server.GetSmoObject(new Urn(objectUrn)) as Server;
-                return Task.FromResult(serverSmo);
-            }
+            throw new NotSupportedException("ServerHandler does not support Script method");
         }
 
         private int GetServerMaxMemory()

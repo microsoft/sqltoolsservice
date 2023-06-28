@@ -17,14 +17,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override void Dispose()
         {
-            try
-            {
-                this.Connection.Disconnect();
-            }
-            catch
-            {
-                // ignore
-            }
         }
     }
 }
