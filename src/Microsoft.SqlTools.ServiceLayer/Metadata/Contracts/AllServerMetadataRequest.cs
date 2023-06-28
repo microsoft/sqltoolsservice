@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         public string Scripts { get; set; }
     }
 
-    public class AllMetadataRequest
+    public class AllServerMetadataRequest
     {
         public static readonly RequestType<AllServerMetadataParams, AllServerMetadataResult> Type =
             RequestType<AllServerMetadataParams, AllServerMetadataResult>.Create("metadata/allServerMetadata");

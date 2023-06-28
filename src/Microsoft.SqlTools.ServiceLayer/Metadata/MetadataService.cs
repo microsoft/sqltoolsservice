@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetRequestHandler(AllMetadataRequest.Type, HandleGetAllServerMetadataRequest, true);
+            serviceHost.SetRequestHandler(AllServerMetadataRequest.Type, HandleGetAllServerMetadataRequest, true);
         }
 
         /// <summary>
