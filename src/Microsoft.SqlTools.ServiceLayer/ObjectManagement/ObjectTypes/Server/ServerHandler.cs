@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
@@ -40,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
-                this.server = new Server(context.Connection); ;
+                this.server = new Server(context.Connection);
                 if(this.server != null)
                 {
                     this.serverViewInfo.ObjectInfo = new ServerInfo()
@@ -72,9 +73,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public override Task Save(ServerViewContext context, ServerInfo serverInfo)
+        public override Task Save(ServerViewContext context, ServerInfo obj)
         {
-            throw new NotSupportedException("ServerHandler does not support Save method");
+            UpdateServerProperties(
+                context.Parameters,
+                obj,
+                RunType.RunNow);
+            return Task.CompletedTask;
         }
 
         public override Task<string> Script(ServerViewContext context, ServerInfo obj)
@@ -91,5 +96,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             return configService.GetSmoConfig(server, 1543).ConfigValue;
         }
+
+        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo server, RunType runType)
+        {
+            if (viewParams != null)
+            {
+                ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
+                ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
+                Server serverPrototype = new Server(serverConnection);
+
+                if(
+            }
+        }
     }
-}
