@@ -2662,7 +2662,7 @@ WHERE do.database_id = @DbID
             // if we think we exist, get the SMO database object
             if (this.Exists)
             {
-                result = this.context.Server.Databases[this.currentState.name != null ? this.currentState.name : this.originalState.name];
+                result = this.context.Server.Databases[this.originalState.name];
 
                 System.Diagnostics.Debug.Assert(0 == String.Compare(this.originalState.name, this.currentState.name, StringComparison.Ordinal), "name of existing database has changed");
                 if (result == null)

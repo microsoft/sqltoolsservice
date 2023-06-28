@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject, requestParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var sqlScript = string.Empty;
             ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, ""))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -369,9 +369,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return builder.ToString();
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
+            {
+                connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+            }
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
             if (dataContainer.Server == null)
             {
@@ -392,7 +396,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject))
+            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject, viewParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
