@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
-                this.server = new Server(context.Connection); ;
+                this.server = new Server(context.Connection);
                 if (this.server != null)
                 {
                     this.serverViewInfo.ObjectInfo = new ServerInfo()
