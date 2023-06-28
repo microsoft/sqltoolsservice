@@ -135,12 +135,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     DateCreated = smoDatabase.CreateDate.ToString(),
                                     LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
                                     LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
-                                    MemoryAllocatedToMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
-                                    MemoryUsedByMemoryOptimizedObjectsInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                    MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                    MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
                                     NumberOfUsers = smoDatabase.Users.Count,
                                     Owner = smoDatabase.Owner,
                                     SizeInMb = smoDatabase.Size,
-                                    SpaceAvailableInMb = DatabaseUtils.ConvertKbtoMb(smoDatabase.SpaceAvailable),
+                                    SpaceAvailableInMb = ByteConverter.ConvertKbtoMb(smoDatabase.SpaceAvailable),
                                     Status = smoDatabase.Status.ToString()
                                 };
                             }
