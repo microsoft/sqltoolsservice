@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
@@ -75,10 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         public override Task Save(ServerViewContext context, ServerInfo obj)
         {
-            UpdateServerProperties(
-                context.Parameters,
-                obj,
-                RunType.RunNow);
+            UpdateServerProperties(context.Parameters, obj);
             return Task.CompletedTask;
         }
 
@@ -97,15 +93,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return configService.GetServerSmoConfig(server, configService.MinServerMemoryPropertyNumber).ConfigValue;
         }
 
-        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo server, RunType runType)
+        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverObj)
         {
             if (viewParams != null)
             {
                 ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
                 ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
-                Server serverPrototype = new Server(serverConnection);
-
-                if(
+                this.server = new Server(serverConnection);
+                if (GetServerMaxMemory() != serverObj.MaxServerMemory)
+                {
+                    configService.UpdateConfig(serverConnection, configService.MaxServerMemoryPropertyNumber, serverObj.MaxServerMemory);
+                }
+                else if (GetServerMinMemory() != serverObj.MinServerMemory)
+                {
+                    configService.UpdateConfig(serverConnection, configService.MinServerMemoryPropertyNumber, serverObj.MinServerMemory);
+                }
             }
         }
     }
+}
