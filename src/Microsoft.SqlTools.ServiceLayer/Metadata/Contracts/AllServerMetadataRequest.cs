@@ -20,6 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
     public class AllMetadataRequest
     {
         public static readonly RequestType<AllServerMetadataParams, AllServerMetadataResult> Type =
-            RequestType<AllServerMetadataParams, AllServerMetadataResult>.Create("metadata/getAll");
+            RequestType<AllServerMetadataParams, AllServerMetadataResult>.Create("metadata/allServerMetadata");
     }
 }
