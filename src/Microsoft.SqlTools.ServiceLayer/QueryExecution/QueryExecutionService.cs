@@ -729,7 +729,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             var lastRowIndex = rowRanges.Last().End;
             var builder = new StringBuilder();
             var pageSize = 200;
-            if (Settings.QueryEditorSettings.Results.CopyIncludeHeaders)
+
+            // We need to respect IncludeHeaders from parameters instead of getting the config value as ADS can explicitly ask for headers
+            if (requestParams.IncludeHeaders)
             {
                 Validate.IsNotNullOrEmptyString(nameof(requestParams.OwnerUri), requestParams.OwnerUri);
                 Query query;
