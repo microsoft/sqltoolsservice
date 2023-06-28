@@ -23,6 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class CopyResultsRequestParams : SubsetParams
     {
         /// <summary>
+        /// Whether to include the column headers.
+        /// </summary>
+        public bool IncludeHeaders { get; set; }
+
+        /// <summary>
         /// The selections.
         /// </summary>
         public TableSelectionRange[] Selections { get; set; }
