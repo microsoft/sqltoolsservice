@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
                 this.server = new Server(context.Connection); ;
-                if(this.server != null)
+                if (this.server != null)
                 {
                     this.serverViewInfo.ObjectInfo = new ServerInfo()
                     {
@@ -84,12 +84,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private int GetServerMaxMemory()
         {
-            return configService.GetSmoConfig(server, 1544).ConfigValue;
+            return configService.GetServerSmoConfig(server, configService.MaxServerMemoryPropertyNumber).ConfigValue;
         }
 
         private int GetServerMinMemory()
         {
-            return configService.GetSmoConfig(server, 1543).ConfigValue;
+            return configService.GetServerSmoConfig(server, configService.MinServerMemoryPropertyNumber).ConfigValue;
         }
     }
 }
