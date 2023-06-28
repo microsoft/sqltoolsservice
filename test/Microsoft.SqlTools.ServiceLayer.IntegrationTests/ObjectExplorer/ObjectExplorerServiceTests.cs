@@ -321,10 +321,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     Operator = NodeFilterOperator.Contains
                 };
                 var tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should be found in tables node");
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should be found in tables node");
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should be found in tables node");
 
                 // Testing starts with operator
                 filter = new NodeFilter()
@@ -334,10 +334,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     Operator = NodeFilterOperator.StartsWith
                 };
                 tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable") == false, "testTable node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2") == false, "table['^%%2 node should not be found in tables node");
 
                 // Testing starts with operator
                 filter = new NodeFilter()
@@ -347,10 +347,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     Operator = NodeFilterOperator.StartsWith
                 };
                 tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']") == false, "table['^__'] node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2") == false, "table['^__']2 node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable") == false, "testTable node should not be found in tables node");
 
 
                 // Testing ends with operator
@@ -361,10 +361,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     Operator = NodeFilterOperator.EndsWith
                 };
                 tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2") == false, "table['^__']2 node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable") == false, "testTable node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2") == false, "table['^%%2 node should not be found in tables node");
 
                 // Testing equals operator
                 filter = new NodeFilter()
@@ -374,10 +374,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                     Operator = NodeFilterOperator.Equals
                 };
                 tablesChildren = await _service.ExpandNode(session, tablesNode.NodePath, true, null, new NodeFilter[] { filter });
-                Assert.True(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2"), "table['^__']2 node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable"), "testTable node should not be found in tables node");
-                Assert.False(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2"), "table['^%%2 node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']"), "table['^__'] node should be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2") == false, "table['^__']2 node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable") == false, "testTable node should not be found in tables node");
+                Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2") == false, "table['^%%2 node should not be found in tables node");
                 
             });
         }
