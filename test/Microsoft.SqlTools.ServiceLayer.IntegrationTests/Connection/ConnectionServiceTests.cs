@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
                 query.Execute();
                 query.ExecutionTask.Wait();
 
-                // We should still have 2 DbConnections
+                // We should see 1 DbConnections
                 Assert.AreEqual(1, connectionInfo.CountConnections);
 
                 // If we disconnect, we should remain in a consistent state to do it over again

@@ -23,11 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
     public class CopyResultsRequestParams : SubsetParams
     {
         /// <summary>
-        /// Whether to remove the line break from cell values.
-        /// </summary>
-        public bool RemoveNewLines { get; set; }
-
-        /// <summary>
         /// Whether to include the column headers.
         /// </summary>
         public bool IncludeHeaders { get; set; }
