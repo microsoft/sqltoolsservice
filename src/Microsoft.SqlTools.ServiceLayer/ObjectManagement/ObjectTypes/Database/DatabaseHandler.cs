@@ -410,7 +410,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         prototype.Name = database.Name;
 
                         // Update database file names now that we have a database name
-                        if (!prototype.HideFileSettings)
+                        // Modifying logical file name is not supported in SQL Database Managed Instance.
+                        if (!prototype.HideFileSettings && dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlManagedInstance)
                         {
                             var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
