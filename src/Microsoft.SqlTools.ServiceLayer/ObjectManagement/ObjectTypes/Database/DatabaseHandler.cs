@@ -164,9 +164,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoShrink = smoDatabase.AutoShrink,
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
-                                    DatabaseReadOnly = smoDatabase.ReadOnly,
-                                    EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    UserAccess = smoDatabase.UserAccess.ToString()
+                                    EncryptionEnabled = smoDatabase.EncryptionEnabled
                                 };
 
                                 if (!isManagedInstance)
@@ -447,7 +445,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         if (prototype is DatabasePrototype80 db80)
                         {
-                            db80.IsReadOnly = database.DatabaseReadOnly;
+                            if (database.DatabaseReadOnly != null)
+                            {
+                                db80.IsReadOnly = (bool)database.DatabaseReadOnly;
+                            }
                         }
 
                         if (prototype is DatabasePrototype90 db90)
@@ -461,16 +462,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         if (prototype is DatabasePrototype110 db110)
                         {
-                            db110.TargetRecoveryTime = database.TargetRecoveryTimeInSec;
+                            if (database.TargetRecoveryTimeInSec != null) {
+                                db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
+                            }
 
                             if (database.ContainmentType != null)
                             {
                                 db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
                             }
                         }
-                        if (prototype is DatabasePrototype160 db160 && dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.Express)
+                        if (prototype is DatabasePrototype160 db160)
                         {
-                            db160.IsLedger = database.IsLedgerDatabase;
+                            if (database.IsLedgerDatabase != null)
+                            {
+                                db160.IsLedger = (bool)database.IsLedgerDatabase;
+                            }
                         }
 
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
