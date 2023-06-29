@@ -157,6 +157,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         NotBetween = 7,
         Contains = 8,
         NotContains = 9,
+        StartsWith = 10,
+        NotStartsWith = 11,
+        EndsWith = 12,
+        NotEndsWith = 13
     }
 
     /// <summary>

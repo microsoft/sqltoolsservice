@@ -8,13 +8,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.SqlTools.ServiceLayer.Management;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Has information for filtering a SMO object by properties 
     /// </summary>
-    public class NodePropertyFilter : INodeFilter
+    public partial class NodePropertyFilter : INodeFilter
     {
         /// <summary>
         /// Property name
@@ -182,7 +185,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     object propertyValue = value;
                     if (Type == typeof(string))
                     {
-                        propertyValue = $"'{propertyValue}'";
+                        //Replacing quotes with double quotes
+                        var escapedString = CUtils.EscapeStringSQuote(propertyValue.ToString());
+                        if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
+                        {
+                            escapedString = EscapeLikeURNRegex().Replace(escapedString, "[$0]");
+
+                            if (this.FilterType == FilterType.STARTSWITH)
+                            {
+                                propertyValue = $"'{escapedString}%'";
+                            }
+                            else if (this.FilterType == FilterType.ENDSWITH)
+                            {
+                                propertyValue = $"'%{escapedString}'";
+                            }
+                        }
+                        else
+                        {
+                            propertyValue = $"'{escapedString}'";
+                        }
                     }
                     else if (Type == typeof(Enum))
                     {
@@ -211,14 +232,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                         case FilterType.DATETIME:
                             filterText = $"@{Property} = datetime({propertyValue})";
                             break;
-                        case FilterType.CONTAINS:
-                            filterText = $"contains(@{Property}, {propertyValue})";
-                            break;
                         case FilterType.FALSE:
                             filterText = $"@{Property} = false()";
                             break;
                         case FilterType.ISNULL:
                             filterText = $"isnull(@{Property})";
+                            break;
+                        case FilterType.CONTAINS:
+                            filterText = $"contains(@{Property}, {propertyValue})";
+                            break;
+                        case FilterType.STARTSWITH:
+                        case FilterType.ENDSWITH:
+                            filterText = $"like(@{Property}, {propertyValue})";
                             break;
                     }
                 }
@@ -261,13 +286,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     return false;
             }
         }
+
+        // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ^
+        // we do this by wrapping them in square brackets eg: [%], [_], [[], [^]
+        [GeneratedRegexAttribute(@"%|_|\[|\^")]
+        public static partial Regex EscapeLikeURNRegex();
     }
 
     public enum FilterType
     {
         EQUALS,
         DATETIME,
-        CONTAINS,
         FALSE,
         ISNULL,
         NOTEQUALS,
@@ -276,6 +305,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         LESSTHANOREQUAL,
         GREATERTHANOREQUAL,
         BETWEEN,
-        NOTBETWEEN
+        NOTBETWEEN,
+        CONTAINS,
+        STARTSWITH,
+        ENDSWITH
     }
 }

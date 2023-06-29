@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.objectTypeHandlers.Add(new DatabaseRoleHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new ServerRoleHandler(ConnectionService.Instance));
             this.objectTypeHandlers.Add(new DatabaseHandler(ConnectionService.Instance));
+            this.objectTypeHandlers.Add(new ServerHandler(ConnectionService.Instance));
         }
 
         /// <summary>
