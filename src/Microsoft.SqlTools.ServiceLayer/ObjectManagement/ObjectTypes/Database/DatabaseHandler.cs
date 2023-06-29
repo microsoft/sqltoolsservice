@@ -134,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             ObjectInfo = new DatabaseInfo(),
                             IsAzureDB = isAzureDB,
-                            databaseEngineEdition = dataContainer.Server.DatabaseEngineEdition.ToString(),
+                            DatabaseEngineEdition = dataContainer.Server.DatabaseEngineEdition.ToString()
                         };
 
                         // Collect the Database properties information
@@ -179,14 +179,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
 
-                                    // To support Local database, as these properties does not available on local instances
-                                    if (dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.Express) {
+                                    if (prototype is DatabasePrototype160) {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     }
                                 }
                             }
-
-
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role

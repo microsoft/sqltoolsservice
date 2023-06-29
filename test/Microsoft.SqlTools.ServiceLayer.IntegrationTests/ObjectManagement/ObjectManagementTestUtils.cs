@@ -72,7 +72,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 ContainmentType = "None",
                 RecoveryModel = "Full",
                 LastDatabaseBackup = "None",
-                LastDatabaseLogBackup = "None"
+                LastDatabaseLogBackup = "None",
+                PageVerify = "CHECKSUM",
+                UserAccess = "MULTI_USER",
+                AutoCreateIncrementalStatistics = true,
+                AutoCreateStatistics = true,
+                AutoShrink = false,
+                AutoUpdateStatistics = true,
+                AutoUpdateStatisticsAsynchronously = false
             };
         }
 
