@@ -133,8 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         var databaseViewInfo = new DatabaseViewInfo()
                         {
                             ObjectInfo = new DatabaseInfo(),
-                            IsAzureDB = isAzureDB,
-                            DatabaseEngineEdition = dataContainer.Server.DatabaseEngineEdition.ToString()
+                            IsAzureDB = isAzureDB
                         };
 
                         // Collect the Database properties information
