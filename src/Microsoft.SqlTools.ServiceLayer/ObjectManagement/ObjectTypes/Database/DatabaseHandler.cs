@@ -20,6 +20,7 @@ using Microsoft.SqlTools.Utility;
 using System.Text;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using System.Collections.Specialized;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -324,6 +325,57 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             builder.AppendLine();
             builder.AppendLine("GO");
             return builder.ToString();
+        }
+
+        public string Attach(AttachDatabaseRequestParams attachParams)
+        {
+            var sqlScript = string.Empty;
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(attachParams.ConnectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true))
+            {
+                var server = dataContainer.Server!;
+                if (attachParams.GenerateScript)
+                {
+                    server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                }
+                server.ConnectionContext.BeginTransaction();
+                try
+                {
+                    foreach (var database in attachParams.Databases)
+                    {
+                        var fileCollection = new StringCollection();
+                        fileCollection.AddRange(database.DatabaseFilePaths);
+                        server.AttachDatabase(database.DatabaseName, fileCollection);
+                    }
+                    if (attachParams.GenerateScript)
+                    {
+                        var builder = new StringBuilder();
+                        var capturedText = server.ConnectionContext.CapturedSql.Text;
+                        foreach (var entry in capturedText)
+                        {
+                            if (entry != null)
+                            {
+                                builder.AppendLine(entry);
+                            }
+                        }
+                        sqlScript = builder.ToString();
+                    }
+                    server.ConnectionContext.CommitTransaction();
+                }
+                catch
+                {
+                    server.ConnectionContext.RollBackTransaction();
+                    throw;
+                }
+                finally
+                {
+                    if (attachParams.GenerateScript)
+                    {
+                        server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                    }
+                }
+            }
+            return sqlScript;
         }
 
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase)
