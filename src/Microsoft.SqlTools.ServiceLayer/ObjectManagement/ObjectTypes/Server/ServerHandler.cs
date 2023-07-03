@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
@@ -93,20 +94,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return configService.GetServerSmoConfig(server, configService.MinServerMemoryPropertyNumber).ConfigValue;
         }
 
-        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverObj)
+        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
         {
             if (viewParams != null)
             {
                 ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
                 ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
-                this.server = new Server(serverConnection);
-                if (GetServerMaxMemory() != serverObj.MaxServerMemory)
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
+
+                ServerPrototype prototype = new ServerPrototype(dataContainer);
+                prototype.ApplyInfoToPrototype(serverInfo);
+                ConfigureServerRole(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
+            }
+        }
+
+        private void ConfigureServerRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
+        {
+            string sqlScript = string.Empty;
+            using (var actions = new ServerActions(dataContainer, prototype, configAction))
+            {
+                var executionHandler = new ExecutonHandler(actions);
+                executionHandler.RunNow(runType, this);
+                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
                 {
-                    configService.UpdateConfig(serverConnection, configService.MaxServerMemoryPropertyNumber, serverObj.MaxServerMemory);
-                }
-                else if (GetServerMinMemory() != serverObj.MinServerMemory)
-                {
-                    configService.UpdateConfig(serverConnection, configService.MinServerMemoryPropertyNumber, serverObj.MinServerMemory);
+                    throw executionHandler.ExecutionFailureException;
                 }
             }
         }
