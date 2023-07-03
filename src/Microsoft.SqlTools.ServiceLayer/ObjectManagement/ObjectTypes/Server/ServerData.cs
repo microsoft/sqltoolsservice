@@ -926,6 +926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private void LoadData()
             {
                 this.initialized = true;
+                this.serverName = server.Name;
                 this.hardwareGeneration = server.HardwareGeneration;
                 this.language = server.Language;
                 this.memoryInMB = server.PhysicalMemory;
