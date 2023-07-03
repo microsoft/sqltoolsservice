@@ -40,38 +40,47 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
-                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
-
-                ServerPrototype prototype = new ServerPrototype(dataContainer);
-
-                if (prototype != null)
+                try
                 {
-                    this.serverViewInfo.ObjectInfo = new ServerInfo()
-                    {
-                        Name = prototype.Name,
-                        HardwareGeneration = prototype.HardwareGeneration,
-                        Language = prototype.Language,
-                        MemoryInMB = prototype.Memory,
-                        OperatingSystem = prototype.OperatingSystem,
-                        Platform = prototype.Platform,
-                        Processors = prototype.Processors,
-                        IsClustered = prototype.IsClustered,
-                        IsHadrEnabled = prototype.IsHadrEnabled,
-                        IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
-                        IsXTPSupported = prototype.IsXTPSupported,
-                        Product = prototype.Product,
-                        //ReservedStorageSizeMB = server.ReservedStorageSizeMB,
-                        RootDirectory = prototype.RootDirectory,
-                        ServerCollation = prototype.ServerCollation,
-                        //ServiceTier = prototype.ServiceTier,
-                        //StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(server.UsedStorageSizeMB),
-                        Version = prototype.Version,
-                        MinServerMemory = prototype.MinServerMemory,
-                        MaxServerMemory = prototype.MaxServerMemory
-                    };
-                }
+                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-                return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
+                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+
+                    if (prototype != null)
+                    {
+                        this.serverViewInfo.ObjectInfo = new ServerInfo()
+                        {
+                            Name = prototype.Name,
+                            HardwareGeneration = prototype.HardwareGeneration,
+                            Language = prototype.Language,
+                            MemoryInMB = prototype.MemoryInMB,
+                            OperatingSystem = prototype.OperatingSystem,
+                            Platform = prototype.Platform,
+                            Processors = prototype.Processors,
+                            IsClustered = prototype.IsClustered,
+                            IsHadrEnabled = prototype.IsHadrEnabled,
+                            IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
+                            IsXTPSupported = prototype.IsXTPSupported,
+                            Product = prototype.Product,
+                            ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
+                            RootDirectory = prototype.RootDirectory,
+                            ServerCollation = prototype.ServerCollation,
+                            ServiceTier = prototype.ServiceTier,
+                            StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
+                            Version = prototype.Version,
+                            MinServerMemory = prototype.MinServerMemory,
+                            MaxServerMemory = prototype.MaxServerMemory
+                        };
+                    }
+                    return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
+                }
+                finally
+                {
+                    if (serverConnection.IsOpen)
+                    {
+                        serverConnection.Disconnect();
+                    }
+                }
             }
         }
 
@@ -101,16 +110,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (viewParams != null)
             {
                 ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
-                ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
                 CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
 
                 ServerPrototype prototype = new ServerPrototype(dataContainer);
                 prototype.ApplyInfoToPrototype(serverInfo);
-                ConfigureServerRole(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
+                ConfigureServer(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
             }
         }
 
-        private void ConfigureServerRole(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
+        private void ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
         {
             string sqlScript = string.Empty;
             using (var actions = new ServerActions(dataContainer, prototype, configAction))
