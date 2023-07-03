@@ -27,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         private CDataContainer dataContainer = null;
         private ServerConnection sqlConnection = null;
-        private ServerConfigService configService = new ServerConfigService();
+        private ServerConfigService configService = null;
 
 
         private ServerPrototypeData currentState;
@@ -167,55 +167,66 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        //private string m_strIsClustered = String.Empty;
+        public bool IsClustered
+        {
+            get
+            {
+                return this.currentState.IsClustered;
+            }
+            set
+            {
+                this.currentState.IsClustered = value;
+            }
+        }
 
-        //public string IsClustered
-        //{
-        //    get
-        //    {
-        //        return m_strIsClustered;
-        //    }
-        //}
+        public bool IsHadrEnabled
+        {
+            get
+            {
+                return this.currentState.IsHadrEnabled;
+            }
+            set
+            {
+                this.currentState.IsHadrEnabled = value;
+            }
+        }
 
-        //private string m_strIsHadrEnabled = String.Empty;
+        public bool IsXTPSupported
+        {
+            get
+            {
+                return this.currentState.IsXTPSupported;
+            }
+            set
+            {
+                this.currentState.IsXTPSupported = value;
+            }
+        }
 
-        //public string IsHadrEnabled
-        //{
-        //    get
-        //    {
-        //        return m_strIsHadrEnabled;
-        //    }
-        //}
+        public bool IsPolyBaseInstalled
+        {
+            get
+            {
+                return this.currentState.IsPolyBaseInstalled;
+            }
+            set
+            {
+                this.currentState.IsPolyBaseInstalled = value;
+            }
+        }
 
-        //private string m_strIsXTPSupported = String.Empty;
 
-        //public string IsXTPSupported
-        //{
-        //    get
-        //    {
-        //        return m_strIsXTPSupported;
-        //    }
-        //}
-
-        //private string m_strIsPolybaseInstalled = String.Empty;
-
-        //public string IsPolybaseInstalled
-        //{
-        //    get
-        //    {
-        //        return m_strIsPolybaseInstalled;
-        //    }
-        //}
-
-        //private string m_strHardwareGeneration = null;
-
-        //public string HardwareGeneration
-        //{
-        //    get
-        //    {
-        //        return m_strHardwareGeneration;
-        //    }
-        //}
+        public string HardwareGeneration
+        {
+            get
+            {
+                return this.currentState.HardwareGeneration;
+            }
+            set
+            {
+                this.currentState.HardwareGeneration = value;
+            }
+        }
 
         //private string m_strServiceTier = null;
 
@@ -283,7 +294,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             this.dataContainer = context;
             this.sqlConnection = context.ServerConnection;
-            this.currentState = new ServerPrototypeData(context, context.Server);
+            this.configService = new ServerConfigService();
+            this.currentState = new ServerPrototypeData(context, context.Server, this.configService);
             this.originalState = (ServerPrototypeData)this.currentState.Clone();
         }
 
@@ -369,6 +381,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private bool initialized = false;
             private Server server = null;
             private CDataContainer context = null;
+            private ServerConfigService configService = null;
             private bool isYukonOrLater = false;
             #endregion
 
@@ -733,10 +746,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             /// </summary>
             /// <param name="context">The context in which we are modifying an existing serverRole</param>
             /// <param name="serverRole">The serverRole we are modifying</param>
-            public ServerPrototypeData(CDataContainer context, Server server)
+            public ServerPrototypeData(CDataContainer context, Server server, ServerConfigService service)
             {
                 this.server = context.Server;
                 this.context = context;
+                this.configService = service;
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 LoadData();
             }
@@ -759,6 +773,32 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private void LoadData()
             {
                 this.initialized = true;
+                this.hardwareGeneration = server.HardwareGeneration;
+                this.language = server.Language;
+                this.memoryInMB = server.PhysicalMemory;
+                this.operatingSystem = server.HostDistribution;
+                this.platform = server.HostPlatform;
+                this.processors = server.Processors;
+                this.isClustered = server.IsClustered;
+                this.isHadrEnabled = server.IsHadrEnabled;
+                this.isPolyBaseInstalled = server.IsPolyBaseInstalled;
+                this.isXTPSupported = server.IsXTPSupported;
+                this.product = server.Product;
+                this.rootDirectory = server.RootDirectory;
+                this.serverCollation = server.Collation;
+                this.version = server.Version.ToString();
+                this.maxMemory = GetServerMaxMemory();
+                this.minMemory = GetServerMinMemory();
+            }
+
+            private int GetServerMaxMemory()
+            {
+                return this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber).ConfigValue;
+            }
+
+            private int GetServerMinMemory()
+            {
+                return this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber).ConfigValue;
             }
         }
     }

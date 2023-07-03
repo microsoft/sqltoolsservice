@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -41,31 +40,34 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
             using (var context = new ServerViewContext(requestParams, serverConnection))
             {
-                this.server = new Server(context.Connection);
-                if (this.server != null)
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+                ServerPrototype prototype = new ServerPrototype(dataContainer);
+
+                if (prototype != null)
                 {
                     this.serverViewInfo.ObjectInfo = new ServerInfo()
                     {
-                        Name = server.Name,
-                        HardwareGeneration = server.HardwareGeneration,
-                        Language = server.Language,
-                        MemoryInMB = server.PhysicalMemory,
-                        OperatingSystem = server.HostDistribution,
-                        Platform = server.HostPlatform,
-                        Processors = server.Processors,
-                        IsClustered = server.IsClustered,
-                        IsHadrEnabled = server.IsHadrEnabled,
-                        IsPolyBaseInstalled = server.IsPolyBaseInstalled,
-                        IsXTPSupported = server.IsXTPSupported,
-                        Product = server.Product,
-                        ReservedStorageSizeMB = server.ReservedStorageSizeMB,
-                        RootDirectory = server.RootDirectory,
-                        ServerCollation = server.Collation,
-                        ServiceTier = server.ServiceTier,
-                        StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(server.UsedStorageSizeMB),
-                        Version = server.Version.ToString(),
-                        MinServerMemory = GetServerMinMemory(),
-                        MaxServerMemory = GetServerMaxMemory()
+                        Name = prototype.Name,
+                        HardwareGeneration = prototype.HardwareGeneration,
+                        Language = prototype.Language,
+                        MemoryInMB = prototype.Memory,
+                        OperatingSystem = prototype.OperatingSystem,
+                        Platform = prototype.Platform,
+                        Processors = prototype.Processors,
+                        IsClustered = prototype.IsClustered,
+                        IsHadrEnabled = prototype.IsHadrEnabled,
+                        IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
+                        IsXTPSupported = prototype.IsXTPSupported,
+                        Product = prototype.Product,
+                        //ReservedStorageSizeMB = server.ReservedStorageSizeMB,
+                        RootDirectory = prototype.RootDirectory,
+                        ServerCollation = prototype.ServerCollation,
+                        //ServiceTier = prototype.ServiceTier,
+                        //StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(server.UsedStorageSizeMB),
+                        Version = prototype.Version,
+                        MinServerMemory = prototype.MinServerMemory,
+                        MaxServerMemory = prototype.MaxServerMemory
                     };
                 }
 
