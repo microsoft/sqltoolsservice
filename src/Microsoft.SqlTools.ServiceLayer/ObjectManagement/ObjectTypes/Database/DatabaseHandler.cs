@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
-        private static readonly Dictionary<DatabaseUserAccess, string> displayUserAccessOptions = new Dictionary<DatabaseUserAccess, string>();
+        private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -46,9 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal static readonly string[] AzureBackupLevels;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
-
-        private static readonly Dictionary<string, string> pageVerifyOptions = new Dictionary<string, string>();
-        private static readonly Dictionary<string, string> userAccessOptions = new Dictionary<string, string>();
 
         static DatabaseHandler()
         {
@@ -74,9 +71,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayPageVerifyOptions.Add(PageVerify.TornPageDetection, SR.prototype_db_prop_pageVerify_value_tornPageDetection);
             displayPageVerifyOptions.Add(PageVerify.None, SR.prototype_db_prop_pageVerify_value_none);
 
-            displayUserAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
-            displayUserAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
-            displayUserAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
+            displayRestrictAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
+            displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
+            displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -170,9 +167,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 if (!isManagedInstance)
                                 {
                                     databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
-                                    databaseViewInfo.userAccessOptions = displayUserAccessOptions.Values.ToArray();
+                                    databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess = displayUserAccessOptions[smoDatabase.UserAccess];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
 
@@ -484,7 +481,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
                         prototype.AutoShrink= database.AutoShrink;
                         prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        prototype.RestrictAccess = database.UserAccess;
+                        prototype.RestrictAccess = database.RestrictAccess;
 
                         if (prototype is DatabasePrototypeAzure dbAz)
                         {
