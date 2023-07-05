@@ -29,10 +29,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private ServerPrototypeData currentState;
         private ServerPrototypeData originalState;
+
+        private ConfigProperty serverMinMemoryProperty = null;
+        private ConfigProperty serverMaxMemoryProperty = null;
         #endregion
 
         #region Trace support
         private const string componentName = "Server";
+
+        private const string minMemoryCannotBeGreaterThanMaxMemory = "Min memory value cannot be greater than the max memory";
 
         public string ComponentName
         {
@@ -301,6 +306,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.configService = new ServerConfigService();
             this.currentState = new ServerPrototypeData(context, context.Server, this.configService);
             this.originalState = (ServerPrototypeData)this.currentState.Clone();
+            this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(context.Server, this.configService.MaxServerMemoryPropertyNumber);
+            this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(context.Server, this.configService.MinServerMemoryPropertyNumber);
         }
 
         #endregion
@@ -318,25 +325,64 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 Microsoft.SqlServer.Management.Smo.Server server = this.dataContainer.Server;
                 bool changesMade = false;
 
-                if (this.currentState.MinMemory != this.originalState.MinMemory)
-                {
-                    changesMade = true;
-                    ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
-                    serverConfig.ConfigValue = this.currentState.MinMemory;
-                }
-
-                if (this.currentState.MaxMemory != this.originalState.MaxMemory)
-                {
-                    changesMade = true;
-                    ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
-                    serverConfig.ConfigValue = this.currentState.MaxMemory;
-                }
+                changesMade = UpdateMemoryValues(this.dataContainer.Server);
 
                 if (changesMade)
                 {
                     server.Configuration.Alter(true);
                 }
             }
+        }
+
+        public bool UpdateMemoryValues(Microsoft.SqlServer.Management.Smo.Server server)
+        {
+            bool changesMade = false;
+
+            if (this.currentState.MinMemory > this.currentState.MaxMemory)
+            {
+                throw new InvalidOperationException(minMemoryCannotBeGreaterThanMaxMemory);
+            }
+
+            if (this.currentState.MinMemory != this.originalState.MinMemory)
+            {
+                changesMade = true;
+                if (this.currentState.MinMemory > this.serverMaxMemoryProperty.ConfigValue)
+                {
+                    this.currentState.MinMemory = this.serverMaxMemoryProperty.ConfigValue;
+                }
+                else if (this.currentState.MinMemory > this.serverMinMemoryProperty.Maximum)
+                {
+                    this.currentState.MinMemory = this.serverMinMemoryProperty.Maximum;
+                }
+                else if (this.currentState.MinMemory < this.serverMinMemoryProperty.Minimum)
+                {
+                    this.currentState.MinMemory = this.serverMinMemoryProperty.Minimum;
+                }
+
+                ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
+                serverConfig.ConfigValue = this.currentState.MinMemory;
+            }
+
+            if (this.currentState.MaxMemory != this.originalState.MaxMemory)
+            {
+                changesMade = true;
+                if (this.currentState.MaxMemory < this.serverMinMemoryProperty.ConfigValue)
+                {
+                    this.currentState.MaxMemory = this.serverMinMemoryProperty.ConfigValue;
+                }
+                else if (this.currentState.MaxMemory > this.serverMaxMemoryProperty.Maximum)
+                {
+                    this.currentState.MaxMemory = this.serverMaxMemoryProperty.Maximum;
+                }
+                else if (this.currentState.MaxMemory < this.serverMaxMemoryProperty.Minimum)
+                {
+                    this.currentState.MaxMemory = this.serverMaxMemoryProperty.Minimum;
+                }
+               
+                ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
+                serverConfig.ConfigValue = this.currentState.MaxMemory;
+            }
+            return changesMade;
         }
         #endregion
 
@@ -400,6 +446,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private CDataContainer context = null;
             private ServerConfigService configService = null;
             private bool isYukonOrLater = false;
+
+            ConfigProperty serverMaxMemoryProperty = null;
+            ConfigProperty serverMinMemoryProperty = null;
             #endregion
 
             #region Properties
@@ -824,7 +873,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
                     }
-                    this.minMemory = value;
+
+                     this.minMemory = value; 
                 }
             }
 
@@ -846,6 +896,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
                     }
+
                     this.maxMemory = value;
                 }
             }
@@ -888,6 +939,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.context = context;
                 this.configService = service;
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
+                this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
+                this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
                 LoadData();
             }
 
@@ -944,18 +997,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
-                this.maxMemory = GetServerMaxMemory();
-                this.minMemory = GetServerMinMemory();
-            }
-
-            private int GetServerMaxMemory()
-            {
-                return this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber).ConfigValue;
-            }
-
-            private int GetServerMinMemory()
-            {
-                return this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber).ConfigValue;
+                this.maxMemory = serverMaxMemoryProperty.ConfigValue;
+                this.minMemory = serverMinMemoryProperty.ConfigValue;
             }
         }
     }

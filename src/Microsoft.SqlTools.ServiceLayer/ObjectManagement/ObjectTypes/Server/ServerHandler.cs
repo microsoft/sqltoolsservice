@@ -95,16 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             throw new NotSupportedException("ServerHandler does not support Script method");
         }
 
-        private int GetServerMaxMemory()
-        {
-            return configService.GetServerSmoConfig(server, configService.MaxServerMemoryPropertyNumber).ConfigValue;
-        }
-
-        private int GetServerMinMemory()
-        {
-            return configService.GetServerSmoConfig(server, configService.MinServerMemoryPropertyNumber).ConfigValue;
-        }
-
         private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
         {
             if (viewParams != null)
@@ -120,7 +110,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private void ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
         {
-            string sqlScript = string.Empty;
             using (var actions = new ServerActions(dataContainer, prototype, configAction))
             {
                 var executionHandler = new ExecutonHandler(actions);
