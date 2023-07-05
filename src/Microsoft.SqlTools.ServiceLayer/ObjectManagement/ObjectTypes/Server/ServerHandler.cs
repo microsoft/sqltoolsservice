@@ -22,7 +22,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         private ServerViewInfo serverViewInfo = new ServerViewInfo();
         private ServerConfigService configService = new ServerConfigService();
-        private Server server = null;
 
         public ServerHandler(ConnectionService connectionService) : base(connectionService)
         {
