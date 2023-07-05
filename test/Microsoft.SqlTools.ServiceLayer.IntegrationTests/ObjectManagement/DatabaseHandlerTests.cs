@@ -299,7 +299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoUpdateStatistics, Is.True, $"AutoUpdateStatistics should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoUpdateStatisticsAsynchronously, Is.False, $"AutoUpdateStatisticsAsynchronously should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify, Is.EqualTo(testDatabase.PageVerify), $"PageVerify should match with testdata");
-                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).UserAccess, Is.EqualTo(testDatabase.UserAccess), $"UserAccess should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess, Is.EqualTo(testDatabase.RestrictAccess), $"RestrictAccess should match with testdata");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);

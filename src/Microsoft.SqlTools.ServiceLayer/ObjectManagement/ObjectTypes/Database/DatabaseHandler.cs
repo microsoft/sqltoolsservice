@@ -293,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var sqlScript = string.Empty;
             ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, ""))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
