@@ -6,7 +6,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
