@@ -1805,15 +1805,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
                 connectionStringBuilder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(connectionStringBuilder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                 var connectionString = connectionStringBuilder.ToString();
-
-                // Sanity checks, passing these checks doesn't guarantee that the user can open the table designer.
-                CheckPermissions(tableInfo, connectionString);
                 var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: Settings.AllowDisableAndReenableDdlTriggers);
 
                 // Set Access Token only when authentication mode is not specified.
                 var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
                     ? tableInfo.AccessToken : null;
-                tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
+
+                try
+                {
+                    tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
+                }
+                catch (Exception ex)
+                {
+                    CheckPermissions(tableInfo, connectionString);
+                    throw ex;
+                }
             }
             else
             {
