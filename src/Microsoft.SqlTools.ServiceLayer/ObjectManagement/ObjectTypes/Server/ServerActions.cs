@@ -16,10 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         #endregion
 
         #region Constructor
-        /// <summary>
-        /// required when loading from Object Explorer context
-        /// </summary>
-        /// <param name="context"></param>
         public ServerActions(
             CDataContainer context,
             ServerPrototype server,

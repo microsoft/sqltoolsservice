@@ -34,9 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
 
-            using (var context = new ServerViewContext(requestParams, serverConnection))
+            using (var context = new ServerViewContext(requestParams, ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName)))
             {
                 try
                 {
@@ -71,13 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         };
                     }
                     return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
-                }
-                finally
-                {
-                    if (serverConnection.IsOpen)
-                    {
-                        serverConnection.Disconnect();
-                    }
                 }
             }
         }

@@ -14,6 +14,7 @@ using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 
 using Server = Microsoft.SqlServer.Management.Smo.Server;
+using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -60,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             {
                 var server = new Server(new ServerConnection(sqlConn));
                 var serverHandler = new ServerHandler(ConnectionService.Instance);
+                var serverConfig = new ServerConfigService();
 
                 var requestParams = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Server, "", "");
                 var result = (ServerInfo)(await serverHandler.InitializeObjectView(requestParams)).ViewInfo.ObjectInfo;
@@ -99,11 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 Assert.IsNotNull(result);
                 Assert.AreEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be different after update");
                 Assert.AreEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be different after update");
-
-                serverInfo.MinServerMemory = -1;
-                serverInfo.MaxServerMemory = 1000000;
-                await ObjectManagementTestUtils.SaveObject(requestParams, serverInfo);
-                Assert.Fail("Save operation should fail when setting not valid values for properties"); 
             }
         }
     }
