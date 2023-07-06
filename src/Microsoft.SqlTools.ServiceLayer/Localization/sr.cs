@@ -12916,6 +12916,16 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription, indexName);
         }
 
+        public static string TableDesignerCreateTablePermissionDenied(string db)
+        {
+            return Keys.GetString(Keys.TableDesignerCreateTablePermissionDenied, db);
+        }
+
+        public static string TableDesignerAlterTablePermissionDenied(string table)
+        {
+            return Keys.GetString(Keys.TableDesignerAlterTablePermissionDenied, table);
+        }
+
         public static string SqlProjectModelNotFound(string projectUri)
         {
             return Keys.GetString(Keys.SqlProjectModelNotFound, projectUri);
@@ -16874,6 +16884,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TableDesignerConfirmationText = "TableDesignerConfirmationText";
+
+
+            public const string TableDesignerCreateTablePermissionDenied = "TableDesignerCreateTablePermissionDenied";
+
+
+            public const string TableDesignerAlterTablePermissionDenied = "TableDesignerAlterTablePermissionDenied";
 
 
             public const string SqlProjectModelNotFound = "SqlProjectModelNotFound";
