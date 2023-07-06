@@ -33,7 +33,6 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
-        private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@table), 'OBJECT', 'ALTER')";
 
         public TableDesignerService()
         {
@@ -1801,12 +1800,13 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             Dac.TableDesigner tableDesigner;
             if (tableInfo.TableScriptPath == null)
             {
-                // Sanity checks, passing these checks doesn't guarantee that the user can open the table designer.
-                CheckPermissions(tableInfo);
                 var connectionStringBuilder = new SqlConnectionStringBuilder(tableInfo.ConnectionString);
                 connectionStringBuilder.InitialCatalog = tableInfo.Database;
                 connectionStringBuilder.ApplicationName = ConnectionService.GetApplicationNameWithFeature(connectionStringBuilder.ApplicationName, TableDesignerService.TableDesignerApplicationNameSuffix);
                 var connectionString = connectionStringBuilder.ToString();
+
+                // Sanity checks, passing these checks doesn't guarantee that the user can open the table designer.
+                CheckPermissions(tableInfo, connectionString);
                 var tableDesignerOptions = new Dac.TableDesignerOptions(disableAndReenableDdlTriggers: Settings.AllowDisableAndReenableDdlTriggers);
 
                 // Set Access Token only when authentication mode is not specified.
@@ -1860,39 +1860,31 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
             return metadata;
         }
 
-        private void CheckPermissions(TableInfo tableInfo)
+        private void CheckPermissions(TableInfo tableInfo, string connectionString)
         {
-            CheckCreateAlterTablePermission(tableInfo);
+            CheckCreateAlterTablePermission(tableInfo, connectionString);
         }
 
-        private void CheckCreateAlterTablePermission(TableInfo tableInfo)
+        private void CheckCreateAlterTablePermission(TableInfo tableInfo, string connectionString)
         {
-            ReliableConnectionHelper.ExecuteReader(tableInfo.ConnectionString, tableInfo.IsNewTable ? CheckCreateTablePermissionInDbQuery : CheckAlterTablePermissionQuery, (reader) =>
+            if (tableInfo.IsNewTable)
             {
-                reader.Read();
-                if (reader.IsDBNull(0) || (int)reader[0] != 1)
+
+                ReliableConnectionHelper.ExecuteReader(connectionString, CheckCreateTablePermissionInDbQuery, (reader) =>
                 {
-                    throw new Exception(tableInfo.IsNewTable 
-                        ? SR.TableDesignerCreateTablePermissionDenied(tableInfo.Database)
-                        : SR.TableDesignerAlterTablePermissionDenied(tableInfo.Name));
-                }
-            }, (cmd) =>
-            {
-                if (tableInfo.IsNewTable)
+                    reader.Read();
+                    if (reader.IsDBNull(0) || (int)reader[0] != 1)
+                    {
+                        throw new Exception(SR.TableDesignerCreateTablePermissionDenied(tableInfo.Database));
+                    }
+                }, (cmd) =>
                 {
                     var dbNameParameter = cmd.CreateParameter();
                     dbNameParameter.ParameterName = "@dbname";
                     dbNameParameter.Value = tableInfo.Database;
                     cmd.Parameters.Add(dbNameParameter);
-                }
-                else
-                {
-                    var tableParameter = cmd.CreateParameter();
-                    tableParameter.ParameterName = "@table";
-                    tableParameter.Value = string.Format("{0}.{1}", tableInfo.Schema, tableInfo.Name);
-                    cmd.Parameters.Add(tableParameter);
-                }
-            });
+                });
+            }
         }
 
         /// <summary>

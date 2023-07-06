@@ -5445,11 +5445,6 @@ The Query Processor estimates that implementing the following index could improv
     <comment>.
  Parameters: 0 - db (string) </comment>
   </data>
-  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
-    <value>ALTER TABLE permission denied for table &apos;{0}&apos;.</value>
-    <comment>.
- Parameters: 0 - table (string) </comment>
-  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Could not find SQL model from project: {0}.</value>
     <comment>.
