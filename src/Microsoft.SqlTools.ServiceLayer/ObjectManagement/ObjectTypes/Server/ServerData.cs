@@ -993,7 +993,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.product = server.Product;
                 this.rootDirectory = server.RootDirectory;
                 this.serverCollation = server.Collation;
-                this.version = server.Version.ToString();
+                this.version = server.VersionString;
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
