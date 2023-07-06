@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
         private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
+        private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
 
         public TableDesignerService()
         {
@@ -1883,6 +1884,28 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     dbNameParameter.ParameterName = "@dbname";
                     dbNameParameter.Value = tableInfo.Database;
                     cmd.Parameters.Add(dbNameParameter);
+                });
+            }
+            else
+            {
+                ReliableConnectionHelper.ExecuteReader(connectionString, CheckAlterTablePermissionQuery, (reader) =>
+                {
+                    reader.Read();
+                    if (reader.IsDBNull(0) || (int)reader[0] != 1)
+                    {
+                        throw new Exception(SR.TableDesignerAlterTablePermissionDenied(tableInfo.Name));
+                    }
+                }, (cmd) =>
+                {
+                    var schemaParameter = cmd.CreateParameter();
+                    schemaParameter.ParameterName = "@schema";
+                    schemaParameter.Value = tableInfo.Schema;
+                    cmd.Parameters.Add(schemaParameter);
+
+                    var tableParameter = cmd.CreateParameter();
+                    tableParameter.ParameterName = "@table";
+                    tableParameter.Value = tableInfo.Name;
+                    cmd.Parameters.Add(tableParameter);
                 });
             }
         }
