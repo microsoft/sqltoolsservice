@@ -22,22 +22,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// connection infor, SMO server object or an AMO server object as well
         /// as a hash table where one can manipulate custom data
         /// </summary>
-        private CDataContainer dataContainer = null;
-        private ServerConnection sqlConnection = null;
-        private ServerConfigService configService = null;
+        private CDataContainer dataContainer;
+        private ServerConnection sqlConnection;
+        private ServerConfigService configService;
 
 
         private ServerPrototypeData currentState;
         private ServerPrototypeData originalState;
 
-        private ConfigProperty serverMinMemoryProperty = null;
-        private ConfigProperty serverMaxMemoryProperty = null;
+        private ConfigProperty serverMinMemoryProperty;
+        private ConfigProperty serverMaxMemoryProperty;
         #endregion
 
         #region Trace support
         private const string componentName = "Server";
-
-        private const string minMemoryCannotBeGreaterThanMaxMemory = "Min memory value cannot be greater than the max memory";
 
         public string ComponentName
         {
@@ -411,13 +409,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private int maxMemory = 0;
 
             private bool initialized = false;
-            private Server server = null;
-            private CDataContainer context = null;
-            private ServerConfigService configService = null;
+            private Server server;
+            private CDataContainer context;
+            private ServerConfigService configService;
             private bool isYukonOrLater = false;
 
-            ConfigProperty serverMaxMemoryProperty = null;
-            ConfigProperty serverMinMemoryProperty = null;
+            ConfigProperty serverMaxMemoryProperty;
+            ConfigProperty serverMinMemoryProperty;
             #endregion
 
             #region Properties
