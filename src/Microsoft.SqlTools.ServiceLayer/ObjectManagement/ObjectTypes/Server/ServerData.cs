@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int MaxServerMemory
+        public ServerProperty MaxServerMemory
         {
             get
             {
@@ -279,7 +279,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int MinServerMemory
+        public ServerProperty MinServerMemory
         {
             get
             {
@@ -338,49 +338,49 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             bool changesMade = false;
 
-            if (this.currentState.MinMemory > this.currentState.MaxMemory)
+            if (this.currentState.MinMemory.Value > this.currentState.MaxMemory.Value)
             {
                 throw new InvalidOperationException(minMemoryCannotBeGreaterThanMaxMemory);
             }
 
-            if (this.currentState.MinMemory != this.originalState.MinMemory)
+            if (this.currentState.MinMemory.Value != this.originalState.MinMemory.Value)
             {
                 changesMade = true;
-                if (this.currentState.MinMemory > this.serverMaxMemoryProperty.ConfigValue)
+                if (this.currentState.MinMemory.Value > this.serverMaxMemoryProperty.ConfigValue)
                 {
-                    this.currentState.MinMemory = this.serverMaxMemoryProperty.ConfigValue;
+                    this.currentState.MinMemory.Value = this.serverMaxMemoryProperty.ConfigValue;
                 }
-                else if (this.currentState.MinMemory > this.serverMinMemoryProperty.Maximum)
+                else if (this.currentState.MinMemory.Value > this.serverMinMemoryProperty.Maximum)
                 {
-                    this.currentState.MinMemory = this.serverMinMemoryProperty.Maximum;
+                    this.currentState.MinMemory.Value = this.serverMinMemoryProperty.Maximum;
                 }
-                else if (this.currentState.MinMemory < this.serverMinMemoryProperty.Minimum)
+                else if (this.currentState.MinMemory.Value < this.serverMinMemoryProperty.Minimum)
                 {
-                    this.currentState.MinMemory = this.serverMinMemoryProperty.Minimum;
+                    this.currentState.MinMemory.Value = this.serverMinMemoryProperty.Minimum;
                 }
 
                 ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
-                serverConfig.ConfigValue = this.currentState.MinMemory;
+                serverConfig.ConfigValue = this.currentState.MinMemory.Value;
             }
 
-            if (this.currentState.MaxMemory != this.originalState.MaxMemory)
+            if (this.currentState.MaxMemory.Value != this.originalState.MaxMemory.Value)
             {
                 changesMade = true;
-                if (this.currentState.MaxMemory < this.serverMinMemoryProperty.ConfigValue)
+                if (this.currentState.MaxMemory.Value < this.serverMinMemoryProperty.ConfigValue)
                 {
-                    this.currentState.MaxMemory = this.serverMinMemoryProperty.ConfigValue;
+                    this.currentState.MaxMemory.Value = this.serverMinMemoryProperty.ConfigValue;
                 }
-                else if (this.currentState.MaxMemory > this.serverMaxMemoryProperty.Maximum)
+                else if (this.currentState.MaxMemory.Value > this.serverMaxMemoryProperty.Maximum)
                 {
-                    this.currentState.MaxMemory = this.serverMaxMemoryProperty.Maximum;
+                    this.currentState.MaxMemory.Value = this.serverMaxMemoryProperty.Maximum;
                 }
-                else if (this.currentState.MaxMemory < this.serverMaxMemoryProperty.Minimum)
+                else if (this.currentState.MaxMemory.Value < this.serverMaxMemoryProperty.Minimum)
                 {
-                    this.currentState.MaxMemory = this.serverMaxMemoryProperty.Minimum;
+                    this.currentState.MaxMemory.Value = this.serverMaxMemoryProperty.Minimum;
                 }
                
                 ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
-                serverConfig.ConfigValue = this.currentState.MaxMemory;
+                serverConfig.ConfigValue = this.currentState.MaxMemory.Value;
             }
             return changesMade;
         }
@@ -438,8 +438,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string serviceTier = String.Empty;
             private int reservedStorageSizeMB = 0;
             private int storageSpaceUsageInMB = 0;
-            private int minMemory = 0;
-            private int maxMemory = 0;
+            private ServerProperty minMemory = null;
+            private ServerProperty maxMemory = null;
 
             private bool initialized = false;
             private Server server = null;
@@ -855,7 +855,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
 
-            public int MinMemory
+            public ServerProperty MinMemory
             {
                 get
                 {
@@ -878,7 +878,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            public int MaxMemory
+            public ServerProperty MaxMemory
             {
                 get
                 {
@@ -997,8 +997,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
-                this.maxMemory = serverMaxMemoryProperty.ConfigValue;
-                this.minMemory = serverMinMemoryProperty.ConfigValue;
+                LoadMemoryProperties();
+            }
+
+            private void LoadMemoryProperties()
+            {
+                this.maxMemory.Value = serverMaxMemoryProperty.ConfigValue;
+                this.maxMemory.MaximumValue = serverMaxMemoryProperty.Maximum;
+                this.maxMemory.MinimumValue = serverMaxMemoryProperty.Minimum;
+
+                this.minMemory.Value = serverMinMemoryProperty.ConfigValue;
+                this.minMemory.MaximumValue = serverMinMemoryProperty.Maximum;
+                this.minMemory.MinimumValue = serverMinMemoryProperty.Minimum;
             }
         }
     }
