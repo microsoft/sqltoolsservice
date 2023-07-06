@@ -6792,4 +6792,9 @@ The Query Processor estimates that implementing the following index could improv
     <value>Hyperscale</value>
     <comment></comment>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Property &apos;{0}&apos; was set before initialization.</value>
+    <comment>.
+ Parameters: 0 - propertyName (string) </comment>
+  </data>
 </root>

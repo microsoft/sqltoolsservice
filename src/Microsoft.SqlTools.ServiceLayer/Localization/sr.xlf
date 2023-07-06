@@ -8321,6 +8321,12 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">None</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="new">Property '{0}' was set before initialization.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
