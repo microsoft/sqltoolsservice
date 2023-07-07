@@ -264,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
 
-        public ServerProperty MaxServerMemory
+        public NumericServerProperty MaxServerMemory
         {
             get
             {
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public ServerProperty MinServerMemory
+        public NumericServerProperty MinServerMemory
         {
             get
             {
@@ -404,8 +404,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private int reservedStorageSizeMB = 0;
             private int storageSpaceUsageInMB = 0;
 
-            private ServerProperty minMemory;
-            private ServerProperty maxMemory;
+            private NumericServerProperty minMemory;
+            private NumericServerProperty maxMemory;
             private bool initialized = false;
             private Server server;
             private CDataContainer context;
@@ -820,7 +820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
 
-            public ServerProperty MinMemory
+            public NumericServerProperty MinMemory
             {
                 get
                 {
@@ -843,7 +843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            public ServerProperty MaxMemory
+            public NumericServerProperty MaxMemory
             {
                 get
                 {
@@ -906,8 +906,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
                 this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
-                this.minMemory = new ServerProperty();
-                this.maxMemory = new ServerProperty();
+                this.minMemory = new NumericServerProperty();
+                this.maxMemory = new NumericServerProperty();
                 LoadData();
             }
 

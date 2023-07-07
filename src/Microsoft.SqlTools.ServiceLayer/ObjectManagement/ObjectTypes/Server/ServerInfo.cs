@@ -28,11 +28,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? ServiceTier { get; set; }
         public int? StorageSpaceUsageInMB { get; set; }
         public string Version { get; set; }
-        public ServerProperty MaxServerMemory { get; set; }
-        public ServerProperty MinServerMemory { get; set; }
+        public NumericServerProperty MaxServerMemory { get; set; }
+        public NumericServerProperty MinServerMemory { get; set; }
     }
 
-    public class ServerProperty
+    public class NumericServerProperty
     {
         public int MaximumValue { get; set; }
         public int MinimumValue { get; set; }
