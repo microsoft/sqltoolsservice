@@ -81,7 +81,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             throw new NotSupportedException("ServerHandler does not support Script method");
         }
 
-
         private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
         {
             if (viewParams != null)
