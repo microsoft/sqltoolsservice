@@ -12946,6 +12946,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ServiceNotFound, serviceName);
         }
 
+        public static string PropertyNotInitialized(string propertyName)
+        {
+            return Keys.GetString(Keys.PropertyNotInitialized, propertyName);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -17896,6 +17901,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string HyperscaleAzureEdition = "HyperscaleAzureEdition";
+
+
+            public const string PropertyNotInitialized = "PropertyNotInitialized";
 
 
             private Keys()

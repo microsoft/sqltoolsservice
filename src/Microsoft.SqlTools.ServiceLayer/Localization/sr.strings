@@ -2815,3 +2815,9 @@ GeneralPurposeAzureEdition = General Purpose
 BusinessCriticalAzureEdition = Business Critical
 ErrorInvalidEdition = Edition value is not valid
 HyperscaleAzureEdition = Hyperscale
+
+#############################################################################
+# Server Properties
+
+############################################################################
+PropertyNotInitialized(string propertyName) = Property '{0}' was set before initialization.

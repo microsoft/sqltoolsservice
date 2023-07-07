@@ -5,13 +5,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -22,7 +20,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     {
         private ServerViewInfo serverViewInfo = new ServerViewInfo();
         private ServerConfigService configService = new ServerConfigService();
-        private Server server = null;
 
         public ServerHandler(ConnectionService connectionService) : base(connectionService)
         {
@@ -36,60 +33,78 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
 
-            using (var context = new ServerViewContext(requestParams, serverConnection))
+            using (var context = new ServerViewContext(requestParams, ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName)))
             {
-                this.server = new Server(context.Connection);
-                if (this.server != null)
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+
+                ServerPrototype prototype = new ServerPrototype(dataContainer);
+
+                if (prototype != null)
                 {
                     this.serverViewInfo.ObjectInfo = new ServerInfo()
                     {
-                        Name = server.Name,
-                        HardwareGeneration = server.HardwareGeneration,
-                        Language = server.Language,
-                        MemoryInMB = server.PhysicalMemory,
-                        OperatingSystem = server.HostDistribution,
-                        Platform = server.HostPlatform,
-                        Processors = server.Processors,
-                        IsClustered = server.IsClustered,
-                        IsHadrEnabled = server.IsHadrEnabled,
-                        IsPolyBaseInstalled = server.IsPolyBaseInstalled,
-                        IsXTPSupported = server.IsXTPSupported,
-                        Product = server.Product,
-                        ReservedStorageSizeMB = server.ReservedStorageSizeMB,
-                        RootDirectory = server.RootDirectory,
-                        ServerCollation = server.Collation,
-                        ServiceTier = server.ServiceTier,
-                        StorageSpaceUsageInGB = (int)ByteConverter.ConvertMbtoGb(server.UsedStorageSizeMB),
-                        Version = server.Version.ToString(),
-                        MinServerMemory = GetServerMinMemory(),
-                        MaxServerMemory = GetServerMaxMemory()
+                        Name = prototype.Name,
+                        HardwareGeneration = prototype.HardwareGeneration,
+                        Language = prototype.Language,
+                        MemoryInMB = prototype.MemoryInMB,
+                        OperatingSystem = prototype.OperatingSystem,
+                        Platform = prototype.Platform,
+                        Processors = prototype.Processors,
+                        IsClustered = prototype.IsClustered,
+                        IsHadrEnabled = prototype.IsHadrEnabled,
+                        IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
+                        IsXTPSupported = prototype.IsXTPSupported,
+                        Product = prototype.Product,
+                        ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
+                        RootDirectory = prototype.RootDirectory,
+                        ServerCollation = prototype.ServerCollation,
+                        ServiceTier = prototype.ServiceTier,
+                        StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
+                        Version = prototype.Version,
+                        MinServerMemory = prototype.MinServerMemory,
+                        MaxServerMemory = prototype.MaxServerMemory
                     };
                 }
-
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
             }
-        }
+    }
 
-        public override Task Save(ServerViewContext context, ServerInfo serverInfo)
-        {
-            throw new NotSupportedException("ServerHandler does not support Save method");
-        }
+    public override Task Save(ServerViewContext context, ServerInfo obj)
+    {
+        UpdateServerProperties(context.Parameters, obj);
+        return Task.CompletedTask;
+    }
 
-        public override Task<string> Script(ServerViewContext context, ServerInfo obj)
-        {
-            throw new NotSupportedException("ServerHandler does not support Script method");
-        }
+    public override Task<string> Script(ServerViewContext context, ServerInfo obj)
+    {
+        throw new NotSupportedException("ServerHandler does not support Script method");
+    }
 
-        private int GetServerMaxMemory()
+    private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
+    {
+        if (viewParams != null)
         {
-            return configService.GetServerSmoConfig(server, configService.MaxServerMemoryPropertyNumber).ConfigValue;
-        }
+            ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
+            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
 
-        private int GetServerMinMemory()
-        {
-            return configService.GetServerSmoConfig(server, configService.MinServerMemoryPropertyNumber).ConfigValue;
+            ServerPrototype prototype = new ServerPrototype(dataContainer);
+            prototype.ApplyInfoToPrototype(serverInfo);
+            ConfigureServer(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
         }
     }
+
+    private void ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
+    {
+        using (var actions = new ServerActions(dataContainer, prototype, configAction))
+        {
+            var executionHandler = new ExecutonHandler(actions);
+            executionHandler.RunNow(runType, this);
+            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+            {
+                throw executionHandler.ExecutionFailureException;
+            }
+        }
+    }
+}
 }
