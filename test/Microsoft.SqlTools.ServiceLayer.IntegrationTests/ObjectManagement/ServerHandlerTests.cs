@@ -91,14 +91,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 serverInfo.MinServerMemory.Value = 10;
                 serverInfo.MaxServerMemory.Value = 500;
 
-                Assert.AreNotEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be equal after update");
-                Assert.AreNotEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be equal after update");
+                Assert.That(result.MinServerMemory.Value, Is.Not.EqualTo(serverInfo.MinServerMemory.Value), "Server property should not be equal after update");
+                Assert.That(result.MaxServerMemory.Value, Is.Not.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should not be equal after update");
 
                 await ObjectManagementTestUtils.SaveObject(requestParams, serverInfo);
                 result = (ServerInfo)(await serverHandler.InitializeObjectView(requestParams)).ViewInfo.ObjectInfo;
-                Assert.IsNotNull(result);
-                Assert.AreEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be different after update");
-                Assert.AreEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be different after update");
+
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.MinServerMemory.Value, Is.EqualTo(serverInfo.MinServerMemory.Value), "Server property should be equal after update");
+                Assert.That(result.MaxServerMemory.Value, Is.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should be equal after update");
             }
         }
     }
