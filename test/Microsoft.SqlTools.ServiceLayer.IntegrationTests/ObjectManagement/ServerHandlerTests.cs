@@ -14,7 +14,6 @@ using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 
 using Server = Microsoft.SqlServer.Management.Smo.Server;
-using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -61,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             {
                 var server = new Server(new ServerConnection(sqlConn));
                 var serverHandler = new ServerHandler(ConnectionService.Instance);
-                var serverConfig = new ServerConfigService();
 
                 var requestParams = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Server, "", "");
                 var result = (ServerInfo)(await serverHandler.InitializeObjectView(requestParams)).ViewInfo.ObjectInfo;
@@ -90,17 +88,18 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 };
 
                 // Change memory settings
-                serverInfo.MinServerMemory = 10;
-                serverInfo.MaxServerMemory = 500;
+                serverInfo.MinServerMemory.Value = 10;
+                serverInfo.MaxServerMemory.Value = 500;
 
-                Assert.AreNotEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be equal after update");
-                Assert.AreNotEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be equal after update");
+                Assert.That(result.MinServerMemory.Value, Is.Not.EqualTo(serverInfo.MinServerMemory.Value), "Server property should not be equal after update");
+                Assert.That(result.MaxServerMemory.Value, Is.Not.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should not be equal after update");
 
                 await ObjectManagementTestUtils.SaveObject(requestParams, serverInfo);
                 result = (ServerInfo)(await serverHandler.InitializeObjectView(requestParams)).ViewInfo.ObjectInfo;
-                Assert.IsNotNull(result);
-                Assert.AreEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be different after update");
-                Assert.AreEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be different after update");
+
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.MinServerMemory.Value, Is.EqualTo(serverInfo.MinServerMemory.Value), "Server property should be equal after update");
+                Assert.That(result.MaxServerMemory.Value, Is.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should be equal after update");
             }
         }
     }

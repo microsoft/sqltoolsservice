@@ -68,43 +68,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
             }
-    }
-
-    public override Task Save(ServerViewContext context, ServerInfo obj)
-    {
-        UpdateServerProperties(context.Parameters, obj);
-        return Task.CompletedTask;
-    }
-
-    public override Task<string> Script(ServerViewContext context, ServerInfo obj)
-    {
-        throw new NotSupportedException("ServerHandler does not support Script method");
-    }
-
-    private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
-    {
-        if (viewParams != null)
-        {
-            ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
-
-            ServerPrototype prototype = new ServerPrototype(dataContainer);
-            prototype.ApplyInfoToPrototype(serverInfo);
-            ConfigureServer(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
         }
-    }
 
-    private void ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
-    {
-        using (var actions = new ServerActions(dataContainer, prototype, configAction))
+        public override Task Save(ServerViewContext context, ServerInfo obj)
         {
-            var executionHandler = new ExecutonHandler(actions);
-            executionHandler.RunNow(runType, this);
-            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+            UpdateServerProperties(context.Parameters, obj);
+            return Task.CompletedTask;
+        }
+
+        public override Task<string> Script(ServerViewContext context, ServerInfo obj)
+        {
+            throw new NotSupportedException("ServerHandler does not support Script method");
+        }
+
+        private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
+        {
+            if (viewParams != null)
             {
-                throw executionHandler.ExecutionFailureException;
+                ConnectionInfo connInfo = this.GetConnectionInfo(viewParams.ConnectionUri);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo);
+
+                ServerPrototype prototype = new ServerPrototype(dataContainer);
+                prototype.ApplyInfoToPrototype(serverInfo);
+                ConfigureServer(dataContainer, ConfigAction.Update, RunType.RunNow, prototype);
+            }
+        }
+
+        private void ConfigureServer(CDataContainer dataContainer, ConfigAction configAction, RunType runType, ServerPrototype prototype)
+        {
+            using (var actions = new ServerActions(dataContainer, prototype, configAction))
+            {
+                var executionHandler = new ExecutonHandler(actions);
+                executionHandler.RunNow(runType, this);
+                if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                {
+                    throw executionHandler.ExecutionFailureException;
+                }
             }
         }
     }
-}
 }

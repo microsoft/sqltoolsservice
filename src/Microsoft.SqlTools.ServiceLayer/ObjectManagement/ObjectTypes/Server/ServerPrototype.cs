@@ -25,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private ServerConnection sqlConnection;
         private ServerConfigService configService;
 
-
         private ServerPrototypeData currentState;
         private ServerPrototypeData originalState;
 
@@ -264,7 +263,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int MaxServerMemory
+
+        public NumericServerProperty MaxServerMemory
         {
             get
             {
@@ -276,7 +276,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        public int MinServerMemory
+        public NumericServerProperty MinServerMemory
         {
             get
             {
@@ -334,19 +334,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool UpdateMemoryValues(Microsoft.SqlServer.Management.Smo.Server server)
         {
             bool changesMade = false;
-
-            if (this.currentState.MinMemory != this.originalState.MinMemory)
+            if (this.currentState.MinMemory.Value != this.originalState.MinMemory.Value)
             {
                 changesMade = true;
                 ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
-                serverConfig.ConfigValue = this.currentState.MinMemory;
+                serverConfig.ConfigValue = this.currentState.MinMemory.Value;
             }
 
-            if (this.currentState.MaxMemory != this.originalState.MaxMemory)
+            if (this.currentState.MaxMemory.Value != this.originalState.MaxMemory.Value)
             {
                 changesMade = true;
                 ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
-                serverConfig.ConfigValue = this.currentState.MaxMemory;
+                serverConfig.ConfigValue = this.currentState.MaxMemory.Value;
             }
             return changesMade;
         }
@@ -404,9 +403,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string serviceTier = String.Empty;
             private int reservedStorageSizeMB = 0;
             private int storageSpaceUsageInMB = 0;
-            private int minMemory = 0;
-            private int maxMemory = 0;
 
+            private NumericServerProperty minMemory;
+            private NumericServerProperty maxMemory;
             private bool initialized = false;
             private Server server;
             private CDataContainer context;
@@ -821,7 +820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
 
-            public int MinMemory
+            public NumericServerProperty MinMemory
             {
                 get
                 {
@@ -836,7 +835,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 set
                 {
                     if (this.initialized)
-                    {
+                    { 
                         Logger.Error(SR.PropertyNotInitialized("MinMemory"));
                     }
 
@@ -844,7 +843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            public int MaxMemory
+            public NumericServerProperty MaxMemory
             {
                 get
                 {
@@ -907,6 +906,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
                 this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
+                this.minMemory = new NumericServerProperty();
+                this.maxMemory = new NumericServerProperty();
                 LoadData();
             }
 
@@ -963,8 +964,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.reservedStorageSizeMB = server.ReservedStorageSizeMB;
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
-                this.maxMemory = serverMaxMemoryProperty.ConfigValue;
-                this.minMemory = serverMinMemoryProperty.ConfigValue;
+                LoadMemoryProperties();
+            }
+
+            private void LoadMemoryProperties()
+            {
+                this.maxMemory.Value = serverMaxMemoryProperty.ConfigValue;
+                this.maxMemory.MaximumValue = serverMaxMemoryProperty.Maximum;
+                this.maxMemory.MinimumValue = serverMaxMemoryProperty.Minimum;
+
+                this.minMemory.Value = serverMinMemoryProperty.ConfigValue;
+                this.minMemory.MaximumValue = serverMinMemoryProperty.Maximum;
+                this.minMemory.MinimumValue = serverMinMemoryProperty.Minimum;
             }
         }
     }
