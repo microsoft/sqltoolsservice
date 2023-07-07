@@ -35,11 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         #region Trace support
         private const string componentName = "Server";
 
-<<<<<<< HEAD
-        private const string minMemoryCannotBeGreaterThanMaxMemory = "Min memory value cannot be greater than the max memory";
-
-=======
->>>>>>> main
         public string ComponentName
         {
             get
