@@ -293,6 +293,13 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup, Is.EqualTo(testDatabase.LastDatabaseBackup), $"Should have no database last backup date");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup, Is.EqualTo(testDatabase.LastDatabaseLogBackup), $"Should have no database backup log date");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).SizeInMb, Is.GreaterThan(0), $"Should have default database size when created");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoCreateIncrementalStatistics, Is.True, $"AutoCreateIncrementalStatistics match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoCreateStatistics, Is.True, $"AutoCreateStatistics should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoShrink, Is.False, $"AutoShrink should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoUpdateStatistics, Is.True, $"AutoUpdateStatistics should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoUpdateStatisticsAsynchronously, Is.False, $"AutoUpdateStatisticsAsynchronously should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify, Is.EqualTo(testDatabase.PageVerify), $"PageVerify should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess, Is.EqualTo(testDatabase.RestrictAccess), $"RestrictAccess should match with testdata");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);

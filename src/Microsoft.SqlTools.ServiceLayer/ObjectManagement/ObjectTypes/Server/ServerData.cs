@@ -8,7 +8,6 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
-using System.Diagnostics;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
@@ -22,23 +21,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// connection infor, SMO server object or an AMO server object as well
         /// as a hash table where one can manipulate custom data
         /// </summary>
-        private CDataContainer dataContainer = null;
-        private ServerConnection sqlConnection = null;
-        private ServerConfigService configService = null;
-
+        private CDataContainer dataContainer;
+        private ServerConnection sqlConnection;
+        private ServerConfigService configService;
 
         private ServerPrototypeData currentState;
         private ServerPrototypeData originalState;
 
-        private ConfigProperty serverMinMemoryProperty = null;
-        private ConfigProperty serverMaxMemoryProperty = null;
+        private ConfigProperty serverMinMemoryProperty;
+        private ConfigProperty serverMaxMemoryProperty;
         #endregion
 
         #region Trace support
         private const string componentName = "Server";
 
+<<<<<<< HEAD
         private const string minMemoryCannotBeGreaterThanMaxMemory = "Min memory value cannot be greater than the max memory";
 
+=======
+>>>>>>> main
         public string ComponentName
         {
             get
@@ -267,6 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
+
         public ServerProperty MaxServerMemory
         {
             get
@@ -337,28 +339,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool UpdateMemoryValues(Microsoft.SqlServer.Management.Smo.Server server)
         {
             bool changesMade = false;
-
-            if (this.currentState.MinMemory.Value > this.currentState.MaxMemory.Value)
-            {
-                throw new InvalidOperationException(minMemoryCannotBeGreaterThanMaxMemory);
-            }
-
             if (this.currentState.MinMemory.Value != this.originalState.MinMemory.Value)
             {
                 changesMade = true;
-                if (this.currentState.MinMemory.Value > this.serverMaxMemoryProperty.ConfigValue)
-                {
-                    this.currentState.MinMemory.Value = this.serverMaxMemoryProperty.ConfigValue;
-                }
-                else if (this.currentState.MinMemory.Value > this.serverMinMemoryProperty.Maximum)
-                {
-                    this.currentState.MinMemory.Value = this.serverMinMemoryProperty.Maximum;
-                }
-                else if (this.currentState.MinMemory.Value < this.serverMinMemoryProperty.Minimum)
-                {
-                    this.currentState.MinMemory.Value = this.serverMinMemoryProperty.Minimum;
-                }
-
                 ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
                 serverConfig.ConfigValue = this.currentState.MinMemory.Value;
             }
@@ -366,19 +349,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             if (this.currentState.MaxMemory.Value != this.originalState.MaxMemory.Value)
             {
                 changesMade = true;
-                if (this.currentState.MaxMemory.Value < this.serverMinMemoryProperty.ConfigValue)
-                {
-                    this.currentState.MaxMemory.Value = this.serverMinMemoryProperty.ConfigValue;
-                }
-                else if (this.currentState.MaxMemory.Value > this.serverMaxMemoryProperty.Maximum)
-                {
-                    this.currentState.MaxMemory.Value = this.serverMaxMemoryProperty.Maximum;
-                }
-                else if (this.currentState.MaxMemory.Value < this.serverMaxMemoryProperty.Minimum)
-                {
-                    this.currentState.MaxMemory.Value = this.serverMaxMemoryProperty.Minimum;
-                }
-               
                 ConfigProperty serverConfig = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
                 serverConfig.ConfigValue = this.currentState.MaxMemory.Value;
             }
@@ -438,9 +408,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string serviceTier = String.Empty;
             private int reservedStorageSizeMB = 0;
             private int storageSpaceUsageInMB = 0;
+
             private ServerProperty minMemory;
             private ServerProperty maxMemory;
-
             private bool initialized = false;
             private Server server;
             private CDataContainer context;
@@ -472,7 +442,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("ServerName"));
                     }
                     this.serverName = value;
                 }
@@ -494,7 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("HardwareGeneration"));
                     }
                     this.hardwareGeneration = value;
                 }
@@ -516,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("Language"));
                     }
                     this.language = value;
                 }
@@ -538,7 +508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("MemoryInMB"));
                     }
                     this.memoryInMB = value;
                 }
@@ -560,7 +530,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("OperatingSystem"));
                     }
                     this.operatingSystem = value;
                 }
@@ -582,7 +552,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("Platform"));
                     }
                     this.platform = value;
                 }
@@ -604,7 +574,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("Processors"));
                     }
                     this.processors = value;
                 }
@@ -626,7 +596,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("IsClustered"));
                     }
                     this.isClustered = value;
                 }
@@ -648,7 +618,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("IsHadrEnabled"));
                     }
                     this.isHadrEnabled = value;
                 }
@@ -670,7 +640,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("IsPolyBaseInstalled"));
                     }
                     this.isPolyBaseInstalled = value;
                 }
@@ -692,7 +662,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("IsXTPSupported"));
                     }
                     this.isXTPSupported = value;
                 }
@@ -715,7 +685,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("Product"));
                     }
                     this.product = value;
                 }
@@ -737,7 +707,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("RootDirectory"));
                     }
                     this.rootDirectory = value;
                 }
@@ -759,7 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("ServerCollation"));
                     }
                     this.serverCollation = value;
                 }
@@ -781,7 +751,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("Version"));
                     }
                     this.version = value;
                 }
@@ -803,7 +773,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("ServiceTier"));
                     }
                     this.serviceTier = value;
                 }
@@ -825,7 +795,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("StorageSpaceUsageInMB"));
                     }
                     this.storageSpaceUsageInMB = value;
                 }
@@ -848,7 +818,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("ReservedStorageSizeMB"));
                     }
                     this.reservedStorageSizeMB = value;
                 }
@@ -870,8 +840,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 set
                 {
                     if (this.initialized)
-                    {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                    { 
+                        Logger.Error(SR.PropertyNotInitialized("MinMemory"));
                     }
 
                      this.minMemory = value; 
@@ -894,7 +864,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (this.initialized)
                     {
-                        Logger.Write(TraceEventType.Error, $"Unexpected property set before initialization");
+                        Logger.Error(SR.PropertyNotInitialized("MaxMemory"));
                     }
 
                     this.maxMemory = value;

@@ -5,7 +5,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
@@ -34,51 +33,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             ConnectionInfo connInfo = this.GetConnectionInfo(requestParams.ConnectionUri);
-            ServerConnection serverConnection = ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName);
 
-            using (var context = new ServerViewContext(requestParams, serverConnection))
+            using (var context = new ServerViewContext(requestParams, ConnectionService.OpenServerConnection(connInfo, ObjectManagementService.ApplicationName)))
             {
-                try
-                {
-                    CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
 
-                    ServerPrototype prototype = new ServerPrototype(dataContainer);
+                ServerPrototype prototype = new ServerPrototype(dataContainer);
 
-                    if (prototype != null)
-                    {
-                        this.serverViewInfo.ObjectInfo = new ServerInfo()
-                        {
-                            Name = prototype.Name,
-                            HardwareGeneration = prototype.HardwareGeneration,
-                            Language = prototype.Language,
-                            MemoryInMB = prototype.MemoryInMB,
-                            OperatingSystem = prototype.OperatingSystem,
-                            Platform = prototype.Platform,
-                            Processors = prototype.Processors,
-                            IsClustered = prototype.IsClustered,
-                            IsHadrEnabled = prototype.IsHadrEnabled,
-                            IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
-                            IsXTPSupported = prototype.IsXTPSupported,
-                            Product = prototype.Product,
-                            ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
-                            RootDirectory = prototype.RootDirectory,
-                            ServerCollation = prototype.ServerCollation,
-                            ServiceTier = prototype.ServiceTier,
-                            StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
-                            Version = prototype.Version,
-                            MinServerMemory = prototype.MinServerMemory,
-                            MaxServerMemory = prototype.MaxServerMemory
-                        };
-                    }
-                    return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
-                }
-                finally
+                if (prototype != null)
                 {
-                    if (serverConnection.IsOpen)
+                    this.serverViewInfo.ObjectInfo = new ServerInfo()
                     {
-                        serverConnection.Disconnect();
-                    }
+                        Name = prototype.Name,
+                        HardwareGeneration = prototype.HardwareGeneration,
+                        Language = prototype.Language,
+                        MemoryInMB = prototype.MemoryInMB,
+                        OperatingSystem = prototype.OperatingSystem,
+                        Platform = prototype.Platform,
+                        Processors = prototype.Processors,
+                        IsClustered = prototype.IsClustered,
+                        IsHadrEnabled = prototype.IsHadrEnabled,
+                        IsPolyBaseInstalled = prototype.IsPolyBaseInstalled,
+                        IsXTPSupported = prototype.IsXTPSupported,
+                        Product = prototype.Product,
+                        ReservedStorageSizeMB = prototype.ReservedStorageSizeMB,
+                        RootDirectory = prototype.RootDirectory,
+                        ServerCollation = prototype.ServerCollation,
+                        ServiceTier = prototype.ServiceTier,
+                        StorageSpaceUsageInMB = prototype.StorageSpaceUsageInMB,
+                        Version = prototype.Version,
+                        MinServerMemory = prototype.MinServerMemory,
+                        MaxServerMemory = prototype.MaxServerMemory
+                    };
                 }
+                return Task.FromResult(new InitializeViewResult { ViewInfo = this.serverViewInfo, Context = context });
             }
         }
 
@@ -92,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             throw new NotSupportedException("ServerHandler does not support Script method");
         }
+
 
         private void UpdateServerProperties(InitializeViewRequestParams viewParams, ServerInfo serverInfo)
         {

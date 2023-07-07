@@ -173,6 +173,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool EnableSqlAuthenticationProvider { get; set; }
 
         /// <summary>
+        /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
+        /// </summary>
+        public static bool EnableConnectionPooling { get; set; }
+
+        /// <summary>
         /// Returns a connection queue for given type
         /// </summary>
         /// <param name="type"></param>
@@ -474,8 +479,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         internal static string GetApplicationNameWithFeature(string applicationName, string featureName)
         {
             string appNameWithFeature = applicationName;
-
-            if (!string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
+            // Connection Service will not set custom application name if connection pooling is enabled on service.
+            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
             {
                 int azdataStartIndex = applicationName.IndexOf(Constants.DefaultApplicationName);
                 string originalAppName = azdataStartIndex != -1
@@ -671,7 +676,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                connectionInfo.ConnectionDetails.Pooling = false;
+                if (!EnableConnectionPooling)
+                {
+                    connectionInfo.ConnectionDetails.Pooling = false;
+                }
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
@@ -1086,15 +1094,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             this.ServiceHost = serviceHost;
 
-            if (commandOptions != null && commandOptions.EnableSqlAuthenticationProvider)
+            if (commandOptions != null)
             {
+                if (commandOptions.EnableSqlAuthenticationProvider)
+                {
+                    // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
+                    var provider = new AuthenticationProvider(GetAuthenticator(commandOptions));
+                    SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
 
-                // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
-                var provider = new AuthenticationProvider(GetAuthenticator(commandOptions));
-                SqlAuthenticationProvider.SetProvider(SqlAuthenticationMethod.ActiveDirectoryInteractive, provider);
-
-                this.EnableSqlAuthenticationProvider = true;
-                Logger.Information("Registering implementation of SQL Authentication provider for 'Active Directory Interactive' authentication mode.");
+                    this.EnableSqlAuthenticationProvider = true;
+                    Logger.Information("Registering implementation of SQL Authentication provider for 'Active Directory Interactive' authentication mode.");
+                }
+                if (commandOptions.EnableConnectionPooling)
+                {
+                    ConnectionService.EnableConnectionPooling = true;
+                    Logger.Information("Connection pooling will be enabled for all SQL connections.");
+                }
             }
 
             // Register request and event handlers with the Service Host
@@ -1586,7 +1601,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
-            if (forceDisablePooling)
+            if (!EnableConnectionPooling && forceDisablePooling)
             {
                 connectionBuilder.Pooling = false;
             }
@@ -1844,7 +1859,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
-                bool shouldForceDisablePooling = featureName != Constants.LanguageServiceFeature;
+                bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
                 // increase the connection and command timeout to at least 30 seconds and and build connection string
                 connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);

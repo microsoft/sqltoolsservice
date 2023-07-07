@@ -62,6 +62,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     this.prototype = new DatabasePrototypeAzure(context);
                 }
+                else if (majorVersionNumber == 16)
+                {
+                    this.prototype = new DatabasePrototype160(context);
+                }
                 else if (Utils.IsSql11OrLater(context.Server.Version.Major))
                 {
                     this.prototype = new DatabasePrototype110(context);

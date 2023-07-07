@@ -11,15 +11,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     internal class ServerActions : ManagementActionBase
     {
         #region Variables
-        private ServerPrototype serverData = null;
+        private ServerPrototype serverData;
         private ConfigAction configAction;
         #endregion
 
         #region Constructor
-        /// <summary>
-        /// required when loading from Object Explorer context
-        /// </summary>
-        /// <param name="context"></param>
         public ServerActions(
             CDataContainer context,
             ServerPrototype server,

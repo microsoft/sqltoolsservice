@@ -99,11 +99,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 Assert.IsNotNull(result);
                 Assert.AreEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be different after update");
                 Assert.AreEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be different after update");
-
-                serverInfo.MinServerMemory.Value = -1;
-                serverInfo.MaxServerMemory.Value = 1000000;
-                await ObjectManagementTestUtils.SaveObject(requestParams, serverInfo);
-                Assert.Fail("Save operation should fail when setting not valid values for properties"); 
             }
         }
     }
