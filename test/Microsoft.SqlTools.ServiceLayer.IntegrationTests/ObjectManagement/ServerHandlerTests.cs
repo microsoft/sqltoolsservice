@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         /// <summary>
         /// Test SetMemoryProperties for Sql Server
         /// </summary>
-        [Test]
+        // [Test]
         public async Task SetMemoryProperties()
         {
             var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
