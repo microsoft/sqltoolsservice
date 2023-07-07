@@ -88,8 +88,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 };
 
                 // Change memory settings
-                serverInfo.MinServerMemory = 10;
-                serverInfo.MaxServerMemory = 500;
+                serverInfo.MinServerMemory.Value = 10;
+                serverInfo.MaxServerMemory.Value = 500;
 
                 Assert.AreNotEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be equal after update");
                 Assert.AreNotEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be equal after update");
@@ -100,8 +100,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 Assert.AreEqual(result.MinServerMemory, serverInfo.MinServerMemory, "Server property should not be different after update");
                 Assert.AreEqual(result.MaxServerMemory, serverInfo.MaxServerMemory, "Server property should not be different after update");
 
-                serverInfo.MinServerMemory = -1;
-                serverInfo.MaxServerMemory = 1000000;
+                serverInfo.MinServerMemory.Value = -1;
+                serverInfo.MaxServerMemory.Value = 1000000;
                 await ObjectManagementTestUtils.SaveObject(requestParams, serverInfo);
                 Assert.Fail("Save operation should fail when setting not valid values for properties"); 
             }

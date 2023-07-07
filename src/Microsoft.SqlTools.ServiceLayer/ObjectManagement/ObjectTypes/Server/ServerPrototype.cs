@@ -438,17 +438,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string serviceTier = String.Empty;
             private int reservedStorageSizeMB = 0;
             private int storageSpaceUsageInMB = 0;
-            private ServerProperty minMemory = null;
-            private ServerProperty maxMemory = null;
+            private ServerProperty minMemory;
+            private ServerProperty maxMemory;
 
             private bool initialized = false;
-            private Server server = null;
-            private CDataContainer context = null;
-            private ServerConfigService configService = null;
+            private Server server;
+            private CDataContainer context;
+            private ServerConfigService configService;
             private bool isYukonOrLater = false;
 
-            ConfigProperty serverMaxMemoryProperty = null;
-            ConfigProperty serverMinMemoryProperty = null;
+            ConfigProperty serverMaxMemoryProperty;
+            ConfigProperty serverMinMemoryProperty;
             #endregion
 
             #region Properties
@@ -941,6 +941,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
                 this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
+                this.minMemory = new ServerProperty();
+                this.maxMemory = new ServerProperty();
                 LoadData();
             }
 
