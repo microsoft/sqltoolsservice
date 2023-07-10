@@ -1807,9 +1807,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
             Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
             Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
-            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
-            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
-            Assert.That(details.Encrypt, Is.EqualTo("True"), "Unexpected Encrypt value");
+            Assert.That(details.PersistSecurityInfo, Is.Null, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.Null, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.Encrypt, Is.EqualTo("true"), "Unexpected Encrypt value");
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
             Assert.That(details.ConnectTimeout, Is.EqualTo(30), "Unexpected Connect Timeout value");
@@ -1832,8 +1832,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             Assert.That(details.DatabaseName, Is.EqualTo("{databasename}"), "Unexpected database name");
             Assert.That(details.UserName, Is.EqualTo("{your_username}"), "Unexpected username");
             Assert.That(details.Password, Is.EqualTo("{your_password}"), "Unexpected password");
-            Assert.That(details.PersistSecurityInfo, Is.False, "Unexpected Persist Security Info");
-            Assert.That(details.MultipleActiveResultSets, Is.False, "Unexpected Multiple Active Result Sets value");
+            Assert.That(details.PersistSecurityInfo, Is.Null, "Unexpected Persist Security Info");
+            Assert.That(details.MultipleActiveResultSets, Is.Null, "Unexpected Multiple Active Result Sets value");
             Assert.That(details.Encrypt, Is.EqualTo(SqlConnectionEncryptOption.Strict.ToString()), "Unexpected Encrypt value");
             Assert.That(details.TrustServerCertificate, Is.False, "Unexpected database name value");
             Assert.That(details.HostNameInCertificate, Is.EqualTo("{servername}"), "Unexpected Host Name in Certificate value");
