@@ -13,7 +13,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         public const string ContentLengthFormatString = "Content-Length: {0}\r\n\r\n";
         public static readonly JsonSerializerSettings JsonSerializerSettings;
 
-        public static readonly string DefaultApplicationName = "azdata";
         public static readonly string SqlLoginAuthenticationType = "SqlLogin";
 
         // Feature names
