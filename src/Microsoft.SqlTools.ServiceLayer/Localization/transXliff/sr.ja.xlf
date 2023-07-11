@@ -8321,6 +8321,23 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">なし</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="translated">プロパティ '{0}' が初期化前に設定されました。</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">データベース '{0}' でCREATE TABLEアクセス許可が拒否されました。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">テーブル '{0}' に対する ALTER TABLE 権限が拒否されました。</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
