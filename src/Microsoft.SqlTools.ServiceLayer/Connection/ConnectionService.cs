@@ -63,6 +63,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         public static ConnectionService Instance => instance.Value;
 
+        private static readonly SqlConnectionStringBuilder defaultBuilder = new SqlConnectionStringBuilder();
+
         /// <summary>
         /// IV and Key as received from Encryption Key Notification event.
         /// </summary>
@@ -165,6 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             return response.Token;
         }
+        /// <summary>
+        /// Default Application name as received in service startup
+        /// </summary>
+        public static string ApplicationName { get; set; }
 
         /// <summary>
         /// Enables configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode to be used
@@ -482,9 +488,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Connection Service will not set custom application name if connection pooling is enabled on service.
             if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.EndsWith(featureName))
             {
-                int azdataStartIndex = applicationName.IndexOf(Constants.DefaultApplicationName);
-                string originalAppName = azdataStartIndex != -1
-                    ? applicationName.Substring(0, azdataStartIndex + Constants.DefaultApplicationName.Length)
+                int appNameStartIndex = applicationName.IndexOf(ApplicationName);
+                string originalAppName = appNameStartIndex != -1
+                    ? applicationName.Substring(0, appNameStartIndex + ApplicationName.Length)
                     : applicationName; // Reset to default if azdata not found.
                 appNameWithFeature = $"{originalAppName}-{featureName}";
             }
@@ -1096,6 +1102,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             if (commandOptions != null)
             {
+                ApplicationName = commandOptions.ApplicationName switch
+                {
+                    "azuredatastudio" => "azdata",
+                    "code" => "vscode-mssql",
+                    _ => "sqltools" // fallback
+                };
+
                 if (commandOptions.EnableSqlAuthenticationProvider)
                 {
                     // Register SqlAuthenticationProvider with SqlConnection for AAD Interactive (MFA) authentication.
@@ -1636,7 +1649,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // default connection string application name to always be included unless set to false
             if (connStringBuilder.ApplicationName == null && (!connStringParams.IncludeApplicationName.HasValue || connStringParams.IncludeApplicationName.Value == true))
             {
-                connStringBuilder.ApplicationName = Constants.DefaultApplicationName;
+                connStringBuilder.ApplicationName = ApplicationName;
             }
             connectionString = connStringBuilder.ConnectionString;
 
@@ -1665,41 +1678,43 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public ConnectionDetails ParseConnectionString(string connectionString)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            // Set defaults as per MSSQL connection property defaults, not SqlClient's Connection string buider defaults
             ConnectionDetails details = new ConnectionDetails()
             {
-                ApplicationIntent = builder.ApplicationIntent.ToString(),
-                ApplicationName = builder.ApplicationName,
-                AttachDbFilename = builder.AttachDBFilename,
+                ApplicationIntent = defaultBuilder.ApplicationIntent != builder.ApplicationIntent ? builder.ApplicationIntent.ToString() : null,
+                ApplicationName = defaultBuilder.ApplicationName != builder.ApplicationName ? builder.ApplicationName : ApplicationName,
+                AttachDbFilename = defaultBuilder.AttachDBFilename != builder.AttachDBFilename ? builder.AttachDBFilename.ToString() : null,
                 AuthenticationType = builder.IntegratedSecurity ? "Integrated" :
                     (builder.Authentication == SqlAuthenticationMethod.ActiveDirectoryInteractive
-                    ? "ActiveDirectoryInteractive" : "SqlLogin"),
-                ConnectRetryCount = builder.ConnectRetryCount,
-                ConnectRetryInterval = builder.ConnectRetryInterval,
-                ConnectTimeout = builder.ConnectTimeout,
-                CommandTimeout = builder.CommandTimeout,
-                CurrentLanguage = builder.CurrentLanguage,
-                DatabaseName = builder.InitialCatalog,
-                ColumnEncryptionSetting = builder.ColumnEncryptionSetting.ToString(),
-                EnclaveAttestationProtocol = builder.AttestationProtocol == SqlConnectionAttestationProtocol.NotSpecified ? null : builder.AttestationProtocol.ToString(),
-                EnclaveAttestationUrl = builder.EnclaveAttestationUrl,
-                Encrypt = builder.Encrypt.ToString(),
-                FailoverPartner = builder.FailoverPartner,
-                HostNameInCertificate = builder.HostNameInCertificate,
-                LoadBalanceTimeout = builder.LoadBalanceTimeout,
-                MaxPoolSize = builder.MaxPoolSize,
-                MinPoolSize = builder.MinPoolSize,
-                MultipleActiveResultSets = builder.MultipleActiveResultSets,
-                MultiSubnetFailover = builder.MultiSubnetFailover,
-                PacketSize = builder.PacketSize,
-                Password = !builder.IntegratedSecurity ? builder.Password : string.Empty,
-                PersistSecurityInfo = builder.PersistSecurityInfo,
-                Pooling = builder.Pooling,
-                Replication = builder.Replication,
-                ServerName = builder.DataSource,
-                TrustServerCertificate = builder.TrustServerCertificate,
-                TypeSystemVersion = builder.TypeSystemVersion,
-                UserName = builder.UserID,
-                WorkstationId = builder.WorkstationID,
+                    ? "AzureMFA" : "SqlLogin"),
+                ConnectRetryCount = defaultBuilder.ConnectRetryCount != builder.ConnectRetryCount ? builder.ConnectRetryCount : 1,
+                ConnectRetryInterval = defaultBuilder.ConnectRetryInterval != builder.ConnectRetryInterval ? builder.ConnectRetryInterval : 10,
+                ConnectTimeout = defaultBuilder.ConnectTimeout != builder.ConnectTimeout ? builder.ConnectTimeout : 30,
+                CommandTimeout = defaultBuilder.CommandTimeout != builder.CommandTimeout ? builder.CommandTimeout : 30,
+                CurrentLanguage = defaultBuilder.CurrentLanguage != builder.CurrentLanguage ? builder.CurrentLanguage : null,
+                DatabaseName = defaultBuilder.InitialCatalog != builder.InitialCatalog ? builder.InitialCatalog : null,
+                ColumnEncryptionSetting = defaultBuilder.ColumnEncryptionSetting != builder.ColumnEncryptionSetting ? builder.ColumnEncryptionSetting.ToString() : null,
+                EnclaveAttestationProtocol = defaultBuilder.AttestationProtocol != builder.AttestationProtocol ? builder.AttestationProtocol.ToString() : null,
+                EnclaveAttestationUrl = defaultBuilder.EnclaveAttestationUrl != builder.EnclaveAttestationUrl ? builder.EnclaveAttestationUrl : null,
+                Encrypt = defaultBuilder.Encrypt != builder.Encrypt ? builder.Encrypt.ToString() : Boolean.TrueString.ToLower(CultureInfo.InvariantCulture),
+                FailoverPartner = defaultBuilder.FailoverPartner != builder.FailoverPartner ? builder.FailoverPartner : null,
+                HostNameInCertificate = defaultBuilder.HostNameInCertificate != builder.HostNameInCertificate ? builder.HostNameInCertificate : null,
+                LoadBalanceTimeout = defaultBuilder.LoadBalanceTimeout != builder.LoadBalanceTimeout ? builder.LoadBalanceTimeout : null,
+                MaxPoolSize = defaultBuilder.MaxPoolSize != builder.MaxPoolSize ? builder.MaxPoolSize : null,
+                MinPoolSize = defaultBuilder.MinPoolSize != builder.MinPoolSize ? builder.MinPoolSize : null,
+                MultipleActiveResultSets = defaultBuilder.MultipleActiveResultSets != builder.MultipleActiveResultSets ? builder.MultipleActiveResultSets : null,
+                MultiSubnetFailover = defaultBuilder.MultiSubnetFailover != builder.MultiSubnetFailover ? builder.MultiSubnetFailover : null,
+                PacketSize = defaultBuilder.PacketSize != builder.PacketSize ? builder.PacketSize : null,
+                Password = !builder.IntegratedSecurity ? builder.Password : null,
+                PersistSecurityInfo = defaultBuilder.PersistSecurityInfo != builder.PersistSecurityInfo ? builder.PersistSecurityInfo : null,
+                Pooling = defaultBuilder.Pooling != builder.Pooling ? builder.Pooling : null,
+                Replication = defaultBuilder.Replication != builder.Replication ? builder.Replication : null,
+                ServerName = defaultBuilder.DataSource != builder.DataSource ? builder.DataSource : null,
+                TrustServerCertificate = defaultBuilder.TrustServerCertificate != builder.TrustServerCertificate ? builder.TrustServerCertificate : false,
+                TypeSystemVersion = defaultBuilder.TypeSystemVersion != builder.TypeSystemVersion ? builder.TypeSystemVersion : null,
+                UserName = defaultBuilder.UserID != builder.UserID ? builder.UserID : null,
+                WorkstationId = defaultBuilder.WorkstationID != builder.WorkstationID ? builder.WorkstationID : null
             };
 
             return details;
@@ -1853,8 +1868,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             try
             {
                 // capture original values
-                int? originalTimeout = connInfo.ConnectionDetails.ConnectTimeout;
-                int? originalCommandTimeout = connInfo.ConnectionDetails.CommandTimeout;
                 bool? originalPersistSecurityInfo = connInfo.ConnectionDetails.PersistSecurityInfo;
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
@@ -1862,8 +1875,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
                 // increase the connection and command timeout to at least 30 seconds and and build connection string
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, originalTimeout ?? 0);
-                connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, originalCommandTimeout ?? 0);
+                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, connInfo.ConnectionDetails.ConnectTimeout ?? 0);
+                connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, connInfo.ConnectionDetails.CommandTimeout ?? 0);
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
 
@@ -1878,8 +1891,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
 
                 // restore original values
-                connInfo.ConnectionDetails.ConnectTimeout = originalTimeout;
-                connInfo.ConnectionDetails.CommandTimeout = originalCommandTimeout;
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
                 connInfo.ConnectionDetails.Pooling = originalPooling;
 
