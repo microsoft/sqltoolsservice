@@ -1410,31 +1410,50 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         connectionBuilder.IntegratedSecurity = true;
                         break;
                     case SqlLogin:
-                        connectionBuilder.UserID = connectionDetails.UserName;
-                        connectionBuilder.Password = string.IsNullOrEmpty(connectionDetails.Password)
+                        // Don't erase username from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        // Don't erase password from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.Password))
+                        {
+                            connectionBuilder.Password = string.IsNullOrEmpty(connectionDetails.Password)
                             ? string.Empty // Support empty password for accounts without password
                             : connectionDetails.Password;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
                         break;
                     case AzureMFA:
                         if (Instance.EnableSqlAuthenticationProvider)
                         {
-                            connectionBuilder.UserID = connectionDetails.UserName;
+                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                            {
+                                connectionBuilder.UserID = connectionDetails.UserName;
+                            }
                             connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
                             connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                         }
-                        else
-                        {
-                            connectionBuilder.UserID = "";
-                        }
                         break;
                     case ActiveDirectoryInteractive:
-                        connectionBuilder.UserID = connectionDetails.UserName;
+                        // Don't erase username from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                         break;
                     case ActiveDirectoryPassword:
-                        connectionBuilder.UserID = connectionDetails.UserName;
-                        connectionBuilder.Password = connectionDetails.Password;
+                        // Don't erase username from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
+                        {
+                            connectionBuilder.UserID = connectionDetails.UserName;
+                        }
+                        // Don't erase password from connection string.
+                        if (string.IsNullOrEmpty(connectionBuilder.Password))
+                        {
+                            connectionBuilder.Password = connectionDetails.Password;
+                        }
                         connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
                         break;
                     default:
