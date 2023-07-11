@@ -8321,6 +8321,23 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">无</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="translated">属性 "{0}" 是在初始化之前设置的。</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">已拒绝 CREATE TABLE 数据库 "{0}" 中的权限。</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">已拒绝对表 "{0}" 的 ALTER TABLE 权限。</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

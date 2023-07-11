@@ -8321,6 +8321,23 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
         <target state="translated">Keine</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="translated">Die Eigenschaft "{0}" wurde vor der Initialisierung festgelegt.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">Die CREATE TABLE-Berechtigung wurde in der {0}-Datenbank verweigert.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">Die ALTER TABLE-Berechtigung wurde für die Tabelle "{0}" verweigert.</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -5059,4 +5059,13 @@
   <data name="databaseBackupDate_None" xml:space="preserve">
     <value>无</value>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>属性 "{0}" 是在初始化之前设置的。</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>已拒绝 CREATE TABLE 数据库 "{0}" 中的权限。</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>已拒绝对表 "{0}" 的 ALTER TABLE 权限。</value>
+  </data>
 </root>
