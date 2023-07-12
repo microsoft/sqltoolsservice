@@ -468,13 +468,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
                             }
                         }
-                        if (prototype is DatabasePrototype160 db160)
-                        {
-                            if (database.IsLedgerDatabase != null)
-                            {
-                                db160.IsLedger = (bool)database.IsLedgerDatabase;
-                            }
-                        }
 
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
