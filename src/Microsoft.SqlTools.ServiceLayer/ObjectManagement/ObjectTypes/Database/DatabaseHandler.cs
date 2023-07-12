@@ -479,9 +479,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
-                        prototype.AutoShrink= database.AutoShrink;
+                        prototype.AutoShrink = database.AutoShrink;
                         prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        prototype.RestrictAccess = database.RestrictAccess;
+                        if (database.RestrictAccess != null)
+                        {
+                            prototype.RestrictAccess = database.RestrictAccess;
+                        }
 
                         if (prototype is DatabasePrototypeAzure dbAz)
                         {
