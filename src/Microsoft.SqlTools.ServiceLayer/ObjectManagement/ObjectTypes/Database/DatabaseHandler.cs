@@ -401,8 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         prototype.Name = database.Name;
 
                         // Update database file names now that we have a database name
-                        // Modifying logical file name is not supported in SQL Database Managed Instance.
-                        if (!prototype.HideFileSettings && dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlManagedInstance)
+                        if (viewParams.IsNewObject && !prototype.HideFileSettings)
                         {
                             var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
@@ -466,13 +465,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             if (database.ContainmentType != null)
                             {
                                 db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
-                            }
-                        }
-                        if (prototype is DatabasePrototype160 db160)
-                        {
-                            if (database.IsLedgerDatabase != null)
-                            {
-                                db160.IsLedger = (bool)database.IsLedgerDatabase;
                             }
                         }
 
