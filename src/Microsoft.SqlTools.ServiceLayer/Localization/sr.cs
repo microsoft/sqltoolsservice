@@ -12541,6 +12541,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
         }
 
+        public static string ConnectionServiceServerlessConnectionTimedOut(string databaseName)
+        {
+            return Keys.GetString(Keys.ConnectionServiceServerlessConnectionTimedOut, databaseName);
+        }
+
         public static string ConnectionParamsValidateNullSqlAuth(string component)
         {
             return Keys.GetString(Keys.ConnectionParamsValidateNullSqlAuth, component);
@@ -13002,6 +13007,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
+
+
+            public const string ConnectionServiceServerlessConnectionTimedOut = "ConnectionServiceServerlessConnectionTimedOut";
 
 
             public const string PasswordChangeEmptyPassword = "PasswordChangeEmptyPassword";

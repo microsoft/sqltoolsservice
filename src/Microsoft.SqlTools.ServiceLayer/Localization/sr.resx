@@ -185,6 +185,11 @@
     <value>Connection canceled</value>
     <comment></comment>
   </data>
+  <data name="ConnectionServiceServerlessConnectionTimedOut" xml:space="preserve">
+    <value>Serverless database &apos;{0}&apos; refused to wake up and connect after multiple retries.</value>
+    <comment>.
+ Parameters: 0 - databaseName (string) </comment>
+  </data>
   <data name="PasswordChangeEmptyPassword" xml:space="preserve">
     <value>New password cannot be empty</value>
     <comment></comment>

@@ -53,6 +53,8 @@ ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' fo
 
 ConnectionServiceConnectionCanceled = Connection canceled
 
+ConnectionServiceServerlessConnectionTimedOut(string databaseName) = Serverless database '{0}' refused to wake up and connect after multiple retries.
+
 ### Password Change
 
 PasswordChangeEmptyPassword = New password cannot be empty

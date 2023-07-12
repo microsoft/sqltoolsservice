@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
-        public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
+        public const int MaxServerlessReconnectTries = 10; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
 
         // SQL Error Code Constants
         // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
@@ -443,8 +443,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // SqlClient will be implemented at a later time, which will have automatic retries.
                 response = await TryOpenConnection(connectionInfo, connectionParams);
                 // If a serverless database is sleeping, it will return this error number and will need to be retried.
+                // Subsequent attempts may result in a null response, but the connection will still be closed technically, we need to wait until it is actually open.
                 // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
-                if (response?.ErrorNumber == 40613)
+                if (response?.ErrorNumber == 40613 || (response == null && counter > 0 && this.GetSleepingServerlessConnectionStatus(connectionInfo, connectionParams)))
                 {
                     counter++;
                     if (counter != MaxServerlessReconnectTries)
@@ -458,7 +459,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     break;
                 }
             }
+            if (counter > MaxServerlessReconnectTries) {
+                // we have timed out, let the user know the server has not woken up even after several retries.
+                 response = new ConnectionCompleteParams { OwnerUri = connectionInfo.OwnerUri, Type = connectionParams.Type };
+                 response.ErrorMessage = SR.ConnectionServiceServerlessConnectionTimedOut(connectionInfo.ConnectionDetails.DatabaseName);
+            }
             return response;
+        }
+
+        private Boolean GetSleepingServerlessConnectionStatus(ConnectionInfo connectionInfo, ConnectParams connectParams){
+            DbConnection connection;
+            connectionInfo.TryGetConnection(connectParams.Type, out connection);
+            
+            var reliableConnection = connection as ReliableSqlConnection;
+            DbConnection underlyingConnection = reliableConnection != null
+                ? reliableConnection.GetUnderlyingConnection()
+                : connection;
+
+            return (underlyingConnection.State != ConnectionState.Open);
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
