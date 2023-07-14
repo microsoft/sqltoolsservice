@@ -161,7 +161,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoShrink = smoDatabase.AutoShrink,
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
-                                    EncryptionEnabled = smoDatabase.EncryptionEnabled
+                                    EncryptionEnabled = smoDatabase.EncryptionEnabled,
+                                    DatabaseScopedConfigurations = GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations)
                                 };
 
                                 if (!isManagedInstance)
@@ -887,6 +888,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return sizes.ToArray();
+        }
+
+        /// <summary>
+        /// Prepares database scoped configurations list
+        /// </summary>
+        /// <param name="smoDSCMetaData"></param>
+        /// <returns></returns>
+        private DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
+        {
+            var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
+            foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
+            {
+                dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
+                {
+                    Name = dsc.Name,
+                    IsDefaultValue = dsc.IsValueDefault,
+                    ValueForPrimary = dsc.Value,
+                    ValueForSecondary = dsc.ValueForSecondary
+                });
+
+            }
+            return dscMetaData.ToArray();
         }
     }
 }
