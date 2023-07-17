@@ -401,8 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         prototype.Name = database.Name;
 
                         // Update database file names now that we have a database name
-                        // Modifying logical file name is not supported in SQL Database Managed Instance.
-                        if (!prototype.HideFileSettings && dataContainer.Server.DatabaseEngineEdition != DatabaseEngineEdition.SqlManagedInstance)
+                        if (viewParams.IsNewObject && !prototype.HideFileSettings)
                         {
                             var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
@@ -468,20 +467,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
                             }
                         }
-                        if (prototype is DatabasePrototype160 db160)
-                        {
-                            if (database.IsLedgerDatabase != null)
-                            {
-                                db160.IsLedger = (bool)database.IsLedgerDatabase;
-                            }
-                        }
 
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
-                        prototype.AutoShrink= database.AutoShrink;
+                        prototype.AutoShrink = database.AutoShrink;
                         prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        prototype.RestrictAccess = database.RestrictAccess;
+                        if (database.RestrictAccess != null)
+                        {
+                            prototype.RestrictAccess = database.RestrictAccess;
+                        }
 
                         if (prototype is DatabasePrototypeAzure dbAz)
                         {
