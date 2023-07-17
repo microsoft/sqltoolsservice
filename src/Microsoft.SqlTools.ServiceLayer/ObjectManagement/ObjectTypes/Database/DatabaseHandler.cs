@@ -898,16 +898,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
         {
             var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
+            var isValueDefaulAvailable = true;
             foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
             {
-                dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
+                DatabaseScopedConfigurationsInfo dscInfo = new DatabaseScopedConfigurationsInfo()
                 {
                     Name = dsc.Name,
-                    IsDefaultValue = dsc.IsValueDefault,
                     ValueForPrimary = dsc.Value,
                     ValueForSecondary = dsc.ValueForSecondary
-                });
-
+                };
+                try
+                {
+                    // SQL Server 2016 and lower versions do not have this property
+                    if (isValueDefaulAvailable && dsc.GetType().GetProperty("IsValueDefault") != null)
+                    {
+                        dscInfo.IsDefaultValue = dsc.IsValueDefault;
+                    }
+                    dscMetaData.Add(dscInfo);
+                }
+                catch (Exception e) 
+                {
+                    isValueDefaulAvailable = false;
+                    dscMetaData.Add(dscInfo);
+                    continue;
+                }
             }
             return dscMetaData.ToArray();
         }
