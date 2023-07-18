@@ -45,6 +45,7 @@
 		<PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
 		<PackageReference Include="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" />
+		<PackageReference Include="Microsoft.SqlServer.Management.QueryStoreModel.Debug" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 		<PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
@@ -79,5 +80,8 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="QueryStore\Contracts\" />
 	</ItemGroup>
 </Project>
