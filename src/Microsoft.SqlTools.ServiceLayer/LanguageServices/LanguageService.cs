@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -262,6 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             serviceHost.SetRequestHandler(DefinitionRequest.Type, HandleDefinitionRequest);
             serviceHost.SetRequestHandler(SyntaxParseRequest.Type, HandleSyntaxParseRequest);
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
+            serviceHost.SetRequestHandler(IdentificationRequest.Type, HandleIdentificationRequest);
             serviceHost.SetEventHandler(RebuildIntelliSenseNotification.Type, HandleRebuildIntelliSenseNotification);
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification);
             serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification);
@@ -469,6 +471,158 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await requestContext.SendResult(completionItem);
             }
         }
+
+
+        /// <summary>
+        /// Handle Requests to identify objects in file
+        /// Fulfills request in the format [ServerName, DatabaseName, SchemaName, ObjectName]
+        /// </summary>
+        /// <param name="textDocumentPosition"></param>
+        /// <param name="requestContext"></param>
+        /// <returns></returns>
+        public async Task HandleIdentificationRequest(IdentificationParams identificationParams, RequestContext<string> requestContext)
+        {
+            string documentUri = identificationParams.DocumentUri;
+            Position position = identificationParams.Position;
+            string wordToIdentify = identificationParams.word;
+
+            // Create a new TextDocumentIdentifier with the provided documentUri
+            TextDocumentIdentifier textDocumentIdentifier = new TextDocumentIdentifier
+            {
+                Uri = documentUri
+            };
+
+            // Create a new TextDocumentPosition using the TextDocumentIdentifier and position
+            TextDocumentPosition textDocumentPosition = new TextDocumentPosition
+            {
+                TextDocument = textDocumentIdentifier,
+                Position = position
+            };
+
+            // Get the current script file and script parse info object
+            ScriptFile scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri, true);
+
+            ConnectionInfo? connInfo;
+            ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+
+            if (connInfo == null || scriptParseInfo == null)
+            {
+                await requestContext.SendResult("");
+                return;
+            }
+
+            // Parse and bind the SQL statement
+            ParseAndBind(scriptFile, connInfo);
+
+            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            SqlScript script = scriptDocumentInfo.ScriptParseInfo.ParseResult.Script;
+
+            string[] results = getObjectIdentification(script, position);
+
+            if (results == null)
+            {
+                await requestContext.SendResult("");
+                return;
+            }
+
+            string table = results[results.Length - 1];
+            table = table.Substring(table.IndexOf(' ') + 1);
+            string baseIdentifier = table.Substring(table.LastIndexOf('.') + 1);
+
+            // Columns
+            if (results.Length > 1)
+            {
+                await requestContext.SendResult(table + "." + wordToIdentify);
+                return;
+            }
+            // Schema
+            if (!baseIdentifier.Equals(wordToIdentify))
+            {
+                await requestContext.SendResult(table.Substring(0, table.LastIndexOf('.')));
+                return;
+            }
+            // Table / View
+            if (results.Length == 1)
+            {
+                await requestContext.SendResult(table);
+                return;
+            }
+
+            await requestContext.SendResult("");
+            return;
+        }
+
+        internal string[] getObjectIdentification(SqlCodeObject currentNode, Position position)
+        {
+            if (currentNode == null)
+            {
+                return null;
+            }
+            else if (currentNode is SqlQuerySpecification)
+            {
+                string xml = (currentNode as SqlQuerySpecification).Xml;
+
+                // Regular expression pattern to find the BoundObject part
+                string pattern = "(?<=BoundObject=\")(.*?)(?=\")";
+                MatchCollection matches = Regex.Matches(xml, pattern);
+
+                string[] result = new string[matches.Count];
+
+                for (int i = 0; i < matches.Count; i++)
+                {
+                    result[i] = matches[i].Groups[1].Value;
+                }
+
+                // If there are multiple bound objects, this means that there are columns and tables
+                if (result.Length > 1)
+                {
+                    // The table is the object at the last position
+                    // Return it if the object we are looking for is that table, and not the columns
+                    if (containsPosition(currentNode.Children.ElementAt(1), position))
+                    {
+                        return new string[] { result[result.Length - 1] };
+                    }
+                }
+
+                return result;
+            }
+            else
+            {
+                foreach (SqlCodeObject child in currentNode.Children)
+                {
+                    if (containsPosition(child, position))
+                    {
+                        return getObjectIdentification(child, position);
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        internal Boolean containsPosition(SqlCodeObject node, Position position)
+        {
+            // If start and end of object are on same line, compare columns
+            if (position.Line == node.StartLocation.LineNumber && position.Line == node.EndLocation.LineNumber)
+            {
+                return position.Character >= node.StartLocation.ColumnNumber && position.Character <= node.EndLocation.ColumnNumber;
+            }
+            // If cursor is on same line as start, make sure it's in start's column range 
+            else if (position.Line == node.StartLocation.LineNumber)
+            {
+                return position.Character >= node.StartLocation.ColumnNumber;
+            }
+            // If cursor is on same line as end, make sure it's in ends's column range 
+            else if (position.Line == node.EndLocation.LineNumber)
+            {
+                return position.Character <= node.EndLocation.ColumnNumber;
+            }
+
+            // Check if cursor is within line number range
+            return position.Line > node.StartLocation.LineNumber && position.Line < node.EndLocation.LineNumber;
+        }
+
 
         internal async Task HandleDefinitionRequest(TextDocumentPosition textDocumentPosition, RequestContext<Location[]> requestContext)
         {
@@ -1515,7 +1669,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
                 ParseAndBind(scriptFile, connInfo);
-            } else
+            }
+            else
             {
                 Logger.Verbose($"GetSignatureHelp - No reparse needed for {scriptFile}");
             }
