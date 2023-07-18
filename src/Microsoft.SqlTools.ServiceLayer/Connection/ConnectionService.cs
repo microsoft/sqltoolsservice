@@ -1732,7 +1732,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 ServerName = defaultBuilder.DataSource != builder.DataSource ? builder.DataSource : null,
                 TrustServerCertificate = defaultBuilder.TrustServerCertificate != builder.TrustServerCertificate ? builder.TrustServerCertificate : false,
                 TypeSystemVersion = defaultBuilder.TypeSystemVersion != builder.TypeSystemVersion ? builder.TypeSystemVersion : null,
-                UserName = defaultBuilder.UserID != builder.UserID ? builder.UserID : null,
+                // !!! ALERT - DO NOT CHANGE USER !!!
+                // SSMS 19 treats "user" as mandatory, always set it to value from connection string builder, even if it's an empty string.
+                UserName = builder.UserID,
                 WorkstationId = defaultBuilder.WorkstationID != builder.WorkstationID ? builder.WorkstationID : null
             };
 
