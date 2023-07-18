@@ -174,6 +174,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             SqlProjectsService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(SqlProjectsService.Instance);
 
+            QueryStoreService.Instance.InitializeService(serviceHost);
+            serviceProvider.RegisterSingleService(QueryStoreService.Instance);
+
             serviceHost.InitializeRequestHandlers();
         }
 
