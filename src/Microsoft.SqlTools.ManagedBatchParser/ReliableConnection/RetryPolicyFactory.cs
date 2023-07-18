@@ -354,6 +354,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Returns the default retry policy dedicated to handling retryable conditions with data transfer SQL commands.
         /// </summary>
         /// <returns>The RetryPolicy policy</returns>
+        public static RetryPolicy CreateServerlessRetryPolicy()
+        {
+            RetryPolicy retryPolicy = new RetryPolicy.TimeBasedRetryPolicy(
+                RetryPolicy.DataTransferErrorDetectionStrategy.Instance,
+                TimeSpan.FromMinutes(20),
+                TimeSpan.FromMinutes(240),
+                0.1,
+                TimeSpan.FromMilliseconds(250),
+                TimeSpan.FromMinutes(2),
+                2);
+
+            retryPolicy.FastFirstRetry = true;
+            retryPolicy.RetryOccurred += CommandFailureRetry;
+            return retryPolicy;
+        }
+
+         /// <summary>
+        /// Returns the default retry policy dedicated to handling retryable conditions with data transfer SQL commands.
+        /// </summary>
+        /// <returns>The RetryPolicy policy</returns>
         public static RetryPolicy CreateDefaultDataTransferRetryPolicy()
         {
             RetryPolicy retryPolicy = new RetryPolicy.TimeBasedRetryPolicy(

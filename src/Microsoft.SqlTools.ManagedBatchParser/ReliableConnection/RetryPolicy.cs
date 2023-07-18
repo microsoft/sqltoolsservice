@@ -367,6 +367,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
         }
 
+        public class ServerlessDelayPolicy : RetryPolicy
+        {
+            private readonly int _maxRetryCount;
+            private readonly TimeSpan _intervalBetweenRetries;
+
+            /// <summary>
+            /// Constructs a new instance of the TRetryPolicy class with the specified number of retry attempts and time interval between retries.
+            /// </summary>
+            /// <param name="strategy">The <see cref="RetryPolicy.IErrorDetectionStrategy"/> to use when checking whether an error is retryable</param>
+            /// <param name="maxRetryCount">The max number of retry attempts. Should be 1-indexed.</param>
+            /// <param name="intervalBetweenRetries">The interval between retries.</param>
+            public ServerlessDelayPolicy(IErrorDetectionStrategy strategy, int maxRetryCount, TimeSpan intervalBetweenRetries)
+                : base(strategy)
+            {
+                Contract.Assert(maxRetryCount >= 0, "maxRetryCount cannot be a negative number");
+                Contract.Assert(intervalBetweenRetries.Ticks >= 0, "intervalBetweenRetries cannot be negative");
+
+                _maxRetryCount = maxRetryCount;
+                _intervalBetweenRetries = intervalBetweenRetries;
+            }
+
+            protected override bool ShouldRetryImpl(RetryState retryState)
+            {
+                Contract.Assert(retryState != null);
+
+                if (IsLessThanMaxRetryCount(retryState.RetryCount, _maxRetryCount))
+                {
+                    retryState.Delay = _intervalBetweenRetries;
+                    return true;
+                }
+
+                retryState.Delay = TimeSpan.Zero;
+                return false;
+            }
+        }
+
         public class ProgressiveRetryPolicy : RetryPolicy
         {
             private readonly int _maxRetryCount;

@@ -121,22 +121,22 @@ Task("PopulateRuntimes")
 {
     buildPlan.Rids = new string[]
             {
-                "default", // To allow testing the published artifact
+                // "default", // To allow testing the published artifact
                 "win-x64",
-                "win-x86",
-                "win-arm64",
-                "ubuntu.14.04-x64",
-                "ubuntu.16.04-x64",
-                "centos.7-x64",
-                "rhel.7.2-x64",
-                "debian.8-x64",
-                "fedora.23-x64",
-                "opensuse.13.2-x64",
-                "osx.10.11-x64",
-                "osx-x64",
-                "osx-arm64",
-                "linux-x64",
-                "linux-arm64"
+                // "win-x86",
+                // "win-arm64",
+                // "ubuntu.14.04-x64",
+                // "ubuntu.16.04-x64",
+                // "centos.7-x64",
+                // "rhel.7.2-x64",
+                // "debian.8-x64",
+                // "fedora.23-x64",
+                // "opensuse.13.2-x64",
+                // "osx.10.11-x64",
+                // "osx-x64",
+                // "osx-arm64",
+                // "linux-x64",
+                // "linux-arm64"
             };
 });
 
