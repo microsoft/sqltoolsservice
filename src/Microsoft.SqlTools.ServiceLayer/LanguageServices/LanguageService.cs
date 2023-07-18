@@ -525,6 +525,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await requestContext.SendResult("");
                 return;
             }
+            if (results.ElementAt(0).Equals("Database")) {
+                await requestContext.SendResult(wordToIdentify);
+                return;
+            }
 
             string table = results[results.Length - 1];
             table = table.Substring(table.IndexOf(' ') + 1);
@@ -559,6 +563,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 return null;
             }
+            else if (currentNode is SqlUseStatement) 
+            {
+                return new string[]{"Database"};
+            }
+            // Tables, Schemas, Views
             else if (currentNode is SqlQuerySpecification)
             {
                 string xml = (currentNode as SqlQuerySpecification).Xml;
