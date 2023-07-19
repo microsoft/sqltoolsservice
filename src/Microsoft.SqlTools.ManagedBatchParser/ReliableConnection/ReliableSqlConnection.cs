@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 TransientErrors = new HashSet<int> { 40613 }
             };
 
-            var provider = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(serverlessRetryLogic);
+            var provider = SqlConfigurableRetryFactory.CreateFixedRetryProvider(serverlessRetryLogic);
 
             provider.Retrying += (object s, SqlRetryingEventArgs e) =>
             {
