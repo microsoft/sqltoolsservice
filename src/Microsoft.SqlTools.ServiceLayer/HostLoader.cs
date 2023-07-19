@@ -32,6 +32,7 @@ using Microsoft.SqlTools.ServiceLayer.NotebookConvert;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.Profiler;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;

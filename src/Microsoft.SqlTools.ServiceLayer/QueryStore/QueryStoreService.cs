@@ -12,7 +12,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
+namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 {
     /// <summary>
     /// Main class for SqlProjects service
@@ -39,16 +39,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
-            serviceHost.SetRequestHandler(OpenSqlProjectRequest.Type, HandleOpenSqlProjectRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetForcedPlanQueriesReportRequest.Type, HandleGetForcedPlanQueriesReportRequest, isParallelProcessingSupported: true);
         }
 
         #region Handlers
 
         #region Project-level functions
 
-        internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
+        internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<GetForcedPlanQueriesReportResult> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri), requestContext);
+            await Task.Delay(200);
         }
 
         #endregion
