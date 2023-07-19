@@ -40,18 +40,43 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         public void InitializeService(ServiceHost serviceHost)
         {
             serviceHost.SetRequestHandler(GetForcedPlanQueriesReportRequest.Type, HandleGetForcedPlanQueriesReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetHighVariationQueriesReportRequest.Type, HandleGetHighVariationQueriesReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetOverallResourceConsumptionReportRequest.Type, HandleGetOverallResourceConsumptionReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetRegressedQueriesReportRequest.Type, HandleGetRegressedQueriesReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetTopResourceConsumersReportRequest.Type, HandleGetTopResourceConsumersReportRequest, isParallelProcessingSupported: true);
         }
 
         #region Handlers
 
-        #region Project-level functions
-
         internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<GetForcedPlanQueriesReportResult> requestContext)
         {
-            await Task.Delay(200);
+            await Task.Delay(0);
+            throw new NotImplementedException();
         }
 
-        #endregion
+        internal async Task HandleGetHighVariationQueriesReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<GetHighVariationQueriesReportResult> requestContext)
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
+        }
+
+        internal async Task HandleGetOverallResourceConsumptionReportRequest(GetOverallResourceConsumptionReportParams requestParams, RequestContext<GetOverallResourceConsumptionReportResult> requestContext)
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
+        }
+
+        internal async Task HandleGetRegressedQueriesReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<GetRegressedQueriesReportResult> requestContext)
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
+        }
+
+        internal async Task HandleGetTopResourceConsumersReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<GetTopResourceConsumersReportResult> requestContext)
+        {
+            await Task.Delay(0);
+            throw new NotImplementedException();
+        }
 
         #endregion
     }
