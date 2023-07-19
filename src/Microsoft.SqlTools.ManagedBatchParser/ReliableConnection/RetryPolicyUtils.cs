@@ -15,6 +15,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     public static class RetryPolicyUtils
     {
         /// <summary>
+        /// Approved list of transient errors that require additional time to wait before connecting again.
+        /// </summary>
+        private static readonly HashSet<int> _retryableExtendedNetworkConnectivityError;
+        /// <summary>
         /// Approved list of transient errors that should be retryable during Network connection stages
         /// </summary>
         private static readonly HashSet<int> _retryableNetworkConnectivityErrors;
@@ -29,6 +33,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         static RetryPolicyUtils()
         {
+            _retryableExtendedNetworkConnectivityError = new HashSet<int>
+            {
+                //// SQL Error Code: 40613
+                //// Database XXXX on server YYYY is not currently available. Please retry the connection later. If the problem persists, contact customer 
+                //// support, and provide them the session tracing ID of ZZZZZ.
+                40613, 
+            };
+
             _retryableNetworkConnectivityErrors = new HashSet<int>
             {
                 /// A severe error occurred on the current command.  The results, if any, should be discarded.
@@ -233,6 +245,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public static bool IsNonRetryableDataTransferError(int errorNumber)
         {
             return _nonRetryableDataTransferErrors.Contains(errorNumber);
+        }
+
+        public static bool IsRetryableExtendedNetworkConnectivityError(int errorNumber){
+            return _retryableExtendedNetworkConnectivityError.Contains(errorNumber);
         }
 
         public static void AppendThrottlingDataIfIsThrottlingError(SqlException sqlException, SqlError error)

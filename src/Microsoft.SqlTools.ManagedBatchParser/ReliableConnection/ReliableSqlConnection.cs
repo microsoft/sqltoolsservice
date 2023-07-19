@@ -63,6 +63,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public ReliableSqlConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
         {
             _underlyingConnection = new SqlConnection(connectionString);
+
+            var serverlessRetryLogic = new SqlRetryLogicOption
+            {
+                NumberOfTries = 5,
+                MaxTimeInterval = TimeSpan.FromSeconds(60),
+                DeltaTime = TimeSpan.FromSeconds(1),
+                TransientErrors = new HashSet<int> { 40613 }
+            };
+
+            var provider = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(serverlessRetryLogic);
+
+            provider.Retrying += (object s, SqlRetryingEventArgs e) =>
+            {
+                int attempts = e.RetryCount + 1;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"attempt {attempts} - current delay time:{e.Delay} \n");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                if (e.Exceptions[e.Exceptions.Count - 1] is SqlException ex)
+                {
+                    Console.WriteLine($"{ex.Number}-{ex.Message}\n");
+                }
+                else
+                {
+                    Console.WriteLine($"{e.Exceptions[e.Exceptions.Count - 1].Message}\n");
+                }
+            };
+
+            _underlyingConnection.RetryLogicProvider = provider;
+
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
 

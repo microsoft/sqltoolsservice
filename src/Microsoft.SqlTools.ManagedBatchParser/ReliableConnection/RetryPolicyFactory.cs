@@ -333,6 +333,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
+        /// Returns the default retry policy dedicated to handling exceptions with SQL connections with support for extended errors.
+        /// </summary>
+        /// <returns>The RetryPolicy policy</returns>
+        public static RetryPolicy CreateSqlConnectionRetryPolicy()
+        {
+            // Note: No longer use Ado.net Connection Pooling and hence do not need TimeBasedRetryPolicy to
+            // conform to the backoff requirements in this case
+            // Note: No longer use Ado.net Connection Pooling and hence do not need TimeBasedRetryPolicy to
+            // conform to the backoff requirements in this case
+            RetryPolicy retryPolicy = new RetryPolicy.SqlDelayRetryPolicy(
+                RetryPolicy.NetworkConnectivityErrorDetectionStrategy.Instance,
+                RetryPolicyDefaults.DefaultConnectionRetryCount,
+                RetryPolicyDefaults.DefaultBackoffIntervalFactor,
+                RetryPolicyDefaults.DefaultSchemaMinInterval,
+                RetryPolicyDefaults.DefaultMaxRetryInterval);
+
+            retryPolicy.FastFirstRetry = true;
+            return retryPolicy;
+        }
+
+        /// <summary>
         /// Returns the default retry policy dedicated to handling retryable conditions with data transfer SQL commands.
         /// </summary>
         /// <returns>The RetryPolicy policy</returns>
