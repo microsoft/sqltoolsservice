@@ -44,6 +44,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
+        internal static readonly string[] DscOnOffPrimaryOptions;
+        internal static readonly string[] DscOnOffOptions;
+        internal static readonly string[] DscElevateOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
 
@@ -74,6 +77,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
+
+            var onOffOptions = new List<string>(){
+                SR.prototype_db_prop_databasescopedconfig_value_on,
+                SR.prototype_db_prop_databasescopedconfig_value_off
+            };
+            DscOnOffOptions = onOffOptions.ToArray();
+
+            onOffOptions = new List<string>(){
+                SR.prototype_db_prop_databasescopedconfig_value_on,
+                SR.prototype_db_prop_databasescopedconfig_value_off,
+                SR.prototype_db_prop_databasescopedconfig_value_primary
+            };
+            DscOnOffPrimaryOptions = onOffOptions.ToArray();
+
+            var elevateOptions = new List<string>()
+            {
+                SR.prototype_db_prop_databasescopedconfig_value_off,
+                SR.prototype_db_prop_databasescopedconfig_value_when_supported,
+                SR.prototype_db_prop_databasescopedconfig_value_fail_supported
+            };
+            DscElevateOptions = elevateOptions.ToArray();
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -179,6 +203,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     }
                                 }
                             }
+                            databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
+                            databaseViewInfo.DscOnOffPrimaryOptions = DscOnOffPrimaryOptions;
+                            databaseViewInfo.DscElevateOptions = DscElevateOptions;
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role

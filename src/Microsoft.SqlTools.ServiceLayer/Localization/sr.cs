@@ -12309,6 +12309,22 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string prototype_db_prop_databasescopedconfig_value_when_supported
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databasescopedconfig_value_when_supported);
+            }
+        }
+
+        public static string prototype_db_prop_databasescopedconfig_value_fail_supported
+        {
+            get
+            {
+                return Keys.GetString(Keys.prototype_db_prop_databasescopedconfig_value_fail_supported);
+            }
+        }
+
         public static string error_db_prop_invalidleadingColumns
         {
             get
@@ -17829,6 +17845,12 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string prototype_db_prop_databasescopedconfig_value_primary = "prototype_db_prop_databasescopedconfig_value_primary";
+
+
+            public const string prototype_db_prop_databasescopedconfig_value_when_supported = "prototype_db_prop_databasescopedconfig_value_when_supported";
+
+
+            public const string prototype_db_prop_databasescopedconfig_value_fail_supported = "prototype_db_prop_databasescopedconfig_value_fail_supported";
 
 
             public const string error_db_prop_invalidleadingColumns = "error_db_prop_invalidleadingColumns";

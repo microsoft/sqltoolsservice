@@ -2787,6 +2787,8 @@ prototype_db_prop_encryptionEnabled = Encryption Enabled
 prototype_db_prop_databasescopedconfig_value_off = OFF
 prototype_db_prop_databasescopedconfig_value_on = ON
 prototype_db_prop_databasescopedconfig_value_primary = PRIMARY
+prototype_db_prop_databasescopedconfig_value_when_supported = WHEN_SUPPORTED 
+prototype_db_prop_databasescopedconfig_value_fail_supported = FAIL_UNSUPPORTED
 error_db_prop_invalidleadingColumns = For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns
 compatibilityLevel_sphinx = SQL Server 7.0 (70)
 compatibilityLevel_shiloh = SQL Server 2000 (80)
@@ -2802,7 +2804,7 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
-databaseBackupDate_None = None
+databaseBackupDate_None = None 
 
 ############################################################################
 # Azure SQL DB

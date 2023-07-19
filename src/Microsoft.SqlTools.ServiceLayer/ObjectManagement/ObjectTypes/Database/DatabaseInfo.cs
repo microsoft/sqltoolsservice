@@ -48,5 +48,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool? IsDefaultValue { get; set; }
         public string ValueForPrimary { get; set; }
         public string ValueForSecondary { get; set; }
+        public bool ApplyPrimaryToSecondary { get; set; }
     }
 }
