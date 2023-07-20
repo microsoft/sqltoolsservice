@@ -30,6 +30,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Blocklist of non-transient errors that should stop retry during data transfer operations
         /// </summary>
         private static readonly HashSet<int> _nonRetryableDataTransferErrors;
+        /// <summary>
+        /// Max intervals between retries to wake up serverless instances.
+        /// </summary>
+        private const int _serverlessMaxIntervalTime = 45;
+        /// <summary>
+        /// Maximum number of retries to wake up serverless instances.
+        /// </summary>
+        private const int _serverlessMaxRetries = 4;
 
         static RetryPolicyUtils()
         {
@@ -371,6 +379,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
                 RaiseAmbientRetryMessage(retryState, errorCode);
             }
+        }
+
+        /// <summary>
+        /// Wait for SqlConnection to handle sleeping serverless instances (allows for them to wake up).
+        /// </summary>
+        public static SqlRetryLogicBaseProvider ServerlessWaitRetryLogicProvider()
+        {
+            var serverlessRetryLogic = new SqlRetryLogicOption
+            {
+                NumberOfTries = _serverlessMaxRetries,
+                MaxTimeInterval = TimeSpan.FromSeconds(_serverlessMaxIntervalTime),
+                DeltaTime = TimeSpan.FromSeconds(1),
+                TransientErrors = _retryableExtendedNetworkConnectivityError
+            };
+
+            var provider = SqlConfigurableRetryFactory.CreateFixedRetryProvider(serverlessRetryLogic);
+
+            provider.Retrying += (object s, SqlRetryingEventArgs e) =>
+            {
+                int attempts = e.RetryCount + 1;
+                Logger.Write(TraceEventType.Information, $"attempt {attempts} - current delay time:{e.Delay} \n");
+                if (e.Exceptions[e.Exceptions.Count - 1] is SqlException ex)
+                {
+                    Logger.Write(TraceEventType.Information, $"{ex.Number}-{ex.Message}\n");
+                }
+                else
+                {
+                    Logger.Write(TraceEventType.Information, $"{e.Exceptions[e.Exceptions.Count - 1].Message}\n");
+                }
+            };
+
+            return provider;
         }
 
         #region ProcessNetLibErrorCode enumeration

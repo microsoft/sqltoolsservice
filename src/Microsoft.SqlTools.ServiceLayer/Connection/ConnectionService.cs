@@ -410,7 +410,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-            ConnectionCompleteParams? response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
+            ConnectionCompleteParams? response = await this.TryOpenConnection(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
