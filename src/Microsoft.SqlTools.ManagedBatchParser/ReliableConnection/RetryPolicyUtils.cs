@@ -255,10 +255,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             return _nonRetryableDataTransferErrors.Contains(errorNumber);
         }
 
-        public static bool IsRetryableExtendedNetworkConnectivityError(int errorNumber){
-            return _retryableExtendedNetworkConnectivityError.Contains(errorNumber);
-        }
-
         public static void AppendThrottlingDataIfIsThrottlingError(SqlException sqlException, SqlError error)
         {
             //// SQL Error Code: 40501

@@ -433,34 +433,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return completeParams;
         }
 
-        private async Task<ConnectionCompleteParams?> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
-        {
-            int counter = 0;
-            ConnectionCompleteParams? response = null;
-            while (counter <= MaxServerlessReconnectTries)
-            {
-                // The OpenAsync function used in TryOpenConnection does not retry when a database is sleeping.
-                // SqlClient will be implemented at a later time, which will have automatic retries.
-                response = await TryOpenConnection(connectionInfo, connectionParams);
-                // If a serverless database is sleeping, it will return this error number and will need to be retried.
-                // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
-                if (response?.ErrorNumber == 40613)
-                {
-                    counter++;
-                    if (counter != MaxServerlessReconnectTries)
-                    {
-                        Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
-                    }
-                }
-                else
-                {
-                    // Every other response, we can stop.
-                    break;
-                }
-            }
-            return response;
-        }
-
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
         {
             try
@@ -1917,6 +1889,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
+                sqlConn.RetryLogicProvider = RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
 
                 // Fill in Azure authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)

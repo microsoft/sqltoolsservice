@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public R ExecuteAction<R>(Func<RetryState, R> func, CancellationToken? token = null)
         {
             RetryState retryState = CreateRetryState();
-
+            
             if (token != null)
             {
                 token.Value.ThrowIfCancellationRequested();
@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     {
                         throw limitExceededEx.InnerException;
                     }
-
+                    
                     return default(R);
                 }
                 catch (Exception ex)
@@ -241,19 +241,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         public bool ShouldRetry(RetryState retryState)
         {
             bool canRetry = ErrorDetectionStrategy.CanRetry(retryState.LastError);
-            bool shouldRetry = canRetry
+            bool shouldRetry =  canRetry
                    && ShouldRetryImpl(retryState);
 
             Logger.Write(TraceEventType.Error,
                 string.Format(
                     CultureInfo.InvariantCulture,
-                    "Retry requested: Retry count = {0}. Delay = {1}, SQL Error Number = {2}, Can retry error = {3}, Will retry = {4}",
-                    retryState.RetryCount,
+                    "Retry requested: Retry count = {0}. Delay = {1}, SQL Error Number = {2}, Can retry error = {3}, Will retry = {4}", 
+                    retryState.RetryCount, 
                     retryState.Delay,
-                    GetErrorNumber(retryState.LastError),
-                    canRetry,
+                    GetErrorNumber(retryState.LastError), 
+                    canRetry, 
                     shouldRetry));
-
+           
             // Perform an extra check in the delay interval. Should prevent from accidentally ending up with the value of -1 which will block a thread indefinitely. 
             // In addition, any other negative numbers will cause an ArgumentOutOfRangeException fault which will be thrown by Thread.Sleep.
             if (retryState.Delay.TotalMilliseconds < 0)
@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     "Ignore Error requested: Retry count = {0}. Delay = {1}, SQL Error Number = {2}, Should Ignore Error = {3}",
                     retryState.RetryCount,
                     retryState.Delay,
-                    GetErrorNumber(retryState.LastError),
+                    GetErrorNumber(retryState.LastError), 
                     shouldIgnoreError));
 
             return shouldIgnoreError;
@@ -360,67 +360,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 {
                     retryState.Delay = _intervalBetweenRetries;
                     return true;
-                }
-
-                retryState.Delay = TimeSpan.Zero;
-                return false;
-            }
-        }
-
-        public class SqlDelayRetryPolicy : RetryPolicy
-        {
-            private readonly int _maxRetryCount;
-            private readonly double _intervalFactor;
-            private readonly TimeSpan _minInterval;
-            private readonly TimeSpan _maxInterval;
-
-            /// <summary>
-            /// Constructs a new instance of the TRetryPolicy class with the specified number of retry attempts and time interval between retries.
-            /// </summary>
-            /// <param name="strategy">The <see cref="RetryPolicy.IErrorDetectionStrategy"/> to use when checking whether an error is retryable</param>
-            /// <param name="maxRetryCount">The max number of retry attempts. Should be 1-indexed.</param>
-            /// <param name="intervalBetweenRetries">The interval between retries.</param>
-            public SqlDelayRetryPolicy(IErrorDetectionStrategy strategy, int maxRetryCount, double intervalFactor, TimeSpan minInterval, TimeSpan maxInterval)
-                : base(strategy)
-            {
-                Contract.Assert(maxRetryCount >= 0, "maxRetryCount cannot be a negative number");
-                Contract.Assert(intervalFactor > 1, "intervalFactor Must be > 1 so that the delay increases exponentially");
-                Contract.Assert(minInterval.Ticks >= 0, "minInterval cannot be negative");
-                Contract.Assert(maxInterval.Ticks >= 0, "maxInterval cannot be negative");
-                Contract.Assert(maxInterval.Ticks >= minInterval.Ticks, "maxInterval must be greater than minInterval");
-
-                _maxRetryCount = maxRetryCount;
-                _intervalFactor = intervalFactor;
-                _minInterval = minInterval;
-                _maxInterval = maxInterval;
-            }
-
-            protected override bool ShouldRetryImpl(RetryState retryState)
-            {
-                Contract.Assert(retryState != null);
-
-                if (IsLessThanMaxRetryCount(retryState.RetryCount, _maxRetryCount))
-                {
-                    int? errorNumber = GetErrorNumber(retryState.LastError);
-                    if (errorNumber != null && RetryPolicyUtils.IsRetryableExtendedNetworkConnectivityError((retryState.LastError as SqlException).Number))
-                    {
-                        Logger.Write(TraceEventType.Error,
-                        string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Waiting for database to resume"));
-
-                        retryState.Delay = TimeSpan.FromMinutes(0.5);
-                        if (retryState.RetryCount < _maxRetryCount - 2)
-                        {
-                            // limit to only two retries.
-                            retryState.RetryCount = _maxRetryCount - 2;
-                        }
-                    }
-                    else
-                    {
-                        retryState.Delay = RetryPolicyUtils.CalcExponentialRetryDelay(retryState.RetryCount, _intervalFactor, _minInterval, _maxInterval);
-                        return true;
-                    }
                 }
 
                 retryState.Delay = TimeSpan.Zero;

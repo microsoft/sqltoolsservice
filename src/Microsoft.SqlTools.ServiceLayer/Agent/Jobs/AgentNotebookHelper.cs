@@ -43,6 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
             using (SqlConnection connection = new SqlConnection(ConnectionService.BuildConnectionString(connInfo.ConnectionDetails)))
             {
+                connection.RetryLogicProvider = Connection.ReliableConnection.RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
                 connection.Open();
                 using (SqlCommand sqlQueryCommand = new SqlCommand(sqlQuery, connection))
                 {

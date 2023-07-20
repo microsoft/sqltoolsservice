@@ -71,6 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 connString += ";Pooling=false"; //turn off connection pooling (this is done in other tools so following the same pattern)
 
                 conn = new SqlConnection(connString);
+                (conn as SqlConnection).RetryLogicProvider = Connection.ReliableConnection.RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
                 conn.Open();
 
                 return conn as DbConnection;
