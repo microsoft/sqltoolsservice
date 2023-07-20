@@ -6707,11 +6707,19 @@ The Query Processor estimates that implementing the following index could improv
     <comment></comment>
   </data>
   <data name="prototype_db_prop_databasescopedconfig_value_when_supported" xml:space="preserve">
-    <value>WHEN_SUPPORTED </value>
+    <value>WHEN_SUPPORTED</value>
     <comment></comment>
   </data>
   <data name="prototype_db_prop_databasescopedconfig_value_fail_supported" xml:space="preserve">
     <value>FAIL_UNSUPPORTED</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_fail_enabled" xml:space="preserve">
+    <value>ENABLED</value>
+    <comment></comment>
+  </data>
+  <data name="prototype_db_prop_databasescopedconfig_value_fail_disabled" xml:space="preserve">
+    <value>DISABLED</value>
     <comment></comment>
   </data>
   <data name="error_db_prop_invalidleadingColumns" xml:space="preserve">

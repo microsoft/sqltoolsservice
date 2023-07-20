@@ -8339,13 +8339,23 @@ The Query Processor estimates that implementing the following index could improv
  Parameters: 0 - table (string) </note>
       </trans-unit>
       <trans-unit id="prototype_db_prop_databasescopedconfig_value_when_supported">
-        <source>WHEN_SUPPORTED </source>
-        <target state="new">WHEN_SUPPORTED </target>
+        <source>WHEN_SUPPORTED</source>
+        <target state="new">WHEN_SUPPORTED</target>
         <note></note>
       </trans-unit>
       <trans-unit id="prototype_db_prop_databasescopedconfig_value_fail_supported">
         <source>FAIL_UNSUPPORTED</source>
         <target state="new">FAIL_UNSUPPORTED</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_fail_enabled">
+        <source>ENABLED</source>
+        <target state="new">ENABLED</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="prototype_db_prop_databasescopedconfig_value_fail_disabled">
+        <source>DISABLED</source>
+        <target state="new">DISABLED</target>
         <note></note>
       </trans-unit>
     </body>

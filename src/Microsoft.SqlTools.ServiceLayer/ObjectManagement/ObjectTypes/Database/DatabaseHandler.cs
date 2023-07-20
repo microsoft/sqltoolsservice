@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal static readonly string[] DscOnOffPrimaryOptions;
         internal static readonly string[] DscOnOffOptions;
         internal static readonly string[] DscElevateOptions;
+        internal static readonly string[] DscEnableDisableOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
 
@@ -98,6 +99,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 SR.prototype_db_prop_databasescopedconfig_value_fail_supported
             };
             DscElevateOptions = elevateOptions.ToArray();
+
+            var enableDisableOptions = new List<string>()
+            {
+                SR.prototype_db_prop_databasescopedconfig_value_fail_enabled,
+                SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+            };
+            DscEnableDisableOptions = enableDisableOptions.ToArray();
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -206,6 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscOnOffPrimaryOptions = DscOnOffPrimaryOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
+                            databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role
@@ -925,19 +934,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
         {
             var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
-            var isValueDefaulAvailable = true;
+            var isValueDefaultAvailable = true;
             foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
             {
                 DatabaseScopedConfigurationsInfo dscInfo = new DatabaseScopedConfigurationsInfo()
                 {
                     Name = dsc.Name,
-                    ValueForPrimary = dsc.Value,
+                    ValueForPrimary = dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value,
                     ValueForSecondary = dsc.ValueForSecondary
                 };
                 try
                 {
                     // SQL Server 2016 and lower versions do not have this property
-                    if (isValueDefaulAvailable && dsc.GetType().GetProperty("IsValueDefault") != null)
+                    if (isValueDefaultAvailable && dsc.GetType().GetProperty("IsValueDefault") != null)
                     {
                         dscInfo.IsDefaultValue = dsc.IsValueDefault;
                     }
@@ -945,7 +954,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 catch (Exception e) 
                 {
-                    isValueDefaulAvailable = false;
+                    isValueDefaultAvailable = false;
                     dscMetaData.Add(dscInfo);
                     continue;
                 }
