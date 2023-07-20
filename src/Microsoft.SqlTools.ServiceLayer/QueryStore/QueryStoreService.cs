@@ -5,10 +5,18 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -34,6 +42,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
 
         /// <summary>
+        /// Instance of the connection service, used to get the connection info for a given owner URI
+        /// </summary>
+        private ConnectionService ConnectionService { get; }
+
+        private QueryStoreService()
+        {
+            ConnectionService = ConnectionService.Instance;
+        }
+
+        internal QueryStoreService(ConnectionService connService)
+        {
+            ConnectionService = connService;
+        }
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
         /// <param name="serviceHost"></param>
@@ -48,10 +71,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
         #region Handlers
 
-        internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<GetForcedPlanQueriesReportResult> requestContext)
+        internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<SimpleExecuteResult> requestContext)
         {
-            await Task.Delay(0);
-            throw new NotImplementedException();
+            // Generate query
+            ForcedPlanQueriesConfiguration config = new();
+
+            ColumnInfo orderByColumn = GetOrderByColumn(requestParams);
+
+            string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, descending: true, out IList<ColumnInfo> _ /* discarded because SimpleExecuteResult already extracts this data */);
+
+            await ExecuteQueryHelper(query, requestParams.ConnectionOwnerUri, requestContext);
         }
 
         internal async Task HandleGetHighVariationQueriesReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<GetHighVariationQueriesReportResult> requestContext)
@@ -76,6 +105,95 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await Task.Delay(0);
             throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private async Task ExecuteQueryHelper(string query, string connectionOwnerUri, RequestContext<SimpleExecuteResult> requestContext)
+        {
+            SimpleExecuteParams remappedParams = new()
+            {
+                OwnerUri = connectionOwnerUri,
+                QueryString = query
+            };
+
+            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(remappedParams, requestContext);
+        }
+
+        // TODO: possibly push down to QueryStoreModel
+        private ColumnInfo GetOrderByColumn(QueryStoreReportParams requestParams)
+        {
+            switch (requestParams.OrderByColumnId)
+            {
+                case "query_id":
+                    return new QueryIdColumnInfo();
+                case "object_id":
+                    return new ObjectIdColumnInfo();
+                case "object_name":
+                    return new ObjectNameColumnInfo();
+                case "query_sql_text":
+                    return new QueryTextColumnInfo();
+                case "plan_id":
+                    return new PlanIdColumnInfo();
+                case "execution_type":
+                    return new ExecutionTypeColumnInfo();
+                case "wait_category_desc":
+                    return new WaitCategoryDescColumnInfo();
+                case "wait_category":
+                    return new WaitCategoryIdColumnInfo();
+                default:
+                    Debug.Fail($"Unhandled OrderByColumnId: '{requestParams.OrderByColumnId}'");
+                    return new QueryIdColumnInfo(); // TODO: is this the correct choice?
+            }
+        }
+
+        private async Task ExecuteQueryHelperCustom<T>(string query, string connectionOwnerUri, RequestContext<T> requestContext) where T : ResultStatus
+        {
+            // set up query params
+            string queryOwnerUri = Guid.NewGuid().ToString(); // generate guid as the owner uri to make sure every query is unique
+
+            ExecuteStringParams executeStringParams = new ExecuteStringParams
+            {
+                Query = query,
+                OwnerUri = queryOwnerUri
+            };
+
+            // set up connection
+
+            if (!ConnectionService.TryFindConnection(connectionOwnerUri, out ConnectionInfo originConnectionInfo))
+            {
+                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
+                return;
+            }
+
+            ConnectParams connectParams = new ConnectParams
+            {
+                OwnerUri = queryOwnerUri,
+                Connection = originConnectionInfo.ConnectionDetails,
+                Type = ConnectionType.Default
+            };
+
+            await ConnectionService.Connect(connectParams);
+            ConnectionService.TryFindConnection(queryOwnerUri, out ConnectionInfo queryConnectionInfo);
+
+            // set up handlers
+            ResultOnlyContext<T> resultContext = new ResultOnlyContext<T>(requestContext);
+
+            Func<string, Task> HandleQueryCreationFailure = message => requestContext.SendError(message);
+
+
+            // execute query
+
+            //        return await QueryExecutionService.Instance.InterServiceExecuteQuery(
+            //executeStringParams,
+            //originConnectionInfo,
+            //resultContext,
+            //queryCreateSuccessFunc: null,
+            //HandleQueryCreationFailure,
+            //querySuccessFunction,
+            //queryFailureFunction);
         }
 
         #endregion

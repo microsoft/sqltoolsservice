@@ -81,7 +81,4 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ManagedBatchParser.UnitTests" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="QueryStore\Contracts\" />
-	</ItemGroup>
 </Project>

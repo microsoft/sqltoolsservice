@@ -4,15 +4,16 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetForcedPlanQueriesReportParams
+    public class GetForcedPlanQueriesReportParams : QueryStoreReportParams
     {
-
+        
     }
 
     /// <summary>
@@ -20,8 +21,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     /// </summary>
     public class GetForcedPlanQueriesReportRequest
     {
-        public static readonly RequestType<GetForcedPlanQueriesReportParams, GetForcedPlanQueriesReportResult> Type
-            = RequestType<GetForcedPlanQueriesReportParams, GetForcedPlanQueriesReportResult>.Create("queryStore/getForcedPlanQueriesReport");
+        public static readonly RequestType<GetForcedPlanQueriesReportParams, SimpleExecuteResult> Type
+            = RequestType<GetForcedPlanQueriesReportParams, SimpleExecuteResult>.Create("queryStore/getForcedPlanQueriesReport");
     }
 
     /// <summary>
