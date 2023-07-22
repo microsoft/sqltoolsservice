@@ -136,13 +136,31 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 case "query_sql_text":
                     return new QueryTextColumnInfo();
                 case "plan_id":
-                    return new PlanIdColumnInfo();
+                    return new PlanIdColumnInfo(); // doubled-up columnId with ForcedPlanFailureCountColumnInfo, may need extra logic here
                 case "execution_type":
                     return new ExecutionTypeColumnInfo();
                 case "wait_category_desc":
                     return new WaitCategoryDescColumnInfo();
                 case "wait_category":
                     return new WaitCategoryIdColumnInfo();
+                case "num_plans":
+                    return new NumPlansColumnInfo();
+                case "force_failure_count":
+                    return new ForcedPlanFailureCountColumnInfo();
+                case "last_force_failure_reason_desc":
+                    return new ForcedPlanFailureDescpColumnInfo();
+                case "last_compile_start_time":
+                    return new LastCompileStartTimeColumnInfo();
+                case "last_execution_time":
+                    return new LastForcedPlanExecTimeColumnInfo(); // also LastQueryExecTimeColumnInfo, LastExecTimeColumnInfo
+                case "is_forced_plan":
+                    return new PlanForcedColumnInfo();
+                case "first_execution_time":
+                    return new FirstExecTimeColumnInfo();
+                case "bucket_start":
+                    return new BucketStartTimeColumnInfo();
+                case "bucket_end":
+                    return new BucketEndTimeColumnInfo();
                 default:
                     Debug.Fail($"Unhandled OrderByColumnId: '{requestParams.OrderByColumnId}'");
                     return new QueryIdColumnInfo(); // TODO: is this the correct choice?
