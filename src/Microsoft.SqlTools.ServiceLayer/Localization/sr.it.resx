@@ -5059,4 +5059,13 @@ Query Processor stima che l'implementazione del seguente indice potrebbe miglior
   <data name="databaseBackupDate_None" xml:space="preserve">
     <value>Nessuno</value>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Proprietà '{0}' impostata prima dell'inizializzazione.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>Autorizzazione CREATE TABLE negata nel database '{0}'.</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>Autorizzazione ALTER TABLE negata per la tabella '{0}'.</value>
+  </data>
 </root>

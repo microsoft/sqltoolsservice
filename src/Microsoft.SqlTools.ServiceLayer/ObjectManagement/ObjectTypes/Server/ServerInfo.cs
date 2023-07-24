@@ -26,9 +26,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string RootDirectory { get; set; }
         public string ServerCollation { get; set; }
         public string? ServiceTier { get; set; }
-        public int? StorageSpaceUsageInGB { get; set; }
+        public int? StorageSpaceUsageInMB { get; set; }
         public string Version { get; set; }
-        public int MaxServerMemory { get; set; }
-        public int MinServerMemory { get; set; }
+        public NumericServerProperty MaxServerMemory { get; set; }
+        public NumericServerProperty MinServerMemory { get; set; }
+    }
+
+    public class NumericServerProperty
+    {
+        public int MaximumValue { get; set; }
+        public int MinimumValue { get; set; }
+        public int Value { get; set; }
     }
 }

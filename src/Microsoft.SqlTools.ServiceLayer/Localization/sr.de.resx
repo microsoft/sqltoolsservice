@@ -5059,4 +5059,13 @@ Der Abfrageprozessor schätzt, dass durch das Implementieren des folgenden Index
   <data name="databaseBackupDate_None" xml:space="preserve">
     <value>Keine</value>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Die Eigenschaft "{0}" wurde vor der Initialisierung festgelegt.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>Die CREATE TABLE-Berechtigung wurde in der {0}-Datenbank verweigert.</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>Die ALTER TABLE-Berechtigung wurde für die Tabelle "{0}" verweigert.</value>
+  </data>
 </root>

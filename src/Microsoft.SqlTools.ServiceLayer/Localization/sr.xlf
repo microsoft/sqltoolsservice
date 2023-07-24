@@ -8321,6 +8321,23 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">None</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="new">Property '{0}' was set before initialization.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="new">CREATE TABLE permission denied in database '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="new">ALTER TABLE permission denied for table '{0}'.</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

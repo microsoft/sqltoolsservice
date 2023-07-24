@@ -36,6 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<CompatibilityLevel, string> displayCompatLevels = new Dictionary<CompatibilityLevel, string>();
         private static readonly Dictionary<ContainmentType, string> displayContainmentTypes = new Dictionary<ContainmentType, string>();
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
+        private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
+        private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
@@ -65,6 +67,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRecoveryModels.Add(RecoveryModel.Full, SR.general_recoveryModel_full);
             displayRecoveryModels.Add(RecoveryModel.BulkLogged, SR.general_recoveryModel_bulkLogged);
             displayRecoveryModels.Add(RecoveryModel.Simple, SR.general_recoveryModel_simple);
+
+            displayPageVerifyOptions.Add(PageVerify.Checksum, SR.prototype_db_prop_pageVerify_value_checksum);
+            displayPageVerifyOptions.Add(PageVerify.TornPageDetection, SR.prototype_db_prop_pageVerify_value_tornPageDetection);
+            displayPageVerifyOptions.Add(PageVerify.None, SR.prototype_db_prop_pageVerify_value_none);
+
+            displayRestrictAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
+            displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
+            displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -101,7 +111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public override Task<InitializeViewResult> InitializeObjectView(InitializeViewRequestParams requestParams)
         {
             // create a default data context and database object
-            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject))
+            using (var dataContainer = CreateDatabaseDataContainer(requestParams.ConnectionUri, requestParams.ObjectUrn, requestParams.IsNewObject, requestParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
@@ -116,6 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         var azurePrototype = prototype as DatabasePrototypeAzure;
                         bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
                         bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
+                        bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
 
                         var databaseViewInfo = new DatabaseViewInfo()
                         {
@@ -133,6 +144,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     Name = smoDatabase.Name,
                                     CollationName = smoDatabase.Collation,
+                                    CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
+                                    ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType],
+                                    RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel],
                                     DateCreated = smoDatabase.CreateDate.ToString(),
                                     LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
                                     LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
@@ -142,8 +156,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     Owner = smoDatabase.Owner,
                                     SizeInMb = smoDatabase.Size,
                                     SpaceAvailableInMb = ByteConverter.ConvertKbtoMb(smoDatabase.SpaceAvailable),
-                                    Status = smoDatabase.Status.ToString()
+                                    Status = smoDatabase.Status.ToString(),
+                                    AutoCreateIncrementalStatistics = smoDatabase.AutoCreateIncrementalStatisticsEnabled,
+                                    AutoCreateStatistics = smoDatabase.AutoCreateStatisticsEnabled,
+                                    AutoShrink = smoDatabase.AutoShrink,
+                                    AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
+                                    AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
+                                    EncryptionEnabled = smoDatabase.EncryptionEnabled
                                 };
+
+                                if (!isManagedInstance)
+                                {
+                                    databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
+                                    databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+
+                                    if (prototype is DatabasePrototype160) {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                    }
+                                }
                             }
                         }
 
@@ -260,7 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var sqlScript = string.Empty;
             ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false))
+            using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -331,7 +365,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         {
             var sqlScript = string.Empty;
             ConnectionInfo connectionInfo = this.GetConnectionInfo(attachParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true))
+            using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true, null))
             {
                 var server = dataContainer.Server!;
                 if (attachParams.GenerateScript)
@@ -378,9 +412,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sqlScript;
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase)
+        private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
+            if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
+            {
+                connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+            }
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
             if (dataContainer.Server == null)
             {
@@ -401,7 +439,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 throw new ArgumentException("Database name not provided.");
             }
 
-            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject))
+            using (var dataContainer = CreateDatabaseDataContainer(viewParams.ConnectionUri, viewParams.ObjectUrn, viewParams.IsNewObject, viewParams.Database))
             {
                 if (dataContainer.Server == null)
                 {
@@ -415,7 +453,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         prototype.Name = database.Name;
 
                         // Update database file names now that we have a database name
-                        if (!prototype.HideFileSettings)
+                        if (viewParams.IsNewObject && !prototype.HideFileSettings)
                         {
                             var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
@@ -437,7 +475,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null)
+                        if (database.Owner != null && viewParams.IsNewObject)
                         {
                             prototype.Owner = database.Owner;
                         }
@@ -453,9 +491,43 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
                         }
-                        if (prototype is DatabasePrototype110 db110 && database.ContainmentType != null)
+                        if (prototype is DatabasePrototype80 db80)
                         {
-                            db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                            if (database.DatabaseReadOnly != null)
+                            {
+                                db80.IsReadOnly = (bool)database.DatabaseReadOnly;
+                            }
+                        }
+
+                        if (prototype is DatabasePrototype90 db90)
+                        {
+                            db90.AutoUpdateStatisticsAsync = database.AutoUpdateStatisticsAsynchronously;
+                            db90.PageVerifyDisplay = database.PageVerify;
+                        }
+                        if (prototype is DatabasePrototype100 db100)
+                        {
+                            db100.EncryptionEnabled = database.EncryptionEnabled;
+                        }
+                        if (prototype is DatabasePrototype110 db110)
+                        {
+                            if (database.TargetRecoveryTimeInSec != null) {
+                                db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
+                            }
+
+                            if (database.ContainmentType != null)
+                            {
+                                db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                            }
+                        }
+
+                        // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
+                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
+                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
+                        prototype.AutoShrink = database.AutoShrink;
+                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
+                        if (database.RestrictAccess != null)
+                        {
+                            prototype.RestrictAccess = database.RestrictAccess;
                         }
 
                         if (prototype is DatabasePrototypeAzure dbAz)

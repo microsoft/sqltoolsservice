@@ -5059,4 +5059,13 @@
   <data name="databaseBackupDate_None" xml:space="preserve">
     <value>Нет</value>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Свойство "{0}" задано до инициализации.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>Отказано в разрешении CREATE TABLE в базе данных "{0}".</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>Отказано в разрешении ALTER TABLE для таблицы "{0}".</value>
+  </data>
 </root>

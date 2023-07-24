@@ -5059,4 +5059,13 @@
   <data name="databaseBackupDate_None" xml:space="preserve">
     <value>없음</value>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>'{0}' 속성이 초기화 전에 설정되었습니다.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>'{0}' 데이터베이스에서 CREATE TABLE 권한이 거부되었습니다.</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>'{0}' 테이블에 대한 ALTER TABLE 권한이 거부되었습니다.</value>
+  </data>
 </root>

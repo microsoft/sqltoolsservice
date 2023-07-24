@@ -18,6 +18,7 @@ using Dac = Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using STSHost = Microsoft.SqlTools.ServiceLayer.Hosting.ServiceHost;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
 {
@@ -31,6 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private Dictionary<string, Dac.TableDesigner> idTableMap = new Dictionary<string, Dac.TableDesigner>();
         private bool disposed = false;
         private static readonly Lazy<TableDesignerService> instance = new Lazy<TableDesignerService>(() => new TableDesignerService());
+        private const string CheckCreateTablePermissionInDbQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@dbname), 'DATABASE', 'CREATE TABLE')";
+        private const string CheckAlterTablePermissionQuery = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(@schema) + '.' + QUOTENAME(@table), 'OBJECT', 'ALTER')";
 
         public TableDesignerService()
         {
@@ -1807,7 +1810,16 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 // Set Access Token only when authentication mode is not specified.
                 var accessToken = connectionStringBuilder.Authentication == SqlAuthenticationMethod.NotSpecified
                     ? tableInfo.AccessToken : null;
-                tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
+
+                try
+                {
+                    tableDesigner = new Dac.TableDesigner(connectionString, accessToken, tableInfo.Schema, tableInfo.Name, tableInfo.IsNewTable, tableDesignerOptions);
+                }
+                catch (Exception ex)
+                {
+                    CheckPermissions(tableInfo, connectionString);
+                    throw ex;
+                }
             }
             else
             {
@@ -1833,14 +1845,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         private void UpdateTableTitleInfo(TableInfo tableInfo)
         {
             var td = GetTableDesigner(tableInfo);
-            var advancedOpsIndex = tableInfo.Tooltip.LastIndexOf('[');
-            var advancedOps = "";
-            if(advancedOpsIndex > -1){
-                advancedOps = " " + tableInfo.Tooltip.Substring(advancedOpsIndex);
-            }
             tableInfo.Title = td.TableViewModel.FullName;
             var tableParent = tableInfo.Server == null ? tableInfo.ProjectFilePath : string.Format("{0} - {1}", tableInfo.Server, tableInfo.Database);
-            tableInfo.Tooltip = string.Format("{0} - {1}{2}", tableParent, tableInfo.Title, advancedOps);
+            tableInfo.Tooltip = string.Format("{0} - {1}", tableParent, tableInfo.Title);
         }
 
         private Dictionary<string, string> GetMetadata(TableInfo tableInfo)
@@ -1853,6 +1860,55 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                 { "IsSystemVersioned", tableDesigner.IsSystemVersioned().ToString() }
             };
             return metadata;
+        }
+
+        private void CheckPermissions(TableInfo tableInfo, string connectionString)
+        {
+            CheckCreateAlterTablePermission(tableInfo, connectionString);
+        }
+
+        private void CheckCreateAlterTablePermission(TableInfo tableInfo, string connectionString)
+        {
+            if (tableInfo.IsNewTable)
+            {
+
+                ReliableConnectionHelper.ExecuteReader(connectionString, CheckCreateTablePermissionInDbQuery, (reader) =>
+                {
+                    reader.Read();
+                    if (reader.IsDBNull(0) || (int)reader[0] != 1)
+                    {
+                        throw new Exception(SR.TableDesignerCreateTablePermissionDenied(tableInfo.Database));
+                    }
+                }, (cmd) =>
+                {
+                    var dbNameParameter = cmd.CreateParameter();
+                    dbNameParameter.ParameterName = "@dbname";
+                    dbNameParameter.Value = tableInfo.Database;
+                    cmd.Parameters.Add(dbNameParameter);
+                });
+            }
+            else
+            {
+                ReliableConnectionHelper.ExecuteReader(connectionString, CheckAlterTablePermissionQuery, (reader) =>
+                {
+                    reader.Read();
+                    if (reader.IsDBNull(0) || (int)reader[0] != 1)
+                    {
+                        throw new Exception(SR.TableDesignerAlterTablePermissionDenied(tableInfo.Name));
+                    }
+                }, (cmd) =>
+                {
+                    var schemaParameter = cmd.CreateParameter();
+                    schemaParameter.ParameterName = "@schema";
+                    schemaParameter.Value = tableInfo.Schema;
+                    cmd.Parameters.Add(schemaParameter);
+
+                    var tableParameter = cmd.CreateParameter();
+                    tableParameter.ParameterName = "@table";
+                    tableParameter.Value = tableInfo.Name;
+                    cmd.Parameters.Add(tableParameter);
+                });
+            }
         }
 
         /// <summary>

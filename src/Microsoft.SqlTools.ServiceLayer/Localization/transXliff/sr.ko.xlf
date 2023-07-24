@@ -8321,6 +8321,23 @@ The Query Processor estimates that implementing the following index could improv
         <target state="translated">없음</target>
         <note></note>
       </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="translated">'{0}' 속성이 초기화 전에 설정되었습니다.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">'{0}' 데이터베이스에서 CREATE TABLE 권한이 거부되었습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">'{0}' 테이블에 대한 ALTER TABLE 권한이 거부되었습니다.</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

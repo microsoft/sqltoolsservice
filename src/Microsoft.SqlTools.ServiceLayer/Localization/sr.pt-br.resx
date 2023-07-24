@@ -5059,4 +5059,13 @@ O Processador de Consultas estima que a implementação do índice a seguir pode
   <data name="databaseBackupDate_None" xml:space="preserve">
     <value>Nenhum</value>
   </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>A propriedade '{0}' foi definida antes da inicialização.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>Permissão CRIAR TABLE negada no banco de dados '{0}'.</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>Permissão ALTERAR TABLE negada na tabela '{0}'.</value>
+  </data>
 </root>
