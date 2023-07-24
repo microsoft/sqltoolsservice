@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <summary>
         /// Max intervals between retries to wake up serverless instances.
         /// </summary>
-        private const int _serverlessMaxIntervalTime = 45;
+        private const int _serverlessMaxIntervalTime = 30;
         /// <summary>
         /// Maximum number of retries to wake up serverless instances.
         /// </summary>
