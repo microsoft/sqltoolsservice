@@ -44,7 +44,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
-        internal static readonly string[] DscOnOffPrimaryOptions;
         internal static readonly string[] DscOnOffOptions;
         internal static readonly string[] DscElevateOptions;
         internal static readonly string[] DscEnableDisableOptions;
@@ -84,13 +83,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 SR.prototype_db_prop_databasescopedconfig_value_off
             };
             DscOnOffOptions = onOffOptions.ToArray();
-
-            onOffOptions = new List<string>(){
-                SR.prototype_db_prop_databasescopedconfig_value_on,
-                SR.prototype_db_prop_databasescopedconfig_value_off,
-                SR.prototype_db_prop_databasescopedconfig_value_primary
-            };
-            DscOnOffPrimaryOptions = onOffOptions.ToArray();
 
             var elevateOptions = new List<string>()
             {
@@ -212,7 +204,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 }
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
-                            databaseViewInfo.DscOnOffPrimaryOptions = DscOnOffPrimaryOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
                             databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
                         }
@@ -934,30 +925,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
         {
             var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
-            var isValueDefaultAvailable = true;
             foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
             {
-                DatabaseScopedConfigurationsInfo dscInfo = new DatabaseScopedConfigurationsInfo()
+                var primaryValue = dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value;
+                dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
                 {
                     Name = dsc.Name,
-                    ValueForPrimary = dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value,
-                    ValueForSecondary = dsc.ValueForSecondary
-                };
-                try
-                {
-                    // SQL Server 2016 and lower versions do not have this property
-                    if (isValueDefaultAvailable && dsc.GetType().GetProperty("IsValueDefault") != null)
-                    {
-                        dscInfo.IsDefaultValue = dsc.IsValueDefault;
-                    }
-                    dscMetaData.Add(dscInfo);
-                }
-                catch (Exception e) 
-                {
-                    isValueDefaultAvailable = false;
-                    dscMetaData.Add(dscInfo);
-                    continue;
-                }
+                    ValueForPrimary = primaryValue,
+                    ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary ? primaryValue : dsc.ValueForSecondary
+                });
             }
             return dscMetaData.ToArray();
         }

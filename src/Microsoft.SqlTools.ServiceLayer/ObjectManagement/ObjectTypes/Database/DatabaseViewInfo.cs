@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public AzureEditionDetails[] AzureMaxSizes { get; set; }
         public string[] PageVerifyOptions { get; set; }
         public string[] RestrictAccessOptions { get; set; }
-        public string[] DscOnOffPrimaryOptions { get; set; }
         public string[] DscOnOffOptions { get; set; }
         public string[] DscElevateOptions { get; set; }
         public string[] DscEnableDisableOptions { get; set; }
