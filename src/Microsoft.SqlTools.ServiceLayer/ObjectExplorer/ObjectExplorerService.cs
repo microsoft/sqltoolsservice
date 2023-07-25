@@ -287,7 +287,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             var foundNodes = FindNodes(findNodesParams.SessionId, findNodesParams.Type, findNodesParams.Schema, findNodesParams.Name, findNodesParams.Database, findNodesParams.ParentObjectNames);
             foundNodes ??= new List<TreeNode>();
 
-            await context.SendResult(new FindNodesResponse { Nodes = foundNodes.Select(node => node.ToNodeInfo()).ToList() });
+            await context.SendResult(new FindNodesResponse
+            {
+                Nodes = foundNodes.Select(ObjectExplorerUtils.ConvertTreeNodeToNodeInfo).ToList()
+            });
         }
 
         internal void CloseSession(string uri)
@@ -366,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 response = new SessionCreatedParameters
                 {
                     Success = true,
-                    RootNode = session.Root.ToNodeInfo(),
+                    RootNode = ObjectExplorerUtils.ConvertTreeNodeToNodeInfo(session.Root),
                     SessionId = uri,
                     ErrorNumber = session.ErrorNumber,
                     ErrorMessage = session.ErrorMessage
@@ -457,14 +460,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken, securityToken?.Token, appliedFilters).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken, securityToken?.Token, appliedFilters).Select(x => ObjectExplorerUtils.ConvertTreeNodeToNodeInfo(x)).ToArray();
                                }
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
                                    try
                                    {
-                                       nodes = node.Expand(cancelToken, securityToken?.Token, appliedFilters).Select(x => x.ToNodeInfo()).ToArray();
+                                       nodes = node.Expand(cancelToken, securityToken?.Token, appliedFilters).Select(x => ObjectExplorerUtils.ConvertTreeNodeToNodeInfo(x)).ToArray();
                                    }
                                    catch (ConnectionFailureException ex)
                                    {

@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Given a server connection
             ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
             // When converting to NodeInfo
-            NodeInfo info = node.ToNodeInfo();
+            NodeInfo info = ObjectExplorerUtils.ConvertTreeNodeToNodeInfo(node);
             // Then all fields should match
             Assert.AreEqual(node.IsAlwaysLeaf, info.IsLeaf);
             Assert.AreEqual(node.Label, info.Label);

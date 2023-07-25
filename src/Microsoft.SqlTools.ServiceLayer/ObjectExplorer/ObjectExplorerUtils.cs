@@ -181,5 +181,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 IsDateTime = IsDateTime
             };
         }
+
+        
+        /// <summary>
+        /// Converts <see cref="TreeNode"/> to a <see cref="NodeInfo"/> object for serialization with just the relevant properties 
+        /// needed to identify the node
+        /// </summary>
+        public static NodeInfo ConvertTreeNodeToNodeInfo(TreeNode node)
+        {
+            return new NodeInfo()
+            {
+                IsLeaf = node.IsAlwaysLeaf,
+                Label = node.Label,
+                NodePath = node.GetNodePath(),
+                ParentNodePath = node.Parent?.GetNodePath() ?? "",
+                NodeType = node.NodeType,
+                Metadata = node.ObjectMetadata,
+                NodeStatus = node.NodeStatus,
+                NodeSubType = node.NodeSubType,
+                ErrorMessage = node.ErrorMessage,
+                ObjectType = node.NodeTypeId.ToString(),
+                FilterableProperties = node.FilterProperties
+            };
+        }
     }
 }

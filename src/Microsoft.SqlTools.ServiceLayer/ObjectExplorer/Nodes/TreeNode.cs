@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -219,28 +218,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return nodeForPath;
         }
 
-        /// <summary>
-        /// Converts to a <see cref="NodeInfo"/> object for serialization with just the relevant properties 
-        /// needed to identify the node
-        /// </summary>
-        /// <returns></returns>
-        public NodeInfo ToNodeInfo()
-        {
-            return new NodeInfo()
-            {
-                IsLeaf = this.IsAlwaysLeaf,
-                Label = this.Label,
-                NodePath = this.GetNodePath(),
-                ParentNodePath = this.Parent?.GetNodePath() ?? "",
-                NodeType = this.NodeType,
-                Metadata = this.ObjectMetadata,
-                NodeStatus = this.NodeStatus,
-                NodeSubType = this.NodeSubType,
-                ErrorMessage = this.ErrorMessage,
-                ObjectType = this.NodeTypeId.ToString(),
-                FilterableProperties = this.FilterProperties
-            };
-        }
 
         /// <summary>
         /// Expands this node and returns its children
