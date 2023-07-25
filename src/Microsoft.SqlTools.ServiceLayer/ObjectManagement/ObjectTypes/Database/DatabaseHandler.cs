@@ -927,7 +927,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
             foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
             {
-                var primaryValue = dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value;
+                // Options MAXDOP(Id = 1) and PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(Id = 25) are integer numbers but coming as string value type, need exclusion from the below conversion
+                var primaryValue = dsc.Id != 1 && dsc.Id != 25 ? (dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value) : dsc.Value;
                 dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
                 {
                     Name = dsc.Name,
