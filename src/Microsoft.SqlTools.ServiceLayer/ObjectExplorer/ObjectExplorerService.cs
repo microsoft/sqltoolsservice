@@ -445,17 +445,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    securityToken = null;
                                }
 
+                               var filterDefinitions = node.FilterProperties;
+                               var appliedFilters = new List<INodeFilter>();
+
+                               foreach (var f in filters)
+                               {
+                                   NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
+                                   appliedFilters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
+                               }
+
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                   nodes = node.Refresh(cancelToken, securityToken?.Token, appliedFilters).Select(x => x.ToNodeInfo()).ToArray();
                                }
                                else
                                {
                                    Logger.Verbose($"Expanding {nodePath}");
                                    try
                                    {
-                                       nodes = node.Expand(cancelToken, securityToken?.Token, filters).Select(x => x.ToNodeInfo()).ToArray();
+                                       nodes = node.Expand(cancelToken, securityToken?.Token, appliedFilters).Select(x => x.ToNodeInfo()).ToArray();
                                    }
                                    catch (ConnectionFailureException ex)
                                    {
