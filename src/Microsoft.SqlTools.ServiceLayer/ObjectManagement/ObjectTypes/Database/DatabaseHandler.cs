@@ -931,6 +931,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var primaryValue = dsc.Id != 1 && dsc.Id != 25 ? (dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value) : dsc.Value;
                 dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
                 {
+                    Id = dsc.Id,
                     Name = dsc.Name,
                     ValueForPrimary = primaryValue,
                     ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary ? primaryValue : dsc.ValueForSecondary

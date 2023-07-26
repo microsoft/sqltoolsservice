@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class DatabaseScopedConfigurationsInfo
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string ValueForPrimary { get; set; }
         public string ValueForSecondary { get; set; }
