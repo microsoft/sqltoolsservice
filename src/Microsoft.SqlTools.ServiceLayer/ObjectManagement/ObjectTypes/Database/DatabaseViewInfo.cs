@@ -9,11 +9,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     public class DatabaseViewInfo : SqlObjectViewInfo
     {
-        public string[] LoginNames { get; set; }
-        public string[] CollationNames { get; set; }
-        public string[] CompatibilityLevels { get; set; }
-        public string[] ContainmentTypes { get; set; }
-        public string[] RecoveryModels { get; set; }
+        public OptionsCollection LoginNames { get; set; }
+        public OptionsCollection CollationNames { get; set; }
+        public OptionsCollection CompatibilityLevels { get; set; }
+        public OptionsCollection ContainmentTypes { get; set; }
+        public OptionsCollection RecoveryModels { get; set; }
         public DatabaseFile[] Files { get; set; }
 
         public bool IsAzureDB { get; set; }
@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
     public class AzureEditionDetails
     {
         public string EditionDisplayName { get; set; }
-        public string[] Details { get; set; }
+        public OptionsCollection EditionOptions { get; set; }
     }
 
     public class DatabaseFile
@@ -37,5 +37,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Type { get; set; }
         public string Path { get; set; }
         public string FileGroup { get; set; }
+    }
+
+    public class OptionsCollection {
+        public string[] Options { get; set; }
+        public int DefaultValueIndex { get; set; }
     }
 }

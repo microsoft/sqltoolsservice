@@ -187,10 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public void GetAzureServiceLevelObjectivesTest()
         {
-            var actualLevelsMap = new Dictionary<string, string[]>();
+            var actualLevelsMap = new Dictionary<string, OptionsCollection>();
             foreach (AzureEditionDetails serviceDetails in DatabaseHandler.AzureServiceLevels)
             {
-                actualLevelsMap.Add(serviceDetails.EditionDisplayName, serviceDetails.Details);
+                actualLevelsMap.Add(serviceDetails.EditionDisplayName, serviceDetails.EditionOptions);
             }
 
             var expectedDefaults = new Dictionary<AzureEdition, string>()
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
                     var expectedDefaultIndex = expectedLevelInfo.Key;
                     var expectedDefault = expectedServiceLevels[expectedDefaultIndex];
-                    var actualDefault = actualServiceLevels[0];
+                    var actualDefault = actualServiceLevels.Options[actualServiceLevels.DefaultValueIndex];
                     Assert.That(actualDefault, Is.EqualTo(expectedDefault), "Did not get expected default SLO for edition '{0}'", edition.DisplayName);
                 }
                 else
@@ -226,10 +226,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public void GetAzureMaxSizesTest()
         {
-            var actualSizesMap = new Dictionary<string, string[]>();
+            var actualSizesMap = new Dictionary<string, OptionsCollection>();
             foreach (AzureEditionDetails sizeDetails in DatabaseHandler.AzureMaxSizes)
             {
-                actualSizesMap.Add(sizeDetails.EditionDisplayName, sizeDetails.Details);
+                actualSizesMap.Add(sizeDetails.EditionDisplayName, sizeDetails.EditionOptions);
             }
 
             var expectedDefaults = new Dictionary<AzureEdition, string>()
@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 
                     var expectedDefaultIndex = expectedSizeInfo.Key;
                     var expectedDefault = expectedSizes[expectedDefaultIndex];
-                    var actualDefault = actualSizes[0];
+                    var actualDefault = actualSizes.Options[actualSizes.DefaultValueIndex];
                     Assert.That(actualDefault, Is.EqualTo(expectedDefault.ToString()), "Did not get expected default size for edition '{0}'", edition.DisplayName);
                 }
                 else
