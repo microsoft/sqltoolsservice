@@ -239,14 +239,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             {
                                 logins.Add(login.Name);
                             }
-                            // If we don't have a default database owner, then move the current login to the front of the list to use as the default.
-                            string firstOwner = prototype.Exists ? prototype.Owner : dataContainer.Server.ConnectionContext.TrueLogin;
-                            int defaultIndex = logins.FindIndex(login => login.Equals(firstOwner, StringComparison.InvariantCultureIgnoreCase));
-                            if (defaultIndex < 0) {
-                                defaultIndex = 0;
-                            }
+                            // Add <default> to the start of the list in addition to defined logins
+                            logins.Insert(0, SR.general_default);
 
-                            databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = defaultIndex };
+                            databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
                         }
 
                         return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
@@ -421,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null && viewParams.IsNewObject)
+                        if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
                         {
                             prototype.Owner = database.Owner;
                         }
