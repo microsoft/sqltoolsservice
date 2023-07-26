@@ -173,7 +173,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
 
-                                    if (prototype is DatabasePrototype160) {
+                                    if (prototype is DatabasePrototype160)
+                                    {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     }
                                 }
@@ -452,7 +453,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         if (prototype is DatabasePrototype110 db110)
                         {
-                            if (database.TargetRecoveryTimeInSec != null) {
+                            if (database.TargetRecoveryTimeInSec != null)
+                            {
                                 db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
                             }
 
@@ -530,32 +532,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private OptionsCollection GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
-            var collationItems = new List<string>();
-            bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
-
-            // if the server is shiloh or later, add specific collations to the list
-            if (!isSphinxServer)
+            // Writable collations are not supported for Sphinx and earlier
+            if (server.VersionMajor < minimumVersionForWritableCollation)
             {
-                DataTable serverCollationsTable = server.EnumCollations();
+                return options;
+            }
+
+            using (DataTable serverCollationsTable = server.EnumCollations())
+            {
                 if (serverCollationsTable != null)
                 {
+                    var collationItems = new List<string>();
                     foreach (DataRow serverCollation in serverCollationsTable.Rows)
                     {
                         string collationName = (string)serverCollation["Name"];
                         collationItems.Add(collationName);
                     }
+
+                    // If this database already exists, then use its collation as the default value.
+                    // Otherwise use the server's collation as the default value.
+                    string firstCollation = prototype.Exists ? prototype.Collation : server.Collation;
+                    int defaultIndex = collationItems.FindIndex(collation => collation.Equals(firstCollation, StringComparison.InvariantCultureIgnoreCase));
+                    if (defaultIndex > 0)
+                    {
+                        options.DefaultValueIndex = defaultIndex;
+                    }
+                    options.Options = collationItems.ToArray();
                 }
             }
 
-            // If this database already exists, then use its collation as the default value.
-            // Otherwise use the server's collation as the default value.
-            string firstCollation = prototype.Exists ? prototype.Collation : server.Collation;
-            int defaultIndex = collationItems.FindIndex(collation => collation.Equals(firstCollation, StringComparison.InvariantCultureIgnoreCase));
-            if (defaultIndex > 0)
-            {
-                options.DefaultValueIndex = defaultIndex;
-            }
-            options.Options = collationItems.ToArray();
             return options;
         }
 
