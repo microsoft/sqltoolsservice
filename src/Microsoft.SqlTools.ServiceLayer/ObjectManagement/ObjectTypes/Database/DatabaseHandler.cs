@@ -526,7 +526,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database collations for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the collations. The first element will be "<default>" if this is either a new database or a Sphinx server.
+        /// <returns>An <see cref="OptionsCollection"/> of the supported collations and the default collation's index.</returns>
         private OptionsCollection GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
             var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
@@ -562,6 +562,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Gets the prototype's current collation.
         /// </summary>
+        /// <returns>An <see cref="OptionsCollection"/> of the prototype's collation and the default collation's index.</returns>
         private OptionsCollection GetCollationsWithPrototypeCollation(DatabasePrototype prototype)
         {
             return new OptionsCollection() { Options = new string[] { prototype.Collation }, DefaultValueIndex = 0 };
@@ -570,7 +571,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database containment types for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the containment types. This array is empty if containment types are not supported for this server.</returns>
+        /// <returns>An <see cref="OptionsCollection"/> of the supported containment types and the default containment type's index.</returns>
         private OptionsCollection GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
             var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
@@ -593,7 +594,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             containmentTypes.Add(displayContainmentTypes[ContainmentType.None]);
             containmentTypes.Add(displayContainmentTypes[ContainmentType.Partial]);
 
-            // Put the prototype's current containment type at the front of the list
+            // Use the prototype's current containment type as the default value
             var defaultIndex = 0;
             switch (dbContainmentType)
             {
@@ -605,10 +606,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 default:
                     break;
             }
-            if (defaultIndex > 0)
-            {
-                options.DefaultValueIndex = defaultIndex;
-            }
+            options.DefaultValueIndex = defaultIndex;
             options.Options = containmentTypes.ToArray();
             return options;
         }
@@ -616,7 +614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database recovery models for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the recovery models. This array is empty if recovery models are not supported for this server.</returns>
+        /// <returns>An <see cref="OptionsCollection"/> of the supported recovery models and the default recovery model's index.</returns>
         private OptionsCollection GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
             var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
@@ -650,8 +648,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            // Put the prototype's current recovery model at the front of the list
-            if (recoveryModelEnabled)
+            // Use the prototype's current recovery model as the default value
+            if (recoveryModels.Count > 1)
             {
                 var defaultIndex = 0;
                 switch (prototype.RecoveryModel)
@@ -667,10 +665,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     default:
                         break;
                 }
-                if (defaultIndex > 0)
-                {
-                    options.DefaultValueIndex = defaultIndex;
-                }
+                options.DefaultValueIndex = defaultIndex;
             }
             options.Options = recoveryModels.ToArray();
             return options;
@@ -708,7 +703,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database compatibility levels for this Azure server.
         /// </summary>
-        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if the database has a compatibility level we don't recognize.</returns>
+        /// <returns>An <see cref="OptionsCollection"/> of the supported compatibility levels and the default compatibility level's index.</returns>
         private OptionsCollection GetCompatibilityLevelsAzure(DatabasePrototype prototype)
         {
             var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
@@ -732,7 +727,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database compatibility levels for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if this is either a Sphinx server or if the database has a compatibility level we don't recognize.</returns>
+        /// <returns>An <see cref="OptionsCollection"/> of the supported compatibility levels and the default compatibility level's index.</returns>
         private OptionsCollection GetCompatibilityLevels(int sqlServerVersion, DatabasePrototype prototype)
         {
             var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
@@ -809,7 +804,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     break;
             }
 
-            // set the first compatability level for this list based on the prototype
+            // set the default compatability level for this list based on the prototype
             for (var i = 0; i < compatibilityLevels.Count; i++)
             {
                 var level = compatibilityLevels[i];
