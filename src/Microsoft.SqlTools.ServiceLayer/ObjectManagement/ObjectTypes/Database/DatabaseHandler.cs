@@ -816,10 +816,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 var prototypeLevel = displayCompatLevels[prototype.DatabaseCompatibilityLevel];
                 if (level == prototypeLevel)
                 {
-                    if (i > 0)
-                    {
-                        options.DefaultValueIndex = i;
-                    }
+                    options.DefaultValueIndex = i;
                     options.Options = compatibilityLevels.ToArray();
                     return options;
                 }
