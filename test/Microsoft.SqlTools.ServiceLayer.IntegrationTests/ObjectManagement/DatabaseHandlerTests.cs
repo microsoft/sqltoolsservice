@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     var expectedServiceLevels = expectedLevelInfo.Value;
                     var actualServiceLevels = actualLevelsMap[edition.DisplayName];
-                    Assert.That(actualServiceLevels, Is.EquivalentTo(expectedServiceLevels), "Did not get expected SLO list for edition '{0}'", edition.DisplayName);
+                    Assert.That(actualServiceLevels.Options, Is.EquivalentTo(expectedServiceLevels), "Did not get expected SLO list for edition '{0}'", edition.DisplayName);
 
                     var expectedDefaultIndex = expectedLevelInfo.Key;
                     var expectedDefault = expectedServiceLevels[expectedDefaultIndex];
@@ -248,7 +248,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     var expectedSizes = expectedSizeInfo.Value.Select(size => size.ToString()).ToArray();
                     var actualSizes = actualSizesMap[edition.DisplayName];
-                    Assert.That(actualSizes, Is.EquivalentTo(expectedSizes), "Did not get expected size list for edition '{0}'", edition.DisplayName);
+                    Assert.That(actualSizes.Options, Is.EquivalentTo(expectedSizes), "Did not get expected size list for edition '{0}'", edition.DisplayName);
 
                     var expectedDefaultIndex = expectedSizeInfo.Key;
                     var expectedDefault = expectedSizes[expectedDefaultIndex];
