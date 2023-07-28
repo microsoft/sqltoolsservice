@@ -8317,8 +8317,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="databaseBackupDate_None">
-        <source>None </source>
-        <target state="new">None </target>
+        <source>None</source>
+        <target state="new">None</target>
         <note></note>
       </trans-unit>
       <trans-unit id="PropertyNotInitialized">
