@@ -34,9 +34,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             this.serverInfo = serverInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
-
-            this.context = new Lazy<SmoQueryContext>(CreateContext());
+            
             this.serverConnection = serverConnection;
+            this.context = new Lazy<SmoQueryContext>(CreateContext());
 
             NodeValue = serverInfo.ServerName;
             IsAlwaysLeaf = false;

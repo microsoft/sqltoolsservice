@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private ConnectionService connectionService;
         private IProtocolEndpoint serviceHost;
         private ConcurrentDictionary<string, ObjectExplorerSession> sessionMap;
-        private readonly Lazy<Dictionary<string, HashSet<ChildFactory>>> applicableNodeChildFactories;
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
@@ -63,7 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         public ObjectExplorerService()
         {
             sessionMap = new ConcurrentDictionary<string, ObjectExplorerSession>();
-            applicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(PopulateFactories);
             NodePathGenerator.Initialize();
         }
 
@@ -76,14 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             set
             {
                 this.bindingQueue = value;
-            }
-        }
-
-        private Dictionary<string, HashSet<ChildFactory>> ApplicableNodeChildFactories
-        {
-            get
-            {
-                return applicableNodeChildFactories.Value;
             }
         }
 
@@ -686,39 +676,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         internal static string GenerateUri(ConnectionDetails details)
         {
             return ConnectedBindingQueue.GetConnectionContextKey(details);
-        }
-
-        public IEnumerable<ChildFactory> GetApplicableChildFactories(TreeNode item)
-        {
-            if (ApplicableNodeChildFactories != null)
-            {
-                HashSet<ChildFactory> applicableFactories;
-                if (ApplicableNodeChildFactories.TryGetValue(item.NodeTypeId.ToString(), out applicableFactories))
-                {
-                    return applicableFactories;
-                }
-            }
-            return null;
-        }
-
-        internal Dictionary<string, HashSet<ChildFactory>> PopulateFactories()
-        {
-            VerifyServicesInitialized();
-
-            var childFactories = new Dictionary<string, HashSet<ChildFactory>>();
-            // Create our list of all NodeType to ChildFactory objects so we can expand appropriately
-            foreach (var factory in serviceProvider.GetServices<ChildFactory>())
-            {
-                var parents = factory.ApplicableParents();
-                if (parents != null)
-                {
-                    foreach (var parent in parents)
-                    {
-                        AddToApplicableChildFactories(childFactories, factory, parent);
-                    }
-                }
-            }
-            return childFactories;
         }
 
         private void VerifyServicesInitialized()
