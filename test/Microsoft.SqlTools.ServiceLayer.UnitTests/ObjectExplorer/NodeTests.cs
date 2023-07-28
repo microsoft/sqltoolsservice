@@ -37,6 +37,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
         private ServerConnection serverConnection = null;
 
+        private ObjectExplorerServerInfo oeServerInfo = null;
+
         [SetUp]
         public void InitNodeTests()
         {
@@ -57,6 +59,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 OwnerUri = defaultOwnerUri
             };
 
+            oeServerInfo = new ObjectExplorerServerInfo()
+            {
+                ServerName = defaultConnectionDetails.ServerName,
+                DatabaseName = defaultConnectionDetails.DatabaseName,
+                UserName = defaultConnectionDetails.UserName,
+                ServerVersion = defaultServerInfo.ServerVersion,
+                EngineEditionId = defaultServerInfo.EngineEditionId,
+                IsCloud = defaultServerInfo.IsCloud
+            };
+
             // TODO can all tests use the standard service provider?
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
         }
@@ -64,15 +76,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void ServerNodeConstructorValidatesFields()
         {
-            Assert.Throws<ArgumentNullException>(() => new ServerNode(null, ServiceProvider, serverConnection));
-            Assert.Throws<ArgumentNullException>(() => new ServerNode(defaultConnParams, null, serverConnection));
+            Assert.Throws<ArgumentNullException>(() => new ServerNode(null, serverConnection));
+            Assert.Throws<ArgumentNullException>(() => new ServerNode(oeServerInfo, serverConnection));
         }
 
         [Test]
         public void ServerNodeConstructorShouldSetValuesCorrectly()
         {
             // Given a server node with valid inputs
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
+            ServerNode node = new ServerNode(oeServerInfo, serverConnection);
             // Then expect all fields set correctly
             Assert.False(node.IsAlwaysLeaf, "Server node should never be a leaf");
             Assert.AreEqual(defaultConnectionDetails.ServerName, node.NodeValue);
@@ -104,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 OwnerUri = defaultOwnerUri
             };
             // When querying label
-            string label = new ServerNode(connParams, ServiceProvider, serverConnection).Label;
+            string label = new ServerNode(oeServerInfo, serverConnection).Label;
             // Then only server name and version shown
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + ")";
             Assert.AreEqual(expectedLabel, label);
@@ -116,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             defaultServerInfo.IsCloud = true;
 
             // Given a server node for a cloud DB, with master name
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
+            ServerNode node = new ServerNode(oeServerInfo, serverConnection);
             // Then expect label to not include db name
             string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ")";
@@ -125,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // But given a server node for a cloud DB that's not master
             defaultConnectionDetails.DatabaseName = "NotMaster";
             defaultConnParams.ConnectionSummary.DatabaseName = defaultConnectionDetails.DatabaseName;
-            node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
+            node = new ServerNode(oeServerInfo, serverConnection);
 
             // Then expect label to include db name 
             expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
@@ -137,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ToNodeInfoIncludeAllFields()
         {
             // Given a server connection
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, serverConnection);
+            ServerNode node = new ServerNode(oeServerInfo, serverConnection);
             // When converting to NodeInfo
             NodeInfo info = node.ToNodeInfo();
             // Then all fields should match
@@ -283,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: true);
             
-            SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
+            SmoQueryContext context = new SmoQueryContext(smoServer, wrapper.Object);
             
             // when I access the Server property
             Server actualServer = context.Server;
@@ -314,7 +326,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
             
-            SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
+            SmoQueryContext context = new SmoQueryContext(smoServer, wrapper.Object);
             
             // when I access the Server property
             Server actualServer = context.Server;
@@ -331,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
             
-            SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
+            SmoQueryContext context = new SmoQueryContext(smoServer, wrapper.Object);
             context.Parent = smoServer;
             // when I access the Parent property
             SmoObjectBase actualParent = context.Parent;
@@ -378,7 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private ServerNode SetupServerNodeWithCreator(SmoWrapper creator)
         {
-            ServerNode node = new ServerNode(defaultConnParams, ServiceProvider, new ServerConnection(new SqlConnection(fakeConnectionString)));
+            ServerNode node = new ServerNode(oeServerInfo, new ServerConnection(new SqlConnection(fakeConnectionString)));
             node.SmoWrapper = creator;
             return node;
         }

@@ -8,7 +8,6 @@
 using System;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
@@ -102,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <summary>
         /// Creates a server type from the server version
         /// </summary>
-        public static SqlServerType CalculateServerType(ServerInfo serverInfo)
+        public static SqlServerType CalculateServerType(ObjectExplorerServerInfo serverInfo)
         {
             string serverVersion = serverInfo.ServerVersion;
 

@@ -10,8 +10,6 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -23,28 +21,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     public class ServerNode : TreeNode
     {
-        private ConnectionSummary connectionSummary;
-        private ServerInfo serverInfo;
+        private ObjectExplorerServerInfo serverInfo;
         private Lazy<SmoQueryContext> context;
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         private ServerConnection serverConnection;
 
-        public ServerNode(ConnectionCompleteParams connInfo, IMultiServiceProvider serviceProvider, ServerConnection serverConnection)
+        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection)
             : base()
         {
-            Validate.IsNotNull(nameof(connInfo), connInfo);
-            Validate.IsNotNull("connInfo.ConnectionSummary", connInfo.ConnectionSummary);
-            Validate.IsNotNull(nameof(serviceProvider), serviceProvider);
+            Validate.IsNotNull(nameof(ObjectExplorerServerInfo), serverInfo);
 
-            this.connectionSummary = connInfo.ConnectionSummary;
-            this.serverInfo = connInfo.ServerInfo;
+            this.serverInfo = serverInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
-            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
+            this.context = new Lazy<SmoQueryContext>(CreateContext());
             this.serverConnection = serverConnection;
 
-            NodeValue = connectionSummary.ServerName;
+            NodeValue = serverInfo.ServerName;
             IsAlwaysLeaf = false;
             NodeType = NodeTypes.Server.ToString();
             NodeTypeId = NodeTypes.Server;
@@ -69,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         internal string GetConnectionLabel()
         {
-            string userName = connectionSummary.UserName;
+            string userName = serverInfo.UserName;
 
             // TODO Domain and username is not yet supported on .Net Core. 
             // Consider passing as an input from the extension where this can be queried
@@ -80,16 +74,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             // TODO Consider adding IsAuthenticatingDatabaseMaster check in the code and
             // referencing result here
-            if (!DatabaseUtils.IsSystemDatabaseConnection(connectionSummary.DatabaseName))
+            if (!DatabaseUtils.IsSystemDatabaseConnection(serverInfo.DatabaseName))
             {
                 // We either have an azure with a database specified or a Denali database using a contained user
                 if (string.IsNullOrWhiteSpace(userName))
                 {
-                    userName = connectionSummary.DatabaseName;
+                    userName = serverInfo.DatabaseName;
                 }
                 else
                 {
-                    userName += ", " + connectionSummary.DatabaseName;
+                    userName += ", " + serverInfo.DatabaseName;
                 }
             }
 
@@ -99,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 label = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0} ({1} {2})",
-                connectionSummary.ServerName,
+                serverInfo.ServerName,
                 "SQL Server",
                 serverInfo.ServerVersion);
             }
@@ -108,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 label = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0} ({1} {2} - {3})",
-                connectionSummary.ServerName,
+                serverInfo.ServerName,
                 "SQL Server",
                 serverInfo.ServerVersion,
                 userName);
@@ -117,18 +111,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return label;
         }
 
-       
 
-        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
+
+        private SmoQueryContext CreateContext()
         {
             string exceptionMessage;
-   
+
             try
             {
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new SmoQueryContext(server, serviceProvider, SmoWrapper)
+                    return new SmoQueryContext(server, SmoWrapper)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType

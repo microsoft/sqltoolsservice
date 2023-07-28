@@ -535,7 +535,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, serviceProvider, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -824,21 +824,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal class ObjectExplorerSession
         {
-            private ConnectionService connectionService;
-            private IMultiServiceProvider serviceProvider;
-
             // TODO decide whether a cache is needed to handle lookups in elements with a large # children
             //private const int Cachesize = 10000;
             //private Cache<string, NodeMapping> cache;
 
-            public ObjectExplorerSession(string uri, TreeNode root, IMultiServiceProvider serviceProvider, ConnectionService connectionService)
+            public ObjectExplorerSession(string uri, TreeNode root)
             {
                 Validate.IsNotNullOrEmptyString("uri", uri);
                 Validate.IsNotNull("root", root);
                 Uri = uri;
                 Root = root;
-                this.serviceProvider = serviceProvider;
-                this.connectionService = connectionService;
             }
 
             public string Uri { get; private set; }
@@ -850,10 +845,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, IMultiServiceProvider serviceProvider, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
             {
-                ServerNode rootNode = new ServerNode(response, serviceProvider, serverConnection);
-                var session = new ObjectExplorerSession(response.OwnerUri, rootNode, serviceProvider, serviceProvider.GetService<ConnectionService>());
+                ServerNode rootNode = new ServerNode(new ObjectExplorerServerInfo(){
+                    ServerName = response.ConnectionSummary.ServerName,
+                    DatabaseName = response.ConnectionSummary.DatabaseName,
+                    UserName = response.ConnectionSummary.UserName,
+                    ServerVersion = response.ServerInfo.ServerVersion,
+                    EngineEditionId = response.ServerInfo.EngineEditionId,
+                    IsCloud = response.ServerInfo.IsCloud,
+                }, serverConnection);
+                var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
                 if (!isDefaultOrSystemDatabase)
                 {
                     // Assuming the databases are in a folder under server node

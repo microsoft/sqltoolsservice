@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Extensibility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -325,6 +326,49 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
+        private static Lazy<Dictionary<string, HashSet<ChildFactory>>> ApplicableNodeChildFactories;
+
+        static void PopulateFactories()
+        {
+            var factories = new Dictionary<string, HashSet<ChildFactory>>();
+
+            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+
+            foreach (var factory in serviceProvider.GetServices<ChildFactory>())
+            {
+                var parents = factory.ApplicableParents();
+                if (parents != null)
+                {
+                    foreach (var parent in parents)
+                    {
+                        HashSet<ChildFactory> applicableFactories;
+                        if (!factories.TryGetValue(parent, out applicableFactories))
+                        {
+                            applicableFactories = new HashSet<ChildFactory>();
+                            factories[parent] = applicableFactories;
+                        }
+                        applicableFactories.Add(factory);
+                    }
+                }
+            }
+            ApplicableNodeChildFactories = new Lazy<Dictionary<string, HashSet<ChildFactory>>>(factories);
+        }
+
+        public IEnumerable<ChildFactory> GetApplicableChildFactories()
+        {
+            if (TreeNode.ApplicableNodeChildFactories == null)
+            {
+                TreeNode.PopulateFactories();
+            }
+
+            HashSet<ChildFactory> applicableFactories;
+            if (ApplicableNodeChildFactories.Value.TryGetValue(NodeTypeId.ToString(), out applicableFactories))
+            {
+                return applicableFactories;
+            }
+            return null;
+        }
+
         protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<NodeFilter>? filters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
@@ -347,7 +391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             try
             {
                 ErrorMessage = null;
-                IEnumerable<ChildFactory> childFactories = context.GetObjectExplorerService().GetApplicableChildFactories(this);
+                IEnumerable<ChildFactory> childFactories = this.GetApplicableChildFactories();
                 if (childFactories != null)
                 {
                     foreach (var factory in childFactories)

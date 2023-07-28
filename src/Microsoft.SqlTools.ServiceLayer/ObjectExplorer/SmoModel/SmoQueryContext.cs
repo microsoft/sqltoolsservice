@@ -5,9 +5,7 @@
 
 #nullable disable
 
-using System;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -27,15 +25,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider)
-            : this(server, serviceProvider, null)
+        public SmoQueryContext(Server server)
+            : this(server, null)
         {
         }
 
-        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        internal SmoQueryContext(Server server, SmoWrapper serverManager)
         {
             this.server = server;
-            ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
 
@@ -86,12 +83,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// A query loader that can be used to find <see cref="SmoQuerier"/> objects
-        /// for specific SMO types
-        /// </summary>
-        public IMultiServiceProvider ServiceProvider { get; private set; }
-
-        /// <summary>
         /// Helper method to cast a parent to a specific type
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -103,33 +94,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
-        /// Gets the <see cref="ObjectExplorerService"/> if available, by looking it up
-        /// from the <see cref="ServiceProvider"/>
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if the <see cref="ServiceProvider"/> is not set or the <see cref="ObjectExplorerService"/>
-        /// isn't available from that provider
-        /// </exception>
-        public ObjectExplorerService GetObjectExplorerService()
-        {
-            if (ServiceProvider == null)
-            {
-                throw new InvalidOperationException(SR.ServiceProviderNotSet);
-            }
-
-            return ServiceProvider.GetService<ObjectExplorerService>()
-                ?? throw new InvalidOperationException(SR.ServiceNotFound(nameof(ObjectExplorerService)));
-        }
-
-        /// <summary>
         /// Copies the context for use by another node
         /// </summary>
         /// <param name="parent">New Parent to set</param>
         /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
         public SmoQueryContext CopyWithParent(SmoObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper)
+            SmoQueryContext context = new SmoQueryContext(this.Server, this.smoWrapper)
             {
                 database = this.Database,
                 Parent = parent,
