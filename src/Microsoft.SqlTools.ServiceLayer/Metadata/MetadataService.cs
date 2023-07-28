@@ -57,7 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetRequestHandler(AllServerMetadataRequest.Type, HandleGetAllServerMetadataRequest, true);
+            serviceHost.SetRequestHandler(GenerateServerMetadataRequest.Type, HandleGenerateServerMetadataRequest, true);
+            serviceHost.SetRequestHandler(GetServerMetadataRequest.Type, HandleGetServerMetadataRequest, true);
         }
 
         /// <summary>
@@ -119,57 +120,90 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Handles the request for getting all server metadata
+        /// Handles the request for generating all server metadata
         /// </summary>
-        internal static async Task HandleGetAllServerMetadataRequest(AllServerMetadataParams metadataParams,
-            RequestContext<AllServerMetadataResult> requestContext)
+        internal static async Task HandleGenerateServerMetadataRequest(GenerateServerMetadataParams metadataParams,
+            RequestContext<GenerateServerMetadataResult> requestContext)
         {
             StringCollection scripts = null;
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
 
             if (connectionInfo != null)
             {
-                scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
-                if (scripts.Count != 0)
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
                 {
-                    await requestContext.SendResult(new AllServerMetadataResult
+                    try
                     {
-                        Scripts = scripts.ToString()
-                    });
-                }
-                else
-                {
-                    using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionInfo, "metadata"))
-                    {
-                        try
+                        scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
+                        if (scripts != null)
                         {
-                            scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
-                            if (scripts != null)
+                            try
                             {
                                 MetadataScriptCacher.WriteToCache(connectionInfo.ConnectionDetails.ServerName, scripts);
-                                await requestContext.SendResult(new AllServerMetadataResult
+                                await requestContext.SendResult(new GenerateServerMetadataResult
                                 {
-                                    Scripts = scripts.ToString()
+                                    Success = true
                                 });
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                Logger.Error($"Failed to generate server scripts");
-                                await requestContext.SendError("Unable to generate scripts for server");
+                                Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
+                                await requestContext.SendError(ex);
                             }
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            Logger.Error($"An error was encountered during the script generation process. Error ${ex.Message}");
-                            await requestContext.SendError(ex);
+                            Logger.Error("Failed to generate server scripts");
+                            await requestContext.SendError("Unable to generate scripts for server");
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"An error was encountered during the script generation process. Error: {ex.Message}");
+                        await requestContext.SendError(ex);
                     }
                 }
             }
             else
             {
-                Logger.Error("Failed to establish connection to server.");
-                await requestContext.SendError("Failed to establish connection to server.");
+                Logger.Error("Failed to find connection info about the server.");
+                await requestContext.SendError("Failed to find connection info about the server.");
+            }
+        }
+
+        /// <summary>
+        /// Handles the request for getting all server metadata
+        /// </summary>
+        internal static async Task HandleGetServerMetadataRequest(GetServerMetadataParams metadataParams,
+            RequestContext<GetServerMetadataResult> requestContext)
+        {
+            StringCollection scripts = null;
+            MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
+
+            if (connectionInfo != null)
+            {
+                try
+                {
+                    scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
+                    if (scripts.Count != 0)
+                    {
+                        await requestContext.SendResult(new GetServerMetadataResult
+                        {
+                            Success = true,
+                            Scripts = scripts.ToString()
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Failed to read scripts from the script cache");
+                    await requestContext.SendError(ex);
+                }
+            }
+            else
+            {
+                Logger.Error("Failed to find connection info about the server.");
+                await requestContext.SendError("Failed to find connection info about the server.");
             }
         }
 

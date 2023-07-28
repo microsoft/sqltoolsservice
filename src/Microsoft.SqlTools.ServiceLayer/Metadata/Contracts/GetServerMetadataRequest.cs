@@ -7,19 +7,20 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {
-    public class AllServerMetadataParams
+    public class GetServerMetadataParams
     {
         public string OwnerUri { get; set; }
     }
 
-    public class AllServerMetadataResult
+    public class GetServerMetadataResult
     {
+        public bool Success { get; set; }
         public string Scripts { get; set; }
     }
 
-    public class AllServerMetadataRequest
+    public class GetServerMetadataRequest
     {
-        public static readonly RequestType<AllServerMetadataParams, AllServerMetadataResult> Type =
-            RequestType<AllServerMetadataParams, AllServerMetadataResult>.Create("metadata/allServerMetadata");
+        public static readonly RequestType<GetServerMetadataParams, GetServerMetadataResult> Type =
+            RequestType<GetServerMetadataParams, GetServerMetadataResult>.Create("metadata/getServerMetadata");
     }
 }

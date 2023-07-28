@@ -131,6 +131,34 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         }
 
         [Test]
+        public async Task VerifyGenerateAllServerMetadataRequest()
+        {
+            this.testTableName += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+
+            var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
+            var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
+
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            var requestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
+            requestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>())).Returns(Task.FromResult(new object()));
+
+            var generateServerMetadataParams = new GenerateServerMetadataParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            await MetadataService.HandleGenerateServerMetadataRequest(generateServerMetadataParams, requestContext.Object);
+
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
+            DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
+
+            requestContext.VerifyAll();
+        }
+
+        [Test]
         public async Task VerifyGetAllServerMetadataRequest()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
@@ -142,20 +170,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var requestContext = new Mock<RequestContext<AllServerMetadataResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<AllServerMetadataResult>())).Returns(Task.FromResult(new object()));
+            var generateRequestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
+            generateRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>())).Returns(Task.FromResult(new object()));
 
-            var allServerMetadataParams = new AllServerMetadataParams
+            var generateServerMetadataParams = new GenerateServerMetadataParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGetAllServerMetadataRequest(allServerMetadataParams, requestContext.Object);
-
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            requestContext.VerifyAll();
+            var getMetadataRequestContext = new Mock<RequestContext<GetServerMetadataResult>>();
+            getMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerMetadataResult>())).Returns(Task.FromResult(new object()));
+
+            var getServerMetadataParams = new GetServerMetadataParams
+            {
+                OwnerUri = connectionResult.ConnectionInfo.OwnerUri
+            };
+
+            await MetadataService.HandleGetServerMetadataRequest(getServerMetadataParams, getMetadataRequestContext.Object);
+
+            getMetadataRequestContext.VerifyAll();
         }
 
         [Test]
