@@ -4379,7 +4379,7 @@
     <value>만든 날짜</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>특정 날짜에 생성된 개체를 포함하거나 제외하려면 만든 날짜를 선택 또는 입력하고, 특정 날짜를 포함하는 날짜 범위 내에서 생성된 개체를 포함하거나 제외하려면 시작 및 종료 날짜를 입력하십시오.</value>
+    <value>만든 날짜에 따라 개체를 포함하거나 제외합니다.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
     <value>고유하게 컴파일됨</value>
@@ -5055,5 +5055,17 @@
   </data>
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>하이퍼스케일</value>
+  </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>없음</value>
+  </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>'{0}' 속성이 초기화 전에 설정되었습니다.</value>
+  </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>'{0}' 데이터베이스에서 CREATE TABLE 권한이 거부되었습니다.</value>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>'{0}' 테이블에 대한 ALTER TABLE 권한이 거부되었습니다.</value>
   </data>
 </root>

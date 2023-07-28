@@ -7188,8 +7188,8 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">Sélectionnez ou tapez une date de création pour inclure ou exclure des objets créés à n'importe quelle heure à cette date, ou entrez une date de début et une date de fin pour inclure ou exclure les objets créés dans cette plage de dates inclusive.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">Incluez ou excluez des objets en fonction de leur date de création.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8315,6 +8315,28 @@ Le processeur de requêtes estime que l'implémentation de l'index suivant peut 
         <source>Hyperscale</source>
         <target state="translated">Hyperscale</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">Aucun</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="translated">La propriété '{0}' a été définie avant l’initialisation.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">CREATE TABLE autorisation refusée dans la base de données «{0}».</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">Autorisation ALTER TABLE refusée pour la table «{0}».</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
       </trans-unit>
     </body>
   </file>

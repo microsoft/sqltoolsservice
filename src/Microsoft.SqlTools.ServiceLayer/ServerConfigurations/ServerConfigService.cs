@@ -23,6 +23,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
     {
         private ConnectionService connectionService = null;
         private static readonly Lazy<ServerConfigService> instance = new Lazy<ServerConfigService>(() => new ServerConfigService());
+        public readonly int MaxServerMemoryPropertyNumber = 1544;
+        public readonly int MinServerMemoryPropertyNumber = 1543;
 
         /// <summary>
         /// Gets the singleton instance object
@@ -175,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         public void UpdateConfig(ServerConnection serverConnection, int configNumber, int configValue)
         {
             Server server = new Server(serverConnection);
-            ConfigProperty serverConfig = GetSmoConfig(server, configNumber);
+            ConfigProperty serverConfig = GetServerSmoConfig(server, configNumber);
 
             if (serverConfig != null)
             {
@@ -203,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         private ServerConfigProperty GetConfig(ServerConnection serverConnection, int configNumber)
         {
             Server server = new Server(serverConnection);
-            ConfigProperty serverConfig = GetSmoConfig(server, configNumber);
+            ConfigProperty serverConfig = GetServerSmoConfig(server, configNumber);
             return serverConfig != null ? ServerConfigProperty.ToServerConfigProperty(serverConfig) : null;
         }
 
@@ -218,7 +220,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
             return list;
         }
 
-        private ConfigProperty GetSmoConfig(Server server, int configNumber)
+        public ConfigProperty GetServerSmoConfig(Server server, int configNumber)
         {
             try
             {

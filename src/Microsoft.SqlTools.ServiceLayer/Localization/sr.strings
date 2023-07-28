@@ -2451,6 +2451,8 @@ HashIndexMustHaveBucketCountRuleDescription(string indexName) = Hash index '{0}'
 ColumnCanOnlyAppearOnceInNonClusteredColumnStoreIndexRuleDescription(string columnName, string indexName, int rowNumber) = Column with name '{0}' has already been added to the non-clustered columnstore index '{1}'. Row number: {2}.
 NonClusteredColumnStoreIndexMustHaveColumnsRuleDescription(string indexName) = Non-clustered columnstore index '{0}' does not have any columns associated with it.
 TableDesignerConfirmationText = I have read the summary and understand the potential risks.
+TableDesignerCreateTablePermissionDenied(string db) = CREATE TABLE permission denied in database '{0}'.
+TableDesignerAlterTablePermissionDenied(string table) = ALTER TABLE permission denied for table '{0}'.
 
 ############################################################################
 # TSql Model
@@ -2800,6 +2802,7 @@ general_containmentType_None = None
 general_containmentType_Partial = Partial
 filegroups_filestreamFiles = FILESTREAM Files
 prototype_file_noApplicableFileGroup = No Applicable Filegroup
+databaseBackupDate_None = None
 
 ############################################################################
 # Azure SQL DB
@@ -2812,3 +2815,9 @@ GeneralPurposeAzureEdition = General Purpose
 BusinessCriticalAzureEdition = Business Critical
 ErrorInvalidEdition = Edition value is not valid
 HyperscaleAzureEdition = Hyperscale
+
+#############################################################################
+# Server Properties
+
+############################################################################
+PropertyNotInitialized(string propertyName) = Property '{0}' was set before initialization.

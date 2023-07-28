@@ -7188,8 +7188,8 @@ The Query Processor estimates that implementing the following index could improv
         <note></note>
       </trans-unit>
       <trans-unit id="FilterCreateDateDescription">
-        <source>Select or type a creation date to include or exclude objects created at any time on that date, or enter a starting and ending date to include or exclude objects created in that inclusive date range.</source>
-        <target state="translated">특정 날짜에 생성된 개체를 포함하거나 제외하려면 만든 날짜를 선택 또는 입력하고, 특정 날짜를 포함하는 날짜 범위 내에서 생성된 개체를 포함하거나 제외하려면 시작 및 종료 날짜를 입력하십시오.</target>
+        <source>Include or exclude objects based on their creation date.</source>
+        <target state="translated">만든 날짜에 따라 개체를 포함하거나 제외합니다.</target>
         <note></note>
       </trans-unit>
       <trans-unit id="FilterIsNativelyCompiled">
@@ -8315,6 +8315,28 @@ The Query Processor estimates that implementing the following index could improv
         <source>Hyperscale</source>
         <target state="translated">하이퍼스케일</target>
         <note></note>
+      </trans-unit>
+      <trans-unit id="databaseBackupDate_None">
+        <source>None</source>
+        <target state="translated">없음</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="PropertyNotInitialized">
+        <source>Property '{0}' was set before initialization.</source>
+        <target state="translated">'{0}' 속성이 초기화 전에 설정되었습니다.</target>
+        <note>.
+ Parameters: 0 - propertyName (string) </note>
+      </trans-unit>
+      <trans-unit id="TableDesignerCreateTablePermissionDenied">
+        <source>CREATE TABLE permission denied in database '{0}'.</source>
+        <target state="translated">'{0}' 데이터베이스에서 CREATE TABLE 권한이 거부되었습니다.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="TableDesignerAlterTablePermissionDenied">
+        <source>ALTER TABLE permission denied for table '{0}'.</source>
+        <target state="translated">'{0}' 테이블에 대한 ALTER TABLE 권한이 거부되었습니다.</target>
+        <note>.
+ Parameters: 0 - table (string) </note>
       </trans-unit>
     </body>
   </file>

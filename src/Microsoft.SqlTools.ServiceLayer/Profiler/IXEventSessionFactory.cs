@@ -24,5 +24,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         /// Creates an XEvent session with the given create statement and name
         /// </summary>
         IXEventSession CreateXEventSession(string createStatement, string sessionName, ConnectionInfo connInfo);
+
+        /// <summary>
+        /// Opens a session whose events are streamed from a local XEL file
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        IXEventSession OpenLocalFileSession(string filePath);
     }
 }

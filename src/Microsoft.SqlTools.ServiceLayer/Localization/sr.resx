@@ -5440,6 +5440,16 @@ The Query Processor estimates that implementing the following index could improv
     <value>I have read the summary and understand the potential risks.</value>
     <comment></comment>
   </data>
+  <data name="TableDesignerCreateTablePermissionDenied" xml:space="preserve">
+    <value>CREATE TABLE permission denied in database &apos;{0}&apos;.</value>
+    <comment>.
+ Parameters: 0 - db (string) </comment>
+  </data>
+  <data name="TableDesignerAlterTablePermissionDenied" xml:space="preserve">
+    <value>ALTER TABLE permission denied for table &apos;{0}&apos;.</value>
+    <comment>.
+ Parameters: 0 - table (string) </comment>
+  </data>
   <data name="SqlProjectModelNotFound" xml:space="preserve">
     <value>Could not find SQL model from project: {0}.</value>
     <comment>.
@@ -6756,6 +6766,10 @@ The Query Processor estimates that implementing the following index could improv
     <value>No Applicable Filegroup</value>
     <comment></comment>
   </data>
+  <data name="databaseBackupDate_None" xml:space="preserve">
+    <value>None</value>
+    <comment></comment>
+  </data>
   <data name="BasicAzureEdition" xml:space="preserve">
     <value>Basic</value>
     <comment></comment>
@@ -6787,5 +6801,10 @@ The Query Processor estimates that implementing the following index could improv
   <data name="HyperscaleAzureEdition" xml:space="preserve">
     <value>Hyperscale</value>
     <comment></comment>
+  </data>
+  <data name="PropertyNotInitialized" xml:space="preserve">
+    <value>Property &apos;{0}&apos; was set before initialization.</value>
+    <comment>.
+ Parameters: 0 - propertyName (string) </comment>
   </data>
 </root>
