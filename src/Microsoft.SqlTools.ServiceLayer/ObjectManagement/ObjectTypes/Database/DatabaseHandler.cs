@@ -49,6 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         internal static readonly string[] DscEnableDisableOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
+        internal DatabaseScopedConfigurationCollection? databaseScopedConfigurationsCollection = null;
 
         static DatabaseHandler()
         {
@@ -202,6 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     }
                                 }
+                                databaseScopedConfigurationsCollection = smoDatabase.DatabaseScopedConfigurations;
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -493,6 +495,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             if (database.ContainmentType != null)
                             {
                                 db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                            }
+                        }
+                        if (prototype is DatabasePrototype130 db130)
+                        {
+                            if (databaseScopedConfigurationsCollection != null)
+                            {
+                                foreach (DatabaseScopedConfigurationsInfo dsc in database.DatabaseScopedConfigurations)
+                                {
+                                    foreach (DatabaseScopedConfiguration smoDscCollection in databaseScopedConfigurationsCollection)
+                                    {
+                                        if (smoDscCollection.Name == dsc.Name)
+                                        {
+                                            smoDscCollection.Value = dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
+                                                ? "1" : dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+                                                ? "0" : dsc.ValueForPrimary;
+                                            smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
+                                                    ? "1" : dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+                                                    ? "0" : dsc.ValueForSecondary;
+                                            break;
+                                        }
+                                    }
+                                }
+                                db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
                             }
                         }
 

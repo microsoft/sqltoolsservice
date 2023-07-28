@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// <summary>
     /// Database properties for SqlServer 2017
     /// </summary>
-    internal class DatabasePrototype140 : DatabasePrototype110
+    internal class DatabasePrototype140 : DatabasePrototype130
     {
         /// <summary>
         /// Database properties for SqlServer 2017 class constructor
