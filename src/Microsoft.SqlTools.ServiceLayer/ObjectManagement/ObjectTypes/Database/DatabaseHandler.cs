@@ -187,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations)
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations): null
                                 };
 
                                 if (!isManagedInstance)
@@ -204,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     }
                                 }
-                                databaseScopedConfigurationsCollection = smoDatabase.DatabaseScopedConfigurations;
+                                databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;

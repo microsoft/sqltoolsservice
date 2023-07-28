@@ -48,6 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     db.DatabaseScopedConfigurations[i].Value = this.currentState.databaseScopedConfigurations[i].Value;
                 }
+
                 // Below propertiesoption does not allow updates for the secondaries replica while this option is only allowed to be set for the primary.
                 // ELEVATE_ONLINE(11), ELEVATE_RESUMABLE(12), GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21), IDENTITY_CACHE(6), PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
                 if (db.DatabaseScopedConfigurations[i].ValueForSecondary != this.currentState.databaseScopedConfigurations[i].ValueForSecondary

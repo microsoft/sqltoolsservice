@@ -557,6 +557,11 @@ WHERE do.database_id = @DbID
                     this.isLedger = db.IsLedger;
                 }
 
+                if (db.IsSupportedObject<DatabaseScopedConfiguration>())
+                {
+                    this.databaseScopedConfigurations = db.DatabaseScopedConfigurations;
+                }
+
                 //Only fill in the Azure properties when connected to an Azure server
                 if (context.Server.ServerType == DatabaseEngineType.SqlAzureDatabase)
                 {
