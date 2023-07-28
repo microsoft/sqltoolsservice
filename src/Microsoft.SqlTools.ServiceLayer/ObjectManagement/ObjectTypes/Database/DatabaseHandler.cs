@@ -506,9 +506,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                             smoDscCollection.Value = dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
                                                 ? "1" : dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
                                                 ? "0" : dsc.ValueForPrimary;
-                                            smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
-                                                    ? "1" : dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
-                                                    ? "0" : dsc.ValueForSecondary;
+
+                                            // seconday value needs to set back to 'PRIMARY' to avoid unnecessary script generation for few properties
+                                            if (!(smoDscCollection.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary &&
+                                                dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
+                                            {
+                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
+                                                            ? "1" : dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+                                                            ? "0" : dsc.ValueForSecondary;
+                                            }
                                             break;
                                         }
                                     }
