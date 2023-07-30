@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
@@ -36,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <param name="includeSystemObjects">include system objects</param>
         /// <param name="cancellationToken">cancellation token</param>
         /// <param name="filters">filters to apply</param>
-        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<NodeFilter>? filters);
+        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters);
 
         /// <summary>
         /// The list of filters that should be applied on the smo object list

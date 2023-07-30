@@ -12,7 +12,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Extensibility;
@@ -28,7 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return null;
         }
 
-        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<NodeFilter>? filters = null)
+        public override IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters = null)
         {
             List<TreeNode> allChildren = new List<TreeNode>();
 
@@ -113,7 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// </summary>
         /// <param name="allChildren">List to which nodes should be added</param>
         /// <param name="parent">Parent the nodes are being added to</param>
-        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, IEnumerable<NodeFilter>? appliedFilters = null)
+        protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, IEnumerable<INodeFilter>? appliedFilters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
@@ -146,14 +145,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Type = typeof(string),
                     Values = new List<object> { name },
                 });
-            }
-            if (appliedFilters != null)
-            {
-                foreach (var f in appliedFilters)
-                {
-                    NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
-                    filters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
-                }
             }
 
             foreach (var querier in queriers)
