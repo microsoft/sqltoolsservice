@@ -573,7 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 string xml = (currentNode as SqlQuerySpecification).Xml;
 
                 // Regular expression pattern to find the BoundObject part
-                string pattern = "(?<=BoundObject=\")(.*?)(?=\")";
+                string pattern = "(?<=BoundObject=\")(table.*?)(?=\")";
                 MatchCollection matches = Regex.Matches(xml, pattern);
 
                 string[] result = new string[matches.Count];
