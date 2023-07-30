@@ -518,54 +518,51 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
             SqlScript script = scriptDocumentInfo.ScriptParseInfo.ParseResult.Script;
 
-            string[] results = getObjectIdentification(script, position);
+            string result = getObjectIdentification(script, position);
 
-            if (results == null)
+            if (result == null)
             {
                 await requestContext.SendResult("");
                 return;
             }
-            if (results.ElementAt(0).Equals("Database")) {
+            if (result.Equals("Database"))
+            {
                 await requestContext.SendResult(wordToIdentify);
                 return;
             }
 
-            string table = results[results.Length - 1];
-            table = table.Substring(table.IndexOf(' ') + 1);
-            string baseIdentifier = table.Substring(table.LastIndexOf('.') + 1);
+            string label = result.Substring(result.IndexOf(' ') + 1);
+            string baseIdentifier = label.Substring(label.LastIndexOf('.') + 1);
 
-            // Columns
-            if (results.Length > 1)
+            // Table/ View
+            if (baseIdentifier.Equals(wordToIdentify))
             {
-                await requestContext.SendResult(table + "." + wordToIdentify);
+                await requestContext.SendResult(label);
                 return;
             }
             // Schema
-            if (!baseIdentifier.Equals(wordToIdentify))
+            if (label.Contains(wordToIdentify))
             {
-                await requestContext.SendResult(table.Substring(0, table.LastIndexOf('.')));
+                await requestContext.SendResult(label.Substring(0, label.LastIndexOf('.')));
                 return;
             }
-            // Table / View
-            if (results.Length == 1)
+            // Columns
+            else
             {
-                await requestContext.SendResult(table);
+                await requestContext.SendResult(label + "." + wordToIdentify);
                 return;
             }
-
-            await requestContext.SendResult("");
-            return;
         }
 
-        internal string[] getObjectIdentification(SqlCodeObject currentNode, Position position)
+        internal string getObjectIdentification(SqlCodeObject currentNode, Position position)
         {
             if (currentNode == null)
             {
                 return null;
             }
-            else if (currentNode is SqlUseStatement) 
+            else if (currentNode is SqlUseStatement)
             {
-                return new string[]{"Database"};
+                return "Database";
             }
             // Tables, Schemas, Views
             else if (currentNode is SqlQuerySpecification)
@@ -576,25 +573,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 string pattern = "(?<=BoundObject=\")(table.*?)(?=\")";
                 MatchCollection matches = Regex.Matches(xml, pattern);
 
-                string[] result = new string[matches.Count];
-
-                for (int i = 0; i < matches.Count; i++)
-                {
-                    result[i] = matches[i].Groups[1].Value;
-                }
-
-                // If there are multiple bound objects, this means that there are columns and tables
-                if (result.Length > 1)
-                {
-                    // The table is the object at the last position
-                    // Return it if the object we are looking for is that table, and not the columns
-                    if (containsPosition(currentNode.Children.ElementAt(1), position))
-                    {
-                        return new string[] { result[result.Length - 1] };
-                    }
-                }
-
-                return result;
+                return matches[0].Groups[1].Value;
             }
             else
             {
