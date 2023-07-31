@@ -23,7 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    /// <summary>
+    /// <summary>   
     /// Database object type handler
     /// </summary>
     public class DatabaseHandler : ObjectTypeHandler<DatabaseInfo, DatabaseViewContext>
@@ -507,7 +507,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                                 ? "1" : dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
                                                 ? "0" : dsc.ValueForPrimary;
 
-                                            // seconday value needs to set back to 'PRIMARY' to avoid unnecessary script generation for few properties
+                                            // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
+                                            // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
                                             if (!(smoDscCollection.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary &&
                                                 dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
                                             {
@@ -953,17 +954,40 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
             foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
             {
-                // Options MAXDOP(Id = 1) and PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(Id = 25) are integer numbers but coming as string value type, need exclusion from the below conversion
-                var primaryValue = dsc.Id != 1 && dsc.Id != 25 ? (dsc.Value == "1" ? SR.prototype_db_prop_databasescopedconfig_value_fail_enabled : dsc.Value == "0" ? SR.prototype_db_prop_databasescopedconfig_value_fail_disabled : dsc.Value) : dsc.Value;
+                string primaryValue = GetDscValue(dsc.Id, dsc.Value);
                 dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
                 {
                     Id = dsc.Id,
                     Name = dsc.Name,
                     ValueForPrimary = primaryValue,
-                    ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary ? primaryValue : dsc.ValueForSecondary
+                    ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary ? primaryValue : GetDscValue(dsc.Id, dsc.ValueForSecondary)
                 });
             }
             return dscMetaData.ToArray();
+        }
+
+        /// <summary>
+        /// Gets primary and secondary value of the database scoped configuration property
+        /// </summary>
+        /// <param name="dsc"></param>
+        /// <returns>Value of the primary/secondary</returns>
+        private string GetDscValue(int id, string value)
+        {
+            // MAXDOP(Id = 1) and PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(Id = 25) are integer numbers but coming as string value type and they need to send as is.
+            if (id == 1 || id == 25)
+            {
+                return value;
+            }
+
+            switch (value)
+            {
+                case "1":
+                    return SR.prototype_db_prop_databasescopedconfig_value_fail_enabled;
+                case "0":
+                    return SR.prototype_db_prop_databasescopedconfig_value_fail_disabled;
+                default:
+                    return value;
+            }
         }
     }
 }

@@ -42,17 +42,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             base.SaveProperties(db);
 
-            for(int i = 0; i < db.DatabaseScopedConfigurations.Count; i++)
+            // Properties that doen't support secondary value updates
+            // More info here: https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql?view=sql-server-ver16
+            var excludedPropertiesArray = new[] { 6, 11, 12, 21, 25 };
+
+            for (int i = 0; i < db.DatabaseScopedConfigurations.Count; i++)
             {
                 if (db.DatabaseScopedConfigurations[i].Value != this.currentState.databaseScopedConfigurations[i].Value)
                 {
                     db.DatabaseScopedConfigurations[i].Value = this.currentState.databaseScopedConfigurations[i].Value;
                 }
 
-                // Below propertiesoption does not allow updates for the secondaries replica while this option is only allowed to be set for the primary.
-                // ELEVATE_ONLINE(11), ELEVATE_RESUMABLE(12), GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21), IDENTITY_CACHE(6), PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
+                // The below configurations do not allow updates for the secondary replica - they are only applied to the primary.
+                // The excludedPropertiesArray containst the configurtation Ids of the below properties
+                // IDENTITY_CACHE(6)
+                // ELEVATE_ONLINE(11)
+                // ELEVATE_RESUMABLE(12)
+                // GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21)
+                // PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
                 if (db.DatabaseScopedConfigurations[i].ValueForSecondary != this.currentState.databaseScopedConfigurations[i].ValueForSecondary
-                    && !new[] { 6, 11, 12, 21, 25 }.Contains(db.DatabaseScopedConfigurations[i].Id))
+                    && !excludedPropertiesArray.Contains(db.DatabaseScopedConfigurations[i].Id))
                 {
                     db.DatabaseScopedConfigurations[i].ValueForSecondary = this.currentState.databaseScopedConfigurations[i].ValueForSecondary;
                 }
