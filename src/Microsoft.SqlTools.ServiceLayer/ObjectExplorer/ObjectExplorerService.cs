@@ -438,11 +438,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                var filterDefinitions = node.FilterProperties;
                                var appliedFilters = new List<INodeFilter>();
 
-                               foreach (var f in filters)
+                               if (filters != null)
                                {
-                                   NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
-                                   appliedFilters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
+                                   foreach (var f in filters)
+                                   {
+                                       NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
+                                       appliedFilters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
+                                   }
                                }
+
 
                                if (forceRefresh)
                                {

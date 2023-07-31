@@ -103,45 +103,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void ServerNodeLabelShouldIgnoreUserNameIfEmptyOrNull()
         {
             // Given no username set
-            ConnectionSummary integratedAuthSummary = new ConnectionSummary()
-            {
-                DatabaseName = defaultConnectionDetails.DatabaseName,
-                ServerName = defaultConnectionDetails.ServerName,
-                UserName = null
-            };
-            ConnectionCompleteParams connParams = new ConnectionCompleteParams()
-            {
-                ConnectionSummary = integratedAuthSummary,
-                ServerInfo = defaultServerInfo,
-                OwnerUri = defaultOwnerUri
-            };
+            oeServerInfo.UserName = null;
             // When querying label
             string label = new ServerNode(oeServerInfo, serverConnection).Label;
             // Then only server name and version shown
-            string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + ")";
+            string expectedLabel = oeServerInfo.ServerName + " (SQL Server " + oeServerInfo.ServerVersion + ")";
             Assert.AreEqual(expectedLabel, label);
         }
 
         [Test]
         public void ServerNodeConstructorShouldShowDbNameForCloud()
         {
-            defaultServerInfo.IsCloud = true;
+            oeServerInfo.IsCloud = true;
 
             // Given a server node for a cloud DB, with master name
             ServerNode node = new ServerNode(oeServerInfo, serverConnection);
             // Then expect label to not include db name
-            string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
-                + defaultConnectionDetails.UserName + ")";
+            string expectedLabel = oeServerInfo.ServerName + " (SQL Server " + oeServerInfo.ServerVersion + " - "
+                + oeServerInfo.UserName + ")";
             Assert.AreEqual(expectedLabel, node.Label);
 
             // But given a server node for a cloud DB that's not master
-            defaultConnectionDetails.DatabaseName = "NotMaster";
-            defaultConnParams.ConnectionSummary.DatabaseName = defaultConnectionDetails.DatabaseName;
+            oeServerInfo.DatabaseName = "NotMaster";
             node = new ServerNode(oeServerInfo, serverConnection);
 
             // Then expect label to include db name 
-            expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
-                + defaultConnectionDetails.UserName + ", " + defaultConnectionDetails.DatabaseName + ")";
+            expectedLabel = oeServerInfo.ServerName + " (SQL Server " + oeServerInfo.ServerVersion + " - "
+                + oeServerInfo.UserName + ", " + oeServerInfo.DatabaseName + ")";
             Assert.AreEqual(expectedLabel, node.Label);
         }
 

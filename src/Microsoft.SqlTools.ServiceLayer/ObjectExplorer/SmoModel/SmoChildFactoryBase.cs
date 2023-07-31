@@ -136,7 +136,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
-            var filterDefinitions = parent.FilterProperties;
             if (!string.IsNullOrEmpty(name))
             {
                 filters.Add(new NodePropertyFilter
@@ -145,6 +144,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Type = typeof(string),
                     Values = new List<object> { name },
                 });
+            }
+
+            if (appliedFilters != null)
+            {
+                filters.AddRange(appliedFilters);
             }
 
             foreach (var querier in queriers)
