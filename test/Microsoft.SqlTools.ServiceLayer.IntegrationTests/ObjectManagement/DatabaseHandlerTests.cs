@@ -187,10 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public void GetAzureServiceLevelObjectivesTest()
         {
-            var actualLevelsMap = new Dictionary<string, string[]>();
+            var actualLevelsMap = new Dictionary<string, OptionsCollection>();
             foreach (AzureEditionDetails serviceDetails in DatabaseHandler.AzureServiceLevels)
             {
-                actualLevelsMap.Add(serviceDetails.EditionDisplayName, serviceDetails.Details);
+                actualLevelsMap.Add(serviceDetails.EditionDisplayName, serviceDetails.EditionOptions);
             }
 
             var expectedDefaults = new Dictionary<AzureEdition, string>()
@@ -209,11 +209,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     var expectedServiceLevels = expectedLevelInfo.Value;
                     var actualServiceLevels = actualLevelsMap[edition.DisplayName];
-                    Assert.That(actualServiceLevels, Is.EquivalentTo(expectedServiceLevels), "Did not get expected SLO list for edition '{0}'", edition.DisplayName);
+                    Assert.That(actualServiceLevels.Options, Is.EquivalentTo(expectedServiceLevels), "Did not get expected SLO list for edition '{0}'", edition.DisplayName);
 
                     var expectedDefaultIndex = expectedLevelInfo.Key;
                     var expectedDefault = expectedServiceLevels[expectedDefaultIndex];
-                    var actualDefault = actualServiceLevels[0];
+                    var actualDefault = actualServiceLevels.Options[actualServiceLevels.DefaultValueIndex];
                     Assert.That(actualDefault, Is.EqualTo(expectedDefault), "Did not get expected default SLO for edition '{0}'", edition.DisplayName);
                 }
                 else
@@ -226,10 +226,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
         [Test]
         public void GetAzureMaxSizesTest()
         {
-            var actualSizesMap = new Dictionary<string, string[]>();
+            var actualSizesMap = new Dictionary<string, OptionsCollection>();
             foreach (AzureEditionDetails sizeDetails in DatabaseHandler.AzureMaxSizes)
             {
-                actualSizesMap.Add(sizeDetails.EditionDisplayName, sizeDetails.Details);
+                actualSizesMap.Add(sizeDetails.EditionDisplayName, sizeDetails.EditionOptions);
             }
 
             var expectedDefaults = new Dictionary<AzureEdition, string>()
@@ -248,11 +248,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 {
                     var expectedSizes = expectedSizeInfo.Value.Select(size => size.ToString()).ToArray();
                     var actualSizes = actualSizesMap[edition.DisplayName];
-                    Assert.That(actualSizes, Is.EquivalentTo(expectedSizes), "Did not get expected size list for edition '{0}'", edition.DisplayName);
+                    Assert.That(actualSizes.Options, Is.EquivalentTo(expectedSizes), "Did not get expected size list for edition '{0}'", edition.DisplayName);
 
                     var expectedDefaultIndex = expectedSizeInfo.Key;
                     var expectedDefault = expectedSizes[expectedDefaultIndex];
-                    var actualDefault = actualSizes[0];
+                    var actualDefault = actualSizes.Options[actualSizes.DefaultValueIndex];
                     Assert.That(actualDefault, Is.EqualTo(expectedDefault.ToString()), "Did not get expected default size for edition '{0}'", edition.DisplayName);
                 }
                 else
