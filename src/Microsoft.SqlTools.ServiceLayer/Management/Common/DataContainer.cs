@@ -1086,6 +1086,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                         {
                             this.serverConnection.Disconnect();
                         }
+                        this.serverConnection = null;
 
                         //if we have the managed connection interface, then use it to disconnect.
                         //Otherwise, Dispose on SqlConnectionInfoWithConnection should disconnect
@@ -1109,6 +1110,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     }
                     else
                     {
+                        this.serverConnection = null;
                         this.managedConnection = null;
                         this.sqlCiWithConnection = null;
                     }
