@@ -7,14 +7,13 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using System.Collections.Specialized;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
@@ -125,7 +124,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static async Task HandleGenerateServerMetadataRequest(GenerateServerMetadataParams metadataParams,
             RequestContext<GenerateServerMetadataResult> requestContext)
         {
-            StringCollection scripts = null;
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
 
             if (connectionInfo != null)
@@ -134,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     try
                     {
-                        scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
+                        var scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
                         if (scripts != null)
                         {
                             try
@@ -177,20 +175,19 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static async Task HandleGetServerMetadataRequest(GetServerMetadataParams metadataParams,
             RequestContext<GetServerMetadataResult> requestContext)
         {
-            StringCollection scripts = null;
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
 
             if (connectionInfo != null)
             {
                 try
                 {
-                    scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
+                    var scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
                     if (scripts.Count != 0)
                     {
                         await requestContext.SendResult(new GetServerMetadataResult
                         {
                             Success = true,
-                            Scripts = scripts.ToString()
+                            Scripts = scripts.ToArray()
                         });
                     }
                 }

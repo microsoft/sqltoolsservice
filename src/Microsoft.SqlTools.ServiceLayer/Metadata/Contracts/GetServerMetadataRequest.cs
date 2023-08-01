@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
     public class GetServerMetadataResult
     {
         public bool Success { get; set; }
-        public string Scripts { get; set; }
+        public string[] Scripts { get; set; }
     }
 
     public class GetServerMetadataRequest

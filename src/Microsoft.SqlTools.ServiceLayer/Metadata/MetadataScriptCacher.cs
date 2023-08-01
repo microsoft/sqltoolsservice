@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Logger = Microsoft.SqlTools.Utility.Logger;
@@ -13,22 +13,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     public static class MetadataScriptCacher
     {
-        public static void WriteToCache(string serverName, StringCollection scripts)
+        public static void WriteToCache(string serverName, List<string> generatedScripts)
         {
             var tempFileName = $"{serverName}.tmp";
 
             try
             {
                 var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
-                using (StreamWriter sw = new StreamWriter(tempFilePath, true))
+                if (Path.Exists(tempFilePath))
                 {
-                    foreach (var script in scripts)
+                    var refreshCache = false;
+                    var cachedScripts = MetadataScriptCacher.ReadCache(serverName);
+                    foreach (var script in cachedScripts)
                     {
-                        if (script != null)
+                        if (generatedScripts.IndexOf(script) == -1)
                         {
-                            sw.WriteLine(script);
+                            refreshCache = true;
+                            break;
                         }
                     }
+
+                    if (refreshCache)
+                    {
+                        MetadataScriptCacher.WriteScripts(tempFilePath, generatedScripts);
+                    }
+                }
+                else
+                {
+                    MetadataScriptCacher.WriteScripts(tempFilePath, generatedScripts);
                 }
             }
             catch (Exception ex)
@@ -38,17 +50,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
         }
 
-        public static StringCollection ReadCache(string serverName)
+        private static void WriteScripts(string tempFilePath, List<string> scripts)
+        {
+            using (StreamWriter sw = new StreamWriter(tempFilePath, false))
+            {
+                foreach (var script in scripts)
+                {
+                    sw.WriteLine(script);
+                }
+            }
+        }
+
+        public static List<string> ReadCache(string serverName)
         {
             var tempFileName = $"{serverName}.tmp";
-            var stringCollection = new StringCollection();
+            var scripts = new List<string>();
 
             try
             {
                 var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
                 if (!File.Exists(tempFilePath))
                 {
-                    return stringCollection;
+                    return scripts;
                 }
 
                 using (StreamReader sr = new StreamReader(tempFilePath))
@@ -58,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                         var line = sr.ReadLine();
                         if (line != null)
                         {
-                            stringCollection.Add(line);
+                            scripts.Add(line);
                         }
                     }
                 }
@@ -69,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 throw ex;
             }
 
-            return stringCollection;
+            return scripts;
         }
     }
 }

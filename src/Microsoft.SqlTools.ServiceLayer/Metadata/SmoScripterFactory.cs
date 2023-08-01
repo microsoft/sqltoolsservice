@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.SqlClient;
@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterFactory
     {
-        public static StringCollection GenerateAllServerScripts(DbConnection connection)
+        public static List<string> GenerateAllServerScripts(DbConnection connection)
         {
             var serverConnection = SmoScripterFactory.GetServerConnection(connection);
             if (serverConnection == null)
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static StringCollection GenerateAllScripts(Server server)
+        private static List<string> GenerateAllScripts(Server server)
         {
             var urns = SmoScripterFactory.GetAllServerObjectUrns(server).ToArray();
 
@@ -79,28 +79,116 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 AgentJobId = false,
                 AgentNotify = false,
                 AllowSystemObjects = false,
+                AnsiFile = false,
+
+
+                AnsiPadding = false,
+                AppendToFile = false,
+                Bindings = false,
                 ChangeTracking = false,
                 ClusteredIndexes = false,
+
                 ColumnStoreIndexes = false,
                 ContinueScriptingOnError = true,
+                ConvertUserDefinedDataTypesToBaseType = false,
+                DdlBodyOnly = false,
+                DdlHeaderOnly = true,
+
+                /*
+                Default = false,
+                DriAll = false,
+                DriAllConstraints = false,
+                DriAllKeys = false,
+                DriChecks = false,
+                */
+
+                DriClustered = false,
+                DriDefaults = false,
+                DriForeignKeys = false,
                 DriIncludeSystemNames = false,
-                Indexes = false,
-                NoExecuteAs = true,
-                NonClusteredIndexes = false,
+                DriIndexes = false,
+
+                DriNonClustered = false,
+                DriPrimaryKey = false,
+                DriUniqueKeys = false,
+                DriWithNoCheck = false,
+                EnforceScriptingOptions = true,
+
+
+                ExtendedProperties = false,
+                FullTextCatalogs = false,
+                FullTextIndexes = false,
+                FullTextStopLists = false,
+                IncludeDatabaseContext = false,
+
+                IncludeDatabaseRoleMemberships = false,
+                IncludeFullTextCatalogRootPath = false,
+                IncludeHeaders = false,
                 IncludeIfNotExists = false,
-                SchemaQualify = true,
-                ScriptForCreateOrAlter = true,
+                IncludeScriptingParametersHeader = false,
+
+                Indexes = false,
+                LoginSid = false,
+                NoAssemblies = true,
+                NoCollation = true,
+                NoCommandTerminator = true,
+
+                NoExecuteAs = true,
+                NoFileGroup = true,
+                NoFileStream = true,
+                NoFileStreamColumn = true,
+                NoIdentities = true,
+                
+                NoIndexPartitioningSchemes = true,
+                NoMailProfileAccounts = true,
+                NoMailProfilePrincipals = true,
+                NonClusteredIndexes = false,
+                NoTablePartitioningSchemes = true,
+
+                NoVardecimal = false,
+                NoViewColumns = false,
+                NoXmlNamespaces = false,
+                OptimizerData = false,
                 Permissions = false,
+
+                PrimaryObject = true,
+                SchemaQualify = true,
+                SchemaQualifyForeignKeysReferences = true,
+                ScriptBatchTerminator = false,
                 ScriptData = false,
+
+                ScriptDataCompression = false,
+                ScriptDrops = false,
+                ScriptForAlter = false,
+                ScriptForCreateDrop = false,
+                ScriptForCreateOrAlter = true,
+
                 ScriptOwner = false,
+                ScriptSchema = true,
+                ScriptXmlCompression = false,
+                SpatialIndexes = false,
                 Statistics = false,
+
+                TimestampToBinary = false,
+                ToFileOnly = false,
                 Triggers = false,
-                WithDependencies = false
+                WithDependencies = false,
+                XmlIndexes = false                
             };
 
             var scripter = new Scripter(server);
             scripter.Options = scriptingOptions;
-            var scripts = scripter.Script(urns);
+            var generatedScripts = scripter.Script(urns);
+
+            var scripts = new List<string>();
+            foreach (var s in generatedScripts)
+            {
+                if (s.StartsWith("CREATE TABLE"))
+                {
+                    var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                    scripts.Add(script);
+                }
+            }
 
             return scripts;
         }
@@ -112,8 +200,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             foreach (Database db in server.Databases)
             {
-                urnCollection.Add(db.Urn);
-
                 foreach (SqlServer.Management.Smo.Table t in db.Tables)
                 {
                     urnCollection.Add(t.Urn);
