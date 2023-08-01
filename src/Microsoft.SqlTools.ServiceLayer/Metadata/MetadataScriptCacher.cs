@@ -7,15 +7,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Logger = Microsoft.SqlTools.Utility.Logger;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     public static class MetadataScriptCacher
     {
-        public static void WriteToCache(string serverName, List<string> generatedScripts)
+        public static void WriteToCache(string serverName, IEnumerable<string> generatedScripts)
         {
             var tempFileName = $"{serverName}.tmp";
+            var generatedScriptsList = generatedScripts.ToList();
 
             try
             {
@@ -26,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     var cachedScripts = MetadataScriptCacher.ReadCache(serverName);
                     foreach (var script in cachedScripts)
                     {
-                        if (generatedScripts.IndexOf(script) == -1)
+                        if (generatedScriptsList.IndexOf(script) == -1)
                         {
                             refreshCache = true;
                             break;
@@ -35,12 +37,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
                     if (refreshCache)
                     {
-                        MetadataScriptCacher.WriteScripts(tempFilePath, generatedScripts);
+                        MetadataScriptCacher.WriteScripts(tempFilePath, generatedScriptsList);
                     }
                 }
                 else
                 {
-                    MetadataScriptCacher.WriteScripts(tempFilePath, generatedScripts);
+                    MetadataScriptCacher.WriteScripts(tempFilePath, generatedScriptsList);
                 }
             }
             catch (Exception ex)
@@ -50,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
         }
 
-        private static void WriteScripts(string tempFilePath, List<string> scripts)
+        private static void WriteScripts(string tempFilePath, IEnumerable<string> scripts)
         {
             using (StreamWriter sw = new StreamWriter(tempFilePath, false))
             {
@@ -61,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
         }
 
-        public static List<string> ReadCache(string serverName)
+        public static IEnumerable<string> ReadCache(string serverName)
         {
             var tempFileName = $"{serverName}.tmp";
             var scripts = new List<string>();

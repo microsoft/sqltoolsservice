@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -182,14 +183,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 try
                 {
                     var scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
-                    if (scripts.Count != 0)
+                    await requestContext.SendResult(new GetServerMetadataResult
                     {
-                        await requestContext.SendResult(new GetServerMetadataResult
-                        {
-                            Success = true,
-                            Scripts = scripts.ToArray()
-                        });
-                    }
+                        Success = true,
+                        Scripts = scripts.ToArray()
+                    });
                 }
                 catch (Exception ex)
                 {

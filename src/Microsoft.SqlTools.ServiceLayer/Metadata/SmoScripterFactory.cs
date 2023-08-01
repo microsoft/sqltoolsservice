@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -18,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterFactory
     {
-        public static List<string> GenerateAllServerScripts(DbConnection connection)
+        public static IEnumerable<string> GenerateAllServerScripts(DbConnection connection)
         {
             var serverConnection = SmoScripterFactory.GetServerConnection(connection);
             if (serverConnection == null)
@@ -69,9 +68,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static List<string> GenerateAllScripts(Server server)
+        private static IEnumerable<string> GenerateAllScripts(Server server)
         {
-            var urns = SmoScripterFactory.GetAllServerObjectUrns(server).ToArray();
+            var urns = SmoScripterFactory.GetAllServerObjectUrns(server);
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -80,95 +79,75 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 AgentNotify = false,
                 AllowSystemObjects = false,
                 AnsiFile = false,
-
-
                 AnsiPadding = false,
                 AppendToFile = false,
                 Bindings = false,
                 ChangeTracking = false,
                 ClusteredIndexes = false,
-
                 ColumnStoreIndexes = false,
                 ContinueScriptingOnError = true,
                 ConvertUserDefinedDataTypesToBaseType = false,
                 DdlBodyOnly = false,
                 DdlHeaderOnly = true,
-
-                /*
-                Default = false,
                 DriAll = false,
                 DriAllConstraints = false,
                 DriAllKeys = false,
                 DriChecks = false,
-                */
-
                 DriClustered = false,
                 DriDefaults = false,
                 DriForeignKeys = false,
                 DriIncludeSystemNames = false,
                 DriIndexes = false,
-
                 DriNonClustered = false,
                 DriPrimaryKey = false,
                 DriUniqueKeys = false,
                 DriWithNoCheck = false,
                 EnforceScriptingOptions = true,
-
-
                 ExtendedProperties = false,
                 FullTextCatalogs = false,
                 FullTextIndexes = false,
                 FullTextStopLists = false,
                 IncludeDatabaseContext = false,
-
                 IncludeDatabaseRoleMemberships = false,
                 IncludeFullTextCatalogRootPath = false,
                 IncludeHeaders = false,
                 IncludeIfNotExists = false,
                 IncludeScriptingParametersHeader = false,
-
                 Indexes = false,
                 LoginSid = false,
                 NoAssemblies = true,
                 NoCollation = true,
                 NoCommandTerminator = true,
-
                 NoExecuteAs = true,
                 NoFileGroup = true,
                 NoFileStream = true,
                 NoFileStreamColumn = true,
                 NoIdentities = true,
-                
                 NoIndexPartitioningSchemes = true,
                 NoMailProfileAccounts = true,
                 NoMailProfilePrincipals = true,
                 NonClusteredIndexes = false,
                 NoTablePartitioningSchemes = true,
-
                 NoVardecimal = false,
                 NoViewColumns = false,
                 NoXmlNamespaces = false,
                 OptimizerData = false,
                 Permissions = false,
-
                 PrimaryObject = true,
                 SchemaQualify = true,
                 SchemaQualifyForeignKeysReferences = true,
                 ScriptBatchTerminator = false,
                 ScriptData = false,
-
                 ScriptDataCompression = false,
                 ScriptDrops = false,
                 ScriptForAlter = false,
                 ScriptForCreateDrop = false,
                 ScriptForCreateOrAlter = true,
-
                 ScriptOwner = false,
                 ScriptSchema = true,
                 ScriptXmlCompression = false,
                 SpatialIndexes = false,
                 Statistics = false,
-
                 TimestampToBinary = false,
                 ToFileOnly = false,
                 Triggers = false,
