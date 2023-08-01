@@ -1081,6 +1081,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
                     if (disposing)
                     {
+                        // Disconnect our own connection, since disposing sqlCiWithConnection may not catch it
+                        if (ownConnection && this.serverConnection != null)
+                        {
+                            this.serverConnection.Disconnect();
+                        }
+
                         //if we have the managed connection interface, then use it to disconnect.
                         //Otherwise, Dispose on SqlConnectionInfoWithConnection should disconnect
                         if (this.managedConnection != null)

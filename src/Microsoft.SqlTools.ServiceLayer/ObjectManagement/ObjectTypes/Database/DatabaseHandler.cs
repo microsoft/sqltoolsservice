@@ -116,146 +116,135 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-                try
+                using (var taskHelper = new DatabaseTaskHelper(dataContainer))
+                using (var context = new DatabaseViewContext(requestParams))
                 {
-                    using (var taskHelper = new DatabaseTaskHelper(dataContainer))
-                    using (var context = new DatabaseViewContext(requestParams))
+                    var prototype = taskHelper.Prototype;
+                    var azurePrototype = prototype as DatabasePrototypeAzure;
+                    bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
+                    bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
+                    bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
+
+                    var databaseViewInfo = new DatabaseViewInfo()
                     {
-                        var prototype = taskHelper.Prototype;
-                        var azurePrototype = prototype as DatabasePrototypeAzure;
-                        bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
-                        bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
-                        bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
+                        ObjectInfo = new DatabaseInfo(),
+                        IsAzureDB = isAzureDB
+                    };
 
-                        var databaseViewInfo = new DatabaseViewInfo()
+                    // Collect the Database properties information
+                    if (!requestParams.IsNewObject)
+                    {
+                        var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                        if (smoDatabase != null)
                         {
-                            ObjectInfo = new DatabaseInfo(),
-                            IsAzureDB = isAzureDB
-                        };
+                            databaseViewInfo.ObjectInfo = new DatabaseInfo()
+                            {
+                                Name = smoDatabase.Name,
+                                CollationName = smoDatabase.Collation,
+                                CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
+                                ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType],
+                                RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel],
+                                DateCreated = smoDatabase.CreateDate.ToString(),
+                                LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
+                                LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
+                                MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
+                                MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
+                                NumberOfUsers = smoDatabase.Users.Count,
+                                Owner = smoDatabase.Owner,
+                                SizeInMb = smoDatabase.Size,
+                                SpaceAvailableInMb = ByteConverter.ConvertKbtoMb(smoDatabase.SpaceAvailable),
+                                Status = smoDatabase.Status.ToString(),
+                                AutoCreateIncrementalStatistics = smoDatabase.AutoCreateIncrementalStatisticsEnabled,
+                                AutoCreateStatistics = smoDatabase.AutoCreateStatisticsEnabled,
+                                AutoShrink = smoDatabase.AutoShrink,
+                                AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
+                                AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
+                                EncryptionEnabled = smoDatabase.EncryptionEnabled
+                            };
 
-                        // Collect the Database properties information
+                            if (!isManagedInstance)
+                            {
+                                databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
+                                databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
+                                ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+
+                                if (prototype is DatabasePrototype160)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
+                                }
+                            }
+                        }
+                    }
+
+                    // azure sql db doesn't have a sysadmin fixed role
+                    var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
+                    if (isAzureDB)
+                    {
+                        // Azure doesn't allow modifying the collation after DB creation
+                        bool collationEnabled = !prototype.Exists;
+                        if (isDw)
+                        {
+                            if (collationEnabled)
+                            {
+                                databaseViewInfo.CollationNames = GetCollationsWithPrototypeCollation(prototype);
+                            }
+                            databaseViewInfo.CompatibilityLevels = GetCompatibilityLevelsAzure(prototype);
+                        }
+                        else
+                        {
+                            if (collationEnabled)
+                            {
+                                databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
+                            }
+                            if (compatibilityLevelEnabled)
+                            {
+                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
+                            }
+                        }
+                        databaseViewInfo.AzureBackupRedundancyLevels = AzureBackupLevels;
+                        databaseViewInfo.AzureServiceLevelObjectives = AzureServiceLevels;
+                        databaseViewInfo.AzureEditions = AzureEditionNames;
+                        databaseViewInfo.AzureMaxSizes = AzureMaxSizes;
+                    }
+                    else
+                    {
+                        databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
+                        if (compatibilityLevelEnabled)
+                        {
+                            databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
+                        }
+
+                        // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
+                        databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
+                        databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
                         if (!requestParams.IsNewObject)
                         {
                             var smoDatabase = dataContainer.SqlDialogSubject as Database;
                             if (smoDatabase != null)
                             {
-                                databaseViewInfo.ObjectInfo = new DatabaseInfo()
-                                {
-                                    Name = smoDatabase.Name,
-                                    CollationName = smoDatabase.Collation,
-                                    CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
-                                    ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType],
-                                    RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel],
-                                    DateCreated = smoDatabase.CreateDate.ToString(),
-                                    LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
-                                    LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
-                                    MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
-                                    MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
-                                    NumberOfUsers = smoDatabase.Users.Count,
-                                    Owner = smoDatabase.Owner,
-                                    SizeInMb = smoDatabase.Size,
-                                    SpaceAvailableInMb = ByteConverter.ConvertKbtoMb(smoDatabase.SpaceAvailable),
-                                    Status = smoDatabase.Status.ToString(),
-                                    AutoCreateIncrementalStatistics = smoDatabase.AutoCreateIncrementalStatisticsEnabled,
-                                    AutoCreateStatistics = smoDatabase.AutoCreateStatisticsEnabled,
-                                    AutoShrink = smoDatabase.AutoShrink,
-                                    AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
-                                    AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
-                                    EncryptionEnabled = smoDatabase.EncryptionEnabled
-                                };
-
-                                if (!isManagedInstance)
-                                {
-                                    databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
-                                    databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
-
-                                    if (prototype is DatabasePrototype160)
-                                    {
-                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
-                                    }
-                                }
+                                databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
                             }
                         }
-
-                        // azure sql db doesn't have a sysadmin fixed role
-                        var compatibilityLevelEnabled = !isDw && (dataContainer.LoggedInUserIsSysadmin || isAzureDB);
-                        if (isAzureDB)
-                        {
-                            // Azure doesn't allow modifying the collation after DB creation
-                            bool collationEnabled = !prototype.Exists;
-                            if (isDw)
-                            {
-                                if (collationEnabled)
-                                {
-                                    databaseViewInfo.CollationNames = GetCollationsWithPrototypeCollation(prototype);
-                                }
-                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevelsAzure(prototype);
-                            }
-                            else
-                            {
-                                if (collationEnabled)
-                                {
-                                    databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
-                                }
-                                if (compatibilityLevelEnabled)
-                                {
-                                    databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
-                                }
-                            }
-                            databaseViewInfo.AzureBackupRedundancyLevels = AzureBackupLevels;
-                            databaseViewInfo.AzureServiceLevelObjectives = AzureServiceLevels;
-                            databaseViewInfo.AzureEditions = AzureEditionNames;
-                            databaseViewInfo.AzureMaxSizes = AzureMaxSizes;
-                        }
-                        else
-                        {
-                            databaseViewInfo.CollationNames = GetCollations(dataContainer.Server, prototype, dataContainer.IsNewObject);
-                            if (compatibilityLevelEnabled)
-                            {
-                                databaseViewInfo.CompatibilityLevels = GetCompatibilityLevels(dataContainer.SqlServerVersion, prototype);
-                            }
-
-                            // These aren't included when the target DB is on Azure so only populate if it's not an Azure DB
-                            databaseViewInfo.RecoveryModels = GetRecoveryModels(dataContainer.Server, prototype);
-                            databaseViewInfo.ContainmentTypes = GetContainmentTypes(dataContainer.Server, prototype);
-                            if (!requestParams.IsNewObject)
-                            {
-                                var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                                if (smoDatabase != null)
-                                {
-                                    databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
-                                }
-                            }
-                        }
-
-                        // Skip adding logins if running against an Azure SQL DB
-                        if (!isAzureDB)
-                        {
-                            var logins = new List<string>();
-                            foreach (Login login in dataContainer.Server.Logins)
-                            {
-                                logins.Add(login.Name);
-                            }
-                            // Add <default> to the start of the list in addition to defined logins
-                            logins.Insert(0, SR.general_default);
-
-                            databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
-                        }
-
-                        return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                     }
-                }
-                finally
-                {
-                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
-                    if (serverConnection.IsOpen)
+
+                    // Skip adding logins if running against an Azure SQL DB
+                    if (!isAzureDB)
                     {
-                        serverConnection.Disconnect();
+                        var logins = new List<string>();
+                        foreach (Login login in dataContainer.Server.Logins)
+                        {
+                            logins.Add(login.Name);
+                        }
+                        // Add <default> to the start of the list in addition to defined logins
+                        logins.Insert(0, SR.general_default);
+
+                        databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
                     }
+
+                    return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
                 }
             }
         }
@@ -289,56 +278,45 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var sqlScript = string.Empty;
             using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
             {
-                try
+                var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                if (smoDatabase != null)
                 {
-                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                    if (smoDatabase != null)
+                    if (detachParams.GenerateScript)
                     {
-                        if (detachParams.GenerateScript)
-                        {
-                            sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
-                        }
-                        else
-                        {
-                            DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                            try
-                            {
-                                // In order to drop all connections to the database, we switch it to single
-                                // user access mode so that only our current connection to the database stays open.
-                                // Any pending operations are terminated and rolled back.
-                                if (detachParams.DropConnections)
-                                {
-                                    smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
-                                    smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                                }
-                                smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
-                            }
-                            catch (SmoException)
-                            {
-                                // Revert to database's previous user access level if we changed it as part of dropping connections
-                                // before hitting this exception.
-                                if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
-                                {
-                                    smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                                }
-                                throw;
-                            }
-                        }
+                        sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                        try
+                        {
+                            // In order to drop all connections to the database, we switch it to single
+                            // user access mode so that only our current connection to the database stays open.
+                            // Any pending operations are terminated and rolled back.
+                            if (detachParams.DropConnections)
+                            {
+                                smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+                        }
+                        catch (SmoException)
+                        {
+                            // Revert to database's previous user access level if we changed it as part of dropping connections
+                            // before hitting this exception.
+                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            throw;
+                        }
                     }
                 }
-                finally
+                else
                 {
-                    ServerConnection serverConnection = dataContainer.Server!.ConnectionContext;
-                    if (serverConnection.IsOpen)
-                    {
-                        serverConnection.Disconnect();
-                    }
+                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
                 }
             }
             return sqlScript;
@@ -398,139 +376,129 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     throw new InvalidOperationException(serverNotExistsError);
                 }
-                try
+
+                using (var taskHelper = new DatabaseTaskHelper(dataContainer))
                 {
-                    using (var taskHelper = new DatabaseTaskHelper(dataContainer))
+                    DatabasePrototype prototype = taskHelper.Prototype;
+                    prototype.Name = database.Name;
+
+                    // Update database file names now that we have a database name
+                    if (viewParams.IsNewObject && !prototype.HideFileSettings)
                     {
-                        DatabasePrototype prototype = taskHelper.Prototype;
-                        prototype.Name = database.Name;
+                        var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
 
-                        // Update database file names now that we have a database name
-                        if (viewParams.IsNewObject && !prototype.HideFileSettings)
+                        var dataFile = prototype.Files[0];
+                        if (dataFile.DatabaseFileType != FileType.Data)
                         {
-                            var sanitizedName = DatabaseUtils.SanitizeDatabaseFileName(prototype.Name);
+                            throw new InvalidOperationException("Database prototype's first file was not a Data file.");
+                        }
+                        dataFile.Name = sanitizedName;
 
-                            var dataFile = prototype.Files[0];
-                            if (dataFile.DatabaseFileType != FileType.Data)
-                            {
-                                throw new InvalidOperationException("Database prototype's first file was not a Data file.");
-                            }
-                            dataFile.Name = sanitizedName;
-
-                            if (prototype.NumberOfLogFiles > 0)
-                            {
-                                var logFile = prototype.Files[1];
-                                if (logFile.DatabaseFileType != FileType.Log)
-                                {
-                                    throw new InvalidOperationException("Database prototype's second file was not a Log file.");
-                                }
-                                logFile.Name = $"{sanitizedName}_log";
-                            }
-                        }
-
-                        if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
+                        if (prototype.NumberOfLogFiles > 0)
                         {
-                            prototype.Owner = database.Owner;
-                        }
-                        if (database.CollationName != null)
-                        {
-                            prototype.Collation = database.CollationName;
-                        }
-                        if (database.RecoveryModel != null)
-                        {
-                            prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
-                        }
-                        if (database.CompatibilityLevel != null)
-                        {
-                            prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
-                        }
-                        if (prototype is DatabasePrototype80 db80)
-                        {
-                            if (database.DatabaseReadOnly != null)
+                            var logFile = prototype.Files[1];
+                            if (logFile.DatabaseFileType != FileType.Log)
                             {
-                                db80.IsReadOnly = (bool)database.DatabaseReadOnly;
+                                throw new InvalidOperationException("Database prototype's second file was not a Log file.");
                             }
+                            logFile.Name = $"{sanitizedName}_log";
                         }
-
-                        if (prototype is DatabasePrototype90 db90)
-                        {
-                            db90.AutoUpdateStatisticsAsync = database.AutoUpdateStatisticsAsynchronously;
-                            db90.PageVerifyDisplay = database.PageVerify;
-                        }
-                        if (prototype is DatabasePrototype100 db100)
-                        {
-                            db100.EncryptionEnabled = database.EncryptionEnabled;
-                        }
-                        if (prototype is DatabasePrototype110 db110)
-                        {
-                            if (database.TargetRecoveryTimeInSec != null)
-                            {
-                                db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
-                            }
-
-                            if (database.ContainmentType != null)
-                            {
-                                db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
-                            }
-                        }
-
-                        // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
-                        prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
-                        prototype.AutoCreateStatistics = database.AutoCreateStatistics;
-                        prototype.AutoShrink = database.AutoShrink;
-                        prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
-                        if (database.RestrictAccess != null)
-                        {
-                            prototype.RestrictAccess = database.RestrictAccess;
-                        }
-
-                        if (prototype is DatabasePrototypeAzure dbAz)
-                        {
-                            // Set edition first since the prototype will fill all the Azure fields with default values
-                            if (database.AzureEdition != null)
-                            {
-                                dbAz.AzureEditionDisplay = database.AzureEdition;
-                            }
-                            if (database.AzureBackupRedundancyLevel != null)
-                            {
-                                dbAz.BackupStorageRedundancy = database.AzureBackupRedundancyLevel;
-                            }
-                            if (database.AzureServiceLevelObjective != null)
-                            {
-                                dbAz.CurrentServiceLevelObjective = database.AzureServiceLevelObjective;
-                            }
-                            if (database.AzureMaxSize != null)
-                            {
-                                dbAz.MaxSize = database.AzureMaxSize;
-                            }
-                        }
-
-                        string sqlScript = string.Empty;
-                        using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
-                        using (var executionHandler = new ExecutonHandler(actions))
-                        {
-                            executionHandler.RunNow(runType, this);
-                            if (executionHandler.ExecutionResult == ExecutionMode.Failure)
-                            {
-                                throw executionHandler.ExecutionFailureException;
-                            }
-
-                            if (runType == RunType.ScriptToWindow)
-                            {
-                                sqlScript = executionHandler.ScriptTextFromLastRun;
-                            }
-                        }
-
-                        return sqlScript;
                     }
-                }
-                finally
-                {
-                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
-                    if (serverConnection.IsOpen)
+
+                    if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
                     {
-                        serverConnection.Disconnect();
+                        prototype.Owner = database.Owner;
                     }
+                    if (database.CollationName != null)
+                    {
+                        prototype.Collation = database.CollationName;
+                    }
+                    if (database.RecoveryModel != null)
+                    {
+                        prototype.RecoveryModel = recoveryModelEnums[database.RecoveryModel];
+                    }
+                    if (database.CompatibilityLevel != null)
+                    {
+                        prototype.DatabaseCompatibilityLevel = compatLevelEnums[database.CompatibilityLevel];
+                    }
+                    if (prototype is DatabasePrototype80 db80)
+                    {
+                        if (database.DatabaseReadOnly != null)
+                        {
+                            db80.IsReadOnly = (bool)database.DatabaseReadOnly;
+                        }
+                    }
+
+                    if (prototype is DatabasePrototype90 db90)
+                    {
+                        db90.AutoUpdateStatisticsAsync = database.AutoUpdateStatisticsAsynchronously;
+                        db90.PageVerifyDisplay = database.PageVerify;
+                    }
+                    if (prototype is DatabasePrototype100 db100)
+                    {
+                        db100.EncryptionEnabled = database.EncryptionEnabled;
+                    }
+                    if (prototype is DatabasePrototype110 db110)
+                    {
+                        if (database.TargetRecoveryTimeInSec != null)
+                        {
+                            db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
+                        }
+
+                        if (database.ContainmentType != null)
+                        {
+                            db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
+                        }
+                    }
+
+                    // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
+                    prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
+                    prototype.AutoCreateStatistics = database.AutoCreateStatistics;
+                    prototype.AutoShrink = database.AutoShrink;
+                    prototype.AutoUpdateStatistics = database.AutoUpdateStatistics;
+                    if (database.RestrictAccess != null)
+                    {
+                        prototype.RestrictAccess = database.RestrictAccess;
+                    }
+
+                    if (prototype is DatabasePrototypeAzure dbAz)
+                    {
+                        // Set edition first since the prototype will fill all the Azure fields with default values
+                        if (database.AzureEdition != null)
+                        {
+                            dbAz.AzureEditionDisplay = database.AzureEdition;
+                        }
+                        if (database.AzureBackupRedundancyLevel != null)
+                        {
+                            dbAz.BackupStorageRedundancy = database.AzureBackupRedundancyLevel;
+                        }
+                        if (database.AzureServiceLevelObjective != null)
+                        {
+                            dbAz.CurrentServiceLevelObjective = database.AzureServiceLevelObjective;
+                        }
+                        if (database.AzureMaxSize != null)
+                        {
+                            dbAz.MaxSize = database.AzureMaxSize;
+                        }
+                    }
+
+                    string sqlScript = string.Empty;
+                    using (var actions = new DatabaseActions(dataContainer, configAction, prototype))
+                    using (var executionHandler = new ExecutonHandler(actions))
+                    {
+                        executionHandler.RunNow(runType, this);
+                        if (executionHandler.ExecutionResult == ExecutionMode.Failure)
+                        {
+                            throw executionHandler.ExecutionFailureException;
+                        }
+
+                        if (runType == RunType.ScriptToWindow)
+                        {
+                            sqlScript = executionHandler.ScriptTextFromLastRun;
+                        }
+                    }
+
+                    return sqlScript;
                 }
             }
         }
