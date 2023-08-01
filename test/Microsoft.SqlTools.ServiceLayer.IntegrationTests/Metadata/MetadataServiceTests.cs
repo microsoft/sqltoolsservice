@@ -193,8 +193,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             Assert.IsTrue(actualGenerateMetadataResponse.Success);
 
-            const string FIRST_TEST_TABLE_SCRIPT = "CREATE TABLE [dbo].[MetadataTestTable6207329](\t[id] [int] NULL)";
-            const string SECOND_TEST_TABLE_SCRIPT = "CREATE TABLE [dbo].[SecondMetadataTestTable6696418](\t[id] [int] NULL)";
+            var firstCreateTableScript = $"CREATE TABLE [dbo].[{testTableName}](\t[id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [dbo].[{testTableName2}](\t[id] [int] NULL)";
 
             var mockGetServerMetadataRequestContext = new Mock<RequestContext<GetServerMetadataResult>>();
             var actualGetServerMetadataResponse = new GetServerMetadataResult();
@@ -210,8 +210,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             await MetadataService.HandleGetServerMetadataRequest(getServerMetadataParams, mockGetServerMetadataRequestContext.Object);
 
             Assert.IsTrue(actualGetServerMetadataResponse.Success);
-            Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(FIRST_TEST_TABLE_SCRIPT));
-            Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(SECOND_TEST_TABLE_SCRIPT));
+            Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(secondCreateTableScript));
 
             mockGetServerMetadataRequestContext.VerifyAll();
         }
