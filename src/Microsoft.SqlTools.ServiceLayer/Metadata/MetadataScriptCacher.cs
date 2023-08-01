@@ -24,18 +24,26 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
                 if (Path.Exists(tempFilePath))
                 {
-                    var refreshCache = false;
-                    var cachedScripts = MetadataScriptCacher.ReadCache(serverName);
-                    foreach (var script in cachedScripts)
+                    var cachedScripts = MetadataScriptCacher.ReadCache(serverName).ToList();
+
+                    // If the number of previously cached scripts is different then the cache should be refreshed
+                    var cacheRefreshNeeded = cachedScripts.Count != generatedScriptsList.Count ? true : false;
+                    
+                    // No need to check if a refresh is needed, if it's already known that the cache needs to be refreshed
+                    if (cacheRefreshNeeded != true)
                     {
-                        if (generatedScriptsList.IndexOf(script) == -1)
+                        foreach (var script in cachedScripts)
                         {
-                            refreshCache = true;
-                            break;
+                            if (generatedScriptsList.IndexOf(script) == -1)
+                            {
+                                cacheRefreshNeeded = true;
+                                break;
+                            }
                         }
                     }
+                    
 
-                    if (refreshCache)
+                    if (cacheRefreshNeeded)
                     {
                         MetadataScriptCacher.WriteScripts(tempFilePath, generatedScriptsList);
                     }
