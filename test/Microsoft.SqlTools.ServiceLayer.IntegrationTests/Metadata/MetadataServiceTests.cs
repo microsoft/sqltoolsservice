@@ -142,20 +142,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var requestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>())).Returns(Task.FromResult(new object()));
+            var mockRequestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
+            var actualResponse = new GenerateServerMetadataResult();
+            mockRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>()))
+                .Callback<GenerateServerMetadataResult>(actual => actualResponse = actual)
+                .Returns(Task.CompletedTask);
 
             var generateServerMetadataParams = new GenerateServerMetadataParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateServerMetadataRequest(generateServerMetadataParams, requestContext.Object);
+            await MetadataService.HandleGenerateServerMetadataRequest(generateServerMetadataParams, mockRequestContext.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            requestContext.VerifyAll();
+            Assert.IsTrue(actualResponse.Success);
+
+            mockRequestContext.VerifyAll();
         }
 
         [Test]
@@ -170,28 +175,45 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var generateRequestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
-            generateRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>())).Returns(Task.FromResult(new object()));
+            var mockGenerateServerMetadataRequestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
+            var actualGenerateMetadataResponse = new GenerateServerMetadataResult();
+            mockGenerateServerMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>()))
+                .Callback<GenerateServerMetadataResult>(actual => actualGenerateMetadataResponse = actual)
+                .Returns(Task.CompletedTask);
 
             var generateServerMetadataParams = new GenerateServerMetadataParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
+            await MetadataService.HandleGenerateServerMetadataRequest(generateServerMetadataParams, mockGenerateServerMetadataRequestContext.Object);
+
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var getMetadataRequestContext = new Mock<RequestContext<GetServerMetadataResult>>();
-            getMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerMetadataResult>())).Returns(Task.FromResult(new object()));
+            Assert.IsTrue(actualGenerateMetadataResponse.Success);
+
+            const string FIRST_TEST_TABLE_SCRIPT = "CREATE TABLE [dbo].[MetadataTestTable6207329](\t[id] [int] NULL)";
+            const string SECOND_TEST_TABLE_SCRIPT = "CREATE TABLE [dbo].[SecondMetadataTestTable6696418](\t[id] [int] NULL)";
+
+            var mockGetServerMetadataRequestContext = new Mock<RequestContext<GetServerMetadataResult>>();
+            var actualGetServerMetadataResponse = new GetServerMetadataResult();
+            mockGetServerMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerMetadataResult>()))
+                .Callback<GetServerMetadataResult>(actual => actualGetServerMetadataResponse = actual)
+                .Returns(Task.CompletedTask);
 
             var getServerMetadataParams = new GetServerMetadataParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGetServerMetadataRequest(getServerMetadataParams, getMetadataRequestContext.Object);
+            await MetadataService.HandleGetServerMetadataRequest(getServerMetadataParams, mockGetServerMetadataRequestContext.Object);
 
-            getMetadataRequestContext.VerifyAll();
+            Assert.IsTrue(actualGetServerMetadataResponse.Success);
+            Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(FIRST_TEST_TABLE_SCRIPT));
+            Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(SECOND_TEST_TABLE_SCRIPT));
+
+            mockGetServerMetadataRequestContext.VerifyAll();
         }
 
         [Test]
