@@ -1081,7 +1081,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
 
                     if (disposing)
                     {
-
                         //if we have the managed connection interface, then use it to disconnect.
                         //Otherwise, Dispose on SqlConnectionInfoWithConnection should disconnect
                         if (this.managedConnection != null)
