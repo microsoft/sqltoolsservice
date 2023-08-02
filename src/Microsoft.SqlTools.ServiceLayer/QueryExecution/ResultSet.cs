@@ -396,8 +396,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     //
                     availableTask = SendCurrentResults();
 
-                    while (await dataReader.ReadAsync(cancellationToken))
+                    while (dataReader.Read())
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
