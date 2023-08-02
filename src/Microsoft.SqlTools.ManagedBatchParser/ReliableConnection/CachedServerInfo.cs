@@ -7,7 +7,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Dmf;
@@ -296,7 +295,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             }
             catch
             {
-                Logger.Write(TraceEventType.Error,  String.Format(Resources.FailedToParseConnectionString, connection.ConnectionString));
+                Logger.Error( String.Format(Resources.FailedToParseConnectionString, connection.ConnectionString));
                 return null;
             }
         }

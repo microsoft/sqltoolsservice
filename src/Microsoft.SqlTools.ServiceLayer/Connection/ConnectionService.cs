@@ -24,7 +24,6 @@ using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
-using System.Diagnostics;
 using Microsoft.SqlTools.Authentication.Sql;
 using Microsoft.SqlTools.Authentication;
 using System.IO;
@@ -478,7 +477,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, "Failed to close temporary connections. error: " + ex.Message);
+                Logger.Information("Failed to close temporary connections. error: " + ex.Message);
             }
         }
 
@@ -1164,7 +1163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ConnectParams connectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
+            Logger.Verbose("HandleConnectRequest");
 
             try
             {
@@ -1243,7 +1242,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             ChangePasswordParams changePasswordParams,
             RequestContext<PasswordChangeResponse> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleChangePasswordRequest");
+            Logger.Verbose("HandleChangePasswordRequest");
             PasswordChangeResponse newResponse = new PasswordChangeResponse();
             try
             {
@@ -1306,7 +1305,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             CancelConnectParams cancelParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleCancelConnectRequest");
+            Logger.Verbose("HandleCancelConnectRequest");
             bool result = CancelConnect(cancelParams);
             await requestContext.SendResult(result);
         }
@@ -1318,7 +1317,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             DisconnectParams disconnectParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleDisconnectRequest");
+            Logger.Verbose("HandleDisconnectRequest");
             bool result = Instance.Disconnect(disconnectParams);
             await requestContext.SendResult(result);
 
@@ -1333,7 +1332,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             Task.Run(async () =>
             {
-                Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
+                Logger.Verbose("ListDatabasesRequest");
                 try
                 {
                     ListDatabasesResponse result = ListDatabases(listDatabasesParams);
@@ -1802,8 +1801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(
-                        TraceEventType.Error,
+                    Logger.Error(
                         string.Format(
                             "Exception caught while trying to change database context to [{0}] for OwnerUri [{1}]. Exception:{2}",
                             newDatabaseName,
@@ -1871,7 +1869,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
                 catch (Exception ex)
                 {
-                    Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                    Logger.Verbose("Could not send Connection telemetry event " + ex.ToString());
                 }
             }
         }
@@ -1932,7 +1930,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string error = string.Format(CultureInfo.InvariantCulture,
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
+                Logger.Error(error);
             }
 
             return null;
