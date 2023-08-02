@@ -346,10 +346,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
-            {
-                connectionInfo.ConnectionDetails.DatabaseName = databaseName;
-            }
+            // Update the database name in case the associated connection with the URI is for a different database like master.
+            // This also ensures we'll switch back to the original database name for this connection in subsequent calls so that it
+            // doesn't cause problems if we delete a database and this connection is still associated with that dropped database.
+            connectionInfo.ConnectionDetails.DatabaseName = databaseName ?? "master";
+
             CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
             if (dataContainer.Server == null)
             {
