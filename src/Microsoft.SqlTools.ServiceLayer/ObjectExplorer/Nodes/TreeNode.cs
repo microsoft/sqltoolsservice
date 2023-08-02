@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.Extensibility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 {
@@ -332,8 +331,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             var factories = new Dictionary<string, HashSet<ChildFactory>>();
 
-
-            ExtensionServiceProvider serviceProvider = (ExtensionServiceProvider)this.GetContextAs<SmoQueryContext>().ServiceProvider;
+            var serviceProvider = this.GetContextAs<SmoQueryContext>().ServiceProvider;
 
             foreach (var factory in serviceProvider.GetServices<ChildFactory>())
             {
