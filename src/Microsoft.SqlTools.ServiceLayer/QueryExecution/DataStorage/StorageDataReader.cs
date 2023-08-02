@@ -88,6 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// </summary>
         /// <param name="cancellationToken">The cancellation token to use for cancelling a query</param>
         /// <returns></returns>
+        [Obsolete("Deprecated due to performance issues, please use Read() instead.")]
         public Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
             return DbDataReader.ReadAsync(cancellationToken);
@@ -95,6 +96,18 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
 
         /// <summary>
         /// Pass-through to DbDataReader.Read()
+        /// 
+        /// ************** IMPORTANT ****************
+        /// M.D.SqlClient's ReadAsync() implementation is not as 
+        /// performant as Read() and doesn't respect Cancellation Token 
+        /// due to long existing design issues like below:
+        /// 
+        /// https://github.com/dotnet/SqlClient/issues/593
+        /// https://github.com/dotnet/SqlClient/issues/44
+        /// 
+        /// Until these issues are resolved, prefer using Sync APIs.
+        /// *****************************************
+        /// 
         /// </summary>
         /// <returns></returns>
         public bool Read()
