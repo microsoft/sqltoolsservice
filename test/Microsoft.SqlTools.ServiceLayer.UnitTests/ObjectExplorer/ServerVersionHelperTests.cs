@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [TestCase("16.1.2.3", SqlServerType.Sql2022)]
         public void CalculateServerTypeShouldReturnExpectedValue(string serverVersion, SqlServerType expectedServerType)
         {
-            ObjectExplorerServerInfo serverInfo = new ObjectExplorerServerInfo
+            SimpleObjectExplorerServerInfo serverInfo = new SimpleObjectExplorerServerInfo
             {
                 ServerVersion = serverVersion
             };
@@ -127,7 +127,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private void VerifyCalculateServerTypeForEngineEdition(int engineEdition, SqlServerType expected)
         {
-            ObjectExplorerServerInfo serverInfo = new ObjectExplorerServerInfo
+            SimpleObjectExplorerServerInfo serverInfo = new SimpleObjectExplorerServerInfo
             {
                 EngineEditionId = engineEdition
             };

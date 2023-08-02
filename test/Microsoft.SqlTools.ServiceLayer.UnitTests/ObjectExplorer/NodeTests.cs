@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         private string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
         private ServerConnection serverConnection = null;
 
-        private ObjectExplorerServerInfo oeServerInfo = null;
+        private SimpleObjectExplorerServerInfo oeServerInfo = null;
 
         [SetUp]
         public void InitNodeTests()
@@ -59,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 OwnerUri = defaultOwnerUri
             };
 
-            oeServerInfo = new ObjectExplorerServerInfo()
+            oeServerInfo = new SimpleObjectExplorerServerInfo()
             {
                 ServerName = defaultConnectionDetails.ServerName,
                 DatabaseName = defaultConnectionDetails.DatabaseName,
