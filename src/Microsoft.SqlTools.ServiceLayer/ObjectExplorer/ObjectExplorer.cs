@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <param name="options">Flags to set and change oe options</param>
         /// <param name="sessionIdOverride">Override sessionID. By default a guid is generated to be used as session id</param>
         /// <returns></returns>
-        public ObjectExplorerSession CreateSession(string connectionString, SecurityToken? accessToken, SimpleObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, string? sessionIdOverride = null)
+        public ObjectExplorerSession CreateSession(string connectionString, SecurityToken? accessToken, ObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, string? sessionIdOverride = null)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -187,10 +187,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             public string SessionID { get; set; }
             public ServerConnection Connection { get; set; }
             public TreeNode Root { get; private set; }
-            public SimpleObjectExplorerServerInfo ServerInfo { get; set; }
+            public ObjectExplorerServerInfo ServerInfo { get; set; }
             public SimpleObjectExplorerOptions Options { get; set; }
 
-            public ObjectExplorerSession(ServerConnection connection, TreeNode root, SimpleObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, SecurityToken? accessToken = null)
+            public ObjectExplorerSession(ServerConnection connection, TreeNode root, ObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, SecurityToken? accessToken = null)
             {
                 Validate.IsNotNull("root", root);
                 Connection = connection;
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 SessionID = Guid.NewGuid().ToString();
             }
 
-            public static ObjectExplorerSession Create(ServerConnection connection, TreeNode root, SimpleObjectExplorerServerInfo serverInfo, bool isDefaultOrSystemDatabase, SimpleObjectExplorerOptions options)
+            public static ObjectExplorerSession Create(ServerConnection connection, TreeNode root, ObjectExplorerServerInfo serverInfo, bool isDefaultOrSystemDatabase, SimpleObjectExplorerOptions options)
             {
                 ServerNode rootNode = new ServerNode(serverInfo, connection);
                 var session = new ObjectExplorerSession(connection, root, serverInfo, options);
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         }
     }
 
-    public class SimpleObjectExplorerServerInfo
+    public class ObjectExplorerServerInfo
     {
         /// <summary>
         /// Server name for the OE session

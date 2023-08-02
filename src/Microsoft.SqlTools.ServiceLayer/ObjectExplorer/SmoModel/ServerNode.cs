@@ -22,16 +22,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
     /// </summary>
     public class ServerNode : TreeNode
     {
-        private SimpleObjectExplorerServerInfo serverInfo;
+        private ObjectExplorerServerInfo serverInfo;
         private Lazy<SmoQueryContext> context;
         private SmoWrapper smoWrapper;
         private SqlServerType sqlServerType;
         public ServerConnection serverConnection;
 
-        public ServerNode(SimpleObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null)
+        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null)
             : base()
         {
-            Validate.IsNotNull(nameof(SimpleObjectExplorerServerInfo), serverInfo);
+            Validate.IsNotNull(nameof(ObjectExplorerServerInfo), serverInfo);
 
             this.serverInfo = serverInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);

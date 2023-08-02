@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <summary>
         /// Creates a server type from the server version
         /// </summary>
-        public static SqlServerType CalculateServerType(SimpleObjectExplorerServerInfo serverInfo)
+        public static SqlServerType CalculateServerType(ObjectExplorerServerInfo serverInfo)
         {
             string serverVersion = serverInfo.ServerVersion;
 

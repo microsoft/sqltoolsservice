@@ -31,18 +31,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
     public class NodeTests : ObjectExplorerTestBase
     {
         private string defaultOwnerUri = "objectexplorer://myserver";
-        private ServerInfo defaultServerInfo;
+        private ObjectExplorerServerInfo oeServerInfo = null;
         private ConnectionDetails defaultConnectionDetails;
         private ConnectionCompleteParams defaultConnParams;
         private string fakeConnectionString = "Data Source=server;Initial Catalog=database;Integrated Security=False;User Id=user";
         private ServerConnection serverConnection = null;
 
-        private SimpleObjectExplorerServerInfo oeServerInfo = null;
 
         [SetUp]
         public void InitNodeTests()
         {
-            defaultServerInfo = TestObjects.GetTestServerInfo();
+            var defaultServerInfo = TestObjects.GetTestServerInfo();
             serverConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
 
             defaultConnectionDetails = new ConnectionDetails()
@@ -55,11 +54,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             defaultConnParams = new ConnectionCompleteParams()
             {
                 ServerInfo = defaultServerInfo,
-                ConnectionSummary = defaultConnectionDetails != null ? ((IConnectionSummary)defaultConnectionDetails).Clone(): null,
+                ConnectionSummary = defaultConnectionDetails != null ? ((IConnectionSummary)defaultConnectionDetails).Clone() : null,
                 OwnerUri = defaultOwnerUri
             };
 
-            oeServerInfo = new SimpleObjectExplorerServerInfo()
+            oeServerInfo = new ObjectExplorerServerInfo()
             {
                 ServerName = defaultConnectionDetails.ServerName,
                 DatabaseName = defaultConnectionDetails.DatabaseName,
@@ -72,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // TODO can all tests use the standard service provider?
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
         }
-        
+
         [Test]
         public void ServerNodeConstructorValidatesFields()
         {
@@ -88,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.False(node.IsAlwaysLeaf, "Server node should never be a leaf");
             Assert.AreEqual(defaultConnectionDetails.ServerName, node.NodeValue);
 
-            string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + defaultServerInfo.ServerVersion + " - "
+            string expectedLabel = defaultConnectionDetails.ServerName + " (SQL Server " + oeServerInfo.ServerVersion + " - "
                 + defaultConnectionDetails.UserName + ")";
             Assert.AreEqual(expectedLabel, node.Label);
 
@@ -191,21 +190,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void MultiLevelTreeShouldFormatPath()
         {
             TreeNode root = new TreeNode("root");
-            Assert.AreEqual("root" , root.GetNodePath());
+            Assert.AreEqual("root", root.GetNodePath());
 
             TreeNode level1Child1 = new TreeNode("L1C1 (with extra info)");
             level1Child1.NodePathName = "L1C1";
             TreeNode level1Child2 = new TreeNode("L1C2");
             root.AddChild(level1Child1);
             root.AddChild(level1Child2);
-            Assert.AreEqual("root/L1C1" , level1Child1.GetNodePath());
+            Assert.AreEqual("root/L1C1", level1Child1.GetNodePath());
             Assert.AreEqual("root/L1C2", level1Child2.GetNodePath());
 
             TreeNode level2Child1 = new TreeNode("L2C2");
             level1Child1.AddChild(level2Child1);
             Assert.AreEqual("root/L1C1/L2C2", level2Child1.GetNodePath());
         }
-        
+
         [Test]
         public void ServerNodeContextShouldIncludeServer()
         {
@@ -274,16 +273,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 string.Format(CultureInfo.CurrentCulture, SR.TreeNodeError, expectedMsg),
                 node.ErrorStateMessage);
         }
-        
+
         [Test]
         public void QueryContextShouldNotCallOpenOnAlreadyOpenConnection()
         {
             // given a server connection that will state its connection is open
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: true);
-            
+
             SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
-            
+
             // when I access the Server property
             Server actualServer = context.Server;
 
@@ -312,9 +311,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // given a server connection that will state its connection is closed
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
-            
+
             SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
-            
+
             // when I access the Server property
             Server actualServer = context.Server;
 
@@ -329,7 +328,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // given a server connection that will state its connection is closed
             Server smoServer = new Server(new ServerConnection(new SqlConnection(fakeConnectionString)));
             Mock<SmoWrapper> wrapper = SetupSmoWrapperForIsOpenTest(smoServer, isOpen: false);
-            
+
             SmoQueryContext context = new SmoQueryContext(smoServer, ServiceProvider, wrapper.Object);
             context.Parent = smoServer;
             // when I access the Parent property
@@ -420,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.AreEqual(dbName, dbNode.NodeValue);
             Assert.AreEqual(dbName, dbNode.Label);
             Assert.False(dbNode.IsAlwaysLeaf);
-            
+
             // Note: would like to verify Database in the context, but cannot since it's a Sealed class and isn't easily mockable
         }
 

@@ -817,7 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
             {
-                ServerNode rootNode = new ServerNode(new SimpleObjectExplorerServerInfo()
+                ServerNode rootNode = new ServerNode(new ObjectExplorerServerInfo()
                 {
                     ServerName = response.ConnectionSummary.ServerName,
                     DatabaseName = response.ConnectionSummary.DatabaseName,
