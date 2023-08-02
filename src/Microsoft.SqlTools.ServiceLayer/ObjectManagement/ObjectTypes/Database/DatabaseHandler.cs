@@ -79,26 +79,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
-            var onOffOptions = new List<string>(){
-                SR.prototype_db_prop_databasescopedconfig_value_on,
-                SR.prototype_db_prop_databasescopedconfig_value_off
+            DscOnOffOptions = new[]{
+                CommonConstants.DatabaseScopedConfigurations_Value_On,
+                CommonConstants.DatabaseScopedConfigurations_Value_Off
             };
-            DscOnOffOptions = onOffOptions.ToArray();
 
-            var elevateOptions = new List<string>()
-            {
-                SR.prototype_db_prop_databasescopedconfig_value_off,
-                SR.prototype_db_prop_databasescopedconfig_value_when_supported,
-                SR.prototype_db_prop_databasescopedconfig_value_fail_supported
+            DscElevateOptions = new[]{
+                CommonConstants.DatabaseScopedConfigurations_Value_Off,
+                CommonConstants.DatabaseScopedConfigurations_Value_When_supported,
+                CommonConstants.DatabaseScopedConfigurations_Value_Fail_Unsupported
             };
-            DscElevateOptions = elevateOptions.ToArray();
 
-            var enableDisableOptions = new List<string>()
-            {
-                SR.prototype_db_prop_databasescopedconfig_value_fail_enabled,
-                SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+            DscEnableDisableOptions = new[]{
+                CommonConstants.DatabaseScopedConfigurations_Value_Enabled,
+                CommonConstants.DatabaseScopedConfigurations_Value_Disabled
             };
-            DscEnableDisableOptions = enableDisableOptions.ToArray();
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -187,7 +182,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations): null
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
                                 };
 
                                 if (!isManagedInstance)
@@ -503,17 +498,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     {
                                         if (smoDscCollection.Name == dsc.Name)
                                         {
-                                            smoDscCollection.Value = dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
-                                                ? "1" : dsc.ValueForPrimary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+                                            smoDscCollection.Value = dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                                ? "1" : dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
                                                 ? "0" : dsc.ValueForPrimary;
 
                                             // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
                                             // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
-                                            if (!(smoDscCollection.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary &&
+                                            if (!(smoDscCollection.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary &&
                                                 dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
                                             {
-                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_enabled
-                                                            ? "1" : dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_fail_disabled
+                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                                            ? "1" : dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
                                                             ? "0" : dsc.ValueForSecondary;
                                             }
                                             break;
@@ -960,7 +955,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Id = dsc.Id,
                     Name = dsc.Name,
                     ValueForPrimary = primaryValue,
-                    ValueForSecondary = dsc.ValueForSecondary == SR.prototype_db_prop_databasescopedconfig_value_primary ? primaryValue : GetDscValue(dsc.Id, dsc.ValueForSecondary)
+                    ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary ? primaryValue : GetDscValue(dsc.Id, dsc.ValueForSecondary)
                 });
             }
             return dscMetaData.ToArray();
@@ -982,9 +977,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             switch (value)
             {
                 case "1":
-                    return SR.prototype_db_prop_databasescopedconfig_value_fail_enabled;
+                    return CommonConstants.DatabaseScopedConfigurations_Value_Enabled;
                 case "0":
-                    return SR.prototype_db_prop_databasescopedconfig_value_fail_disabled;
+                    return CommonConstants.DatabaseScopedConfigurations_Value_Disabled;
                 default:
                     return value;
             }
