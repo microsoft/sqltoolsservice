@@ -94,6 +94,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         }
 
         /// <summary>
+        /// Pass-through to DbDataReader.Read()
+        /// </summary>
+        /// <returns></returns>
+        public bool Read()
+        {
+            return DbDataReader.Read();
+        }
+
+        /// <summary>
         /// Retrieves a value
         /// </summary>
         /// <param name="i">Column ordinal</param>

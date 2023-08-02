@@ -429,6 +429,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             do
                             {
+                                // Verify that the cancellation token hasn't been canceled
+                                cancellationToken.ThrowIfCancellationRequested();
                                 columnSchemas.Add(reader.GetColumnSchema().ToArray());
                             } while (reader.NextResult());
                         }
