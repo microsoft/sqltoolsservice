@@ -6,6 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
@@ -25,14 +26,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server)
-            : this(server, null)
+        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider)
+            : this(server, serviceProvider, null)
         {
         }
 
-        internal SmoQueryContext(Server server, SmoWrapper serverManager)
+        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
         {
             this.server = server;
+            ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
         }
 
@@ -83,6 +85,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
 
         /// <summary>
+        /// A query loader that can be used to find <see cref="SmoQuerier"/> objects
+        /// for specific SMO types
+        /// </summary>
+        public IMultiServiceProvider ServiceProvider { get; private set; }
+
+        /// <summary>
         /// Helper method to cast a parent to a specific type
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -100,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
         public SmoQueryContext CopyWithParent(SmoObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this.smoWrapper)
+            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper)
             {
                 database = this.Database,
                 Parent = parent,

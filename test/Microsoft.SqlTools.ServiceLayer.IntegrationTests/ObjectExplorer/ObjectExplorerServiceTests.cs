@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
@@ -294,6 +295,55 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         }
 
         [Test]
+        public async Task RegularOE()
+        {
+
+            string query = @"
+            Create table ""table['^__']"" (id int);
+            Create table ""table['^__']2"" (id int);
+            Create table ""table['^%%2"" (id int);
+            Create table ""testTable"" (id int);
+            ";
+
+            string databaseName = "#testDb#";
+
+
+            await RunTest(databaseName, query, "Testdb", async (testDbName, session) =>
+           {
+               SimpleObjectExplorer oe = new SimpleObjectExplorer();
+               var context = session.Root.GetContextAs<SmoQueryContext>();
+               string connString = context.Server.ConnectionContext.ConnectionString;
+
+               var simpleoeSession = oe.CreateSession(connString, null, new SimpleObjectExplorerServerInfo
+               {
+                   ServerName = "test",
+                   DatabaseName = testDbName,
+                   UserName = "lol",
+                   IsCloud = false,
+                   isDefaultOrSystemDatabase = false,
+
+               }, new SimpleObjectExplorerOptions
+               {
+                   EnableGroupBySchema = false,
+                   OperationTimeout = 60
+               }
+               );
+
+               try
+               {
+                   var expand = oe.Expand(simpleoeSession.SessionID, simpleoeSession.Root.GetNodePath(), null, null);
+                   var tables = expand[0];
+                   var tableChildren = oe.Expand(simpleoeSession.SessionID, tables.GetNodePath(), null, null);
+               }
+               catch (Exception e)
+               {
+                   Console.WriteLine(e.Message);
+               }
+               oe.CloseSession(simpleoeSession.SessionID);
+           });
+        }
+
+        [Test]
         public async Task VerifyOEFilters()
         {
             string query = @"
@@ -378,7 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                 Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^__']2") == false, "table['^__']2 node should not be found in tables node");
                 Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.testTable") == false, "testTable node should not be found in tables node");
                 Assert.That(tablesChildren.Nodes.Any(t => t.Label == "dbo.table['^%%2") == false, "table['^%%2 node should not be found in tables node");
-                
+
             });
         }
 

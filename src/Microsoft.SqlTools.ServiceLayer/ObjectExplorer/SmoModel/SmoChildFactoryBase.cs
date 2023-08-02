@@ -14,7 +14,6 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.Extensibility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -130,10 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 return;
             }
 
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
-
-            IEnumerable<SmoQuerier> queriers = serviceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
-
+            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
@@ -145,7 +141,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     Values = new List<object> { name },
                 });
             }
-
             if (appliedFilters != null)
             {
                 filters.AddRange(appliedFilters);

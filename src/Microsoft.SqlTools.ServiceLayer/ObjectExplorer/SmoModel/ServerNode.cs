@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Extensibility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -27,16 +28,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private SqlServerType sqlServerType;
         public ServerConnection serverConnection;
 
-        public ServerNode(SimpleObjectExplorerServerInfo serverInfo, ServerConnection serverConnection)
+        public ServerNode(SimpleObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null)
             : base()
         {
             Validate.IsNotNull(nameof(SimpleObjectExplorerServerInfo), serverInfo);
 
             this.serverInfo = serverInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
-            
+
+            serviceProvider ??= ExtensionServiceProvider.CreateDefaultServiceProvider();
+            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
             this.serverConnection = serverConnection;
-            this.context = new Lazy<SmoQueryContext>(CreateContext());
 
             NodeValue = serverInfo.ServerName;
             IsAlwaysLeaf = false;
@@ -111,18 +113,18 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return label;
         }
 
+       
 
-
-        private SmoQueryContext CreateContext()
+        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
         {
             string exceptionMessage;
-
+   
             try
             {
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new SmoQueryContext(server, SmoWrapper)
+                    return new SmoQueryContext(server, serviceProvider, SmoWrapper)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType

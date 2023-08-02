@@ -328,11 +328,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
 
         private static Lazy<Dictionary<string, HashSet<ChildFactory>>> ApplicableNodeChildFactories;
 
-        static void PopulateFactories()
+        private void PopulateFactories()
         {
             var factories = new Dictionary<string, HashSet<ChildFactory>>();
 
-            ExtensionServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+
+            ExtensionServiceProvider serviceProvider = (ExtensionServiceProvider)this.GetContextAs<SmoQueryContext>().ServiceProvider;
 
             foreach (var factory in serviceProvider.GetServices<ChildFactory>())
             {
@@ -358,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         {
             if (TreeNode.ApplicableNodeChildFactories == null)
             {
-                TreeNode.PopulateFactories();
+                this.PopulateFactories();
             }
 
             HashSet<ChildFactory> applicableFactories;
@@ -368,7 +369,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             return null;
         }
-
+        
         protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));

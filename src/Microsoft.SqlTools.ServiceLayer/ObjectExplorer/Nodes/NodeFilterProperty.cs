@@ -14,15 +14,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The name of the filter property
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
         /// <summary>
         /// The name of the filter property displayed to the user
         /// </summary>
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
         /// <summary>
         /// The description of the filter property
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
         /// <summary>
         /// The data type of the filter property
         /// </summary>
@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// <summary>
         /// The list of choices for the filter property if the type is choice
         /// </summary>
-        public NodeFilterPropertyChoice[] Choices { get; set; }
+        public NodeFilterPropertyChoice[]? Choices { get; set; }
     }
 
 
@@ -55,12 +55,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         /// The dropdown display value for the choice
         /// </summary>
         /// <value></value>
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
         /// <summary>
         /// The value of the choice
         /// </summary>
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
 }

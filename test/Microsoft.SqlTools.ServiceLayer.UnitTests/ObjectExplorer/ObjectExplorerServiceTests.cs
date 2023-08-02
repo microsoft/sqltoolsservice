@@ -298,7 +298,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public void FindNodeCanExpandParentNodes()
         {
             var mockTreeNode = new Mock<TreeNode>();
-            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>(), ItExpr.IsNull<IEnumerable<NodeFilter>>() };
+            object[] populateChildrenArguments = { ItExpr.Is<bool>(x => x == false), ItExpr.IsNull<string>(), new CancellationToken(), ItExpr.IsNull<string>(), ItExpr.IsNull<IEnumerable<INodeFilter>>() };
             mockTreeNode.Protected().Setup("PopulateChildren", populateChildrenArguments);
             mockTreeNode.Object.IsAlwaysLeaf = false;
 
