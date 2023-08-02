@@ -1295,7 +1295,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Change the password of the connection
-            ServerConnection serverConnection = new ServerConnection(changePasswordParams.Connection.ServerName, changePasswordParams.Connection.UserName, changePasswordParams.Connection.Password);
+            ServerConnection serverConnection = new ServerConnection();
+            serverConnection.ConnectionString = ConnectionService.BuildConnectionString(changePasswordParams.Connection);
             serverConnection.ChangePassword(changePasswordParams.NewPassword);
         }
 
