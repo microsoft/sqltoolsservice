@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.BatchParser.Utility;
 
@@ -345,7 +344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         {
             if (azureSessionId != Guid.Empty)
             {
-                Logger.Write(TraceEventType.Warning, string.Format(
+                Logger.Warning(string.Format(
                     "Retry occurred: session: {0}; attempt - {1}; delay - {2}; exception - \"{3}\"",
                     azureSessionId,
                     retryState.RetryCount,

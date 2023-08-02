@@ -453,7 +453,7 @@ SET NUMERIC_ROUNDABORT OFF;";
                             string sessionId = (string)command.ExecuteScalar();
                             if (!Guid.TryParse(sessionId, out _azureSessionId))
                             {
-                                Logger.Write(TraceEventType.Error, Resources.UnableToRetrieveAzureSessionId);
+                                Logger.Error(Resources.UnableToRetrieveAzureSessionId);
                             }
                         }
                     }
@@ -461,7 +461,7 @@ SET NUMERIC_ROUNDABORT OFF;";
             }
             catch (Exception exception)
             {
-                Logger.Write(TraceEventType.Error, Resources.UnableToRetrieveAzureSessionId + exception.ToString());
+                Logger.Error(Resources.UnableToRetrieveAzureSessionId + exception.ToString());
             }
         }
 

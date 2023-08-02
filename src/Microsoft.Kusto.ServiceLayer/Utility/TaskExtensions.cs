@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
@@ -43,8 +42,8 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(TraceEventType.Error, $"Exception in exception handling continuation: {e}");
-                    Logger.Write(TraceEventType.Error, e.StackTrace);
+                    Logger.Error($"Exception in exception handling continuation: {e}");
+                    Logger.Error(e.StackTrace);
                 }
             });
         }
@@ -80,8 +79,8 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(TraceEventType.Error, $"Exception in exception handling continuation: {e}");
-                    Logger.Write(TraceEventType.Error, e.StackTrace);
+                    Logger.Error($"Exception in exception handling continuation: {e}");
+                    Logger.Error(e.StackTrace);
                 }
             });
         }
@@ -95,7 +94,7 @@ namespace Microsoft.Kusto.ServiceLayer.Utility
                 sb.AppendLine($"{e.GetType().Name}: {e.Message}");
                 sb.AppendLine(e.StackTrace);
             }
-            Logger.Write(TraceEventType.Error, sb.ToString());
+            Logger.Error(sb.ToString());
         }
 
         /// <summary>

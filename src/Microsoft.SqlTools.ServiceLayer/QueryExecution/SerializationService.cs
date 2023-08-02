@@ -9,7 +9,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Composition;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
@@ -35,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(TraceEventType.Verbose, "SerializationService initialized");
+            Logger.Verbose("SerializationService initialized");
             serviceHost.SetRequestHandler(SerializeStartRequest.Type, HandleSerializeStartRequest, true);
             serviceHost.SetRequestHandler(SerializeContinueRequest.Type, HandleSerializeContinueRequest, true);
         }
@@ -75,7 +74,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     inProgressSerializations.AddOrUpdate(serializer.FilePath, serializer, (key, old) => serializer);
                 }
 
-                Logger.Write(TraceEventType.Verbose, "HandleSerializeStartRequest");
+                Logger.Verbose("HandleSerializeStartRequest");
                 SerializeDataResult result = serializer.ProcessRequest(serializeParams);
                 await requestContext.SendResult(result);
             }
@@ -136,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 }
 
                 // Write to file and cleanup if needed
-                Logger.Write(TraceEventType.Verbose, "HandleSerializeContinueRequest");
+                Logger.Verbose("HandleSerializeContinueRequest");
                 SerializeDataResult result = serializer.ProcessRequest(serializeParams);
                 if (serializeParams.IsLastBatch)
                 {

@@ -17,7 +17,6 @@ using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.Kusto.ServiceLayer.DataSource.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
@@ -246,7 +245,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, "Failed to close temporary connections. error: " + ex.Message);
+                Logger.Information("Failed to close temporary connections. error: " + ex.Message);
             }
         }
 
@@ -769,7 +768,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// <returns></returns>
         private async Task HandleConnectRequest(ConnectParams connectParams, RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleConnectRequest");
+            Logger.Verbose("HandleConnectRequest");
 
             try
             {
@@ -807,7 +806,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             CancelConnectParams cancelParams,
             RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleCancelConnectRequest");
+            Logger.Verbose("HandleCancelConnectRequest");
 
             try
             {
@@ -825,7 +824,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private async Task HandleDisconnectRequest(DisconnectParams disconnectParams, RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleDisconnectRequest");
+            Logger.Verbose("HandleDisconnectRequest");
 
             try
             {
@@ -844,7 +843,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
         /// </summary>
         private async Task HandleListDatabasesRequest(ListDatabasesParams listDatabasesParams, RequestContext<ListDatabasesResponse> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "ListDatabasesRequest");
+            Logger.Verbose("ListDatabasesRequest");
 
             try
             {
@@ -985,8 +984,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
             }
             catch (Exception e)
             {
-                Logger.Write(
-                    TraceEventType.Error,
+                Logger.Error(
                     $"Exception caught while trying to change database context to [{newDatabaseName}] for OwnerUri [{ownerUri}]. Exception:{e}"
                 );
                 return false;
@@ -1049,7 +1047,7 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                 }
                 catch (Exception ex)
                 {
-                    Logger.Write(TraceEventType.Verbose, "Could not send Connection telemetry event " + ex.ToString());
+                    Logger.Verbose("Could not send Connection telemetry event " + ex.ToString());
                 }
             }
         }

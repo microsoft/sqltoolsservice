@@ -11,7 +11,6 @@ using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -100,7 +99,7 @@ ORDER BY platform";
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to get language status for language: {languageName}, error: {ex.Message}");
+                Logger.Warning($"Failed to get language status for language: {languageName}, error: {ex.Message}");
                 status = false;
             }
 

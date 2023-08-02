@@ -6,7 +6,6 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
@@ -94,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed with exception {0}", e));
+                Logger.Error(string.Format("Schema compare open scmp operation failed with exception {0}", e));
                 throw;
             }
         }
@@ -142,7 +141,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 {
                     string info = isProjectEndpoint ? ((SchemaCompareProjectEndpoint)endpoint).ProjectFilePath : ((SchemaCompareDatabaseEndpoint)endpoint).DatabaseName;
                     ErrorMessage = string.Format(SR.OpenScmpConnectionBasedModelParsingError, info, e.Message);
-                    Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
+                    Logger.Error(string.Format("Schema compare open scmp operation failed during xml parsing with exception {0}", e.Message));
                     throw;
                 }
             }
@@ -181,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                     } else
                     {
                         endpointInfo.ExtractTarget = DacExtractTarget.SchemaObjectType;     // set default but log an error
-                        Logger.Write(TraceEventType.Error, string.Format("Schema compare open scmp operation failed during xml parsing with unknown ExtractTarget"));
+                        Logger.Error(string.Format("Schema compare open scmp operation failed during xml parsing with unknown ExtractTarget"));
                     }
                 } else
                 {
