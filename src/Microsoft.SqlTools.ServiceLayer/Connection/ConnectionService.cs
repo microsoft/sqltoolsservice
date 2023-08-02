@@ -1933,9 +1933,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     "Failed opening a SqlConnection: error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty, ex.StackTrace);
                 Logger.Write(TraceEventType.Error, error);
+                throw;
             }
-
-            return null;
         }
 
         /// <summary>
