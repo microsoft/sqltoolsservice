@@ -9,7 +9,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetOverallResourceConsumptionReportParams : QueryStoreReportParams
+    public class GetTrackedQueriesReportParams : QueryStoreReportParams
     {
 
     }
@@ -17,9 +17,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     /// <summary>
     /// Gets the report for a Forced Plan Queries summary
     /// </summary>
-    public class GetOverallResourceConsumptionReportRequest
+    public class GetTrackedQueriesReportRequest
     {
-        public static readonly RequestType<GetOverallResourceConsumptionReportParams, QueryStoreQueryResult> Type
-            = RequestType<GetOverallResourceConsumptionReportParams, QueryStoreQueryResult>.Create("queryStore/getOverallResourceConsumptionReport");
+        public static readonly RequestType<GetTrackedQueriesReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetTrackedQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getTrackedQueriesReport");
     }
 }

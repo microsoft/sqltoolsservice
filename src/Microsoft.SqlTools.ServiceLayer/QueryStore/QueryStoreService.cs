@@ -4,19 +4,20 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.QueryStoreModel.Common;
 using Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries;
+using Microsoft.SqlServer.Management.QueryStoreModel.HighVariation;
+using Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption;
+using Microsoft.SqlServer.Management.QueryStoreModel.RegressedQueries;
+using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
+using Microsoft.SqlServer.Management.QueryStoreModel.TrackedQueries;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution;
-using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 
@@ -33,13 +34,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         /// Gets the singleton instance object
         /// </summary>
         public static QueryStoreService Instance => instance.Value;
-
-        private Lazy<ConcurrentDictionary<string, SqlProject>> projects = new Lazy<ConcurrentDictionary<string, SqlProject>>(() => new ConcurrentDictionary<string, SqlProject>(StringComparer.OrdinalIgnoreCase));
-
-        /// <summary>
-        /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps Project URI to Project
-        /// </summary>
-        public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
 
         /// <summary>
         /// Instance of the connection service, used to get the connection info for a given owner URI
@@ -62,156 +56,282 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         /// <param name="serviceHost"></param>
         public void InitializeService(ServiceHost serviceHost)
         {
+            // Top Resource Consumers report
+            serviceHost.SetRequestHandler(GetTopResourceConsumersSummaryRequest.Type, HandleGetTopResourceConsumersSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetTopResourceConsumersDetailedSummaryRequest.Type, HandleGetTopResourceConsumersDetailedSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetTopResourceConsumersDetailedSummaryWithWaitStatsRequest.Type, HandleGetTopResourceConsumersDetailedSummaryWithWaitStatsReportRequest, isParallelProcessingSupported: true);
+
+            // Forced Plan Queries report
             serviceHost.SetRequestHandler(GetForcedPlanQueriesReportRequest.Type, HandleGetForcedPlanQueriesReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetHighVariationQueriesReportRequest.Type, HandleGetHighVariationQueriesReportRequest, isParallelProcessingSupported: true);
+
+            // Tracked Queries report
+            serviceHost.SetRequestHandler(GetTrackedQueriesReportRequest.Type, HandleGetTrackedQueriesReportRequest, isParallelProcessingSupported: true);
+
+            // High Variation Queries report
+            serviceHost.SetRequestHandler(GetHighVariationQueriesSummaryRequest.Type, HandleGetHighVariationQueriesSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetHighVariationQueriesDetailedSummaryRequest.Type, HandleGetHighVariationQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetHighVariationQueriesDetailedSummaryWithWaitStatsRequest.Type, HandleGetHighVariationQueriesDetailedSummaryWithWaitStatsReportRequest, isParallelProcessingSupported: true);
+
+            // Overall Resource Consumption report
             serviceHost.SetRequestHandler(GetOverallResourceConsumptionReportRequest.Type, HandleGetOverallResourceConsumptionReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetRegressedQueriesReportRequest.Type, HandleGetRegressedQueriesReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetTopResourceConsumersReportRequest.Type, HandleGetTopResourceConsumersReportRequest, isParallelProcessingSupported: true);
+
+            // Regressed Queries report
+            serviceHost.SetRequestHandler(GetRegressedQueriesSummaryRequest.Type, HandleGetRegressedQueriesSummaryReportRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetRegressedQueriesDetailedSummaryRequest.Type, HandleGetRegressedQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
         }
 
         #region Handlers
 
-        internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<SimpleExecuteResult> requestContext)
+        /* 
+         * General process is to:
+         * 1. Convert the ADS config to the Query Store Model config format
+         * 2. Call the unordered query generator to get the list of columns
+         * 3. Select the intended ColumnInfo for sorting
+         * 4. Call the ordered query generator to get the actual query
+         * 5. Prepend any necessary TSQL parameters to the generated query
+         * 6. Return the query text to ADS for execution
+         */
+
+        #region Top Resource Consumers report
+
+        internal async Task HandleGetTopResourceConsumersSummaryReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
-            // Generate query
-            ForcedPlanQueriesConfiguration config = new();
+            await RunWithErrorHandling(() =>
+            {
+                TopResourceConsumersConfiguration config = new();
+                TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, orderByColumn, requestParams.Descending, out _);
 
-            ColumnInfo orderByColumn = GetOrderByColumn(requestParams);
-
-            string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, descending: true, out IList<ColumnInfo> _ /* discarded because SimpleExecuteResult already extracts this data */);
-
-            await ExecuteQueryHelper(query, requestParams.ConnectionOwnerUri, requestContext);
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query,
+                };
+            }, requestContext);
         }
 
-        internal async Task HandleGetHighVariationQueriesReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<GetHighVariationQueriesReportResult> requestContext)
+        internal async Task HandleGetTopResourceConsumersDetailedSummaryReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
-            await Task.Delay(0);
-            throw new NotImplementedException();
+            await RunWithErrorHandling(() =>
+            {
+                TopResourceConsumersConfiguration config = new();
+                TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
         }
 
-        internal async Task HandleGetOverallResourceConsumptionReportRequest(GetOverallResourceConsumptionReportParams requestParams, RequestContext<GetOverallResourceConsumptionReportResult> requestContext)
+        internal async Task HandleGetTopResourceConsumersDetailedSummaryWithWaitStatsReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
-            await Task.Delay(0);
-            throw new NotImplementedException();
+            await RunWithErrorHandling(() =>
+            {
+                TopResourceConsumersConfiguration config = new();
+                TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
         }
 
-        internal async Task HandleGetRegressedQueriesReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<GetRegressedQueriesReportResult> requestContext)
+        #endregion
+
+        #region Forced Plans report
+
+        internal async Task HandleGetForcedPlanQueriesReportRequest(GetForcedPlanQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
-            await Task.Delay(0);
-            throw new NotImplementedException();
+            await RunWithErrorHandling(() =>
+            {
+                ForcedPlanQueriesConfiguration config = new();
+                ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, requestParams.Descending, out IList<ColumnInfo> _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
         }
 
-        internal async Task HandleGetTopResourceConsumersReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<GetTopResourceConsumersReportResult> requestContext)
+        #endregion
+
+        #region Tracked Queries report
+
+        internal async Task HandleGetTrackedQueriesReportRequest(GetTrackedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
-            await Task.Delay(0);
-            throw new NotImplementedException();
+            await RunWithErrorHandling(() =>
+            {
+                TrackedQueriesConfiguration config = new();
+                string query = QueryIDSearchQueryGenerator.GetQuery();
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
         }
+
+        #endregion
+
+        #region High Variation Queries report
+
+        internal async Task HandleGetHighVariationQueriesSummaryReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                HighVariationConfiguration config = new();
+                HighVariationQueryGenerator.HighVariationSummary(config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = HighVariationQueryGenerator.HighVariationSummary(config, orderByColumn, requestParams.Descending, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleGetHighVariationQueriesDetailedSummaryReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                HighVariationConfiguration config = new();
+                IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
+                HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleGetHighVariationQueriesDetailedSummaryWithWaitStatsReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                HighVariationConfiguration config = new();
+                IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
+                HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                string query = HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        #endregion
+
+        #region Overall Resource Consumption report
+
+        internal async Task HandleGetOverallResourceConsumptionReportRequest(GetOverallResourceConsumptionReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                OverallResourceConsumptionConfiguration config = new();
+                string query = OverallResourceConsumptionQueryGenerator.GenerateQuery(GetAvailableMetrics(requestParams), config, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        #endregion
+
+        #region Regressed Queries report
+
+        internal async Task HandleGetRegressedQueriesSummaryReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                RegressedQueriesConfiguration config = new();
+                string query = RegressedQueriesQueryGenerator.RegressedQuerySummary(config, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleGetRegressedQueriesDetailedSummaryReportRequest(GetRegressedQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                RegressedQueriesConfiguration config = new();
+                string query = RegressedQueriesQueryGenerator.RegressedQueryDetailedSummary(GetAvailableMetrics(requestParams), config, out _);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        #endregion
 
         #endregion
 
         #region Helpers
 
-        private async Task ExecuteQueryHelper(string query, string connectionOwnerUri, RequestContext<SimpleExecuteResult> requestContext)
+        private ColumnInfo GetOrderByColumn(QueryStoreReportParams requestParams, IList<ColumnInfo> columnInfoList)
         {
-            SimpleExecuteParams remappedParams = new()
-            {
-                OwnerUri = connectionOwnerUri,
-                QueryString = query
-            };
-
-            await QueryExecutionService.Instance.HandleSimpleExecuteRequest(remappedParams, requestContext);
+            return requestParams.OrderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.OrderByColumnId) : columnInfoList[0];
         }
 
-        // TODO: possibly push down to QueryStoreModel
-        private ColumnInfo GetOrderByColumn(QueryStoreReportParams requestParams)
+        private IList<Metric> GetAvailableMetrics(QueryStoreReportParams requestParams)
         {
-            switch (requestParams.OrderByColumnId)
+            ConnectionService.TryFindConnection(requestParams.ConnectionOwnerUri, out ConnectionInfo connectionInfo);
+
+            if (connectionInfo != null)
             {
-                case "query_id":
-                    return new QueryIdColumnInfo();
-                case "object_id":
-                    return new ObjectIdColumnInfo();
-                case "object_name":
-                    return new ObjectNameColumnInfo();
-                case "query_sql_text":
-                    return new QueryTextColumnInfo();
-                case "plan_id":
-                    return new PlanIdColumnInfo(); // doubled-up columnId with ForcedPlanFailureCountColumnInfo, may need extra logic here
-                case "execution_type":
-                    return new ExecutionTypeColumnInfo();
-                case "wait_category_desc":
-                    return new WaitCategoryDescColumnInfo();
-                case "wait_category":
-                    return new WaitCategoryIdColumnInfo();
-                case "num_plans":
-                    return new NumPlansColumnInfo();
-                case "force_failure_count":
-                    return new ForcedPlanFailureCountColumnInfo();
-                case "last_force_failure_reason_desc":
-                    return new ForcedPlanFailureDescpColumnInfo();
-                case "last_compile_start_time":
-                    return new LastCompileStartTimeColumnInfo();
-                case "last_execution_time":
-                    return new LastForcedPlanExecTimeColumnInfo(); // also LastQueryExecTimeColumnInfo, LastExecTimeColumnInfo
-                case "is_forced_plan":
-                    return new PlanForcedColumnInfo();
-                case "first_execution_time":
-                    return new FirstExecTimeColumnInfo();
-                case "bucket_start":
-                    return new BucketStartTimeColumnInfo();
-                case "bucket_end":
-                    return new BucketEndTimeColumnInfo();
-                default:
-                    Debug.Fail($"Unhandled OrderByColumnId: '{requestParams.OrderByColumnId}'");
-                    return new QueryIdColumnInfo(); // TODO: is this the correct choice?
+                using (SqlConnection connection = ConnectionService.OpenSqlConnection(connectionInfo, "QueryStoreService available metrics"))
+                {
+                    return QdsMetadataMapper.GetAvailableMetrics(connection);
+                }
             }
-        }
-
-        private async Task ExecuteQueryHelperCustom<T>(string query, string connectionOwnerUri, RequestContext<T> requestContext) where T : ResultStatus
-        {
-            // set up query params
-            string queryOwnerUri = Guid.NewGuid().ToString(); // generate guid as the owner uri to make sure every query is unique
-
-            ExecuteStringParams executeStringParams = new ExecuteStringParams
+            else
             {
-                Query = query,
-                OwnerUri = queryOwnerUri
-            };
-
-            // set up connection
-
-            if (!ConnectionService.TryFindConnection(connectionOwnerUri, out ConnectionInfo originConnectionInfo))
-            {
-                await requestContext.SendError(SR.QueryServiceQueryInvalidOwnerUri);
-                return;
+                throw new InvalidOperationException($"Unable to find connection for '{requestParams.ConnectionOwnerUri}'");
             }
-
-            ConnectParams connectParams = new ConnectParams
-            {
-                OwnerUri = queryOwnerUri,
-                Connection = originConnectionInfo.ConnectionDetails,
-                Type = ConnectionType.Default
-            };
-
-            await ConnectionService.Connect(connectParams);
-            ConnectionService.TryFindConnection(queryOwnerUri, out ConnectionInfo queryConnectionInfo);
-
-            // set up handlers
-            ResultOnlyContext<T> resultContext = new ResultOnlyContext<T>(requestContext);
-
-            Func<string, Task> HandleQueryCreationFailure = message => requestContext.SendError(message);
-
-
-            // execute query
-
-            //        return await QueryExecutionService.Instance.InterServiceExecuteQuery(
-            //executeStringParams,
-            //originConnectionInfo,
-            //resultContext,
-            //queryCreateSuccessFunc: null,
-            //HandleQueryCreationFailure,
-            //querySuccessFunction,
-            //queryFailureFunction);
         }
 
         #endregion

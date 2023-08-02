@@ -4,31 +4,40 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetHighVariationQueriesReportParams
+    public class GetHighVariationQueriesReportParams : QueryStoreReportParams
     {
 
     }
 
     /// <summary>
-    /// Gets the report for a Forced Plan Queries summary
+    /// Gets the High Variation Queries summary
     /// </summary>
-    public class GetHighVariationQueriesReportRequest
+    public class GetHighVariationQueriesSummaryRequest
     {
-        public static readonly RequestType<GetHighVariationQueriesReportParams, GetHighVariationQueriesReportResult> Type
-            = RequestType<GetHighVariationQueriesReportParams, GetHighVariationQueriesReportResult>.Create("queryStore/getHighVariationQueriesReport");
+        public static readonly RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getHighVariationQueriesSummary");
     }
 
     /// <summary>
-    /// Result containing the report for a Forced Plan Queries summary
+    /// Gets the High Variation Queries detailed summary
     /// </summary>
-    public class GetHighVariationQueriesReportResult : ResultStatus
+    public class GetHighVariationQueriesDetailedSummaryRequest
     {
+        public static readonly RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getHighVariationQueriesDetailedSummary");
+    }
 
+    /// <summary>
+    /// Gets the High Variation Queries detailed summary with wait stats
+    /// </summary>
+    public class GetHighVariationQueriesDetailedSummaryWithWaitStatsRequest
+    {
+        public static readonly RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getHighVariationQueriesDetailedSummaryWithWaitStats");
     }
 }

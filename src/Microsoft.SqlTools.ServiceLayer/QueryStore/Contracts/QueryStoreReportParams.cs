@@ -5,6 +5,8 @@
 
 #nullable disable
 
+using Microsoft.SqlTools.ServiceLayer.Utility;
+
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class QueryStoreReportParams
@@ -12,5 +14,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         public string ConnectionOwnerUri;
         public string OrderByColumnId;
         public bool Descending;
+    }
+
+    public class QueryStoreQueryResult : ResultStatus
+    {
+        public string Query;
     }
 }

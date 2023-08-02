@@ -4,31 +4,31 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetRegressedQueriesReportParams
+    public class GetRegressedQueriesReportParams : QueryStoreReportParams
     {
 
     }
 
     /// <summary>
-    /// Gets the report for a Forced Plan Queries summary
+    /// Gets the Regressed Queries summary
     /// </summary>
-    public class GetRegressedQueriesReportRequest
+    public class GetRegressedQueriesSummaryRequest
     {
-        public static readonly RequestType<GetRegressedQueriesReportParams, GetRegressedQueriesReportResult> Type
-            = RequestType<GetRegressedQueriesReportParams, GetRegressedQueriesReportResult>.Create("queryStore/getRegressedQueriesReport");
+        public static readonly RequestType<GetRegressedQueriesReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetRegressedQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getRegressedQueriesSummary");
     }
 
     /// <summary>
-    /// Result containing the report for a Forced Plan Queries summary
+    /// Gets the Regressed Queries summary
     /// </summary>
-    public class GetRegressedQueriesReportResult : ResultStatus
+    public class GetRegressedQueriesDetailedSummaryRequest
     {
-
+        public static readonly RequestType<GetRegressedQueriesReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetRegressedQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getRegressedQueriesDetailedSummary");
     }
 }

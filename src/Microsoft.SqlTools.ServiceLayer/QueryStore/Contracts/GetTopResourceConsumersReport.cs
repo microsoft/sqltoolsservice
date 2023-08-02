@@ -4,31 +4,40 @@
 //
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetTopResourceConsumersReportParams
+    public class GetTopResourceConsumersReportParams : QueryStoreReportParams
     {
 
     }
 
     /// <summary>
-    /// Gets the report for a Forced Plan Queries summary
+    /// Gets a Forced Plan Queries summary
     /// </summary>
-    public class GetTopResourceConsumersReportRequest
+    public class GetTopResourceConsumersSummaryRequest
     {
-        public static readonly RequestType<GetTopResourceConsumersReportParams, GetTopResourceConsumersReportResult> Type
-            = RequestType<GetTopResourceConsumersReportParams, GetTopResourceConsumersReportResult>.Create("queryStore/getTopResourceConsumersReport");
+        public static readonly RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult>.Create("queryStore/getTopResourceConsumersSummary");
     }
 
     /// <summary>
-    /// Result containing the report for a Forced Plan Queries summary
+    /// Gets a Forced Plan Queries detailed summary
     /// </summary>
-    public class GetTopResourceConsumersReportResult : ResultStatus
+    public class GetTopResourceConsumersDetailedSummaryRequest
     {
+        public static readonly RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult>.Create("queryStore/getTopResourceConsumersDetailedSummary");
+    }
 
+    /// <summary>
+    /// Gets a Forced Plan Queries detailed summary with wait stats
+    /// </summary>
+    public class GetTopResourceConsumersDetailedSummaryWithWaitStatsRequest
+    {
+        public static readonly RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult> Type
+            = RequestType<GetTopResourceConsumersReportParams, QueryStoreQueryResult>.Create("queryStore/getTopResourceConsumersDetailedSummaryWithWaitStats");
     }
 }
