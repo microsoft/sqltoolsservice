@@ -446,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNull(nameof(connection), connection);
             if (!(connection.State == ConnectionState.Open))
             {
-                Logger.Write(TraceEventType.Warning, Resources.ConnectionPassedToIsCloudShouldBeOpen);
+                Logger.Warning(Resources.ConnectionPassedToIsCloudShouldBeOpen);
             }
 
             Func<string, DatabaseEngineEdition> executeCommand = commandText =>
@@ -514,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 return true;
             }
 
-            Logger.Write(TraceEventType.Error, ex.ToString());
+            Logger.Error(ex.ToString());
             return false;
         }
 
@@ -641,7 +641,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 },
                 (ex) =>
                 {
-                    Logger.Write(TraceEventType.Error, ex.ToString());
+                    Logger.Error(ex.ToString());
                     return StandardExceptionHandler(ex); // handled
                 },
                 useRetry: true,
@@ -801,7 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 // since these properties are not available for types of sql servers and users 
                 // and it is not essential to always include them
                 // just logging the errors here and moving on with the workflow. 
-                Logger.Write(TraceEventType.Error, ex.ToString());
+                Logger.Error(ex.ToString());
             }
             return sysInfo;
         }
@@ -814,7 +814,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNull(nameof(connection), connection);
             if (!(connection.State == ConnectionState.Open))
             {
-                Logger.Write(TraceEventType.Error, "connection passed to GetServerVersion should be open.");
+                Logger.Error("connection passed to GetServerVersion should be open.");
             }
 
             Func<string, ServerInfo> getServerInfo = commandText =>
@@ -865,8 +865,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     {
                         //we don't want to fail the normal flow if any unexpected thing happens
                         //during caching although it's unlikely. So we just log the exception and ignore it
-                        Logger.Write(TraceEventType.Error, Resources.FailedToCacheIsCloud);
-                        Logger.Write(TraceEventType.Error, ex.ToString());
+                        Logger.Error(Resources.FailedToCacheIsCloud);
+                        Logger.Error(ex.ToString());
                     }
                 });
 
@@ -976,7 +976,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             if (handledEx != null)
             {
-                Logger.Write(TraceEventType.Error, String.Format(Resources.ErrorParsingConnectionString, handledEx));
+                Logger.Error(String.Format(Resources.ErrorParsingConnectionString, handledEx));
                 return false;
             }
 

@@ -9,7 +9,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,7 +90,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             }
             catch(Exception ex)
             {
-                Logger.Write(TraceEventType.Error, ex.Message);
+                Logger.Error(ex.Message);
             }
         }
 
@@ -101,7 +100,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         /// <param name="serviceHost">The service host instance to register with</param>
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(TraceEventType.Verbose, "ObjectExplorer service initialized");
+            Logger.Verbose("ObjectExplorer service initialized");
             _serviceHost = serviceHost;
 
             _connectedBindingQueue.OnUnhandledException += OnUnhandledException;
@@ -139,7 +138,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleCreateSessionRequest");
+                Logger.Verbose("HandleCreateSessionRequest");
                 Func<Task<CreateSessionResponse>> doCreateSession = async () =>
                 {
                     Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
@@ -167,7 +166,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         internal async Task HandleExpandRequest(ExpandParams expandParams, RequestContext<bool> context)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleExpandRequest");
+            Logger.Verbose("HandleExpandRequest");
 
             Func<Task<bool>> expandNode = async () =>
             {
@@ -178,7 +177,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 if (!_sessionMap.TryGetValue(uri, out session))
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    Logger.Verbose($"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                     await _serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = expandParams.SessionId,
@@ -200,7 +199,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleRefreshRequest");
+                Logger.Verbose("HandleRefreshRequest");
                 Validate.IsNotNull(nameof(refreshParams), refreshParams);
                 Validate.IsNotNull(nameof(context), context);
 
@@ -208,7 +207,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                 ObjectExplorerSession session = null;
                 if (!_sessionMap.TryGetValue(uri, out session))
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
+                    Logger.Verbose($"Cannot expand object explorer node. Couldn't find session for uri. {uri} ");
                     await _serviceHost.SendEvent(ExpandCompleteNotification.Type, new ExpandResponse
                     {
                         SessionId = refreshParams.SessionId,
@@ -231,7 +230,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
         internal async Task HandleCloseSessionRequest(CloseSessionParams closeSessionParams, RequestContext<CloseSessionResponse> context)
         {
 
-            Logger.Write(TraceEventType.Verbose, "HandleCloseSessionRequest");
+            Logger.Verbose("HandleCloseSessionRequest");
             Func<Task<CloseSessionResponse>> closeSession = () =>
             {
                 Validate.IsNotNull(nameof(closeSessionParams), closeSessionParams);
@@ -243,7 +242,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
                     bool success = false;
                     if (!_sessionMap.TryGetValue(uri, out session))
                     {
-                        Logger.Write(TraceEventType.Verbose, $"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
+                        Logger.Verbose($"Cannot close object explorer session. Couldn't find session for uri. {uri} ");
                     }
 
                     if (session != null)
@@ -290,7 +289,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         private void RunCreateSessionTask(ConnectionDetails connectionDetails, string uri)
         {
-            Logger.Write(TraceEventType.Information, "Creating OE session");
+            Logger.Information("Creating OE session");
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             if (connectionDetails != null && !string.IsNullOrEmpty(uri))
             {
@@ -494,7 +493,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         private async Task SendSessionFailedNotification(string uri, string errorMessage)
         {
-            Logger.Write(TraceEventType.Warning, $"Failed To create OE session: {errorMessage}");
+            Logger.Warning($"Failed To create OE session: {errorMessage}");
             SessionCreatedParameters result = new SessionCreatedParameters()
             {
                 Success = false,
@@ -506,7 +505,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
 
         internal async Task SendSessionDisconnectedNotification(string uri, bool success, string errorMessage)
         {
-            Logger.Write(TraceEventType.Information, $"OE session disconnected: {errorMessage}");
+            Logger.Information($"OE session disconnected: {errorMessage}");
             SessionDisconnectedParameters result = new SessionDisconnectedParameters()
             {
                 Success = success,
@@ -559,7 +558,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer
             response = await ExpandNode(session, expandParams.NodePath, forceRefresh);
             if (cancellationToken.IsCancellationRequested)
             {
-                Logger.Write(TraceEventType.Verbose, "OE expand canceled");
+                Logger.Verbose("OE expand canceled");
             }
             else
             {

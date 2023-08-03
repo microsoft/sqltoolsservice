@@ -9,7 +9,6 @@ using Microsoft.Kusto.ServiceLayer.Scripting.Contracts;
 using Microsoft.Kusto.ServiceLayer.DataSource;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using static Microsoft.SqlServer.Management.SqlScriptPublish.SqlScriptOptions;
@@ -75,7 +74,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
 
         protected string GetServerNameFromLiveInstance()
         {
-            Logger.Write(TraceEventType.Verbose, string.Format("Resolved server name '{0}'", _dataSource.ClusterName));
+            Logger.Verbose(string.Format("Resolved server name '{0}'", _dataSource.ClusterName));
             return _dataSource.ClusterName;
         }
 
@@ -102,7 +101,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             if (scriptOptionsParameters == null)
             {
-                Logger.Write(TraceEventType.Verbose, "No advanced options set, the ScriptOptions object is null.");
+                Logger.Verbose("No advanced options set, the ScriptOptions object is null.");
                 return;
             }
 
@@ -111,14 +110,14 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                 PropertyInfo advancedOptionPropInfo = advancedOptions.GetType().GetProperty(optionPropInfo.Name);
                 if (advancedOptionPropInfo == null)
                 {
-                    Logger.Write(TraceEventType.Warning, string.Format("Invalid property info name {0} could not be mapped to a property on SqlScriptOptions.", optionPropInfo.Name));
+                    Logger.Warning(string.Format("Invalid property info name {0} could not be mapped to a property on SqlScriptOptions.", optionPropInfo.Name));
                     continue;
                 }
 
                 object optionValue = optionPropInfo.GetValue(scriptOptionsParameters, index: null);
                 if (optionValue == null)
                 {
-                    Logger.Write(TraceEventType.Verbose, string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
+                    Logger.Verbose(string.Format("Skipping ScriptOptions.{0} since value is null", optionPropInfo.Name));
                     continue;
                 }
 
@@ -148,14 +147,12 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
                         smoValue = Enum.Parse(advancedOptionPropInfo.PropertyType, (string)optionValue, ignoreCase: true);
                     }
 
-                    Logger.Write(TraceEventType.Verbose, string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
+                    Logger.Verbose(string.Format("Setting ScriptOptions.{0} to value {1}", optionPropInfo.Name, smoValue));
                     advancedOptionPropInfo.SetValue(advancedOptions, smoValue);
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(
-                        TraceEventType.Warning,
-                        string.Format("An exception occurred setting option {0} to value {1}: {2}", optionPropInfo.Name, optionValue, e));
+                    Logger.Warning(string.Format("An exception occurred setting option {0} to value {1}: {2}", optionPropInfo.Name, optionValue, e));
                 }
             }
 

@@ -5,7 +5,6 @@
 //
 namespace Microsoft.SqlTools.ManagedBatchParser
 {
-    using System;
     using System.Reflection;
     using System.Resources;
     using System.Globalization;
