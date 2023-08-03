@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 connectionRetryPolicy = RetryPolicyFactory.CreateNoRetryPolicy();
             }
 
-            ReliableSqlConnection connection = new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
+            ReliableSqlConnection connection = new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, useRetry);
 
             try
             {

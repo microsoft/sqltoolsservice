@@ -17,6 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Create a new SQL Connection object
         /// </summary>
-        DbConnection CreateSqlConnection(string connectionString, string azureAccountToken);
+        /// <param name="enableSeverlessRetryPolicy">Enable to use the RetryLogicProvider for handling instances of sleeping serverless databases taking time to wake up.</param>
+        DbConnection CreateSqlConnection(string connectionString, string azureAccountToken, bool enableServerlessRetryPolicy = false);
     }
 }

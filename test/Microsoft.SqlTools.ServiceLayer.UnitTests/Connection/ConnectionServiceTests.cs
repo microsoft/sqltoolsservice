@@ -86,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 });
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(mockConnection.Object);
 
 
@@ -152,7 +152,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .Returns(() => Task.Run(() => { }));
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.SetupSequence(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.SetupSequence(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(mockConnection.Object)
                 .Returns(mockConnection2.Object);
 
@@ -215,7 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 });
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(mockConnection.Object);
 
 
@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             connectionMock.Setup(c => c.Database).Returns(expectedDbName);
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(connectionMock.Object);
 
             var connectionService = new ConnectionService(mockFactory.Object);
@@ -345,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var dummySqlConnection = new TestSqlConnection(null);
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string connString, string azureAccountToken) =>
             {
                 dummySqlConnection.ConnectionString = connString;
@@ -1020,7 +1020,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             // Setup mock connection factory to inject query results
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(CreateMockDbConnection(new[] { testdata }));
             var connectionService = new ConnectionService(mockFactory.Object);
 
@@ -1654,7 +1654,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connection = new TestSqlConnection(null);
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string connString, string azureAccountToken) =>
             {
                 connection.ConnectionString = connString;
@@ -1704,7 +1704,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connection = mockConnection.Object;
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string connString, string azureAccountToken) =>
             {
                 connection.ConnectionString = connString;
@@ -1757,7 +1757,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             var connection = mockConnection.Object;
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string connString, string azureAccountToken) =>
             {
                 connection.ConnectionString = connString;
@@ -1846,7 +1846,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             // Set up mock connection factory
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(new TestSqlConnection(null));
             var connectionService = new ConnectionService(mockFactory.Object);
 
@@ -1865,7 +1865,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             });
 
             // Validate that the connection factory gets called with details NOT including an account token
-            mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken)), Times.Once());
+            mockFactory.Verify(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.Is<string>(accountToken => accountToken == azureAccountToken), It.IsAny<bool>()), Times.Once());
         }
 
         /// <summary>

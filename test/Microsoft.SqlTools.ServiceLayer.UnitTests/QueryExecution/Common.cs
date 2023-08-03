@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         private static ISqlConnectionFactory CreateMockFactory(TestResultSet[] data, bool throwOnExecute, bool throwOnRead)
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(() => CreateTestConnection(data, throwOnExecute, throwOnRead));
 
             return mockFactory.Object;

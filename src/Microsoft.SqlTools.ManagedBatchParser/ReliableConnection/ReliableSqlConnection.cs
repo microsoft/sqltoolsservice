@@ -60,11 +60,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <param name="connectionString">The connection string used to open the SQL Azure database.</param>
         /// <param name="connectionRetryPolicy">The retry policy defining whether to retry a request if a connection fails to be established.</param>
         /// <param name="commandRetryPolicy">The retry policy defining whether to retry a request if a command fails to be executed.</param>
-        public ReliableSqlConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken)
+        /// <param name="useServerlessRetryProvider">Enable to use the RetryLogicProvider for handling instances of sleeping serverless databases taking time to wake up.</param>
+        public ReliableSqlConnection(string connectionString, RetryPolicy connectionRetryPolicy, RetryPolicy commandRetryPolicy, string azureAccountToken, bool useServerlessRetryProvider = false)
         {
             _underlyingConnection = new SqlConnection(connectionString);
 
-            _underlyingConnection.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
+            if (useServerlessRetryProvider) {
+                _underlyingConnection.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
+            }
 
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();

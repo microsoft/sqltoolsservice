@@ -353,7 +353,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestSqlConnectionFactory : ISqlConnectionFactory
     {
-        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken)
+        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken, bool enableServerlessRetryPolicy = false)
         {
             return new TestSqlConnection(null)
             {

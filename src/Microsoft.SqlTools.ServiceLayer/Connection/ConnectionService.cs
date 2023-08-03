@@ -684,8 +684,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
-                // create a sql connection instance
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                // create a sql connection instance (with enabled serverless retry logic to handle sleeping serverless databases)
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, true);
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
