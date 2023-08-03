@@ -351,7 +351,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public void TraceSettings()
             {
                 // NOTE: logging as warning so we can get this data in the IEService DacFx logs
-                Logger.Write(TraceEventType.Warning, Resources.LoggingAmbientSettings);
+                Logger.Warning(Resources.LoggingAmbientSettings);
 
                 foreach (KeyValuePair<string, AmbientValue> setting in _configuration)
                 {
@@ -407,7 +407,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     }
                     else
                     {
-                        Logger.Write(TraceEventType.Error, string.Format(Resources.UnableToAssignValue, value.GetType().FullName, _type.FullName));
+                        Logger.Error(string.Format(Resources.UnableToAssignValue, value.GetType().FullName, _type.FullName));
                     }
                 }
             }

@@ -19,7 +19,6 @@ using Microsoft.Kusto.ServiceLayer.SqlContext;
 using Microsoft.Kusto.ServiceLayer.Workspace;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
 
 namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 {
@@ -208,12 +207,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
                 {
                     await requestContext.SendResult(new ExecuteRequestResult());
-                    Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
+                    Logger.Stop($"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
                     return true;
                 };
                 Func<string, Task> queryCreateFailureAction = message =>
                 {
-                    Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                    Logger.Warning($"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
                     return requestContext.SendError(message);
                 };
 
@@ -367,7 +366,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     ResultSubset = subset
                 };
                 await requestContext.SendResult(result);
-                Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
+                Logger.Stop($"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
             }
             catch (Exception e)
             {
@@ -690,7 +689,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
             }
             await Task.FromResult(true);
         }        
@@ -765,7 +764,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceQueryInProgress);
             }
 
-            Logger.Write(TraceEventType.Information, $"Query object for URI:'{executeParams.OwnerUri}' created");
+            Logger.Information($"Query object for URI:'{executeParams.OwnerUri}' created");
             return newQuery;
         }
 
@@ -784,7 +783,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
-                Logger.Write(TraceEventType.Information, $"Query:'{ownerUri}' completed");
+                Logger.Information($"Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
@@ -798,7 +797,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
-                Logger.Write(TraceEventType.Error, $"Query:'{ownerUri}' failed");
+                Logger.Error($"Query:'{ownerUri}' failed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
             query.QueryCompleted += completeCallback;
@@ -818,7 +817,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
+                Logger.Information($"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
                 await eventSender.SendEvent(BatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
@@ -831,7 +830,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' completed");
+                Logger.Information($"Batch:'{b.Summary}' on Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(BatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;
@@ -844,7 +843,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Message generated on Query:'{ownerUri}' :'{m}'");
+                Logger.Information($"Message generated on Query:'{ownerUri}' :'{m}'");
                 await eventSender.SendEvent(MessageEvent.Type, eventParams);
             };
             query.BatchMessageSent += batchMessageCallback;
@@ -858,7 +857,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is available");
+                Logger.Information($"Result:'{r.Summary} on Query:'{ownerUri}' is available");
                 await eventSender.SendEvent(ResultSetAvailableEvent.Type, eventParams);
             };
             query.ResultSetAvailable += resultAvailableCallback;
@@ -872,7 +871,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is updated with additional rows");
+                Logger.Information($"Result:'{r.Summary} on Query:'{ownerUri}' is updated with additional rows");
                 await eventSender.SendEvent(ResultSetUpdatedEvent.Type, eventParams);
             };
             query.ResultSetUpdated += resultUpdatedCallback;
@@ -886,7 +885,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is complete");
+                Logger.Information($"Result:'{r.Summary} on Query:'{ownerUri}' is complete");
                 await eventSender.SendEvent(ResultSetCompleteEvent.Type, eventParams);
             };
             query.ResultSetCompleted += resultCompleteCallback;
@@ -1045,7 +1044,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                         {
                             // We don't particularly care if we fail to cancel during shutdown
                             string message = string.Format("Failed to cancel query {0} during query service disposal: {1}", query.Key, e);
-                            Logger.Write(TraceEventType.Warning, message);
+                            Logger.Warning(message);
                         }
                     }
                     query.Value.Dispose();

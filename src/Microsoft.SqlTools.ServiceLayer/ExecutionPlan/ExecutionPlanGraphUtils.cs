@@ -11,7 +11,6 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.ShowPlan;
 using Microsoft.SqlTools.Utility;
-using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
@@ -494,7 +493,7 @@ GO
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, e.ToString());
+                Logger.Error(e.ToString());
                 return string.Empty;
             }
         }

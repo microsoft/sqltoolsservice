@@ -19,7 +19,6 @@ using System.Globalization;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -116,8 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                Logger.Write(
-                    TraceEventType.Verbose,
+                Logger.Verbose(
                     string.Format(
                         "Sending script complete notification event for operation {0}",
                         this.OperationId
@@ -140,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 if (e.IsOperationCanceledException())
                 {
-                    Logger.Write(TraceEventType.Information, string.Format("Scripting operation {0} was canceled", this.OperationId));
+                    Logger.Information(string.Format("Scripting operation {0} was canceled", this.OperationId));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     {
                         Canceled = true,
@@ -148,7 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 }
                 else
                 {
-                    Logger.Write(TraceEventType.Error, string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
+                    Logger.Error(string.Format("Scripting operation {0} failed with exception {1}", this.OperationId, e));
                     this.SendCompletionNotificationEvent(new ScriptingCompleteParams
                     {
                         OperationId = OperationId,
@@ -585,7 +583,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             {
                 //If you are getting this assertion fail it means you are working for higher
                 //version of SQL Server. You need to update this part of code.
-                 Logger.Write(TraceEventType.Warning, "This part of the code is not updated corresponding to latest version change");
+                 Logger.Warning("This part of the code is not updated corresponding to latest version change");
             }
 
             // for cloud scripting to work we also have to have Script Compat set to 105.
@@ -683,8 +681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         {
             this.CancellationToken.ThrowIfCancellationRequested();
 
-            Logger.Write(
-                TraceEventType.Verbose,
+            Logger.Verbose(
                 string.Format(
                     "Sending scripting error progress event, Urn={0}, OperationId={1}, Completed={2}, Error={3}",
                     e.Current,

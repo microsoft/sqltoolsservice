@@ -724,7 +724,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                
                 if (messageHandler == null)
                 {
-                    Logger.Write(TraceEventType.Error, "Expected handler to be declared");
+                    Logger.Error("Expected handler to be declared");
                 }
 
                 if (null != connectionWrapper)
@@ -737,7 +737,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
 
                     if (statementCompletedHandler == null)
                     {
-                        Logger.Write(TraceEventType.Error, "Expect handler to be declared if we have a command wrapper");
+                        Logger.Error("Expect handler to be declared if we have a command wrapper");
                     }
                     commandWrapper.StatementCompleted -= statementCompletedHandler;
                 }

@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -159,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "SQL Assessment: failed to generate a script. Error: " + e);
+                Logger.Error("SQL Assessment: failed to generate a script. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -283,26 +282,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
                 switch (requestParams.TargetType)
                 {
                     case SqlObjectType.Server:
-                        Logger.Write(
-                            TraceEventType.Verbose,
+                        Logger.Verbose(
                             $"SQL Assessment: running an operation on a server, platform:{server.Platform}, edition:{server.EngineEdition.ToString()}, version:{server.Version}");
 
                         result.Items.AddRange(await assessmentFunc(server));
 
-                        Logger.Write(
-                            TraceEventType.Verbose,
+                        Logger.Verbose(
                             $"SQL Assessment: finished an operation on a server, platform:{server.Platform}, edition:{server.EngineEdition.ToString()}, version:{server.Version}");
                         break;
                     case SqlObjectType.Database:
                         var db = GetDatabaseLocator(server, connection.Database);
-                        Logger.Write(
-                            TraceEventType.Verbose,
+                        Logger.Verbose(
                             $"SQL Assessment: running an operation on a database, platform:{server.Platform}, edition:{server.EngineEdition.ToString()}, version:{server.Version}");
 
                         result.Items.AddRange(await assessmentFunc(db));
 
-                        Logger.Write(
-                            TraceEventType.Verbose,
+                        Logger.Verbose(
                             $"SQL Assessment: finished an operation on a database, platform:{server.Platform}, edition:{server.EngineEdition.ToString()}, version:{server.Version}");
                         break;
                 }
@@ -334,7 +329,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
         internal async Task<List<AssessmentResultItem>> InvokeSqlAssessment(SqlObjectLocator target)
         {
             var resultsList = await Engine.GetAssessmentResultsList(target);
-            Logger.Write(TraceEventType.Verbose, $"SQL Assessment: got {resultsList.Count} results.");
+            Logger.Verbose($"SQL Assessment: got {resultsList.Count} results.");
             
             return resultsList.Select(TranslateAssessmentResult).ToList();
         }
@@ -354,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
             var result = new List<CheckInfo>();
 
             var resultsList = Engine.GetChecks(target).ToList();
-            Logger.Write(TraceEventType.Verbose, $"SQL Assessment: got {resultsList.Count} items.");
+            Logger.Verbose($"SQL Assessment: got {resultsList.Count} items.");
 
             foreach (var r in resultsList)
             {

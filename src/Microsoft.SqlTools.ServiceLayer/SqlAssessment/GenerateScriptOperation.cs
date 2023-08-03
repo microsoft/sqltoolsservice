@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Threading;
@@ -74,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format(
+                Logger.Error(string.Format(
                     CultureInfo.InvariantCulture,
                     "SQL Assessment: generate script operation failed with exception {0}",
                     e.Message));
