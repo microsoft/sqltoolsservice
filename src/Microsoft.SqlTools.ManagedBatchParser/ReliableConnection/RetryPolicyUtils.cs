@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// </summary>
         private static readonly HashSet<int> _nonRetryableDataTransferErrors;
         /// <summary>
-        /// Max intervals between retries to wake up serverless instances.
+        /// Max intervals between retries in seconds to wake up serverless instances.
         /// </summary>
         private const int _serverlessMaxIntervalTime = 30;
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
         static RetryPolicyUtils()
         {
-            _retryableExtendedNetworkConnectivityError = new HashSet<int>
+            _retryableServerlessNetworkConnectivityError = new HashSet<int>
             {
                 //// SQL Error Code: 40613
                 //// Database XXXX on server YYYY is not currently available. Please retry the connection later. If the problem persists, contact customer 
@@ -377,9 +377,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
-        /// Wait for SqlConnection to handle sleeping serverless instances (allows for them to wake up).
+        /// Wait for SqlConnection to handle sleeping serverless instances (allows for them to wake up, otherwise it will result in errors).
         /// </summary>
-        public static SqlRetryLogicBaseProvider ServerlessWaitRetryLogicProvider()
+        public static SqlRetryLogicBaseProvider SleepingServerlessDatabaseErrorRetryProvider()
         {
             var serverlessRetryLogic = new SqlRetryLogicOption
             {

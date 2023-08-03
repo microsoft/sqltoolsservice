@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         {
             _underlyingConnection = new SqlConnection(connectionString);
 
-            _underlyingConnection.RetryLogicProvider = RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
+            _underlyingConnection.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
 
             _connectionRetryPolicy = connectionRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();
             _commandRetryPolicy = commandRetryPolicy ?? RetryPolicyFactory.CreateNoRetryPolicy();

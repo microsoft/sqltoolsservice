@@ -922,7 +922,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             try
             {
                 connection = new SqlConnection(connectionStringBuilder.ConnectionString);
-                connection.RetryLogicProvider = RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
+                connection.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
                 connection.Open();
             }
             catch (SqlException ex)

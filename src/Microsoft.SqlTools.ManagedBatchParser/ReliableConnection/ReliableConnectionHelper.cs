@@ -426,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNull(nameof(readResult), readResult);
             using (var sqlConnection = new SqlConnection(connectionString))
             {
-                sqlConnection.RetryLogicProvider = RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
+                sqlConnection.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
                 sqlConnection.Open();
                 ExecuteReader(sqlConnection, commandText, readResult, initializeCommand, catchException);
             }

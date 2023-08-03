@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
         private const int PWCannotBeUsed = 18463; // Password cannot be used at this time.
 
-        // Default SQL constants (required to ensure connections such as serverless are able to connect and retry properly).
+        // Default SQL constants (required to ensure connections such as serverless are able to wake up, connect, and retry properly).
         private const int DefaultConnectTimeout = 30;
         private const int DefaultCommandTimeout = 30;
 
@@ -389,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TrySetConnectionType(connectionParams);
 
             // Fill in any details that are necessary (timeouts and application name) to ensure connection doesn't immediately disconnect if not specified (such as for serverless). 
-            FillInDefaultDetailsForConnections(connectionParams.Connection, connectionParams.Purpose);
+            connectionParams.connection = FillInDefaultDetailsForConnections(connectionParams.Connection, connectionParams.Purpose);
 
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
             // but wait until later when we are connected to add it to the map.
@@ -644,20 +644,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return serverEdition;
         }
 
-        private static void FillInDefaultDetailsForConnections(ConnectionDetails ConnectionDetails, string featureName) { 
+        internal static ConnectionDetails FillInDefaultDetailsForConnections(ConnectionDetails inputConnectionDetails, string featureName) { 
+            ConnectionDetails newConnectionDetails = inputConnectionDetailsConnectionDetails;
 
-            if(string.IsNullOrWhiteSpace(ConnectionDetails.ApplicationName)) 
+            if(string.IsNullOrWhiteSpace(newConnectionDetails.ApplicationName)) 
             {
-                ConnectionDetails.ApplicationName = ApplicationName;
+                newConnectionDetails.ApplicationName = ApplicationName;
             }
             else 
             {
-                ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(ConnectionDetails.ApplicationName, featureName);
+                newConnectionDetails.ApplicationName = GetApplicationNameWithFeature(newConnectionDetails.ApplicationName, featureName);
             }
 
-            ConnectionDetails.ConnectTimeout = Math.Max(DefaultConnectTimeout, ConnectionDetails.ConnectTimeout ?? 0);
+            newConnectionDetails.ConnectTimeout = Math.Max(DefaultConnectTimeout, newConnectionDetails.ConnectTimeout ?? 0);
 
-            ConnectionDetails.CommandTimeout = Math.Max(DefaultCommandTimeout, ConnectionDetails.CommandTimeout ?? 0);
+            newConnectionDetails.CommandTimeout = Math.Max(DefaultCommandTimeout, newConnectionDetails.CommandTimeout ?? 0);
+
+            return newConnectionDetails;
         }
 
         /// <summary>
@@ -1897,7 +1900,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
 
                 // increase the connection and command timeout to at least 30 seconds and set application name.
-                FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
+                connInfo.ConnectionDetails = FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
 
                 // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
@@ -1908,7 +1911,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
-                sqlConn.RetryLogicProvider = RetryPolicyUtils.ServerlessWaitRetryLogicProvider();
+                sqlConn.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
 
                 // Fill in Azure authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
