@@ -394,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             provider.Retrying += (object s, SqlRetryingEventArgs e) =>
             {
                 Logger.Information($"attempt {e.RetryCount + 1} - current delay time:{e.Delay}");
-                Logger.Information((e.Exceptions[e.Exceptions.Count - 1] is SqlException ex) : $"{ex.Number}-{ex.Message}" ? $"{e.Exceptions[e.Exceptions.Count - 1].Message}");
+                Logger.Information((e.Exceptions[e.Exceptions.Count - 1] is SqlException ex) ? $"{ex.Number}-{ex.Message}" : $"{e.Exceptions[e.Exceptions.Count - 1].Message}");
             };
 
             return provider;
