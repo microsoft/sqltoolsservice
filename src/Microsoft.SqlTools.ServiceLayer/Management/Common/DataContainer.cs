@@ -1116,11 +1116,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
                     this.managedConnection = null;
                 }
 
-                if (ownConnection && this.serverConnection != null)
+                if (this.serverConnection != null)
                 {
-                    this.serverConnection.Disconnect();
+                    if (disposing && this.ownConnection)
+                    {
+                        this.serverConnection.Disconnect();
+                    }
+                    this.serverConnection = null;
                 }
-                this.serverConnection = null;
             }
             catch (Exception)
             {
