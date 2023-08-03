@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// <summary>
         /// Approved list of transient errors that require additional time to wait before connecting again.
         /// </summary>
-        private static readonly HashSet<int> _retryableExtendedNetworkConnectivityError;
+        private static readonly HashSet<int> _retryableServerlessNetworkConnectivityError;
         /// <summary>
         /// Approved list of transient errors that should be retryable during Network connection stages
         /// </summary>
