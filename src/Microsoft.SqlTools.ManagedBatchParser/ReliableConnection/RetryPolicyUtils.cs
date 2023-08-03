@@ -394,16 +394,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             provider.Retrying += (object s, SqlRetryingEventArgs e) =>
             {
-                int attempts = e.RetryCount + 1;
-                Logger.Write(TraceEventType.Information, $"attempt {attempts} - current delay time:{e.Delay} \n");
-                if (e.Exceptions[e.Exceptions.Count - 1] is SqlException ex)
-                {
-                    Logger.Write(TraceEventType.Information, $"{ex.Number}-{ex.Message}\n");
-                }
-                else
-                {
-                    Logger.Write(TraceEventType.Information, $"{e.Exceptions[e.Exceptions.Count - 1].Message}\n");
-                }
+                Logger.Information($"attempt {e.RetryCount + 1} - current delay time:{e.Delay}");
+                Logger.Information(
+                    (e.Exceptions[e.Exceptions.Count - 1] is SqlException ex) 
+                    : $"{ex.Number}-{ex.Message}" 
+                    ? $"{e.Exceptions[e.Exceptions.Count - 1].Message}");
             };
 
             return provider;
