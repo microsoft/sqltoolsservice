@@ -206,7 +206,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             nodePath = path;
         }
 
-        public TreeNode? FindNodeByPath(string path, bool expandIfNeeded = false)
+        public TreeNode? FindNodeByPath(string path, bool expandIfNeeded = false, CancellationToken cancellationToken = new CancellationToken())
         {
             TreeNode? nodeForPath = ObjectExplorerUtils.FindNode(this, node =>
             {
@@ -214,7 +214,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }, nodeToFilter =>
             {
                 return path.StartsWith(nodeToFilter.GetNodePath());
-            }, expandIfNeeded);
+            }, expandIfNeeded, cancellationToken);
 
             return nodeForPath;
         }

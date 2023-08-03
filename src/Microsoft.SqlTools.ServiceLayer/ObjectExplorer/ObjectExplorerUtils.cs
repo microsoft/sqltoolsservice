@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// determines whether to stop going further up the tree</param>
         /// <param name="filter">Predicate function to filter the children when traversing</param>
         /// <returns>A Tree Node that matches the condition, or null if no matching node could be found</returns>
-        public static TreeNode? FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter, bool expandIfNeeded = false)
+        public static TreeNode? FindNode(TreeNode node, Predicate<TreeNode> condition, Predicate<TreeNode> filter, bool expandIfNeeded = false, CancellationToken cancellationToken = new CancellationToken())
         {
             if (node == null)
             {
@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             {
                 return node;
             }
-            var children = expandIfNeeded && !node.IsAlwaysLeaf ? node.Expand(new CancellationToken()) : node.GetChildren();
+            var children = expandIfNeeded && !node.IsAlwaysLeaf ? node.Expand(cancellationToken) : node.GetChildren();
             foreach (var child in children)
             {
                 if (filter != null && filter(child))
