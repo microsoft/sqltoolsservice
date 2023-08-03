@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Logger = Microsoft.SqlTools.Utility.Logger;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Warning, $"Failed to read metadata from cache. Error: {ex.Message}");
-                throw ex;
+                throw;
             }
 
             return scripts;

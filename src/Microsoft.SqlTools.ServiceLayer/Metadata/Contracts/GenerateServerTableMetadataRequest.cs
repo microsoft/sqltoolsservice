@@ -7,14 +7,14 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {
-    public class GenerateServerMetadataParams
+    public class GenerateServerTableMetadataParams
     {
         public string OwnerUri { get; set; }
     }
 
-    public class GenerateServerMetadataRequest
+    public class GenerateServerTableMetadataRequest
     {
-        public static readonly RequestType<GenerateServerMetadataParams, bool> Type =
-            RequestType<GenerateServerMetadataParams, bool>.Create("metadata/generateServerMetadata");
+        public static readonly RequestType<GenerateServerTableMetadataParams, bool> Type =
+            RequestType<GenerateServerTableMetadataParams, bool>.Create("metadata/generateServerTableMetadata");
     }
 }

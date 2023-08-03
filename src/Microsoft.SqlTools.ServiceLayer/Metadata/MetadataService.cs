@@ -57,8 +57,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetRequestHandler(GenerateServerMetadataRequest.Type, HandleGenerateServerMetadataRequest, true);
-            serviceHost.SetRequestHandler(GetServerMetadataRequest.Type, HandleGetServerMetadataRequest, true);
+            serviceHost.SetRequestHandler(GenerateServerTableMetadataRequest.Type, HandleGenerateServerTableMetadataRequest, true);
+            serviceHost.SetRequestHandler(GetServerTableMetadataRequest.Type, HandleGetServerTableMetadataRequest, true);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <summary>
         /// Handles the request for generating all server metadata
         /// </summary>
-        internal static async Task HandleGenerateServerMetadataRequest(GenerateServerMetadataParams metadataParams,
+        internal static async Task HandleGenerateServerTableMetadataRequest(GenerateServerTableMetadataParams metadataParams,
             RequestContext<bool> requestContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
@@ -170,8 +170,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <summary>
         /// Handles the request for getting all server metadata
         /// </summary>
-        internal static async Task HandleGetServerMetadataRequest(GetServerMetadataParams metadataParams,
-            RequestContext<GetServerMetadataResult> requestContext)
+        internal static async Task HandleGetServerTableMetadataRequest(GetServerTableMetadataParams metadataParams,
+            RequestContext<GetServerTableMetadataResult> requestContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
 
@@ -180,9 +180,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 try
                 {
                     var scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
-                    await requestContext.SendResult(new GetServerMetadataResult
+                    await requestContext.SendResult(new GetServerTableMetadataResult
                     {
-                        Success = true,
                         Scripts = scripts.ToArray()
                     });
                 }

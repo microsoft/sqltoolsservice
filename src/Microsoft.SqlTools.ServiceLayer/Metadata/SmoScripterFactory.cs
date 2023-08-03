@@ -172,7 +172,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         private static UrnCollection GetAllServerTableUrns(Server server)
         {
             UrnCollection urnCollection = new UrnCollection();
-            urnCollection.Add(server.Urn);
 
             foreach (Database db in server.Databases)
             {
