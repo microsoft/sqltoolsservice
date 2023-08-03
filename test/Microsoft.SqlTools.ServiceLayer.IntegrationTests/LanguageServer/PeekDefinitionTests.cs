@@ -113,7 +113,6 @@ GO";
             TestLogger test = new TestLogger()
             {
                 TraceSource = System.Reflection.MethodInfo.GetCurrentMethod().Name,
-                EventType = System.Diagnostics.TraceEventType.Information,
                 TracingLevel = System.Diagnostics.SourceLevels.All,
             };
 

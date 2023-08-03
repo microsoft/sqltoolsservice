@@ -85,7 +85,7 @@ namespace Microsoft.SqlTools.SampleService
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("An unhandled exception occurred: {0}", e));
+                Logger.Error(string.Format("An unhandled exception occurred: {0}", e));
                 Environment.Exit(1);
             }
         }

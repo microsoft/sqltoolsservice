@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using Microsoft.SqlTools.Utility;
 
@@ -43,7 +42,7 @@ namespace Microsoft.Kusto.ServiceLayer.Scripting
         {
             if (!this.cancellation.IsCancellationRequested)
             {
-                Logger.Write(TraceEventType.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
+                Logger.Verbose(string.Format("Cancel invoked for OperationId {0}", this.OperationId));
                 this.cancellation.Cancel();
             }
         }

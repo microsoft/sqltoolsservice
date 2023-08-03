@@ -6,7 +6,6 @@
 #nullable disable
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -104,7 +103,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(TraceEventType.Error, "Failed to compare schema. Error: " + e);
+                    Logger.Error("Failed to compare schema. Error: " + e);
                     await requestContext.SendResult(new SchemaCompareResult()
                     {
                         OperationId = operation != null ? operation.OperationId : null,
@@ -174,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "Failed to generate schema compare script. Error: " + e);
+                Logger.Error("Failed to generate schema compare script. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -213,7 +212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "Failed to publish schema compare database changes. Error: " + e);
+                Logger.Error("Failed to publish schema compare database changes. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -255,7 +254,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "Failed to publish schema compare database changes. Error: " + e);
+                Logger.Error("Failed to publish schema compare database changes. Error: " + e);
                 await requestContext.SendResult(new SchemaComparePublishProjectResult()
                 {
                     ChangedFiles = Array.Empty<string>(),
@@ -297,7 +296,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, "Failed to select compare schema result node. Error: " + e);
+                Logger.Error("Failed to select compare schema result node. Error: " + e);
                 await requestContext.SendResult(new ResultStatus()
                 {
                     Success = false,
@@ -391,7 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(TraceEventType.Error, "Failed to save scmp file. Error: " + e);
+                    Logger.Error("Failed to save scmp file. Error: " + e);
                     await requestContext.SendResult(new SchemaCompareResult()
                     {
                         OperationId = operation != null ? operation.OperationId : null,

@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -148,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 exceptionMessage = ex.Message;
             }
 
-            Logger.Write(TraceEventType.Error, "Exception at ServerNode.CreateContext() : " + exceptionMessage);
+            Logger.Error("Exception at ServerNode.CreateContext() : " + exceptionMessage);
             this.ErrorStateMessage = string.Format(SR.TreeNodeError, exceptionMessage);
             return null;
         }

@@ -11,7 +11,6 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
 using Microsoft.SqlTools.Utility;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
@@ -60,7 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             if (!this.cancellation.IsCancellationRequested)
             {
-                Logger.Write(TraceEventType.Verbose, string.Format("Cancel invoked for OperationId {0}", this.OperationId));
+                Logger.Verbose(string.Format("Cancel invoked for OperationId {0}", this.OperationId));
                 this.cancellation.Cancel();
             }
         }
@@ -94,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("DacFx import operation {0} failed with exception {1}", this.OperationId, e));
+                Logger.Error(string.Format("DacFx import operation {0} failed with exception {1}", this.OperationId, e));
                 throw;
             }
         }

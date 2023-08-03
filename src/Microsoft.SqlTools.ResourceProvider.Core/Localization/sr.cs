@@ -5,7 +5,6 @@
 //
 namespace Microsoft.SqlTools.ResourceProvider.Core
 {
-    using System;
     using System.Reflection;
     using System.Resources;
     using System.Globalization;

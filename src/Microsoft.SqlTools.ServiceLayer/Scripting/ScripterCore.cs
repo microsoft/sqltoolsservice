@@ -27,7 +27,6 @@ using Location = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Location;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using System.Text;
 using System.Data;
-using System.Diagnostics;
 using Range = Microsoft.SqlTools.ServiceLayer.Workspace.Contracts.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
@@ -98,14 +97,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         }
                         catch (ConnectionFailureException cfe)
                         {
-                            Logger.Write(TraceEventType.Error, "Exception at PeekDefinition Database.get() : " + cfe.Message);
+                            Logger.Error("Exception at PeekDefinition Database.get() : " + cfe.Message);
                             this.error = true;
                             this.errorMessage = (connectionInfo != null && connectionInfo.IsCloud) ? SR.PeekDefinitionAzureError(cfe.Message) : SR.PeekDefinitionError(cfe.Message);
                             return null;
                         }
                         catch (Exception ex)
                         {
-                            Logger.Write(TraceEventType.Error, "Exception at PeekDefinition Database.get() : " + ex.Message);
+                            Logger.Error("Exception at PeekDefinition Database.get() : " + ex.Message);
                             this.error = true;
                             this.errorMessage = SR.PeekDefinitionError(ex.Message);
                             return null;
@@ -831,7 +830,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                 catch (Exception ex)
                 {
                     // log any exceptions determining if InMemory, but don't treat as fatal exception
-                    Logger.Write(TraceEventType.Error, "Could not determine if is InMemory table " + ex.ToString());
+                    Logger.Error("Could not determine if is InMemory table " + ex.ToString());
                 }
             }
 
