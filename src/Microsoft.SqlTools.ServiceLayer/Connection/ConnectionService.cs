@@ -389,7 +389,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TrySetConnectionType(connectionParams);
 
             // Fill in any details that are necessary (timeouts and application name) to ensure connection doesn't immediately disconnect if not specified (such as for serverless). 
-            connectionParams.connection = FillInDefaultDetailsForConnections(connectionParams.Connection, connectionParams.Purpose);
+            connectionParams.Connection = FillInDefaultDetailsForConnections(connectionParams.Connection, connectionParams.Purpose);
 
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
             // but wait until later when we are connected to add it to the map.
@@ -645,7 +645,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         internal static ConnectionDetails FillInDefaultDetailsForConnections(ConnectionDetails inputConnectionDetails, string featureName) { 
-            ConnectionDetails newConnectionDetails = inputConnectionDetailsConnectionDetails;
+            ConnectionDetails newConnectionDetails = inputConnectionDetails;
 
             if(string.IsNullOrWhiteSpace(newConnectionDetails.ApplicationName)) 
             {
