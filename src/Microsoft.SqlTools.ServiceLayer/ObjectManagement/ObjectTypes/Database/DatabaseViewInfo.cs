@@ -40,6 +40,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Type { get; set; }
         public string Path { get; set; }
         public string FileGroup { get; set; }
+        public string FileNameWithExtension { get; set; }
+        public double SizeInMb { get; set; }
+        public double AutoGrowthAndMaxSizeInMb { get; set; }
+
     }
 
     public class OptionsCollection {

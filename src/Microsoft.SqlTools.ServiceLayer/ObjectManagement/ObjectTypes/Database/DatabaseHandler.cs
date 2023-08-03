@@ -743,7 +743,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         Name = file.Name,
                         Type = FileType.Data.ToString(),
                         Path = Path.GetDirectoryName(file.FileName),
-                        FileGroup = fileGroup.Name
+                        FileGroup = fileGroup.Name,
+                        FileNameWithExtension = Path.GetFileName(file.FileName),
+                        SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
+                        AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth)
                     });
                 }
             }
@@ -754,7 +757,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Name = file.Name,
                     Type = FileType.Log.ToString(),
                     Path = Path.GetDirectoryName(file.FileName),
-                    FileGroup = string.Empty
+                    FileGroup = string.Empty,
+                    FileNameWithExtension = Path.GetFileName(file.FileName),
+                    SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
+                    AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth)
                 });
             }
             return filesList.ToArray();
