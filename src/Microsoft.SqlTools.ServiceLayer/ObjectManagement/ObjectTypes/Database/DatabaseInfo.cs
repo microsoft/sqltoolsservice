@@ -40,6 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public bool EncryptionEnabled { get; set; }
         public string? RestrictAccess { get; set; }
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
+        public bool? FullTextIndexing { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
