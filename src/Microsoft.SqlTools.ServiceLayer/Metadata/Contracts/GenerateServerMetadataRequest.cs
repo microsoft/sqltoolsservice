@@ -12,14 +12,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         public string OwnerUri { get; set; }
     }
 
-    public class GenerateServerMetadataResult
-    {
-        public bool Success { get; set; }
-    }
-
     public class GenerateServerMetadataRequest
     {
-        public static readonly RequestType<GenerateServerMetadataParams, GenerateServerMetadataResult> Type =
-            RequestType<GenerateServerMetadataParams, GenerateServerMetadataResult>.Create("metadata/generateServerMetadata");
+        public static readonly RequestType<GenerateServerMetadataParams, bool> Type =
+            RequestType<GenerateServerMetadataParams, bool>.Create("metadata/generateServerMetadata");
     }
 }

@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// Handles the request for generating all server metadata
         /// </summary>
         internal static async Task HandleGenerateServerMetadataRequest(GenerateServerMetadataParams metadataParams,
-            RequestContext<GenerateServerMetadataResult> requestContext)
+            RequestContext<bool> requestContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
 
@@ -139,10 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             try
                             {
                                 MetadataScriptCacher.WriteToCache(connectionInfo.ConnectionDetails.ServerName, scripts);
-                                await requestContext.SendResult(new GenerateServerMetadataResult
-                                {
-                                    Success = true
-                                });
+                                await requestContext.SendResult(true);
                             }
                             catch (Exception ex)
                             {

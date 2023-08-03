@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
@@ -34,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         private static ServerConnection GetServerConnection(DbConnection connection)
         {
             // Get a connection to the database for SMO purposes
-            SqlConnection sqlConnection = connection as SqlConnection ?? SmoScripterFactory.TryFindingReliableSqlConnection(connection);
+            SqlConnection sqlConnection = connection as SqlConnection ?? SmoScripterFactory.TryFindingReliableSqlConnection(connection as ReliableSqlConnection);
             if (sqlConnection == null)
             {
                 return null;
@@ -44,18 +42,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static SqlConnection TryFindingReliableSqlConnection(DbConnection connection)
+        private static SqlConnection TryFindingReliableSqlConnection(ReliableSqlConnection reliableSqlConnection)
         {
             // It's not actually a SqlConnection, so let's try a reliable SQL connection
-            ReliableSqlConnection reliableConnection = connection as ReliableSqlConnection;
-            if (reliableConnection == null)
+            if (reliableSqlConnection == null)
             {
                 // If we don't have connection we can use with SMO, just give up on using SMO
                 return null;
             }
 
             // We have a reliable connection, use the underlying connection
-            return reliableConnection.GetUnderlyingConnection();
+            return reliableSqlConnection.GetUnderlyingConnection();
         }
 
         private static ServerConnection ConnectToServerWithSmo(SqlConnection connection)
@@ -70,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         private static IEnumerable<string> GenerateAllScripts(Server server)
         {
-            var urns = SmoScripterFactory.GetAllServerObjectUrns(server);
+            var urns = SmoScripterFactory.GetAllServerTableUrns(server);
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -172,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return scripts;
         }
 
-        private static UrnCollection GetAllServerObjectUrns(Server server)
+        private static UrnCollection GetAllServerTableUrns(Server server)
         {
             UrnCollection urnCollection = new UrnCollection();
             urnCollection.Add(server.Urn);

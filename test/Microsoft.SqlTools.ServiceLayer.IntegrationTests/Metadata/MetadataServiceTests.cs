@@ -142,10 +142,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var mockRequestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
-            var actualResponse = new GenerateServerMetadataResult();
-            mockRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>()))
-                .Callback<GenerateServerMetadataResult>(actual => actualResponse = actual)
+            var mockRequestContext = new Mock<RequestContext<bool>>();
+            var actualResponse = false;
+            mockRequestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
+                .Callback<bool>(actual => actualResponse = actual)
                 .Returns(Task.CompletedTask);
 
             var generateServerMetadataParams = new GenerateServerMetadataParams
@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            Assert.IsTrue(actualResponse.Success);
+            Assert.IsTrue(actualResponse);
 
             mockRequestContext.VerifyAll();
         }
@@ -175,10 +175,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var mockGenerateServerMetadataRequestContext = new Mock<RequestContext<GenerateServerMetadataResult>>();
-            var actualGenerateMetadataResponse = new GenerateServerMetadataResult();
-            mockGenerateServerMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<GenerateServerMetadataResult>()))
-                .Callback<GenerateServerMetadataResult>(actual => actualGenerateMetadataResponse = actual)
+            var mockGenerateServerMetadataRequestContext = new Mock<RequestContext<bool>>();
+            var actualGenerateMetadataResponse = false;
+            mockGenerateServerMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
+                .Callback<bool>(actual => actualGenerateMetadataResponse = actual)
                 .Returns(Task.CompletedTask);
 
             var generateServerMetadataParams = new GenerateServerMetadataParams
@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            Assert.IsTrue(actualGenerateMetadataResponse.Success);
+            Assert.IsTrue(actualGenerateMetadataResponse);
 
             var firstCreateTableScript = $"CREATE TABLE [dbo].[{testTableName}](\t[id] [int] NULL)";
             var secondCreateTableScript = $"CREATE TABLE [dbo].[{testTableName2}](\t[id] [int] NULL)";

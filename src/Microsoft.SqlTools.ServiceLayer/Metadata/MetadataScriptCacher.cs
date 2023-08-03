@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             catch (Exception ex)
             {
                 Logger.Write(TraceEventType.Warning, $"Failed to write metadata to cache. Error: {ex.Message}");
-                throw ex;
+                throw;
             }
         }
 
