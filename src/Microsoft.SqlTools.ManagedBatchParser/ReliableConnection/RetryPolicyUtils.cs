@@ -386,7 +386,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 NumberOfTries = _serverlessMaxRetries,
                 MaxTimeInterval = TimeSpan.FromSeconds(_serverlessMaxIntervalTime),
                 DeltaTime = TimeSpan.FromSeconds(1),
-                TransientErrors = _retryableExtendedNetworkConnectivityError
+                TransientErrors = _retryableServerlessNetworkConnectivityError
             };
 
             var provider = SqlConfigurableRetryFactory.CreateFixedRetryProvider(serverlessRetryLogic);
