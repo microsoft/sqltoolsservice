@@ -55,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to write metadata to cache. Error: {ex.Message}");
+                Logger.Warning($"Failed to write metadata to cache. Error: {ex.Message}");
                 throw;
             }
         }
@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to read metadata from cache. Error: {ex.Message}");
+                Logger.Warning($"Failed to read metadata from cache. Error: {ex.Message}");
                 throw;
             }
 
