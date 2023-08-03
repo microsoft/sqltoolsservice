@@ -4,7 +4,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -137,7 +136,7 @@ namespace Microsoft.SqlTools.Extensibility
         /// </summary>
         private async Task HandleShutdownRequest(object shutdownParams, RequestContext<object> requestContext)
         {
-            Logger.Write(TraceEventType.Information, "Service host is shutting down...");
+            Logger.Information("Service host is shutting down...");
 
             // Call all the shutdown methods provided by the service components
             Task[] shutdownTasks = shutdownCallbacks.Select(t => t(shutdownParams, requestContext)).ToArray();

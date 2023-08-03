@@ -30,7 +30,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Information,
                 TracingLevel = SourceLevels.Verbose,
             };
 
@@ -181,7 +180,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Information,
                 TracingLevel = SourceLevels.Off,
             };
 
@@ -203,7 +201,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Information,
                 TracingLevel = SourceLevels.Critical,
             };
 
@@ -222,7 +219,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Warning,
                 TracingLevel = SourceLevels.Information,
             };
 
@@ -241,7 +237,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Information,
                 TracingLevel = SourceLevels.Error,
             };
 
@@ -260,7 +255,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Warning,
                 TracingLevel = SourceLevels.Information,
                 DoNotUseTraceSource = true,
             };
@@ -280,7 +274,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             TestLogger test = new TestLogger()
             {
                 TraceSource = MethodInfo.GetCurrentMethod().Name,
-                EventType = TraceEventType.Information,
                 TracingLevel = SourceLevels.Error,
                 DoNotUseTraceSource = true,
             };
@@ -355,7 +348,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             };
             test.Initialize();
             // Write 10000 lines of log
-            Parallel.For(0, 100, (i) => test.Write($"Message Number:{i}, Message:{test.LogMessage}"));
+            Parallel.For(0, 100, (i) => test.Information($"Message Number:{i}, Message:{test.LogMessage}"));
             long logContentsSizeBeforeExplicitFlush = (new FileInfo(test.LogFileName)).Length;
             // Please note that Logger.Close() first flushes the logs before closing them out.
             Logger.Flush();
@@ -389,8 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             // Initially with TracingLevel at Warning, logging of Warning type does not get filtered out.
             Assert.AreEqual(SourceLevels.Warning, Logger.TracingLevel);
             {
-                test.EventType = TraceEventType.Warning;
-                test.Write();
+                test.Warning();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Warning, message: oldMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: true);
@@ -398,8 +390,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             }
             // and logging of Error type also succeeeds
             {
-                test.EventType = TraceEventType.Error;
-                test.Write();
+                test.Error();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Error, message: oldMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: true);
@@ -414,8 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             // Now with TracingLevel at Error, logging of Warning type gets filtered out.
             {
-                test.EventType = TraceEventType.Warning;
-                test.Write();
+                test.Warning();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Warning, message: newMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: false);
@@ -423,8 +413,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             }
             // but logging of Error type succeeds
             {
-                test.EventType = TraceEventType.Error;
-                test.Write();
+                test.Error();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Error, message: newMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: true);
@@ -444,8 +433,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             // Initially with TracingLevel at Error, logging of Warning type gets filtered out.
             Assert.AreEqual(SourceLevels.Error, Logger.TracingLevel);
             {
-                test.EventType = TraceEventType.Warning;
-                test.Write();
+                test.Warning();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Warning, message: oldMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: false);
@@ -453,8 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             }
             // But logging of Error type succeeeds
             {
-                test.EventType = TraceEventType.Error;
-                test.Write();
+                test.Error();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Error, message: oldMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: true);
@@ -469,8 +456,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
 
             // Now with TracingLevel at Warning, logging of Warning type does not get filtered out.
             {
-                test.EventType = TraceEventType.Warning;
-                test.Write();
+                test.Warning();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Warning, message: newMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: true);
@@ -478,8 +464,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             }
             // and logging of Error type also succeeds
             {
-                test.EventType = TraceEventType.Error;
-                test.Write();
+                test.Error();
                 test.PendingVerifications.Add(() =>
                 {
                     test.Verify(eventType: TraceEventType.Error, message: newMessage, callstackMessage: null, shouldVerifyCallstack: false, expectLogMessage: true);

@@ -396,8 +396,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     //
                     availableTask = SendCurrentResults();
 
-                    while (await dataReader.ReadAsync(cancellationToken))
+                    while (dataReader.Read())
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         fileOffsets.Add(totalBytesWritten);
                         totalBytesWritten += fileWriter.WriteRow(dataReader);
                     }
@@ -671,7 +672,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     if (!currentResultSetSnapshot.hasCompletedRead &&
                         LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)
                     {
-                        Logger.Write(TraceEventType.Warning,
+                        Logger.Warning(
                             $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of this result set is not yet complete!");
                         ResultsIntervalMultiplier++;
                     }

@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Composition;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -43,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
-            Logger.Write(TraceEventType.Verbose, "TSqlFormatter initialized");
+            Logger.Verbose("TSqlFormatter initialized");
             serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest, true);
             serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest, true);
             WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
