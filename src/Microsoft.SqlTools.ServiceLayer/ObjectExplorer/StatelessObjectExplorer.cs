@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                 using (var timeoutCancellationTokenSource = new CancellationTokenSource())
                 {
-                    TreeNode? node = rootNode ;
+                    TreeNode? node = rootNode;
                     if (node == null)
                     {
                         // Return empty array if node is not found
@@ -53,7 +53,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             var task = Task.Run(() =>
                             {
                                 var node = rootNode.FindNodeByPath(nodePath, true, timeoutCancellationTokenSource.Token);
-                                return node.Expand(timeoutCancellationTokenSource.Token, token, filters);
+                                if (node != null)
+                                {
+                                    return node.Expand(timeoutCancellationTokenSource.Token, token, filters);
+                                } else 
+                                {
+                                    throw new Exception("Node not found");
+                                }
                             });
 
                             if (task.Wait(TimeSpan.FromSeconds(options.OperationTimeout)))
