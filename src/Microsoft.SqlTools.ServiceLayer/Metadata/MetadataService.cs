@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     try
                     {
-                        var scripts = SmoScripterFactory.GenerateAllServerScripts(sqlConn);
+                        var scripts = SmoScripterFactory.GenerateAllServerTableScripts(sqlConn);
                         if (scripts != null)
                         {
                             try

@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterFactory
     {
-        public static IEnumerable<string> GenerateAllServerScripts(DbConnection connection)
+        public static IEnumerable<string> GenerateAllServerTableScripts(DbConnection connection)
         {
             var serverConnection = SmoScripterFactory.GetServerConnection(connection);
             if (serverConnection == null)
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
 
             Server server = new Server(serverConnection);
-            var scripts = SmoScripterFactory.GenerateAllScripts(server);
+            var scripts = SmoScripterFactory.GenerateTableScripts(server);
 
             return scripts;
         }
@@ -65,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static IEnumerable<string> GenerateAllScripts(Server server)
+        private static IEnumerable<string> GenerateTableScripts(Server server)
         {
             var urns = SmoScripterFactory.GetAllServerTableUrns(server);
 
