@@ -5,6 +5,7 @@
 //
 namespace Microsoft.SqlTools.Credentials
 {
+    using System;
     using System.Reflection;
     using System.Resources;
     using System.Globalization;
