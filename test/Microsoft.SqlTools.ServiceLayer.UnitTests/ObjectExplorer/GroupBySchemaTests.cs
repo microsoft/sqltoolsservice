@@ -19,23 +19,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
     {
         Mock<DatabaseChildFactory> factory;
         Mock<TreeNode> node;
+        Mock<SmoQueryContext> context;
+        bool enableGroupBySchema = false;
+
 
         [SetUp]
         public void init()
         {
             factory = new Mock<DatabaseChildFactory>();
             factory.SetupGet(c => c.ChildQuerierTypes).Returns(null as Type[]);
-            factory.Setup(c => c.CreateChild(It.IsAny<TreeNode>(), It.IsAny<SqlSmoObject>())).Returns((TreeNode node, Schema obj) => {
-                return new TreeNode(){
+            factory.Setup(c => c.CreateChild(It.IsAny<TreeNode>(), It.IsAny<SqlSmoObject>())).Returns((TreeNode node, Schema obj) =>
+            {
+                return new TreeNode()
+                {
                     Label = obj.Name,
                     NodeType = nameof(NodeTypes.Schemas)
                 };
             });
             factory.CallBase = true;
-            Mock<SmoQueryContext> context = new Mock<SmoQueryContext>(new Server(), null);
+            context = new Mock<SmoQueryContext>(new Server(), null, () =>
+            {
+                return enableGroupBySchema;
+            });
             context.CallBase = true;
             context.Object.ValidFor = ValidForFlag.None;
-            
+
             node = new Mock<TreeNode>();
             node.Setup(n => n.GetContext()).Returns(context.Object);
         }
@@ -43,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void SchemaBasedFoldersExcludedWhenGroupBySchemaIsEnabled()
         {
-            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = true };
+            enableGroupBySchema = true;
             var children = factory.Object.Expand(node.Object, true, "TestDB", true, new System.Threading.CancellationToken());
             Assert.False(children.Any(c => c.Label == "Tables"), "Tables subfolder in database should be excluded when group by schema is enabled");
             Assert.False(children.Any(c => c.Label == "Views"), "Views subfolder in database should be excluded when group by schema is enabled");
@@ -53,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void SchemaBasedFoldersIncludedWhenGroupBySchemaIsDisabled()
         {
+            enableGroupBySchema = false;
             WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer = new ObjectExplorerSettings() { GroupBySchema = false };
             var children = factory.Object.Expand(node.Object, true, "TestDB", true, new System.Threading.CancellationToken());
             Assert.True(children.Any(c => c.Label == "Tables"), "Tables subfolder in database should be included when group by schema is disabled");
@@ -60,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.True(children.Any(c => c.Label == "Synonyms"), "Synonyms subfolder in database should be included when group by schema is disabled");
         }
 
-        
+
     }
 
 }

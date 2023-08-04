@@ -677,4 +677,3 @@
   <FilterProperty Name="IsNativelyCompiled" LocLabel="SR.FilterIsNativelyCompiled" Type="bool" Description="SR.FilterIsNativelyCompiledDescription"/>
   <FilterProperty Name="InPrimaryKey" LocLabel="SR.FilterInPrimaryKey" Type="bool" Description="SR.FilterInPrimaryKeyDescription"/>
 </ServerExplorerTree>
-

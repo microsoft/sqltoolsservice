@@ -25,10 +25,6 @@ using System.Collections.Generic;
 using System.Composition;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
@@ -90,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				string settingsFlag = GetFilterSettingsFlag(xmlFile, type.Replace("TreeNode", string.Empty));
 				if(!String.IsNullOrEmpty(settingsFlag))
 				{
-					WriteLine("			if({0})", GetSettingsString(settingsFlag));
+					WriteLine("			if((GetContext() as SmoQueryContext).{0})", settingsFlag);
 					WriteLine("			{");
 				}
 				if(filterProperties.Count > 0){
@@ -435,11 +431,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 								if(ConditionalChildQuerierTypes.Count > 0)
 								{
 										WriteLine("");
-										WriteLine("        internal override Type[] ChildQuerierTypes");
+										WriteLine("        public new Type[] GetChildQuerierTypes(TreeNode parent)");
 										WriteLine("        {");
-										WriteLine("            get");
-										WriteLine("            {");
-										WriteLine("					List<Type> conditionalTypesList = new List<Type>();");
+										
+										WriteLine("			List<Type> conditionalTypesList = new List<Type>();");
 										foreach(XmlElement Querier in ConditionalChildQuerierTypes)
 										{
 												var settingsFlag = Querier.GetAttribute("SettingsFlag");
@@ -447,20 +442,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						
 												if(!string.IsNullOrEmpty(settingsFlag))
 												{
-														WriteLine("					if ({0})", GetSettingsString(settingsFlag));
-														WriteLine("					{");
-														WriteLine("						conditionalTypesList.Add(typeof({0}Querier));", QuerierName);
-														WriteLine("					}");
+														WriteLine("			if ({0})", GetSettingsString(settingsFlag));
+														WriteLine("			{");
+														WriteLine("				conditionalTypesList.Add(typeof({0}Querier));", QuerierName);
+														WriteLine("			}");
 												}
 												else
 												{
-														WriteLine("					conditionalTypesList.Add(typeof({0}Querier));", QuerierName);
+														WriteLine("			conditionalTypesList.Add(typeof({0}Querier));", QuerierName);
 												}
 										}
-										WriteLine("					return conditionalTypesList.ToArray();");
-										WriteLine("            }");
+										WriteLine("			return conditionalTypesList.ToArray();");
 										WriteLine("        }");
-								} 
+										WriteLine("");
+								}
 								else 
 								{
 										string[] allTypes = ChildQuerierTypes.Split(new [] { ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -849,6 +844,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						notOperator = "!";
 						settingsName = settingsName.Substring(1, settingsName.Length-1);
 				}
-				return String.Format("{0}WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.{1}", notOperator, settingsName);
+				return String.Format("(parent.GetContext() as SmoQueryContext).{1}", notOperator, settingsName);
 		}
 #>

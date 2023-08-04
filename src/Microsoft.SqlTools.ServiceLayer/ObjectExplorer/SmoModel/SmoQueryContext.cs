@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -21,21 +22,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private SmoObjectBase parent;
         private SmoWrapper smoWrapper;
         private ValidForFlag validFor = 0;
+        private Func<bool> groupBySchemaFlag;
 
         /// <summary>
         /// Creates a context object with a server to use as the basis for any queries
         /// </summary>
         /// <param name="server"></param>
-        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider)
-            : this(server, serviceProvider, null)
+        public SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null)
+            : this(server, serviceProvider, null, groupBySchemaFlag)
         {
         }
 
-        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager)
+        internal SmoQueryContext(Server server, IMultiServiceProvider serviceProvider, SmoWrapper serverManager, Func<bool> groupBySchemaFlag = null)
         {
             this.server = server;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
+            this.groupBySchemaFlag = () => false;
         }
 
         /// <summary>
@@ -81,6 +84,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             set
             {
                 parent = value;
+            }
+        }
+
+        public bool GroupBySchema
+        {
+            get
+            {
+                return groupBySchemaFlag();
             }
         }
 

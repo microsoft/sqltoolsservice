@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         private SqlServerType sqlServerType;
         public ServerConnection serverConnection;
 
-        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null)
+        public ServerNode(ObjectExplorerServerInfo serverInfo, ServerConnection serverConnection, IMultiServiceProvider serviceProvider = null, Func<bool> groupBySchemaFlag = null)
             : base()
         {
             Validate.IsNotNull(nameof(ObjectExplorerServerInfo), serverInfo);
@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
             serviceProvider ??= ExtensionServiceProvider.CreateDefaultServiceProvider();
-            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider));
+            this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider, groupBySchemaFlag));
             this.serverConnection = serverConnection;
 
             NodeValue = serverInfo.ServerName;
@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
        
 
-        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider)
+        private SmoQueryContext CreateContext(IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlag = null)
         {
             string exceptionMessage;
    
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 Server server = SmoWrapper.CreateServer(this.serverConnection);
                 if (server != null)
                 {
-                    return new SmoQueryContext(server, serviceProvider, SmoWrapper)
+                    return new SmoQueryContext(server, serviceProvider, SmoWrapper, groupBySchemaFlag)
                     {
                         Parent = server,
                         SqlServerType = this.sqlServerType

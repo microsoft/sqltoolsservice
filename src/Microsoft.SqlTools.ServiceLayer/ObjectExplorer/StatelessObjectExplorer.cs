@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
     public class StatelessObjectExplorer
     {
-        public static TreeNode[] Expand(string connectionString, SecurityToken? accessToken, string nodePath, ObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, INodeFilter[]? filters = null)
+        public static TreeNode[] Expand(string connectionString, SecurityToken? accessToken, string nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                 TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
 
-                using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+                using (var taskCancellationTokenSource = new CancellationTokenSource())
                 {
                     TreeNode? node = rootNode;
                     if (node == null)
@@ -52,19 +52,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
                             var task = Task.Run(() =>
                             {
-                                var node = rootNode.FindNodeByPath(nodePath, true, timeoutCancellationTokenSource.Token);
+                                var node = rootNode.FindNodeByPath(nodePath, true, taskCancellationTokenSource.Token);
                                 if (node != null)
                                 {
-                                    return node.Expand(timeoutCancellationTokenSource.Token, token, filters);
+                                    return node.Expand(taskCancellationTokenSource.Token, token, filters);
                                 } else 
                                 {
-                                    throw new Exception("Node not found");
+                                    throw new ArgumentNullException("Parent node not found.");
                                 }
                             });
 
                             if (task.Wait(TimeSpan.FromSeconds(options.OperationTimeout)))
                             {
-                                if (timeoutCancellationTokenSource.IsCancellationRequested)
+                                if (taskCancellationTokenSource.IsCancellationRequested)
                                 {
                                     throw new TimeoutException("The operation has timed out.");
                                 }

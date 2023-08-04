@@ -115,7 +115,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
-            if (ChildQuerierTypes == null)
+            if (this.GetChildQuerierTypes(parent) == null)
             {
                 // This node does not support non-folder children
                 return;
@@ -129,7 +129,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 return;
             }
 
-            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>(IsCompatibleQuerier);
+            IEnumerable<SmoQuerier> queriers = context.ServiceProvider.GetServices<SmoQuerier>((q) => IsCompatibleQuerier(q, parent));
             var filters = this.Filters.ToList();
             var smoProperties = this.SmoProperties.Where(p => ServerVersionHelper.IsValidFor(serverValidFor, p.ValidFor)).Select(x => x.Name);
             if (!string.IsNullOrEmpty(name))
@@ -197,15 +197,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return filterTheNode;
         }
 
-        private bool IsCompatibleQuerier(SmoQuerier querier)
+        private bool IsCompatibleQuerier(SmoQuerier querier, TreeNode parent)
         {
-            if (ChildQuerierTypes == null)
+            if (this.GetChildQuerierTypes(parent) == null)
             {
                 return false;
             }
 
             Type actualType = querier.GetType();
-            foreach (Type childType in ChildQuerierTypes)
+            foreach (Type childType in this.GetChildQuerierTypes(parent))
             {
                 // We will accept any querier that is compatible with the listed querier type
                 if (childType.IsAssignableFrom(actualType))
@@ -298,6 +298,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 return smoProperties == null ? SmoProperties : smoProperties;
             }
+        }
+
+        public Type[] GetChildQuerierTypes(TreeNode parent)
+        {
+            return ChildQuerierTypes;
         }
 
         /// <summary>

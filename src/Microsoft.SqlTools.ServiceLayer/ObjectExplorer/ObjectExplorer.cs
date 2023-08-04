@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <param name="options">Flags to set and change oe options</param>
         /// <param name="sessionIdOverride">Override sessionID. By default a guid is generated to be used as session id</param>
         /// <returns></returns>
-        public ObjectExplorerSession CreateSession(string connectionString, SecurityToken? accessToken, ObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, string? sessionIdOverride = null)
+        public ObjectExplorerSession CreateSession(string connectionString, SecurityToken? accessToken, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, string? sessionIdOverride = null)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -188,9 +188,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             public ServerConnection Connection { get; set; }
             public TreeNode Root { get; private set; }
             public ObjectExplorerServerInfo ServerInfo { get; set; }
-            public SimpleObjectExplorerOptions Options { get; set; }
+            public ObjectExplorerOptions Options { get; set; }
 
-            public ObjectExplorerSession(ServerConnection connection, TreeNode root, ObjectExplorerServerInfo serverInfo, SimpleObjectExplorerOptions options, SecurityToken? accessToken = null)
+            public ObjectExplorerSession(ServerConnection connection, TreeNode root, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, SecurityToken? accessToken = null)
             {
                 Validate.IsNotNull("root", root);
                 Connection = connection;
@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 SessionID = Guid.NewGuid().ToString();
             }
 
-            public static ObjectExplorerSession Create(ServerConnection connection, TreeNode root, ObjectExplorerServerInfo serverInfo, bool isDefaultOrSystemDatabase, SimpleObjectExplorerOptions options)
+            public static ObjectExplorerSession Create(ServerConnection connection, TreeNode root, ObjectExplorerServerInfo serverInfo, bool isDefaultOrSystemDatabase, ObjectExplorerOptions options)
             {
                 ServerNode rootNode = new ServerNode(serverInfo, connection);
                 var session = new ObjectExplorerSession(connection, root, serverInfo, options);
@@ -215,48 +215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         }
     }
 
-    public class ObjectExplorerServerInfo
-    {
-        /// <summary>
-        /// Server name for the OE session
-        /// </summary>
-        public string? ServerName { get; set; }
-        /// <summary>
-        /// Database name for the OE session
-        /// </summary>
-        public string? DatabaseName { get; set; }
-        /// <summary>
-        /// User name for the OE session
-        /// </summary>
-        public string? UserName { get; set; }
-        /// <summary>
-        /// SQL Server version for the OE session
-        /// </summary>
-        public string? ServerVersion { get; set; }
-        /// <summary>
-        /// SQL Server edition for the OE session
-        /// </summary>
-        public int EngineEditionId { get; set; }
-        /// <summary>
-        /// Checks if the OE session is for Azure SQL DB
-        /// </summary>
-        public bool IsCloud { get; set; }
-        /// <summary>
-        /// Indicates if the OE session is for default or system database
-        /// </summary>
-        public bool isDefaultOrSystemDatabase { get; set; }
-    }
 
-    public class SimpleObjectExplorerOptions
-    {
-        /// <summary>
-        /// Enables schema level grouping for child nodes. Default is false
-        /// </summary>
-        public bool EnableGroupBySchema { get; set; } = false;
 
-        /// <summary>
-        /// Timeout for OE session operations in seconds. Default is 60 seconds
-        /// </summary>
-        public int OperationTimeout { get; set; } = 60;
-    }
+    
 }
