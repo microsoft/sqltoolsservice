@@ -159,11 +159,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             var scripts = new List<string>();
             foreach (var s in generatedScripts)
             {
-                if (s.StartsWith("CREATE TABLE"))
-                {
-                    var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty);
-                    scripts.Add(script);
-                }
+                var script = s.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                scripts.Add(script);
             }
 
             return scripts;
