@@ -346,7 +346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns((string connString, string azureAccountToken) =>
+            .Returns((string connString, string azureAccountToken, bool enableServerlessRetryPolicy) =>
             {
                 dummySqlConnection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1655,7 +1655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns((string connString, string azureAccountToken) =>
+            .Returns((string connString, string azureAccountToken, bool enableServerlessRetryPolicy) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1705,7 +1705,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns((string connString, string azureAccountToken) =>
+            .Returns((string connString, string azureAccountToken, bool enableServerlessRetryPolicy) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
@@ -1758,7 +1758,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             var mockFactory = new Mock<ISqlConnectionFactory>();
             mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns((string connString, string azureAccountToken) =>
+            .Returns((string connString, string azureAccountToken, bool enableServerlessRetryPolicy) =>
             {
                 connection.ConnectionString = connString;
                 SqlConnectionStringBuilder scsb = new SqlConnectionStringBuilder(connString);
