@@ -71,6 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
             }
         }
+
+        protected override void SaveProperties(Database db)
+        {
+            base.SaveProperties(db);
+        }
     }
 }
 

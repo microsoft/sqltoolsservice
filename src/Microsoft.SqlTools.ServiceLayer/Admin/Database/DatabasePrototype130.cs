@@ -16,6 +16,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     /// </summary>
     internal class DatabasePrototype130 : DatabasePrototype110
     {
+        // Properties that doen't support secondary value updates
+        // More info here: https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql?view=sql-server-ver16
+        private static readonly HashSet<int> secondaryValUnsupportedPropsSet = new HashSet<int> { 6, 11, 12, 21, 25 };
+
         /// <summary>
         /// Database properties for SqlServer 2016 class constructor
         /// </summary>
@@ -42,10 +46,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         {
             base.SaveProperties(db);
 
-            // Properties that doen't support secondary value updates
-            // More info here: https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql?view=sql-server-ver16
-            HashSet<int> excludedPropertiesSet = new HashSet<int> { 6, 11, 12, 21, 25 };
-
             for (int i = 0; i < db.DatabaseScopedConfigurations.Count; i++)
             {
                 if (db.DatabaseScopedConfigurations[i].Value != this.currentState.databaseScopedConfigurations[i].Value)
@@ -54,14 +54,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
 
                 // The below configurations do not allow updates for the secondary replica - they are only applied to the primary.
-                // The excludedPropertiesSet containst the configurtation Ids of the below properties
+                // The secondaryValUnsupportedPropsSet containst the configurtation Ids of the below properties
                 // IDENTITY_CACHE(6)
                 // ELEVATE_ONLINE(11)
                 // ELEVATE_RESUMABLE(12)
                 // GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21)
                 // PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
                 if (db.DatabaseScopedConfigurations[i].ValueForSecondary != this.currentState.databaseScopedConfigurations[i].ValueForSecondary
-                    && !excludedPropertiesSet.Contains(db.DatabaseScopedConfigurations[i].Id))
+                    && !secondaryValUnsupportedPropsSet.Contains(db.DatabaseScopedConfigurations[i].Id))
                 {
                     db.DatabaseScopedConfigurations[i].ValueForSecondary = this.currentState.databaseScopedConfigurations[i].ValueForSecondary;
                 }

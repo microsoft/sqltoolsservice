@@ -199,51 +199,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             {
                 db.EncryptionEnabled = this.currentState.encryptionEnabled;
             }
-
-            // Check if we support database scoped configurations in this database. Since these were all added at the same time,
-            // only check if MaxDop is supported rather than each individual property.
-            if (db.IsSupportedProperty("MaxDop"))
-            {
-                if (!this.Exists || (db.MaxDop != this.MaxDop))
-                {
-                    db.MaxDop = this.MaxDop;
-                }
-
-                if (!this.Exists || (db.MaxDopForSecondary != this.MaxDopForSecondary))
-                {
-                    db.MaxDopForSecondary = this.MaxDopForSecondary;
-                }
-
-                if (!this.Exists || (db.LegacyCardinalityEstimation != this.currentState.legacyCardinalityEstimation))
-                {
-                    db.LegacyCardinalityEstimation = this.currentState.legacyCardinalityEstimation;
-                }
-
-                if (!this.Exists || (db.LegacyCardinalityEstimationForSecondary != this.currentState.legacyCardinalityEstimationForSecondary))
-                {
-                    db.LegacyCardinalityEstimationForSecondary = this.currentState.legacyCardinalityEstimationForSecondary;
-                }
-
-                if (!this.Exists || (db.ParameterSniffing != this.currentState.parameterSniffing))
-                {
-                    db.ParameterSniffing = this.currentState.parameterSniffing;
-                }
-
-                if (!this.Exists || (db.ParameterSniffingForSecondary != this.currentState.parameterSniffingForSecondary))
-                {
-                    db.ParameterSniffingForSecondary = this.currentState.parameterSniffingForSecondary;
-                }
-
-                if (!this.Exists || (db.QueryOptimizerHotfixes != this.currentState.queryOptimizerHotfixes))
-                {
-                    db.QueryOptimizerHotfixes = this.currentState.queryOptimizerHotfixes;
-                }
-
-                if (!this.Exists || (db.QueryOptimizerHotfixesForSecondary != this.currentState.queryOptimizerHotfixesForSecondary))
-                {
-                    db.QueryOptimizerHotfixesForSecondary = this.currentState.queryOptimizerHotfixesForSecondary;
-                }
-            }
         }
 
         #region Helper Methods
