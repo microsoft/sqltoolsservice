@@ -15,7 +15,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
+// using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -525,6 +525,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 await requestContext.SendResult("");
                 return;
             }
+            await requestContext.SendResult(result);
+
             if (result.Equals("Database"))
             {
                 await requestContext.SendResult(wordToIdentify);
@@ -562,26 +564,75 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else if (currentNode is SqlUseStatement)
             {
-                return "Database";
+                return "<Database >";
             }
-            // Tables, Schemas, Views
-            else if (currentNode is SqlQuerySpecification)
+            // Tables, Schemas, Views, Columns
+            else if (currentNode.BoundObject != null)
             {
-                string xml = (currentNode as SqlQuerySpecification).Xml;
-
-                // Regular expression pattern to find the BoundObject part
-                string pattern = "(?<=BoundObject=\")(table.*?)(?=\")";
-                MatchCollection matches = Regex.Matches(xml, pattern);
-
-                return matches[0].Groups[1].Value;
+                return currentNode.Xml;
             }
             else
             {
                 foreach (SqlCodeObject child in currentNode.Children)
                 {
+                    string result;
                     if (containsPosition(child, position))
                     {
-                        return getObjectIdentification(child, position);
+                        result = getObjectIdentification(child, position);
+                    }
+
+                    if (result != null)
+                    {
+                        if (currentNode is SqlQuerySpecification)
+                        {
+                            string objectType = result.Substring(1, result.IndexOf(' '));
+                            if (objectType.Equals("SqlScalarRefExpression"))
+                            {
+                                string pattern = "(?<=SchemaName=\")(.*?)(?=\")";
+                                MatchCollection matches = Regex.Matches(result, schemaPattern);
+
+                                if (matches.Count > 0)
+                                {
+                                    string schemaName = matches[0].Groups[1].Value;
+                                    pattern = "(?<=BoundObject=\")(table.*?)(?= AS " + schemaName + "\")";
+                                    matches = Regex.Matches(currentNode.Xml, pattern);
+
+                                    return matches[0].Groups[1].Value;
+                                }
+                                else
+                                {
+                                    pattern = "(?<=BoundObject=\")(table.*?)(?=\")";
+                                    matches = Regex.Matches(currentNode.Xml, pattern);
+
+                                    return matches[0].Groups[1].Value;
+                                }
+                            }
+                            else if (objectType.Equals("SqlColumnRefExpression"))
+                            {
+                                string pattern = "(?<=BoundObject=\")(table.*?)(?=\")";
+                                MatchCollection matches = Regex.Matches(currentNode.Xml, pattern);
+
+                                return matches[0].Groups[1].Value;
+                            }
+                            else if (objectType.Equals("SqlTableRefExpression"))
+                            {
+                                string pattern = "(?<=BoundObject=\")(table.*?)(?=\")";
+                                MatchCollection matches = Regex.Matches(result, pattern);
+
+                                string tableIdentification = matches[0].Groups[1].Value;
+                                int spaceIndex = tableIdentification.Substring(7).IndexOf(" ");
+                                if (spaceIndex != -1)
+                                {
+                                    tableIdentification = tableIdentification.Substring(0, spaceIndex + 7);
+                                }
+                                return tableIdentification;
+                            }
+                            return "SQL Query Spec";
+                        }
+                        else
+                        {
+                            return result;
+                        }
                     }
                 }
 
