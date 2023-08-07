@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials.Contracts;
@@ -162,7 +161,7 @@ namespace Microsoft.SqlTools.Credentials
 
         private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
         {
-            Logger.Write(TraceEventType.Verbose, requestType);
+            Logger.Verbose(requestType);
             T result = await handler();
             await requestContext.SendResult(result);
         }

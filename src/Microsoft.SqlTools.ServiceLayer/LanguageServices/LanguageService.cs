@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -269,7 +268,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Register a no-op shutdown task for validation of the shutdown logic
             serviceHost.RegisterShutdownTask((shutdownParams, shutdownRequestContext) =>
             {
-                Logger.Write(TraceEventType.Verbose, "Shutting down language service");
+                Logger.Verbose("Shutting down language service");
                 DeletePeekDefinitionScripts();
                 this.Dispose();
                 return Task.FromResult(0);
@@ -621,7 +620,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -645,7 +644,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -676,7 +675,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -690,7 +689,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                Logger.Write(TraceEventType.Verbose, "HandleRebuildIntelliSenseNotification");
+                Logger.Verbose("HandleRebuildIntelliSenseNotification");
 
                 // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
                 // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
@@ -726,7 +725,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             }
                             catch (Exception ex)
                             {
-                                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                                Logger.Error("Unknown error " + ex.ToString());
                             }
                             finally
                             {
@@ -756,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
             }
         }
@@ -803,7 +802,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -849,7 +848,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
         }
@@ -916,7 +915,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             catch (Exception e)
                             {
                                 // Log the exception but don't rethrow it to prevent parsing errors from crashing SQL Tools Service
-                                Logger.Write(TraceEventType.Error, string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
+                                Logger.Error(string.Format("An unexpected error occured while parsing: {0}", e.ToString()));
                             }
                         }, ConnectedBindingQueue.QueueThreadStackSize);
                         parseThread.Start();
@@ -950,15 +949,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 }
                                 catch (ConnectionException)
                                 {
-                                    Logger.Write(TraceEventType.Error, "Hit connection exception while binding - disposing binder object...");
+                                    Logger.Error("Hit connection exception while binding - disposing binder object...");
                                 }
                                 catch (SqlParserInternalBinderError)
                                 {
-                                    Logger.Write(TraceEventType.Error, "Hit connection exception while binding - disposing binder object...");
+                                    Logger.Error("Hit connection exception while binding - disposing binder object...");
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Write(TraceEventType.Error, "Unknown exception during parsing " + ex.ToString());
+                                    Logger.Error("Unknown exception during parsing " + ex.ToString());
                                 }
 
                                 return null;
@@ -971,7 +970,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // reset the parse result to do a full parse next time
                     parseInfo.ParseResult = null;
-                    Logger.Write(TraceEventType.Error, "Unknown exception during parsing " + ex.ToString());
+                    Logger.Error("Unknown exception during parsing " + ex.ToString());
                 }
                 finally
                 {
@@ -980,7 +979,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else
             {
-                Logger.Write(TraceEventType.Warning, "Binding metadata lock timeout in ParseAndBind");
+                Logger.Warning("Binding metadata lock timeout in ParseAndBind");
             }
 
             return parseInfo.ParseResult;
@@ -1009,7 +1008,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     }
                     catch (Exception ex)
                     {
-                        Logger.Write(TraceEventType.Error, "Unknown error in OnConnection " + ex.ToString());
+                        Logger.Error("Unknown error in OnConnection " + ex.ToString());
                         scriptInfo.IsConnected = false;
                     }
                     finally
@@ -1205,7 +1204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         // if any exceptions are raised looking up extended completion metadata
                         // then just return the original completion item
-                        Logger.Write(TraceEventType.Error, "Exception in ResolveCompletionItem " + ex.ToString());
+                        Logger.Error("Exception in ResolveCompletionItem " + ex.ToString());
                     }
                     finally
                     {
@@ -1301,7 +1300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     catch (Exception ex)
                     {
                         // if any exceptions are raised return error result with message
-                        Logger.Write(TraceEventType.Error, "Exception in GetDefinition " + ex.ToString());
+                        Logger.Error("Exception in GetDefinition " + ex.ToString());
                         return new DefinitionResult
                         {
                             IsErrorResult = true,
@@ -1316,7 +1315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 else
                 {
-                    Logger.Write(TraceEventType.Error, "Timeout waiting to query metadata from server");
+                    Logger.Error("Timeout waiting to query metadata from server");
                 }
             }
             return (lastResult != null) ? lastResult : null;
@@ -1668,7 +1667,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
                 catch (Exception e)
                 {
-                    Logger.Write(TraceEventType.Error, string.Format("Exception in calling completion extension {0}:\n{1}", completionExt.Name, e.ToString()));
+                    Logger.Error(string.Format("Exception in calling completion extension {0}:\n{1}", completionExt.Name, e.ToString()));
                 }
 
                 cancellationTokenSource.Dispose();
@@ -1755,7 +1754,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
+                Logger.Error(string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
 
                 TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
                 cancelTask.SetCanceled();
@@ -1826,9 +1825,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     continue;
                 }
 
-                Logger.Write(TraceEventType.Verbose, "Analyzing script file: " + scriptFile.FilePath);
+                Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
                 ScriptFileMarker[] semanticMarkers = GetSemanticMarkers(scriptFile);
-                Logger.Write(TraceEventType.Verbose, "Analysis complete.");
+                Logger.Verbose("Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
             }

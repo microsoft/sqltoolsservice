@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,7 +60,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             // Log the JSON representation of the message
             string logMessage =
                 $"Sending message of id[{messageToWrite.Id}], of type[{messageToWrite.MessageType}] and method[{messageToWrite.Method}]";
-            Logger.Write(TraceEventType.Verbose, logMessage);
+            Logger.Verbose(logMessage);
 
             string serializedMessage =
                 JsonConvert.SerializeObject(

@@ -14,7 +14,6 @@ using Microsoft.SqlTools.ServiceLayer.ServerConfigurations.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
@@ -66,7 +65,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <returns></returns>
         public async Task HandleServerConfigViewRequest(ServerConfigViewRequestParams parameters, RequestContext<ServerConfigViewResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleServerConfigViewRequest");
+            Logger.Verbose("HandleServerConfigViewRequest");
             try
             {
                 ConnectionInfo connInfo;
@@ -102,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <returns></returns>
         public async Task HandleServerConfigUpdateRequest(ServerConfigUpdateRequestParams parameters, RequestContext<ServerConfigUpdateResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleServerConfigUpdateRequest");
+            Logger.Verbose("HandleServerConfigUpdateRequest");
             try
             {
                 ConnectionInfo connInfo;
@@ -139,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ServerConfigurations
         /// <param name="requestContext">Request Context</param>
         public async Task HandleServerConfigListRequest(ServerConfigListRequestParams parameters, RequestContext<ServerConfigListResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleServerConfigListRequest");
+            Logger.Verbose("HandleServerConfigListRequest");
             try
             {
                 ConnectionInfo connInfo;

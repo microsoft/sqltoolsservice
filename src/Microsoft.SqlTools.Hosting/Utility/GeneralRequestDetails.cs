@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace Microsoft.SqlTools.Utility
@@ -31,7 +30,7 @@ namespace Microsoft.SqlTools.Utility
                 catch
                 {
                     result = defaultValue;
-                    Logger.Write(TraceEventType.Warning, string.Format(CultureInfo.InvariantCulture,
+                    Logger.Warning(string.Format(CultureInfo.InvariantCulture,
                         "Cannot convert option value {0}:{1} to {2}", name, value ?? "", typeof(T)));
                 }
             }

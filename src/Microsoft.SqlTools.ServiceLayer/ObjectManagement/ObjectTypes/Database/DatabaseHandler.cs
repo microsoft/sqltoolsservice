@@ -491,7 +491,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         if (prototype is DatabasePrototype130 db130)
                         {
-                            if (databaseScopedConfigurationsCollection != null)
+                            if (!viewParams.IsNewObject && databaseScopedConfigurationsCollection != null && database.DatabaseScopedConfigurations != null)
                             {
                                 foreach (DatabaseScopedConfigurationsInfo dsc in database.DatabaseScopedConfigurations)
                                 {
@@ -950,8 +950,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// Prepares database scoped configurations list
         /// </summary>
         /// <param name="smoDSCMetaData"></param>
-        /// <returns></returns>
-        private DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
+        /// <returns>database scoped configurations metadata array</returns>
+        private static DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
         {
             var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
             foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
@@ -973,7 +973,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </summary>
         /// <param name="dsc"></param>
         /// <returns>Value of the primary/secondary</returns>
-        private string GetDscValue(int id, string value)
+        private static string GetDscValue(int id, string value)
         {
             // MAXDOP(Id = 1) and PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(Id = 25) are integer numbers but coming as string value type and they need to send as is.
             if (id == 1 || id == 25)

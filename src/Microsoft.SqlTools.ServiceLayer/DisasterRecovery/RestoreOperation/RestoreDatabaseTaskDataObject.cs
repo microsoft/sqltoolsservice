@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.DisasterRecovery.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using System.Diagnostics;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 {
@@ -340,7 +339,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             catch(Exception ex)
             {
-                Logger.Write(TraceEventType.Information, $"Failed to execute restore task. error: {ex.Message}");
+                Logger.Information($"Failed to execute restore task. error: {ex.Message}");
                 throw;
             }
             finally
@@ -927,7 +926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             }
             catch(Exception ex )
             {
-                Logger.Write(TraceEventType.Information, $"Failed to get restore db files. error: {ex.Message}");
+                Logger.Information($"Failed to get restore db files. error: {ex.Message}");
             }
             return ret;
         }

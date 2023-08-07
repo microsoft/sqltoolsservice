@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
@@ -99,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unexpected exception while handling file browser open request: " + ex.Message);
+                Logger.Error("Unexpected exception while handling file browser open request: " + ex.Message);
                 await requestContext.SendResult(false);
             }
         }
@@ -114,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unexpected exception while handling file browser expand request: " + ex.Message);
+                Logger.Error("Unexpected exception while handling file browser expand request: " + ex.Message);
                 await requestContext.SendResult(false);
             }
         }
@@ -129,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unexpected exception while handling file browser validate request: " + ex.Message);
+                Logger.Error("Unexpected exception while handling file browser validate request: " + ex.Message);
                 await requestContext.SendResult(false);
             }
         }
@@ -146,7 +145,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unexpected exception while handling file browser close request: " + ex.Message);
+                Logger.Error("Unexpected exception while handling file browser close request: " + ex.Message);
                 await requestContext.SendResult(new FileBrowserCloseResponse() { Message = ex.Message });
             }
         }
@@ -206,7 +205,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unexpected exception while closing file browser: " + ex.Message);
+                Logger.Error("Unexpected exception while closing file browser: " + ex.Message);
                 result.Message = ex.Message;
             }
 
