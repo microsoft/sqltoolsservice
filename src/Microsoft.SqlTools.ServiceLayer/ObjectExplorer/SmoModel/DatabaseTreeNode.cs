@@ -8,7 +8,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Microsoft.SqlServer.Management.Common;
@@ -92,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     var error = string.Format(CultureInfo.InvariantCulture, "Failed to get IsAccessible. error:{0} inner:{1} stacktrace:{2}",
                         ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                    Logger.Write(TraceEventType.Error, error);
+                    Logger.Error(error);
                     ErrorMessage = ex.Message;
                     return false;
                 }

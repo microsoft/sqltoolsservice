@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Data;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
@@ -76,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <returns></returns>
         public async Task HandleExternalLanguageDeleteRequest(ExternalLanguageDeleteRequestParams parameters, RequestContext<ExternalLanguageDeleteResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageDeleteRequest");
+            Logger.Verbose("HandleExternalLanguageDeleteRequest");
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 parameters.OwnerUri,
@@ -108,7 +107,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <returns></returns>
         public async Task HandleExternalLanguageUpdateRequest(ExternalLanguageUpdateRequestParams parameters, RequestContext<ExternalLanguageUpdateResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageUpdateRequest");
+            Logger.Verbose("HandleExternalLanguageUpdateRequest");
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 parameters.OwnerUri,
@@ -140,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <returns></returns>
         public async Task HandleExternalLanguageStatusRequest(ExternalLanguageStatusRequestParams parameters, RequestContext<ExternalLanguageStatusResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageStatusRequest");
+            Logger.Verbose("HandleExternalLanguageStatusRequest");
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 parameters.OwnerUri,
@@ -173,7 +172,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageExtensibility
         /// <returns></returns>
         public async Task HandleExternalLanguageListRequest(ExternalLanguageListRequestParams parameters, RequestContext<ExternalLanguageListResponseParams> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleExternalLanguageListRequest");
+            Logger.Verbose("HandleExternalLanguageListRequest");
             ConnectionInfo connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 parameters.OwnerUri,

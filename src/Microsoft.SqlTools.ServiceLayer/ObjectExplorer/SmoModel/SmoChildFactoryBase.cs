@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}",
                     parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
+                Logger.Error(error);
                 throw;
             }
 
@@ -113,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <param name="parent">Parent the nodes are being added to</param>
         protected virtual void OnExpandPopulateNonFolders(IList<TreeNode> allChildren, TreeNode parent, bool refresh, string name, CancellationToken cancellationToken, IEnumerable<INodeFilter>? appliedFilters = null)
         {
-            Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
+            Logger.Verbose(string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
             if (this.GetChildQuerierTypes(parent) == null)
             {
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                         cancellationToken.ThrowIfCancellationRequested();
                         if (smoObject == null)
                         {
-                            Logger.Write(TraceEventType.Error, "smoObject should not be null");
+                            Logger.Error("smoObject should not be null");
                         }
                         TreeNode childNode = CreateChild(parent, smoObject);
                         if (childNode != null && PassesFinalFilters(childNode, smoObject) && !ShouldFilterNode(childNode, serverValidFor))
@@ -176,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 {
                     string error = string.Format(CultureInfo.InvariantCulture, "Failed getting smo objects. parent:{0} querier: {1} error:{2} inner:{3} stacktrace:{4}",
                     parent != null ? parent.GetNodePath() : "", querier.GetType(), ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                    Logger.Write(TraceEventType.Error, error);
+                    Logger.Error(error);
                     throw;
                 }
             }
@@ -337,7 +337,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             else
             {
                 // Return true if cannot find the proeprty, SMO still tries to get that property but adding the property to supported list can make loading the nodes faster
-                Logger.Write(TraceEventType.Verbose, $"Smo property name {propertyName} for Smo type {smoObj.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
+                Logger.Verbose($"Smo property name {propertyName} for Smo type {smoObj.GetType()} is not added as supported properties. This can cause the performance of loading the OE nodes");
                 return true;
             }
         }

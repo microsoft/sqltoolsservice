@@ -307,7 +307,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
 
         protected void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken)
         {
-            Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
+            Logger.Verbose(string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));
             Debug.Assert(IsAlwaysLeaf == false);
 
             QueryContext context = this.GetContextAs<QueryContext>();
@@ -338,7 +338,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed populating oe children. error:{0} inner:{1} stacktrace:{2}",
                     ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
+                Logger.Error(error);
                 ErrorMessage = ex.Message;
             }
             finally
@@ -360,7 +360,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     "Failed expanding oe children. parent:{0} error:{1} inner:{2} stacktrace:{3}",
                     parent != null ? parent.GetNodePath() : "", ex.Message,
                     ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
+                Logger.Error(error);
                 throw;
             }
         }
@@ -372,7 +372,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
         /// <param name="parent">Parent the nodes are being added to</param>
         private List<TreeNode> OnExpandPopulateNonFolders(TreeNode parent, bool refresh, string name, CancellationToken cancellationToken)
         {
-            Logger.Write(TraceEventType.Verbose, string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
+            Logger.Verbose(string.Format(CultureInfo.InvariantCulture, "child factory parent :{0}", parent.GetNodePath()));
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -396,7 +396,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
                     cancellationToken.ThrowIfCancellationRequested();
                     if (objectMetadata == null)
                     {
-                        Logger.Write(TraceEventType.Error, "kustoMetadata should not be null");
+                        Logger.Error("kustoMetadata should not be null");
                     }
                     TreeNode childNode = CreateChild(parent, objectMetadata);
                     if (childNode != null)
@@ -411,7 +411,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.Nodes
             {
                 string error = string.Format(CultureInfo.InvariantCulture, "Failed getting child objects. parent:{0} error:{1} inner:{2} stacktrace:{3}",
                 parent != null ? parent.GetNodePath() : "", ex.Message, ex.InnerException != null ? ex.InnerException.Message : "", ex.StackTrace);
-                Logger.Write(TraceEventType.Error, error);
+                Logger.Error(error);
                 throw;
             }
         }

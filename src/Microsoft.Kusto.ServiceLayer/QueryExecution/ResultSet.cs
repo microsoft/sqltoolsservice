@@ -629,7 +629,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     if (!currentResultSetSnapshot.hasCompletedRead &&
                         LastUpdatedSummary.RowCount == currentResultSetSnapshot.RowCount)
                     {
-                        Logger.Write(TraceEventType.Warning,
+                        Logger.Warning(
                             $"The result set:{Summary} has not made any progress in last {ResultTimerInterval} milliseconds and the read of this result set is not yet complete!");
                         ResultsIntervalMultiplier++;
                     }

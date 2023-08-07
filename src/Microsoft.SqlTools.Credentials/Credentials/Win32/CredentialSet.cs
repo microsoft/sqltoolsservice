@@ -1,4 +1,4 @@
-﻿//
+//
 // Code originally from http://credentialmanagement.codeplex.com/, 
 // Licensed under the Apache License 2.0 
 //
@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.Utility;
@@ -74,7 +73,7 @@ namespace Microsoft.SqlTools.Credentials.Win32
             bool result = NativeMethods.CredEnumerateW(Target, 0, out uint count, out pCredentials);
             if (!result)
             {
-                Logger.Write(TraceEventType.Error, string.Format("Win32Exception: {0}", new Win32Exception(Marshal.GetLastWin32Error()).ToString()));
+                Logger.Error(string.Format("Win32Exception: {0}", new Win32Exception(Marshal.GetLastWin32Error()).ToString()));
                 return;
             }
 

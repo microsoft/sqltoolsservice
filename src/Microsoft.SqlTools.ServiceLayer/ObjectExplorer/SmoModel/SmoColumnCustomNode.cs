@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
@@ -154,7 +153,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
             catch(Exception ex)
             {
-                Logger.Write(TraceEventType.Error, $"Failed to get customized column name. error:{ex.Message}");
+                Logger.Error($"Failed to get customized column name. error:{ex.Message}");
             }
             return string.Empty;
         }
