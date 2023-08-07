@@ -25,26 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             NodeValue = string.Empty;
             this.NodeType = "Database";
             this.NodeTypeId = NodeTypes.Database;
-			if((GetContext() as SmoQueryContext).GroupBySchema)
-			{
-				this.FilterProperties = new NodeFilterProperty[]
-				{
-					new NodeFilterProperty
-					{
-						Name = "Name",
-						DisplayName = SR.FilterName,
-						Type = NodeFilterPropertyDataType.String,
-						Description = SR.FilterNameDescription,
-					},
-					new NodeFilterProperty
-					{
-						Name = "Owner",
-						DisplayName = SR.FilterOwner,
-						Type = NodeFilterPropertyDataType.String,
-						Description = SR.FilterOwnerDescription,
-					},
-				};
-			}
             OnInitialize();
         }
     }
@@ -299,6 +279,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             var child = new DatabaseTreeNode();
             InitializeChild(parent, child, context);
+			if((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			{
+				child.FilterProperties = new NodeFilterProperty[]
+				{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+				};
+			}
             return child;
         }
     }
@@ -440,6 +440,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         {
             var child = new DatabaseTreeNode();
             InitializeChild(parent, child, context);
+			if((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			{
+				child.FilterProperties = new NodeFilterProperty[]
+				{
+					new NodeFilterProperty
+					{
+						Name = "Name",
+						DisplayName = SR.FilterName,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterNameDescription,
+					},
+					new NodeFilterProperty
+					{
+						Name = "Owner",
+						DisplayName = SR.FilterOwner,
+						Type = NodeFilterPropertyDataType.String,
+						Description = SR.FilterOwnerDescription,
+					},
+				};
+			}
             return child;
         }
     }
@@ -765,7 +785,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Tables,
@@ -829,7 +849,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 	}
                 });
 			}
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Views,
@@ -869,7 +889,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 	}
                 });
 			}
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Synonyms,
@@ -924,7 +944,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             });
         }
 
-        public new Type[] GetChildQuerierTypes(TreeNode parent)
+         protected override Type[] GetChildQuerierTypes(TreeNode parent)
         {
 			List<Type> conditionalTypesList = new List<Type>();
 			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
@@ -1551,7 +1571,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         protected override void OnExpandPopulateFolders(IList<TreeNode> currentChildren, TreeNode parent)
         {
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_StoredProcedures,
@@ -1598,7 +1618,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 	}
                 });
 			}
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Functions,
@@ -1622,7 +1642,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                 ValidFor = ValidForFlag.AllOnPrem|ValidForFlag.AzureV12,
                 SortPriority = SmoTreeNode.NextSortPriority,
             });
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Types,
@@ -1632,7 +1652,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
                     SortPriority = SmoTreeNode.NextSortPriority,
                 });
 			}
-			if ((parent.GetContext() as SmoQueryContext).GroupBySchema)
+			if (!(parent.GetContext() as SmoQueryContext).GroupBySchema)
 			{
                 currentChildren.Add(new FolderNode {
                     NodeValue = SR.SchemaHierarchy_Sequences,

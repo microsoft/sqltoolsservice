@@ -376,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private ServerNode SetupServerNodeWithCreator(SmoWrapper creator)
         {
-            ServerNode node = new ServerNode(oeServerInfo, new ServerConnection(new SqlConnection(fakeConnectionString)), ServiceProvider);
+            ServerNode node = new ServerNode(oeServerInfo, new ServerConnection(new SqlConnection(fakeConnectionString)), ServiceProvider, () => false);
             node.SmoWrapper = creator;
             return node;
         }

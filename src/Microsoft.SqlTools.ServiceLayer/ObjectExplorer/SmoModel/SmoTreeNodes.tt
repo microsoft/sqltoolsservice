@@ -82,69 +82,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 				WriteLine("            NodeValue = string.Empty;");
 				WriteLine("            this.NodeType = \"{0}\";", type.Replace("TreeNode", string.Empty));
 				WriteLine("            this.NodeTypeId = NodeTypes.{0};", name.Replace("TreeNode", string.Empty));
-				List<XmlElement> filterProperties = GetFilterProperties(xmlFile, type.Replace("TreeNode", string.Empty));
-				string settingsFlag = GetFilterSettingsFlag(xmlFile, type.Replace("TreeNode", string.Empty));
-				if(!String.IsNullOrEmpty(settingsFlag))
-				{
-					WriteLine("			if((GetContext() as SmoQueryContext).{0})", settingsFlag);
-					WriteLine("			{");
-				}
-				if(filterProperties.Count > 0){
-					WriteLine("				this.FilterProperties = new NodeFilterProperty[]");
-					WriteLine("				{");
-					foreach (var filterDef in filterProperties)
-					{		
-						var filterName = filterDef.GetAttribute("Name");
-						var filterDisplayName = filterDef.GetAttribute("LocLabel");
-						var filterType = filterDef.GetAttribute("Type");
-						var enumString = "NodeFilterPropertyDataType";
-						switch (filterType)
-						{
-							case "string":
-								enumString += ".String";
-								break;
-							case "bool":
-								enumString += ".Boolean";
-								break;
-							case "date":
-								enumString += ".Date";
-								break;
-							case "choice":
-								enumString += ".Choice";
-								break;
-						}
-						var filterDescription = filterDef.GetAttribute("Description");
-						WriteLine("					new NodeFilterProperty");
-						WriteLine("					{");
-						WriteLine("						Name = \"{0}\",", filterName);
-						WriteLine("						DisplayName = {0},", filterDisplayName);
-						WriteLine("						Type = {0},", enumString);
-						WriteLine("						Description = {0},", filterDescription);
-						if(filterType == "choice")
-						{
-								var choiceValues = filterDef.ChildNodes;
-								WriteLine("							Choices = new NodeFilterPropertyChoice[] {");
-								foreach (XmlElement choice in choiceValues)
-								{
-										var choiceName = choice.GetAttribute("LocLabel");
-										var choiceValue = choice.GetAttribute("Value");
-										WriteLine("							new NodeFilterPropertyChoice {");
-										WriteLine("								DisplayName = {0},", choiceName);
-										WriteLine("								Value = \"{0}\",", choiceValue);
-										WriteLine("							},");
-										
-								}
-								WriteLine("							}");
-						}
-						WriteLine("					},");
-																
-					}
-					WriteLine("				};");
-				}
-				if(!String.IsNullOrEmpty(settingsFlag))
-				{
-					WriteLine("			}");
-				}
 				WriteLine("            OnInitialize();");
 				WriteLine("        }");
 				WriteLine("    }");
@@ -431,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 								if(ConditionalChildQuerierTypes.Count > 0)
 								{
 										WriteLine("");
-										WriteLine("        public new Type[] GetChildQuerierTypes(TreeNode parent)");
+										WriteLine("         protected override Type[] GetChildQuerierTypes(TreeNode parent)");
 										WriteLine("        {");
 										
 										WriteLine("			List<Type> conditionalTypesList = new List<Type>();");
@@ -509,6 +446,67 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 										WriteLine("            child.SortPriority = SmoTreeNode.NextSortPriority;");
 								}
 								WriteLine("            InitializeChild(parent, child, context);");
+
+								List<XmlElement> filterProperties = GetFilterProperties(xmlFile, TreeNode.Replace("TreeNode", string.Empty));
+								string filterFlag = GetFilterSettingsFlag(xmlFile, TreeNode.Replace("TreeNode", string.Empty));
+								if(!String.IsNullOrEmpty(filterFlag))
+								{
+									WriteLine("			if((parent.GetContext() as SmoQueryContext).{0})", filterFlag);
+									WriteLine("			{");
+								}
+								if(filterProperties.Count > 0){
+									WriteLine("				child.FilterProperties = new NodeFilterProperty[]");
+									WriteLine("				{");
+									foreach (var filterDef in filterProperties)
+									{		
+										var filterName = filterDef.GetAttribute("Name");
+										var filterDisplayName = filterDef.GetAttribute("LocLabel");
+										var filterType = filterDef.GetAttribute("Type");
+										var enumString = "NodeFilterPropertyDataType";
+										switch (filterType)
+										{
+											case "string":
+												enumString += ".String";
+												break;
+											case "bool":
+												enumString += ".Boolean";
+												break;
+											case "date":
+												enumString += ".Date";
+												break;
+											case "choice":
+												enumString += ".Choice";
+												break;
+										}
+										var filterDescription = filterDef.GetAttribute("Description");
+										WriteLine("					new NodeFilterProperty");
+										WriteLine("					{");
+										WriteLine("						Name = \"{0}\",", filterName);
+										WriteLine("						DisplayName = {0},", filterDisplayName);
+										WriteLine("						Type = {0},", enumString);
+										WriteLine("						Description = {0},", filterDescription);
+										if(filterType == "choice")
+										{
+												var choiceValues = filterDef.ChildNodes;
+												WriteLine("							Choices = new NodeFilterPropertyChoice[] {");
+												foreach (XmlElement choice in choiceValues)
+												{
+														var choiceName = choice.GetAttribute("LocLabel");
+														var choiceValue = choice.GetAttribute("Value");
+														WriteLine("							new NodeFilterPropertyChoice {");
+														WriteLine("								DisplayName = {0},", choiceName);
+														WriteLine("								Value = \"{0}\",", choiceValue);
+														WriteLine("							},");
+														
+												}
+												WriteLine("							}");
+										}
+										WriteLine("					},");
+																				
+									}
+									WriteLine("				};");
+									WriteLine("			}");
+								}
 								WriteLine("            return child;");
 								WriteLine("        }");
 						}
@@ -844,6 +842,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 						notOperator = "!";
 						settingsName = settingsName.Substring(1, settingsName.Length-1);
 				}
-				return String.Format("(parent.GetContext() as SmoQueryContext).{1}", notOperator, settingsName);
+				return String.Format("{0}(parent.GetContext() as SmoQueryContext).{1}", notOperator, settingsName);
 		}
 #>

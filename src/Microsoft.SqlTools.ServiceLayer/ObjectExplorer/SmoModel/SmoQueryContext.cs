@@ -38,7 +38,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             this.server = server;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
-            this.groupBySchemaFlag = () => false;
+            if(groupBySchemaFlag != null)
+            {
+                this.groupBySchemaFlag = groupBySchemaFlag;
+            } else
+            {
+                this.groupBySchemaFlag = () => false;
+            }
         }
 
         /// <summary>
@@ -119,7 +125,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         /// <returns>new <see cref="SmoQueryContext"/> with all fields except <see cref="Parent"/> the same</returns>
         public SmoQueryContext CopyWithParent(SmoObjectBase parent)
         {
-            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper)
+            SmoQueryContext context = new SmoQueryContext(this.Server, this.ServiceProvider, this.smoWrapper, this.groupBySchemaFlag)
             {
                 database = this.Database,
                 Parent = parent,

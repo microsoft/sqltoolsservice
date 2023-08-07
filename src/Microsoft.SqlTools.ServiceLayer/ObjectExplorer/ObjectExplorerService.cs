@@ -538,7 +538,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider);
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -815,7 +815,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase, IMultiServiceProvider serviceProvider)
             {
                 ServerNode rootNode = new ServerNode(new ObjectExplorerServerInfo()
                 {
@@ -825,7 +825,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     ServerVersion = response.ServerInfo.ServerVersion,
                     EngineEditionId = response.ServerInfo.EngineEditionId,
                     IsCloud = response.ServerInfo.IsCloud,
-                }, serverConnection);
+                }, serverConnection, serviceProvider,() =>
+                {
+                    return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
+                });
                 var session = new ObjectExplorerSession(response.OwnerUri, rootNode);
                 if (!isDefaultOrSystemDatabase)
                 {

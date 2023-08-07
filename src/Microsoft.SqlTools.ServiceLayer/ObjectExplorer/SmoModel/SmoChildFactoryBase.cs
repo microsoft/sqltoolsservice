@@ -300,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             }
         }
 
-        public Type[] GetChildQuerierTypes(TreeNode parent)
+        protected virtual Type[] GetChildQuerierTypes(TreeNode parent)
         {
             return ChildQuerierTypes;
         }
