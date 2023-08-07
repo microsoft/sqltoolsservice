@@ -77,6 +77,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Filterable properties that this node supports
         /// </summary>
         public NodeFilterProperty[] FilterableProperties { get; set; }
+        
+        public NodeInfo()
+        {
+        }
+
+        public NodeInfo(TreeNode treeNode)
+        {
+            IsLeaf = treeNode.IsAlwaysLeaf;
+            Label = treeNode.Label;
+            NodePath = treeNode.GetNodePath();
+            ParentNodePath = treeNode.Parent?.GetNodePath() ?? string.Empty;
+            NodeType = treeNode.NodeType;
+            Metadata = treeNode.ObjectMetadata;
+            NodeStatus = treeNode.NodeStatus;
+            NodeSubType = treeNode.NodeSubType;
+            ErrorMessage = treeNode.ErrorMessage;
+            ObjectType = treeNode.NodeTypeId.ToString();
+            FilterableProperties = treeNode.FilterProperties;
+        }
     }
 
     /// <summary>

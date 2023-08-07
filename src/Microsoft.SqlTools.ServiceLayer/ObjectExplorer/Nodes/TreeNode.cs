@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
@@ -30,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
         private string nodePath;
         private string label;
         private string nodePathName;
+        private static Lazy<Dictionary<string, HashSet<ChildFactory>>> ApplicableNodeChildFactories;
         public const char PathPartSeperator = '/';
 
         /// <summary>
@@ -219,28 +219,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return nodeForPath;
         }
 
-        /// <summary>
-        /// Converts to a <see cref="NodeInfo"/> object for serialization with just the relevant properties 
-        /// needed to identify the node
-        /// </summary>
-        /// <returns></returns>
-        public NodeInfo ToNodeInfo()
-        {
-            return new NodeInfo()
-            {
-                IsLeaf = this.IsAlwaysLeaf,
-                Label = this.Label,
-                NodePath = this.GetNodePath(),
-                ParentNodePath = this.Parent?.GetNodePath() ?? "",
-                NodeType = this.NodeType,
-                Metadata = this.ObjectMetadata,
-                NodeStatus = this.NodeStatus,
-                NodeSubType = this.NodeSubType,
-                ErrorMessage = this.ErrorMessage,
-                ObjectType = this.NodeTypeId.ToString(),
-                FilterableProperties = this.FilterProperties
-            };
-        }
 
         /// <summary>
         /// Expands this node and returns its children
@@ -325,8 +303,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             return Parent as T;
         }
 
-        private static Lazy<Dictionary<string, HashSet<ChildFactory>>> ApplicableNodeChildFactories;
-
         private void PopulateFactories()
         {
             var factories = new Dictionary<string, HashSet<ChildFactory>>();
@@ -367,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
             }
             return null;
         }
-        
+
         protected virtual void PopulateChildren(bool refresh, string name, CancellationToken cancellationToken, string? accessToken = null, IEnumerable<INodeFilter>? filters = null)
         {
             Logger.Verbose(string.Format(CultureInfo.InvariantCulture, "Populating oe node :{0}", this.GetNodePath()));

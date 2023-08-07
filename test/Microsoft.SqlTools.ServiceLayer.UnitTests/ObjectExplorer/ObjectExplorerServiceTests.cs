@@ -282,7 +282,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             var foundNodes = service.FindNodes(session.SessionId, "Server", null, null, null);
             Assert.AreEqual(1, foundNodes.Count);
             Assert.AreEqual("Server", foundNodes[0].NodeType);
-            Assert.AreEqual(session.RootNode.NodePath, foundNodes[0].ToNodeInfo().NodePath);
+            Assert.AreEqual(session.RootNode.NodePath, new NodeInfo(foundNodes[0]).NodePath);
         }
 
         [Test]

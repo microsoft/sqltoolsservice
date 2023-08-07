@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Given a server connection
             ServerNode node = new ServerNode(oeServerInfo, serverConnection, ServiceProvider);
             // When converting to NodeInfo
-            NodeInfo info = node.ToNodeInfo();
+            NodeInfo info = new NodeInfo(node);
             // Then all fields should match
             Assert.AreEqual(node.IsAlwaysLeaf, info.IsLeaf);
             Assert.AreEqual(node.Label, info.Label);
