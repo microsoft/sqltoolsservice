@@ -519,19 +519,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             SqlScript script = scriptDocumentInfo.ScriptParseInfo.ParseResult.Script;
 
             string boundObjectString = getObjectIdentification(script, position, "");
-            string result = getObjectIdentification(script, position, boundObjectString);
 
-            if (result == null)
+            if (boundObjectString == null)
             {
                 await requestContext.SendResult("");
                 return;
             }
 
-            if (result.Equals("Database"))
+            if (boundObjectString.Equals("Database"))
             {
                 await requestContext.SendResult(wordToIdentify);
                 return;
             }
+
+            string result = getObjectIdentification(script, position, boundObjectString);
+
 
             string label = result.Substring(result.IndexOf(' ') + 1);
             string baseIdentifier = label.Substring(label.LastIndexOf('.') + 1);
@@ -564,7 +566,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
             else if (currentNode is SqlUseStatement)
             {
-                return "<Database >";
+                return "Database";
             }
             // Tables, Schemas, Views, Columns
             else if (currentNode.BoundObject != null)
