@@ -7,6 +7,7 @@
 
 using System.Data.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -20,12 +21,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Creates a new SqlConnection object
         /// </summary>
-        /// <param name="enableSeverlessRetryPolicy">Enable to use the RetryLogicProvider for handling instances of sleeping serverless databases taking time to wake up.</param>
-        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken, bool enableServerlessRetryPolicy = false)
+        /// <param name="retryProvider">Optional retry provider to handle errors in a special way</param>
+        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider = null)
         {
             RetryPolicy connectionRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
             RetryPolicy commandRetryPolicy = RetryPolicyFactory.CreateDefaultConnectionRetryPolicy();
-            return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, enableServerlessRetryPolicy);
+            return new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, retryProvider);
         }
     }
 }

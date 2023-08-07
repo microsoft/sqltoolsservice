@@ -20,6 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.Data.SqlClient;
 using Moq;
 using Moq.Protected;
 using HostingProtocol = Microsoft.SqlTools.Hosting.Protocol;
@@ -232,7 +233,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         private static ISqlConnectionFactory CreateMockFactory(TestResultSet[] data, bool throwOnExecute, bool throwOnRead)
         {
             var mockFactory = new Mock<ISqlConnectionFactory>();
-            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+            mockFactory.Setup(factory => factory.CreateSqlConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SqlRetryLogicBaseProvider>()))
                 .Returns(() => CreateTestConnection(data, throwOnExecute, throwOnRead));
 
             return mockFactory.Object;
