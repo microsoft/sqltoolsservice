@@ -41,6 +41,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string? RestrictAccess { get; set; }
         public DatabaseScopedConfigurationsInfo[]? DatabaseScopedConfigurations { get; set; }
         public bool? FullTextIndexing { get; set; }
+        public DatabaseFile[] Files { get; set; }
     }
 
     public class DatabaseScopedConfigurationsInfo
@@ -50,4 +51,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string ValueForPrimary { get; set; }
         public string ValueForSecondary { get; set; }
     }
+
+    public class DatabaseFile
+    {
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Path { get; set; }
+        public string FileGroup { get; set; }
+        public string FileNameWithExtension { get; set; }
+        public double SizeInMb { get; set; }
+        public string AutoGrowthAndMaxSizeInMb { get; set; }
+    }
+
 }

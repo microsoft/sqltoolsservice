@@ -253,7 +253,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                                 if (smoDatabase != null)
                                 {
-                                    databaseViewInfo.Files = GetDatabaseFiles(smoDatabase);
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).Files = GetDatabaseFiles(smoDatabase);
                                 }
                             }
                         }
@@ -747,7 +747,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         FileGroup = fileGroup.Name,
                         FileNameWithExtension = Path.GetFileName(file.FileName),
                         SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
-                        AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth)
+                        AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth).ToString()
                     });
                 }
             }
@@ -758,10 +758,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Name = file.Name,
                     Type = FileType.Log.ToString(),
                     Path = Path.GetDirectoryName(file.FileName),
-                    FileGroup = string.Empty,
+                    FileGroup = "Not Applicable",
                     FileNameWithExtension = Path.GetFileName(file.FileName),
                     SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
-                    AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth)
+                    AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth).ToString()
                 });
             }
             return filesList.ToArray();
