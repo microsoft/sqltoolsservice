@@ -37,10 +37,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private static readonly Dictionary<RecoveryModel, string> displayRecoveryModels = new Dictionary<RecoveryModel, string>();
         private static readonly Dictionary<PageVerify, string> displayPageVerifyOptions = new Dictionary<PageVerify, string>();
         private static readonly Dictionary<DatabaseUserAccess, string> displayRestrictAccessOptions = new Dictionary<DatabaseUserAccess, string>();
+        private static readonly Dictionary<FileType, string> displayFileTypes = new Dictionary<FileType, string>();
 
         private static readonly Dictionary<string, CompatibilityLevel> compatLevelEnums = new Dictionary<string, CompatibilityLevel>();
         private static readonly Dictionary<string, ContainmentType> containmentTypeEnums = new Dictionary<string, ContainmentType>();
         private static readonly Dictionary<string, RecoveryModel> recoveryModelEnums = new Dictionary<string, RecoveryModel>();
+        private static readonly Dictionary<string, FileType> fileTypesEnums = new Dictionary<string, FileType>();
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
@@ -79,6 +81,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
 
+            displayFileTypes.Add(FileType.Data, SR.prototype_file_dataFile);
+            displayFileTypes.Add(FileType.Log, SR.prototype_file_logFile);
+            displayFileTypes.Add(FileType.FileStream, SR.prototype_file_filestreamFile);
+
             DscOnOffOptions = new[]{
                 CommonConstants.DatabaseScopedConfigurations_Value_On,
                 CommonConstants.DatabaseScopedConfigurations_Value_Off
@@ -108,6 +114,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             foreach (RecoveryModel key in displayRecoveryModels.Keys)
             {
                 recoveryModelEnums.Add(displayRecoveryModels[key], key);
+            }
+            foreach (FileType key in displayFileTypes.Keys)
+            {
+                fileTypesEnums.Add(displayFileTypes[key], key);
             }
 
             // Azure SLO info is invariant of server information, so set up static objects we can return later
@@ -201,6 +211,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     }
                                 }
                                 databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
+                                databaseViewInfo.FileGroupsOptions = GetFileGroupNames(smoDatabase);
+                                databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -742,7 +754,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     filesList.Add(new DatabaseFile()
                     {
                         Name = file.Name,
-                        Type = FileType.Data.ToString(),
+                        Type = displayFileTypes[FileType.Data],
                         Path = Path.GetDirectoryName(file.FileName),
                         FileGroup = fileGroup.Name,
                         FileNameWithExtension = Path.GetFileName(file.FileName),
@@ -756,7 +768,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 filesList.Add(new DatabaseFile()
                 {
                     Name = file.Name,
-                    Type = FileType.Log.ToString(),
+                    Type = displayFileTypes[FileType.Log],
                     Path = Path.GetDirectoryName(file.FileName),
                     FileGroup = "Not Applicable",
                     FileNameWithExtension = Path.GetFileName(file.FileName),
@@ -765,6 +777,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 });
             }
             return filesList.ToArray();
+        }
+
+        private string[] GetFileGroupNames(Database database)
+        {
+            var fileGroupList = new List<string>();
+            foreach (FileGroup fileGroup in database.FileGroups)
+            {
+                fileGroupList.Add(fileGroup.Name);
+            }
+            return fileGroupList.ToArray();
         }
 
         /// <summary>

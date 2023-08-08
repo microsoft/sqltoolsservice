@@ -25,6 +25,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string[] DscOnOffOptions { get; set; }
         public string[] DscElevateOptions { get; set; }
         public string[] DscEnableDisableOptions { get; set; }
+        public string[] FileGroupsOptions { get; set; }
+        public string[] FileTypesOptions { get; set; }
     }
 
     public class AzureEditionDetails
