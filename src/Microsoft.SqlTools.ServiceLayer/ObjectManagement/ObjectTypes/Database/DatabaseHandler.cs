@@ -378,37 +378,55 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (deleteParams.GenerateScript)
                     {
-                        sqlScript = CreateDeleteScript(deleteParams, smoDatabase.Name);
+                        smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
                     }
-                    else
+
+                    DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                    try
                     {
-                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                        try
+                        // In order to drop all connections to the database, we switch it to single
+                        // user access mode so that only our current connection to the database stays open.
+                        // Any pending operations are terminated and rolled back.
+                        if (deleteParams.DropConnections && smoDatabase.ActiveConnections > 0)
                         {
-                            // In order to drop all connections to the database, we switch it to single
-                            // user access mode so that only our current connection to the database stays open.
-                            // Any pending operations are terminated and rolled back.
-                            if (deleteParams.DropConnections && smoDatabase.ActiveConnections > 0)
-                            {
-                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            if (deleteParams.DeleteBackupHistory)
-                            {
-                                smoDatabase.Parent.DeleteBackupHistory(smoDatabase.Name);
-                            }
-                            smoDatabase.Drop();
+                            smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                         }
-                        catch (SmoException)
+                        if (deleteParams.DeleteBackupHistory)
                         {
-                            // Revert to database's previous user access level if we changed it as part of dropping connections
-                            // before hitting this exception.
-                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            smoDatabase.Parent.DeleteBackupHistory(smoDatabase.Name);
+                        }
+                        smoDatabase.Drop();
+                        if (deleteParams.GenerateScript)
+                        {
+                            var builder = new StringBuilder();
+                            foreach (var scriptEntry in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
                             {
-                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                                if (scriptEntry != null)
+                                {
+                                    builder.AppendLine(scriptEntry);
+                                    builder.AppendLine(Environment.NewLine);
+                                }
                             }
-                            throw;
+                            sqlScript = builder.ToString();
+                        }
+                    }
+                    catch (SmoException)
+                    {
+                        // Revert to database's previous user access level if we changed it as part of dropping connections
+                        // before hitting this exception.
+                        if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                        {
+                            smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                        }
+                        throw;
+                    }
+                    finally
+                    {
+                        if (deleteParams.GenerateScript)
+                        {
+                            smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
                         }
                     }
                 }
@@ -418,27 +436,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return sqlScript;
-        }
-
-        private string CreateDeleteScript(DeleteDatabaseRequestParams deleteParams, string databaseName)
-        {
-            var escapedName = ToSqlScript.FormatIdentifier(databaseName);
-            var builder = new StringBuilder();
-            if (deleteParams.DeleteBackupHistory)
-            {
-                builder.AppendLine($"EXEC msdb.dbo.sp_delete_database_backuphistory @database_name = N'{databaseName}'");
-                builder.AppendLine("GO");
-            }
-            builder.AppendLine("USE [master]");
-            builder.AppendLine("GO");
-            if (deleteParams.DropConnections)
-            {
-                builder.AppendLine($"ALTER DATABASE {escapedName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
-                builder.AppendLine("GO");
-            }
-            builder.AppendLine($"DROP DATABASE {escapedName}");
-            builder.AppendLine("GO");
-            return builder.ToString();
         }
 
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
