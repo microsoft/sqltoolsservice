@@ -405,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 if (scriptEntry != null)
                                 {
                                     builder.AppendLine(scriptEntry);
-                                    builder.AppendLine(Environment.NewLine);
+                                    builder.AppendLine("GO");
                                 }
                             }
                             sqlScript = builder.ToString();
