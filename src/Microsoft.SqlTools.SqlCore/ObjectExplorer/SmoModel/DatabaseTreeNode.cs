@@ -17,7 +17,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
-    internal partial class DatabaseTreeNode
+    public partial class DatabaseTreeNode
     {
         public DatabaseTreeNode(ServerNode serverNode, string databaseName) : this()
         {

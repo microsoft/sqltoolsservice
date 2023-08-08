@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             NodeTypeDictionary.Add("Server", serverSet);
         }
 
-        internal static HashSet<string> FindNodePaths(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
+        public static HashSet<string> FindNodePaths(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
         {
             if (TreeRoot == null)
             {

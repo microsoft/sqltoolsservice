@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 		{
 				var name = TreeNode.GetAttribute("Name");
 				var type = !string.IsNullOrWhiteSpace(TreeNode.GetAttribute("Type")) ? TreeNode.GetAttribute("Type") : TreeNode.GetAttribute("Name");
-				WriteLine("    internal sealed partial class {0} : SmoTreeNode", name);
+				WriteLine("    public partial class {0} : SmoTreeNode", name);
 				WriteLine("    {");
 				WriteLine("        public {0}() : base()", name);
 				WriteLine("        {");

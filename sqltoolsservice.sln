@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Credenti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting", "src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.SqlCore", "src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj", "{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3F82F298-700A-48DF-8A69-D048DFBA782C} = {3F82F298-700A-48DF-8A69-D048DFBA782C}

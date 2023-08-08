@@ -18,7 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 {
 
-    internal sealed partial class DatabaseTreeNode : SmoTreeNode
+    public partial class DatabaseTreeNode : SmoTreeNode
     {
         public DatabaseTreeNode() : base()
         {
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class TableTreeNode : SmoTreeNode
+    public partial class TableTreeNode : SmoTreeNode
     {
         public TableTreeNode() : base()
         {
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class ViewTreeNode : SmoTreeNode
+    public partial class ViewTreeNode : SmoTreeNode
     {
         public ViewTreeNode() : base()
         {
@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class UserDefinedTableTypeTreeNode : SmoTreeNode
+    public partial class UserDefinedTableTypeTreeNode : SmoTreeNode
     {
         public UserDefinedTableTypeTreeNode() : base()
         {
@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class StoredProcedureTreeNode : SmoTreeNode
+    public partial class StoredProcedureTreeNode : SmoTreeNode
     {
         public StoredProcedureTreeNode() : base()
         {
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class TableValuedFunctionTreeNode : SmoTreeNode
+    public partial class TableValuedFunctionTreeNode : SmoTreeNode
     {
         public TableValuedFunctionTreeNode() : base()
         {
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class ScalarValuedFunctionTreeNode : SmoTreeNode
+    public partial class ScalarValuedFunctionTreeNode : SmoTreeNode
     {
         public ScalarValuedFunctionTreeNode() : base()
         {
@@ -95,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class AggregateFunctionTreeNode : SmoTreeNode
+    public partial class AggregateFunctionTreeNode : SmoTreeNode
     {
         public AggregateFunctionTreeNode() : base()
         {
@@ -106,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class FileGroupTreeNode : SmoTreeNode
+    public partial class FileGroupTreeNode : SmoTreeNode
     {
         public FileGroupTreeNode() : base()
         {
@@ -117,7 +117,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class ExternalTableTreeNode : SmoTreeNode
+    public partial class ExternalTableTreeNode : SmoTreeNode
     {
         public ExternalTableTreeNode() : base()
         {
@@ -128,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class ExternalResourceTreeNode : SmoTreeNode
+    public partial class ExternalResourceTreeNode : SmoTreeNode
     {
         public ExternalResourceTreeNode() : base()
         {
@@ -139,7 +139,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class HistoryTableTreeNode : SmoTreeNode
+    public partial class HistoryTableTreeNode : SmoTreeNode
     {
         public HistoryTableTreeNode() : base()
         {
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
         }
     }
 
-    internal sealed partial class ExpandableSchemaTreeNode : SmoTreeNode
+    public partial class ExpandableSchemaTreeNode : SmoTreeNode
     {
         public ExpandableSchemaTreeNode() : base()
         {

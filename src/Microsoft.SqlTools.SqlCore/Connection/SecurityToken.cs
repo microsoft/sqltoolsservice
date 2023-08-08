@@ -5,7 +5,7 @@
 
 #nullable disable
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     public class SecurityToken
     {
