@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
 using Microsoft.Kusto.ServiceLayer.LanguageServices;
 using Microsoft.Kusto.ServiceLayer.LanguageServices.Contracts;
@@ -1072,6 +1073,26 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     conn.Open();
                 }
             }
+        }
+    }
+
+    public class AzureAccessToken : IRenewableToken
+    {
+        public DateTimeOffset TokenExpiry { get; set; }
+        public string Resource { get; set; }
+        public string Tenant { get; set; }
+        public string UserId { get; set; }
+
+        private string accessToken;
+
+        public AzureAccessToken(string accessToken)
+        {
+            this.accessToken = accessToken;
+        }
+
+        public string GetAccessToken()
+        {
+            return this.accessToken;
         }
     }
 }
