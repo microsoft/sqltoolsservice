@@ -5,10 +5,15 @@
 
 using System;
 using Microsoft.SqlServer.Management.Smo;
+using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.ServerConfigurations;
 using Microsoft.SqlTools.Utility;
+using System.Collections.Generic;
+using Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server;
+using System.Linq;
+using System.Collections;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
@@ -30,6 +35,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private ConfigProperty serverMinMemoryProperty;
         private ConfigProperty serverMaxMemoryProperty;
+        BitArray initialIOAffinityArray;
+        private const int MAX64CPU = 64;
+        private const int MAX32CPU = 32;
         #endregion
 
         #region Trace support
@@ -288,6 +296,45 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
 
         }
+
+        public bool AutoProcessorAffinityMaskForAll
+        {
+            get
+            {
+                return this.currentState.AutoProcessorAffinityMaskForAll;
+            }
+            set
+            {
+                this.currentState.AutoProcessorAffinityMaskForAll = value;
+            }
+
+        }
+
+        public bool AutoProcessorAffinityIOMaskForAll
+        {
+            get
+            {
+                return this.currentState.AutoProcessorAffinityMaskForAll;
+            }
+            set
+            {
+                this.currentState.AutoProcessorAffinityMaskForAll = value;
+            }
+
+        }
+
+        public List<NumaNode> NumaNodes
+        {
+            get
+            {
+                return this.currentState.NumaNodes;
+            }
+            set
+            {
+                this.currentState.NumaNodes = value;
+            }
+
+        }
         #endregion
 
 
@@ -321,6 +368,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 Microsoft.SqlServer.Management.Smo.Server server = this.dataContainer.Server;
                 bool changesMade = false;
+                bool bAlterServerConfig = false;
+                bool bSendCPUAffinityBeforeIO = false;
+                bool bSendIOAffinityBeforeCPU = false;
+                bool sentCpuAffinity = false;
+
+                bSendCPUAffinityBeforeIO = this.CheckCPUAffinityBeforeIO(server);
+                bSendIOAffinityBeforeCPU = this.CheckIOAffinityBeforeCPU(server);
+                bAlterServerConfig = this.CheckIOAffinityTsqlGenerated(server);
+                if (!bSendIOAffinityBeforeCPU)
+                {
+                    SendDataForKJ(server);
+                    sentCpuAffinity = true;
+                }
+
+                if (bAlterServerConfig == true)
+                {
+                    try
+                    {
+                        server.Configuration.Alter((bSendCPUAffinityBeforeIO && bSendIOAffinityBeforeCPU));
+                    }
+                    finally
+                    {
+                        server.Configuration.Refresh();
+                    }
+                }
+                if (!sentCpuAffinity)
+                {
+                    SendDataForKJ(server);
+                }
 
                 changesMade = UpdateMemoryValues(this.dataContainer.Server);
 
@@ -349,6 +425,150 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             return changesMade;
         }
+
+        private bool CheckCPUAffinityBeforeIO(SMO.Server smoServer)
+        {
+            for (int i = 0; i < this.NumaNodes.Count; i++)
+            {
+                SMO.NumaNode nNode = smoServer.AffinityInfo.NumaNodes[i];
+                for (int cpuCount = 0; cpuCount < this.NumaNodes[i].Processors.Count; cpuCount++)
+                {
+                    SMO.Cpu cpu = nNode.Cpus[cpuCount];
+                    if (cpu.GroupID == 0)
+                    {
+                        if (cpu.AffinityMask == this.NumaNodes[i].Processors[cpuCount].IOAffinity && cpu.AffinityMask)
+                        {
+                            //if Current IO affinity is equal to initial cpu.Affinity then script Cpu Affinity first
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool CheckIOAffinityBeforeCPU(SMO.Server smoServer)
+        {
+            for (int i = 0; i < this.NumaNodes.Count; i++)
+            {
+                SMO.NumaNode nNode = smoServer.AffinityInfo.NumaNodes[i];
+                for (int cpuCount = 0; cpuCount < this.NumaNodes[i].Processors.Count; cpuCount++)
+                {
+                    SMO.Cpu cpu = nNode.Cpus[cpuCount];
+                    if (cpu.GroupID == 0)
+                    {
+                        if (initialIOAffinityArray[cpu.ID] == this.NumaNodes[i].Processors[cpuCount].Affinity && initialIOAffinityArray[cpu.ID])
+                        {
+                            //if Current IO affinity is equal to initial cpu.Affinity then script Cpu Affinity first
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// This will send data for KJ specific things
+        /// Also Checks if Alter needs to be generated
+        /// </summary>
+        private void SendDataForKJ(SMO.Server smoServer)
+        {
+            BitArray finalCpuIOAffinity = new BitArray(64, false);
+            bool sendAffinityInfoAlter = false;
+
+            if (this.AutoProcessorAffinityMaskForAll)
+            {
+                if (smoServer.AffinityInfo.AffinityType != Microsoft.SqlServer.Management.Smo.AffinityType.Auto)
+                {
+                    smoServer.AffinityInfo.AffinityType = Microsoft.SqlServer.Management.Smo.AffinityType.Auto;
+                    sendAffinityInfoAlter = true;
+                }
+            }
+            else
+            {
+                if (smoServer.AffinityInfo.AffinityType != Microsoft.SqlServer.Management.Smo.AffinityType.Manual)
+                {
+                    smoServer.AffinityInfo.AffinityType = Microsoft.SqlServer.Management.Smo.AffinityType.Manual;
+                    sendAffinityInfoAlter = true;
+                }
+            }
+
+
+            for (int i = 0; i < this.NumaNodes.Count; i++)
+            {
+                SMO.NumaNode nNode = smoServer.AffinityInfo.NumaNodes[i];
+                for (int cpuCount = 0; cpuCount < this.NumaNodes[i].Processors.Count; cpuCount++)
+                {
+                    SMO.Cpu cpu = nNode.Cpus[cpuCount];
+                    if (this.NumaNodes[i].Processors[cpuCount].Affinity != cpu.AffinityMask)
+                    {
+                        sendAffinityInfoAlter = true;
+                        if (!this.AutoProcessorAffinityMaskForAll)
+                        {
+                            cpu.AffinityMask = this.NumaNodes[i].Processors[cpuCount].Affinity;
+                        }
+                    }
+                }
+            }
+
+            if (sendAffinityInfoAlter)
+            {
+                try
+                {
+                    smoServer.AffinityInfo.Alter();
+                }
+                finally
+                {
+                    smoServer.AffinityInfo.Refresh();
+                }
+            }
+
+        }
+
+        private bool CheckIOAffinityTsqlGenerated(SMO.Server smoServer)
+        {
+            bool sendAlter = false;
+            bool send64AffinityIOAlter = false;
+            BitArray finalCpuIOAffinity = new BitArray(64, false);
+            for (int i = 0; i < this.NumaNodes.Count; i++)
+            {
+                SMO.NumaNode nNode = smoServer.AffinityInfo.NumaNodes[i];
+                for (int cpuCount = 0; cpuCount < this.NumaNodes[i].Processors.Count; cpuCount++)
+                {
+                    SMO.Cpu cpu = nNode.Cpus[cpuCount];
+                    if (cpu.GroupID == 0)
+                    {
+                        finalCpuIOAffinity[cpu.ID] = this.NumaNodes[i].Processors[cpuCount].IOAffinity;
+                        if (initialIOAffinityArray[cpu.ID] != finalCpuIOAffinity[cpu.ID])
+                        {
+                            if (cpu.ID < MAX32CPU)
+                            {
+                                sendAlter = true;
+                            }
+                            else
+                            {
+                                send64AffinityIOAlter = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sendAlter || send64AffinityIOAlter)
+            {
+                int[] intArray = new int[2];
+                finalCpuIOAffinity.CopyTo(intArray, 0);
+                if (sendAlter)
+                {
+                    smoServer.Configuration.AffinityIOMask.ConfigValue = intArray[0];
+                }
+                if (send64AffinityIOAlter)
+                {
+                    smoServer.Configuration.Affinity64IOMask.ConfigValue = intArray[1];
+                }
+            }
+            return (sendAlter || send64AffinityIOAlter);
+        }
         #endregion
 
         public void ApplyInfoToPrototype(ServerInfo serverInfo)
@@ -373,6 +593,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.StorageSpaceUsageInMB = (int)(serverInfo.StorageSpaceUsageInMB);
             this.MaxServerMemory = serverInfo.MaxServerMemory;
             this.MinServerMemory = serverInfo.MinServerMemory;
+            this.AutoProcessorAffinityMaskForAll = serverInfo.AutoProcessorAffinityMaskForAll;
+            this.AutoProcessorAffinityIOMaskForAll = serverInfo.AutoProcessorAffinityIOMaskForAll;
+            this.NumaNodes = serverInfo.NumaNodes.ToList();
         }
 
         /// <summary>
@@ -384,6 +607,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </remarks>
         private class ServerPrototypeData : ICloneable
         {
+            #region constants
+            private const int MAX_IO_CPU_SUPPORTED = 64;
+            #endregion
+
             #region data members
             private string serverName = string.Empty;
             private string hardwareGeneration = String.Empty;
@@ -403,14 +630,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private string serviceTier = String.Empty;
             private int reservedStorageSizeMB = 0;
             private int storageSpaceUsageInMB = 0;
-
             private NumericServerProperty minMemory;
             private NumericServerProperty maxMemory;
+            private bool autoProcessorAffinityMaskForAll = false;
+            private bool autoProcessorAffinityIOMaskForAll = false;
+            private List<NumaNode> numaNodes = new List<NumaNode>();
+
             private bool initialized = false;
             private Server server;
             private CDataContainer context;
             private ServerConfigService configService;
+            private AffinityMngr affinityMngr = new AffinityMngr();
             private bool isYukonOrLater = false;
+            private bool isSqlServer64Bit;
 
             ConfigProperty serverMaxMemoryProperty;
             ConfigProperty serverMinMemoryProperty;
@@ -835,11 +1067,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 set
                 {
                     if (this.initialized)
-                    { 
+                    {
                         Logger.Error(SR.PropertyNotInitialized("MinMemory"));
                     }
 
-                     this.minMemory = value; 
+                    this.minMemory = value;
                 }
             }
 
@@ -863,6 +1095,75 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
 
                     this.maxMemory = value;
+                }
+            }
+
+            public bool AutoProcessorAffinityMaskForAll
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.autoProcessorAffinityMaskForAll;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("AutoProcessorAffinityMaskForAll"));
+                    }
+
+                    this.autoProcessorAffinityMaskForAll = value;
+                }
+            }
+
+            public bool AutoProcessorAffinityIOMaskForAll
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.autoProcessorAffinityIOMaskForAll;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("AutoProcessorAffinityIOMaskForAll"));
+                    }
+
+                    this.autoProcessorAffinityIOMaskForAll = value;
+                }
+            }
+
+            public List<NumaNode> NumaNodes
+            {
+                get
+                {
+                    if (!this.initialized)
+                    {
+                        LoadData();
+                    }
+
+                    return this.numaNodes;
+                }
+
+                set
+                {
+                    if (this.initialized)
+                    {
+                        Logger.Error(SR.PropertyNotInitialized("NumaNodes"));
+                    }
+
+                    this.numaNodes = value;
                 }
             }
 
@@ -904,10 +1205,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.context = context;
                 this.configService = service;
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
+                this.isSqlServer64Bit = (this.server.Edition.Contains("(64 - bit)"));
                 this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
                 this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
                 this.minMemory = new NumericServerProperty();
                 this.maxMemory = new NumericServerProperty();
+                this.NumaNodes = new List<NumaNode>();
                 LoadData();
             }
 
@@ -939,6 +1242,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 result.version = this.version;
                 result.maxMemory = this.maxMemory;
                 result.minMemory = this.minMemory;
+                result.autoProcessorAffinityMaskForAll = this.autoProcessorAffinityMaskForAll;
+                result.autoProcessorAffinityIOMaskForAll = this.autoProcessorAffinityIOMaskForAll;
+                result.numaNodes = this.numaNodes;
                 result.server = this.server;
                 return result;
             }
@@ -965,6 +1271,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.serviceTier = server.ServiceTier;
                 this.storageSpaceUsageInMB = server.UsedStorageSizeMB;
                 LoadMemoryProperties();
+                this.numaNodes = GetNumaNodes();
+                GetAutoProcessorsAffinity();
             }
 
             private void LoadMemoryProperties()
@@ -976,6 +1284,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.minMemory.Value = serverMinMemoryProperty.ConfigValue;
                 this.minMemory.MaximumValue = serverMinMemoryProperty.Maximum;
                 this.minMemory.MinimumValue = serverMinMemoryProperty.Minimum;
+            }
+
+            /// <summary>
+            /// Get affinity masks for first 32 and next 32 processors (total 64 processors) if the
+            /// processor masks have been modified after being read from the server.
+            /// </summary>
+            /// <param name="affinityConfig">returns the affinity for first 32 processors. null if not changed</param>
+            /// <param name="affinity64Config">return the affinity for CPUs 33-64. null if not changed.</param>
+            private List<NumaNode> GetNumaNodes()
+            {
+                List<NumaNode> results = new List<NumaNode>();
+                foreach (SMO.NumaNode node in this.server.AffinityInfo.NumaNodes)
+                {
+                    var processors = new List<ProcessorAffinity>();
+                    foreach (SMO.Cpu cpu in node.Cpus)
+                    {
+                        if (cpu.GroupID == 0)
+                        {
+                            // get affinityIO info if group id is 0
+                            processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = affinityMngr.GetAffinity(cpu.ID, true) });
+                        }
+                    }
+                    var result = new NumaNode() { NumaNodeId = node.ID.ToString(), Processors = processors };
+                    results.Add(result);
+                }
+                return results;
+            }
+
+            private void GetAutoProcessorsAffinity()
+            {
+                if (this.server.AffinityInfo.AffinityType == Microsoft.SqlServer.Management.Smo.AffinityType.Auto)
+                {
+                    this.autoProcessorAffinityMaskForAll = this.autoProcessorAffinityIOMaskForAll = true;
+                }
+                else
+                {
+                    this.autoProcessorAffinityMaskForAll = this.autoProcessorAffinityIOMaskForAll = false;
+                }
             }
         }
     }

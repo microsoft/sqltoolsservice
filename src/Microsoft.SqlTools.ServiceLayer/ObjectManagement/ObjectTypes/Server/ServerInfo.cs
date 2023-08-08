@@ -4,6 +4,8 @@
 //
 #nullable disable
 
+using System.Collections.Generic;
+
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
     /// <summary>
@@ -30,6 +32,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Version { get; set; }
         public NumericServerProperty MaxServerMemory { get; set; }
         public NumericServerProperty MinServerMemory { get; set; }
+        public bool AutoProcessorAffinityMaskForAll { get; set; }
+        public bool AutoProcessorAffinityIOMaskForAll { get; set; }
+        public NumaNode[] NumaNodes { get; set; }
     }
 
     public class NumericServerProperty
@@ -37,5 +42,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public int MaximumValue { get; set; }
         public int MinimumValue { get; set; }
         public int Value { get; set; }
+    }
+    public class NumaNode
+    {
+        public string NumaNodeId { get; set; }
+        public List<ProcessorAffinity> Processors { get; set; }
+    }
+
+    public class ProcessorAffinity
+    {
+        public string ProcessorId { get; set; }
+        public bool Affinity { get; set; }
+        public bool IOAffinity { get; set; }
     }
 }
