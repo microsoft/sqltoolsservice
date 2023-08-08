@@ -18,6 +18,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
     {
         // Properties that doen't support secondary value updates
         // More info here: https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql?view=sql-server-ver16
+        // The secondaryValUnsupportedPropsSet containst the configuration Ids of the below properties
+        // IDENTITY_CACHE(6)
+        // ELEVATE_ONLINE(11)
+        // ELEVATE_RESUMABLE(12)
+        // GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21)
+        // PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
         private static readonly HashSet<int> secondaryValUnsupportedPropsSet = new HashSet<int> { 6, 11, 12, 21, 25 };
 
         /// <summary>
@@ -53,13 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                     db.DatabaseScopedConfigurations[i].Value = this.currentState.databaseScopedConfigurations[i].Value;
                 }
 
-                // The below configurations do not allow updates for the secondary replica - they are only applied to the primary.
-                // The secondaryValUnsupportedPropsSet containst the configurtation Ids of the below properties
-                // IDENTITY_CACHE(6)
-                // ELEVATE_ONLINE(11)
-                // ELEVATE_RESUMABLE(12)
-                // GLOBAL_TEMPORARY_TABLE_AUTO_DROP(21)
-                // PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(25)
+                // Configurations that are not allowed secondary replicas are excluded.
                 if (db.DatabaseScopedConfigurations[i].ValueForSecondary != this.currentState.databaseScopedConfigurations[i].ValueForSecondary
                     && !secondaryValUnsupportedPropsSet.Contains(db.DatabaseScopedConfigurations[i].Id))
                 {
