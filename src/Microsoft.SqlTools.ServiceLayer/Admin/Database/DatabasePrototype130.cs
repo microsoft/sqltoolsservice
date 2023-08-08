@@ -54,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 }
 
                 // The below configurations do not allow updates for the secondary replica - they are only applied to the primary.
-                // The secondaryValUnsupportedPropsSet containst the configurtation Ids of the below properties
+                // The secondaryValUnsupportedPropsSet containst the configuration Ids of the below properties
                 // IDENTITY_CACHE(6)
                 // ELEVATE_ONLINE(11)
                 // ELEVATE_RESUMABLE(12)
