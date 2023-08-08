@@ -3,13 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Has information for filtering a SMO object by properties 

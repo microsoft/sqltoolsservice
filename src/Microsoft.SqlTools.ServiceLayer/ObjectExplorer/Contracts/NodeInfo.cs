@@ -5,8 +5,10 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using System;
+using System.Collections.Generic;
+using Microsoft.SqlTools.SqlCore.Metadata;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
@@ -163,5 +165,109 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// The applied values of the filter property
         /// </summary>
         public JToken Value { get; set; }
+        
+
+        public INodeFilter ToINodeFilter(NodeFilterProperty filterProperty)
+        {
+            Type type = typeof(string);
+
+            var IsDateTime = filterProperty.Type == NodeFilterPropertyDataType.Date;
+
+            FilterType filterType = FilterType.EQUALS;
+            bool isNotFilter = false;
+
+            object filterValue = null;
+
+            switch (filterProperty.Type)
+            {
+                case NodeFilterPropertyDataType.String:
+                case NodeFilterPropertyDataType.Date:
+                case NodeFilterPropertyDataType.Choice:
+                    type = typeof(string);
+                    filterValue = this.Value.ToString();
+                    break;
+                case NodeFilterPropertyDataType.Number:
+                    type = typeof(int);
+                    filterValue = this.Value.ToObject<int>();
+                    break;
+                case NodeFilterPropertyDataType.Boolean:
+                    type = typeof(bool);
+                    filterValue = this.Value.ToObject<bool>() ? 1 : 0;
+                    break;
+            }
+
+            switch (this.Operator)
+            {
+                case NodeFilterOperator.Equals:
+                    filterType = FilterType.EQUALS;
+                    break;
+                case NodeFilterOperator.NotEquals:
+                    filterType = FilterType.EQUALS;
+                    isNotFilter = true;
+                    break;
+                case NodeFilterOperator.LessThan:
+                    filterType = FilterType.LESSTHAN;
+                    break;
+                case NodeFilterOperator.LessThanOrEquals:
+                    filterType = FilterType.LESSTHANOREQUAL;
+                    break;
+                case NodeFilterOperator.GreaterThan:
+                    filterType = FilterType.GREATERTHAN;
+                    break;
+                case NodeFilterOperator.GreaterThanOrEquals:
+                    filterType = FilterType.GREATERTHANOREQUAL;
+                    break;
+                case NodeFilterOperator.Between:
+                    filterType = FilterType.BETWEEN;
+                    break;
+                case NodeFilterOperator.NotBetween:
+                    filterType = FilterType.NOTBETWEEN;
+                    isNotFilter = true;
+                    break;
+                case NodeFilterOperator.Contains:
+                    filterType = FilterType.CONTAINS;
+                    break;
+                case NodeFilterOperator.NotContains:
+                    filterType = FilterType.CONTAINS;
+                    isNotFilter = true;
+                    break;
+                case NodeFilterOperator.StartsWith:
+                    filterType = FilterType.STARTSWITH;
+                    break;
+                case NodeFilterOperator.NotStartsWith:
+                    filterType = FilterType.STARTSWITH;
+                    isNotFilter = true;
+                    break;
+                case NodeFilterOperator.EndsWith:
+                    filterType = FilterType.ENDSWITH;
+                    break;
+                case NodeFilterOperator.NotEndsWith:
+                    filterType = FilterType.ENDSWITH;
+                    isNotFilter = true;
+                    break;
+            }
+
+            if (this.Operator == NodeFilterOperator.Between || this.Operator == NodeFilterOperator.NotBetween)
+            {
+                if (filterProperty.Type == NodeFilterPropertyDataType.Number)
+                {
+                    filterValue = this.Value.ToObject<int[]>();
+                }
+                else if (filterProperty.Type == NodeFilterPropertyDataType.Date)
+                {
+                    filterValue = this.Value.ToObject<string[]>();
+                }
+            }
+
+            return new NodePropertyFilter
+            {
+                Property = filterProperty.Name,
+                Type = type,
+                Values = new List<object> { filterValue },
+                IsNotFilter = isNotFilter,
+                FilterType = filterType,
+                IsDateTime = IsDateTime
+            };
+        }
     }
 }

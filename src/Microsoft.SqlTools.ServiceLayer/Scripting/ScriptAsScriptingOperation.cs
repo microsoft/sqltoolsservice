@@ -17,8 +17,8 @@ using System.Collections.Specialized;
 using System.Text;
 using System.Globalization;
 using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {

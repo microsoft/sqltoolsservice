@@ -29,6 +29,7 @@ using Microsoft.SqlTools.Authentication;
 using System.IO;
 using Microsoft.SqlTools.Hosting.Utility;
 using Constants = Microsoft.SqlTools.Hosting.Protocol.Constants;
+using Microsoft.SqlTools.SqlCore.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {

@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer

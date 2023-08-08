@@ -16,12 +16,14 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -68,8 +70,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 IsCloud = defaultServerInfo.IsCloud
             };
 
+            var smoquery = typeof(SqlCore.ObjectExplorer.SmoModel.SmoQuerier).Assembly;
             // TODO can all tests use the standard service provider?
-            ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
+            ServiceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory(Path.GetDirectoryName(smoquery.Location),new string[] { Path.GetFileName(smoquery.Location) });
         }
 
         [Test]

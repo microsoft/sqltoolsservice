@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// Status for logins

@@ -3,13 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Threading;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 {
     /// <summary>
     /// Utility class for Object Explorer related operations

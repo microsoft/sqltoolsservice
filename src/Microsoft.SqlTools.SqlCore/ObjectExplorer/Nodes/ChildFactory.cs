@@ -3,13 +3,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// A <see cref="ChildFactory"/> supports creation of <see cref="TreeNode"/> children

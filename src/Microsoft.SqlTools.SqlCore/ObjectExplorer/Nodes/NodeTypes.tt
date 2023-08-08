@@ -18,7 +18,7 @@
 // and re-run the T4 template. This can be done in Visual Studio by right-click in and choosing "Run Custom Tool",
 // or from the command-line on any platform by running "build.cmd -Target=CodeGen" or "build.sh -Target=CodeGen"
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Enum listing possible node types in the object explorer tree

@@ -3,7 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
+namespace Microsoft.SqlTools.SqlCore.Metadata
 {
     /// <summary>
     /// Metadata type enumeration

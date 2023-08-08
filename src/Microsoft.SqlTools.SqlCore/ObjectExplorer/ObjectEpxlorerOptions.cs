@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 {
     public class ObjectExplorerOptions
     {

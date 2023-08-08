@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Has information for filtering a SMO object by properties 

@@ -3,14 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Smo;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// Wrapper to convert non-generic Smo enumerables to generic enumerable types for easier use in 

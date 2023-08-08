@@ -2,15 +2,14 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.SqlTools.ServiceLayer.Management;
 
+using Microsoft.SqlTools.SqlCore.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Has information for filtering a SMO object by properties 
@@ -184,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
                     if (Type == typeof(string))
                     {
                         //Replacing quotes with double quotes
-                        var escapedString = CUtils.EscapeStringSQuote(propertyValue.ToString());
+                        var escapedString = StringUtils.EscapeStringSQuote(propertyValue.ToString());
                         if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
                             escapedString = EscapeLikeURNRegex().Replace(escapedString, "[$0]");

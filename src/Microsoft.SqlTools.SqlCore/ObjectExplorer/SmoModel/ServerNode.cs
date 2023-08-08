@@ -3,18 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System;
 using System.Globalization;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.SqlCore.Utility;
+using System.IO;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     /// <summary>
     /// Server node implementation 
@@ -35,7 +34,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             this.serverInfo = serverInfo;
             this.sqlServerType = ServerVersionHelper.CalculateServerType(this.serverInfo);
 
-            serviceProvider ??= ExtensionServiceProvider.CreateDefaultServiceProvider();
+            var assembly = typeof(SqlCore.ObjectExplorer.SmoModel.SmoQuerier).Assembly;
+            serviceProvider ??= ExtensionServiceProvider.CreateFromAssembliesInDirectory(Path.GetDirectoryName(assembly.Location), new string[] { Path.GetFileName(assembly.Location) });
             this.context = new Lazy<SmoQueryContext>(() => CreateContext(serviceProvider, groupBySchemaFlag));
             this.serverConnection = serverConnection;
 

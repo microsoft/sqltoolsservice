@@ -7,9 +7,9 @@ using System.Linq;
 
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
 

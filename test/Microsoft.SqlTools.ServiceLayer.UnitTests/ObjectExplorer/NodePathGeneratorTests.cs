@@ -7,8 +7,8 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer

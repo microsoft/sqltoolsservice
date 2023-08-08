@@ -9,9 +9,9 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using NUnit.Framework;
 using Newtonsoft.Json.Linq;
@@ -908,7 +908,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [TestCaseSource("ConvertExpandNodeFilterToNodeFilterTestCases")]
         public void TestConvertExpandNodeFilterToNodeFilter(NodeFilter filter, NodeFilterProperty prop, INodeFilter expectedParsedFilter)
         {
-            INodeFilter actualParsedFilter = ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(filter, prop);
+            INodeFilter actualParsedFilter = filter.ToINodeFilter(prop);
             Assert.That(
                 JsonConvert.SerializeObject(actualParsedFilter),
                 Is.EqualTo(JsonConvert.SerializeObject(expectedParsedFilter)),

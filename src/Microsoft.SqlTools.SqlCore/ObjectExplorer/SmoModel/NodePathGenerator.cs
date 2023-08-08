@@ -3,14 +3,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-#nullable disable
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using System.Reflection;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     public class NodePathGenerator
     {
@@ -18,15 +17,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
 
         private static Dictionary<string, HashSet<Node>> NodeTypeDictionary { get; set; }
 
-        internal static void Initialize()
+        public static void Initialize()
         {
             if (TreeRoot != null)
             {
                 return;
             }
 
-            var assembly = typeof(ObjectExplorerService).Assembly;
-            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel.SmoTreeNodesDefinition.xml");
+            var assembly = Assembly.GetExecutingAssembly();
+            var resource = assembly.GetManifestResourceStream("Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel.SmoTreeNodesDefinition.xml");
             var serializer = new XmlSerializer(typeof(ServerExplorerTree));
             NodeTypeDictionary = new Dictionary<string, HashSet<Node>>();
             using (var reader = new StreamReader(resource))
@@ -52,7 +51,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             NodeTypeDictionary.Add("Server", serverSet);
         }
 
-        public static HashSet<string> FindNodePaths(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
+        public static HashSet<string> FindNodePaths(IObjectExplorerSession objectExplorerSession, string typeName, string schema, string name, string databaseName, List<string> parentNames = null)
         {
             if (TreeRoot == null)
             {
@@ -85,7 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel
             return returnSet;
         }
 
-        private static HashSet<string> GenerateNodePath(ObjectExplorerService.ObjectExplorerSession objectExplorerSession, Node currentNode, string databaseName, List<string> parentNames, string path)
+        private static HashSet<string> GenerateNodePath(IObjectExplorerSession objectExplorerSession, Node currentNode, string databaseName, List<string> parentNames, string path)
         {
             if (parentNames != null)
             {

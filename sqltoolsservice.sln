@@ -50,7 +50,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Credenti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting", "src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.SqlCore", "src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.SqlCore", "src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj", "{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj", "{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -120,6 +120,12 @@ Global
 		{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}.Integration|Any CPU.Build.0 = Debug|Any CPU
 		{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C175C3D4-1AE1-4B62-85EF-8298D37F2BAC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}.Integration|Any CPU.ActiveCfg = Debug|Any CPU

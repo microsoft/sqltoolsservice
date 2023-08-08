@@ -2,16 +2,14 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
-#nullable disable
-
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
+
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// A collection class for <see cref="TreeNode"/>

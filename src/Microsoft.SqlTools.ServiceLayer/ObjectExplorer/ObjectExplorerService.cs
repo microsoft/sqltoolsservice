@@ -23,13 +23,16 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.SqlCore.Connection;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
@@ -95,7 +98,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         public override void SetServiceProvider(IMultiServiceProvider provider)
         {
             Validate.IsNotNull(nameof(provider), provider);
-            serviceProvider = provider;
+            var querierAssembly = typeof(SmoQuerier).Assembly;
+            serviceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory( Path.GetDirectoryName(querierAssembly.Location), new string[] { Path.GetFileName(querierAssembly.Location)});
             connectionService = provider.GetService<ConnectionService>();
             try
             {
@@ -442,7 +446,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                    foreach (var f in filters)
                                    {
                                        NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
-                                       appliedFilters.Add(ObjectExplorerUtils.ConvertExpandNodeFilterToNodeFilter(f, filterProperty));
+                                       appliedFilters.Add(f.ToINodeFilter(filterProperty));
                                    }
                                }
 
@@ -537,7 +541,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider);
+                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider, () =>
+            {
+                return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
+            });
                                session.ConnectionInfo = connectionInfo;
 
                                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
@@ -791,7 +798,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             return string.Empty;
         }
 
-        internal class ObjectExplorerSession
+        internal class ObjectExplorerSession : IObjectExplorerSession
         {
             // TODO decide whether a cache is needed to handle lookups in elements with a large # children
             //private const int Cachesize = 10000;
@@ -806,7 +813,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
 
             public string Uri { get; private set; }
-            public TreeNode Root { get; private set; }
 
             public ConnectionInfo ConnectionInfo { get; set; }
 
@@ -814,7 +820,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
             public string ErrorMessage { get; set; }
 
-            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase, IMultiServiceProvider serviceProvider)
+            public static ObjectExplorerSession CreateSession(ConnectionCompleteParams response, ServerConnection serverConnection, bool isDefaultOrSystemDatabase, IMultiServiceProvider serviceProvider, Func<bool> groupBySchemaFlagGetter)
             {
                 ServerNode rootNode = new ServerNode(new ObjectExplorerServerInfo()
                 {
@@ -824,7 +830,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     ServerVersion = response.ServerInfo.ServerVersion,
                     EngineEditionId = response.ServerInfo.EngineEditionId,
                     IsCloud = response.ServerInfo.IsCloud,
-                }, serverConnection, serviceProvider,() =>
+                }, serverConnection, serviceProvider, () =>
                 {
                     return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
                 });

@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
 {
     public class StatelessObjectExplorer
     {

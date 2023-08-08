@@ -2,21 +2,18 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
-
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.Metadata;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.Utility;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
 {
     /// <summary>
     /// Base class for elements in the object explorer tree. Provides common methods for tree navigation

@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
+namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
 {
     /// <summary>
     /// Indicates which type of server a given node type is valid for

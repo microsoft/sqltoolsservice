@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<AssemblyName>MicrosoftSqlToolsSqlCore</AssemblyName>
 		<Nullable>disable</Nullable>
 		<EnableDefaultItems>false</EnableDefaultItems>
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -27,6 +28,7 @@
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
@@ -34,5 +36,8 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Localization\*.resx" />
 		<None Include="Localization\sr.strings" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
 	</ItemGroup>
 </Project>
