@@ -126,11 +126,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
                         bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
                         bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
+                        bool isSqlOnDemand = dataContainer.Server.Information.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand;
 
                         var databaseViewInfo = new DatabaseViewInfo()
                         {
                             ObjectInfo = new DatabaseInfo(),
-                            IsAzureDB = isAzureDB
+                            IsAzureDB = isAzureDB,
+                            IsManagedInstance = isManagedInstance,
+                            IsSqlOnDemand = isSqlOnDemand
                         };
 
                         // Collect the Database properties information
@@ -144,11 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     Name = smoDatabase.Name,
                                     CollationName = smoDatabase.Collation,
                                     CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
-                                    ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType],
-                                    RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel],
                                     DateCreated = smoDatabase.CreateDate.ToString(),
-                                    LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
-                                    LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
                                     MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
                                     MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
                                     NumberOfUsers = smoDatabase.Users.Count,
@@ -164,14 +163,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled
                                 };
 
+                                if (!isAzureDB) {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
+                                }
                                 if (!isManagedInstance)
                                 {
                                     databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
                                     databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                    if (!isAzureDB)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                    }
 
                                     if (prototype is DatabasePrototype160)
                                     {
