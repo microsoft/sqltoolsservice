@@ -428,7 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 builder.AppendLine($"ALTER DATABASE {escapedName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
                 builder.AppendLine("GO");
             }
-            builder.Append($"DROP DATABASE {escapedName}");
+            builder.AppendLine($"DROP DATABASE {escapedName}");
             builder.AppendLine("GO");
             return builder.ToString();
         }
