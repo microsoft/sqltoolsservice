@@ -70,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             this.serviceHost.SetRequestHandler(DisposeViewRequest.Type, HandleDisposeViewRequest, true);
             this.serviceHost.SetRequestHandler(SearchRequest.Type, HandleSearchRequest, true);
             this.serviceHost.SetRequestHandler(DetachDatabaseRequest.Type, HandleDetachDatabaseRequest, true);
-            this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDeleteDatabaseRequest, true);
+            this.serviceHost.SetRequestHandler(DropDatabaseRequest.Type, HandleDropDatabaseRequest, true);
         }
 
         internal async Task HandleRenameRequest(RenameRequestParams requestParams, RequestContext<RenameRequestResponse> requestContext)
@@ -207,7 +207,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             await requestContext.SendResult(sqlScript);
         }
 
-        internal async Task HandleDeleteDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)
+        internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var sqlScript = handler.Drop(requestParams);
