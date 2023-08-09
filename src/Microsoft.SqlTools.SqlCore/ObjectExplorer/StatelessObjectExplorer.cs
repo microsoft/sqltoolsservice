@@ -16,8 +16,24 @@ using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 
 namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
 {
+    /// <summary>
+    /// Stateless object explorer class can be used to handle object explorer requests without creating a session. It requires a connection string and a node path to query objects from the server.
+    /// </summary>
     public class StatelessObjectExplorer
     {
+        /// <summary>
+        /// Expands the node at the given path and returns the child nodes.
+        /// </summary>
+        /// <param name="connectionString"> Connection string to connect to the server </param>
+        /// <param name="accessToken"> Access token to connect to the server. To be used in case of AAD based connections </param>
+        /// <param name="nodePath"> Path of the node to expand </param>
+        /// <param name="serverInfo"> Server information </param>
+        /// <param name="options"> Object explorer options </param>
+        /// <param name="filters"> Filters to be applied on the leaf nodes </param>
+        /// <returns> Array of child nodes </returns>
+        /// <exception cref="ArgumentNullException"> Thrown when the parent node is not found </exception>
+        /// <exception cref="TimeoutException"> Thrown when the operation times out.</exception> <summary>
+        /// </summary>     
         public static TreeNode[] Expand(string connectionString, SecurityToken? accessToken, string nodePath, ObjectExplorerServerInfo serverInfo, ObjectExplorerOptions options, INodeFilter[]? filters = null)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))

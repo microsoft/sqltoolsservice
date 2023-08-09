@@ -10,7 +10,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
     public class ObjectExplorerOptions
     {
         /// <summary>
-        /// Enables schema level grouping for child nodes. Default is false
+        /// Function that returns flag to group nodes by schema. Default is false
         /// </summary>
         public Func<bool> GroupBySchemaFlagGetter { get; set; } = () => false;
 
