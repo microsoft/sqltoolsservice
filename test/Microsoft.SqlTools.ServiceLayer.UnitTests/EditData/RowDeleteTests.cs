@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I ask for the change to be applied
             RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
-            await rd.ApplyChanges(null);      // Reader not used, can be null
+            rd.ApplyChanges(null);      // Reader not used, can be null
 
             // Then : The result set should have one less row in it
             Assert.AreEqual(0, rs.RowCount);
@@ -209,7 +209,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             };
             var testResultSet = new TestResultSet(data.DbColumns, rows);
             var newRowReader = new TestDbDataReader(new[] { testResultSet }, false);
-            await ru.ApplyChanges(newRowReader);
+            ru.ApplyChanges(newRowReader);
 
             // ... Create a row delete.
             RowDelete rd = new RowDelete(0, rs, data.TableMetadata);
