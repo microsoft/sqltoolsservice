@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             string serverName = null;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.RetryLogicProvider = Connection.ReliableConnection.RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
+                connection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
                 if (azureAccessToken != null)
                 {
                     connection.AccessToken = azureAccessToken;

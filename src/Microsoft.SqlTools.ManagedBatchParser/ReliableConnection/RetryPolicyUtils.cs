@@ -14,10 +14,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
     public static class RetryPolicyUtils
     {
         /// <summary>
-        /// Approved list of transient errors that require additional time to wait before connecting again.
-        /// </summary>
-        private static readonly HashSet<int> _retryableServerlessNetworkConnectivityError;
-        /// <summary>
         /// Approved list of transient errors that should be retryable during Network connection stages
         /// </summary>
         private static readonly HashSet<int> _retryableNetworkConnectivityErrors;
@@ -29,25 +25,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         /// Blocklist of non-transient errors that should stop retry during data transfer operations
         /// </summary>
         private static readonly HashSet<int> _nonRetryableDataTransferErrors;
-        /// <summary>
-        /// Max intervals between retries in seconds to wake up serverless instances.
-        /// </summary>
-        private const int _serverlessMaxIntervalTime = 30;
-        /// <summary>
-        /// Maximum number of retries to wake up serverless instances.
-        /// </summary>
-        private const int _serverlessMaxRetries = 4;
 
         static RetryPolicyUtils()
         {
-            _retryableServerlessNetworkConnectivityError = new HashSet<int>
-            {
-                //// SQL Error Code: 40613
-                //// Database XXXX on server YYYY is not currently available. Please retry the connection later. If the problem persists, contact customer 
-                //// support, and provide them the session tracing ID of ZZZZZ.
-                40613, 
-            };
-
             _retryableNetworkConnectivityErrors = new HashSet<int>
             {
                 /// A severe error occurred on the current command.  The results, if any, should be discarded.
@@ -374,30 +354,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
                 RaiseAmbientRetryMessage(retryState, errorCode);
             }
-        }
-
-        /// <summary>
-        /// Wait for SqlConnection to handle sleeping serverless instances (allows for them to wake up, otherwise it will result in errors).
-        /// </summary>
-        public static SqlRetryLogicBaseProvider SleepingServerlessDatabaseErrorRetryProvider()
-        {
-            var serverlessRetryLogic = new SqlRetryLogicOption
-            {
-                NumberOfTries = _serverlessMaxRetries,
-                MaxTimeInterval = TimeSpan.FromSeconds(_serverlessMaxIntervalTime),
-                DeltaTime = TimeSpan.FromSeconds(1),
-                TransientErrors = _retryableServerlessNetworkConnectivityError
-            };
-
-            var provider = SqlConfigurableRetryFactory.CreateFixedRetryProvider(serverlessRetryLogic);
-
-            provider.Retrying += (object s, SqlRetryingEventArgs e) =>
-            {
-                Logger.Information($"attempt {e.RetryCount + 1} - current delay time:{e.Delay}");
-                Logger.Information((e.Exceptions[e.Exceptions.Count - 1] is SqlException ex) ? $"{ex.Number}-{ex.Message}" : $"{e.Exceptions[e.Exceptions.Count - 1].Message}");
-            };
-
-            return provider;
         }
 
         #region ProcessNetLibErrorCode enumeration

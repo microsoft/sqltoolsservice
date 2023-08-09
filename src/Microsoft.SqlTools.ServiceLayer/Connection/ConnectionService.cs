@@ -683,7 +683,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
                 // create a sql connection instance (with enabled serverless retry logic to handle sleeping serverless databases)
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider());
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -1909,7 +1909,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
-                sqlConn.RetryLogicProvider = RetryPolicyUtils.SleepingServerlessDatabaseErrorRetryProvider();
+                sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
 
                 // Fill in Azure authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
