@@ -25,12 +25,6 @@
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
 	</ItemGroup>
 	<ItemGroup>
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
-		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
-		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-	</ItemGroup>
-	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
 	</ItemGroup>
 	<ItemGroup>
@@ -39,5 +33,11 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="ObjectExplorer\SmoModel\SmoTreeNodesDefinition.xml" />
+	</ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>
 </Project>

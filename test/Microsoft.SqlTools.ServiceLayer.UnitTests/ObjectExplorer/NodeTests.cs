@@ -4,26 +4,28 @@
 //
 
 #nullable disable
-
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Globalization;
+using System.IO;
 using System.Threading;
+
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
+using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+
 using Moq;
+
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer;
-using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
@@ -255,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Then I expect it to be in an error state 
             Assert.Null(context);
             Assert.AreEqual(
-                string.Format(CultureInfo.CurrentCulture, SR.TreeNodeError, expectedMsg),
+                string.Format(CultureInfo.CurrentCulture, SqlTools.SqlCore.SR.TreeNodeError, expectedMsg),
                 node.ErrorStateMessage);
         }
 
@@ -273,7 +275,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             // Then I expect it to be in an error state 
             Assert.Null(context);
             Assert.AreEqual(
-                string.Format(CultureInfo.CurrentCulture, SR.TreeNodeError, expectedMsg),
+                string.Format(CultureInfo.CurrentCulture, SqlTools.SqlCore.SR.TreeNodeError, expectedMsg),
                 node.ErrorStateMessage);
         }
 
@@ -409,14 +411,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
             // Then I expect it to contain server-level folders 
             Assert.AreEqual(3, children.Count);
-            VerifyTreeNode<FolderNode>(children[0], "Folder", SR.SchemaHierarchy_Databases);
-            VerifyTreeNode<FolderNode>(children[1], "Folder", SR.SchemaHierarchy_Security);
-            VerifyTreeNode<FolderNode>(children[2], "Folder", SR.SchemaHierarchy_ServerObjects);
+            VerifyTreeNode<FolderNode>(children[0], "Folder", SqlTools.SqlCore.SR.SchemaHierarchy_Databases);
+            VerifyTreeNode<FolderNode>(children[1], "Folder", SqlTools.SqlCore.SR.SchemaHierarchy_Security);
+            VerifyTreeNode<FolderNode>(children[2], "Folder", SqlTools.SqlCore.SR.SchemaHierarchy_ServerObjects);
             // And the database is contained under it
             TreeNode databases = children[0];
             IList<TreeNode> dbChildren = databases.Expand(new CancellationToken());
             Assert.AreEqual(2, dbChildren.Count);
-            Assert.AreEqual(SR.SchemaHierarchy_SystemDatabases, dbChildren[0].NodeValue);
+            Assert.AreEqual(SqlTools.SqlCore.SR.SchemaHierarchy_SystemDatabases, dbChildren[0].NodeValue);
 
             TreeNode dbNode = dbChildren[1];
             Assert.AreEqual(dbName, dbNode.NodeValue);
