@@ -14,7 +14,6 @@ using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -74,10 +73,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Reader returned from the execution of the command to update a row. Should contain
         /// a single row that represents all the values of the row.
         /// </param>
-        public override Task ApplyChanges(DbDataReader dataReader)
+        public override void ApplyChanges(DbDataReader dataReader)
         {
             Validate.IsNotNull(nameof(dataReader), dataReader);
-            return AssociatedResultSet.UpdateRow(RowId, dataReader);
+            AssociatedResultSet.UpdateRow(RowId, dataReader);
         }
 
         /// <summary>

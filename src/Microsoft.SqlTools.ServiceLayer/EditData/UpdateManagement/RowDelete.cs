@@ -9,7 +9,6 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -71,11 +70,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Reader returned from the execution of the command to insert a new row. Should NOT
         /// contain any rows.
         /// </param>
-        public override Task ApplyChanges(DbDataReader dataReader)
+        public override void ApplyChanges(DbDataReader dataReader)
         {
             // Take the result set and remove the row from it
             AssociatedResultSet.RemoveRow(RowId);
-            return Task.FromResult(0);
         }
 
         /// <summary>

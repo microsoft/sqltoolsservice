@@ -120,9 +120,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Query query = new Query(Constants.StandardQuery, ci, querySettings, MemoryFileSystem.GetFileStreamFactory());
 
             string errorMessage = null;
-            Query.QueryAsyncErrorEventHandler failureCallback = async (q, e) =>
-            {
+            Query.QueryAsyncErrorEventHandler failureCallback = (q, e) => {
                 errorMessage = "Error Occured";
+                return Task.CompletedTask;
             };
             query.QueryFailed += failureCallback;
 

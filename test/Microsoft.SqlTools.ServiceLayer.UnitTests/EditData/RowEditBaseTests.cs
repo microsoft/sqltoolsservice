@@ -349,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
                 throw new NotImplementedException();
             }
 
-            public override Task ApplyChanges(DbDataReader reader)
+            public override void ApplyChanges(DbDataReader reader)
             {
                 throw new NotImplementedException();
             }

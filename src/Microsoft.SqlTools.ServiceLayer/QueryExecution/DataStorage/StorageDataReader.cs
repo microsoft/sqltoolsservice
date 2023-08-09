@@ -84,17 +84,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #region DbDataReader Methods
 
         /// <summary>
-        /// Pass-through to DbDataReader.ReadAsync()
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token to use for cancelling a query</param>
-        /// <returns></returns>
-        [Obsolete("Deprecated due to performance issues, please use Read() instead.")]
-        public Task<bool> ReadAsync(CancellationToken cancellationToken)
-        {
-            return DbDataReader.ReadAsync(cancellationToken);
-        }
-
-        /// <summary>
         /// Pass-through to DbDataReader.Read()
         /// 
         /// ************** IMPORTANT ****************
