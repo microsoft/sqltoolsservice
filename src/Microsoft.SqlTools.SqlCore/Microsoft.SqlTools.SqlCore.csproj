@@ -10,8 +10,8 @@
 		<DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE</DefineConstants>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<AssemblyTitle>SqlTools Hosting Library</AssemblyTitle>
-		<Description>Provides hosting services for SqlTools applications.</Description>
+		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
+		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution, Scripting, etc...</Description>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />

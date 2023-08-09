@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <summary>
         /// Enables schema level grouping for child nodes. Default is false
         /// </summary>
-        public Func<bool> EnableGroupBySchema { get; set; } = () => false;
+        public Func<bool> GroupBySchemaFlagGetter { get; set; } = () => false;
 
         /// <summary>
         /// Timeout for OE session operations in seconds. Default is 60 seconds

@@ -32,9 +32,14 @@ namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
                     connection = new ServerConnection(conn);
                 }
 
-                ServerNode serverNode = new ServerNode(serverInfo, connection);
+                ServerNode serverNode = new ServerNode(serverInfo, connection, null, options.GroupBySchemaFlagGetter);
 
                 TreeNode rootNode = new DatabaseTreeNode(serverNode, serverInfo.DatabaseName);
+
+                if(nodePath == null || nodePath == string.Empty)
+                {
+                    nodePath = rootNode.GetNodePath();
+                }
 
                 using (var taskCancellationTokenSource = new CancellationTokenSource())
                 {
