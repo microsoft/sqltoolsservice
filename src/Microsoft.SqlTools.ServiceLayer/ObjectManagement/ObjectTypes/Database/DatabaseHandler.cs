@@ -759,7 +759,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         FileGroup = fileGroup.Name,
                         FileNameWithExtension = Path.GetFileName(file.FileName),
                         SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
-                        AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth).ToString()
+                        AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
+                        AutoFileGrowthType = file.GrowthType.ToString(),
+                        MaxSizeLimit = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize)
                     });
                 }
             }
@@ -770,10 +772,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     Name = file.Name,
                     Type = displayFileTypes[FileType.Log],
                     Path = Path.GetDirectoryName(file.FileName),
-                    FileGroup = "Not Applicable",
+                    FileGroup = SR.prototype_file_noFileGroup,
                     FileNameWithExtension = Path.GetFileName(file.FileName),
                     SizeInMb = ByteConverter.ConvertKbtoMb(file.Size),
-                    AutoGrowthAndMaxSizeInMb = ByteConverter.ConvertKbtoMb(file.Growth).ToString()
+                    AutoFileGrowth = file.GrowthType == FileGrowthType.Percent ? file.Growth : ByteConverter.ConvertKbtoMb(file.Growth),
+                    AutoFileGrowthType = file.GrowthType.ToString(),
+                    MaxSizeLimit = file.MaxSize == -1 ? file.MaxSize : ByteConverter.ConvertKbtoMb(file.MaxSize)
                 });
             }
             return filesList.ToArray();

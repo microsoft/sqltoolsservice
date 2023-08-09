@@ -60,7 +60,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string FileGroup { get; set; }
         public string FileNameWithExtension { get; set; }
         public double SizeInMb { get; set; }
-        public string AutoGrowthAndMaxSizeInMb { get; set; }
+        public double AutoFileGrowth { get; set; }
+        public string AutoFileGrowthType { get; set; }
+        public double MaxSizeLimit { get; set; }
     }
 
 }
