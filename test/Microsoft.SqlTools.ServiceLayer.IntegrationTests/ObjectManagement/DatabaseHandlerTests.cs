@@ -461,7 +461,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var handler = new DatabaseHandler(ConnectionService.Instance);
                     var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
 
-                    var deleteParams = new DeleteDatabaseRequestParams()
+                    var deleteParams = new DropDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
                         ObjectUrn = objUrn,
@@ -469,7 +469,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         DeleteBackupHistory = false,
                         GenerateScript = false
                     };
-                    var script = handler.Delete(deleteParams);
+                    var script = handler.Drop(deleteParams);
 
                     Assert.That(script, Is.Empty, "Should only return an empty string if GenerateScript is false");
 
@@ -504,7 +504,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var handler = new DatabaseHandler(ConnectionService.Instance);
                     var connectionUri = connectionResult.ConnectionInfo.OwnerUri;
 
-                    var deleteParams = new DeleteDatabaseRequestParams()
+                    var deleteParams = new DropDatabaseRequestParams()
                     {
                         ConnectionUri = connectionUri,
                         ObjectUrn = objUrn,
@@ -517,25 +517,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     var expectedAlterScript = $"ALTER DATABASE [{testDatabase.Name}] SET  SINGLE_USER WITH ROLLBACK IMMEDIATE";
                     var expectedBackupScript = $"EXEC msdb.dbo.sp_delete_database_backuphistory @database_name = N'{testDatabase.Name}'";
 
-                    var actualScript = handler.Delete(deleteParams);
+                    var actualScript = handler.Drop(deleteParams);
                     Assert.That(DatabaseExists(testDatabase.Name!, server), "Database should not have been deleted when just generating a script.");
                     Assert.That(actualScript, Does.Contain(expectedDeleteScript).IgnoreCase);
 
                     // Drop connections only
                     deleteParams.DropConnections = true;
-                    actualScript = handler.Delete(deleteParams);
+                    actualScript = handler.Drop(deleteParams);
                     Assert.That(actualScript, Does.Contain(expectedDeleteScript).IgnoreCase);
                     Assert.That(actualScript, Does.Contain(expectedAlterScript).IgnoreCase);
 
                     // Delete backup/restore history only
                     deleteParams.DropConnections = false;
                     deleteParams.DeleteBackupHistory = true;
-                    actualScript = handler.Delete(deleteParams);
+                    actualScript = handler.Drop(deleteParams);
                     Assert.That(actualScript, Does.Contain(expectedBackupScript).IgnoreCase);
 
                     // Both drop and update
                     deleteParams.DropConnections = true;
-                    actualScript = handler.Delete(deleteParams);
+                    actualScript = handler.Drop(deleteParams);
                     Assert.That(actualScript, Does.Contain(expectedAlterScript).IgnoreCase);
                     Assert.That(actualScript, Does.Contain(expectedBackupScript).IgnoreCase);
                 }

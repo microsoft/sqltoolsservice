@@ -9,7 +9,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
 {
-    public class DeleteDatabaseRequestParams : GeneralRequestDetails
+    public class DropDatabaseRequestParams : GeneralRequestDetails
     {
         /// <summary>
         /// SFC (SMO) URN identifying the object  
@@ -28,13 +28,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
         /// </summary>
         public bool DeleteBackupHistory { get; set; }
         /// <summary>
-        /// Whether to generate a TSQL script for the operation instead of Deleteing the database
+        /// Whether to generate a TSQL script for the operation instead of dropping the database
         /// </summary>
         public bool GenerateScript { get; set; }
     }
 
-    public class DeleteDatabaseRequest
+    public class DropDatabaseRequest
     {
-        public static readonly RequestType<DeleteDatabaseRequestParams, string> Type = RequestType<DeleteDatabaseRequestParams, string>.Create("objectManagement/deleteDatabase");
+        public static readonly RequestType<DropDatabaseRequestParams, string> Type = RequestType<DropDatabaseRequestParams, string>.Create("objectManagement/dropDatabase");
     }
 }

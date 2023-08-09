@@ -367,21 +367,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         }
 
         /// <summary>
-        /// Used to delete the specified database
+        /// Used to drop the specified database
         /// </summary>
-        /// <param name="deleteParams">The various parameters needed for the Delete operation</param>
-        public string Delete(DeleteDatabaseRequestParams deleteParams)
+        /// <param name="dropParams">The various parameters needed for the Drop operation</param>
+        public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            ConnectionInfo connectionInfo = this.GetConnectionInfo(deleteParams.ConnectionUri);
-            using (var dataContainer = CreateDatabaseDataContainer(deleteParams.ConnectionUri, deleteParams.ObjectUrn, false, null))
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(dropParams.ConnectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, null))
             {
                 try
                 {
                     var smoDatabase = dataContainer.SqlDialogSubject as Database;
                     if (smoDatabase != null)
                     {
-                        if (deleteParams.GenerateScript)
+                        if (dropParams.GenerateScript)
                         {
                             smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
                             smoDatabase.Parent.ConnectionContext.CapturedSql.Clear();
@@ -393,17 +393,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             // In order to drop all connections to the database, we switch it to single
                             // user access mode so that only our current connection to the database stays open.
                             // Any pending operations are terminated and rolled back.
-                            if (deleteParams.DropConnections && smoDatabase.ActiveConnections > 0)
+                            if (dropParams.DropConnections && smoDatabase.ActiveConnections > 0)
                             {
                                 smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                                 smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                             }
-                            if (deleteParams.DeleteBackupHistory)
+                            if (dropParams.DeleteBackupHistory)
                             {
                                 smoDatabase.Parent.DeleteBackupHistory(smoDatabase.Name);
                             }
                             smoDatabase.Drop();
-                            if (deleteParams.GenerateScript)
+                            if (dropParams.GenerateScript)
                             {
                                 var builder = new StringBuilder();
                                 foreach (var scriptEntry in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
@@ -430,7 +430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         finally
                         {
-                            if (deleteParams.GenerateScript)
+                            if (dropParams.GenerateScript)
                             {
                                 smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
                             }
@@ -438,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Provided URN '{deleteParams.ObjectUrn}' did not correspond to an existing database.");
+                        throw new InvalidOperationException($"Provided URN '{dropParams.ObjectUrn}' did not correspond to an existing database.");
                     }
                 }
                 finally
