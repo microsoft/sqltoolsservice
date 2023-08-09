@@ -379,6 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     if (deleteParams.GenerateScript)
                     {
                         smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                        smoDatabase.Parent.ConnectionContext.CapturedSql.Clear();
                     }
 
                     DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
