@@ -259,11 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
-                    if (serverConnection.IsOpen)
-                    {
-                        serverConnection.Disconnect();
-                    }
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
         }
@@ -298,45 +294,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
             {
-                var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                if (smoDatabase != null)
+                try
                 {
-                    if (detachParams.GenerateScript)
+                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                    if (smoDatabase != null)
                     {
-                        sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
+                        if (detachParams.GenerateScript)
+                        {
+                            sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
+                        }
+                        else
+                        {
+                            DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                            try
+                            {
+                                // In order to drop all connections to the database, we switch it to single
+                                // user access mode so that only our current connection to the database stays open.
+                                // Any pending operations are terminated and rolled back.
+                                if (detachParams.DropConnections)
+                                {
+                                    smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                                    smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                                }
+                                smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+                            }
+                            catch (SmoException)
+                            {
+                                // Revert to database's previous user access level if we changed it as part of dropping connections
+                                // before hitting this exception.
+                                if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                                {
+                                    smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                                }
+                                throw;
+                            }
+                        }
                     }
                     else
                     {
-                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                        try
-                        {
-                            // In order to drop all connections to the database, we switch it to single
-                            // user access mode so that only our current connection to the database stays open.
-                            // Any pending operations are terminated and rolled back.
-                            if (detachParams.DropConnections)
-                            {
-                                smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
-                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
-                        }
-                        catch (SmoException)
-                        {
-                            // Revert to database's previous user access level if we changed it as part of dropping connections
-                            // before hitting this exception.
-                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
-                            {
-                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            throw;
-                        }
+                        throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
                     }
                 }
-                else
+                finally
                 {
-                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
@@ -373,67 +376,74 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connectionInfo = this.GetConnectionInfo(deleteParams.ConnectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(deleteParams.ConnectionUri, deleteParams.ObjectUrn, false, null))
             {
-                var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                if (smoDatabase != null)
+                try
                 {
-                    if (deleteParams.GenerateScript)
+                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                    if (smoDatabase != null)
                     {
-                        smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
-                        smoDatabase.Parent.ConnectionContext.CapturedSql.Clear();
-                    }
+                        if (deleteParams.GenerateScript)
+                        {
+                            smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                            smoDatabase.Parent.ConnectionContext.CapturedSql.Clear();
+                        }
 
-                    DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                    try
-                    {
-                        // In order to drop all connections to the database, we switch it to single
-                        // user access mode so that only our current connection to the database stays open.
-                        // Any pending operations are terminated and rolled back.
-                        if (deleteParams.DropConnections && smoDatabase.ActiveConnections > 0)
+                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                        try
                         {
-                            smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                        }
-                        if (deleteParams.DeleteBackupHistory)
-                        {
-                            smoDatabase.Parent.DeleteBackupHistory(smoDatabase.Name);
-                        }
-                        smoDatabase.Drop();
-                        if (deleteParams.GenerateScript)
-                        {
-                            var builder = new StringBuilder();
-                            foreach (var scriptEntry in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
+                            // In order to drop all connections to the database, we switch it to single
+                            // user access mode so that only our current connection to the database stays open.
+                            // Any pending operations are terminated and rolled back.
+                            if (deleteParams.DropConnections && smoDatabase.ActiveConnections > 0)
                             {
-                                if (scriptEntry != null)
-                                {
-                                    builder.AppendLine(scriptEntry);
-                                    builder.AppendLine("GO");
-                                }
+                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
                             }
-                            sqlScript = builder.ToString();
+                            if (deleteParams.DeleteBackupHistory)
+                            {
+                                smoDatabase.Parent.DeleteBackupHistory(smoDatabase.Name);
+                            }
+                            smoDatabase.Drop();
+                            if (deleteParams.GenerateScript)
+                            {
+                                var builder = new StringBuilder();
+                                foreach (var scriptEntry in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
+                                {
+                                    if (scriptEntry != null)
+                                    {
+                                        builder.AppendLine(scriptEntry);
+                                        builder.AppendLine("GO");
+                                    }
+                                }
+                                sqlScript = builder.ToString();
+                            }
+                        }
+                        catch (SmoException)
+                        {
+                            // Revert to database's previous user access level if we changed it as part of dropping connections
+                            // before hitting this exception.
+                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            throw;
+                        }
+                        finally
+                        {
+                            if (deleteParams.GenerateScript)
+                            {
+                                smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                            }
                         }
                     }
-                    catch (SmoException)
+                    else
                     {
-                        // Revert to database's previous user access level if we changed it as part of dropping connections
-                        // before hitting this exception.
-                        if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
-                        {
-                            smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                            smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                        }
-                        throw;
-                    }
-                    finally
-                    {
-                        if (deleteParams.GenerateScript)
-                        {
-                            smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
-                        }
+                        throw new InvalidOperationException($"Provided URN '{deleteParams.ObjectUrn}' did not correspond to an existing database.");
                     }
                 }
-                else
+                finally
                 {
-                    throw new InvalidOperationException($"Provided URN '{deleteParams.ObjectUrn}' did not correspond to an existing database.");
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
@@ -600,11 +610,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
-                    if (serverConnection.IsOpen)
-                    {
-                        serverConnection.Disconnect();
-                    }
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
         }
