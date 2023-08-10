@@ -98,8 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         public override void SetServiceProvider(IMultiServiceProvider provider)
         {
             Validate.IsNotNull(nameof(provider), provider);
-            var querierAssembly = typeof(SmoQuerier).Assembly;
-            serviceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory( Path.GetDirectoryName(querierAssembly.Location), new string[] { Path.GetFileName(querierAssembly.Location)});
+            serviceProvider = provider;
             connectionService = provider.GetService<ConnectionService>();
             try
             {
