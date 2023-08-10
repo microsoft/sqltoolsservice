@@ -93,10 +93,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
         public bool GroupBySchema
         {
-            get
-            {
-                return groupBySchemaFlag();
-            }
+            get => groupBySchemaFlag();
         }
 
         /// <summary>
