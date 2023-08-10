@@ -32,7 +32,6 @@ using Microsoft.SqlTools.ServiceLayer.Workspace;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.Connection;
-using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
