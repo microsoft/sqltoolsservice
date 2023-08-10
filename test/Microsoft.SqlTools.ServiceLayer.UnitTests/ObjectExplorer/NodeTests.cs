@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         }
 
         [Test]
-        public void ToNodeInfoIncludeAllFields()
+        public void NodeInfoConstructorPopulatesAllFieldsFromTreeNode()
         {
             // Given a server connection
             ServerNode node = new ServerNode(oeServerInfo, serverConnection, ServiceProvider);
