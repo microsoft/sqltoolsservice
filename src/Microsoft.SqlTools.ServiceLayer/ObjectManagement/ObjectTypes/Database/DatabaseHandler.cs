@@ -382,10 +382,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     var smoDatabase = dataContainer.SqlDialogSubject as Database;
                     if (smoDatabase != null)
                     {
+                        var server = smoDatabase.Parent;
                         if (dropParams.GenerateScript)
                         {
-                            smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
-                            smoDatabase.Parent.ConnectionContext.CapturedSql.Clear();
+                            server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                            server.ConnectionContext.CapturedSql.Clear();
                         }
 
                         DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
@@ -401,13 +402,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                             if (dropParams.DeleteBackupHistory)
                             {
-                                smoDatabase.Parent.DeleteBackupHistory(smoDatabase.Name);
+                                server.DeleteBackupHistory(smoDatabase.Name);
                             }
                             smoDatabase.Drop();
                             if (dropParams.GenerateScript)
                             {
                                 var builder = new StringBuilder();
-                                foreach (var scriptEntry in smoDatabase.Parent.ConnectionContext.CapturedSql.Text)
+                                foreach (var scriptEntry in server.ConnectionContext.CapturedSql.Text)
                                 {
                                     if (scriptEntry != null)
                                     {
@@ -433,7 +434,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             if (dropParams.GenerateScript)
                             {
-                                smoDatabase.Parent.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                                server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
                             }
                         }
                     }
