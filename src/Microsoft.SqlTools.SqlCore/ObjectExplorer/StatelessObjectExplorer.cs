@@ -66,7 +66,7 @@ namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
                         return new TreeNode[0];
                     }
 
-                    if (Monitor.TryEnter(node.BuildingMetadataLock, options.OperationTimeout))
+                    if (Monitor.TryEnter(node.BuildingMetadataLock, options.OperationTimeoutSeconds))
                     {
                         try
                         {
@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
                                 }
                             });
 
-                            if (task.Wait(TimeSpan.FromSeconds(options.OperationTimeout)))
+                            if (task.Wait(TimeSpan.FromSeconds(options.OperationTimeoutSeconds)))
                             {
                                 if (taskCancellationTokenSource.IsCancellationRequested)
                                 {

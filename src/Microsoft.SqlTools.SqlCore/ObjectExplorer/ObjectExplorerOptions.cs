@@ -17,6 +17,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer
         /// <summary>
         /// Timeout for OE session operations in seconds. Default is 60 seconds
         /// </summary>
-        public int OperationTimeout { get; set; } = 60;
+        public int OperationTimeoutSeconds { get; set; } = 60;
     }
 }

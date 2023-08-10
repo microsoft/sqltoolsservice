@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         ObjectExplorerOptions options = new ObjectExplorerOptions()
         {
             GroupBySchemaFlagGetter = () => true,
-            OperationTimeout = 10000,
+            OperationTimeoutSeconds = 10000,
         };
 
         [Test]
