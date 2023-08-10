@@ -163,7 +163,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled
                                 };
 
-                                if (!isAzureDB) {
+                                if (!isAzureDB)
+                                {
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
@@ -452,21 +453,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
+            var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
+            try
             {
-                connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
+                {
+                    connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                }
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
+                if (dataContainer.Server == null)
+                {
+                    throw new InvalidOperationException(serverNotExistsError);
+                }
+                if (string.IsNullOrEmpty(objectURN))
+                {
+                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
+                }
+                dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
+                return dataContainer;
             }
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
-            if (dataContainer.Server == null)
+            finally
             {
-                throw new InvalidOperationException(serverNotExistsError);
+                connectionInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
             }
-            if (string.IsNullOrEmpty(objectURN))
-            {
-                objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
-            }
-            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
-            return dataContainer;
         }
 
         private string ConfigureDatabase(InitializeViewRequestParams viewParams, DatabaseInfo database, ConfigAction configAction, RunType runType)
