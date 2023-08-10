@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task ReadToEndNullReader()
+        public void ReadToEndNullReader()
         {
             // If: I create a new result set with a null db data reader
             // Then: I should get an exception
@@ -169,8 +169,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             get
             {
                 yield return new object[] {new Action<ResultSet>(rs => rs.GetSubset(0, 0).Wait())};
-                yield return new object[] {new Action<ResultSet>(rs => rs.UpdateRow(0, null).Wait())};
-                yield return new object[] {new Action<ResultSet>(rs => rs.AddRow(null).Wait())};
+                yield return new object[] {new Action<ResultSet>(rs => rs.UpdateRow(0, null))};
+                yield return new object[] {new Action<ResultSet>(rs => rs.AddRow(null))};
                 yield return new object[] {new Action<ResultSet>(rs => rs.RemoveRow(0))};
                 yield return new object[] {new Action<ResultSet>(rs => rs.GetRow(0))};
                 yield return new object[] {new Action<ResultSet>(rs => rs.GetExecutionPlan().Wait())};
@@ -399,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             {
                 yield return (rs, id) => rs.RemoveRow(id);
                 yield return (rs, id) => rs.GetRow(id);
-                yield return (rs, id) => rs.UpdateRow(id, null).Wait();
+                yield return (rs, id) => rs.UpdateRow(id, null);
             }
         }
 
@@ -438,7 +438,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I add a row with a reader that has no rows
             // Then:
             // ... I should get an exception
-            Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.AddRow(emptyReader));
+            Assert.Throws<InvalidOperationException>(() => resultSet.AddRow(emptyReader));
 
             // ... The row count should not have changed
             Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
@@ -457,7 +457,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // ... Create a mock reader that will throw on read
             var throwingReader = GetReader(new[] {new TestResultSet(5, 0)}, true, Constants.StandardQuery);
 
-            Assert.ThrowsAsync<TestDbException>(() => resultSet.AddRow(throwingReader), "I add a row with a reader that throws on read. I should get an exception");
+            Assert.Throws<TestDbException>(() => resultSet.AddRow(throwingReader), "I add a row with a reader that throws on read. I should get an exception");
 
             // ... The row count should not have changed
             Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
@@ -480,7 +480,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var newRowReader = GetReader(results, false, Constants.StandardQuery);
 
             // If: I add a new row to the result set
-            await resultSet.AddRow(newRowReader);
+            resultSet.AddRow(newRowReader);
 
             // Then:
             // ... There should be a new row in the list of rows
@@ -505,7 +505,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // If: I add a row with a reader that has no rows
             // Then:
             // ... I should get an exception
-            Assert.ThrowsAsync<InvalidOperationException>(() => resultSet.UpdateRow(0, emptyReader));
+            Assert.Throws<InvalidOperationException>(() => resultSet.UpdateRow(0, emptyReader));
 
             // ... The row count should not have changed
             Assert.AreEqual(Common.StandardRows, resultSet.RowCount);
@@ -528,7 +528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var newRowReader = GetReader(results, false, Constants.StandardQuery);
 
             // If: I add a new row to the result set
-            await resultSet.UpdateRow(0, newRowReader);
+            resultSet.UpdateRow(0, newRowReader);
 
             // Then:
             // ... There should be the same number of rows

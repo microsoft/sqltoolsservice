@@ -158,7 +158,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         }
 
         [Test]
-        public async Task SubsetServiceMissingQueryTest()
+        public void SubsetServiceMissingQueryTest()
         {
             // If:
             // ... I ask for a set of results for a file that hasn't executed a query
