@@ -528,10 +528,10 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData
                     {
                         // Get the command from the edit operation and execute it
                         using (DbCommand editCommand = editOperation.GetCommand(connection))
-                        using (DbDataReader reader = await editCommand.ExecuteReaderAsync())
+                        using (DbDataReader reader = editCommand.ExecuteReader())
                         {
                             // Apply the changes of the command to the result set
-                            await editOperation.ApplyChanges(reader);
+                            editOperation.ApplyChanges(reader);
                         }
                     }
                     catch (EditDataDeleteException)

@@ -449,10 +449,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Adds a new row to the result set by reading the row from the provided db data reader
         /// </summary>
         /// <param name="dbDataReader">The result of a command to insert a new row should be UNREAD</param>
-        public async Task AddRow(DbDataReader dbDataReader)
+        public void AddRow(DbDataReader dbDataReader)
         {
             // Write the new row to the end of the file
-            long newOffset = await AppendRowToBuffer(dbDataReader);
+            long newOffset = AppendRowToBuffer(dbDataReader);
 
             // Add the row to file offset list
             fileOffsets.Add(newOffset);
@@ -464,10 +464,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="rowId"></param>
         /// <param name="dbDataReader"></param>
         /// <returns></returns>
-        public async Task UpdateRow(long rowId, DbDataReader dbDataReader)
+        public void UpdateRow(long rowId, DbDataReader dbDataReader)
         {
             // Write the updated row to the end of the file
-            long newOffset = await AppendRowToBuffer(dbDataReader);
+            long newOffset = AppendRowToBuffer(dbDataReader);
 
             // Update the file offset of the row in question
             fileOffsets[rowId] = newOffset;
@@ -782,7 +782,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="dbDataReader">An UNREAD db data reader</param>
         /// <returns>The offset into the file where the row was inserted</returns>
-        private async Task<long> AppendRowToBuffer(DbDataReader dbDataReader)
+        private long AppendRowToBuffer(DbDataReader dbDataReader)
         {
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
             // Sanity check to make sure that results read has started
@@ -793,11 +793,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // NOTE: We are no longer checking to see if the data reader has rows before reading
             // b/c of a quirk in SqlClient. In some scenarios, a SqlException isn't thrown until we
             // read. In order to get appropriate errors back to the user, we'll read first.
-            // Returning false from .ReadAsync means there aren't any rows.
+            // Returning false from .Read means there aren't any rows.
 
             // Create a storage data reader, read it, make sure there were results
             var dataReader = new StorageDataReader(dbDataReader);
-            if (!await dataReader.ReadAsync(CancellationToken.None))
+            if (!dataReader.Read())
             {
                 throw new InvalidOperationException(SR.QueryServiceResultSetAddNoRows);
             }
