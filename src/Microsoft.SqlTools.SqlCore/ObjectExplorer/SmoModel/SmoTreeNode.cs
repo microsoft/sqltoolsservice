@@ -44,10 +44,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// </summary>
         public static int NextSortPriority
         {
-            get
-            {
-                return System.Threading.Interlocked.Increment(ref _nextSortPriority);
-            }
+            get => System.Threading.Interlocked.Increment(ref _nextSortPriority);
         }
 
         public NamedSmoObject SmoObject { get; private set; }

@@ -67,30 +67,21 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
         /// <summary>
         /// Mthod used to do custom filtering on smo objects if cannot be implemented using the filters
         /// </summary>
-        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject smoObject)
-        {
-            return true;
-        }
+        protected virtual bool PassesFinalFilters(SqlSmoObject parent, SqlSmoObject smoObject) => true;
 
         /// <summary>
         /// Returns true if the querier is valid for the given server version
         /// </summary>
         /// <param name="serverValidFor"></param>
         /// <returns></returns>
-        public bool IsValidFor(ValidForFlag serverValidFor)
-        {
-            return ServerVersionHelper.IsValidFor(serverValidFor,  ValidFor);
-        }
+        public bool IsValidFor(ValidForFlag serverValidFor) => ServerVersionHelper.IsValidFor(serverValidFor,  ValidFor);
 
         /// <summary>
         /// Indicates which platforms the querier is valid for
         /// </summary>
         public virtual ValidForFlag ValidFor
         {
-            get
-            {
-                return ValidForFlag.All;
-            }
+            get =>  ValidForFlag.All;
         }
     }
 }
