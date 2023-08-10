@@ -36,13 +36,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             this.server = server;
             ServiceProvider = serviceProvider;
             this.smoWrapper = serverManager ?? new SmoWrapper();
-            if(groupBySchemaFlag != null)
-            {
-                this.groupBySchemaFlag = groupBySchemaFlag;
-            } else
-            {
-                this.groupBySchemaFlag = () => false;
-            }
+            this.groupBySchemaFlag = groupBySchemaFlag ?? () => false;
         }
 
         /// <summary>
