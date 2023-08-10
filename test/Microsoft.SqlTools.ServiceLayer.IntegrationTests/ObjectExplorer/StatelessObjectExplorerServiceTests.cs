@@ -10,6 +10,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.CoreSql.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.Extensions;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using System.Linq;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
 {
@@ -34,7 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
         };
 
         [Test]
-        public async Task ExpandingServerNodeShouldReturnSchemas()
+        [TestCase("", "dbo")]
+        [TestCase("testserver/{0}/dbo", "Tables")]
+        [TestCase("testserver/{0}/dbo/Tables", "dbo.t1")]
+        [TestCase("testserver/{0}/dbo/Tables", "dbo.t2")]
+        public async Task ExpandingPathShouldReturnCorrectNodes(string oePath, string childLabel)
         {
             var query = @"Create table t1 (c1 int)
                             GO
@@ -42,41 +47,14 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectExplorer
                             GO";
             await RunTest(databaseName, query, "testdb", async (testdbName, connectionString) =>
             {
-
-
                 serverInfo.DatabaseName = testdbName;
-                var nodes = StatelessObjectExplorer.Expand(connectionString, null, "", serverInfo, options);
+                var pathWithDb = string.Format(oePath, testdbName);
+                var nodes = StatelessObjectExplorer.Expand(connectionString, null, pathWithDb, serverInfo, options);
 
-                var dboSchemaPath = $"testserver/{testdbName}/dbo";
-                nodes = StatelessObjectExplorer.Expand(connectionString, null, dboSchemaPath, serverInfo, options);
-
-                // Expanding tables in dbo
-                var tablesfolder = $"testserver/{testdbName}/dbo/Tables"; 
-                nodes = StatelessObjectExplorer.Expand(connectionString, null, tablesfolder, serverInfo, options);
-
-                if (nodes.Length == 0)
-                {
-                    throw new Exception(" no nodes returned");
-                }
-
+                Assert.True(nodes.Any(node => node.Label == childLabel), $"Expansion result for {pathWithDb} does not contain node {childLabel}");
             });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="databaseName"></param>
-        /// <param name="query"></param>
-        /// <param name="testDbPrefix"></param>
-        /// <param name="test"></param>
-        /// <returns></returns> <summary>
-        /// 
-        /// </summary>
-        /// <param name="databaseName"></param>
-        /// <param name="query"></param>
-        /// <param name="testDbPrefix"></param>
-        /// <param name="test"></param>
-        /// <returns></returns>
         private async Task RunTest(string databaseName, string query, string testDbPrefix, Func<string, string, Task> test)
         {
             SqlTestDb? testDb = null;

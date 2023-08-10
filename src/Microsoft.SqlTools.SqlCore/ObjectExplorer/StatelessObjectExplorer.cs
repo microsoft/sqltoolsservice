@@ -80,7 +80,7 @@ namespace Microsoft.SqlTools.CoreSql.ObjectExplorer
                                     return node.Expand(taskCancellationTokenSource.Token, token, filters);
                                 } else 
                                 {
-                                    throw new ArgumentNullException("Parent node not found.");
+                                    throw new InvalidArgumentException($"Parent node not found for path {nodePath}");
                                 }
                             });
 
