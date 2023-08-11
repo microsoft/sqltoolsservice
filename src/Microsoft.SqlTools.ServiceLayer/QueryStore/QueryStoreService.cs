@@ -110,13 +110,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
                 Dictionary<string, object> sqlParams = new()
                 {
-                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
-                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
                 };
 
                 if (!config.ReturnAllQueries)
                 {
-                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString();
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
                 }
 
                 query = PrependSqlParameters(query, sqlParams);
@@ -142,13 +142,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
                 Dictionary<string, object> sqlParams = new()
                 {
-                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
-                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
                 };
 
                 if (!config.ReturnAllQueries)
                 {
-                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString();
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
                 }
 
                 query = PrependSqlParameters(query, sqlParams);
@@ -176,13 +176,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
                 Dictionary<string, object> sqlParams = new()
                 {
-                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
-                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
                 };
 
                 if (!config.ReturnAllQueries)
                 {
-                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString();
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
                 }
 
                 query = PrependSqlParameters(query, sqlParams);
@@ -232,8 +232,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                TrackedQueriesConfiguration config = requestParams.Convert();
                 string query = QueryIDSearchQueryGenerator.GetQuery();
+
+                query = PrependSqlParameters(query, new() { [QueryIDSearchQueryGenerator.QuerySearchTextParameter] = requestParams.QuerySearchText });
 
                 return new QueryStoreQueryResult()
                 {
