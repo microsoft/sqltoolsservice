@@ -803,7 +803,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region SubSet Tests
 
         [Test]
-        public async Task SubsetNotInitialized()
+        public void SubsetNotInitialized()
         {
             // Setup:
             // ... Create a session without initializing
@@ -1108,7 +1108,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             // ... Add a mock commands for fun
             var edit = new Mock<RowEditBase>();
             edit.Setup(e => e.GetCommand(It.IsAny<DbConnection>())).Returns<DbConnection>(dbc => dbc.CreateCommand());
-            edit.Setup(e => e.ApplyChanges(It.IsAny<DbDataReader>())).Returns(Task.FromResult(0));
             s.EditCache[0] = edit.Object;
 
             // If: I commit these changes (and await completion)
