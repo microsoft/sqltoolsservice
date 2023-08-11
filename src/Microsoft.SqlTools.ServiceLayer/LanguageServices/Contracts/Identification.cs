@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts
         public Position Position { get; set;  }          
 
         /// <summary>
-        /// Position of the Identification request
+        /// Word to identify
         /// </summary>
         public string word { get; set;  }         
     }
