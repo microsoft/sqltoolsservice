@@ -211,8 +211,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     }
                                 }
                                 databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
-                                databaseViewInfo.FileGroupsOptions = GetFileGroupNames(smoDatabase);
                                 databaseViewInfo.FileTypesOptions = displayFileTypes.Values.ToArray();
+
+                                // Get file groups names
+                                GetFileGroupNames(smoDatabase, databaseViewInfo);
                             }
                             databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
                             databaseViewInfo.DscElevateOptions = DscElevateOptions;
@@ -532,6 +534,44 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
+                        if (!viewParams.IsNewObject)
+                        {
+                            foreach(var file in database.Files)
+                            {
+                                // New file
+                                if(file.Id == 0)
+                                {
+                                    var fileType = FileType.Log == fileTypesEnums[file.Type] ? FileType.Log : FileType.Data;
+                                    DatabaseFilePrototype newDataFile = new DatabaseFilePrototype(dataContainer, prototype, fileType);
+                                    newDataFile.Name = file.Name;
+                                    newDataFile.InitialSize = (int)file.SizeInMb;
+                                    newDataFile.PhysicalName = file.FileNameWithExtension;
+                                    newDataFile.Folder = file.Path;
+                                    newDataFile.DatabaseFileType = fileTypesEnums[file.Type];
+
+                                    if (fileType == FileType.Data)
+                                    {
+                                        var fileGroup = new FilegroupPrototype(prototype);
+                                        fileGroup.Name = file.FileGroup;
+                                        newDataFile.FileGroup = fileGroup;
+                                    }
+
+                                    var dataAutogrowth = new Autogrowth(prototype);
+                                    dataAutogrowth.IsGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
+                                    dataAutogrowth.GrowthInPercent = (int)file.AutoFileGrowth;
+                                    dataAutogrowth.MaximumFileSizeInMegabytes = (int)file.MaxSizeLimit;
+                                    newDataFile.Autogrowth = dataAutogrowth;
+                                }
+                                else
+                                {
+                                    foreach(var existedFile in prototype.Files)
+                                    {
+                                        //if(existedFile. = file.Id)
+                                    }
+                                }
+                            }
+                        }
+
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
@@ -753,8 +793,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     filesList.Add(new DatabaseFile()
                     {
+                        Id = file.ID,
                         Name = file.Name,
-                        Type = displayFileTypes[FileType.Data],
+                        Type = file.Parent.FileGroupType == FileGroupType.RowsFileGroup ? displayFileTypes[FileType.Data] : displayFileTypes[FileType.FileStream],
                         Path = Path.GetDirectoryName(file.FileName),
                         FileGroup = fileGroup.Name,
                         FileNameWithExtension = Path.GetFileName(file.FileName),
@@ -769,6 +810,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 filesList.Add(new DatabaseFile()
                 {
+                    Id = file.ID,
                     Name = file.Name,
                     Type = displayFileTypes[FileType.Log],
                     Path = Path.GetDirectoryName(file.FileName),
@@ -783,14 +825,35 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return filesList.ToArray();
         }
 
-        private string[] GetFileGroupNames(Database database)
+
+        /// <summary>
+        /// Get the file group names from the database fileGroup
+        /// </summary>
+        /// <param name="database">smo database prototype</param>
+        /// <param name="databaseViewInfo">database view info object</param>
+        private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
         {
-            var fileGroupList = new List<string>();
+            var rowDataGroups = new List<string>(); ;
+            var fileStreamDataGroups = new List<string>(); ;
             foreach (FileGroup fileGroup in database.FileGroups)
             {
-                fileGroupList.Add(fileGroup.Name);
+                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup)
+                {
+                    fileStreamDataGroups.Add(fileGroup.Name);
+                }
+                else
+                {
+                    rowDataGroups.Add(fileGroup.Name);
+                }
             }
-            return fileGroupList.ToArray();
+
+            // If no fileStream groups available
+            if(fileStreamDataGroups.Count == 0)
+            {
+                fileStreamDataGroups.Add(SR.prototype_file_noApplicableFileGroup);
+            }
+            databaseViewInfo.RowDataFileGroupsOptions = rowDataGroups.ToArray();
+            databaseViewInfo.FileStreamFileGroupsOptions = fileStreamDataGroups.ToArray();
         }
 
         /// <summary>

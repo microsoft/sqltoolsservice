@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
     public class DatabaseFile
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public string Path { get; set; }
