@@ -360,6 +360,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 OverallResourceConsumptionConfiguration config = requestParams.Convert();
                 string query = OverallResourceConsumptionQueryGenerator.GenerateQuery(GetAvailableMetrics(requestParams), config, out _);
 
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.SpecifiedTimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.SpecifiedTimeInterval.EndDateTimeOffset
+                };
+
+                query = PrependSqlParameters(query, sqlParams);
+
                 return new QueryStoreQueryResult()
                 {
                     Success = true,
