@@ -256,7 +256,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 HighVariationConfiguration config = requestParams.Convert();
                 HighVariationQueryGenerator.HighVariationSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                
                 string query = HighVariationQueryGenerator.HighVariationSummary(config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
 
                 return new QueryStoreQueryResult()
                 {
@@ -275,7 +289,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
                 HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                
                 string query = HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
 
                 return new QueryStoreQueryResult()
                 {
@@ -286,6 +314,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             }, requestContext);
         }
 
+        // TODO: not called directly by UI; probably should be removed, and QSM method reduced to internal
+
         internal async Task HandleGetHighVariationQueriesDetailedSummaryWithWaitStatsReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
             await RunWithErrorHandling(() =>
@@ -294,7 +324,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
                 HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                
                 string query = HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
 
                 return new QueryStoreQueryResult()
                 {
