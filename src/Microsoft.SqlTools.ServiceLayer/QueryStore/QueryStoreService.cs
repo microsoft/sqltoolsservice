@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.QueryStoreModel.Common;
@@ -104,7 +105,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 TopResourceConsumersConfiguration config = requestParams.Convert();
                 TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, string> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString();
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
 
                 return new QueryStoreQueryResult()
                 {
@@ -122,7 +137,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 TopResourceConsumersConfiguration config = requestParams.Convert();
                 TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, string> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString();
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
 
                 return new QueryStoreQueryResult()
                 {
@@ -133,6 +162,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             }, requestContext);
         }
 
+        // TODO: not called directly by UI; probably should be removed, and QSM method reduced to internal
+
         internal async Task HandleGetTopResourceConsumersDetailedSummaryWithWaitStatsReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
         {
             await RunWithErrorHandling(() =>
@@ -140,7 +171,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 TopResourceConsumersConfiguration config = requestParams.Convert();
                 TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+                
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, string> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
+                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString();
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
 
                 return new QueryStoreQueryResult()
                 {
@@ -162,7 +207,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 ForcedPlanQueriesConfiguration config = requestParams.Convert();
                 ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+
                 string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, requestParams.Descending, out IList<ColumnInfo> _);
+
+                if (!config.ReturnAllQueries)
+                {
+                    query = PrependSqlParameters(query, new() { [QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString()});
+                }
 
                 return new QueryStoreQueryResult()
                 {
@@ -335,6 +386,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             {
                 throw new InvalidOperationException($"Unable to find connection for '{requestParams.ConnectionOwnerUri}'");
             }
+        }
+
+        private string PrependSqlParameters(string query, Dictionary<string, string> sqlParams)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string key in sqlParams.Keys)
+            {
+                sb.AppendLine($"DECLARE {key} = {sqlParams[key]};");
+            }
+
+            sb.AppendLine();
+            sb.AppendLine(query);
+
+            return sb.ToString().Trim();
         }
 
         #endregion
