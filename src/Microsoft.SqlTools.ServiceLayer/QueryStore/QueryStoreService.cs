@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, orderByColumn, requestParams.Descending, out _);
 
-                Dictionary<string, string> sqlParams = new()
+                Dictionary<string, object> sqlParams = new()
                 {
                     [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
                     [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
 
-                Dictionary<string, string> sqlParams = new()
+                Dictionary<string, object> sqlParams = new()
                 {
                     [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
                     [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
@@ -174,7 +174,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
 
-                Dictionary<string, string> sqlParams = new()
+                Dictionary<string, object> sqlParams = new()
                 {
                     [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset.ToString(),
                     [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset.ToString()
@@ -388,13 +388,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             }
         }
 
-        private string PrependSqlParameters(string query, Dictionary<string, string> sqlParams)
+        private string PrependSqlParameters(string query, Dictionary<string, object> sqlParams)
         {
             StringBuilder sb = new StringBuilder();
 
             foreach (string key in sqlParams.Keys)
             {
-                sb.AppendLine($"DECLARE {key} = {sqlParams[key]};");
+                // TODO: convert the object to TSQL representation correctly (e.g. DECLARE @topCount INT = 999)
+                sb.AppendLine($"DECLARE {key} {"TODO"} = {sqlParams[key]};");
             }
 
             sb.AppendLine();
