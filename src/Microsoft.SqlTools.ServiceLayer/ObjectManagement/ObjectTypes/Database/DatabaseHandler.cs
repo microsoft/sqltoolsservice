@@ -397,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             // In order to drop all connections to the database, we switch it to single
                             // user access mode so that only our current connection to the database stays open.
                             // Any pending operations are terminated and rolled back.
-                            if (dropParams.DropConnections && smoDatabase.ActiveConnections > 0)
+                            if (dropParams.DropConnections)
                             {
                                 smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
                                 smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
