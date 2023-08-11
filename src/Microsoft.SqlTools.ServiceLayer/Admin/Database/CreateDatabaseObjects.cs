@@ -843,6 +843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
 
         private class FileData
         {
+            public int id;
             public string name;
             public string physicalName;
             public string folder;
@@ -859,6 +860,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             /// <param name="type"></param>
             public FileData(DatabasePrototype parent, FileType type)
             {
+                this.id = 0;
                 this.name = String.Empty;
                 this.physicalName = String.Empty;
                 this.folder = String.Empty;
@@ -879,6 +881,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             {
                 this.autogrowth = new Autogrowth(parent, file);
                 this.name = file.Name;
+                this.id = file.ID;
 
                 if (file.FileName.EndsWith(":", StringComparison.Ordinal))
                 {
@@ -923,6 +926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             {
                 this.autogrowth = new Autogrowth(parent, file);
                 this.name = file.Name;
+                this.id = file.ID;
 
                 try
                 {
@@ -960,6 +964,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             /// <param name="other"></param>
             public FileData(FileData other)
             {
+                this.id = other.id;
                 this.name = other.name;
                 this.physicalName = other.physicalName;
                 this.folder = other.folder;
@@ -1000,6 +1005,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         #endregion
 
         #region properties
+
+        /// <summary>
+        /// The logical name of the file, without extension
+        /// </summary>
+        public int ID
+        {
+            get { return this.currentState.id; }
+
+            set
+            {
+                this.currentState.id = value;
+                this.database.NotifyObservers();
+            }
+        }
 
         /// <summary>
         /// The logical name of the file, without extension
