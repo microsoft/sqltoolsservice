@@ -78,13 +78,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             // Regressed Queries report
             serviceHost.SetRequestHandler(GetRegressedQueriesSummaryRequest.Type, HandleGetRegressedQueriesSummaryReportRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(GetRegressedQueriesDetailedSummaryRequest.Type, HandleGetRegressedQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
+
+            // Plan Summary report
+            // TODO
         }
 
         #region Handlers
 
         /* 
          * General process is to:
-         * 1. Convert the ADS config to the Query Store Model config format
+         * 1. Convert the ADS config to the QueryStoreModel config format
          * 2. Call the unordered query generator to get the list of columns
          * 3. Select the intended ColumnInfo for sorting
          * 4. Call the ordered query generator to get the actual query
@@ -98,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                TopResourceConsumersConfiguration config = new();
+                TopResourceConsumersConfiguration config = requestParams.Convert();
                 TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersSummary(config, orderByColumn, requestParams.Descending, out _);
@@ -116,7 +119,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                TopResourceConsumersConfiguration config = new();
+                TopResourceConsumersConfiguration config = requestParams.Convert();
                 TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
@@ -134,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                TopResourceConsumersConfiguration config = new();
+                TopResourceConsumersConfiguration config = requestParams.Convert();
                 TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
@@ -156,7 +159,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                ForcedPlanQueriesConfiguration config = new();
+                ForcedPlanQueriesConfiguration config = requestParams.Convert();
                 ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
                 string query = ForcedPlanQueriesQueryGenerator.ForcedPlanQueriesSummary(config, orderByColumn, requestParams.Descending, out IList<ColumnInfo> _);
@@ -178,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                TrackedQueriesConfiguration config = new();
+                TrackedQueriesConfiguration config = requestParams.Convert();
                 string query = QueryIDSearchQueryGenerator.GetQuery();
 
                 return new QueryStoreQueryResult()
@@ -198,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                HighVariationConfiguration config = new();
+                HighVariationConfiguration config = requestParams.Convert();
                 HighVariationQueryGenerator.HighVariationSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
                 string query = HighVariationQueryGenerator.HighVariationSummary(config, orderByColumn, requestParams.Descending, out _);
@@ -216,7 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                HighVariationConfiguration config = new();
+                HighVariationConfiguration config = requestParams.Convert();
                 IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
                 HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
@@ -235,7 +238,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                HighVariationConfiguration config = new();
+                HighVariationConfiguration config = requestParams.Convert();
                 IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
                 HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
@@ -258,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                OverallResourceConsumptionConfiguration config = new();
+                OverallResourceConsumptionConfiguration config = requestParams.Convert();
                 string query = OverallResourceConsumptionQueryGenerator.GenerateQuery(GetAvailableMetrics(requestParams), config, out _);
 
                 return new QueryStoreQueryResult()
@@ -278,7 +281,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                RegressedQueriesConfiguration config = new();
+                RegressedQueriesConfiguration config = requestParams.Convert();
                 string query = RegressedQueriesQueryGenerator.RegressedQuerySummary(config, out _);
 
                 return new QueryStoreQueryResult()
@@ -294,7 +297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         {
             await RunWithErrorHandling(() =>
             {
-                RegressedQueriesConfiguration config = new();
+                RegressedQueriesConfiguration config = requestParams.Convert();
                 string query = RegressedQueriesQueryGenerator.RegressedQueryDetailedSummary(GetAvailableMetrics(requestParams), config, out _);
 
                 return new QueryStoreQueryResult()
@@ -312,7 +315,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
         #region Helpers
 
-        private ColumnInfo GetOrderByColumn(QueryStoreReportParams requestParams, IList<ColumnInfo> columnInfoList)
+        private ColumnInfo GetOrderByColumn<T>(QueryConfigurationParams<T> requestParams, IList<ColumnInfo> columnInfoList) where T : QueryConfigurationBase, new()
         {
             return requestParams.OrderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.OrderByColumnId) : columnInfoList[0];
         }

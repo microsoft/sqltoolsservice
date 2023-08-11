@@ -3,15 +3,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlServer.Management.QueryStoreModel.HighVariation;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetHighVariationQueriesReportParams : QueryStoreReportParams
+    public class GetHighVariationQueriesReportParams : QueryConfigurationParams<HighVariationConfiguration>
     {
+        public TimeInterval TimeInterval;
 
+        public override HighVariationConfiguration Convert()
+        {
+            HighVariationConfiguration config = base.Convert();
+            config.TimeInterval = TimeInterval;
+
+            return base.Convert();
+        }
     }
 
     /// <summary>

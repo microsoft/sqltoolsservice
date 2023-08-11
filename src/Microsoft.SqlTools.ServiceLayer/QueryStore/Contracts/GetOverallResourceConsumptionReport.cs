@@ -3,15 +3,28 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetOverallResourceConsumptionReportParams : QueryStoreReportParams
+    public class GetOverallResourceConsumptionReportParams : QueryConfigurationParams<OverallResourceConsumptionConfiguration>
     {
+        TimeInterval SpecifiedTimeInterval;
+        BucketInterval SpecifiedBucketInterval;
 
+        public override OverallResourceConsumptionConfiguration Convert()
+        {
+            OverallResourceConsumptionConfiguration result = base.Convert();
+
+            result.SpecifiedTimeInterval = SpecifiedTimeInterval;
+            result.SelectedBucketInterval = SpecifiedBucketInterval;
+
+            return result;
+        }
     }
 
     /// <summary>

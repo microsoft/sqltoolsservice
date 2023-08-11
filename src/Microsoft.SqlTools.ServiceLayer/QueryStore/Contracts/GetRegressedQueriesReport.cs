@@ -3,15 +3,30 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlServer.Management.QueryStoreModel.RegressedQueries;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetRegressedQueriesReportParams : QueryStoreReportParams
+    public class GetRegressedQueriesReportParams : QueryConfigurationParams<RegressedQueriesConfiguration>
     {
+        TimeInterval TimeIntervalRecent;
+        TimeInterval TimeIntervalHistory;
+        long MinExecutionCount;
 
+        public override RegressedQueriesConfiguration Convert()
+        {
+            RegressedQueriesConfiguration result = base.Convert();
+
+            result.TimeIntervalRecent = TimeIntervalRecent;
+            result.TimeIntervalHistory = TimeIntervalHistory;
+            result.MinExecutionCount = MinExecutionCount;
+
+            return result;
+        }
     }
 
     /// <summary>

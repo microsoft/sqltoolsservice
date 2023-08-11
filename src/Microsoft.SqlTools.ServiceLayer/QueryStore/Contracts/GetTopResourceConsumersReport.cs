@@ -3,15 +3,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.QueryStoreModel.Common;
+using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetTopResourceConsumersReportParams : QueryStoreReportParams
+    public class GetTopResourceConsumersReportParams : QueryConfigurationParams<TopResourceConsumersConfiguration>
     {
+        TimeInterval TimeInterval;
 
+        public override TopResourceConsumersConfiguration Convert()
+        {
+            TopResourceConsumersConfiguration result = base.Convert();
+            result.TimeInterval = TimeInterval;
+
+            return result;
+        }
     }
 
     /// <summary>

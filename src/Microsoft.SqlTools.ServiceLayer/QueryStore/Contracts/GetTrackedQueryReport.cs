@@ -3,15 +3,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.SqlServer.Management.QueryStoreModel.TrackedQueries;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 #nullable disable
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetTrackedQueriesReportParams : QueryStoreReportParams
+    public class GetTrackedQueriesReportParams : GetPlanSummaryParams
     {
-
+        // TrackedQueriesConfiguration doesn't contain any new properties useful to query generation, so a straight conversion here is fine.
+        public override TrackedQueriesConfiguration Convert() => (TrackedQueriesConfiguration)base.Convert();
     }
 
     /// <summary>
