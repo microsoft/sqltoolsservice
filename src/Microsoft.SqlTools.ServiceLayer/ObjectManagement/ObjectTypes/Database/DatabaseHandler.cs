@@ -382,14 +382,16 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     var smoDatabase = dataContainer.SqlDialogSubject as Database;
                     if (smoDatabase != null)
                     {
+                        var originalAccess = smoDatabase.DatabaseOptions.UserAccess;
                         var server = smoDatabase.Parent;
+                        var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
+
                         if (dropParams.GenerateScript)
                         {
                             server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
                             server.ConnectionContext.CapturedSql.Clear();
                         }
 
-                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
                         try
                         {
                             // In order to drop all connections to the database, we switch it to single
@@ -434,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         {
                             if (dropParams.GenerateScript)
                             {
-                                server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                                server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
                             }
                         }
                     }
