@@ -17,12 +17,8 @@
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" />
-		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
-		<PackageReference Include="System.Runtime.Loader" />
-		<PackageReference Include="System.Composition" />
-		<PackageReference Include="System.Text.Encodings.Web" />
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="../Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
