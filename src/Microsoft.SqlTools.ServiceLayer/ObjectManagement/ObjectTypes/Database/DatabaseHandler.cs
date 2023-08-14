@@ -536,9 +536,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                         if (!viewParams.IsNewObject)
                         {
-                            foreach(var file in database.Files)
+                            HashSet<int> fileIdsToRemove = new HashSet<int>(prototype.Files.Select(file => file.ID));
+                            foreach (var file in database.Files)
                             {
-                                // New file
+                                // Add a New file
                                 if(file.Id == 0)
                                 {
                                     DatabaseFilePrototype newFile = new DatabaseFilePrototype(dataContainer, prototype, fileTypesEnums[file.Type]);
@@ -574,13 +575,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     // Add newFile to the prototype files
                                     prototype.Files.Add(newFile);
                                 }
+                                // Edit file properties
                                 else
                                 {
-                                    // Update the modified file properties
                                     foreach(var existedFile in prototype.Files)
                                     {
                                         if(existedFile.ID == file.Id)
                                         {
+                                            fileIdsToRemove.Remove(existedFile.ID);
                                             existedFile.Name = file.Name;
                                             existedFile.InitialSize = (int)file.SizeInMb;
 
@@ -593,6 +595,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                             break;
                                         }
                                     }
+                                }
+                            }
+                            // Remove the file
+                            foreach(var currentFile in prototype.Files)
+                            {
+                                if (fileIdsToRemove.Contains(currentFile.ID))
+                                {
+                                    currentFile.Removed = true;
                                 }
                             }
                         }
