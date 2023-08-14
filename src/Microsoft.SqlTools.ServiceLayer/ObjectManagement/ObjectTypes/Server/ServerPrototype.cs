@@ -36,8 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private ConfigProperty serverMinMemoryProperty;
         private ConfigProperty serverMaxMemoryProperty;
         BitArray initialIOAffinityArray;
-        private const int MAX64CPU = 64;
-        private const int MAX32CPU = 32;
         #endregion
 
         #region Trace support
@@ -368,25 +366,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 Microsoft.SqlServer.Management.Smo.Server server = this.dataContainer.Server;
                 bool changesMade = false;
-                bool bAlterServerConfig = false;
-                bool bSendCPUAffinityBeforeIO = false;
-                bool bSendIOAffinityBeforeCPU = false;
+                bool alterServerConfig = false;
+                bool sendCPUAffinityBeforeIO = false;
+                bool sendIOAffinityBeforeCPU = false;
                 bool sentCpuAffinity = false;
 
-                bSendCPUAffinityBeforeIO = this.CheckCPUAffinityBeforeIO(server);
-                bSendIOAffinityBeforeCPU = this.CheckIOAffinityBeforeCPU(server);
-                bAlterServerConfig = this.CheckIOAffinityTsqlGenerated(server);
-                if (!bSendIOAffinityBeforeCPU)
+                sendCPUAffinityBeforeIO = this.CheckCPUAffinityBeforeIO(server);
+                sendIOAffinityBeforeCPU = this.CheckIOAffinityBeforeCPU(server);
+                alterServerConfig = this.CheckIOAffinityTsqlGenerated(server);
+                if (!sendIOAffinityBeforeCPU)
                 {
                     SendDataForKJ(server);
                     sentCpuAffinity = true;
                 }
 
-                if (bAlterServerConfig == true)
+                if (alterServerConfig == true)
                 {
                     try
                     {
-                        server.Configuration.Alter((bSendCPUAffinityBeforeIO && bSendIOAffinityBeforeCPU));
+                        server.Configuration.Alter((sendCPUAffinityBeforeIO && sendIOAffinityBeforeCPU));
                     }
                     finally
                     {
@@ -541,7 +539,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         finalCpuIOAffinity[cpu.ID] = this.NumaNodes[i].Processors[cpuCount].IOAffinity;
                         if (initialIOAffinityArray[cpu.ID] != finalCpuIOAffinity[cpu.ID])
                         {
-                            if (cpu.ID < MAX32CPU)
+                            if (cpu.ID < AffinityManager.MAX32CPU)
                             {
                                 sendAlter = true;
                             }
@@ -607,10 +605,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// </remarks>
         private class ServerPrototypeData : ICloneable
         {
-            #region constants
-            private const int MAX_IO_CPU_SUPPORTED = 64;
-            #endregion
-
             #region data members
             private string serverName = string.Empty;
             private string hardwareGeneration = String.Empty;
@@ -640,7 +634,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private Server server;
             private CDataContainer context;
             private ServerConfigService configService;
-            private AffinityMngr affinityMngr = new AffinityMngr();
+            private AffinityManager affinityManager = new AffinityManager();
             private bool isYukonOrLater = false;
             private bool isSqlServer64Bit;
 
@@ -1303,7 +1297,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         if (cpu.GroupID == 0)
                         {
                             // get affinityIO info if group id is 0
-                            processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = affinityMngr.GetAffinity(cpu.ID, true) });
+                            processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = affinityManager.GetAffinity(cpu.ID, true) });
                         }
                     }
                     var result = new NumaNode() { NumaNodeId = node.ID.ToString(), Processors = processors };

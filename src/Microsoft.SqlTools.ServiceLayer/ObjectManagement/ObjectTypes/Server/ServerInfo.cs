@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public NumericServerProperty MinServerMemory { get; set; }
         public bool AutoProcessorAffinityMaskForAll { get; set; }
         public bool AutoProcessorAffinityIOMaskForAll { get; set; }
-        public NumaNode[] NumaNodes { get; set; }
+        public List<NumaNode> NumaNodes { get; set; }
     }
 
     public class NumericServerProperty

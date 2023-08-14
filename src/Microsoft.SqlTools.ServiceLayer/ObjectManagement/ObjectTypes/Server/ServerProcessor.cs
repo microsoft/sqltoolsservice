@@ -10,9 +10,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
      /// <summary>
     /// Class to manage affinity for 64 processors in an independent manner for I/O as well as processors
     /// </summary>
-    internal sealed class AffinityMngr
+    internal sealed class AffinityManager
     {
-        private const int MAX32CPU = 32;
+        public const int MAX64CPU = 64;
+        public const int MAX32CPU = 32;
+        public const int MAX_IO_CPU_SUPPORTED = 64;
+
         private static string[] configFields = new string[]
             {
                 "Minimum",
@@ -58,8 +61,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         /// <returns>Mask for numProcessors</returns>
         private int GetMaskAllProcessors(int numProcessors)
         {
-            System.Diagnostics.Debug.Assert(numProcessors > 0 && numProcessors <= 32, "Masking all processors failed!");
-
             if (numProcessors < 32)
             {
                 try
@@ -138,20 +139,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         /// </return>
         public bool GetAffinity(int processorNumber, bool showConfigValues)
         {
-            System.Diagnostics.Debug.Assert(processorNumber >= 0 && processorNumber < 64, "Invalid Processor Number");
-            int iAux = 0, iMask = 0;
+            int aux = 0, mask = 0;
             if (processorNumber < 32)
             {
-                iAux = showConfigValues ? affinity.AffinityMaskCfg : affinity.AffinityMaskRun;
-                iMask = 1 << processorNumber;
+                aux = showConfigValues ? affinity.AffinityMaskCfg : affinity.AffinityMaskRun;
+                mask = 1 << processorNumber;
             }
             else
             {
-                iAux = showConfigValues ? affinity64.AffinityMaskCfg : affinity64.AffinityMaskRun;
-                iMask = 1 << (processorNumber - 32);
+                aux = showConfigValues ? affinity64.AffinityMaskCfg : affinity64.AffinityMaskRun;
+                mask = 1 << (processorNumber - 32);
             }
 
-            return (iAux & iMask) != 0;
+            return (aux & mask) != 0;
         }
 
         /// <summary>
@@ -165,31 +165,30 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         /// </return>
         public void SetAffinity(int processorNumber, bool affinityEnabled)
         {
-            System.Diagnostics.Debug.Assert(processorNumber >= 0 && processorNumber < 64, "Invalid Processor Number");
-            int iMask = 0;
+            int mask = 0;
 
             if (processorNumber < 32)
             {
-                iMask = 1 << processorNumber;
+                mask = 1 << processorNumber;
                 if (affinityEnabled)
                 {
-                    affinity.AffinityMaskCfg |= iMask;
+                    affinity.AffinityMaskCfg |= mask;
                 }
                 else
                 {
-                    affinity.AffinityMaskCfg &= ~iMask;
+                    affinity.AffinityMaskCfg &= ~mask;
                 }
             }
             else
             {
-                iMask = 1 << (processorNumber - 32);
+                mask = 1 << (processorNumber - 32);
                 if (affinityEnabled)
                 {
-                    affinity64.AffinityMaskCfg |= iMask;
+                    affinity64.AffinityMaskCfg |= mask;
                 }
                 else
                 {
-                    affinity64.AffinityMaskCfg &= ~iMask;
+                    affinity64.AffinityMaskCfg &= ~mask;
                 }
 
             }
