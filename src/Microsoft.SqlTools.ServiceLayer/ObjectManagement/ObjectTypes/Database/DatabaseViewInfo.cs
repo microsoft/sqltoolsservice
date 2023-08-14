@@ -16,6 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public OptionsCollection RecoveryModels { get; set; }
 
         public bool IsAzureDB { get; set; }
+        public bool IsManagedInstance { get; set; }
+        public bool IsSqlOnDemand { get; set; }
         public string[] AzureBackupRedundancyLevels { get; set; }
         public AzureEditionDetails[] AzureServiceLevelObjectives { get; set; }
         public string[] AzureEditions { get; set; }
