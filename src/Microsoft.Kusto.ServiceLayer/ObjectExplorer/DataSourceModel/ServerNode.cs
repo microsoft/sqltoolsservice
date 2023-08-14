@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.Kusto.ServiceLayer.Connection.Contracts;
@@ -113,7 +112,7 @@ namespace Microsoft.Kusto.ServiceLayer.ObjectExplorer.DataSourceModel
                 exceptionMessage = ex.Message;
             }
 
-            Logger.Write(TraceEventType.Error, "Exception at ServerNode.CreateContext() : " + exceptionMessage);
+            Logger.Error("Exception at ServerNode.CreateContext() : " + exceptionMessage);
             this.ErrorStateMessage = string.Format(SR.TreeNodeError, exceptionMessage);
             return null;
         }

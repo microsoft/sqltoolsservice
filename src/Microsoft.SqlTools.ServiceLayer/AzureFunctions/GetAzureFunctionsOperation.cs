@@ -9,7 +9,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.SqlTools.ServiceLayer.AzureFunctions.Contracts;
@@ -56,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.AzureFunctions
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, $"Failed to get Azure functions. Error: {ex.Message}");
+                Logger.Information($"Failed to get Azure functions. Error: {ex.Message}");
                 throw;
             }
         }

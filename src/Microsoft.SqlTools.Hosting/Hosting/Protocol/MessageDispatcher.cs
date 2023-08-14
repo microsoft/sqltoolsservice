@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -134,7 +133,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 requestType.MethodName,
                 async (requestMessage, messageWriter) =>
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
+                    Logger.Verbose($"Processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     var requestContext =
                         new RequestContext<TResult>(
                             requestMessage,
@@ -155,7 +154,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         }
 
                         await requestHandler(typedParams, requestContext);
-                        Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
+                        Logger.Verbose($"Finished processing message with id[{requestMessage.Id}], of type[{requestMessage.MessageType}] and method[{requestMessage.Method}]");
                     }
                     catch (Exception ex)
                     {
@@ -209,7 +208,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 eventType.MethodName,
                 async (eventMessage, messageWriter) =>
                 {
-                    Logger.Write(TraceEventType.Verbose, $"Processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
+                    Logger.Verbose($"Processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     var eventContext = new EventContext(messageWriter);
                     TParams typedParams = default(TParams);
                     try
@@ -226,7 +225,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                             }
                         }
                         await eventHandler(typedParams, eventContext);
-                        Logger.Write(TraceEventType.Verbose, $"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
+                        Logger.Verbose($"Finished processing message with id[{eventMessage.Id}], of type[{eventMessage.MessageType}] and method[{eventMessage.Method}]");
                     }
                     catch (Exception ex)
                     {
@@ -276,7 +275,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 catch (MessageParseException e)
                 {
                     string message = string.Format("Exception occurred while parsing message: {0}", e.Message);
-                    Logger.Write(TraceEventType.Error, message);
+                    Logger.Error(message);
                     await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
 
                     // Continue the loop
@@ -291,7 +290,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     // Log the error and send an error event to the client
                     string message = string.Format("Exception occurred while receiving message: {0}", e.Message);
-                    Logger.Write(TraceEventType.Error, message);
+                    Logger.Error(message);
                     await MessageWriter.WriteEvent(HostingErrorEvent.Type, new HostingErrorParams { Message = message });
 
                     // Continue the loop
@@ -305,7 +304,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                     // Verbose logging
                     string logMessage =
                         $"Received message with id[{newMessage.Id}], of type[{newMessage.MessageType}] and method[{newMessage.Method}]";
-                    Logger.Write(TraceEventType.Verbose, logMessage);
+                    Logger.Verbose(logMessage);
 
                     // Process the message
                     await this.DispatchMessage(newMessage, this.MessageWriter);
@@ -366,14 +365,14 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     // Some tasks may be cancelled due to legitimate
                     // timeouts so don't let those exceptions go higher.
-                    Logger.Write(TraceEventType.Verbose, string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
+                    Logger.Verbose(string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
                 }
                 catch (Exception e)
                 {
                     if (!(e is AggregateException exception && exception.InnerExceptions[0] is TaskCanceledException))
                     {
                         // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
-                        Logger.Write(TraceEventType.Error, string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
+                        Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
                     }
                 }
             }

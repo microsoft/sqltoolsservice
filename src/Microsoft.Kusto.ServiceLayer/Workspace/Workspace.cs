@@ -15,7 +15,6 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.Kusto.ServiceLayer.Workspace.Contracts;
 using System.Runtime.InteropServices;
 using Microsoft.Kusto.ServiceLayer.Utility;
-using System.Diagnostics;
 
 namespace Microsoft.Kusto.ServiceLayer.Workspace
 {
@@ -125,7 +124,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
                     this.workspaceFiles.Add(keyName, scriptFile);
                 }
 
-                Logger.Write(TraceEventType.Verbose, "Opened file on disk: " + resolvedFile.FilePath);
+                Logger.Verbose("Opened file on disk: " + resolvedFile.FilePath);
             }
 
             return scriptFile;
@@ -190,7 +189,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
                 canReadFromDisk = resolvedFile.CanReadFromDisk;
             }
 
-            Logger.Write(TraceEventType.Verbose, "Resolved path: " + clientUri);
+            Logger.Verbose("Resolved path: " + clientUri);
 
             return new ResolvedFile(filePath, clientUri, canReadFromDisk);
         }
@@ -238,7 +237,7 @@ namespace Microsoft.Kusto.ServiceLayer.Workspace
 
                 this.workspaceFiles.Add(keyName, scriptFile);
 
-                Logger.Write(TraceEventType.Verbose, "Opened file as in-memory buffer: " + resolvedFile.FilePath);
+                Logger.Verbose("Opened file as in-memory buffer: " + resolvedFile.FilePath);
             }
 
             return scriptFile;

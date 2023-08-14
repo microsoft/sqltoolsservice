@@ -15,7 +15,6 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -55,7 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         public async Task HandleCreateCentralManagementServerRequest(CreateCentralManagementServerParams createCmsParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleCreateCentralManagementServerRequest");
+            Logger.Verbose("HandleCreateCentralManagementServerRequest");
             CmsTask = Task.Run(async () =>
             {
                 try
@@ -83,7 +82,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         public async Task HandleAddRegisteredServerRequest(AddRegisteredServerParams cmsCreateParams, RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleAddRegisteredServerRequest");
+            Logger.Verbose("HandleAddRegisteredServerRequest");
             CmsTask = Task.Run(async () =>
             {
                 try
@@ -117,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         public async Task HandleListRegisteredServersRequest(ListRegisteredServersParams listServerParams, RequestContext<ListRegisteredServersResult> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleListRegisteredServersRequest");
+            Logger.Verbose("HandleListRegisteredServersRequest");
             CmsTask = Task.Run(async () =>
             {
                 try
@@ -148,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         public async Task HandleRemoveRegisteredServerRequest(RemoveRegisteredServerParams removeServerParams, RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleRemoveServerRequest");
+            Logger.Verbose("HandleRemoveServerRequest");
             CmsTask = Task.Run(async () =>
             {
                 try
@@ -181,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         public async Task HandleAddServerGroupRequest(AddServerGroupParams addServerGroupParams, RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleAddServerGroupRequest");
+            Logger.Verbose("HandleAddServerGroupRequest");
             CmsTask = Task.Run(async () =>
             {
                 try
@@ -222,7 +221,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Cms
 
         public async Task HandleRemoveServerGroupRequest(RemoveServerGroupParams removeServerGroupParams, RequestContext<bool> requestContext)
         {
-            Logger.Write(TraceEventType.Verbose, "HandleRemoveServerGroupRequest");
+            Logger.Verbose("HandleRemoveServerGroupRequest");
             CmsTask = Task.Run(async () =>
             {
                 try

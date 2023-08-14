@@ -174,7 +174,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
 
-                                    if (prototype is DatabasePrototype160) {
+                                    if (prototype is DatabasePrototype160)
+                                    {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     }
                                 }
@@ -240,16 +241,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             {
                                 logins.Add(login.Name);
                             }
-                            // If we don't have a default database owner, then move the current login to the front of the list to use as the default.
-                            string firstOwner = prototype.Exists ? prototype.Owner : dataContainer.Server.ConnectionContext.TrueLogin;
-                            int swapIndex = logins.FindIndex(login => login.Equals(firstOwner, StringComparison.InvariantCultureIgnoreCase));
-                            if (swapIndex > 0)
-                            {
-                                logins.RemoveAt(swapIndex);
-                                logins.Insert(0, firstOwner);
-                            }
+                            // Add <default> to the start of the list in addition to defined logins
+                            logins.Insert(0, SR.general_default);
 
-                            databaseViewInfo.LoginNames = logins.ToArray();
+                            databaseViewInfo.LoginNames = new OptionsCollection() { Options = logins.ToArray(), DefaultValueIndex = 0 };
                         }
 
                         return Task.FromResult(new InitializeViewResult { ViewInfo = databaseViewInfo, Context = context });
@@ -475,7 +470,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null && viewParams.IsNewObject)
+                        if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
                         {
                             prototype.Owner = database.Owner;
                         }
@@ -510,7 +505,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         if (prototype is DatabasePrototype110 db110)
                         {
-                            if (database.TargetRecoveryTimeInSec != null) {
+                            if (database.TargetRecoveryTimeInSec != null)
+                            {
                                 db110.TargetRecoveryTime = (int)database.TargetRecoveryTimeInSec;
                             }
 
@@ -584,56 +580,63 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database collations for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the collations. The first element will be "<default>" if this is either a new database or a Sphinx server.
-        private string[] GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
+        /// <returns>An <see cref="OptionsCollection"/> of the supported collations and the default collation's index.</returns>
+        private OptionsCollection GetCollations(Server server, DatabasePrototype prototype, bool isNewObject)
         {
-            var collationItems = new List<string>();
-            bool isSphinxServer = (server.VersionMajor < minimumVersionForWritableCollation);
-
-            // if the server is shiloh or later, add specific collations to the list
-            if (!isSphinxServer)
+            var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
+            // Writable collations are not supported for Sphinx and earlier
+            if (server.VersionMajor < minimumVersionForWritableCollation)
             {
-                DataTable serverCollationsTable = server.EnumCollations();
+                return options;
+            }
+
+            using (DataTable serverCollationsTable = server.EnumCollations())
+            {
                 if (serverCollationsTable != null)
                 {
+                    var collationItems = new List<string>();
                     foreach (DataRow serverCollation in serverCollationsTable.Rows)
                     {
                         string collationName = (string)serverCollation["Name"];
                         collationItems.Add(collationName);
                     }
+
+                    // If this database already exists, then use its collation as the default value.
+                    // Otherwise use the server's collation as the default value.
+                    string firstCollation = prototype.Exists ? prototype.Collation : server.Collation;
+                    int defaultIndex = collationItems.FindIndex(collation => collation.Equals(firstCollation, StringComparison.InvariantCultureIgnoreCase));
+                    if (defaultIndex > 0)
+                    {
+                        options.DefaultValueIndex = defaultIndex;
+                    }
+                    options.Options = collationItems.ToArray();
                 }
             }
 
-            // If this database already exists, then put its collation at the front of the list.
-            // Otherwise use the server's collation as the default first value.
-            string firstCollation = prototype.Exists ? prototype.Collation : server.Collation;
-            int index = collationItems.FindIndex(collation => collation.Equals(firstCollation, StringComparison.InvariantCultureIgnoreCase));
-            if (index > 0)
-            {
-                collationItems.RemoveAt(index);
-                collationItems.Insert(0, firstCollation);
-            }
-            return collationItems.ToArray();
+            return options;
         }
 
         /// <summary>
         /// Gets the prototype's current collation.
         /// </summary>
-        private string[] GetCollationsWithPrototypeCollation(DatabasePrototype prototype)
+        /// <returns>An <see cref="OptionsCollection"/> of the prototype's collation and the default collation's index.</returns>
+        private OptionsCollection GetCollationsWithPrototypeCollation(DatabasePrototype prototype)
         {
-            return new string[] { prototype.Collation };
+            return new OptionsCollection() { Options = new string[] { prototype.Collation }, DefaultValueIndex = 0 };
         }
 
         /// <summary>
         /// Get supported database containment types for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the containment types. This array is empty if containment types are not supported for this server.</returns>
-        private string[] GetContainmentTypes(Server server, DatabasePrototype prototype)
+        /// <returns>An <see cref="OptionsCollection"/> of the supported containment types and the default containment type's index.</returns>
+        private OptionsCollection GetContainmentTypes(Server server, DatabasePrototype prototype)
         {
+            var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
+
             // Containment types are only supported for Denali and later, and only if the server is not a managed instance
             if (!(SqlMgmtUtils.IsSql11OrLater(server.ServerVersion)) || server.IsAnyManagedInstance())
             {
-                return Array.Empty<string>();
+                return options;
             }
 
             var containmentTypes = new List<string>();
@@ -648,39 +651,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             containmentTypes.Add(displayContainmentTypes[ContainmentType.None]);
             containmentTypes.Add(displayContainmentTypes[ContainmentType.Partial]);
 
-            // Put the prototype's current containment type at the front of the list
-            var swapIndex = 0;
+            // Use the prototype's current containment type as the default value
+            var defaultIndex = 0;
             switch (dbContainmentType)
             {
                 case ContainmentType.None:
                     break;
                 case ContainmentType.Partial:
-                    swapIndex = 1;
+                    defaultIndex = 1;
                     break;
                 default:
                     break;
             }
-            if (swapIndex > 0)
-            {
-                var value = containmentTypes[swapIndex];
-                containmentTypes.RemoveAt(swapIndex);
-                containmentTypes.Insert(0, value);
-            }
-
-            return containmentTypes.ToArray();
+            options.DefaultValueIndex = defaultIndex;
+            options.Options = containmentTypes.ToArray();
+            return options;
         }
 
         /// <summary>
         /// Get supported database recovery models for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the recovery models. This array is empty if recovery models are not supported for this server.</returns>
-        private string[] GetRecoveryModels(Server server, DatabasePrototype prototype)
+        /// <returns>An <see cref="OptionsCollection"/> of the supported recovery models and the default recovery model's index.</returns>
+        private OptionsCollection GetRecoveryModels(Server server, DatabasePrototype prototype)
         {
+            var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
+
             // Recovery models are only supported if the server is shiloh or later and is not a Managed Instance
             var recoveryModelEnabled = (minimumVersionForRecoveryModel <= server.VersionMajor) && !server.IsAnyManagedInstance();
             if (server.GetDisabledProperties().Contains("RecoveryModel") || !recoveryModelEnabled)
             {
-                return Array.Empty<string>();
+                return options;
             }
 
             var recoveryModels = new List<string>();
@@ -705,31 +705,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
 
-            // Put the prototype's current recovery model at the front of the list
-            if (recoveryModelEnabled)
+            // Use the prototype's current recovery model as the default value
+            if (recoveryModels.Count > 1)
             {
-                var swapIndex = 0;
+                var defaultIndex = 0;
                 switch (prototype.RecoveryModel)
                 {
                     case RecoveryModel.BulkLogged:
-                        swapIndex = 1;
+                        defaultIndex = 1;
                         break;
 
                     case RecoveryModel.Simple:
-                        swapIndex = 2;
+                        defaultIndex = 2;
                         break;
 
                     default:
                         break;
                 }
-                if (swapIndex > 0)
-                {
-                    var value = recoveryModels[swapIndex];
-                    recoveryModels.RemoveAt(swapIndex);
-                    recoveryModels.Insert(0, value);
-                }
+                options.DefaultValueIndex = defaultIndex;
             }
-            return recoveryModels.ToArray();
+            options.Options = recoveryModels.ToArray();
+            return options;
         }
 
         private DatabaseFile[] GetDatabaseFiles(Database database)
@@ -764,9 +760,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         /// <summary>
         /// Get supported database compatibility levels for this Azure server.
         /// </summary>
-        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if the database has a compatibility level we don't recognize.</returns>
-        private string[] GetCompatibilityLevelsAzure(DatabasePrototype prototype)
+        /// <returns>An <see cref="OptionsCollection"/> of the supported compatibility levels and the default compatibility level's index.</returns>
+        private OptionsCollection GetCompatibilityLevelsAzure(DatabasePrototype prototype)
         {
+            var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
             // For Azure we loop through all of the possible compatibility levels. We do this because there's only one compat level active on a
             // version at a time, but that can change at any point so in order to reduce maintenance required when that happens we'll just find
             // the one that matches the current set level and display that
@@ -775,26 +772,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 if (level == prototype.DatabaseCompatibilityLevel)
                 {
                     // Azure can't change the compat level so we only include the current version
-                    return new string[] { displayCompatLevels[level] };
+                    options.Options = new string[] { displayCompatLevels[level] };
+                    return options;
                 }
             }
 
             // If we couldn't find the prototype's current compatibility level, then treat compatibillity levels as unsupported for this server
-            return Array.Empty<string>();
+            return options;
         }
 
         /// <summary>
         /// Get supported database compatibility levels for this server.
         /// </summary>
-        /// <returns>A string array containing the display names of the compatibility levels. This array is empty if this is either a Sphinx server or if the database has a compatibility level we don't recognize.</returns>
-        private string[] GetCompatibilityLevels(int sqlServerVersion, DatabasePrototype prototype)
+        /// <returns>An <see cref="OptionsCollection"/> of the supported compatibility levels and the default compatibility level's index.</returns>
+        private OptionsCollection GetCompatibilityLevels(int sqlServerVersion, DatabasePrototype prototype)
         {
+            var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
+
             // Unlikely that we are hitting such an old SQL Server, but leaving to preserve
             // the original semantic of this method.
             if (sqlServerVersion < 8)
             {
                 // we do not know this version number, we do not know the possible compatibility levels for the server
-                return Array.Empty<string>();
+                return options;
             }
 
             var compatibilityLevels = new List<string>();
@@ -861,24 +861,21 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     break;
             }
 
-            // set the first compatability level for this list based on the prototype
+            // set the default compatability level for this list based on the prototype
             for (var i = 0; i < compatibilityLevels.Count; i++)
             {
                 var level = compatibilityLevels[i];
                 var prototypeLevel = displayCompatLevels[prototype.DatabaseCompatibilityLevel];
                 if (level == prototypeLevel)
                 {
-                    if (i > 0)
-                    {
-                        compatibilityLevels.RemoveAt(i);
-                        compatibilityLevels.Insert(0, level);
-                    }
-                    return compatibilityLevels.ToArray();
+                    options.DefaultValueIndex = i;
+                    options.Options = compatibilityLevels.ToArray();
+                    return options;
                 }
             }
 
             // previous loop did not find the prototype compatibility level in this server's compatability options, so treat compatibility levels as unsupported for this server
-            return Array.Empty<string>();
+            return options;
         }
 
         /// <summary>
@@ -891,16 +888,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 if (AzureSqlDbHelper.TryGetServiceObjectiveInfo(edition, out var serviceInfoPair))
                 {
-                    // Move default value to the front of the list
+                    var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
                     var serviceLevelsList = new List<string>(serviceInfoPair.Value);
                     var defaultIndex = serviceInfoPair.Key;
                     if (defaultIndex >= 0 && defaultIndex < serviceLevelsList.Count)
                     {
-                        var defaultServiceObjective = serviceLevelsList[defaultIndex];
-                        serviceLevelsList.RemoveAt(defaultIndex);
-                        serviceLevelsList.Insert(0, defaultServiceObjective);
+                        options.DefaultValueIndex = defaultIndex;
                     }
-                    var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, Details = serviceLevelsList.ToArray() };
+                    options.Options = serviceLevelsList.ToArray();
+                    var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, EditionOptions = options };
                     levels.Add(details);
                 }
                 else
@@ -921,16 +917,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             {
                 if (AzureSqlDbHelper.TryGetDatabaseSizeInfo(edition, out var sizeInfoPair))
                 {
-                    // Move default value to the front of the list
+                    var options = new OptionsCollection() { Options = Array.Empty<string>(), DefaultValueIndex = 0 };
                     var sizeInfoList = new List<DbSize>(sizeInfoPair.Value);
                     var defaultIndex = sizeInfoPair.Key;
                     if (defaultIndex >= 0 && defaultIndex < sizeInfoList.Count)
                     {
-                        var defaultSizeInfo = sizeInfoList[defaultIndex];
-                        sizeInfoList.RemoveAt(defaultIndex);
-                        sizeInfoList.Insert(0, defaultSizeInfo);
+                        options.DefaultValueIndex = defaultIndex;
                     }
-                    var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, Details = sizeInfoList.Select(info => info.ToString()).ToArray() };
+                    options.Options = sizeInfoList.Select(info => info.ToString()).ToArray();
+                    var details = new AzureEditionDetails() { EditionDisplayName = edition.DisplayName, EditionOptions = options };
                     sizes.Add(details);
                 }
                 else

@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlServer.Dac.Model;
@@ -45,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Information, $"Failed to generate model. Error: {ex.Message}");
+                Logger.Information($"Failed to generate model. Error: {ex.Message}");
                 throw;
             }
         }
