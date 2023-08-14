@@ -28,10 +28,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         };
     }
 
-    public class GetPlanSummaryGridViewParams : GetPlanSummaryParams
+    public class GetPlanSummaryGridViewParams : GetPlanSummaryParams, IOrderableQueryParams
     {
         public string OrderByColumnId;
         public bool Descending;
+
+        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     public class GetForcedPlanParams : QueryStoreReportParams

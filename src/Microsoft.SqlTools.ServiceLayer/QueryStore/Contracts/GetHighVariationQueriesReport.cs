@@ -11,9 +11,11 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetHighVariationQueriesReportParams : QueryConfigurationParams<HighVariationConfiguration>
+    public class GetHighVariationQueriesReportParams : QueryConfigurationParams<HighVariationConfiguration>, IOrderableQueryParams
     {
         public TimeInterval TimeInterval;
+        public string OrderByColumnId;
+        public bool Descending;
 
         public override HighVariationConfiguration Convert()
         {
@@ -22,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
             return base.Convert();
         }
+
+        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     /// <summary>

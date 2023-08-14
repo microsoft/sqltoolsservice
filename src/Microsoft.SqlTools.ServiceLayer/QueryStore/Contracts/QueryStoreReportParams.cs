@@ -31,8 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         /// <summary>
         /// Column name by which to order, if any.  Not all query generators involve ordering.
         /// </summary>
-        public string OrderByColumnId;
-        public bool Descending;
+
 
         public override T Convert() => new T()
         {
@@ -52,6 +51,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     public interface IOrderableQueryParams
     {
         string GetOrderByColumnId();
-        bool GetDescending();
     }
 }

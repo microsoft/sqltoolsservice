@@ -11,9 +11,11 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetForcedPlanQueriesReportParams : QueryConfigurationParams<ForcedPlanQueriesConfiguration>
+    public class GetForcedPlanQueriesReportParams : QueryConfigurationParams<ForcedPlanQueriesConfiguration>, IOrderableQueryParams
     {
         public TimeInterval TimeInterval;
+        public string OrderByColumnId;
+        public bool Descending;
 
         public override ForcedPlanQueriesConfiguration Convert()
         {
@@ -22,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
             return config;
         }
+
+        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     /// <summary>

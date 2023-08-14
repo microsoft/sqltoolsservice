@@ -466,14 +466,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
         #region Helpers
 
-        private ColumnInfo GetOrderByColumn<T>(QueryConfigurationParams<T> requestParams, IList<ColumnInfo> columnInfoList) where T : QueryConfigurationBase, new()
+        private ColumnInfo GetOrderByColumn(IOrderableQueryParams requestParams, IList<ColumnInfo> columnInfoList)
         {
-            return requestParams.OrderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.OrderByColumnId) : columnInfoList[0];
-        }
-
-        private ColumnInfo GetOrderByColumn(GetPlanSummaryGridViewParams requestParams, IList<ColumnInfo> columnInfoList)
-        {
-            return requestParams.OrderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.OrderByColumnId) : columnInfoList[0];
+            return requestParams.GetOrderByColumnId() != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.GetOrderByColumnId()) : columnInfoList[0];
         }
 
         private IList<Metric> GetAvailableMetrics(QueryStoreReportParams requestParams)

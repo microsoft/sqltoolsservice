@@ -11,9 +11,11 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetTopResourceConsumersReportParams : QueryConfigurationParams<TopResourceConsumersConfiguration>
+    public class GetTopResourceConsumersReportParams : QueryConfigurationParams<TopResourceConsumersConfiguration>, IOrderableQueryParams
     {
         TimeInterval TimeInterval;
+        public string OrderByColumnId;
+        public bool Descending;
 
         public override TopResourceConsumersConfiguration Convert()
         {
@@ -22,6 +24,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
             return result;
         }
+
+        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     /// <summary>
