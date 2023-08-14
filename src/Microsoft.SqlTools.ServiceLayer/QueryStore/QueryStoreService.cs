@@ -60,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             // Top Resource Consumers report
             serviceHost.SetRequestHandler(GetTopResourceConsumersSummaryRequest.Type, HandleGetTopResourceConsumersSummaryReportRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(GetTopResourceConsumersDetailedSummaryRequest.Type, HandleGetTopResourceConsumersDetailedSummaryReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetTopResourceConsumersDetailedSummaryWithWaitStatsRequest.Type, HandleGetTopResourceConsumersDetailedSummaryWithWaitStatsReportRequest, isParallelProcessingSupported: true);
 
             // Forced Plan Queries report
             serviceHost.SetRequestHandler(GetForcedPlanQueriesReportRequest.Type, HandleGetForcedPlanQueriesReportRequest, isParallelProcessingSupported: true);
@@ -71,7 +70,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             // High Variation Queries report
             serviceHost.SetRequestHandler(GetHighVariationQueriesSummaryRequest.Type, HandleGetHighVariationQueriesSummaryReportRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(GetHighVariationQueriesDetailedSummaryRequest.Type, HandleGetHighVariationQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
-            serviceHost.SetRequestHandler(GetHighVariationQueriesDetailedSummaryWithWaitStatsRequest.Type, HandleGetHighVariationQueriesDetailedSummaryWithWaitStatsReportRequest, isParallelProcessingSupported: true);
 
             // Overall Resource Consumption report
             serviceHost.SetRequestHandler(GetOverallResourceConsumptionReportRequest.Type, HandleGetOverallResourceConsumptionReportRequest, isParallelProcessingSupported: true);
@@ -139,40 +137,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
 
                 string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummary(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
-
-                Dictionary<string, object> sqlParams = new()
-                {
-                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
-                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
-                };
-
-                if (!config.ReturnAllQueries)
-                {
-                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
-                }
-
-                query = PrependSqlParameters(query, sqlParams);
-
-                return new QueryStoreQueryResult()
-                {
-                    Success = true,
-                    ErrorMessage = null,
-                    Query = query
-                };
-            }, requestContext);
-        }
-
-        // TODO: not called directly by UI; probably should be removed, and QSM method reduced to internal
-
-        internal async Task HandleGetTopResourceConsumersDetailedSummaryWithWaitStatsReportRequest(GetTopResourceConsumersReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
-        {
-            await RunWithErrorHandling(() =>
-            {
-                TopResourceConsumersConfiguration config = requestParams.Convert();
-                TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, out IList<ColumnInfo> columns);
-                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
-                
-                string query = TopResourceConsumersQueryGenerator.TopResourceConsumersDetailedSummaryWithWaitStats(GetAvailableMetrics(requestParams), config, orderByColumn, requestParams.Descending, out _);
 
                 Dictionary<string, object> sqlParams = new()
                 {
@@ -291,41 +255,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
                 
                 string query = HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
-
-                Dictionary<string, object> sqlParams = new()
-                {
-                    [QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset,
-                    [QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset
-                };
-
-                if (!config.ReturnAllQueries)
-                {
-                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
-                }
-
-                query = PrependSqlParameters(query, sqlParams);
-
-                return new QueryStoreQueryResult()
-                {
-                    Success = true,
-                    ErrorMessage = null,
-                    Query = query
-                };
-            }, requestContext);
-        }
-
-        // TODO: not called directly by UI; probably should be removed, and QSM method reduced to internal
-
-        internal async Task HandleGetHighVariationQueriesDetailedSummaryWithWaitStatsReportRequest(GetHighVariationQueriesReportParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
-        {
-            await RunWithErrorHandling(() =>
-            {
-                HighVariationConfiguration config = requestParams.Convert();
-                IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
-                HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, out IList<ColumnInfo> columns);
-                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
-                
-                string query = HighVariationQueryGenerator.HighVariationDetailedSummaryWithWaitStats(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
 
                 Dictionary<string, object> sqlParams = new()
                 {
