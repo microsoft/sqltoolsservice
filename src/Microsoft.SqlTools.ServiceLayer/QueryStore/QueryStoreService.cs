@@ -13,6 +13,7 @@ using Microsoft.SqlServer.Management.QueryStoreModel.Common;
 using Microsoft.SqlServer.Management.QueryStoreModel.ForcedPlanQueries;
 using Microsoft.SqlServer.Management.QueryStoreModel.HighVariation;
 using Microsoft.SqlServer.Management.QueryStoreModel.OverallResourceConsumption;
+using Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary;
 using Microsoft.SqlServer.Management.QueryStoreModel.RegressedQueries;
 using Microsoft.SqlServer.Management.QueryStoreModel.TopResourceConsumers;
 using Microsoft.SqlServer.Management.QueryStoreModel.TrackedQueries;
@@ -79,7 +80,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             serviceHost.SetRequestHandler(GetRegressedQueriesDetailedSummaryRequest.Type, HandleGetRegressedQueriesDetailedSummaryReportRequest, isParallelProcessingSupported: true);
 
             // Plan Summary report
-            // TODO
+            serviceHost.SetRequestHandler(GetPlanSummaryChartViewRequest.Type, HandleGetPlanSummaryChartViewRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetPlanSummaryGridViewRequest.Type, HandleGetPlanSummaryGridViewRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(GetForcedPlanRequest.Type, HandleGetForcedPlanRequest, isParallelProcessingSupported: true);
         }
 
         #region Handlers
@@ -176,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
                 if (!config.ReturnAllQueries)
                 {
-                    query = PrependSqlParameters(query, new() { [QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString()});
+                    query = PrependSqlParameters(query, new() { [QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned.ToString() });
                 }
 
                 return new QueryStoreQueryResult()
@@ -220,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 HighVariationConfiguration config = requestParams.Convert();
                 HighVariationQueryGenerator.HighVariationSummary(config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
-                
+
                 string query = HighVariationQueryGenerator.HighVariationSummary(config, orderByColumn, requestParams.Descending, out _);
 
                 Dictionary<string, object> sqlParams = new()
@@ -253,7 +256,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 IList<Metric> availableMetrics = GetAvailableMetrics(requestParams);
                 HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, out IList<ColumnInfo> columns);
                 ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
-                
+
                 string query = HighVariationQueryGenerator.HighVariationDetailedSummary(availableMetrics, config, orderByColumn, requestParams.Descending, out _);
 
                 Dictionary<string, object> sqlParams = new()
@@ -361,11 +364,114 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
         #endregion
 
+        #region Plan Summary report
+
+        internal async Task HandleGetPlanSummaryChartViewRequest(GetPlanSummaryParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                PlanSummaryConfiguration config = requestParams.Convert();
+
+                BucketInterval bucketInterval = BucketInterval.Hour;
+
+                // if interval is specified then select a 'good' interval
+                if (config.UseTimeInterval)
+                {
+                    TimeSpan duration = config.TimeInterval.TimeSpan;
+                    bucketInterval = BucketIntervalUtils.CalculateGoodSubInterval(duration);
+                }
+
+                string query = PlanSummaryQueryGenerator.PlanSummaryChartView(config, bucketInterval, out _);
+
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterQueryId] = config.QueryId
+                };
+
+                if (config.UseTimeInterval)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset;
+                    sqlParams[QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset;
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleGetPlanSummaryGridViewRequest(GetPlanSummaryGridViewParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                PlanSummaryConfiguration config = requestParams.Convert();
+
+                PlanSummaryQueryGenerator.PlanSummaryGridView(config, out IList<ColumnInfo> columns);
+                ColumnInfo orderByColumn = GetOrderByColumn(requestParams, columns);
+
+                string query = PlanSummaryQueryGenerator.PlanSummaryGridView(config, orderByColumn, requestParams.Descending, out _);
+
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterQueryId] = config.QueryId
+                };
+
+                if (config.UseTimeInterval)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterIntervalStartTime] = config.TimeInterval.StartDateTimeOffset;
+                    sqlParams[QueryGeneratorUtils.ParameterIntervalEndTime] = config.TimeInterval.EndDateTimeOffset;
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleGetForcedPlanRequest(GetForcedPlanParams requestParams, RequestContext<QueryStoreQueryResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                string query = PlanSummaryQueryGenerator.GetForcedPlanQuery();
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [QueryGeneratorUtils.ParameterQueryId] = requestParams.QueryId,
+                    [QueryGeneratorUtils.ParameterPlanId] = requestParams.PlanId,
+                };
+
+                query = PrependSqlParameters(query, sqlParams);
+
+                return new QueryStoreQueryResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Query = query
+                };
+            }, requestContext);
+        }
+
+        #endregion
+
         #endregion
 
         #region Helpers
 
         private ColumnInfo GetOrderByColumn<T>(QueryConfigurationParams<T> requestParams, IList<ColumnInfo> columnInfoList) where T : QueryConfigurationBase, new()
+        {
+            return requestParams.OrderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.OrderByColumnId) : columnInfoList[0];
+        }
+
+        private ColumnInfo GetOrderByColumn(GetPlanSummaryGridViewParams requestParams, IList<ColumnInfo> columnInfoList)
         {
             return requestParams.OrderByColumnId != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.OrderByColumnId) : columnInfoList[0];
         }

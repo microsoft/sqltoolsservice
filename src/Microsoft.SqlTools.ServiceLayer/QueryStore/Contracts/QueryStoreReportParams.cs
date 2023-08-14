@@ -48,4 +48,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     {
         public string Query;
     }
+
+    public interface IOrderableQueryParams
+    {
+        string GetOrderByColumnId();
+        bool GetDescending();
+    }
 }
