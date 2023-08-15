@@ -191,7 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
                                     EncryptionEnabled = smoDatabase.EncryptionEnabled,
-                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null,
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
                                 };
 
                                 if (!isAzureDB)
@@ -710,6 +710,23 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 {
                                     currentFile.Removed = true;
                                 }
+                            }
+                        }
+
+                                            // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
+                                            // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
+                                            if (!(smoDscCollection.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary &&
+                                                dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
+                                            {
+                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                                            ? "1" : dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
+                                                            ? "0" : dsc.ValueForSecondary;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                                db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
                             }
                         }
 
