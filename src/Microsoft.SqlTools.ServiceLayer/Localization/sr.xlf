@@ -7156,11 +7156,6 @@ The Query Processor estimates that implementing the following index could improv
         <target state="new">ON</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="prototype_db_prop_databasescopedconfig_value_primary">
-        <source>PRIMARY</source>
-        <target state="new">PRIMARY</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="error_db_prop_invalidleadingColumns">
         <source>For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</source>
         <target state="new">For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns</target>

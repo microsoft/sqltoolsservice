@@ -17,12 +17,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public DatabaseFile[] Files { get; set; }
 
         public bool IsAzureDB { get; set; }
+        public bool IsManagedInstance { get; set; }
+        public bool IsSqlOnDemand { get; set; }
         public string[] AzureBackupRedundancyLevels { get; set; }
         public AzureEditionDetails[] AzureServiceLevelObjectives { get; set; }
         public string[] AzureEditions { get; set; }
         public AzureEditionDetails[] AzureMaxSizes { get; set; }
         public string[] PageVerifyOptions { get; set; }
         public string[] RestrictAccessOptions { get; set; }
+        public string[] DscOnOffOptions { get; set; }
+        public string[] DscElevateOptions { get; set; }
+        public string[] DscEnableDisableOptions { get; set; }
     }
 
     public class AzureEditionDetails

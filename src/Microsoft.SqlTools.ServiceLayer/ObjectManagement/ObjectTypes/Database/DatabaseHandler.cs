@@ -23,7 +23,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 {
-    /// <summary>
+    /// <summary>   
     /// Database object type handler
     /// </summary>
     public class DatabaseHandler : ObjectTypeHandler<DatabaseInfo, DatabaseViewContext>
@@ -44,8 +44,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         internal static readonly string[] AzureEditionNames;
         internal static readonly string[] AzureBackupLevels;
+        internal static readonly string[] DscOnOffOptions;
+        internal static readonly string[] DscElevateOptions;
+        internal static readonly string[] DscEnableDisableOptions;
         internal static readonly AzureEditionDetails[] AzureMaxSizes;
         internal static readonly AzureEditionDetails[] AzureServiceLevels;
+        internal DatabaseScopedConfigurationCollection? databaseScopedConfigurationsCollection = null;
 
         static DatabaseHandler()
         {
@@ -74,6 +78,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Multiple, SR.prototype_db_prop_restrictAccess_value_multiple);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Single, SR.prototype_db_prop_restrictAccess_value_single);
             displayRestrictAccessOptions.Add(DatabaseUserAccess.Restricted, SR.prototype_db_prop_restrictAccess_value_restricted);
+
+            DscOnOffOptions = new[]{
+                CommonConstants.DatabaseScopedConfigurations_Value_On,
+                CommonConstants.DatabaseScopedConfigurations_Value_Off
+            };
+
+            DscElevateOptions = new[]{
+                CommonConstants.DatabaseScopedConfigurations_Value_Off,
+                CommonConstants.DatabaseScopedConfigurations_Value_When_supported,
+                CommonConstants.DatabaseScopedConfigurations_Value_Fail_Unsupported
+            };
+
+            DscEnableDisableOptions = new[]{
+                CommonConstants.DatabaseScopedConfigurations_Value_Enabled,
+                CommonConstants.DatabaseScopedConfigurations_Value_Disabled
+            };
 
             // Set up maps from displayName to enum type so we can retrieve the equivalent enum types later when getting a Save/Script request.
             // We can't use a simple Enum.Parse for that since the displayNames get localized.
@@ -126,11 +146,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         bool isDw = azurePrototype != null && azurePrototype.AzureEdition == AzureEdition.DataWarehouse;
                         bool isAzureDB = dataContainer.Server.ServerType == DatabaseEngineType.SqlAzureDatabase;
                         bool isManagedInstance = dataContainer.Server.DatabaseEngineEdition == DatabaseEngineEdition.SqlManagedInstance;
+                        bool isSqlOnDemand = dataContainer.Server.Information.DatabaseEngineEdition == DatabaseEngineEdition.SqlOnDemand;
 
                         var databaseViewInfo = new DatabaseViewInfo()
                         {
                             ObjectInfo = new DatabaseInfo(),
-                            IsAzureDB = isAzureDB
+                            IsAzureDB = isAzureDB,
+                            IsManagedInstance = isManagedInstance,
+                            IsSqlOnDemand = isSqlOnDemand
                         };
 
                         // Collect the Database properties information
@@ -144,11 +167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     Name = smoDatabase.Name,
                                     CollationName = smoDatabase.Collation,
                                     CompatibilityLevel = displayCompatLevels[smoDatabase.CompatibilityLevel],
-                                    ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType],
-                                    RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel],
                                     DateCreated = smoDatabase.CreateDate.ToString(),
-                                    LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString(),
-                                    LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString(),
                                     MemoryAllocatedToMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryAllocatedToMemoryOptimizedObjectsInKB),
                                     MemoryUsedByMemoryOptimizedObjectsInMb = ByteConverter.ConvertKbtoMb(smoDatabase.MemoryUsedByMemoryOptimizedObjectsInKB),
                                     NumberOfUsers = smoDatabase.Users.Count,
@@ -161,24 +180,39 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     AutoShrink = smoDatabase.AutoShrink,
                                     AutoUpdateStatistics = smoDatabase.AutoUpdateStatisticsEnabled,
                                     AutoUpdateStatisticsAsynchronously = smoDatabase.AutoUpdateStatisticsAsync,
-                                    EncryptionEnabled = smoDatabase.EncryptionEnabled
+                                    EncryptionEnabled = smoDatabase.EncryptionEnabled,
+                                    DatabaseScopedConfigurations = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? GetDSCMetaData(smoDatabase.DatabaseScopedConfigurations) : null
                                 };
 
+                                if (!isAzureDB)
+                                {
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).ContainmentType = displayContainmentTypes[smoDatabase.ContainmentType];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).RecoveryModel = displayRecoveryModels[smoDatabase.RecoveryModel];
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseBackup = smoDatabase.LastBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastBackupDate.ToString();
+                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).LastDatabaseLogBackup = smoDatabase.LastLogBackupDate == DateTime.MinValue ? SR.databaseBackupDate_None : smoDatabase.LastLogBackupDate.ToString();
+                                }
                                 if (!isManagedInstance)
                                 {
                                     databaseViewInfo.PageVerifyOptions = displayPageVerifyOptions.Values.ToArray();
                                     databaseViewInfo.RestrictAccessOptions = displayRestrictAccessOptions.Values.ToArray();
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseReadOnly = smoDatabase.ReadOnly;
                                     ((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess = displayRestrictAccessOptions[smoDatabase.UserAccess];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
-                                    ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                    if (!isAzureDB)
+                                    {
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify = displayPageVerifyOptions[smoDatabase.PageVerify];
+                                        ((DatabaseInfo)databaseViewInfo.ObjectInfo).TargetRecoveryTimeInSec = smoDatabase.TargetRecoveryTime;
+                                    }
 
                                     if (prototype is DatabasePrototype160)
                                     {
                                         ((DatabaseInfo)databaseViewInfo.ObjectInfo).IsLedgerDatabase = smoDatabase.IsLedger;
                                     }
                                 }
+                                databaseScopedConfigurationsCollection = smoDatabase.IsSupportedObject<DatabaseScopedConfiguration>() ? smoDatabase.DatabaseScopedConfigurations : null;
                             }
+                            databaseViewInfo.DscOnOffOptions = DscOnOffOptions;
+                            databaseViewInfo.DscElevateOptions = DscElevateOptions;
+                            databaseViewInfo.DscEnableDisableOptions = DscEnableDisableOptions;
                         }
 
                         // azure sql db doesn't have a sysadmin fixed role
@@ -251,11 +285,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
-                    if (serverConnection.IsOpen)
-                    {
-                        serverConnection.Disconnect();
-                    }
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
         }
@@ -290,45 +320,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             ConnectionInfo connectionInfo = this.GetConnectionInfo(detachParams.ConnectionUri);
             using (var dataContainer = CreateDatabaseDataContainer(detachParams.ConnectionUri, detachParams.ObjectUrn, false, null))
             {
-                var smoDatabase = dataContainer.SqlDialogSubject as Database;
-                if (smoDatabase != null)
+                try
                 {
-                    if (detachParams.GenerateScript)
+                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                    if (smoDatabase != null)
                     {
-                        sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
+                        if (detachParams.GenerateScript)
+                        {
+                            sqlScript = CreateDetachScript(detachParams, smoDatabase.Name);
+                        }
+                        else
+                        {
+                            DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                            try
+                            {
+                                // In order to drop all connections to the database, we switch it to single
+                                // user access mode so that only our current connection to the database stays open.
+                                // Any pending operations are terminated and rolled back.
+                                if (detachParams.DropConnections)
+                                {
+                                    smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
+                                    smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                                }
+                                smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
+                            }
+                            catch (SmoException)
+                            {
+                                // Revert to database's previous user access level if we changed it as part of dropping connections
+                                // before hitting this exception.
+                                if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                                {
+                                    smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                    smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                                }
+                                throw;
+                            }
+                        }
                     }
                     else
                     {
-                        DatabaseUserAccess originalAccess = smoDatabase.DatabaseOptions.UserAccess;
-                        try
-                        {
-                            // In order to drop all connections to the database, we switch it to single
-                            // user access mode so that only our current connection to the database stays open.
-                            // Any pending operations are terminated and rolled back.
-                            if (detachParams.DropConnections)
-                            {
-                                smoDatabase.Parent.KillAllProcesses(smoDatabase.Name);
-                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            smoDatabase.Parent.DetachDatabase(smoDatabase.Name, detachParams.UpdateStatistics);
-                        }
-                        catch (SmoException)
-                        {
-                            // Revert to database's previous user access level if we changed it as part of dropping connections
-                            // before hitting this exception.
-                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
-                            {
-                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
-                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
-                            }
-                            throw;
-                        }
+                        throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
                     }
                 }
-                else
+                finally
                 {
-                    throw new InvalidOperationException($"Provided URN '{detachParams.ObjectUrn}' did not correspond to an existing database.");
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
@@ -355,24 +392,118 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Used to drop the specified database
+        /// </summary>
+        /// <param name="dropParams">The various parameters needed for the Drop operation</param>
+        public string Drop(DropDatabaseRequestParams dropParams)
+        {
+            var sqlScript = string.Empty;
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(dropParams.ConnectionUri);
+            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, dropParams.ObjectUrn, false, null))
+            {
+                try
+                {
+                    var smoDatabase = dataContainer.SqlDialogSubject as Database;
+                    if (smoDatabase != null)
+                    {
+                        var originalAccess = smoDatabase.DatabaseOptions.UserAccess;
+                        var server = smoDatabase.Parent;
+                        var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
+
+                        if (dropParams.GenerateScript)
+                        {
+                            server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                            server.ConnectionContext.CapturedSql.Clear();
+                        }
+
+                        try
+                        {
+                            // In order to drop all connections to the database, we switch it to single
+                            // user access mode so that only our current connection to the database stays open.
+                            // Any pending operations are terminated and rolled back.
+                            if (dropParams.DropConnections)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = SqlServer.Management.Smo.DatabaseUserAccess.Single;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            if (dropParams.DeleteBackupHistory)
+                            {
+                                server.DeleteBackupHistory(smoDatabase.Name);
+                            }
+                            smoDatabase.Drop();
+                            if (dropParams.GenerateScript)
+                            {
+                                var builder = new StringBuilder();
+                                foreach (var scriptEntry in server.ConnectionContext.CapturedSql.Text)
+                                {
+                                    if (scriptEntry != null)
+                                    {
+                                        builder.AppendLine(scriptEntry);
+                                        builder.AppendLine("GO");
+                                    }
+                                }
+                                sqlScript = builder.ToString();
+                            }
+                        }
+                        catch (SmoException)
+                        {
+                            // Revert to database's previous user access level if we changed it as part of dropping connections
+                            // before hitting this exception.
+                            if (originalAccess != smoDatabase.DatabaseOptions.UserAccess)
+                            {
+                                smoDatabase.DatabaseOptions.UserAccess = originalAccess;
+                                smoDatabase.Alter(TerminationClause.RollbackTransactionsImmediately);
+                            }
+                            throw;
+                        }
+                        finally
+                        {
+                            if (dropParams.GenerateScript)
+                            {
+                                server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Provided URN '{dropParams.ObjectUrn}' did not correspond to an existing database.");
+                    }
+                }
+                finally
+                {
+                    dataContainer.ServerConnection.Disconnect();
+                }
+            }
+            return sqlScript;
+        }
+
         private CDataContainer CreateDatabaseDataContainer(string connectionUri, string? objectURN, bool isNewDatabase, string? databaseName)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
-            if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
+            var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
+            try
             {
-                connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
+                {
+                    connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                }
+                CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
+                if (dataContainer.Server == null)
+                {
+                    throw new InvalidOperationException(serverNotExistsError);
+                }
+                if (string.IsNullOrEmpty(objectURN))
+                {
+                    objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
+                }
+                dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
+                return dataContainer;
             }
-            CDataContainer dataContainer = CDataContainer.CreateDataContainer(connectionInfo, databaseExists: !isNewDatabase);
-            if (dataContainer.Server == null)
+            finally
             {
-                throw new InvalidOperationException(serverNotExistsError);
+                connectionInfo.ConnectionDetails.DatabaseName = originalDatabaseName;
             }
-            if (string.IsNullOrEmpty(objectURN))
-            {
-                objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server");
-            }
-            dataContainer.SqlDialogSubject = dataContainer.Server.GetSmoObject(objectURN);
-            return dataContainer;
         }
 
         private string ConfigureDatabase(InitializeViewRequestParams viewParams, DatabaseInfo database, ConfigAction configAction, RunType runType)
@@ -463,6 +594,36 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                 db110.DatabaseContainmentType = containmentTypeEnums[database.ContainmentType];
                             }
                         }
+                        if (prototype is DatabasePrototype130 db130)
+                        {
+                            if (!viewParams.IsNewObject && databaseScopedConfigurationsCollection != null && database.DatabaseScopedConfigurations != null)
+                            {
+                                foreach (DatabaseScopedConfigurationsInfo dsc in database.DatabaseScopedConfigurations)
+                                {
+                                    foreach (DatabaseScopedConfiguration smoDscCollection in databaseScopedConfigurationsCollection)
+                                    {
+                                        if (smoDscCollection.Name == dsc.Name)
+                                        {
+                                            smoDscCollection.Value = dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                                ? "1" : dsc.ValueForPrimary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
+                                                ? "0" : dsc.ValueForPrimary;
+
+                                            // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
+                                            // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
+                                            if (!(smoDscCollection.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary &&
+                                                dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
+                                            {
+                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
+                                                            ? "1" : dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
+                                                            ? "0" : dsc.ValueForSecondary;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                                db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
+                            }
+                        }
 
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
@@ -516,11 +677,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
                 finally
                 {
-                    ServerConnection serverConnection = dataContainer.Server.ConnectionContext;
-                    if (serverConnection.IsOpen)
-                    {
-                        serverConnection.Disconnect();
-                    }
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
         }
@@ -882,6 +1039,52 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
             }
             return sizes.ToArray();
+        }
+
+        /// <summary>
+        /// Prepares database scoped configurations list
+        /// </summary>
+        /// <param name="smoDSCMetaData"></param>
+        /// <returns>database scoped configurations metadata array</returns>
+        private static DatabaseScopedConfigurationsInfo[] GetDSCMetaData(DatabaseScopedConfigurationCollection smoDSCMetaData)
+        {
+            var dscMetaData = new List<DatabaseScopedConfigurationsInfo>();
+            foreach (DatabaseScopedConfiguration dsc in smoDSCMetaData)
+            {
+                string primaryValue = GetDscValue(dsc.Id, dsc.Value);
+                dscMetaData.Add(new DatabaseScopedConfigurationsInfo()
+                {
+                    Id = dsc.Id,
+                    Name = dsc.Name,
+                    ValueForPrimary = primaryValue,
+                    ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary ? primaryValue : GetDscValue(dsc.Id, dsc.ValueForSecondary)
+                });
+            }
+            return dscMetaData.ToArray();
+        }
+
+        /// <summary>
+        /// Gets primary and secondary value of the database scoped configuration property
+        /// </summary>
+        /// <param name="dsc"></param>
+        /// <returns>Value of the primary/secondary</returns>
+        private static string GetDscValue(int id, string value)
+        {
+            // MAXDOP(Id = 1) and PAUSED_RESUMABLE_INDEX_ABORT_DURATION_MINUTES(Id = 25) are integer numbers but coming as string value type and they need to send as is.
+            if (id == 1 || id == 25)
+            {
+                return value;
+            }
+
+            switch (value)
+            {
+                case "1":
+                    return CommonConstants.DatabaseScopedConfigurations_Value_Enabled;
+                case "0":
+                    return CommonConstants.DatabaseScopedConfigurations_Value_Disabled;
+                default:
+                    return value;
+            }
         }
     }
 }

@@ -16,5 +16,14 @@ namespace Microsoft.SqlTools.SqlCore.Utility
         public const string TempDbDatabaseName = "tempdb";
 
         public const string DefaultBatchSeperator = "GO";
+
+        // Database scoped configurations property values
+        public const string DatabaseScopedConfigurations_Value_On = "ON";
+        public const string DatabaseScopedConfigurations_Value_Off = "OFF";
+        public const string DatabaseScopedConfigurations_Value_Primary = "PRIMARY";
+        public const string DatabaseScopedConfigurations_Value_When_supported = "WHEN_SUPPORTED";
+        public const string DatabaseScopedConfigurations_Value_Fail_Unsupported = "FAIL_UNSUPPORTED";
+        public const string DatabaseScopedConfigurations_Value_Enabled = "ENABLED";
+        public const string DatabaseScopedConfigurations_Value_Disabled = "DISABLED";
     }
 }
