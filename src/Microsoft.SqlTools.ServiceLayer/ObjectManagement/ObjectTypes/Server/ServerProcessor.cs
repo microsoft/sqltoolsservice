@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
 {
@@ -15,6 +16,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         public const int MAX64CPU = 64;
         public const int MAX32CPU = 32;
         public const int MAX_IO_CPU_SUPPORTED = 64;
+
+        public BitArray initialIOAffinityArray = new BitArray(64, false);
 
         private static string[] configFields = new string[]
             {
@@ -32,7 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         /// </summary>
         private class Affinity
         {
-
             private int affinityMaskCfg = 0;
             private int affinityMaskRun = 0;
             /// <summary>

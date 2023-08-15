@@ -35,7 +35,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
         private ConfigProperty serverMinMemoryProperty;
         private ConfigProperty serverMaxMemoryProperty;
-        BitArray initialIOAffinityArray;
         #endregion
 
         #region Trace support
@@ -455,7 +454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     SMO.Cpu cpu = nNode.Cpus[cpuCount];
                     if (cpu.GroupID == 0)
                     {
-                        if (initialIOAffinityArray[cpu.ID] == this.NumaNodes[i].Processors[cpuCount].Affinity && initialIOAffinityArray[cpu.ID])
+                        if (this.currentState.AffinityManager.initialIOAffinityArray[cpu.ID] == this.NumaNodes[i].Processors[cpuCount].Affinity && this.currentState.AffinityManager.initialIOAffinityArray[cpu.ID])
                         {
                             //if Current IO affinity is equal to initial cpu.Affinity then script Cpu Affinity first
                             return true;
@@ -537,7 +536,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     if (cpu.GroupID == 0)
                     {
                         finalCpuIOAffinity[cpu.ID] = this.NumaNodes[i].Processors[cpuCount].IOAffinity;
-                        if (initialIOAffinityArray[cpu.ID] != finalCpuIOAffinity[cpu.ID])
+                        if (this.currentState.AffinityManager.initialIOAffinityArray[cpu.ID] != finalCpuIOAffinity[cpu.ID])
                         {
                             if (cpu.ID < AffinityManager.MAX32CPU)
                             {
@@ -634,13 +633,26 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             private Server server;
             private CDataContainer context;
             private ServerConfigService configService;
-            private AffinityManager affinityManager = new AffinityManager();
+            private AffinityManager affinityManager;
             private bool isYukonOrLater = false;
             private bool isSqlServer64Bit;
 
             ConfigProperty serverMaxMemoryProperty;
             ConfigProperty serverMinMemoryProperty;
             #endregion
+
+            public AffinityManager AffinityManager
+            {
+                get
+                { 
+                    return this.affinityManager;
+                }
+
+                set
+                {
+                    this.affinityManager = value;
+                }
+            }
 
             #region Properties
 
@@ -1200,6 +1212,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 this.configService = service;
                 this.isYukonOrLater = (this.server.Information.Version.Major >= 9);
                 this.isSqlServer64Bit = (this.server.Edition.Contains("(64 - bit)"));
+                this.affinityManager = new AffinityManager();
                 this.serverMaxMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MaxServerMemoryPropertyNumber);
                 this.serverMinMemoryProperty = this.configService.GetServerSmoConfig(server, this.configService.MinServerMemoryPropertyNumber);
                 this.minMemory = new NumericServerProperty();
@@ -1296,8 +1309,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         if (cpu.GroupID == 0)
                         {
+                            var ioAffinity = affinityManager.GetAffinity(cpu.ID, true);
+                            if(ioAffinity)
+                            {
+                                affinityManager.initialIOAffinityArray[cpu.ID] = true;
+                            }
                             // get affinityIO info if group id is 0
-                            processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = affinityManager.GetAffinity(cpu.ID, true) });
+                            processors.Add(new ProcessorAffinity() { ProcessorId = cpu.ID.ToString(), Affinity = cpu.AffinityMask, IOAffinity = ioAffinity });
                         }
                     }
                     var result = new NumaNode() { NumaNodeId = node.ID.ToString(), Processors = processors };
