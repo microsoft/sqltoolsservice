@@ -669,7 +669,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
                                     fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
                                     fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
-                                    fileAutogrowth.MaximumFileSizeInMegabytes = (int)file.MaxSizeLimit;
+                                    fileAutogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimit) ? file.MaxSizeLimit : 0.0);
 
                                     // FileStream files do not support file growth
                                     if (fileTypesEnums[file.Type] == FileType.FileStream)
@@ -694,7 +694,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
 
                                             bool isGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
                                             existedFile.Autogrowth.IsEnabled = file.IsAutoGrowthEnabled;
-                                            existedFile.Autogrowth.MaximumFileSizeInMegabytes = (int)file.MaxSizeLimit;
+                                            existedFile.Autogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimit) ? file.MaxSizeLimit : 0.0);
                                             existedFile.Autogrowth.IsGrowthInPercent = isGrowthInPercent;
                                             existedFile.Autogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : existedFile.Autogrowth.GrowthInPercent;
                                             existedFile.Autogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : existedFile.Autogrowth.GrowthInMegabytes;
