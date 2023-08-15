@@ -713,23 +713,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                                            // When sending the DSC seconday value to ADS, we convert the secondaryValue of 'PRIMARY' to match with primaryValue
-                                            // We need to set it back to 'PRIMARY' so that SMO would not generate any unnecessary scripts for unchanged properties
-                                            if (!(smoDscCollection.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Primary &&
-                                                dsc.ValueForPrimary.Equals(dsc.ValueForSecondary)))
-                                            {
-                                                smoDscCollection.ValueForSecondary = dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Enabled
-                                                            ? "1" : dsc.ValueForSecondary == CommonConstants.DatabaseScopedConfigurations_Value_Disabled
-                                                            ? "0" : dsc.ValueForSecondary;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                                db130.DatabaseScopedConfiguration = databaseScopedConfigurationsCollection;
-                            }
-                        }
-
                         // AutoCreateStatisticsIncremental can only be set when AutoCreateStatistics is enabled
                         prototype.AutoCreateStatisticsIncremental = database.AutoCreateIncrementalStatistics;
                         prototype.AutoCreateStatistics = database.AutoCreateStatistics;
@@ -990,7 +973,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         private void GetFileGroupNames(Database database, DatabaseViewInfo databaseViewInfo)
         {
             var rowDataGroups = new List<string>(); ;
-            var fileStreamDataGroups = new List<string>(); ;
+            var fileStreamDataGroups = new List<string>();
             foreach (FileGroup fileGroup in database.FileGroups)
             {
                 if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup)
