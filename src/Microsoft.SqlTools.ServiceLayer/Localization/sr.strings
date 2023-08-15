@@ -2786,7 +2786,6 @@ prototype_db_prop_varDecimalEnabled = VarDecimal Storage Format Enabled
 prototype_db_prop_encryptionEnabled = Encryption Enabled
 prototype_db_prop_databasescopedconfig_value_off = OFF
 prototype_db_prop_databasescopedconfig_value_on = ON
-prototype_db_prop_databasescopedconfig_value_primary = PRIMARY
 error_db_prop_invalidleadingColumns = For the distribution policy HASH, the number of leading hash columns is optional but should be from 1 to 16 columns
 compatibilityLevel_sphinx = SQL Server 7.0 (70)
 compatibilityLevel_shiloh = SQL Server 2000 (80)

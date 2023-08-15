@@ -65,6 +65,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 {
                     this.prototype = new DatabasePrototype160(context);
                 }
+                else if (majorVersionNumber >= 14)
+                {
+                    this.prototype = new DatabasePrototype140(context);
+                }
+                else if (majorVersionNumber == 13)
+                {
+                    this.prototype = new DatabasePrototype130(context);
+                }
                 else if (Utils.IsSql11OrLater(context.Server.Version.Major))
                 {
                     this.prototype = new DatabasePrototype110(context);

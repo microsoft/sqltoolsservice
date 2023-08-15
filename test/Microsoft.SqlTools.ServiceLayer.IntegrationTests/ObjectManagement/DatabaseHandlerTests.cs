@@ -300,6 +300,67 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).AutoUpdateStatisticsAsynchronously, Is.False, $"AutoUpdateStatisticsAsynchronously should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).PageVerify, Is.EqualTo(testDatabase.PageVerify), $"PageVerify should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess, Is.EqualTo(testDatabase.RestrictAccess), $"RestrictAccess should match with testdata");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations, Is.Not.Null, $"DatabaseScopedConfigurations is not null");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations.Count, Is.GreaterThan(0), $"DatabaseScopedConfigurations should have at least a+ few properties");
+
+                    // cleanup
+                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), Is.False, $"Database '{testDatabase.Name}' was not dropped succesfully");
+                }
+                finally
+                {
+                    // Cleanup using SMO if Drop didn't work
+                    DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updating and validating database scoped configurations property values
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task VerifyDatabaseScopedConfigurationsTest()
+        {
+            // setup, drop database if exists.
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+
+                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+                try
+                {
+                    // create database
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+
+                    // Get database properties and verify
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
+                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations, Is.Not.Null, $"DatabaseScopedConfigurations is not null");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations.Count, Is.GreaterThan(0), $"DatabaseScopedConfigurations should have at least a+ few properties");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo("ON"), $"DatabaseScopedConfigurations primary value should match");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForSecondary, Is.EqualTo("ON"), $"DatabaseScopedConfigurations secondary value should match");
+
+                    // Update few database scoped configurations
+                    testDatabase.DatabaseScopedConfigurations = ((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations;
+                    if (testDatabase.DatabaseScopedConfigurations.Length > 0)
+                    {
+                        // ACCELERATED_PLAN_FORCING
+                        testDatabase.DatabaseScopedConfigurations[0].ValueForPrimary = "OFF";
+                        testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary = "OFF";
+                    }
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase); 
+
+                    // verify the modified properties
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForPrimary), $"DSC updated primary value should match");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForSecondary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary), $"DSC updated Secondary value should match");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
