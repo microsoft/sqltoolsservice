@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         /// <returns>Mask for numProcessors</returns>
         private int GetMaskAllProcessors(int numProcessors)
         {
-            if (numProcessors < 32)
+            if (numProcessors < MAX32CPU)
             {
                 try
                 {
@@ -93,13 +93,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         /// false: some other CPU than processorNumber is having affinity bit set.</return>
         public bool IsThisLastSelectedProcessor(int processorNumber)
         {
-            if (processorNumber < 32)
+            if (processorNumber < MAX32CPU)
             {
                 return (affinity.AffinityMaskCfg == (1 << processorNumber)) && (affinity64.AffinityMaskCfg == 0);
             }
             else
             {
-                return (affinity64.AffinityMaskCfg == (1 << (processorNumber - 32))) && (affinity.AffinityMaskCfg == 0);
+                return (affinity64.AffinityMaskCfg == (1 << (processorNumber - MAX32CPU))) && (affinity.AffinityMaskCfg == 0);
             }
         }
 
@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         public bool GetAffinity(int processorNumber, bool showConfigValues)
         {
             int aux = 0, mask = 0;
-            if (processorNumber < 32)
+            if (processorNumber < MAX32CPU)
             {
                 aux = showConfigValues ? affinity.AffinityMaskCfg : affinity.AffinityMaskRun;
                 mask = 1 << processorNumber;
@@ -150,7 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
             else
             {
                 aux = showConfigValues ? affinity64.AffinityMaskCfg : affinity64.AffinityMaskRun;
-                mask = 1 << (processorNumber - 32);
+                mask = 1 << (processorNumber - MAX32CPU);
             }
 
             return (aux & mask) != 0;
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
         {
             int mask = 0;
 
-            if (processorNumber < 32)
+            if (processorNumber < MAX32CPU)
             {
                 mask = 1 << processorNumber;
                 if (affinityEnabled)
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.ObjectTypes.Server
             }
             else
             {
-                mask = 1 << (processorNumber - 32);
+                mask = 1 << (processorNumber - MAX32CPU);
                 if (affinityEnabled)
                 {
                     affinity64.AffinityMaskCfg |= mask;
