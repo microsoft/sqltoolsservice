@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
     /// <summary>
     /// Main class for SqlProjects service
     /// </summary>
-    public sealed class QueryStoreService : BaseService
+    public class QueryStoreService : BaseService
     {
         private static readonly Lazy<QueryStoreService> instance = new Lazy<QueryStoreService>(() => new QueryStoreService());
 
@@ -471,7 +472,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             return requestParams.GetOrderByColumnId() != null ? columnInfoList.First(col => col.GetQueryColumnLabel() == requestParams.GetOrderByColumnId()) : columnInfoList[0];
         }
 
-        private IList<Metric> GetAvailableMetrics(QueryStoreReportParams requestParams)
+        internal virtual IList<Metric> GetAvailableMetrics(QueryStoreReportParams requestParams)
         {
             ConnectionService.TryFindConnection(requestParams.ConnectionOwnerUri, out ConnectionInfo connectionInfo);
 
@@ -488,20 +489,55 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             }
         }
 
-        private string PrependSqlParameters(string query, Dictionary<string, object> sqlParams)
+        /// <summary>
+        /// Prepends declarations and definitions of <paramref name="sqlParams"/> to <paramref name="query"/>
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="sqlParams"></param>
+        /// <returns></returns>
+        private static string PrependSqlParameters(string query, Dictionary<string, object> sqlParams)
         {
             StringBuilder sb = new StringBuilder();
 
             foreach (string key in sqlParams.Keys)
             {
                 // TODO: convert the object to TSQL representation correctly (e.g. DECLARE @topCount INT = 999)
-                sb.AppendLine($"DECLARE {key} {"TODO"} = {sqlParams[key]};");
+                sb.AppendLine($"DECLARE {key} {GetTSqlRepresentation(sqlParams[key])};");
             }
 
             sb.AppendLine();
             sb.AppendLine(query);
 
             return sb.ToString().Trim();
+        }
+
+        private static HashSet<Type> types = new HashSet<Type>();
+
+        /// <summary>
+        /// Converts an object (that would otherwise be set as a SqlParameter value) to an entirely TSQL representation.
+        /// Only handles the same subset of object types that Query Store query generators use:
+        /// int, long, string, and DateTimeOffset
+        /// </summary>
+        /// <param name="paramValue"></param>
+        /// <returns>data type and value portions of a parameter declaration, in the form "INT = 999"</returns>
+        internal static string GetTSqlRepresentation(object paramValue)
+        {
+            types.Add(paramValue.GetType());
+
+            switch (paramValue)
+            {
+                case int i:
+                    return $"INT = {i}";
+                case long l:
+                    return $"BIGINT = {l}";
+                case string s:
+                    return $"VARCHAR(max) = {s}";
+                case DateTimeOffset dto:
+                    return $"DATETIMEOFFSET = {dto.ToString()}";
+                default:
+                    Debug.Fail($"Unhandled TSQL parameter type: '{paramValue.GetType()}'");
+                    return $"= {paramValue}";
+            }
         }
 
         #endregion
