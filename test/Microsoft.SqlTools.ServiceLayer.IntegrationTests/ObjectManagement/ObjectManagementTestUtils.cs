@@ -6,13 +6,17 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Azure.Management.Sql.Models;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Moq;
 using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -102,6 +106,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 DefaultDatabase = "master",
                 SecurablePermissions = new SecurablePermissions[0]
             };
+        }
+
+        internal static DatabaseFile[] GetTestDatabaseFiles()
+        {
+            List<DatabaseFile> databaseFiles = new List<DatabaseFile>() {
+                new DatabaseFile() {
+                        Id = 0,
+                        Name = "TestDatabaseName_File1_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                        Type = "LOG",
+                        AutoFileGrowth = 100,
+                        AutoFileGrowthType = "KB",
+                        FileGroup = "Not Applicable",
+                        FileNameWithExtension = "TestDatabaseName_File1_" + new Random().NextInt64(10000000, 90000000).ToString() +".ndf",
+                        SizeInMb = 10,
+                        IsAutoGrowthEnabled = true,
+                        MaxSizeLimit = -1,
+                        Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA"
+                    },
+                new DatabaseFile() {
+                        Id = 0,
+                        Name = "TestDatabaseName_File2_" + new Random().NextInt64(10000000, 90000000).ToString(),
+                        Type = "ROWS Data",
+                        AutoFileGrowth = 120,
+                        AutoFileGrowthType = "KB",
+                        FileGroup = "PRIMARY",
+                        FileNameWithExtension = "TestDatabaseName_File2_" + new Random().NextInt64(10000000, 90000000).ToString() +".ndf",
+                        SizeInMb = 12,
+                        IsAutoGrowthEnabled = true,
+                        MaxSizeLimit = -1,
+                        Path = "E:\\SQLDIRS\\IN\\MSSQL15.MSSQLSERVER\\MSSQL\\DATA"
+                    }};
+            return databaseFiles.ToArray();
         }
 
         internal static UserInfo GetTestUserInfo(DatabaseUserType userType, string userName = null, string loginName = null)

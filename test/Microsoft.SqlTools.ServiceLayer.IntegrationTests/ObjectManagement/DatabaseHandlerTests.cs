@@ -18,6 +18,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper;
+using DatabaseFile = Microsoft.SqlTools.ServiceLayer.ObjectManagement.DatabaseFile;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {
@@ -302,6 +303,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).RestrictAccess, Is.EqualTo(testDatabase.RestrictAccess), $"RestrictAccess should match with testdata");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations, Is.Not.Null, $"DatabaseScopedConfigurations is not null");
                     Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).DatabaseScopedConfigurations.Count, Is.GreaterThan(0), $"DatabaseScopedConfigurations should have at least a+ few properties");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(2), $"Create database should create two database files");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0].Type, Is.EqualTo("ROWS Data"), $"Database files first file should be Row type database files");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1].Type, Is.EqualTo("LOG"), $"Database files first file should be Log type database files");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
@@ -356,11 +360,95 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                         testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary = "OFF";
                     }
                     await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
-                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase); 
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
 
                     // verify the modified properties
                     Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForPrimary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForPrimary), $"DSC updated primary value should match");
                     Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).DatabaseScopedConfigurations[0].ValueForSecondary, Is.EqualTo(testDatabase.DatabaseScopedConfigurations[0].ValueForSecondary), $"DSC updated Secondary value should match");
+
+                    // cleanup
+                    await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), Is.False, $"Database '{testDatabase.Name}' was not dropped succesfully");
+                }
+                finally
+                {
+                    // Cleanup using SMO if Drop didn't work
+                    DropDatabase(server, testDatabase.Name!);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adding, modifying and deleting database files
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task VerifyDatabaseFilesTest()
+        {
+            // setup, drop database if exists.
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", serverType: TestServerType.OnPrem);
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+
+                var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
+                var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);
+                await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn);
+
+                try
+                {
+                    // create database
+                    var parametersForCreation = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                    await ObjectManagementTestUtils.SaveObject(parametersForCreation, testDatabase);
+                    Assert.That(DatabaseExists(testDatabase.Name!, server), $"Expected database '{testDatabase.Name}' was not created succesfully");
+
+                    // Get database properties and verify
+                    var parametersForUpdate = ObjectManagementTestUtils.GetInitializeViewRequestParams(connectionResult.ConnectionInfo.OwnerUri, testDatabase.Name, false, SqlObjectType.Database, "", objUrn);
+                    DatabaseViewInfo databaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(2), $"Create database should create two database files");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0].Type, Is.EqualTo("ROWS Data"), $"Database files first file should be Row type database files");
+                    Assert.That(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1].Type, Is.EqualTo("LOG"), $"Database files first file should be Log type database files");
+
+                    List<DatabaseFile> databaseFile = new List<DatabaseFile>();
+
+                    // copy exisitng Row data files to the list
+                    databaseFile.Add(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[0]);
+                    databaseFile.Add(((DatabaseInfo)databaseViewInfo.ObjectInfo).Files[1]);
+
+                    // Update existing file
+                    databaseFile[0].SizeInMb = 15; // size modified from 8 to 15
+                    databaseFile[0].AutoFileGrowth = 74; // size modified from 64 to 74
+
+                    // Add new Files of Row and Log types
+                    var testDatabaseFiles = ObjectManagementTestUtils.GetTestDatabaseFiles();
+                    databaseFile.AddRange(testDatabaseFiles);
+
+                    // Attaching the files to the testdatabase
+                    testDatabase.Files = databaseFile.ToArray();
+
+                    // Validate the result files
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
+                    DatabaseViewInfo updatedDatabaseViewInfo = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+
+                    // verify the modified properties
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files.Count, Is.EqualTo(4), $"Two files should exists, as we modified one and added two files");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[0].SizeInMb, Is.EqualTo(15), $"Files updated value should match");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[0].AutoFileGrowth, Is.EqualTo(74), $"Files updated value should match");
+
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[1].Id, Is.Not.EqualTo(0), $"Newly created file should have an Id");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[1].Name, Is.EqualTo(testDatabaseFiles[1].Name), $"Files updated value should match");
+
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[3].Id, Is.Not.EqualTo(0), $"Newly created file should have an Id");
+                    Assert.That(((DatabaseInfo)updatedDatabaseViewInfo.ObjectInfo).Files[3].Name, Is.EqualTo(testDatabaseFiles[0].Name), $"Files updated value should match");
+
+                    // Deleting newly created file
+                    databaseFile.RemoveAt(3);
+                    testDatabase.Files = databaseFile.ToArray();
+                    
+                    // Validate the result files
+                    await ObjectManagementTestUtils.SaveObject(parametersForUpdate, testDatabase);
+                    DatabaseViewInfo databaseViewInfoAfterFileDelete = await ObjectManagementTestUtils.GetDatabaseObject(parametersForUpdate, testDatabase);
+                    Assert.That(((DatabaseInfo)databaseViewInfoAfterFileDelete.ObjectInfo).Files.Count, Is.EqualTo(3), $"Should have only 3 files as we removed one");
 
                     // cleanup
                     await ObjectManagementTestUtils.DropObject(connectionResult.ConnectionInfo.OwnerUri, objUrn, throwIfNotExist: true);
