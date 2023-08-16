@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetTopResourceConsumersReportParams : QueryConfigurationParams<TopResourceConsumersConfiguration>, IOrderableQueryParams
     {
-        TimeInterval TimeInterval;
+        public TimeInterval TimeInterval;
         public string OrderByColumnId;
         public bool Descending;
 

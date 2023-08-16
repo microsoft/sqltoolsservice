@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         public override PlanSummaryConfiguration Convert() => new()
         {
             QueryId = QueryId,
+            //TimeIntervalMode = TimeIntervalMode
             TimeInterval = TimeInterval,
             SelectedMetric = SelectedMetric,
             SelectedStatistic = SelectedStatistic

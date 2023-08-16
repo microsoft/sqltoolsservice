@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -501,7 +502,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 
             foreach (string key in sqlParams.Keys)
             {
-                // TODO: convert the object to TSQL representation correctly (e.g. DECLARE @topCount INT = 999)
                 sb.AppendLine($"DECLARE {key} {GetTSqlRepresentation(sqlParams[key])};");
             }
 
@@ -531,9 +531,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 case long l:
                     return $"BIGINT = {l}";
                 case string s:
-                    return $"VARCHAR(max) = {s}";
+                    return $"NVARCHAR(max) = N'{s}'"; // TODO: escape
                 case DateTimeOffset dto:
-                    return $"DATETIMEOFFSET = {dto.ToString()}";
+                    return $"DATETIMEOFFSET = '{dto.ToString("O", CultureInfo.InvariantCulture)}'"; // "O" = ISO 8601 standard datetime format
                 default:
                     Debug.Fail($"Unhandled TSQL parameter type: '{paramValue.GetType()}'");
                     return $"= {paramValue}";
