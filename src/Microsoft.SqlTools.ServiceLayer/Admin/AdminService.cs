@@ -168,7 +168,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             {
                 ConnectionInfo connInfo;
                 AdminService.ConnectionServiceInstance.TryFindConnection(
-                        databaseParams.OwnerUri,
+                        databaseParams.ConnectionUri,
                         out connInfo);
                 using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
                 {

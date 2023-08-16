@@ -15,9 +15,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin.Contracts
     public class GetDataFolderParams
     {
         /// <summary>
-        /// Uri identifier for the connection to get the server folder info for
+        /// URI identifier for the connection to get the server folder info for
         /// </summary>
-        public string OwnerUri { get; set; }
+        public string ConnectionUri { get; set; }
     }
 
     /// <summary>
