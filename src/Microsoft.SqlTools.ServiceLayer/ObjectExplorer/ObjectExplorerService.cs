@@ -23,15 +23,15 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.SqlCore.ObjectExplorer;
-using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 {
