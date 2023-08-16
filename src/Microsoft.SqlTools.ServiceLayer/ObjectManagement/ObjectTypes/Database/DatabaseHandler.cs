@@ -655,7 +655,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     newFile.Folder = file.Path;
                                     newFile.DatabaseFileType = fileTypesEnums[file.Type];
 
-                                    // Log file doesn't support file groups
+                                    // Log file do not support file groups
                                     if (fileTypesEnums[file.Type] != FileType.Log)
                                     {
                                         FilegroupPrototype fileGroup = new FilegroupPrototype(prototype);
@@ -681,7 +681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     // Add newFile to the prototype files
                                     prototype.Files.Add(newFile);
                                 }
-                                // Edit file properties
+                                // Edit file properties: updating the existed files with modified data
                                 else
                                 {
                                     foreach(var existedFile in prototype.Files)
@@ -703,6 +703,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     }
                                 }
                             }
+
                             // Remove the file
                             foreach(var currentFile in prototype.Files)
                             {
