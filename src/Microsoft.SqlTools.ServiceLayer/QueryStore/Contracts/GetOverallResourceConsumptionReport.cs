@@ -13,8 +13,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetOverallResourceConsumptionReportParams : QueryConfigurationParams<OverallResourceConsumptionConfiguration>
     {
-        TimeInterval SpecifiedTimeInterval;
-        BucketInterval SpecifiedBucketInterval;
+        public TimeInterval SpecifiedTimeInterval;
+        public BucketInterval SpecifiedBucketInterval;
 
         public override OverallResourceConsumptionConfiguration Convert()
         {

@@ -22,7 +22,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         private const string TestConnectionOwnerUri = "FakeConnectionOwnerUri";
         private static DateTimeOffset TestWindowStart = DateTimeOffset.Parse("6/10/2023 12:34:56 PM -07:00");
         private static DateTimeOffset TestWindowEnd = TestWindowStart.AddDays(7);
+        private static DateTimeOffset TestWindowRecentStart = TestWindowEnd.AddHours(-1);
         private static TimeInterval TestTimeInterval { get => new TimeInterval(TestWindowStart, TestWindowEnd); }
+        private static TimeInterval RecentTestTimeInterval { get => new TimeInterval(TestWindowRecentStart, TestWindowEnd); }
 
         [Test]
         public async Task TopResourceConsumers()
@@ -79,7 +81,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 OrderByColumnId = "query_id",
                 Descending = true,
                 MinNumberOfQueryPlans = 1,
-                TopQueriesReturned = 50
+                TopQueriesReturned = 50,
+                TimeInterval = TestTimeInterval
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetForcedPlanQueriesReportRequest));
@@ -116,7 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 OrderByColumnId = "query_id",
                 Descending = true,
                 MinNumberOfQueryPlans = 1,
-                TopQueriesReturned = 50
+                TopQueriesReturned = 50,
+                TimeInterval = TestTimeInterval
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetHighVariationQueriesSummaryReportRequest));
@@ -132,7 +136,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 OrderByColumnId = "query_id",
                 Descending = true,
                 MinNumberOfQueryPlans = 1,
-                TopQueriesReturned = 50
+                TopQueriesReturned = 50,
+                TimeInterval = TestTimeInterval
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetHighVariationQueriesDetailedSummaryReportRequest));
@@ -152,7 +157,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev,
                 MinNumberOfQueryPlans = 1,
-                TopQueriesReturned = 50
+                TopQueriesReturned = 50,
+                SpecifiedTimeInterval = TestTimeInterval,
+                SpecifiedBucketInterval = BucketInterval.Hour
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetOverallResourceConsumptionReportRequest));
@@ -172,7 +179,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev,
                 MinNumberOfQueryPlans = 1,
-                TopQueriesReturned = 50
+                TopQueriesReturned = 50,
+                MinExecutionCount = 1,
+                TimeIntervalHistory = TestTimeInterval,
+                TimeIntervalRecent = RecentTestTimeInterval
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetRegressedQueriesSummaryReportRequest));
@@ -186,7 +196,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev,
                 MinNumberOfQueryPlans = 1,
-                TopQueriesReturned = 50
+                TopQueriesReturned = 50,
+                MinExecutionCount = 1,
+                TimeIntervalHistory = TestTimeInterval,
+                TimeIntervalRecent = RecentTestTimeInterval
             }, request.Object);
 
             request.AssertSuccess(nameof(service.HandleGetRegressedQueriesDetailedSummaryReportRequest));
@@ -203,6 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 QueryId = 97,
+                TimeInterval = TestTimeInterval,
                 //TimeIntervalMode = TimeIntervalMode.SpecifiedRange, // TODO: uncomment once new QSM package is brought in
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev
@@ -216,10 +230,11 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
             {
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 QueryId = 97,
+                TimeInterval = TestTimeInterval,
                 //TimeIntervalMode = TimeIntervalMode.SpecifiedRange, // TODO: uncomment once new QSM package is brought in
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev,
-                OrderByColumnId = "object_id",
+                OrderByColumnId = "count_executions",
                 Descending = true
             }, request.Object);
 

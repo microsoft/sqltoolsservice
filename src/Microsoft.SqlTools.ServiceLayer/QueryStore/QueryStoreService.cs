@@ -355,6 +355,22 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 RegressedQueriesConfiguration config = requestParams.Convert();
                 string query = RegressedQueriesQueryGenerator.RegressedQueryDetailedSummary(GetAvailableMetrics(requestParams), config, out _);
 
+                Dictionary<string, object> sqlParams = new()
+                {
+                    [RegressedQueriesQueryGenerator.ParameterRecentStartTime] = config.TimeIntervalRecent.StartDateTimeOffset,
+                    [RegressedQueriesQueryGenerator.ParameterRecentEndTime] = config.TimeIntervalRecent.EndDateTimeOffset,
+                    [RegressedQueriesQueryGenerator.ParameterHistoryStartTime] = config.TimeIntervalHistory.StartDateTimeOffset,
+                    [RegressedQueriesQueryGenerator.ParameterHistoryEndTime] = config.TimeIntervalHistory.EndDateTimeOffset,
+                    [RegressedQueriesQueryGenerator.ParameterMinExecutionCount] = config.MinExecutionCount
+                };
+
+                if (!config.ReturnAllQueries)
+                {
+                    sqlParams[QueryGeneratorUtils.ParameterResultsRowCount] = config.TopQueriesReturned;
+                }
+
+                query = PrependSqlParameters(query, sqlParams);
+
                 return new QueryStoreQueryResult()
                 {
                     Success = true,

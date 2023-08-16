@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
             HighVariationConfiguration config = base.Convert();
             config.TimeInterval = TimeInterval;
 
-            return base.Convert();
+            return config;
         }
 
         public string GetOrderByColumnId() => OrderByColumnId;
