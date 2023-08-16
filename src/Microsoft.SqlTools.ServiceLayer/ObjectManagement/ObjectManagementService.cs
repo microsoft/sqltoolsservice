@@ -156,7 +156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 }
 
                 SearchableObjectTypeDescription desc = SearchableObjectTypeDescription.GetDescription(searchableObjectType);
-                
+
                 if (desc.IsDatabaseObject)
                 {
                     if (!string.IsNullOrEmpty(requestParams.Schema))
@@ -213,7 +213,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
             var sqlScript = handler.Attach(requestParams);
         }
-        
+
         internal async Task HandleDropDatabaseRequest(DropDatabaseRequestParams requestParams, RequestContext<string> requestContext)
         {
             var handler = this.GetObjectTypeHandler(SqlObjectType.Database) as DatabaseHandler;
