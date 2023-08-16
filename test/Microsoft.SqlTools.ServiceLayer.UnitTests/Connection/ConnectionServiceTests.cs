@@ -1498,7 +1498,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
+        public void GetOrOpenNullOwnerUri([Values(null, "")] string ownerUri)
         {
             // If: I have a connection service and I ask for a connection with an invalid ownerUri
             // Then: An exception should be thrown
@@ -1508,7 +1508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNullConnectionType([Values(null, "")] string connType)
+        public void GetOrOpenNullConnectionType([Values(null, "")] string connType)
         {
             // If: I have a connection service and I ask for a connection with an invalid connectionType
             // Then: An exception should be thrown
@@ -1518,7 +1518,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNoConnection()
+        public void GetOrOpenNoConnection()
         {
             // If: I have a connection service and I ask for a connection for an unconnected uri
             // Then: An exception should be thrown
@@ -1528,7 +1528,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenNoDefaultConnection()
+        public void GetOrOpenNoDefaultConnection()
         {
             // Setup: Create a connection service with an empty connection info obj
             var service = TestObjects.GetTestConnectionService();
@@ -1542,7 +1542,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public async Task GetOrOpenAdminDefaultConnection()
+        public void GetOrOpenAdminDefaultConnection()
         {
             // Setup: Create a connection service with an empty connection info obj
             var service = TestObjects.GetTestConnectionService();
@@ -1883,7 +1883,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Verify that providing an empty password to change password will fire an error. 
         /// </summary>
         [Test]
-        public async Task ConnectionEmptyPasswordChange()
+        public void ConnectionEmptyPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
@@ -1905,7 +1905,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Verify that providing an invalid connection parameter value to change password will fire an error. 
         /// </summary>
         [Test]
-        public async Task ConnectionInvalidParamPasswordChange()
+        public void ConnectionInvalidParamPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 
@@ -1927,7 +1927,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// Verify that providing a non actual connection and a fake password to change password will throw an error. 
         /// </summary>
         [Test]
-        public async Task InvalidConnectionPasswordChange()
+        public void InvalidConnectionPasswordChange()
         {
             var serviceHostMock = new Mock<IProtocolEndpoint>();
 

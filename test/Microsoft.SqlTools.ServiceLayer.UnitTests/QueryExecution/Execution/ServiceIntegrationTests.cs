@@ -148,7 +148,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         #region Inter-Service API Tests
 
         [Test]
-        public async Task InterServiceExecuteNullExecuteParams()
+        public void InterServiceExecuteNullExecuteParams()
         {
             // Setup: Create a query service
             var qes = new QueryExecutionService(null, null);
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task InterServiceExecuteNullEventSender()
+        public void InterServiceExecuteNullEventSender()
         {
             // Setup: Create a query service, and execute params
             var qes = new QueryExecutionService(null, null);
@@ -175,7 +175,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task InterServiceDisposeNullSuccessFunc()
+        public void InterServiceDisposeNullSuccessFunc()
         {
             // Setup: Create a query service and dispose params
             var qes = new QueryExecutionService(null, null);
@@ -188,7 +188,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
-        public async Task InterServiceDisposeNullFailureFunc()
+        public void InterServiceDisposeNullFailureFunc()
         {
             // Setup: Create a query service and dispose params
             var qes = new QueryExecutionService(null, null);

@@ -12,8 +12,6 @@ using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -82,17 +80,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         #endregion
 
         #region DbDataReader Methods
-
-        /// <summary>
-        /// Pass-through to DbDataReader.ReadAsync()
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token to use for cancelling a query</param>
-        /// <returns></returns>
-        [Obsolete("Deprecated due to performance issues, please use Read() instead.")]
-        public Task<bool> ReadAsync(CancellationToken cancellationToken)
-        {
-            return DbDataReader.ReadAsync(cancellationToken);
-        }
 
         /// <summary>
         /// Pass-through to DbDataReader.Read()
