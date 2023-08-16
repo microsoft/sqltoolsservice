@@ -92,8 +92,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
                 var originalMaxMemory = result.MaxServerMemory.Value;
 
                 // Change memory settings
-                serverInfo.MinServerMemory.Value = 10;
-                serverInfo.MaxServerMemory.Value = 500;
+                serverInfo.MinServerMemory.Value = serverInfo.MinServerMemory.MinimumValue;
+                serverInfo.MaxServerMemory.Value = serverInfo.MaxServerMemory.MaximumValue;
 
                 Assert.That(result.MinServerMemory.Value, Is.Not.EqualTo(serverInfo.MinServerMemory.Value), "Server property should not be equal after update");
                 Assert.That(result.MaxServerMemory.Value, Is.Not.EqualTo(serverInfo.MaxServerMemory.Value), "Server property should not be equal after update");
