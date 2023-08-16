@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Properties used for creating/opening the SQL connection.
         /// </summary>
-        public ConnectionDetails ConnectionDetails { get; private set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// A map containing all connections to the database that are associated with 

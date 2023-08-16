@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
+            sqlConnection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
             if (azureAccountToken != null)
             {
                 sqlConnection.AccessToken = azureAccountToken;

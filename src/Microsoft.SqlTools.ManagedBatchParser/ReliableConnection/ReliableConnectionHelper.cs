@@ -91,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                 connectionRetryPolicy = RetryPolicyFactory.CreateNoRetryPolicy();
             }
 
-            ReliableSqlConnection connection = new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken);
+            ReliableSqlConnection connection = new ReliableSqlConnection(connectionString, connectionRetryPolicy, commandRetryPolicy, azureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
 
             try
             {
@@ -426,6 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             Validate.IsNotNull(nameof(readResult), readResult);
             using (var sqlConnection = new SqlConnection(connectionString))
             {
+                sqlConnection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
                 sqlConnection.Open();
                 ExecuteReader(sqlConnection, commandText, readResult, initializeCommand, catchException);
             }

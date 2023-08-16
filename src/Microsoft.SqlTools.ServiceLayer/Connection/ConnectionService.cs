@@ -43,13 +43,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         public const int MaxTolerance = 2 * 60; // two minutes - standard tolerance across ADS for AAD tokens
 
-        public const int MaxServerlessReconnectTries = 5; // Max number of tries to wait for a serverless database to start up when its paused before giving up.
-
         // SQL Error Code Constants
         // Referenced from: https://learn.microsoft.com/en-us/sql/relational-databases/errors-events/database-engine-events-and-errors?view=sql-server-ver16
         private const int DoesNotMeetPWReqs = 18466; // Password does not meet complexity requirements.
         private const int PWCannotBeUsed = 18463; // Password cannot be used at this time.
 
+        // Default SQL constants (required to ensure connections such as serverless are able to wake up, connect, and retry properly).
+        private const int DefaultConnectTimeout = 30;
+        private const int DefaultCommandTimeout = 30;
 
         /// <summary>
         /// Singleton service instance
@@ -385,7 +386,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             TrySetConnectionType(connectionParams);
 
-            connectionParams.Connection.ApplicationName = GetApplicationNameWithFeature(connectionParams.Connection.ApplicationName, connectionParams.Purpose);
+            // Fill in any details that are necessary (timeouts and application name) to ensure connection doesn't immediately disconnect if not specified (such as for serverless). 
+            connectionParams.Connection = FillInDefaultDetailsForConnections(connectionParams.Connection, connectionParams.Purpose);
+
             // If there is no ConnectionInfo in the map, create a new ConnectionInfo,
             // but wait until later when we are connected to add it to the map.
             ConnectionInfo connectionInfo;
@@ -409,7 +412,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             // Try to open a connection with the given ConnectParams
-            ConnectionCompleteParams? response = await this.TryOpenConnectionWithRetry(connectionInfo, connectionParams);
+            ConnectionCompleteParams? response = await this.TryOpenConnection(connectionInfo, connectionParams);
             if (response != null)
             {
                 return response;
@@ -430,34 +433,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             TryCloseConnectionTemporaryConnection(connectionParams, connectionInfo);
 
             return completeParams;
-        }
-
-        private async Task<ConnectionCompleteParams?> TryOpenConnectionWithRetry(ConnectionInfo connectionInfo, ConnectParams connectionParams)
-        {
-            int counter = 0;
-            ConnectionCompleteParams? response = null;
-            while (counter <= MaxServerlessReconnectTries)
-            {
-                // The OpenAsync function used in TryOpenConnection does not retry when a database is sleeping.
-                // SqlClient will be implemented at a later time, which will have automatic retries.
-                response = await TryOpenConnection(connectionInfo, connectionParams);
-                // If a serverless database is sleeping, it will return this error number and will need to be retried.
-                // See here for details: https://docs.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview?view=azuresql#connectivity
-                if (response?.ErrorNumber == 40613)
-                {
-                    counter++;
-                    if (counter != MaxServerlessReconnectTries)
-                    {
-                        Logger.Information($"Database for connection {connectionInfo.OwnerUri} is paused, retrying connection. Attempt #{counter}");
-                    }
-                }
-                else
-                {
-                    // Every other response, we can stop.
-                    break;
-                }
-            }
-            return response;
         }
 
         private void TryCloseConnectionTemporaryConnection(ConnectParams connectionParams, ConnectionInfo connectionInfo)
@@ -667,6 +642,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return serverEdition;
         }
 
+        internal static ConnectionDetails FillInDefaultDetailsForConnections(ConnectionDetails inputConnectionDetails, string featureName) { 
+            ConnectionDetails newConnectionDetails = inputConnectionDetails;
+
+            if(string.IsNullOrWhiteSpace(newConnectionDetails.ApplicationName)) 
+            {
+                newConnectionDetails.ApplicationName = ApplicationName;
+            }
+            else 
+            {
+                newConnectionDetails.ApplicationName = GetApplicationNameWithFeature(newConnectionDetails.ApplicationName, featureName);
+            }
+
+            newConnectionDetails.ConnectTimeout = Math.Max(DefaultConnectTimeout, newConnectionDetails.ConnectTimeout ?? 0);
+
+            newConnectionDetails.CommandTimeout = Math.Max(DefaultCommandTimeout, newConnectionDetails.CommandTimeout ?? 0);
+
+            return newConnectionDetails;
+        }
+
         /// <summary>
         /// Tries to create and open a connection with the given ConnectParams.
         /// </summary>
@@ -688,8 +682,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // build the connection string from the input parameters
                 string connectionString = BuildConnectionString(connectionInfo.ConnectionDetails);
 
-                // create a sql connection instance
-                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken);
+                // create a sql connection instance (with enabled serverless retry logic to handle sleeping serverless databases)
+                connection = connectionInfo.Factory.CreateSqlConnection(connectionString, connectionInfo.ConnectionDetails.AzureAccountToken, SqlRetryProviders.ServerlessDBRetryProvider());
                 connectionInfo.AddConnection(connectionParams.Type, connection);
 
                 // Add a cancellation token source so that the connection OpenAsync() can be cancelled
@@ -1894,9 +1888,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
                 bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
-                // increase the connection and command timeout to at least 30 seconds and and build connection string
-                connInfo.ConnectionDetails.ConnectTimeout = Math.Max(30, connInfo.ConnectionDetails.ConnectTimeout ?? 0);
-                connInfo.ConnectionDetails.CommandTimeout = Math.Max(30, connInfo.ConnectionDetails.CommandTimeout ?? 0);
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
 
@@ -1905,7 +1896,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 {
                     connInfo.ConnectionDetails.Pooling = false;
                 }
-                connInfo.ConnectionDetails.ApplicationName = GetApplicationNameWithFeature(connInfo.ConnectionDetails.ApplicationName, featureName);
+
+                // increase the connection and command timeout to at least 30 seconds and set application name.
+                connInfo.ConnectionDetails = FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
 
                 // generate connection string
                 string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
@@ -1916,6 +1909,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
+                sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
 
                 // Fill in Azure authentication token if needed
                 if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
