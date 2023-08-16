@@ -342,6 +342,25 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return backupFolder;
         }
 
+        public static string GetDefaultDataFolder(ServerConnection connection)
+        {
+            string dataFolder = string.Empty;
+
+            Enumerator en = null;
+            DataSet ds = new DataSet();
+            ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
+            Request req = new Request();
+            en = new Enumerator();
+            req.Urn = "Server/Setting";
+            ds = en.Process(connection, req);
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                dataFolder = Convert.ToString(ds.Tables[0].Rows[0]["DefaultFile"], System.Globalization.CultureInfo.InvariantCulture);
+            }
+            return dataFolder;
+        }
+
         public int GetMediaRetentionValue()
         {
             int afterDays = 0;
