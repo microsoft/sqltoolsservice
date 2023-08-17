@@ -11,6 +11,7 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools Hosting Library</AssemblyTitle>
 		<Description>Provides hosting services for SqlTools applications.</Description>
+		<TargetFrameworks>net7.0;net472</TargetFrameworks>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
