@@ -67,7 +67,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         private static IEnumerable<string> GenerateTableScripts(Server server)
         {
-            var urns = SmoScripterFactory.GetAllServerTableUrns(server);
+            var urns = SmoScripterFactory.GetAllServerTableAndViewUrns(server);
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -166,7 +166,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return scripts;
         }
 
-        private static UrnCollection GetAllServerTableUrns(Server server)
+        private static UrnCollection GetAllServerTableAndViewUrns(Server server)
         {
             UrnCollection urnCollection = new UrnCollection();
 
@@ -175,6 +175,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 foreach (SqlServer.Management.Smo.Table t in db.Tables)
                 {
                     urnCollection.Add(t.Urn);
+                }
+
+                foreach (SqlServer.Management.Smo.View v in db.Views)
+                {
+                    urnCollection.Add(v.Urn);
                 }
             }
 

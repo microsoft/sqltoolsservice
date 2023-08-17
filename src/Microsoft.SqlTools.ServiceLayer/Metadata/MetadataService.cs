@@ -133,12 +133,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     try
                     {
+                        if (MetadataScriptTempFileStream.isScriptTempFileValid(connectionInfo.ConnectionDetails.ServerName))
+                        {
+                            await requestContext.SendResult(true);
+                        }
+
                         var scripts = SmoScripterFactory.GenerateAllServerTableScripts(sqlConn);
                         if (scripts != null)
                         {
                             try
                             {
-                                MetadataScriptCacher.WriteToCache(connectionInfo.ConnectionDetails.ServerName, scripts);
+                                MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
                                 await requestContext.SendResult(true);
                             }
                             catch (Exception ex)
@@ -179,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             {
                 try
                 {
-                    var scripts = MetadataScriptCacher.ReadCache(connectionInfo.ConnectionDetails.ServerName);
+                    var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName);
                     await requestContext.SendResult(new GetServerTableMetadataResult
                     {
                         Scripts = scripts.ToArray()
