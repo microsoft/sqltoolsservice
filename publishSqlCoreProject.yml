@@ -44,4 +44,4 @@ steps:
   inputs:
    command: 'push'
    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-   feedPublish: 'CrossPlatBuildScripts/mssqltools'
+   feedPublish: 'mssqltools'
