@@ -45,4 +45,4 @@ steps:
    command: 'push'
    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
    nuGetFeedType : internal
-   publishVstsFeed: 'CrossPlatBuildScripts/mssqltools'
+   publishVstsFeed: 'mssqltools'
