@@ -40,9 +40,9 @@ steps:
     arguments: -IncludeReferencedProjects
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet publish src/Microsoft.SqlTools.SqlCore'
+  displayName: 'dotnet push src/Microsoft.SqlTools.SqlCore'
   inputs:
    command: 'push'
-   packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.*.nupkg'
+   packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.**.nupkg'
    nuGetFeedType : internal
    publishVstsFeed: 'CrossPlatBuildScripts/mssqltools'
