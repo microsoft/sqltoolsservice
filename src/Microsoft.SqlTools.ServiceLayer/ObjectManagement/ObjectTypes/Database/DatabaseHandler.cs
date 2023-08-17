@@ -401,9 +401,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             using (var dataContainer = CreateDatabaseDataContainer(attachParams.ConnectionUri, null, true, null))
             {
                 var server = dataContainer.Server!;
+                var originalExecuteMode = server.ConnectionContext.SqlExecutionModes;
                 if (attachParams.GenerateScript)
                 {
                     server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
+                    server.ConnectionContext.CapturedSql.Clear();
                 }
                 try
                 {
@@ -431,7 +433,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     if (attachParams.GenerateScript)
                     {
-                        server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
+                        server.ConnectionContext.SqlExecutionModes = originalExecuteMode;
                     }
                     dataContainer.ServerConnection.Disconnect();
                 }
