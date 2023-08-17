@@ -11,9 +11,9 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.Utility.SqlScriptFormatters;
+using Microsoft.SqlTools.SqlCore.Connection;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {

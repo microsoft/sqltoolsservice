@@ -17,6 +17,7 @@ using AzureEdition = Microsoft.SqlTools.ServiceLayer.Admin.AzureSqlDbHelper.Azur
 using System;
 using System.Data;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
 {
@@ -377,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         private static string CreateAzureAlterDbStatement(string dbName, string options)
         {
             return string.Format(CultureInfo.InvariantCulture, AlterDbStatementFormat,
-                CUtils.EscapeString(CUtils.EscapeString(dbName, ']'), '\''),
+                StringUtils.EscapeString(StringUtils.EscapeString(dbName, ']'), '\''),
                 options);
         }
     }

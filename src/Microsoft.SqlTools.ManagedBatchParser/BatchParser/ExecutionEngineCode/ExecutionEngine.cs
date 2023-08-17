@@ -922,6 +922,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             try
             {
                 connection = new SqlConnection(connectionStringBuilder.ConnectionString);
+                connection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
                 connection.Open();
             }
             catch (SqlException ex)

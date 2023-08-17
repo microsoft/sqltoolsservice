@@ -6,7 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.LanguageExtensibility.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.SqlCore.Utility;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
@@ -67,7 +67,7 @@ ORDER BY platform";
 
         private string GetDropScript(string languageName)
         {
-            return $@"{DropScript} [{CUtils.EscapeStringCBracket(languageName)}]";
+            return $@"{DropScript} [{StringUtils.EscapeStringCBracket(languageName)}]";
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ ORDER BY platform";
                 contentScript = $"{contentScript}{seperator}{GetLanguageContent(content, i, parameters)}";
             }
 
-            string ownerScript = string.IsNullOrWhiteSpace(language.Owner) ? "" : $"AUTHORIZATION [{CUtils.EscapeStringCBracket(language.Owner)}]";
+            string ownerScript = string.IsNullOrWhiteSpace(language.Owner) ? "" : $"AUTHORIZATION [{StringUtils.EscapeStringCBracket(language.Owner)}]";
             string scriptAction = modifyType == ModifyType.Create ? CreateScript : AlterScript;
             string contentAction = "FROM";
             if (modifyType == ModifyType.Alter)
@@ -281,7 +281,7 @@ ORDER BY platform";
                 }
             }
             return $@"
-{scriptAction} [{CUtils.EscapeStringCBracket(language.Name)}]
+{scriptAction} [{StringUtils.EscapeStringCBracket(language.Name)}]
 {ownerScript}
 {contentAction} {contentScript}
 ";
@@ -289,7 +289,7 @@ ORDER BY platform";
 
         private string AddStringParameter(string paramName, string prefix, string paramValue)
         {
-            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : CUtils.EscapeStringSQuote(paramValue);
+            string value = string.IsNullOrWhiteSpace(paramValue) ? paramValue : StringUtils.EscapeStringSQuote(paramValue);
             return $"{prefix} {paramName} = N'{value}'";
         }
 
