@@ -34,8 +34,8 @@ steps:
   inputs:
     command: pack
     packagesToPack: 'src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
+    versioningScheme: 'byBuildNumber'
     arguments: -IncludeReferencedProjects
-    versioningScheme: byBuildNumbers
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish src/Microsoft.SqlTools.SqlCore'
