@@ -43,6 +43,6 @@ steps:
   displayName: 'dotnet push src/Microsoft.SqlTools.SqlCore'
   inputs:
    command: 'push'
-   packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore**.nupkg'
+   packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
    nuGetFeedType : internal
    publishVstsFeed: 'CrossPlatBuildScripts/mssqltools'
