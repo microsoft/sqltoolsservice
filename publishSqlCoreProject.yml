@@ -29,17 +29,17 @@ steps:
     command: build
     projects: src/Microsoft.SqlTools.SqlCore
 
-- task: NuGetCommand@2
-  displayName: Pack SqlCore project
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack src/Microsoft.SqlTools.SqlCore'
   inputs:
-    command: 'pack'
-    packagesToPack: '**/Microsoft.SqlTools.SqlCore.csproj'
+    command: pack
+    projects: src/Microsoft.SqlTools.SqlCore
     arguments: -IncludeReferencedProjects
 
-- task: NuGetCommand@2
-  displayName: Publish SqlCore project
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet publish src/Microsoft.SqlTools.SqlCore'
   inputs:
-   command: 'push'
+   command: 'publish'
    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.nupkg'
    nuGetFeedType : internal
    publishVstsFeed: 'CrossPlatBuildScripts/mssqltools'
