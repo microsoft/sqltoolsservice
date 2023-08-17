@@ -405,7 +405,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.CaptureSql;
                 }
-                server.ConnectionContext.BeginTransaction();
                 try
                 {
                     foreach (var database in attachParams.Databases)
@@ -427,12 +426,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                         }
                         sqlScript = builder.ToString();
                     }
-                    server.ConnectionContext.CommitTransaction();
-                }
-                catch
-                {
-                    server.ConnectionContext.RollBackTransaction();
-                    throw;
                 }
                 finally
                 {
@@ -440,6 +433,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         server.ConnectionContext.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
                     }
+                    dataContainer.ServerConnection.Disconnect();
                 }
             }
             return sqlScript;
