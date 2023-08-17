@@ -35,6 +35,7 @@ steps:
     command: pack
     packagesToPack: 'src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
     arguments: -IncludeReferencedProjects
+    versioningScheme: byBuildNumbers
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish src/Microsoft.SqlTools.SqlCore'
@@ -43,4 +44,3 @@ steps:
    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.nupkg'
    nuGetFeedType : internal
    publishVstsFeed: 'CrossPlatBuildScripts/mssqltools'
-   versioningScheme: byBuildNumber
