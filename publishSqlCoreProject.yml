@@ -33,7 +33,7 @@ steps:
   displayName: 'dotnet pack src/Microsoft.SqlTools.SqlCore'
   inputs:
     command: pack
-    packagesToPack: '**/**/Microsoft.SqlTools.SqlCore.csproj'
+    packagesToPack: 'src/Microsoft.SqlTools.SqlCore/Microsoft.SqlTools.SqlCore.csproj'
     arguments: -IncludeReferencedProjects
 
 - task: DotNetCoreCLI@2
