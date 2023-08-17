@@ -14,11 +14,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetPlanSummaryParams : TypedQueryStoreReportParams<PlanSummaryConfiguration>
     {
-        public long QueryId;
-        public PlanTimeIntervalMode TimeIntervalMode;
-        public TimeInterval TimeInterval;
-        public Metric SelectedMetric;
-        public Statistic SelectedStatistic;
+        public long QueryId { get; set; }
+        public PlanTimeIntervalMode TimeIntervalMode { get; set; }
+        public TimeInterval TimeInterval { get; set; }
+        public Metric SelectedMetric { get; set; }
+        public Statistic SelectedStatistic { get; set; }
 
         public override PlanSummaryConfiguration Convert() => new()
         {
@@ -32,16 +32,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
     public class GetPlanSummaryGridViewParams : GetPlanSummaryParams, IOrderableQueryParams
     {
-        public string OrderByColumnId;
-        public bool Descending;
+        public string OrderByColumnId { get; set; }
+        public bool Descending { get; set; }
 
         public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     public class GetForcedPlanParams : QueryStoreReportParams
     {
-        public long QueryId;
-        public long PlanId;
+        public long QueryId { get; set; }
+        public long PlanId { get; set; }
     }
 
     /// <summary>

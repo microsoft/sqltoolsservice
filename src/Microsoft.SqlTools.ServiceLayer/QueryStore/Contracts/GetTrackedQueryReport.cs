@@ -11,7 +11,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetTrackedQueriesReportParams
     {
-        public string QuerySearchText;
+        public string QuerySearchText { get; set; }
     }
 
     /// <summary>

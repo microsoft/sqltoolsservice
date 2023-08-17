@@ -13,9 +13,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetHighVariationQueriesReportParams : QueryConfigurationParams<HighVariationConfiguration>, IOrderableQueryParams
     {
-        public TimeInterval TimeInterval;
-        public string OrderByColumnId;
-        public bool Descending;
+        public TimeInterval TimeInterval { get; set; }
+        public string OrderByColumnId { get; set; }
+        public bool Descending { get; set; }
 
         public override HighVariationConfiguration Convert()
         {

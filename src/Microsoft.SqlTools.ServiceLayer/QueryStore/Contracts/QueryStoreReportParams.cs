@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public abstract class QueryStoreReportParams
     {
-        public string ConnectionOwnerUri;
+        public string ConnectionOwnerUri { get; set; }
     }
 
     public abstract class TypedQueryStoreReportParams<T> : QueryStoreReportParams
@@ -22,11 +22,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
     public abstract class QueryConfigurationParams<T> : TypedQueryStoreReportParams<T> where T : QueryConfigurationBase, new()
     {
-        public Metric SelectedMetric;
-        public Statistic SelectedStatistic;
-        public int TopQueriesReturned;
-        public bool ReturnAllQueries;
-        public int MinNumberOfQueryPlans;
+        public Metric SelectedMetric { get; set; }
+        public Statistic SelectedStatistic { get; set; }
+        public int TopQueriesReturned { get; set; }
+        public bool ReturnAllQueries { get; set; }
+        public int MinNumberOfQueryPlans { get; set; }
 
         public override T Convert() => new T()
         {
