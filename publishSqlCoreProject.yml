@@ -17,11 +17,6 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore'
-  inputs:
-    command: restore
-
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
