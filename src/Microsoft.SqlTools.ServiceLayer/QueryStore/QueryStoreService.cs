@@ -28,7 +28,7 @@ using Microsoft.SqlTools.ServiceLayer.Utility;
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore
 {
     /// <summary>
-    /// Main class for SqlProjects service
+    /// Main class for Query Store service
     /// </summary>
     public class QueryStoreService : BaseService
     {
@@ -47,11 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         private QueryStoreService()
         {
             ConnectionService = ConnectionService.Instance;
-        }
-
-        internal QueryStoreService(ConnectionService connService)
-        {
-            ConnectionService = connService;
         }
 
         /// <summary>
@@ -527,8 +522,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
             return sb.ToString().Trim();
         }
 
-        private static HashSet<Type> types = new HashSet<Type>();
-
         /// <summary>
         /// Converts an object (that would otherwise be set as a SqlParameter value) to an entirely TSQL representation.
         /// Only handles the same subset of object types that Query Store query generators use:
@@ -538,8 +531,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         /// <returns>data type and value portions of a parameter declaration, in the form "INT = 999"</returns>
         internal static string GetTSqlRepresentation(object paramValue)
         {
-            types.Add(paramValue.GetType());
-
             switch (paramValue)
             {
                 case int i:
@@ -547,7 +538,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
                 case long l:
                     return $"BIGINT = {l}";
                 case string s:
-                    return $"NVARCHAR(max) = N'{s}'"; // TODO: escape
+                    return $"NVARCHAR(max) = N'{s.Replace("'", "''")}'";
                 case DateTimeOffset dto:
                     return $"DATETIMEOFFSET = '{dto.ToString("O", CultureInfo.InvariantCulture)}'"; // "O" = ISO 8601 standard datetime format
                 default:

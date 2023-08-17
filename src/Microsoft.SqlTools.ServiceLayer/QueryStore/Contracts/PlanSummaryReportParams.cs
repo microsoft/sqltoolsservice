@@ -8,13 +8,14 @@
 using Microsoft.SqlServer.Management.QueryStoreModel.Common;
 using Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
+using static Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary.PlanSummaryConfiguration;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetPlanSummaryParams : TypedQueryStoreReportParams<PlanSummaryConfiguration>
     {
         public long QueryId;
-        //public PlanTimeIntervalMode TimeIntervalMode; // TODO: make enum public in QueryStoreModel
+        public PlanTimeIntervalMode TimeIntervalMode;
         public TimeInterval TimeInterval;
         public Metric SelectedMetric;
         public Statistic SelectedStatistic;
@@ -22,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         public override PlanSummaryConfiguration Convert() => new()
         {
             QueryId = QueryId,
-            //TimeIntervalMode = TimeIntervalMode
+            TimeIntervalMode = TimeIntervalMode,
             TimeInterval = TimeInterval,
             SelectedMetric = SelectedMetric,
             SelectedStatistic = SelectedStatistic

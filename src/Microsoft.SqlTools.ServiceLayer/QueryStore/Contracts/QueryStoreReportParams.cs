@@ -28,11 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         public bool ReturnAllQueries;
         public int MinNumberOfQueryPlans;
 
-        /// <summary>
-        /// Column name by which to order, if any.  Not all query generators involve ordering.
-        /// </summary>
-
-
         public override T Convert() => new T()
         {
             SelectedMetric = SelectedMetric,
