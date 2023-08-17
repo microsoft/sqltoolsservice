@@ -29,14 +29,14 @@ steps:
     configuration: '$(buildConfiguration)'
 
 - task: NuGetCommand@2
-  name: Pack SqlCore project
+  displayName: Pack SqlCore project
   inputs:
     command: 'pack'
     packagesToPack: '**/Microsoft.SqlTools.SqlCore.csproj'
     arguments: -IncludeReferencedProjects
 
 - task: NuGetCommand@2
-  name: Publish SqlCore project
+  displayName: Publish SqlCore project
   inputs:
    command: 'push'
    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.nupkg'
