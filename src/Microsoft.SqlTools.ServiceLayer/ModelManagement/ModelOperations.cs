@@ -5,9 +5,8 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.ModelManagement.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -253,12 +252,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 
 		private static string GetThreePartsTableName(string dbName, string tableName, string schemaName)
 		{
-			return $"[{CUtils.EscapeStringCBracket(dbName)}].[{CUtils.EscapeStringCBracket(schemaName)}].[{CUtils.EscapeStringCBracket(tableName)}]";
+			return $"[{StringUtils.EscapeStringCBracket(dbName)}].[{StringUtils.EscapeStringCBracket(schemaName)}].[{StringUtils.EscapeStringCBracket(tableName)}]";
 		}
 
 		private static string GetTwoPartsTableName(string tableName, string schemaName)
 		{
-			return $"[{CUtils.EscapeStringCBracket(schemaName)}].[{CUtils.EscapeStringCBracket(tableName)}]";
+			return $"[{StringUtils.EscapeStringCBracket(schemaName)}].[{StringUtils.EscapeStringCBracket(tableName)}]";
 		}
 
 		private static string GetSelectModelsQuery(string dbName, string tableName, string schemaName)
@@ -272,24 +271,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 
 		private static string GetConfigTableVerificationQuery(string dbName, string tableName, string schemaName)
 		{
-			string twoPartsTableName = GetTwoPartsTableName(CUtils.EscapeStringSQuote(tableName), CUtils.EscapeStringSQuote(schemaName));
+			string twoPartsTableName = GetTwoPartsTableName(StringUtils.EscapeStringSQuote(tableName), StringUtils.EscapeStringSQuote(schemaName));
 			return $@"
 		IF NOT EXISTS (
 			SELECT name
 				FROM sys.databases
-				WHERE name = N'{CUtils.EscapeStringSQuote(dbName)}'
+				WHERE name = N'{StringUtils.EscapeStringSQuote(dbName)}'
 		)
 		BEGIN
 			SELECT 0
 		END
 		ELSE
 		BEGIN
-			USE [{CUtils.EscapeStringCBracket(dbName)}]
+			USE [{StringUtils.EscapeStringCBracket(dbName)}]
 			IF EXISTS
 				(  SELECT t.name, s.name
 					FROM sys.tables t join sys.schemas s on t.schema_id=t.schema_id
-					WHERE t.name = '{CUtils.EscapeStringSQuote(tableName)}'
-					AND s.name = '{CUtils.EscapeStringSQuote(schemaName)}'
+					WHERE t.name = '{StringUtils.EscapeStringSQuote(tableName)}'
+					AND s.name = '{StringUtils.EscapeStringSQuote(schemaName)}'
 				)
 			BEGIN
 				IF EXISTS (SELECT * FROM syscolumns WHERE ID=OBJECT_ID('{twoPartsTableName}') AND NAME='model_name')
@@ -323,8 +322,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 		IF NOT EXISTS
 			(  SELECT t.name, s.name
 				FROM sys.tables t join sys.schemas s on t.schema_id=t.schema_id
-				WHERE t.name = '{CUtils.EscapeStringSQuote(tableName)}'
-				AND s.name = '{CUtils.EscapeStringSQuote(schemaName)}'
+				WHERE t.name = '{StringUtils.EscapeStringSQuote(tableName)}'
+				AND s.name = '{StringUtils.EscapeStringSQuote(schemaName)}'
 			)
 		BEGIN
 		CREATE TABLE {GetTwoPartsTableName(tableName, schemaName)} (
@@ -339,12 +338,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 			[deployed_by] [int] NULL,
 			[model_description] [varchar](256) NULL,
 			[run_id] [varchar](256) NULL,
-		CONSTRAINT [{CUtils.EscapeStringCBracket(tableName)}_models_pk] PRIMARY KEY CLUSTERED
+		CONSTRAINT [{StringUtils.EscapeStringCBracket(tableName)}_models_pk] PRIMARY KEY CLUSTERED
 		(
 			[model_id] ASC
 		)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 		) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-		ALTER TABLE {GetTwoPartsTableName(tableName, schemaName)} ADD  CONSTRAINT [{CUtils.EscapeStringCBracket(tableName)}_deployment_time]  DEFAULT (getdate()) FOR [model_deployment_time]
+		ALTER TABLE {GetTwoPartsTableName(tableName, schemaName)} ADD  CONSTRAINT [{StringUtils.EscapeStringCBracket(tableName)}_deployment_time]  DEFAULT (getdate()) FOR [model_deployment_time]
 		END
 ";
 		}
@@ -357,14 +356,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 		INSERT INTO {twoPartsTableName}
 		(model_name, model, model_version, model_description, model_creation_time, model_framework, model_framework_version, run_id, deployed_by)
 		VALUES (
-			{DatabaseUtils.AddStringParameterForInsert(model.ModelName ?? "")},
-		  	{DatabaseUtils.AddByteArrayParameterForInsert("Content", model.FilePath ?? "", parameters)},
-			{DatabaseUtils.AddStringParameterForInsert(model.Version ?? "")},
-			{DatabaseUtils.AddStringParameterForInsert(model.Description ?? "")},
-			{DatabaseUtils.AddStringParameterForInsert(model.Created)},
-			{DatabaseUtils.AddStringParameterForInsert(model.Framework ?? "")},
-			{DatabaseUtils.AddStringParameterForInsert(model.FrameworkVersion ?? "")},
-			{DatabaseUtils.AddStringParameterForInsert(model.RunId ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.ModelName ?? "")},
+		  	{Utility.DatabaseUtils.AddByteArrayParameterForInsert("Content", model.FilePath ?? "", parameters)},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.Version ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.Description ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.Created)},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.Framework ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.FrameworkVersion ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForInsert(model.RunId ?? "")},
 			USER_ID (Current_User)
 		)
 ";
@@ -378,13 +377,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ModelManagement
 			return $@"
 		UPDATE {twoPartsTableName}
 		SET
-			{DatabaseUtils.AddStringParameterForUpdate("model_name", model.ModelName ?? "")},
-			{DatabaseUtils.AddStringParameterForUpdate("model_version", model.Version ?? "")},
-			{DatabaseUtils.AddStringParameterForUpdate("model_description", model.Description ?? "")},
-			{DatabaseUtils.AddStringParameterForUpdate("model_creation_time", model.Created)},
-			{DatabaseUtils.AddStringParameterForUpdate("model_framework", model.Framework ?? "")},
-			{DatabaseUtils.AddStringParameterForUpdate("model_framework_version", model.FrameworkVersion ?? "")},
-			{DatabaseUtils.AddStringParameterForUpdate("run_id", model.RunId ?? "")}
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("model_name", model.ModelName ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("model_version", model.Version ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("model_description", model.Description ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("model_creation_time", model.Created)},
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("model_framework", model.Framework ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("model_framework_version", model.FrameworkVersion ?? "")},
+			{Utility.DatabaseUtils.AddStringParameterForUpdate("run_id", model.RunId ?? "")}
 		WHERE model_id = @{ModelIdParameterName}
 
 ";

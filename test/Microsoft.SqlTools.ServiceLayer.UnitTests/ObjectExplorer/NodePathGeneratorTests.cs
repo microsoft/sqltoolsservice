@@ -7,8 +7,8 @@
 
 using System.Collections.Generic;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 NodeValue = serverName
             };
 
-            serverSession = new ObjectExplorerService.ObjectExplorerSession("serverUri", serverRoot, null, null);
+            serverSession = new ObjectExplorerService.ObjectExplorerSession("serverUri", serverRoot);
 
             var databaseRoot = new TreeNode
             {
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 Parent = serverRoot
             };
 
-            databaseSession = new ObjectExplorerService.ObjectExplorerSession("databaseUri", databaseRoot, null, null);
+            databaseSession = new ObjectExplorerService.ObjectExplorerSession("databaseUri", databaseRoot);
         }
 
         [Test]
