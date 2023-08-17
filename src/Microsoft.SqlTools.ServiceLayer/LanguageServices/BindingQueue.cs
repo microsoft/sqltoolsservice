@@ -130,7 +130,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return context.IsConnected;
                 }
                 return false;
-            } 
+            }
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 key = "disconnected_binding_context";
             }
-                        
+
             lock (this.bindingContextLock)
             {
                 if (!this.BindingContextMap.ContainsKey(key))
@@ -155,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 return this.BindingContextMap[key];
-            }      
+            }
         }
 
         protected IEnumerable<IBindingContext> GetBindingContexts(string keyPrefix)
@@ -269,10 +269,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 this.itemQueuedEvent,
                 token.WaitHandle
             };
-    
+
             while (true)
             {
-                // wait for with an item to be queued or the a cancellation request
+                // wait for with an item to be queued or the cancellation request
                 WaitHandle.WaitAny(waitHandles);
                 if (token.IsCancellationRequested)
                 {
@@ -283,7 +283,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     // dispatch all pending queue items
                     while (this.HasPendingQueueItems)
-                    {                    
+                    {
                         QueueItem queueItem = GetNextQueueItem();
                         if (queueItem == null)
                         {
@@ -291,7 +291,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
 
                         IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
-                        if (bindingContext == null)                        
+                        if (bindingContext == null)
                         {
                             queueItem.ItemProcessed.Set();
                             continue;
@@ -300,11 +300,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         var bindingContextTask = this.BindingContextTasks[bindingContext];
 
                         // Run in the binding context task in case this task has to wait for a previous binding operation
-                        this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith((task) =>
+                        this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith(async (task) =>
                         {
                             bool lockTaken = false;
                             try
-                            {                                                    
+                            {
                                 // prefer the queue item binding item, otherwise use the context default timeout
                                 int bindTimeout = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
 
@@ -330,14 +330,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     return;
                                 }
 
-                                bindingContext.BindingLock.Reset();  
+                                bindingContext.BindingLock.Reset();
 
                                 lockTaken = true;
 
                                 // execute the binding operation
                                 object result = null;
                                 CancellationTokenSource cancelToken = new CancellationTokenSource();
-                        
+
                                 // run the operation in a separate thread
                                 var bindTask = Task.Run(() =>
                                 {
@@ -370,49 +370,44 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                             }
 
                                             RemoveBindingContext(queueItem.Key);
-                                        }    
+                                        }
                                     }
-                                });
+                                }, new CancellationTokenSource(bindTimeout).Token);
 
-                                Task.Run(() => 
+                                try
                                 {
-                                    try
-                                    {
-                                        // check if the binding tasks completed within the binding timeout                           
-                                        if (bindTask.Wait(bindTimeout))
+                                    await bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()))
+                                        .ContinueWith(t =>
                                         {
-                                            queueItem.Result = result;
-                                        }
-                                        else
-                                        {
-                                            cancelToken.Cancel();
-
-                                            // if the task didn't complete then call the timeout callback
-                                            if (queueItem.TimeoutOperation != null)
+                                            if (t.IsCanceled)
                                             {
-                                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
+                                                cancelToken.Cancel();
+
+                                                // if the task didn't complete then call the timeout callback
+                                                if (queueItem.TimeoutOperation != null)
+                                                {
+                                                    queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                                                }
                                             }
-
-                                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
-
-                                            // Give the task a chance to complete before moving on to the next operation
-                                            bindTask.Wait();
-                                        }
-                                    }
-                                    catch (Exception ex)
+                                            else
+                                            {
+                                                queueItem.Result = result;
+                                            }
+                                        });
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Error("Binding queue task completion threw exception " + ex.ToString());
+                                }
+                                finally
+                                {
+                                    // set item processed to avoid deadlocks 
+                                    if (lockTaken)
                                     {
-                                        Logger.Error("Binding queue task completion threw exception " + ex.ToString());  
+                                        bindingContext.BindingLock.Set();
                                     }
-                                    finally
-                                    {
-                                        // set item processed to avoid deadlocks 
-                                        if (lockTaken)
-                                        {
-                                            bindingContext.BindingLock.Set();
-                                        }
-                                        queueItem.ItemProcessed.Set();
-                                    }
-                                });
+                                    queueItem.ItemProcessed.Set();
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -424,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 {
                                     bindingContext.BindingLock.Set();
                                 }
-                                queueItem.ItemProcessed.Set();                          
+                                queueItem.ItemProcessed.Set();
                             }
                         }, TaskContinuationOptions.None);
 
@@ -433,7 +428,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             break;
                         }
-                    } 
+                    }
                 }
                 finally
                 {
@@ -487,7 +482,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
         }
-        
+
         private bool IsExceptionOfType(Exception ex, Type t)
         {
             return ex.GetType() == t || (ex.InnerException != null && ex.InnerException.GetType() == t);
