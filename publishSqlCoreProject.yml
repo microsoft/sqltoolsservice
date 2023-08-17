@@ -17,12 +17,17 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore src/Microsoft.SqlTools.SqlCore'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: restore
+    projects: src/Microsoft.SqlTools.SqlCore
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build src/Microsoft.SqlTools.SqlCore'
+  inputs:
+    command: build
+    projects: src/Microsoft.SqlTools.SqlCore
 
 - task: NuGetCommand@2
   displayName: Pack SqlCore project
