@@ -3,6 +3,7 @@
 # Add steps that publish symbols, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
+name: $(Build.DefinitionName)-$(date:yyyyMMdd)$(rev:.r) 
 trigger:
 - main
 
@@ -13,6 +14,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  BUILD_BUILDNUMBER: 
 
 steps:
 - task: NuGetToolInstaller@1
