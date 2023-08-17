@@ -41,6 +41,7 @@ steps:
   displayName: 'dotnet publish src/Microsoft.SqlTools.SqlCore'
   inputs:
    command: 'publish'
-   packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.nupkg'
+   publishWebProjects: false
+   packagesToPush: '$(Build.ArtifactStagingDirectory)/**/Microsoft.SqlTools.SqlCore.*.nupkg'
    nuGetFeedType : internal
    publishVstsFeed: 'CrossPlatBuildScripts/mssqltools'
