@@ -6,24 +6,32 @@
 #nullable disable
 
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.SmoModel;
-using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Nodes;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
+using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 {
     public class SmoQueryModelTests
     {
+        IMultiServiceProvider serviceProvider;
+
+        [SetUp]
+        public void Setup()
+        {
+            // Given the extension type loader is set to find SmoCollectionQuerier objects
+            var assembly = typeof(SmoQuerier).Assembly;
+            serviceProvider = ExtensionServiceProvider.CreateFromAssembliesInDirectory(Path.GetDirectoryName(assembly.Location), new string[] { Path.GetFileName(assembly.Location) });
+        }
 
         [Test]
         public void ShouldFindDatabaseQuerierFromRealPath()
         {
-            // Given the extension type loader is set to find SmoCollectionQuerier objects
-            IMultiServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             // When I request a database compatible querier
             SmoQuerier querier = serviceProvider.GetService<SmoQuerier>(q => q.SupportedObjectTypes.Contains(typeof(Database)));
             // Then I expect to get back the SqlDatabaseQuerier
@@ -87,8 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
 
         private SmoQuerier GetSmoQuerier(Type querierType)
         {
-            // Given the extension type loader is set to find SmoCollectionQuerier objects
-            IMultiServiceProvider serviceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             // When I request a compatible querier
             SmoQuerier querier = serviceProvider.GetService<SmoQuerier>(q => q.SupportedObjectTypes.Contains(querierType));
             // Then I expect to get back the Querier

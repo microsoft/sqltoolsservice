@@ -8,9 +8,9 @@
 using System;
 using Microsoft.Data.SqlClient;
 using System.Globalization;
-using System.Text;
 using Microsoft.SqlServer.Management.Common;
 using SMO = Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Management
 {
@@ -173,7 +173,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             {
                 string query = string.Format(CultureInfo.InvariantCulture,
                                                             "select top 1 1 from [{0}].sys.filegroups where type = 'FX'",
-                                                            CUtils.EscapeString(dbName, ']'));
+                                                            StringUtils.EscapeString(dbName, ']'));
                 if (server.ConnectionContext.ExecuteScalar(query) != null)
                 {
                     hasMemoryOptimizedFileGroup = true;
@@ -552,101 +552,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Management
             return sqlerror.Number;
         }
 
-        /// <summary>
-        /// Function doubles up specified character in a string
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="cEsc"></param>
-        /// <returns></returns>
-        public static String EscapeString(string s, char cEsc)
-        {
-            if (string.IsNullOrWhiteSpace(s))
-            {
-                return s;
-            }
-
-            StringBuilder sb = new StringBuilder(s.Length * 2);
-            foreach (char c in s)
-            {
-                sb.Append(c);
-                if (cEsc == c)
-                    sb.Append(c);
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Function doubles up ']' character in a string
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static String EscapeStringCBracket(string s)
-        {
-            return CUtils.EscapeString(s, ']');
-        }
-
-        /// <summary>
-        /// Function doubles up '\'' character in a string
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static String EscapeStringSQuote(string s)
-        {
-            return CUtils.EscapeString(s, '\'');
-        }
-
-        /// <summary>
-        /// Function removes doubled up specified character from a string
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="cEsc"></param>
-        /// <returns></returns>
-        public static String UnEscapeString(string s, char cEsc)
-        {
-            StringBuilder sb = new StringBuilder(s.Length);
-            bool foundBefore = false;
-            foreach (char c in s)
-            {
-                if (cEsc == c) // character to unescape
-                {
-                    if (foundBefore) // skip second occurrence
-                    {
-                        foundBefore = false;
-                    }
-                    else // set the flag to skip next time around
-                    {
-                        sb.Append(c);
-                        foundBefore = true;
-                    }
-                }
-                else
-                {
-                    sb.Append(c);
-                    foundBefore = false;
-                }
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Function removes doubled up ']' character from a string
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static String UnEscapeStringCBracket(string s)
-        {
-            return CUtils.UnEscapeString(s, ']');
-        }
-
-        /// <summary>
-        /// Function removes doubled up '\'' character from a string
-        /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static String UnEscapeStringSQuote(string s)
-        {
-            return CUtils.UnEscapeString(s, '\'');
-        }
+        
 
         /// <summary>
         /// Get the windows login name with the domain portion in all-caps
