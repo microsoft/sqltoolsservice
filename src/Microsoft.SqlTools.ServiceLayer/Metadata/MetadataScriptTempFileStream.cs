@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return scripts;
         }
 
-        public static bool isScriptTempFileValid(string serverName)
+        public static bool IsScriptTempFileValid(string serverName)
         {
             var tempFileName = $"{DirectoryName}/{serverName}.tmp";
 

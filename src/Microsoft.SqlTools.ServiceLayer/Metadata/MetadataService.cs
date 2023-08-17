@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     try
                     {
-                        if (MetadataScriptTempFileStream.isScriptTempFileValid(connectionInfo.ConnectionDetails.ServerName))
+                        if (MetadataScriptTempFileStream.IsScriptTempFileValid(connectionInfo.ConnectionDetails.ServerName))
                         {
                             await requestContext.SendResult(true);
                         }
