@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
