@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {
-    public class GenerateServerTableMetadataParams
+    public class GenerateDatabaseServerContextualizationParams
     {
         /// <summary>
         /// The URI of the connection to generate scripts for.
@@ -18,9 +18,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
     /// <summary>
     /// Event set after a connection to a database server is completed.
     /// </summary>
-    public class GenerateServerTableMetadataNotification
+    public class GenerateDatabaseServerContextualizationNotification
     {
-        public static readonly EventType<GenerateServerTableMetadataParams> Type =
-            EventType<GenerateServerTableMetadataParams>.Create("metadata/generateServerTableMetadata");
+        public static readonly EventType<GenerateDatabaseServerContextualizationParams> Type =
+            EventType<GenerateDatabaseServerContextualizationParams>.Create("metadata/generateDatabaseServerContextScripts");
     }
 }

@@ -58,8 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetEventHandler(GenerateServerTableMetadataNotification.Type, HandleGenerateServerTableMetadataNotification);
-            serviceHost.SetRequestHandler(GetServerTableMetadataRequest.Type, HandleGetServerTableMetadataRequest, true);
+            serviceHost.SetEventHandler(GenerateDatabaseServerContextualizationNotification.Type, HandleGenerateDatabaseServerContextualizationNotification, true);
+            serviceHost.SetRequestHandler(GetDatabaseServerContextualizationRequest.Type, HandleGetDatabaseServerContextualizationRequest, true);
         }
 
         /// <summary>
@@ -121,12 +121,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Handles the event for generating all server table and view scripts
+        /// Handles the event for generating server contextualization scripts. The generated scripts are create
+        /// scripts for database objects like tables and views.
         /// </summary>
-        internal static async Task HandleGenerateServerTableMetadataNotification(GenerateServerTableMetadataParams metadataParams,
+        internal static async Task HandleGenerateDatabaseServerContextualizationNotification(GenerateDatabaseServerContextualizationParams contextualizationParams,
             EventContext eventContext)
         {
-            MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
+            MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
 
             if (connectionInfo != null)
             {
@@ -169,19 +170,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Handles the request for getting all server table and view scripts
+        /// Handles the request for getting database server contextualization scripts. The retrieved scripts are create
+        /// scripts for database objects like tables and views.
         /// </summary>
-        internal static async Task HandleGetServerTableMetadataRequest(GetServerTableMetadataParams metadataParams,
-            RequestContext<GetServerTableMetadataResult> requestContext)
+        internal static async Task HandleGetDatabaseServerContextualizationRequest(GetDatabaseServerContextualizationParams contextualizationParams,
+            RequestContext<GetDatabaseServerContextualizationResult> requestContext)
         {
-            MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
+            MetadataService.ConnectionServiceInstance.TryFindConnection(contextualizationParams.OwnerUri, out ConnectionInfo connectionInfo);
 
             if (connectionInfo != null)
             {
                 try
                 {
                     var scripts = MetadataScriptTempFileStream.Read(connectionInfo.ConnectionDetails.ServerName);
-                    await requestContext.SendResult(new GetServerTableMetadataResult
+                    await requestContext.SendResult(new GetDatabaseServerContextualizationResult
                     {
                         Scripts = scripts.ToArray()
                     });
