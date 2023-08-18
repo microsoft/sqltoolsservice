@@ -50,7 +50,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
             }
         }
 
-        protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
+        protected override void Initialize(IMessageSerializer messageSerializer, Stream inputStream = null, Stream outputStream = null)
         {
             this.serviceProcess = new Process
             {

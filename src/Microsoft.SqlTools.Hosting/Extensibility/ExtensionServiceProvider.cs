@@ -258,7 +258,10 @@ namespace Microsoft.SqlTools.Extensibility
 
         public IEnumerable<T> GetExports<T>()
         {
-            exports ??= host.GetExports(contractType).ToList();
+            if(exports == null)
+            {
+                exports = host.GetExports(contractType).ToList();
+            }
             return exports.Cast<T>();
         }
 

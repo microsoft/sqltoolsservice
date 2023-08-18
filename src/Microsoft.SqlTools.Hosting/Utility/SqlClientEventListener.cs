@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Diagnostics.Tracing;
 using Microsoft.SqlTools.Utility;
 
@@ -41,7 +42,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
             {
                 if (payload != null)
                 {
-                    Logger.Verbose($"eventTID:{eventData.OSThreadId} {payload.ToString()}");
+                    Logger.Verbose($"eventTID:{Environment.CurrentManagedThreadId} {payload.ToString()}");
                 }
             }
 
