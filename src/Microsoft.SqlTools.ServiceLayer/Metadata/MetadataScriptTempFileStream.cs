@@ -16,7 +16,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
     /// </summary>
     public static class MetadataScriptTempFileStream
     {
-        private const string DirectoryName = "TableAndViewScripts";
         private const short NumOfDaysSinceLastWrite = 30;
 
         /// <summary>
@@ -26,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <param name="scripts">The generated scripts that will be written to the temporary file.</param>
         public static void Write(string serverName, IEnumerable<string> scripts)
         {
-            var tempFileName = Path.Combine(DirectoryName, $"{serverName}.tmp");
+            var tempFileName = $"{serverName}.tmp";
             var generatedScripts = scripts.ToList();
 
             try
@@ -54,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <returns>List containing all the scripts in the file.</returns>
         public static IEnumerable<string> Read(string serverName)
         {
-            var tempFileName = Path.Combine(DirectoryName, $"{serverName}.tmp");
+            var tempFileName = $"{serverName}.tmp";
             var scripts = new List<string>();
 
             try
@@ -93,7 +92,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <returns>Flag indiciating that the script file is valid.</returns>
         public static bool IsScriptTempFileValid(string serverName)
         {
-            var tempFileName = Path.Combine(DirectoryName, $"{serverName}.tmp");
+            var tempFileName = $"{serverName}.tmp";
 
             try
             {

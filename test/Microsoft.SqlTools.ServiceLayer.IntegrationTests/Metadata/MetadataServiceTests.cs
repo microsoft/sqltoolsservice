@@ -135,7 +135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         public async Task VerifyGenerateAllServerMetadataNotification()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
-            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(0, 999999).ToString();
 
             var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
             var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
@@ -144,7 +144,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             var eventContextMock = new Mock<EventContext>();
-            var actualResponse = false;
 
             var generateServerMetadataParams = new GenerateServerTableMetadataParams
             {
@@ -155,8 +154,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
-
-            Assert.IsTrue(actualResponse);
 
             eventContextMock.VerifyAll();
         }
@@ -165,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         public async Task VerifyGetAllServerMetadataRequest()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
-            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
+            this.testTableName2 += new Random().Next(0, 999999).ToString();
 
             var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
             var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
@@ -174,7 +171,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             var eventContextMock = new Mock<EventContext>();
-            var actualGenerateMetadataResponse = false;
 
             var generateServerMetadataParams = new GenerateServerTableMetadataParams
             {
@@ -186,10 +182,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            Assert.IsTrue(actualGenerateMetadataResponse);
-
-            var firstCreateTableScript = $"CREATE TABLE [dbo].[{testTableName}](\t[id] [int] NULL)";
-            var secondCreateTableScript = $"CREATE TABLE [dbo].[{testTableName2}](\t[id] [int] NULL)";
+            var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
+            var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
 
             var mockGetServerMetadataRequestContext = new Mock<RequestContext<GetServerTableMetadataResult>>();
             var actualGetServerMetadataResponse = new GetServerTableMetadataResult();
