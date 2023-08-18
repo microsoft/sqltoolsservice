@@ -135,7 +135,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 {
                     try
                     {
-                        if (MetadataScriptTempFileStream.IsScriptTempFileValid(connectionInfo.ConnectionDetails.ServerName))
+                        // If scripts have been generated within the last 30 days then there isn't a need to go through the process
+                        // of generating scripts again.
+                        if (MetadataScriptTempFileStream.IsScriptTempFileUpdateNeeded(connectionInfo.ConnectionDetails.ServerName))
                         {
                             return;
                         }

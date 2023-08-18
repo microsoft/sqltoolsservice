@@ -86,11 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Checks to see if the temporary file containing the scripts for a server is valid.
+        /// Checks to see if the temporary file containing the scripts for a server needs to be updated.
         /// </summary>
-        /// <param name="serverName">The name of the file assosiated with the given server name.</param>
-        /// <returns>Flag indiciating that the script file is valid.</returns>
-        public static bool IsScriptTempFileValid(string serverName)
+        /// <param name="serverName">The name of the file associated with the given server name.</param>
+        /// <returns>Flag indicating that the script file is valid.</returns>
+        public static bool IsScriptTempFileUpdateNeeded(string serverName)
         {
             var tempFileName = $"{serverName}.tmp";
 
