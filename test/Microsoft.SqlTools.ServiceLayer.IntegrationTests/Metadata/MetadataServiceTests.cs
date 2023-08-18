@@ -131,7 +131,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         }
 
         [Test]
-        public async Task VerifyGenerateAllServerMetadataRequest()
+        public async Task VerifyGenerateAllServerMetadataNotification()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
             this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
@@ -142,25 +142,22 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var mockRequestContext = new Mock<RequestContext<bool>>();
+            var eventContextMock = new Mock<EventContext>();
             var actualResponse = false;
-            mockRequestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
-                .Callback<bool>(actual => actualResponse = actual)
-                .Returns(Task.CompletedTask);
 
             var generateServerMetadataParams = new GenerateServerTableMetadataParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateServerTableMetadataRequest(generateServerMetadataParams, mockRequestContext.Object);
+            await MetadataService.HandleGenerateServerTableMetadataNotification(generateServerMetadataParams, eventContextMock.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
             Assert.IsTrue(actualResponse);
 
-            mockRequestContext.VerifyAll();
+            eventContextMock.VerifyAll();
         }
 
         [Test]
@@ -175,18 +172,15 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName);
             CreateTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
-            var mockGenerateServerMetadataRequestContext = new Mock<RequestContext<bool>>();
+            var eventContextMock = new Mock<EventContext>();
             var actualGenerateMetadataResponse = false;
-            mockGenerateServerMetadataRequestContext.Setup(x => x.SendResult(It.IsAny<bool>()))
-                .Callback<bool>(actual => actualGenerateMetadataResponse = actual)
-                .Returns(Task.CompletedTask);
 
             var generateServerMetadataParams = new GenerateServerTableMetadataParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateServerTableMetadataRequest(generateServerMetadataParams, mockGenerateServerMetadataRequestContext.Object);
+            await MetadataService.HandleGenerateServerTableMetadataNotification(generateServerMetadataParams, eventContextMock.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);

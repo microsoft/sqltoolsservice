@@ -9,11 +9,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {
     public class GetServerTableMetadataParams
     {
+        /// <summary>
+        /// The URI of the connection to generate scripts for.
+        /// </summary>
         public string OwnerUri { get; set; }
     }
 
     public class GetServerTableMetadataResult
     {
+        /// <summary>
+        /// An array containing generated table and view scripts,
+        /// </summary>
         public string[] Scripts { get; set; }
     }
 

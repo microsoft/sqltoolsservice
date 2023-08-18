@@ -11,13 +11,22 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
+    /// <summary>
+    /// This class is responsible for reading, writing, and checking the validity of script files.
+    /// </summary>
     public static class MetadataScriptTempFileStream
     {
         private const string DirectoryName = "TableAndViewScripts";
+        private const short NumOfDaysSinceLastWrite = 30;
 
+        /// <summary>
+        /// This method writes the passed in scripts to a temporary file.
+        /// </summary>
+        /// <param name="serverName">The name of the server which will go on to become the name of the file.</param>
+        /// <param name="scripts">The generated scripts that will be written to the temporary file.</param>
         public static void Write(string serverName, IEnumerable<string> scripts)
         {
-            var tempFileName = $"{DirectoryName}/{serverName}.tmp";
+            var tempFileName = Path.Combine(DirectoryName, $"{serverName}.tmp");
             var generatedScripts = scripts.ToList();
 
             try
@@ -38,9 +47,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
         }
 
+        /// <summary>
+        /// Reads the scripts associated with the provided server name.
+        /// </summary>
+        /// <param name="serverName">The name of the server to retrieve the scripts for.</param>
+        /// <returns>List containing all the scripts in the file.</returns>
         public static IEnumerable<string> Read(string serverName)
         {
-            var tempFileName = $"{DirectoryName}/{serverName}.tmp";
+            var tempFileName = Path.Combine(DirectoryName, $"{serverName}.tmp");
             var scripts = new List<string>();
 
             try
@@ -56,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     while (!sr.EndOfStream)
                     {
                         var line = sr.ReadLine();
-                        if (line != null)
+                        if (!String.IsNullOrWhiteSpace(line))
                         {
                             scripts.Add(line);
                         }
@@ -72,9 +86,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return scripts;
         }
 
+        /// <summary>
+        /// Checks to see if the temporary file containing the scripts for a server is valid.
+        /// </summary>
+        /// <param name="serverName">The name of the file assosiated with the given server name.</param>
+        /// <returns>Flag indiciating that the script file is valid.</returns>
         public static bool IsScriptTempFileValid(string serverName)
         {
-            var tempFileName = $"{DirectoryName}/{serverName}.tmp";
+            var tempFileName = Path.Combine(DirectoryName, $"{serverName}.tmp");
 
             try
             {
@@ -86,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 else
                 {
                     var lastWriteTime = File.GetLastWriteTime(tempFilePath);
-                    return (DateTime.Now - lastWriteTime).TotalDays < 30;
+                    return (DateTime.Now - lastWriteTime).TotalDays < NumOfDaysSinceLastWrite;
                 }
             }
             catch (Exception ex)

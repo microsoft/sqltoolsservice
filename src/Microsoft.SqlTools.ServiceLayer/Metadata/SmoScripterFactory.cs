@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -15,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
     internal static class SmoScripterFactory
     {
-        public static IEnumerable<string> GenerateAllServerTableScripts(DbConnection connection)
+        public static async Task<IEnumerable<string>> GenerateAllServerTableScripts(DbConnection connection)
         {
             var serverConnection = SmoScripterFactory.GetServerConnection(connection);
             if (serverConnection == null)
@@ -24,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             }
 
             Server server = new Server(serverConnection);
-            var scripts = SmoScripterFactory.GenerateTableScripts(server);
+            var scripts = await SmoScripterFactory.GenerateTableScripts(server);
 
             return scripts;
         }
@@ -65,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             return serverConnection;
         }
 
-        private static IEnumerable<string> GenerateTableScripts(Server server)
+        private static async Task<IEnumerable<string>> GenerateTableScripts(Server server)
         {
             var urns = SmoScripterFactory.GetAllServerTableAndViewUrns(server);
 
@@ -154,7 +155,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             var scripter = new Scripter(server);
             scripter.Options = scriptingOptions;
-            var generatedScripts = scripter.Script(urns);
+            var generatedScripts = await Task.Run(() => scripter.Script(urns));
 
             var scripts = new List<string>();
             foreach (var s in generatedScripts)

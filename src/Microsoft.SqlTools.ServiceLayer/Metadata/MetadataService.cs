@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
             serviceHost.SetRequestHandler(MetadataListRequest.Type, HandleMetadataListRequest, true);
             serviceHost.SetRequestHandler(TableMetadataRequest.Type, HandleGetTableRequest, true);
             serviceHost.SetRequestHandler(ViewMetadataRequest.Type, HandleGetViewRequest, true);
-            serviceHost.SetRequestHandler(GenerateServerTableMetadataRequest.Type, HandleGenerateServerTableMetadataRequest, true);
+            serviceHost.SetEventHandler(GenerateServerTableMetadataNotification.Type, HandleGenerateServerTableMetadataNotification);
             serviceHost.SetRequestHandler(GetServerTableMetadataRequest.Type, HandleGetServerTableMetadataRequest, true);
         }
 
@@ -122,8 +122,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         /// <summary>
         /// Handles the request for generating all server metadata
         /// </summary>
-        internal static async Task HandleGenerateServerTableMetadataRequest(GenerateServerTableMetadataParams metadataParams,
-            RequestContext<bool> requestContext)
+        internal static async Task HandleGenerateServerTableMetadataNotification(GenerateServerTableMetadataParams metadataParams,
+            EventContext eventContext)
         {
             MetadataService.ConnectionServiceInstance.TryFindConnection(metadataParams.OwnerUri, out ConnectionInfo connectionInfo);
 
@@ -135,40 +135,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                     {
                         if (MetadataScriptTempFileStream.IsScriptTempFileValid(connectionInfo.ConnectionDetails.ServerName))
                         {
-                            await requestContext.SendResult(true);
+                            return;
                         }
 
-                        var scripts = SmoScripterFactory.GenerateAllServerTableScripts(sqlConn);
+                        var scripts = await SmoScripterFactory.GenerateAllServerTableScripts(sqlConn);
                         if (scripts != null)
                         {
                             try
                             {
                                 MetadataScriptTempFileStream.Write(connectionInfo.ConnectionDetails.ServerName, scripts);
-                                await requestContext.SendResult(true);
                             }
                             catch (Exception ex)
                             {
                                 Logger.Error($"An error was encountered while writing to the cache. Error: {ex.Message}");
-                                await requestContext.SendError(ex);
                             }
                         }
                         else
                         {
                             Logger.Error("Failed to generate server scripts");
-                            await requestContext.SendError("Unable to generate scripts for server");
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.Error($"An error was encountered during the script generation process. Error: {ex.Message}");
-                        await requestContext.SendError(ex);
                     }
                 }
             }
             else
             {
                 Logger.Error("Failed to find connection info about the server.");
-                await requestContext.SendError("Failed to find connection info about the server.");
             }
         }
 
