@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.Smo;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 {
@@ -35,13 +36,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         Database,
         Files
     }
-    
+
     /// <summary>
     /// Backup set type
     /// </summary>
     public enum BackupsetType
     {
-        BackupsetDatabase,            
+        BackupsetDatabase,
         BackupsetLog,
         BackupsetDifferential,
         BackupsetFiles
@@ -101,7 +102,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             else
             {
-                return (RestoreItemLocation+RestoreItemDeviceType.ToString() + IsLogicalDevice.ToString()).GetHashCode();
+                return (RestoreItemLocation + RestoreItemDeviceType.ToString() + IsLogicalDevice.ToString()).GetHashCode();
             }
         }
     }
@@ -136,17 +137,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         /// <param name="dataContainer"></param>
         /// <param name="sqlConnection"></param>
         public CommonUtilities(CDataContainer dataContainer, ServerConnection sqlConnection)
-        {           
+        {
             this.dataContainer = dataContainer;
             this.sqlConnection = sqlConnection;
             this.excludedDatabases = new ArrayList();
             this.excludedDatabases.Add("master");
             this.excludedDatabases.Add("tempdb");
         }
-        
+
         public int GetServerVersion()
         {
-            return this.dataContainer.Server.Information.Version.Major;            
+            return this.dataContainer.Server.Information.Version.Major;
         }
 
         /// <summary>
@@ -162,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             else if (String.Compare(stringDeviceType, RestoreConstants.Url, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return DeviceType.Url;
-            }            
+            }
             else
             {
                 return DeviceType.LogicalDevice;
@@ -188,10 +189,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return DeviceType.LogicalDevice;
             }
         }
-        
+
         public BackupDeviceType GetPhisycalDeviceTypeOfLogicalDevice(string deviceName)
         {
-            Enumerator  enumerator = new Enumerator();
+            Enumerator enumerator = new Enumerator();
             Request request = new Request();
             DataSet dataset = new DataSet();
             dataset.Locale = System.Globalization.CultureInfo.InvariantCulture;
@@ -199,16 +200,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             dataset = enumerator.Process(this.sqlConnection, request);
 
             if (dataset.Tables[0].Rows.Count > 0)
-            {                    
+            {
                 BackupDeviceType controllerType = (BackupDeviceType)(Convert.ToInt16(dataset.Tables[0].Rows[0]["BackupDeviceType"], System.Globalization.CultureInfo.InvariantCulture));
                 return controllerType;
             }
             else
             {
-                throw new Exception("Unexpected error");    
+                throw new Exception("Unexpected error");
             }
         }
-        
+
         public bool ServerHasTapes()
         {
             try
@@ -221,12 +222,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 ds = en.Process(this.sqlConnection, req);
 
                 if (ds.Tables[0].Rows.Count > 0)
-                {             
+                {
                     return true;
                 }
                 return false;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
             }
@@ -241,18 +242,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 DataSet ds = new DataSet();
                 ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
                 req.Urn = "Server/BackupDevice";
-                ds = en.Process(this.sqlConnection,req);
-                
+                ds = en.Process(this.sqlConnection, req);
+
                 if (ds.Tables[0].Rows.Count > 0)
-                {             
-                   return true;
+                {
+                    return true;
                 }
                 return false;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
-            }            
+            }
         }
 
         /// <summary>
@@ -265,8 +266,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             char[] result = name.ToCharArray();
             string illegalCharacters = "\\/:*?\"<>|";
 
-            int resultLength    = result.GetLength(0);
-            int illegalLength   = illegalCharacters.Length;
+            int resultLength = result.GetLength(0);
+            int illegalLength = illegalCharacters.Length;
 
             for (int resultIndex = 0; resultIndex < resultLength; resultIndex++)
             {
@@ -278,17 +279,17 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     }
                 }
             }
-    
+
             return new string(result);
         }
-        
+
         public RecoveryModel GetRecoveryModel(string databaseName)
         {
             Enumerator en = null;
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
             Request req = new Request();
-            RecoveryModel recoveryModel = RecoveryModel.Simple;         
+            RecoveryModel recoveryModel = RecoveryModel.Simple;
 
             en = new Enumerator();
             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']/Option";
@@ -297,9 +298,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             ds = en.Process(this.sqlConnection, req);
 
             if (ds.Tables[0].Rows.Count > 0)
-            {   
-                recoveryModel = (RecoveryModel)(ds.Tables[0].Rows[0]["RecoveryModel"]);         
-            }                               
+            {
+                recoveryModel = (RecoveryModel)(ds.Tables[0].Rows[0]["RecoveryModel"]);
+            }
             return recoveryModel;
         }
 
@@ -319,7 +320,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 recoveryModelString = BackupConstants.RecoveryModelBulk;
             }
-             
+
             return recoveryModelString;
         }
 
@@ -361,6 +362,50 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return dataFolder;
         }
 
+        public static string[] GetAssociatedFilePaths(ServerConnection connection, string primaryFilePath)
+        {
+            var databaseFiles = new List<string>();
+
+            var enumerator = new Enumerator();
+            var req = new Request()
+            {
+                Urn = $"Server/PrimaryFile[@Name='{Urn.EscapeString(primaryFilePath)}']/File",
+                Fields = new string[] { "IsFile", "FileName" }
+            };
+            var dataTable = (DataTable)enumerator.Process(connection, req);
+
+            foreach (DataRow currentRow in dataTable.Rows)
+            {
+                var primaryFolder = Path.GetDirectoryName(primaryFilePath);
+                var originalPath = (string)currentRow["FileName"];
+                var originalFileName = Path.GetFileName(originalPath);
+                var filePath = Path.Join(primaryFolder, originalFileName);
+
+                // Check if file exists with the constructed path.
+                // If it's an XI path, then assume it exists, otherwise retrieve info for the file to check if it exists.
+                var exists = true;
+                var isXIPath = PathWrapper.IsXIPath(primaryFilePath);
+                if (!isXIPath)
+                {
+                    var request = new Request()
+                    {
+                        Urn = string.Format(System.Globalization.CultureInfo.CurrentCulture, "Server/File[@FullName='{0}']", Urn.EscapeString(filePath)),
+                        Fields = new string[] { "IsFile" }
+                    };
+
+                    DataTable data = (new Enumerator()).Process(connection, request);
+
+                    // If the enumerator could find the file, then it exists
+                    exists = data?.Rows.Count > 0;
+                }
+                if (exists)
+                {
+                    databaseFiles.Add(filePath);
+                }
+            }
+            return databaseFiles.ToArray();
+        }
+
         public int GetMediaRetentionValue()
         {
             int afterDays = 0;
@@ -372,29 +417,29 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
 
                 req.Urn = "Server/Configuration";
-                ds = en.Process(this.sqlConnection, req);               
-                for (int i = 0 ; i < ds.Tables[0].Rows.Count; i++)
+                ds = en.Process(this.sqlConnection, req);
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
                     if (Convert.ToString(ds.Tables[0].Rows[i]["Name"], System.Globalization.CultureInfo.InvariantCulture) == "media retention")
                     {
                         afterDays = Convert.ToInt32(ds.Tables[0].Rows[i]["RunValue"], System.Globalization.CultureInfo.InvariantCulture);
                         break;
                     }
-                }                                                                               
+                }
                 return afterDays;
             }
             catch (Exception)
-            {   
+            {
                 return afterDays;
-            }           
+            }
         }
 
         public string GetMediaNameFromBackupSetId(int backupSetId)
         {
-            Enumerator en  = null;
-            DataSet ds  = new DataSet();
+            Enumerator en = null;
+            DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req = new Request();    
+            Request req = new Request();
 
             int mediaId = -1;
             string mediaName = string.Empty;
@@ -421,7 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             catch (Exception)
             {
             }
-            return mediaName;                        
+            return mediaName;
         }
 
         public string GetFileType(string type)
@@ -448,8 +493,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             return result;
         }
-        
-       
+
+
 
         // TODO: This is implemented as internal property in SMO. 
         public bool IsLocalPrimaryReplica(string databaseName)
@@ -469,7 +514,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             return !string.IsNullOrEmpty(server.Databases[databaseName].AvailabilityGroupName);
         }
-        
+
         /// <summary>
         /// Returns whether mirroring is enabled on a database or not
         /// </summary>>
@@ -528,19 +573,19 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             return result;
         }
-                
+
         public bool IsDatabaseOnServer(string databaseName)
         {
             Enumerator en = new Enumerator();
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req = new Request();                                        
-            
+            Request req = new Request();
+
             req.Urn = "Server/Database[@Name='" + Urn.EscapeString(databaseName) + "']";
             req.Fields = new string[1];
             req.Fields[0] = "Name";
 
-            ds = en.Process(sqlConnection, req);            
+            ds = en.Process(sqlConnection, req);
             return (ds.Tables[0].Rows.Count > 0) ? true : false;
         }
 
@@ -636,7 +681,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 case BackupSetType.Differential:
                     backupType = RestoreConstants.TypeDifferential;
                     backupComponent = RestoreConstants.ComponentDatabase;
-                    break;                
+                    break;
                 case BackupSetType.FileOrFileGroup:
                     backupType = RestoreConstants.TypeFilegroup;
                     backupComponent = RestoreConstants.ComponentFile;
@@ -655,9 +700,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                     break;
             }
         }
-        
+
         public void GetBackupSetTypeAndComponent(string strType, ref string backupType, ref string backupComponent)
-        {           
+        {
             string type = strType.ToUpperInvariant();
 
             if (type == "D")
@@ -701,7 +746,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                         }
                     }
                 }
-            }                       
+            }
         }
 
         public void GetFileType(string backupType, string tempFileType, ref string fileType)
@@ -713,20 +758,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             {
                 switch (type)
                 {
-                    case "D": fileType = RestoreConstants.Data;
+                    case "D":
+                        fileType = RestoreConstants.Data;
                         break;
-                    case "S": fileType = RestoreConstants.FileStream;
+                    case "S":
+                        fileType = RestoreConstants.FileStream;
                         break;
-                    default: fileType = RestoreConstants.NotKnown;
+                    default:
+                        fileType = RestoreConstants.NotKnown;
                         break;
                 }
             }
         }
-        
+
         public BackupsetType GetBackupsetTypeFromBackupTypesOnDevice(int type)
-        {            
+        {
             BackupsetType Result = BackupsetType.BackupsetDatabase;
-            switch(type)
+            switch (type)
             {
                 case 1:
                     Result = BackupsetType.BackupsetDatabase;
@@ -747,11 +795,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             return Result;
         }
 
-        
+
         public BackupsetType GetBackupsetTypeFromBackupTypesOnHistory(string type)
         {
             BackupsetType result = BackupsetType.BackupsetDatabase;
-            switch(type)
+            switch (type)
             {
                 case "D":
                     result = BackupsetType.BackupsetDatabase;
@@ -771,7 +819,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             return result;
         }
-        
+
         public DataSet GetBackupSetFiles(int backupsetId)
         {
             Enumerator en = new Enumerator();
@@ -779,7 +827,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             DataSet backupsetfiles = new DataSet();
             backupsetfiles.Locale = System.Globalization.CultureInfo.InvariantCulture;
 
-            if(backupsetId > 0)
+            if (backupsetId > 0)
             {
                 req.Urn = "Server/BackupSet[@ID='" + Urn.EscapeString(Convert.ToString(backupsetId, System.Globalization.CultureInfo.InvariantCulture)) + "']/File";
             }
@@ -791,9 +839,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
 
             return backupsetfiles;
         }
-        
+
         public DataSet GetBackupSetById(int backupsetId)
-        {   
+        {
             SqlExecutionModes executionMode = this.sqlConnection.SqlExecutionModes;
             this.sqlConnection.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
             Enumerator en = new Enumerator();
@@ -807,47 +855,47 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.sqlConnection.SqlExecutionModes = executionMode;
             return backupset;
         }
-        
+
         public ArrayList GetBackupSetPhysicalSources(int backupsetId)
-        {            
+        {
             SqlExecutionModes executionMode = this.sqlConnection.SqlExecutionModes;
             this.sqlConnection.SqlExecutionModes = SqlExecutionModes.ExecuteSql;
 
             ArrayList sources = new ArrayList();
             DataSet backupSet = GetBackupSetById(backupsetId);
-            if(backupSet.Tables[0].Rows.Count == 1)
+            if (backupSet.Tables[0].Rows.Count == 1)
             {
                 string mediaSetID = Convert.ToString(backupSet.Tables[0].Rows[0]["MediaSetId"], System.Globalization.CultureInfo.InvariantCulture);
 
                 Enumerator en = new Enumerator();
                 Request req = new Request();
                 DataSet mediafamily = new DataSet();
-                mediafamily.Locale = System.Globalization.CultureInfo.InvariantCulture;            
+                mediafamily.Locale = System.Globalization.CultureInfo.InvariantCulture;
 
-                req.Urn = "Server/BackupMediaSet[@ID='"+Urn.EscapeString(mediaSetID)+"']/MediaFamily";
+                req.Urn = "Server/BackupMediaSet[@ID='" + Urn.EscapeString(mediaSetID) + "']/MediaFamily";
                 mediafamily = en.Process(this.sqlConnection, req);
 
                 if (mediafamily.Tables[0].Rows.Count > 0)
                 {
-                    for (int j = 0 ; j < mediafamily.Tables[0].Rows.Count; j ++)
+                    for (int j = 0; j < mediafamily.Tables[0].Rows.Count; j++)
                     {
                         RestoreItemSource itemSource = new RestoreItemSource();
                         itemSource.RestoreItemLocation = Convert.ToString(mediafamily.Tables[0].Rows[j]["PhysicalDeviceName"], System.Globalization.CultureInfo.InvariantCulture);
                         BackupDeviceType backupDeviceType = (BackupDeviceType)Enum.Parse(typeof(BackupDeviceType), mediafamily.Tables[0].Rows[j]["BackupDeviceType"].ToString());
-                        
+
                         if (BackupDeviceType.Disk == backupDeviceType)
                         {
-                            itemSource.RestoreItemDeviceType = DeviceType.File;                                    
+                            itemSource.RestoreItemDeviceType = DeviceType.File;
                         }
                         else if (BackupDeviceType.Url == backupDeviceType)
                         {
                             itemSource.RestoreItemDeviceType = DeviceType.Url;
-                        }                                
+                        }
                         else
                         {
-                            itemSource.RestoreItemDeviceType = DeviceType.Tape;                                    
-                        }                                
-                        sources.Add(itemSource);                        
+                            itemSource.RestoreItemDeviceType = DeviceType.Tape;
+                        }
+                        sources.Add(itemSource);
                     }
                 }
             }
@@ -855,11 +903,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             this.sqlConnection.SqlExecutionModes = executionMode;
             return sources;
         }
-        
+
         public RestoreActionType GetRestoreTaskFromBackupSetType(BackupsetType type)
         {
             RestoreActionType result = RestoreActionType.Database;
-            
+
             switch (type)
             {
                 case BackupsetType.BackupsetDatabase:
@@ -880,16 +928,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             return result;
         }
-        
+
         public int GetLatestBackup(string databaseName, string backupSetName)
         {
             Enumerator en = new Enumerator();
             Request req = new Request();
             DataSet backupSets = new DataSet();
-            backupSets.Locale = System.Globalization.CultureInfo.InvariantCulture;            
+            backupSets.Locale = System.Globalization.CultureInfo.InvariantCulture;
             OrderBy orderByBackupDate;
 
-            req.Urn = "Server/BackupSet[@Name='"+Urn.EscapeString(backupSetName)+"' and @DatabaseName='"+ Urn.EscapeString(databaseName)+"']";
+            req.Urn = "Server/BackupSet[@Name='" + Urn.EscapeString(backupSetName) + "' and @DatabaseName='" + Urn.EscapeString(databaseName) + "']";
             req.OrderByList = new OrderBy[1];
             orderByBackupDate = new OrderBy("BackupFinishDate", OrderBy.Direction.Desc);
             req.OrderByList[0] = orderByBackupDate;
@@ -904,7 +952,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return -1;
             }
         }
-        
+
         public List<RestoreItemSource> GetLatestBackupLocations(string databaseName)
         {
             List<RestoreItemSource> latestLocations = new List<RestoreItemSource>();
@@ -963,20 +1011,20 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
             }
             /// LPU doesn't have rights to enumerate msdb.backupset
             catch (Exception)
-            {                
-            }            
-            return latestLocations;            
-        }                       
-        
+            {
+            }
+            return latestLocations;
+        }
+
         public string GetDefaultDatabaseForLogin(string loginName)
-        {   
-            string defaultDatabase  = string.Empty;
+        {
+            string defaultDatabase = string.Empty;
             Enumerator en = new Enumerator();
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
-            Request req = new Request();                                        
-            
-            req.Urn = "Server/Login[@Name='"+Urn.EscapeString(loginName)+"']";
+            Request req = new Request();
+
+            req.Urn = "Server/Login[@Name='" + Urn.EscapeString(loginName) + "']";
             req.Fields = new string[1];
             req.Fields[0] = "DefaultDatabase";
             ds = en.Process(this.sqlConnection, req);
@@ -1010,26 +1058,26 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
         }
 
         public ArrayList IsPhysicalPathInLogicalDevice(string physicalPath)
-        {   
+        {
             Enumerator en = new Enumerator();
             DataSet ds = new DataSet();
             ds.Locale = System.Globalization.CultureInfo.InvariantCulture;
             Request req = new Request();
             ArrayList result = null;
-            int count = 0;               
-            req.Urn = "Server/BackupDevice[@PhysicalLocation='" +Urn.EscapeString(physicalPath)+ "']";
+            int count = 0;
+            req.Urn = "Server/BackupDevice[@PhysicalLocation='" + Urn.EscapeString(physicalPath) + "']";
 
-            ds = en.Process(this.sqlConnection, req);           
+            ds = en.Process(this.sqlConnection, req);
             count = ds.Tables[0].Rows.Count;
-            
+
             if (count > 0)
             {
                 result = new ArrayList(count);
-                for(int i = 0; i < count; i++)
+                for (int i = 0; i < count; i++)
                 {
                     result.Add(Convert.ToString(ds.Tables[0].Rows[0]["Name"], System.Globalization.CultureInfo.InvariantCulture));
                 }
-            }               
+            }
             return result;
         }
 
@@ -1044,7 +1092,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 return System.Environment.MachineName;
             }
 
-            string machineName = sqlServerName;         
+            string machineName = sqlServerName;
             if (sqlServerName.Trim().Length != 0)
             {
                 // [0] = machine, [1] = instance

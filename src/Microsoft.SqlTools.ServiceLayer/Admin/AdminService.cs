@@ -186,6 +186,34 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
         }
 
         /// <summary>
+        /// Handle get associated database files request
+        /// </summary>
+        internal static async Task HandleGetAssociatedFilesRequest(
+            GetAssociatedFilesParams databaseParams,
+            RequestContext<string[]> requestContext)
+        {
+            Func<Task> requestHandler = async () =>
+            {
+                ConnectionInfo connInfo;
+                AdminService.ConnectionServiceInstance.TryFindConnection(
+                        databaseParams.ConnectionUri,
+                        out connInfo);
+                using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connInfo))
+                {
+                    // Connection gets disconnected when backup is done
+                    ServerConnection serverConnection = new ServerConnection(sqlConn);
+                    var files = CommonUtilities.GetAssociatedFilePaths(serverConnection, databaseParams.PrimaryFilePath);
+                    await requestContext.SendResult(files);
+                }
+            };
+
+            Task task = Task.Run(async () => await requestHandler()).ContinueWithOnFaulted(async t =>
+            {
+                await requestContext.SendError(t.Exception.ToString());
+            });
+        }
+
+        /// <summary>
         /// Return database info for a specific database
         /// </summary>
         /// <param name="connInfo"></param>
