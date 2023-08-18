@@ -75,6 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             serviceHost.SetRequestHandler(DefaultDatabaseInfoRequest.Type, HandleDefaultDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDatabaseInfoRequest.Type, HandleGetDatabaseInfoRequest, true);
             serviceHost.SetRequestHandler(GetDataFolderRequest.Type, HandleGetDataFolderRequest, true);
+            serviceHost.SetRequestHandler(GetAssociatedFilesRequest.Type, HandleGetAssociatedFilesRequest, true);
         }
 
         /// <summary>
