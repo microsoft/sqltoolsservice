@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
 using Microsoft.SqlTools.SqlCore.Metadata;
+using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 {
@@ -155,6 +156,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
 
+            DeleteServerContextualizationTempFile(sqlConn.DataSource);
+
             eventContextMock.VerifyAll();
         }
 
@@ -162,7 +165,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         public async Task VerifyGetAllServerMetadataRequest()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
-            this.testTableName2 += new Random().Next(0, 999999).ToString();
+            this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
 
             var connectionResult = LiveConnectionHelper.InitLiveConnectionInfo(null);
             var sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo);
@@ -201,7 +204,27 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(firstCreateTableScript));
             Assert.IsTrue(actualGetServerMetadataResponse.Scripts.Contains(secondCreateTableScript));
 
+            DeleteServerContextualizationTempFile(sqlConn.DataSource);
+
             mockGetServerMetadataRequestContext.VerifyAll();
+        }
+
+        private void DeleteServerContextualizationTempFile(string serverName)
+        {
+            var tempFileName = $"{serverName}.tmp";
+
+            try
+            {
+                var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+                if (File.Exists(tempFilePath))
+                {
+                    File.Delete(tempFilePath);
+                }
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         [Test]
