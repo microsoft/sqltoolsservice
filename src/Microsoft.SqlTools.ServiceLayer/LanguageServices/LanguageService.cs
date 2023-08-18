@@ -289,7 +289,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             WorkspaceServiceInstance.RegisterTextDocCloseCallback(HandleDidCloseTextDocumentNotification);
 
             // Register a callback for when a connection is created
-            ConnectionServiceInstance.RegisterOnConnectionTask(UpdateLanguageServiceOnConnection);
+            ConnectionServiceInstance.RegisterOnConnectionTask(StartUpdateLanguageServiceOnConnection);
 
             // Register a callback for when a connection is closed
             ConnectionServiceInstance.RegisterOnDisconnectTask(RemoveAutoCompleteCacheUriReference);
@@ -539,11 +539,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Start task asynchronously without blocking main thread - by design.
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     GetSignatureHelp(textDocumentPosition, scriptFile)
-                        .ContinueWith(async help =>
+                        .ContinueWith(async task =>
                     {
-                        if (help.Result != null)
+                        var result = await task;
+                        if (result != null)
                         {
-                            await requestContext.SendResult(help.Result);
+                            await requestContext.SendResult(result);
                         }
                     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -667,40 +668,40 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Handle the rebuild IntelliSense cache notification
         /// </summary>
-        public async Task HandleRebuildIntelliSenseNotification(
+        public Task HandleRebuildIntelliSenseNotification(
             RebuildIntelliSenseParams rebuildParams,
             EventContext eventContext)
         {
-            try
+            // Start operation asynchronously without blocking main thread - by design.
+            Task.Factory.StartNew(async () =>
             {
-                Logger.Verbose("HandleRebuildIntelliSenseNotification");
-
-                // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
-                // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
-                // what the document events are sent in as.
-                var escapedOwnerUri = Uri.EscapeUriString(rebuildParams.OwnerUri);
-                // Skip closing this file if the file doesn't exist
-                var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
-                if (scriptFile == null)
+                try
                 {
-                    return;
-                }
+                    Logger.Verbose("HandleRebuildIntelliSenseNotification");
 
-                ConnectionInfo connInfo;
-                ConnectionServiceInstance.TryFindConnection(
-                    scriptFile.ClientUri,
-                    out connInfo);
-
-                // check that there is an active connection for the current editor
-                if (connInfo != null)
-                {
-                    // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
-                    ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
-                    if (scriptInfo != null && scriptInfo.IsConnected &&
-                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                    // This URI doesn't come in escaped - so if it's a file path with reserved characters (such as %)
+                    // then we'll fail to find it since GetFile expects the URI to be a fully-escaped URI as that's
+                    // what the document events are sent in as.
+                    var escapedOwnerUri = Uri.EscapeUriString(rebuildParams.OwnerUri);
+                    // Skip closing this file if the file doesn't exist
+                    var scriptFile = this.CurrentWorkspace.GetFile(escapedOwnerUri);
+                    if (scriptFile == null)
                     {
-                        // Start operation asynchronously without blocking main thread - by design.
-                        Task.Run(async () =>
+                        return;
+                    }
+
+                    ConnectionInfo connInfo;
+                    ConnectionServiceInstance.TryFindConnection(
+                        scriptFile.ClientUri,
+                        out connInfo);
+
+                    // check that there is an active connection for the current editor
+                    if (connInfo != null)
+                    {
+                        // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
+                        ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
+                        if (scriptInfo != null && scriptInfo.IsConnected &&
+                            Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
                         {
                             try
                             {
@@ -729,20 +730,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                             // Send a notification to signal that autocomplete is ready
                             await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = connInfo.OwnerUri });
-                        }).Start();
-                    }
-                    else
-                    {
-                        // Send a notification to signal that autocomplete is ready
-                        await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+                        }
+                        else
+                        {
+                            // Send a notification to signal that autocomplete is ready
+                            await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Unknown error " + ex.ToString());
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
-            }
+                catch (Exception ex)
+                {
+                    Logger.Error("Unknown error " + ex.ToString());
+                    await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = rebuildParams.OwnerUri });
+                }
+            }, CancellationToken.None,
+            TaskCreationOptions.None,
+            TaskScheduler.Default);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -971,6 +976,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Runs UpdateLanguageServiceOnConnection as a background task
+        /// </summary>
+        /// <param name="info">Connection Info</param>
+        /// <returns></returns>
+        public Task StartUpdateLanguageServiceOnConnection(ConnectionInfo info)
+        {
+            // Start task asynchronously without blocking main thread - by design.
+            Task.Factory.StartNew(() => UpdateLanguageServiceOnConnection(info));
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Update the autocomplete metadata provider when the user connects to a database
         /// </summary>
         /// <param name="info"></param>
@@ -1090,6 +1107,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 });
 
                             queueItem.ItemProcessed.WaitOne();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Exception in PrepopulateCommonMetadata " + ex.ToString());
                         }
                         finally
                         {
@@ -1543,6 +1564,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Exception in GetSignatureHelp " + ex.ToString());
+                    }
                     finally
                     {
                         Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
@@ -1808,10 +1833,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
 
                 Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
-                ScriptFileMarker[] semanticMarkers = await GetSemanticMarkers(scriptFile);
-                Logger.Verbose("Analysis complete.");
 
-                await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
+                // Start task asynchronously without blocking main thread - by design.
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                GetSemanticMarkers(scriptFile).ContinueWith(async t =>
+                {
+                    var semanticMarkers = t.GetAwaiter().GetResult();
+                    Logger.Verbose("Analysis complete.");
+                    await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
+                }, CancellationToken.None);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
 

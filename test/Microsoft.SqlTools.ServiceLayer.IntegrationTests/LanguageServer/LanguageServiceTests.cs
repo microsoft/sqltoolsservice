@@ -252,7 +252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.That(parseInfo, Is.Not.Null, "ScriptParseInfo");
 
             // And we should get back a non-null SignatureHelp
-            SignatureHelp? signatureHelp = service.GetSignatureHelp(textDocument, result.ScriptFile);
+            SignatureHelp? signatureHelp = await service.GetSignatureHelp(textDocument, result.ScriptFile);
             Assert.That(signatureHelp, Is.Not.Null, "SignatureHelp");
         }
 
