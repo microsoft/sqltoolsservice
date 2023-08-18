@@ -121,7 +121,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Handles the request for generating all server metadata
+        /// Handles the event for generating all server table and view scripts
         /// </summary>
         internal static async Task HandleGenerateServerTableMetadataNotification(GenerateServerTableMetadataParams metadataParams,
             EventContext eventContext)
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Handles the request for getting all server metadata
+        /// Handles the request for getting all server table and view scripts
         /// </summary>
         internal static async Task HandleGetServerTableMetadataRequest(GetServerTableMetadataParams metadataParams,
             RequestContext<GetServerTableMetadataResult> requestContext)
