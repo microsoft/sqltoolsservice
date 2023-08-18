@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <param name="includeSystemObjects">include system objects</param>
         /// <param name="cancellationToken">cancellation token</param>
         /// <param name="filters">filters to apply</param>
-        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter>? filters);
+        public abstract IEnumerable<TreeNode> Expand(TreeNode parent, bool refresh, string name, bool includeSystemObjects, CancellationToken cancellationToken, IEnumerable<INodeFilter> filters);
 
         /// <summary>
         /// The list of filters that should be applied on the smo object list

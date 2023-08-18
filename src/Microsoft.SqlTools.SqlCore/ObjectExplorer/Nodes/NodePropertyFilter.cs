@@ -186,7 +186,10 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                         var escapedString = StringUtils.EscapeStringSQuote(propertyValue.ToString());
                         if (this.FilterType == FilterType.STARTSWITH || this.FilterType == FilterType.ENDSWITH)
                         {
-                            escapedString = EscapeLikeURNRegex().Replace(escapedString, "[$0]");
+                            // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ^
+                            // we do this by wrapping them in square brackets eg: [%], [_], [[], [^]
+                            Regex escapteSqlObjectChars = new Regex(@"%|_|\[|\^");
+                            escapedString = escapteSqlObjectChars.Replace(escapedString, "[$0]");
 
                             if (this.FilterType == FilterType.STARTSWITH)
                             {
@@ -283,11 +286,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
                     return false;
             }
         }
-
-        // For filters that use the LIKE operator, we need to escape the following characters: %, _, [, ^
-        // we do this by wrapping them in square brackets eg: [%], [_], [[], [^]
-        [GeneratedRegexAttribute(@"%|_|\[|\^")]
-        public static partial Regex EscapeLikeURNRegex();
     }
 
     public enum FilterType
