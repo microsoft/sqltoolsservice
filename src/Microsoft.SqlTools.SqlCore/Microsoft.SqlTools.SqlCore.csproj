@@ -12,7 +12,7 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyTitle>SqlTools SqlCore Library</AssemblyTitle>
 		<Description>Provides core sql functionality for SQL server editors like Object explorer, Query Execution and Scripting</Description>
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net7.0</TargetFrameworks>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
