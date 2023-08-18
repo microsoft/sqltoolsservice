@@ -382,7 +382,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery
                 var filePath = Path.Join(primaryFolder, originalFileName);
 
                 // Check if file exists with the constructed path.
-                // If it's an XI path, then assume it exists, otherwise retrieve info for the file to check if it exists.
+                // If it's an XI (XStore Integration) path, then assume it exists, otherwise retrieve info for the file to check if it exists.
                 var exists = true;
                 var isXIPath = PathWrapper.IsXIPath(primaryFilePath);
                 if (!isXIPath)
