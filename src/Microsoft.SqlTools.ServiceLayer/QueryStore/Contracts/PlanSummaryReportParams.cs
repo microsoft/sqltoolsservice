@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     {
         public long QueryId { get; set; }
         public PlanTimeIntervalMode TimeIntervalMode { get; set; }
-        public TimeInterval TimeInterval { get; set; }
+        public BasicTimeInterval TimeInterval { get; set; }
         public Metric SelectedMetric { get; set; }
         public Statistic SelectedStatistic { get; set; }
 
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         {
             QueryId = QueryId,
             TimeIntervalMode = TimeIntervalMode,
-            TimeInterval = TimeInterval,
+            TimeInterval = TimeInterval.Convert(),
             SelectedMetric = SelectedMetric,
             SelectedStatistic = SelectedStatistic
         };

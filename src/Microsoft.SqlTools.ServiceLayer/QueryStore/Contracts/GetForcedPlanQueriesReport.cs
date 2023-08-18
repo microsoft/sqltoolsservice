@@ -13,14 +13,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetForcedPlanQueriesReportParams : QueryConfigurationParams<ForcedPlanQueriesConfiguration>, IOrderableQueryParams
     {
-        public TimeInterval TimeInterval { get; set; }
+        public BasicTimeInterval TimeInterval { get; set; }
         public string OrderByColumnId { get; set; }
         public bool Descending { get; set; }
 
         public override ForcedPlanQueriesConfiguration Convert()
         {
             ForcedPlanQueriesConfiguration config = base.Convert();
-            config.TimeInterval = TimeInterval;
+            config.TimeInterval = TimeInterval.Convert();
 
             return config;
         }

@@ -23,8 +23,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
         private static DateTimeOffset TestWindowStart = DateTimeOffset.Parse("6/10/2023 12:34:56 PM -07:00");
         private static DateTimeOffset TestWindowEnd = TestWindowStart.AddDays(7);
         private static DateTimeOffset TestWindowRecentStart = TestWindowEnd.AddHours(-1);
-        private static TimeInterval TestTimeInterval { get => new TimeInterval(TestWindowStart, TestWindowEnd); }
-        private static TimeInterval RecentTestTimeInterval { get => new TimeInterval(TestWindowRecentStart, TestWindowEnd); }
+        private static BasicTimeInterval TestTimeInterval => new BasicTimeInterval()
+        {
+            StartDateTimeInUtc = TestWindowStart.ToString("O"),
+            EndDateTimeInUtc = TestWindowEnd.ToString("O")
+        };
+
+        private static BasicTimeInterval RecentTestTimeInterval => new BasicTimeInterval()
+        {
+            StartDateTimeInUtc = TestWindowRecentStart.ToString("O"),
+            EndDateTimeInUtc = TestWindowEnd.ToString("O")
+        };
 
         [Test]
         public async Task TopResourceConsumers()
@@ -217,7 +226,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 QueryId = 97,
                 TimeInterval = TestTimeInterval,
-                //TimeIntervalMode = TimeIntervalMode.SpecifiedRange, // TODO: uncomment once new QSM package is brought in
+                TimeIntervalMode = PlanTimeIntervalMode.SpecifiedRange,
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev
             }, request.Object);

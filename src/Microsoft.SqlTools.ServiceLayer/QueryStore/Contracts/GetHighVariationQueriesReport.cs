@@ -13,14 +13,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetHighVariationQueriesReportParams : QueryConfigurationParams<HighVariationConfiguration>, IOrderableQueryParams
     {
-        public TimeInterval TimeInterval { get; set; }
+        public BasicTimeInterval TimeInterval { get; set; }
         public string OrderByColumnId { get; set; }
         public bool Descending { get; set; }
 
         public override HighVariationConfiguration Convert()
         {
             HighVariationConfiguration config = base.Convert();
-            config.TimeInterval = TimeInterval;
+            config.TimeInterval = TimeInterval.Convert();
 
             return config;
         }

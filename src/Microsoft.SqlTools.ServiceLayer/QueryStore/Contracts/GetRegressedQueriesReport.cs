@@ -13,16 +13,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
     public class GetRegressedQueriesReportParams : QueryConfigurationParams<RegressedQueriesConfiguration>
     {
-        public TimeInterval TimeIntervalRecent { get; set; }
-        public TimeInterval TimeIntervalHistory { get; set; }
+        public BasicTimeInterval TimeIntervalRecent { get; set; }
+        public BasicTimeInterval TimeIntervalHistory { get; set; }
         public long MinExecutionCount { get; set; }
 
         public override RegressedQueriesConfiguration Convert()
         {
             RegressedQueriesConfiguration result = base.Convert();
 
-            result.TimeIntervalRecent = TimeIntervalRecent;
-            result.TimeIntervalHistory = TimeIntervalHistory;
+            result.TimeIntervalRecent = TimeIntervalRecent.Convert();
+            result.TimeIntervalHistory = TimeIntervalHistory.Convert();
             result.MinExecutionCount = MinExecutionCount;
 
             return result;
