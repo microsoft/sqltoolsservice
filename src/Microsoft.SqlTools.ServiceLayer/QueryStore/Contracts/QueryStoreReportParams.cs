@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
     public class QueryStoreQueryResult : ResultStatus
     {
-        public string Query;
+        public string Query { get; set; }
     }
 
     public interface IOrderableQueryParams
