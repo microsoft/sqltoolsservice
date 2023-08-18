@@ -7,13 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.QueryStoreModel.Common;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryStore;
 using Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Moq;
 using NUnit.Framework;
+using static Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary.PlanSummaryConfiguration;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
 {
@@ -231,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
                 ConnectionOwnerUri = TestConnectionOwnerUri,
                 QueryId = 97,
                 TimeInterval = TestTimeInterval,
-                //TimeIntervalMode = TimeIntervalMode.SpecifiedRange, // TODO: uncomment once new QSM package is brought in
+                TimeIntervalMode = PlanTimeIntervalMode.SpecifiedRange,
                 SelectedMetric = Metric.WaitTime,
                 SelectedStatistic = Statistic.Stdev,
                 OrderByColumnId = "count_executions",
@@ -244,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryStore
 
         private QueryStoreService GetMock()
         {
-            Mock<QueryStoreService> mock = new Mock<QueryStoreService>(ConnectionService.Instance);
+            Mock<QueryStoreService> mock = new Mock<QueryStoreService>();
             mock.Setup(s => s.GetAvailableMetrics(It.IsAny<QueryStoreReportParams>()))
                 .Returns(new List<Metric>()
                 {

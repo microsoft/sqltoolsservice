@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore
         /// </summary>
         private ConnectionService ConnectionService { get; }
 
-        private QueryStoreService()
+        public QueryStoreService()
         {
             ConnectionService = ConnectionService.Instance;
         }
