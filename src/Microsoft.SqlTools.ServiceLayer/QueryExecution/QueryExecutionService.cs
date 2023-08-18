@@ -1068,7 +1068,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             {
                 return GetSqlTextFromSelectionData(escapedOwnerUri, docRequest.QuerySelection);
             }
-            
+
             // If it is a document statement, we'll retrieve the text from the document
             if (request is ExecuteDocumentStatementParams stmtRequest)
             {

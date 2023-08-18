@@ -1809,7 +1809,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
                 ScriptFileMarker[] semanticMarkers = await GetSemanticMarkers(scriptFile);
-                    Logger.Verbose("Analysis complete.");
+                Logger.Verbose("Analysis complete.");
 
                 await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
             }
