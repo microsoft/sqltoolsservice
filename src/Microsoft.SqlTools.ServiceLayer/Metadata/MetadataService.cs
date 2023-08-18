@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.SqlCore.Metadata;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {

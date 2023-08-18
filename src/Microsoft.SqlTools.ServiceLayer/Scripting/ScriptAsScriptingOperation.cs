@@ -7,18 +7,18 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
-using Microsoft.SqlTools.Utility;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Specialized;
-using System.Text;
 using System.Globalization;
-using Microsoft.SqlServer.Management.SqlScriptPublish;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using System.Text;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.SqlServer.Management.SqlScriptPublish;
+using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
+using Microsoft.SqlTools.SqlCore.Connection;
+using Microsoft.SqlTools.SqlCore.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Scripting
 {
@@ -47,6 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         public ScriptAsScriptingOperation(ScriptingParams parameters, string azureAccountToken) : base(parameters)
         {
             SqlConnection sqlConnection = new SqlConnection(this.Parameters.ConnectionString);
+            sqlConnection.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
             if (azureAccountToken != null)
             {
                 sqlConnection.AccessToken = azureAccountToken;

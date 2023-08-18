@@ -12,7 +12,6 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.EditData.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
@@ -74,11 +73,11 @@ namespace Microsoft.SqlTools.ServiceLayer.EditData.UpdateManagement
         /// Reader returned from the execution of the command to insert a new row. Should contain
         /// a single row that represents the newly added row.
         /// </param>
-        public override Task ApplyChanges(DbDataReader dataReader)
+        public override void ApplyChanges(DbDataReader dataReader)
         {
             Validate.IsNotNull(nameof(dataReader), dataReader);
 
-            return AssociatedResultSet.AddRow(dataReader);
+            AssociatedResultSet.AddRow(dataReader);
         }
 
         /// <summary>

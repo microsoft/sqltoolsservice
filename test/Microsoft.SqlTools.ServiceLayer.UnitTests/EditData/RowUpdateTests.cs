@@ -403,7 +403,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
             var newRowReader = Common.GetNewRowDataReader(data.DbColumns, includeIdentity);
 
             // If: I ask for the change to be applied
-            await ru.ApplyChanges(newRowReader);
+            ru.ApplyChanges(newRowReader);
 
             // Then: 
             // ... The result set should have the same number of rows as before
@@ -422,7 +422,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
 
             // If: I  ask for the changes to be applied with a null db reader
             // Then: I should get an exception
-            Assert.ThrowsAsync<ArgumentNullException>(() => ru.ApplyChanges(null));
+            Assert.Throws<ArgumentNullException>(() => ru.ApplyChanges(null));
         }
 
         #endregion
