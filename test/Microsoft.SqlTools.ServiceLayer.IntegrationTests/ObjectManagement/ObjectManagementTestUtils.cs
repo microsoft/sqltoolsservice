@@ -7,16 +7,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.Management.Sql.Models;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement;
 using Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts;
 using Moq;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
 {

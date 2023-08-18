@@ -564,7 +564,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                             }
                         }
 
-                        if (database.Owner != null && database.Owner != SR.general_default && viewParams.IsNewObject)
+                        if (database.Owner != null && database.Owner != SR.general_default)
                         {
                             prototype.Owner = database.Owner;
                         }
@@ -654,6 +654,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                     newFile.PhysicalName = file.FileNameWithExtension;
                                     newFile.Folder = file.Path;
                                     newFile.DatabaseFileType = fileTypesEnums[file.Type];
+                                    newFile.Exists = false;
+                                    newFile.Autogrowth = GetAutogrowth(prototype, file);
 
                                     // Log file do not support file groups
                                     if (fileTypesEnums[file.Type] != FileType.Log)
@@ -662,21 +664,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                         fileGroup.Name = file.FileGroup;
                                         newFile.FileGroup = fileGroup;
                                     }
-
-                                    Autogrowth fileAutogrowth = new Autogrowth(prototype);
-                                    fileAutogrowth.IsEnabled = file.IsAutoGrowthEnabled;
-                                    bool isGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
-                                    fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
-                                    fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
-                                    fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
-                                    fileAutogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimit) ? file.MaxSizeLimit : 0.0);
-
-                                    // FileStream files do not support file growth
-                                    if (fileTypesEnums[file.Type] == FileType.FileStream)
-                                    {
-                                        fileAutogrowth.IsGrowthRestricted = true;
-                                    }
-                                    newFile.Autogrowth = fileAutogrowth;
 
                                     // Add newFile to the prototype files
                                     prototype.Files.Add(newFile);
@@ -691,13 +678,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                                             fileIdsToRemove.Remove(existedFile.ID);
                                             existedFile.Name = file.Name;
                                             existedFile.InitialSize = (int)file.SizeInMb;
-
-                                            bool isGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
-                                            existedFile.Autogrowth.IsEnabled = file.IsAutoGrowthEnabled;
-                                            existedFile.Autogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimit) ? file.MaxSizeLimit : 0.0);
-                                            existedFile.Autogrowth.IsGrowthInPercent = isGrowthInPercent;
-                                            existedFile.Autogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : existedFile.Autogrowth.GrowthInPercent;
-                                            existedFile.Autogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : existedFile.Autogrowth.GrowthInMegabytes;
+                                            existedFile.Autogrowth = GetAutogrowth(prototype, file);
                                             break;
                                         }
                                     }
@@ -769,6 +750,20 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     dataContainer.ServerConnection.Disconnect();
                 }
             }
+        }
+
+        private Autogrowth GetAutogrowth(DatabasePrototype prototype, DatabaseFile file)
+        {
+            Autogrowth fileAutogrowth = new Autogrowth(prototype);
+            fileAutogrowth.IsEnabled = file.IsAutoGrowthEnabled;
+            bool isGrowthInPercent = Enum.Parse<FileGrowthType>(file.AutoFileGrowthType) == FileGrowthType.Percent;
+            fileAutogrowth.IsGrowthInPercent = isGrowthInPercent;
+            fileAutogrowth.GrowthInPercent = isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInPercent;
+            fileAutogrowth.GrowthInMegabytes = !isGrowthInPercent ? (int)file.AutoFileGrowth : fileAutogrowth.GrowthInMegabytes;
+            fileAutogrowth.MaximumFileSizeInMegabytes = (int)((0.0 <= file.MaxSizeLimit) ? file.MaxSizeLimit : 0.0);
+            fileAutogrowth.IsGrowthRestricted = file.MaxSizeLimit > 0.0;
+
+            return fileAutogrowth;
         }
 
         /// <summary>
