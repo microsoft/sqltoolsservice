@@ -178,7 +178,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 requestContext.Verify(x => x.SendError(It.IsAny<string>(), 0, It.IsAny<string>()), Times.Once);
 
                 ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-                autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
+                await autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
                 scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
 
                 //Invoke auto completion with extension enabled

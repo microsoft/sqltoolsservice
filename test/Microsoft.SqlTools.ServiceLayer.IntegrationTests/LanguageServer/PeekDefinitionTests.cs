@@ -729,7 +729,7 @@ GO";
             Thread.Sleep(2000);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            service.ParseAndBind(scriptFile, connInfo);
+            await service.ParseAndBind(scriptFile, connInfo);
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
             service.ScriptParseInfoMap.Add(OwnerUri, scriptInfo);
 
@@ -786,7 +786,7 @@ GO";
             Thread.Sleep(2000);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { IsConnected = true };
-            service.ParseAndBind(scriptFile, connInfo);
+            await service.ParseAndBind(scriptFile, connInfo);
             scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
             service.ScriptParseInfoMap.Add(TestUri, scriptInfo);
 

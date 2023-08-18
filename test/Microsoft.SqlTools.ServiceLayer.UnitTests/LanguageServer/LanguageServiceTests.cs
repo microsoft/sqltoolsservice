@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sql2016Text);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify that no errors are detected
             Assert.AreEqual(0, fileMarkers.Length);
@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse the sql statement
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sqlWithErrors);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify there are no errors
             Assert.AreEqual(0, fileMarkers.Length);
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse sql statement
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sqlWithErrors);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify there is one error
             Assert.AreEqual(1, fileMarkers.Length);
@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // parse sql
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(sqlWithErrors);
-            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile);
+            ScriptFileMarker[] fileMarkers = service.GetSemanticMarkers(scriptFile).GetAwaiter().GetResult();
 
             // verify there are two errors
             Assert.AreEqual(2, fileMarkers.Length);
@@ -140,7 +140,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             scriptFile.SetFileContents(docContent);
 
             // When requesting SignatureHelp
-            SignatureHelp signatureHelp = service.GetSignatureHelp(TestObjects.GetTestDocPosition(), scriptFile);
+            SignatureHelp signatureHelp = service.GetSignatureHelp(TestObjects.GetTestDocPosition(), scriptFile).GetAwaiter().GetResult();
             
             // Then null is returned as no parse info can be used to find the signature
             Assert.Null(signatureHelp);
