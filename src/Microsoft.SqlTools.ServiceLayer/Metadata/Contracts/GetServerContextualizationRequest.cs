@@ -7,7 +7,7 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
 {
-    public class GetDatabaseServerContextualizationParams
+    public class GetServerContextualizationParams
     {
         /// <summary>
         /// The URI of the connection to generate scripts for.
@@ -15,17 +15,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
         public string OwnerUri { get; set; }
     }
 
-    public class GetDatabaseServerContextualizationResult
+    public class GetServerContextualizationResult
     {
         /// <summary>
         /// An array containing generated create scripts for database objects like tables and views,
         /// </summary>
-        public string[] Scripts { get; set; }
+        public string[] Context { get; set; }
     }
 
-    public class GetDatabaseServerContextualizationRequest
+    public class GetServerContextualizationRequest
     {
-        public static readonly RequestType<GetDatabaseServerContextualizationParams, GetDatabaseServerContextualizationResult> Type =
-            RequestType<GetDatabaseServerContextualizationParams, GetDatabaseServerContextualizationResult>.Create("metadata/getDatabaseServerContextScripts");
+        public static readonly RequestType<GetServerContextualizationParams, GetServerContextualizationResult> Type =
+            RequestType<GetServerContextualizationParams, GetServerContextualizationResult>.Create("metadata/getServerContext");
     }
 }

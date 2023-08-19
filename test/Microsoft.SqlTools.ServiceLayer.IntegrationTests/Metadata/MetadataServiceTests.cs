@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         }
 
         [Test]
-        public async Task VerifyGenerateDatabaseServerContextualizationNotification()
+        public async Task VerifyGenerateServerContextualizationNotification()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
             this.testTableName2 += new Random().Next(0, 999999).ToString();
@@ -146,12 +146,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             var eventContextMock = new Mock<EventContext>();
 
-            var generateDatabaseServerContextualizationParams = new GenerateDatabaseServerContextualizationParams
+            var generateServerContextualizationParams = new GenerateServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateDatabaseServerContextualizationNotification(generateDatabaseServerContextualizationParams, eventContextMock.Object);
+            await MetadataService.HandleGenerateServerContextualizationNotification(generateServerContextualizationParams, eventContextMock.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         }
 
         [Test]
-        public async Task VerifyGetDatabaseServerContextualizationRequest()
+        public async Task VerifyGetServerContextualizationRequest()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
             this.testTableName2 += new Random().Next(1000000, 9999999).ToString();
@@ -175,12 +175,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 
             var eventContextMock = new Mock<EventContext>();
 
-            var generateDatabaseServerContextualizationParams = new GenerateDatabaseServerContextualizationParams
+            var generateServerContextualizationParams = new GenerateServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGenerateDatabaseServerContextualizationNotification(generateDatabaseServerContextualizationParams, eventContextMock.Object);
+            await MetadataService.HandleGenerateServerContextualizationNotification(generateServerContextualizationParams, eventContextMock.Object);
 
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName);
             DeleteTestTable(sqlConn, this.testTableSchema, this.testTableName2);
@@ -188,25 +188,25 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
             var firstCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName}](\t[id] [int] NULL)";
             var secondCreateTableScript = $"CREATE TABLE [{this.testTableSchema}].[{this.testTableName2}](\t[id] [int] NULL)";
 
-            var mockGetDatabaseServerContextualizationRequestContext = new Mock<RequestContext<GetDatabaseServerContextualizationResult>>();
-            var actualGetDatabaseServerContextuazliationResponse = new GetDatabaseServerContextualizationResult();
-            mockGetDatabaseServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetDatabaseServerContextualizationResult>()))
-                .Callback<GetDatabaseServerContextualizationResult>(actual => actualGetDatabaseServerContextuazliationResponse = actual)
+            var mockGetServerContextualizationRequestContext = new Mock<RequestContext<GetServerContextualizationResult>>();
+            var actualGetServerContextualizationResponse = new GetServerContextualizationResult();
+            mockGetServerContextualizationRequestContext.Setup(x => x.SendResult(It.IsAny<GetServerContextualizationResult>()))
+                .Callback<GetServerContextualizationResult>(actual => actualGetServerContextualizationResponse = actual)
                 .Returns(Task.CompletedTask);
 
-            var getDatabaseServerContextualizationParams = new GetDatabaseServerContextualizationParams
+            var getDatabaseServerContextualizationParams = new GetServerContextualizationParams
             {
                 OwnerUri = connectionResult.ConnectionInfo.OwnerUri
             };
 
-            await MetadataService.HandleGetDatabaseServerContextualizationRequest(getDatabaseServerContextualizationParams, mockGetDatabaseServerContextualizationRequestContext.Object);
+            await MetadataService.HandleGetServerContextualizationRequest(getDatabaseServerContextualizationParams, mockGetServerContextualizationRequestContext.Object);
 
-            Assert.IsTrue(actualGetDatabaseServerContextuazliationResponse.Scripts.Contains(firstCreateTableScript));
-            Assert.IsTrue(actualGetDatabaseServerContextuazliationResponse.Scripts.Contains(secondCreateTableScript));
+            Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(firstCreateTableScript));
+            Assert.IsTrue(actualGetServerContextualizationResponse.Context.Contains(secondCreateTableScript));
 
             DeleteServerContextualizationTempFile(sqlConn.DataSource);
 
-            mockGetDatabaseServerContextualizationRequestContext.VerifyAll();
+            mockGetServerContextualizationRequestContext.VerifyAll();
         }
 
         private void DeleteServerContextualizationTempFile(string serverName)
