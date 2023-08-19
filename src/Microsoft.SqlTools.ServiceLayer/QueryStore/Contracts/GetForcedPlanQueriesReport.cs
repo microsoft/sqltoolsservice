@@ -10,11 +10,15 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetForcedPlanQueriesReportParams : QueryConfigurationParams<ForcedPlanQueriesConfiguration>, IOrderableQueryParams
+    /// <summary>
+    /// Parameters for getting a Forced Plan Queries report
+    /// </summary>
+    public class GetForcedPlanQueriesReportParams : OrderableQueryConfigurationParams<ForcedPlanQueriesConfiguration>
     {
+        /// <summary>
+        /// Time interval for the report
+        /// </summary>
         public BasicTimeInterval TimeInterval { get; set; }
-        public string OrderByColumnId { get; set; }
-        public bool Descending { get; set; }
 
         public override ForcedPlanQueriesConfiguration Convert()
         {
@@ -23,8 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
             return config;
         }
-
-        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     /// <summary>

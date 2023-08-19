@@ -11,9 +11,19 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
+    /// <summary>
+    /// Parameters for getting an Overall Resource Consumption report
+    /// </summary>
     public class GetOverallResourceConsumptionReportParams : QueryConfigurationParams<OverallResourceConsumptionConfiguration>
     {
+        /// <summary>
+        /// Time interval for the report
+        /// </summary>
         public BasicTimeInterval SpecifiedTimeInterval { get; set; }
+
+        /// <summary>
+        /// Bucket interval for the report
+        /// </summary>
         public BucketInterval SpecifiedBucketInterval { get; set; }
 
         public override OverallResourceConsumptionConfiguration Convert()
@@ -28,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the report for a Forced Plan Queries summary
+    /// Gets the report for an Overall Resource Consumption report
     /// </summary>
     public class GetOverallResourceConsumptionReportRequest
     {

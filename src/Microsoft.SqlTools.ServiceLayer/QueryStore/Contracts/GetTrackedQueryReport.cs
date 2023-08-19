@@ -9,8 +9,14 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
+    /// <summary>
+    /// Parameters for getting a Tracked Queries report
+    /// </summary>
     public class GetTrackedQueriesReportParams
     {
+        /// <summary>
+        /// Search text for a query
+        /// </summary>
         public string QuerySearchText { get; set; }
     }
 

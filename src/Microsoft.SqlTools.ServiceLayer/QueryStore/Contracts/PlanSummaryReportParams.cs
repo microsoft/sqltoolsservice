@@ -12,12 +12,34 @@ using static Microsoft.SqlServer.Management.QueryStoreModel.PlanSummary.PlanSumm
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
+    /// <summary>
+    /// Parameters for getting a Plan Summary
+    /// </summary>
     public class GetPlanSummaryParams : TypedQueryStoreReportParams<PlanSummaryConfiguration>
     {
+        /// <summary>
+        /// Query ID to view a summary of plans for
+        /// </summary>
         public long QueryId { get; set; }
+
+        /// <summary>
+        /// Mode of the time interval search
+        /// </summary>
         public PlanTimeIntervalMode TimeIntervalMode { get; set; }
+
+        /// <summary>
+        /// Time interval for the report
+        /// </summary>
         public BasicTimeInterval TimeInterval { get; set; }
+
+        /// <summary>
+        /// Metric to summarize
+        /// </summary>
         public Metric SelectedMetric { get; set; }
+
+        /// <summary>
+        /// Statistic to calculate on SelecticMetric
+        /// </summary>
         public Statistic SelectedStatistic { get; set; }
 
         public override PlanSummaryConfiguration Convert() => new()
@@ -30,17 +52,37 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
         };
     }
 
+    /// <summary>
+    /// Parameters for getting the grid view of a Plan Summary
+    /// </summary>
     public class GetPlanSummaryGridViewParams : GetPlanSummaryParams, IOrderableQueryParams
     {
+        /// <summary>
+        /// Name of the column to order results by
+        /// </summary>
         public string OrderByColumnId { get; set; }
+
+        /// <summary>
+        /// Direction of the result ordering
+        /// </summary>
         public bool Descending { get; set; }
 
         public string GetOrderByColumnId() => OrderByColumnId;
     }
 
+    /// <summary>
+    /// Parameters for getting the forced plan for a query
+    /// </summary>
     public class GetForcedPlanParams : QueryStoreReportParams
     {
+        /// <summary>
+        /// Query ID to view the plan for
+        /// </summary>
         public long QueryId { get; set; }
+
+        /// <summary>
+        /// Plan ID to view
+        /// </summary>
         public long PlanId { get; set; }
     }
 

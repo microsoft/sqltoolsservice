@@ -10,11 +10,15 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
-    public class GetHighVariationQueriesReportParams : QueryConfigurationParams<HighVariationConfiguration>, IOrderableQueryParams
+    /// <summary>
+    /// Parameters for getting a High Variation Queries report
+    /// </summary>
+    public class GetHighVariationQueriesReportParams : OrderableQueryConfigurationParams<HighVariationConfiguration>
     {
+        /// <summary>
+        /// Time interval for the report
+        /// </summary>
         public BasicTimeInterval TimeInterval { get; set; }
-        public string OrderByColumnId { get; set; }
-        public bool Descending { get; set; }
 
         public override HighVariationConfiguration Convert()
         {
@@ -23,8 +27,6 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 
             return config;
         }
-
-        public string GetOrderByColumnId() => OrderByColumnId;
     }
 
     /// <summary>
@@ -43,14 +45,5 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     {
         public static readonly RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult> Type
             = RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getHighVariationQueriesDetailedSummary");
-    }
-
-    /// <summary>
-    /// Gets the High Variation Queries detailed summary with wait stats
-    /// </summary>
-    public class GetHighVariationQueriesDetailedSummaryWithWaitStatsRequest
-    {
-        public static readonly RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult> Type
-            = RequestType<GetHighVariationQueriesReportParams, QueryStoreQueryResult>.Create("queryStore/getHighVariationQueriesDetailedSummaryWithWaitStats");
     }
 }

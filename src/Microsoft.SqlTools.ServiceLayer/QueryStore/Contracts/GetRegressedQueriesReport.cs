@@ -10,10 +10,24 @@ using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
 {
+    /// <summary>
+    /// Parameters for getting a Regressed Queries report
+    /// </summary>
     public class GetRegressedQueriesReportParams : QueryConfigurationParams<RegressedQueriesConfiguration>
     {
+        /// <summary>
+        /// Time interval during which to look for performance regressions for the report
+        /// </summary>
         public BasicTimeInterval TimeIntervalRecent { get; set; }
+
+        /// <summary>
+        /// Time interval during which to establish baseline performance for the report
+        /// </summary>
         public BasicTimeInterval TimeIntervalHistory { get; set; }
+
+        /// <summary>
+        /// Minimum number of executions for a query to be included
+        /// </summary>
         public long MinExecutionCount { get; set; }
 
         public override RegressedQueriesConfiguration Convert()
