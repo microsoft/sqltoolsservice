@@ -308,6 +308,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'NuGet push SqlCore'
+  condition: eq(variables['RELEASE'], 'true')
   inputs:
     command: push
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
