@@ -37,7 +37,8 @@
     "Microsoft.SqlTools.Migration"
   ],
   "FxBuildProjects": [
-    "Microsoft.SqlTools.ManagedBatchParser"
+    "Microsoft.SqlTools.ManagedBatchParser",
+    "Microsoft.SqlTools.SqlCore"
   ],
   "PackageProjects": [
     "Microsoft.SqlTools.Hosting"

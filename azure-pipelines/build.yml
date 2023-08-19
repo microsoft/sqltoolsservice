@@ -104,7 +104,7 @@ steps:
     summaryFileLocation: '$(Agent.TempDirectory)/coverlet/reports/Cobertura.xml'
 
 - task: PowerShell@2
-  displayName: 'Generate Nuspec Version'
+  displayName: 'Generate ManagedBatchParser Nuspec Version'
   inputs:
     targetType: 'inline'
     script: |
@@ -119,6 +119,22 @@ steps:
           $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
       }
       $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
+      $nuspec = New-Object XML
+      $nuspec.Load($nuspecFile)
+      $nuspec.package.metadata.version = $version;
+      $nuspec.Save($nuspecFile)
+
+- task: PowerShell@2
+  displayName: 'Generate SqlCore Nuspec Version'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+      $props = New-Object XML
+      $props.Load($projectFile)
+      $propGroup = $props.Project.PropertyGroup;
+      $version = $env:$(Major) + '.' + $env:$(Minor) + '.' + $env:$(Patch) + $(Build.BuildNumber);
+      $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
       $nuspec = New-Object XML
       $nuspec.Load($nuspecFile)
       $nuspec.package.metadata.version = $version;
@@ -281,13 +297,21 @@ steps:
     ArtifactName: 'logs'
   condition: true
 
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   displayName: 'NuGet push'
   condition: eq(variables['PUSH_SYMBOLS'], 'true')
   inputs:
     command: push
     packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    publishVstsFeed: '2191dd5f-4aec-491b-ac50-568bbc331c8a'
+    feedPublish: 'mssqltools'
+    allowPackageConflicts: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'NuGet push SqlCore'
+  inputs:
+    command: push
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    feedPublish: 'mssqltools'
     allowPackageConflicts: true
 
 - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
