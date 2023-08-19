@@ -64,7 +64,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// <param name="type">Type of the querier</param>
         /// <param name="validForFlag">Server Type</param>
         /// <returns></returns>
-        public bool CanApplyFilter(Type type, ValidForFlag validForFlag)
+        public override bool CanApplyFilter(Type type, ValidForFlag validForFlag)
         {
             bool canApplyFilter = false;
             canApplyFilter = TypeToReverse == null || TypeToReverse == type;
@@ -78,7 +78,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes
         /// Example of the output: (@ IsSystemObject = 0)
         /// </summary>
         /// <returns></returns>
-        public string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
+        public override string ToPropertyFilterString(Type type, ValidForFlag validForFlag)
         {
             // check first if the filter can be applied; if not just return empty string
             if (!CanApplyFilter(type, validForFlag))
