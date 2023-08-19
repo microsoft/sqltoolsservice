@@ -37,8 +37,7 @@ var shellExtension = IsRunningOnWindows() ? "ps1" : "sh";
 /// </summary>
 public class BuildPlan
 {
-    public string[] FxBuildProjects { get; set; }
-    public string[] FxFrameworks { get; set; }
+    public Project[] FxBuildProjects { get; set; }
     public IDictionary<string, string[]> TestProjects { get; set; }
     public string BuildToolsFolder { get; set; }
     public string ArtifactsFolder { get; set; }
@@ -63,6 +62,7 @@ public class Project
     public string Name { get; set; }
     public string[] PackageProjects { get; set; }
     public string[] TestProjects { get; set; }
+    public string[] Frameworks { get; set; }
 }
 
 var buildPlan = JsonConvert.DeserializeObject<BuildPlan>(
@@ -263,10 +263,10 @@ Task("BuildFx")
 {
     foreach (var project in buildPlan.FxBuildProjects)
     {
-        foreach (var framework in buildPlan.FxFrameworks)
+        foreach (var framework in project.Frameworks)
         {
-            var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            var projectFolder = System.IO.Path.Combine(sourceFolder, project.Name);
+            var logPath = System.IO.Path.Combine(logFolder, $"{project.Name}-{framework}-build.log");
             using (var logWriter = new StreamWriter(logPath)) {
                 Run(dotnetcli, $"build --framework {framework} --configuration {configuration} \"{projectFolder}\"",
                     new RunOptions
@@ -274,7 +274,7 @@ Task("BuildFx")
                         StandardOutputWriter = logWriter,
                         StandardErrorWriter = logWriter
                     })
-                .ExceptionOnError($"Building test {project} failed for {framework}. See {logPath} for more details.");
+                .ExceptionOnError($"Building test {project.Name} failed for {framework}. See {logPath} for more details.");
             }
         }
     }
@@ -310,8 +310,8 @@ Task("DotnetPackNuspec")
     {
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
-        var projectFolder = System.IO.Path.Combine(packagesFolder, project);
-        DotnetPackNuspec(outputFolder, projectFolder, project);
+        var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);
+        DotnetPackNuspec(outputFolder, projectFolder, project.Name);
     }
 });
 
@@ -469,9 +469,10 @@ void PublishProject(string packageName, string[] projects)
             }
         }
 
-        if (buildPlan.FxBuildProjects.Contains(project))
+        if (buildPlan.FxBuildProjects.Any(p => p.Name == project))
         {
-            foreach(var framework in buildPlan.FxFrameworks)
+            var projDefinition = buildPlan.FxBuildProjects.First(p => p.Name == project);
+            foreach(var framework in projDefinition.Frameworks)
             {
                 var outputFolder = System.IO.Path.Combine(publishFolder, packageName, "default", framework);
                 var publishArguments = "publish";
