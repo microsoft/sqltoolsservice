@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the Regressed Queries summary
+    /// Gets the query for a Regressed Queries report
     /// </summary>
     public class GetRegressedQueriesSummaryRequest
     {
@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the Regressed Queries summary
+    /// Gets the query for a detailed Regressed Queries report
     /// </summary>
     public class GetRegressedQueriesDetailedSummaryRequest
     {

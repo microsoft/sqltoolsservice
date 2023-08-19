@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the report for a Forced Plan Queries summary
+    /// Gets the query for a Tracked Queries report
     /// </summary>
     public class GetTrackedQueriesReportRequest
     {

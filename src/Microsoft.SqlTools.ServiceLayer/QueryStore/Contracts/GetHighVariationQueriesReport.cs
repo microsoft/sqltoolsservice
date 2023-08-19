@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the High Variation Queries summary
+    /// Gets the query for a High Variation Queries report
     /// </summary>
     public class GetHighVariationQueriesSummaryRequest
     {
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the High Variation Queries detailed summary
+    /// Gets the query for a detailed High Variation Queries report
     /// </summary>
     public class GetHighVariationQueriesDetailedSummaryRequest
     {

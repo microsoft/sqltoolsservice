@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the report for an Overall Resource Consumption report
+    /// Gets the query for an Overall Resource Consumption report
     /// </summary>
     public class GetOverallResourceConsumptionReportRequest
     {

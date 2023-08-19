@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the report for a Forced Plan Queries summary
+    /// Gets the query for a Forced Plan Queries report
     /// </summary>
     public class GetForcedPlanQueriesReportRequest
     {

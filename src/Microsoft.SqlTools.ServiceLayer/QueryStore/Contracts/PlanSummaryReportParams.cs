@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets the query for a forced plan query
+    /// Gets the query to look up a forced plan
     /// </summary>
     public class GetForcedPlanRequest // there's also GetForcedPlanQueries (plural) in QSM; how is that not confusing...
     {

@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets a Top Resource Consumers summary
+    /// Gets the query for a Top Resource Consumers report
     /// </summary>
     public class GetTopResourceConsumersSummaryRequest
     {
@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryStore.Contracts
     }
 
     /// <summary>
-    /// Gets a Top Resource Consumers detailed summary
+    /// Gets the query for a detailed Top Resource Consumers report
     /// </summary>
     public class GetTopResourceConsumersDetailedSummaryRequest
     {
