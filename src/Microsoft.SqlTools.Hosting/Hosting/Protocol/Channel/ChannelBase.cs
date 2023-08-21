@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// <param name="messageProtocolType">The type of message protocol used by the channel.</param>
         /// <param name="inputStream">Optional stream to use for the input stream</param>
         /// <param name="outputStream">Optional stream to use for the output stream</param>
-        public void Start(MessageProtocolType messageProtocolType, Stream inputStream = null, Stream outputStream = null)
+        public void Start(MessageProtocolType messageProtocolType, Stream? inputStream = null, Stream? outputStream = null)
         {
             IMessageSerializer messageSerializer = null;
             if (messageProtocolType == MessageProtocolType.LanguageServer)
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         /// <param name="messageSerializer">The IMessageSerializer to use for message serialization.</param>
         /// <param name="inputStream">Optional stream to use for the input stream</param>
         /// <param name="outputStream">Optional stream to use for the output stream</param>
-        protected abstract void Initialize(IMessageSerializer messageSerializer, Stream inputStream = null, Stream outputStream = null);
+        protected abstract void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null);
 
         /// <summary>
         /// A method to be implemented by subclasses to handle shutdown

@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol.Channel
         private Stream inputStream;
         private Stream outputStream;
 
-        protected override void Initialize(IMessageSerializer messageSerializer, Stream inputStream = null, Stream outputStream = null)
+        protected override void Initialize(IMessageSerializer messageSerializer, Stream? inputStream = null, Stream? outputStream = null)
         {
 #if !NanoServer
             // Ensure that the console is using UTF-8 encoding
