@@ -970,7 +970,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             var fileStreamDataGroups = new List<string>();
             foreach (FileGroup fileGroup in database.FileGroups)
             {
-                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup)
+                if (fileGroup.FileGroupType == FileGroupType.FileStreamDataFileGroup || fileGroup.FileGroupType == FileGroupType.MemoryOptimizedDataFileGroup)
                 {
                     fileStreamDataGroups.Add(fileGroup.Name);
                 }
