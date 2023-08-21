@@ -4,7 +4,6 @@
 //
 using Microsoft.SqlServer.Management.Common;
 using System;
-using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
 
@@ -64,13 +63,14 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 return null;
             }
 
-            IDbConnection conn = null;
+            SqlConnection conn = null;
             try
             {
                 string connString = ci.ConnectionString;
                 connString += ";Pooling=false"; //turn off connection pooling (this is done in other tools so following the same pattern)
 
                 conn = new SqlConnection(connString);
+                conn.RetryLogicProvider = Connection.ReliableConnection.SqlRetryProviders.ServerlessDBRetryProvider();
                 conn.Open();
 
                 return conn as DbConnection;

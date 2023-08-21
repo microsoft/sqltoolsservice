@@ -8,11 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -89,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     // https://learn.microsoft.com/sql/relational-databases/errors-events/mssqlserver-18456-database-engine-error
                     if (i != databasesToTry.Count - 1 && ex.Number == 18456)
                     {
-                        Logger.Write(TraceEventType.Information, string.Format("Failed to get database list from database '{0}', will fallback to original database.", databasesToTry[i]));
+                        Logger.Information(string.Format("Failed to get database list from database '{0}', will fallback to original database.", databasesToTry[i]));
                         continue;
                     }
                     else

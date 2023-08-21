@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -218,12 +217,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
             {
                 await requestContext.SendResult(new ExecuteRequestResult());
-                Logger.Write(TraceEventType.Stop, $"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
+                Logger.Stop($"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
                 return true;
             };
             Func<string, Task> queryCreateFailureAction = message =>
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
+                Logger.Warning($"Failed to create Query: '{executeParams.OwnerUri}. Message: '{message}' Complete!");
                 return requestContext.SendError(message);
             };
 
@@ -378,7 +377,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Error encountered " + ex.ToString());
+                Logger.Error("Error encountered " + ex.ToString());
                 return Task.FromException(ex);
             }
         }
@@ -395,7 +394,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 ResultSubset = subset
             };
             await requestContext.SendResult(result);
-            Logger.Write(TraceEventType.Stop, $"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
+            Logger.Stop($"Done Handler for Subset request with for Query:'{subsetParams.OwnerUri}', Batch:'{subsetParams.BatchIndex}', ResultSetIndex:'{subsetParams.ResultSetIndex}', RowsStartIndex'{subsetParams.RowsStartIndex}', Requested RowsCount:'{subsetParams.RowsCount}'\r\n\t\t with subset response of:[ RowCount:'{subset.RowCount}', Rows array of length:'{subset.Rows.Length}']");
         }
 
 
@@ -711,7 +710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
             catch (Exception ex)
             {
-                Logger.Write(TraceEventType.Error, "Unknown error " + ex.ToString());
+                Logger.Error("Unknown error " + ex.ToString());
             }
 
             return Task.CompletedTask;
@@ -874,7 +873,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 throw new InvalidOperationException(SR.QueryServiceQueryInProgress);
             }
 
-            Logger.Write(TraceEventType.Information, $"Query object for URI:'{executeParams.OwnerUri}' created");
+            Logger.Information($"Query object for URI:'{executeParams.OwnerUri}' created");
             return newQuery;
         }
 
@@ -893,7 +892,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
-                Logger.Write(TraceEventType.Information, $"Query:'{ownerUri}' completed");
+                Logger.Information($"Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
 
@@ -907,7 +906,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     BatchSummaries = q.BatchSummaries
                 };
 
-                Logger.Write(TraceEventType.Error, $"Query:'{ownerUri}' failed");
+                Logger.Error($"Query:'{ownerUri}' failed");
                 await eventSender.SendEvent(QueryCompleteEvent.Type, eventParams);
             };
             query.QueryCompleted += completeCallback;
@@ -927,7 +926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
+                Logger.Information($"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
                 await eventSender.SendEvent(BatchStartEvent.Type, eventParams);
             };
             query.BatchStarted += batchStartCallback;
@@ -940,7 +939,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Batch:'{b.Summary}' on Query:'{ownerUri}' completed");
+                Logger.Information($"Batch:'{b.Summary}' on Query:'{ownerUri}' completed");
                 await eventSender.SendEvent(BatchCompleteEvent.Type, eventParams);
             };
             query.BatchCompleted += batchCompleteCallback;
@@ -953,7 +952,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Message generated on Query:'{ownerUri}' :'{m}'");
+                Logger.Information($"Message generated on Query:'{ownerUri}' :'{m}'");
                 await eventSender.SendEvent(MessageEvent.Type, eventParams);
             };
             query.BatchMessageSent += batchMessageCallback;
@@ -967,7 +966,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is available");
+                Logger.Information($"Result:'{r.Summary} on Query:'{ownerUri}' is available");
                 await eventSender.SendEvent(ResultSetAvailableEvent.Type, eventParams);
             };
             query.ResultSetAvailable += resultAvailableCallback;
@@ -989,7 +988,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     catch (Exception ex)
                     {
                         // In case of error we are sending an empty execution plan graph with the error message.
-                        Logger.Write(TraceEventType.Error, String.Format("Failed to generate show plan graph{0}{1}", Environment.NewLine, ex.Message));
+                        Logger.Error(String.Format("Failed to generate show plan graph{0}{1}", Environment.NewLine, ex.Message));
                         planErrors = ex.Message;
                     }
 
@@ -1015,7 +1014,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     OwnerUri = ownerUri
                 };
 
-                Logger.Write(TraceEventType.Information, $"Result:'{r.Summary} on Query:'{ownerUri}' is complete");
+                Logger.Information($"Result:'{r.Summary} on Query:'{ownerUri}' is complete");
                 await eventSender.SendEvent(ResultSetCompleteEvent.Type, eventParams);
             };
             query.ResultSetCompleted += resultCompleteCallback;
@@ -1098,7 +1097,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ScriptFile queryFile = WorkspaceService.Workspace.GetFile(ownerUri);
             if (queryFile == null)
             {
-                Logger.Write(TraceEventType.Warning, $"[GetSqlTextFromSelectionData] Unable to find document with OwnerUri {ownerUri}");
+                Logger.Warning($"[GetSqlTextFromSelectionData] Unable to find document with OwnerUri {ownerUri}");
                 return string.Empty;
             }
             // If a selection was not provided, use the entire document
@@ -1209,7 +1208,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         {
                             // We don't particularly care if we fail to cancel during shutdown
                             string message = string.Format("Failed to cancel query {0} during query service disposal: {1}", query.Key, e);
-                            Logger.Write(TraceEventType.Warning, message);
+                            Logger.Warning(message);
                         }
                     }
                     query.Value.Dispose();

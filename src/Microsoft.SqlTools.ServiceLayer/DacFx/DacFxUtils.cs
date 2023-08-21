@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
@@ -53,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                                 }
                                 else
                                 {
-                                    Logger.Write(TraceEventType.Error, string.Format($"{objectTypeValue} is not part of ObjectTypes enum"));
+                                    Logger.Error(string.Format($"{objectTypeValue} is not part of ObjectTypes enum"));
                                 }
                             }
                             // set final values to excludeObjectType property
@@ -82,7 +81,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
             catch (Exception e)
             {
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare create options model failed: {0}", e.Message));
+                Logger.Error(string.Format("Schema compare create options model failed: {0}", e.Message));
                 throw;
             }
         }

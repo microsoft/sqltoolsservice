@@ -6,7 +6,6 @@
 #nullable disable
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.Dac.Compare;
@@ -50,7 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format("Schema compare publish database changes operation {0} failed with exception {1}", this.OperationId, e.Message));
+                Logger.Error(string.Format("Schema compare publish database changes operation {0} failed with exception {1}", this.OperationId, e.Message));
                 throw;
             }
         }

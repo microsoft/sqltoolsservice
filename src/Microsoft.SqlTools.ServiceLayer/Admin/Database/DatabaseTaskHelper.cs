@@ -12,7 +12,6 @@ using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Xml;
 
 namespace Microsoft.SqlTools.ServiceLayer.Admin
@@ -65,6 +64,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
                 else if (majorVersionNumber == 16)
                 {
                     this.prototype = new DatabasePrototype160(context);
+                }
+                else if (majorVersionNumber >= 14)
+                {
+                    this.prototype = new DatabasePrototype140(context);
+                }
+                else if (majorVersionNumber == 13)
+                {
+                    this.prototype = new DatabasePrototype130(context);
                 }
                 else if (Utils.IsSql11OrLater(context.Server.Version.Major))
                 {
@@ -224,7 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Admin
             }
             catch(Exception ex)
             {
-                Logger.Write(TraceEventType.Warning, $"Failed to disconnect Database task Helper connection. Error: {ex.Message}");
+                Logger.Warning($"Failed to disconnect Database task Helper connection. Error: {ex.Message}");
             }
         }
     }

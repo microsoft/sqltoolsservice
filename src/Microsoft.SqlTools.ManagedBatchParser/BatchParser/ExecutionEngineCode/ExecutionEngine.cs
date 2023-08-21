@@ -133,7 +133,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 catch (Exception ex)
                 {
                     // if anything goes wrong it will shutdown VS
-                    Logger.Write(TraceEventType.Error, "Exception Caught in ExecutionEngine.DoBatchExecution(Batch) :" + ex.ToString());
+                    Logger.Error("Exception Caught in ExecutionEngine.DoBatchExecution(Batch) :" + ex.ToString());
                     result = ScriptExecutionResult.Failure;
                 }
             }
@@ -496,7 +496,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 }
                 catch (Exception ex)
                 {
-                    Logger.Write(TraceEventType.Warning, "Exception Caught in ExecutionEngine.DoScriptExecution(bool): " + ex.ToString());
+                    Logger.Warning("Exception Caught in ExecutionEngine.DoScriptExecution(bool): " + ex.ToString());
                     throw;
                 }
             }
@@ -922,11 +922,12 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
             try
             {
                 connection = new SqlConnection(connectionStringBuilder.ConnectionString);
+                connection.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
                 connection.Open();
             }
             catch (SqlException ex)
             {
-                Logger.Write(TraceEventType.Warning, "Exception Caught in ExecutionEngine.ConnectSqlCmdInternal(SqlConnectionStringBuilder): " + ex.ToString());
+                Logger.Warning("Exception Caught in ExecutionEngine.ConnectSqlCmdInternal(SqlConnectionStringBuilder): " + ex.ToString());
                 throw;
             }
 
@@ -962,7 +963,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser.ExecutionEngineCode
                 }
                 catch (SqlException ex)
                 {
-                    Logger.Write(TraceEventType.Warning, "Exception Caught in ExecutionEngine.CloseConnection(SqlConnection): " + ex.ToString());
+                    Logger.Warning("Exception Caught in ExecutionEngine.CloseConnection(SqlConnection): " + ex.ToString());
                 }
             }
         }

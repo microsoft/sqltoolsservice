@@ -14,6 +14,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.Data.SqlClient;
 using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
@@ -353,7 +354,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
     /// </summary>
     public class TestSqlConnectionFactory : ISqlConnectionFactory
     {
-        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken)
+        public DbConnection CreateSqlConnection(string connectionString, string azureAccountToken, SqlRetryLogicBaseProvider retryProvider = null)
         {
             return new TestSqlConnection(null)
             {

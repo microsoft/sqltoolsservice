@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Properties used for creating/opening the SQL connection.
         /// </summary>
-        public ConnectionDetails ConnectionDetails { get; private set; }
+        public ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// A map containing all connections to the database that are associated with 

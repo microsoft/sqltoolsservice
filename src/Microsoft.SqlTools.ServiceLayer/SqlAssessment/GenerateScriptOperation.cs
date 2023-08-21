@@ -6,13 +6,12 @@
 #nullable disable
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Threading;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
+using Microsoft.SqlTools.SqlCore.Utility;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
@@ -74,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlAssessment
             catch (Exception e)
             {
                 ErrorMessage = e.Message;
-                Logger.Write(TraceEventType.Error, string.Format(
+                Logger.Error(string.Format(
                     CultureInfo.InvariantCulture,
                     "SQL Assessment: generate script operation failed with exception {0}",
                     e.Message));
@@ -130,7 +129,7 @@ INSERT INTO [dbo].[AssessmentResult] ([CheckName],[CheckId],[RulesetName],[Rules
                     {
                         sb.Append(
                             $@"
-        ('{CUtils.EscapeStringSQuote(item.DisplayName)}','{CUtils.EscapeStringSQuote(item.CheckId)}','{CUtils.EscapeStringSQuote(item.RulesetName)}','{item.RulesetVersion}','{item.Level}','{CUtils.EscapeStringSQuote(item.Message)}','{CUtils.EscapeStringSQuote(item.TargetName)}','{item.TargetType}','{CUtils.EscapeStringSQuote(item.HelpLink)}','{item.Timestamp:yyyy-MM-dd hh:mm:ss.fff zzz}'),");
+        ('{StringUtils.EscapeStringSQuote(item.DisplayName)}','{StringUtils.EscapeStringSQuote(item.CheckId)}','{StringUtils.EscapeStringSQuote(item.RulesetName)}','{item.RulesetVersion}','{item.Level}','{StringUtils.EscapeStringSQuote(item.Message)}','{StringUtils.EscapeStringSQuote(item.TargetName)}','{item.TargetType}','{StringUtils.EscapeStringSQuote(item.HelpLink)}','{item.Timestamp:yyyy-MM-dd hh:mm:ss.fff zzz}'),");
                     }
                 }
 

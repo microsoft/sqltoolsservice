@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
@@ -18,7 +17,7 @@ using Microsoft.SqlTools.Utility;
 
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
-{    
+{
     /// <summary>
     /// Main class for the Binding Queue
     /// </summary>
@@ -314,14 +313,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                 {
                                     try
                                     {
-                                        Logger.Write(TraceEventType.Warning, "Binding queue operation timed out waiting for previous operation to finish");
+                                        Logger.Warning("Binding queue operation timed out waiting for previous operation to finish");
                                         queueItem.Result = queueItem.TimeoutOperation != null
                                             ? queueItem.TimeoutOperation(bindingContext)
                                             : null;
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Write(TraceEventType.Error, "Exception running binding queue lock timeout handler: " + ex.ToString());
+                                        Logger.Error("Exception running binding queue lock timeout handler: " + ex.ToString());
                                     }
                                     finally
                                     {
@@ -350,7 +349,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Write(TraceEventType.Error, "Unexpected exception on the binding queue: " + ex.ToString());
+                                        Logger.Error("Unexpected exception on the binding queue: " + ex.ToString());
                                         if (queueItem.ErrorHandler != null)
                                         {
                                             try
@@ -359,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                             }
                                             catch (Exception ex2)
                                             {
-                                                Logger.Write(TraceEventType.Error, "Unexpected exception in binding queue error handler: " + ex2.ToString());
+                                                Logger.Error("Unexpected exception in binding queue error handler: " + ex2.ToString());
                                             }
                                         }
 
@@ -394,7 +393,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                                 queueItem.Result = queueItem.TimeoutOperation(bindingContext);                              
                                             }
 
-                                            bindTask.ContinueWithOnFaulted(t => Logger.Write(TraceEventType.Error, "Binding queue threw exception " + t.Exception.ToString()));
+                                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
 
                                             // Give the task a chance to complete before moving on to the next operation
                                             bindTask.Wait();
@@ -402,7 +401,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Write(TraceEventType.Error, "Binding queue task completion threw exception " + ex.ToString());  
+                                        Logger.Error("Binding queue task completion threw exception " + ex.ToString());  
                                     }
                                     finally
                                     {
@@ -419,7 +418,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             {
                                 // catch and log any exceptions raised in the binding calls
                                 // set item processed to avoid deadlocks 
-                                Logger.Write(TraceEventType.Error, "Binding queue threw exception " + ex.ToString());
+                                Logger.Error("Binding queue threw exception " + ex.ToString());
                                 // set item processed to avoid deadlocks 
                                 if (lockTaken)
                                 {

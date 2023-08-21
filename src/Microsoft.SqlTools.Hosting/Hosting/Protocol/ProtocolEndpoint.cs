@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -256,7 +255,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             {
                 if (SendEventIgnoreExceptions)
                 {
-                    Logger.Write(TraceEventType.Verbose, "Exception in SendEvent " + ex.ToString());
+                    Logger.Verbose("Exception in SendEvent " + ex.ToString());
                 }
                 else
                 {

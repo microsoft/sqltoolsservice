@@ -269,7 +269,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.EditData
         #region Initialize Tests
         [Test]
         [Sequential]
-        public async Task InitializeNullParams([Values(null, Common.OwnerUri, Common.OwnerUri)] string ownerUri, 
+        public void InitializeNullParams([Values(null, Common.OwnerUri, Common.OwnerUri)] string ownerUri, 
                                                [Values("table", null, "table")] string objName, 
                                                [Values("table", "table", null)] string objType)
         {

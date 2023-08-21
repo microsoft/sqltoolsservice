@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using static Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility.LiveConnectionHelper;
+using Microsoft.SqlTools.SqlCore.Metadata;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
 {
