@@ -118,639 +118,639 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>Error expanding: {0}</value>
+    <value>'{0}' の拡張中にエラーが発生しました</value>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>Error connecting to {0}</value>
+    <value>{0} への接続中にエラーが発生しました</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>Aggregates</value>
+    <value>集約</value>
   </data>
   <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>Server Roles</value>
+    <value>サーバー ロール</value>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Application Roles</value>
+    <value>アプリケーション ロール</value>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>Assemblies</value>
+    <value>アセンブリ</value>
   </data>
   <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>Assembly Files</value>
+    <value>アセンブリ ファイル</value>
   </data>
   <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>非対称キー</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>非対称キー</value>
   </data>
   <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>Data Compression Options</value>
+    <value>データ圧縮オプション</value>
   </data>
   <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>証明書</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
-    <value>FileTables</value>
+    <value>FileTable</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>証明書</value>
   </data>
   <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Check Constraints</value>
+    <value>CHECK 制約</value>
   </data>
   <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>Columns</value>
+    <value>列</value>
   </data>
   <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>Constraints</value>
+    <value>制約</value>
   </data>
   <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>Contracts</value>
+    <value>コントラクト</value>
   </data>
   <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>Credentials</value>
+    <value>資格情報</value>
   </data>
   <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>Error Messages</value>
+    <value>エラー メッセージ</value>
   </data>
   <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>Server Role Membership</value>
+    <value>サーバー ロール メンバーシップ</value>
   </data>
   <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>Database Options</value>
+    <value>データベース オプション</value>
   </data>
   <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>Database Roles</value>
+    <value>データベース ロール</value>
   </data>
   <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>Role Memberships</value>
+    <value>ロール メンバーシップ</value>
   </data>
   <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>Database Triggers</value>
+    <value>データベース トリガー</value>
   </data>
   <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>Default Constraints</value>
+    <value>既定の制約</value>
   </data>
   <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>Defaults</value>
+    <value>既定値</value>
   </data>
   <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>Sequences</value>
+    <value>シーケンス</value>
   </data>
   <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>Endpoints</value>
+    <value>エンドポイント</value>
   </data>
   <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>Event Notifications</value>
+    <value>イベント通知</value>
   </data>
   <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>Server Event Notifications</value>
+    <value>サーバー イベント通知</value>
   </data>
   <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>Extended Properties</value>
+    <value>拡張プロパティ</value>
   </data>
   <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>Filegroups</value>
+    <value>ファイル グループ</value>
   </data>
   <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>Foreign Keys</value>
+    <value>外部キー</value>
   </data>
   <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>Full-Text Catalogs</value>
+    <value>フルテキスト カタログ</value>
   </data>
   <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>Full-Text Indexes</value>
+    <value>フルテキスト インデックス</value>
   </data>
   <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>Functions</value>
+    <value>関数</value>
   </data>
   <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>Indexes</value>
+    <value>インデックス</value>
   </data>
   <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>Inline Functions</value>
+    <value>インライン関数</value>
   </data>
   <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>Keys</value>
+    <value>キー</value>
   </data>
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>Linked Servers</value>
+    <value>リンク サーバー</value>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Logins</value>
+    <value>ログイン</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>Master Key</value>
+    <value>マスター キー</value>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>Master Keys</value>
+    <value>マスター キー</value>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>Message Types</value>
+    <value>メッセージ型</value>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Table-Valued Functions</value>
+    <value>テーブル値関数</value>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>Parameters</value>
+    <value>パラメーター</value>
   </data>
   <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>Partition Functions</value>
+    <value>パーティション関数</value>
   </data>
   <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>Partition Schemes</value>
+    <value>パーティション構成</value>
   </data>
   <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>Permissions</value>
+    <value>アクセス許可</value>
   </data>
   <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>Primary Keys</value>
+    <value>主キー</value>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Programmability</value>
+    <value>プログラミング</value>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>Queues</value>
+    <value>キュー</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>Remote Service Bindings</value>
+    <value>リモート サービス バインド</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Returned Columns</value>
+    <value>返された列</value>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>Roles</value>
+    <value>ロール</value>
   </data>
   <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>Routes</value>
+    <value>ルート</value>
   </data>
   <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>Rules</value>
+    <value>ルール</value>
   </data>
   <data name="SchemaHierarchy_Schemas" xml:space="preserve">
-    <value>Schemas</value>
+    <value>スキーマ</value>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>Security</value>
+    <value>セキュリティ</value>
   </data>
   <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>Server Objects</value>
+    <value>サーバー オブジェクト</value>
   </data>
   <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>Management</value>
+    <value>管理</value>
   </data>
   <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>トリガー</value>
   </data>
   <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
     <value>Service Broker</value>
   </data>
   <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>Services</value>
+    <value>サービス</value>
   </data>
   <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>Signatures</value>
+    <value>署名</value>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>Log Files</value>
+    <value>ログ ファイル</value>
   </data>
   <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>Statistics</value>
+    <value>統計</value>
   </data>
   <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>Storage</value>
+    <value>ストレージ</value>
   </data>
   <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>Stored Procedures</value>
+    <value>ストアド プロシージャ</value>
   </data>
   <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>Symmetric Keys</value>
+    <value>対称キー</value>
   </data>
   <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>Synonyms</value>
+    <value>シノニム</value>
   </data>
   <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>Tables</value>
+    <value>テーブル</value>
   </data>
   <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>トリガー</value>
   </data>
   <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>Types</value>
+    <value>型</value>
   </data>
   <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>Unique Keys</value>
+    <value>一意キー</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>User-Defined Data Types</value>
+    <value>ユーザー定義データ型</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>User-Defined Types (CLR)</value>
+    <value>ユーザー定義型 (CLR)</value>
   </data>
   <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>Users</value>
+    <value>ユーザー</value>
   </data>
   <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>Views</value>
+    <value>ビュー</value>
   </data>
   <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML Indexes</value>
+    <value>XML インデックス</value>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML Schema Collections</value>
+    <value>XML スキーマ コレクション</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>User-Defined Table Types</value>
+    <value>ユーザー定義テーブル型</value>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>Files</value>
+    <value>ファイル</value>
   </data>
   <data name="MissingCaption" xml:space="preserve">
-    <value>Missing Caption</value>
+    <value>キャプションが見つかりません</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Broker Priorities</value>
+    <value>ブローカーの優先度</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>Cryptographic Providers</value>
+    <value>暗号化プロバイダー</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>Database Audit Specifications</value>
+    <value>データベース監査の仕様</value>
   </data>
   <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>Database Encryption Keys</value>
+    <value>データベース暗号化キー</value>
   </data>
   <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>Event Sessions</value>
+    <value>イベント セッション</value>
   </data>
   <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>Full Text Stoplists</value>
+    <value>フルテキスト ストップリスト</value>
   </data>
   <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>Resource Pools</value>
+    <value>リソース プール</value>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>Audits</value>
+    <value>監査</value>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>Server Audit Specifications</value>
+    <value>サーバー監査の仕様</value>
   </data>
   <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>Spatial Indexes</value>
+    <value>空間インデックス</value>
   </data>
   <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>Workload Groups</value>
+    <value>ワークロード グループ</value>
   </data>
   <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL Files</value>
+    <value>SQL ファイル</value>
   </data>
   <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>Server Functions</value>
+    <value>サーバー関数</value>
   </data>
   <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL Type</value>
+    <value>SQL 型</value>
   </data>
   <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>Server Options</value>
+    <value>サーバー オプション</value>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Database Diagrams</value>
+    <value>データベース ダイアグラム</value>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>System Tables</value>
+    <value>システム テーブル</value>
   </data>
   <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>Databases</value>
+    <value>データベース</value>
   </data>
   <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>System Contracts</value>
+    <value>システム コントラクト</value>
   </data>
   <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>System Databases</value>
+    <value>システム データベース</value>
   </data>
   <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>System Message Types</value>
+    <value>システム メッセージの種類</value>
   </data>
   <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>System Queues</value>
+    <value>システム キュー</value>
   </data>
   <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>System Services</value>
+    <value>システム サービス</value>
   </data>
   <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>System Stored Procedures</value>
+    <value>システム ストアド プロシージャ</value>
   </data>
   <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>System Views</value>
+    <value>システム ビュー</value>
   </data>
   <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>Data-tier Applications</value>
+    <value>データ層アプリケーション</value>
   </data>
   <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>Extended Stored Procedures</value>
+    <value>拡張ストアド プロシージャ</value>
   </data>
   <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>集計関数</value>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Approximate Numerics</value>
+    <value>概数</value>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>Binary Strings</value>
+    <value>バイナリ文字列</value>
   </data>
   <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>Character Strings</value>
+    <value>文字列</value>
   </data>
   <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR Data Types</value>
+    <value>CLR データ型</value>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Configuration Functions</value>
+    <value>構成関数</value>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>Cursor Functions</value>
+    <value>カーソル関数</value>
   </data>
   <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>System Data Types</value>
+    <value>システム データ型</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>Date and Time</value>
+    <value>日付と時刻</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>Date and Time Functions</value>
+    <value>日付と時刻関数</value>
   </data>
   <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>Exact Numerics</value>
+    <value>真数</value>
   </data>
   <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>System Functions</value>
+    <value>システム関数</value>
   </data>
   <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>Hierarchy Id Functions</value>
+    <value>階層 ID 関数</value>
   </data>
   <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>Mathematical Functions</value>
+    <value>数学関数</value>
   </data>
   <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>Metadata Functions</value>
+    <value>メタデータ関数</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Other Data Types</value>
+    <value>その他のデータ型</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Other Functions</value>
+    <value>その他の関数</value>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Rowset Functions</value>
+    <value>行セット関数</value>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>Security Functions</value>
+    <value>セキュリティ関数</value>
   </data>
   <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>Spatial Data Types</value>
+    <value>空間データ型</value>
   </data>
   <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>String Functions</value>
+    <value>文字列関数</value>
   </data>
   <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>System Statistical Functions</value>
+    <value>システム統計関数</value>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Text and Image Functions</value>
+    <value>テキストとイメージ関数</value>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Unicode Character Strings</value>
+    <value>Unicode 文字列</value>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>集計関数</value>
   </data>
   <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>Scalar-valued Functions</value>
+    <value>スカラー値関数</value>
   </data>
   <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>Table-valued Functions</value>
+    <value>テーブル値関数</value>
   </data>
   <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>System Extended Stored Procedures</value>
+    <value>システム拡張ストアド プロシージャ</value>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>Built-in Types</value>
+    <value>組み込み型</value>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>Built-in Server Roles</value>
+    <value>組み込みのサーバー ロール</value>
   </data>
   <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>User with Password</value>
+    <value>ユーザーとパスワード</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>Search Property List</value>
+    <value>検索プロパティ リスト</value>
   </data>
   <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>Security Policies</value>
+    <value>セキュリティ ポリシー</value>
   </data>
   <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>Security Predicates</value>
+    <value>セキュリティ述語</value>
   </data>
   <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>Server Role</value>
+    <value>サーバー ロール</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>Search Property Lists</value>
+    <value>検索プロパティ リスト</value>
   </data>
   <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>列のストア インデックス</value>
   </data>
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>Table Type Indexes</value>
+    <value>テーブル型インデックス</value>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>Selective XML Indexes</value>
+    <value>選択的 XML インデックス</value>
   </data>
   <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML Namespaces</value>
+    <value>XML 名前空間</value>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML Typed Promoted Paths</value>
+    <value>XML 型の昇格パス</value>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL Typed Promoted Paths</value>
+    <value>T-SQL 型の昇格パス</value>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>Database Scoped Credentials</value>
+    <value>データベース スコープ資格情報</value>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>External Data Sources</value>
+    <value>外部データ ソース</value>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>External File Formats</value>
+    <value>外部ファイル形式</value>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>External Resources</value>
+    <value>外部リソース</value>
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>External Tables</value>
+    <value>外部テーブル</value>
   </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted Keys</value>
+    <value>Always Encrypted キー</value>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Column Master Keys</value>
+    <value>列マスター キー</value>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>Column Encryption Keys</value>
+    <value>列暗号化キー</value>
   </data>
   <data name="SchemaHierarchy_Server" xml:space="preserve">
-    <value>Server</value>
+    <value>サーバー</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterLabelFormatString" xml:space="preserve">
-    <value>{0} ({1}, {2}, {3})</value>
+    <value>{0} ({1}、{2}、{3})</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>No default</value>
+    <value>既定値以外</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>Input</value>
+    <value>入力</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>Input/Output</value>
+    <value>入力/出力</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>Input/ReadOnly</value>
+    <value>入力/読み取り専用</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>Input/Output/ReadOnly</value>
+    <value>入力/出力/読み取り専用</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>Default</value>
+    <value>既定</value>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>null</value>
+    <value>NULL</value>
   </data>
   <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>not null</value>
+    <value>NULL 以外</value>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
-    <value>{0} ({1}, {2})</value>
+    <value>{0} ({1}、{2})</value>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithoutType" xml:space="preserve">
     <value>{0} ({1})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} ({1}Computed, {2}, {3})</value>
+    <value>{0} ({1} 計算値、{2}、{3})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1}Computed)</value>
+    <value>{0} ({1} 計算値)</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (Column Set, {1})</value>
+    <value>{0} (列セット、{1})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (Column Set, {1}{2}, {3})</value>
+    <value>{0} (列セット、{1}{2}、{3})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (Column Set, {1}, {2}, {3})</value>
+    <value>{0} (列セット、{1}、{2}、{3})</value>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>Unique</value>
+    <value>一意</value>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>Non-Unique</value>
+    <value>一意でない</value>
   </data>
   <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Clustered</value>
+    <value>クラスター化</value>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Non-Clustered</value>
+    <value>非クラスター化</value>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
-    <value>History</value>
+    <value>履歴</value>
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>System-Versioned</value>
+    <value>システムバージョン管理</value>
   </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>The database {0} is not accessible.</value>
+    <value>データベース {0} にアクセスできません。</value>
   </data>
   <data name="External_LabelPart" xml:space="preserve">
-    <value>External</value>
+    <value>外部</value>
   </data>
   <data name="FileTable_LabelPart" xml:space="preserve">
-    <value>File Table</value>
+    <value>ファイル テーブル</value>
   </data>
   <data name="UpdatableLedger_LabelPart" xml:space="preserve">
-    <value>Updatable Ledger</value>
+    <value>更新可能な台帳</value>
   </data>
   <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
-    <value>Append-Only Ledger</value>
+    <value>追加専用台帳</value>
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
-    <value>Ledger</value>
+    <value>台帳</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
-    <value>Dropped Ledger Tables</value>
+    <value>削除された台帳テーブル</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>ドロップされた台帳ビュー</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
-    <value>Dropped Ledger Columns</value>
+    <value>削除された台帳列</value>
   </data>
   <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
-    <value>Built-in Schemas</value>
+    <value>組み込みスキーマ</value>
   </data>
   <data name="FilterName" xml:space="preserve">
-    <value>Name</value>
+    <value>名前</value>
   </data>
   <data name="FilterNameDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the name or part of a name.</value>
+    <value>名前または名前の一部に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterSchema" xml:space="preserve">
-    <value>Schema</value>
+    <value>スキーマ</value>
   </data>
   <data name="FilterSchemaDescription" xml:space="preserve">
-    <value> Include or exclude objects based on the schema or part of a schema name.</value>
+    <value> スキーマまたはスキーマ名の一部に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterOwner" xml:space="preserve">
-    <value>Owner</value>
+    <value>所有者</value>
   </data>
   <data name="FilterOwnerDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the owner or part of an owner name.</value>
+    <value>所有者または所有者名の一部に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterDurabilityType" xml:space="preserve">
-    <value>Durability Type</value>
+    <value>持続性の種類</value>
   </data>
   <data name="FilterDurabilityTypeDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the durability type.</value>
+    <value>持続性の種類に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterIsMemoryOptimized" xml:space="preserve">
-    <value>Is Memory Optimized</value>
+    <value>メモリ最適化</value>
   </data>
   <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is memory optimized.</value>
+    <value>オブジェクトがメモリ最適化されているかどうかに基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterCreateDate" xml:space="preserve">
-    <value>Create Date</value>
+    <value>作成日</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Include or exclude objects based on their creation date.</value>
+    <value>作成日に基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
-    <value>Is Natively Compiled</value>
+    <value>ネイティブ コンパイル済み</value>
   </data>
   <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is natively compiled.</value>
+    <value>オブジェクトがネイティブ コンパイルかどうかに基づいてオブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
-    <value>In Primary Key</value>
+    <value>プライマリ キー</value>
   </data>
   <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the column is in a primary key.</value>
+    <value>列がプライマリ キーにあるかどうかに基づいて、オブジェクトを含めるか除外します。</value>
   </data>
   <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
-    <value>Schema Only</value>
+    <value>スキーマのみ</value>
   </data>
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
-    <value>Schema and Data</value>
+    <value>スキーマとデータ</value>
   </data>
 </root>
