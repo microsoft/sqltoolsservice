@@ -15,6 +15,8 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>8.0</LangVersion>
 		<AssemblyName>Microsoft.SqlTools.SqlCore</AssemblyName>
+		<Authors>Microsoft</Authors>
+		<Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />

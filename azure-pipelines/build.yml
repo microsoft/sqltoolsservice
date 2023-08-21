@@ -58,6 +58,19 @@ steps:
   inputs:
     useGlobalJson: true
 
+- task: PowerShell@2
+  displayName: 'Add version number to SqlCore project for packaging'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
+      $props = New-Object XML
+      $props.Load($projectFile)
+      $propGroup = $props.Project.PropertyGroup;
+      $version = $env:$(Major) + '.' + $env:$(Minor) + '.' + $env:$(Patch) + $(Build.BuildNumber);
+      $props.Project.PropertyGroup.Version = $version;
+      $props.Save($projectFile)
+
 - task: BatchScript@1
   displayName: 'Run script build.cmd'
   inputs:
@@ -119,22 +132,6 @@ steps:
           $version = $versionPre + $(Build.BuildNumber) + '-' + $propGroup.VersionSuffix.'#text'
       }
       $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec'
-      $nuspec = New-Object XML
-      $nuspec.Load($nuspecFile)
-      $nuspec.package.metadata.version = $version;
-      $nuspec.Save($nuspecFile)
-
-- task: PowerShell@2
-  displayName: 'Generate SqlCore Nuspec Version'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $projectFile = '$(Build.SourcesDirectory)\src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
-      $props = New-Object XML
-      $props.Load($projectFile)
-      $propGroup = $props.Project.PropertyGroup;
-      $version = $env:$(Major) + '.' + $env:$(Minor) + '.' + $env:$(Patch) + $(Build.BuildNumber);
-      $nuspecFile = '$(Build.SourcesDirectory)\packages\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.nuspec'
       $nuspec = New-Object XML
       $nuspec.Load($nuspecFile)
       $nuspec.package.metadata.version = $version;
@@ -311,7 +308,7 @@ steps:
   condition: eq(variables['RELEASE'], 'true')
   inputs:
     command: push
-    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    packagesToPush: '$(Build.SourcesDirectory)/artifacts/nugetPackages/**/Microsoft.SqlTools.SqlCore.*.nupkg'
     feedPublish: 'mssqltools'
     allowPackageConflicts: true
 

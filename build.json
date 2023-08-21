@@ -39,16 +39,11 @@
         "net472",
         "net7.0"
       ]
-    },
-    {
-      "Name": "Microsoft.SqlTools.SqlCore",
-      "Frameworks": [
-        "netstandard2.0"
-      ]
     }
   ],
   "PackageProjects": [
-    "Microsoft.SqlTools.Hosting"
+    "Microsoft.SqlTools.Hosting",
+    "Microsoft.SqlTools.SqlCore"
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer",
