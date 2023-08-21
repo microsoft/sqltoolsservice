@@ -413,7 +413,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     {
                         var fileCollection = new StringCollection();
                         fileCollection.AddRange(database.DatabaseFilePaths);
-                        server.AttachDatabase(database.DatabaseName, fileCollection);
+                        server.AttachDatabase(database.DatabaseName, fileCollection, database.Owner);
                     }
                     if (attachParams.GenerateScript)
                     {

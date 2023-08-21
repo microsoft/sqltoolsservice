@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement.Contracts
     {
         public string DatabaseName { get; set; }
         public string[] DatabaseFilePaths { get; set; }
-
+        public string Owner { get; set; }
     }
 
     public class AttachDatabaseRequestParams
