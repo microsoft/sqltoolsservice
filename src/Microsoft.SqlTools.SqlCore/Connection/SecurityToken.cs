@@ -20,6 +20,6 @@ namespace Microsoft.SqlTools.SqlCore.Connection
         /// <summmary>
         /// Gets or sets the token type, e.g. 'Bearer'
         /// </summary>
-        public string TokenType { get; set; }
+        public string? TokenType { get; set; }
     }
 }
