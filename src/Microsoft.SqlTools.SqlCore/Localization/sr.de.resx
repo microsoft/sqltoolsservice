@@ -118,487 +118,487 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TreeNodeError" xml:space="preserve">
-    <value>Error expanding: {0}</value>
+    <value>Fehler beim Erweitern: {0}</value>
   </data>
   <data name="ServerNodeConnectionError" xml:space="preserve">
-    <value>Error connecting to {0}</value>
+    <value>Fehler bei der Verbindungsherstellung mit "{0}".</value>
   </data>
   <data name="SchemaHierarchy_Aggregates" xml:space="preserve">
-    <value>Aggregates</value>
+    <value>Aggregate</value>
   </data>
   <data name="SchemaHierarchy_ServerRoles" xml:space="preserve">
-    <value>Server Roles</value>
+    <value>Serverrollen</value>
   </data>
   <data name="SchemaHierarchy_ApplicationRoles" xml:space="preserve">
-    <value>Application Roles</value>
+    <value>Anwendungsrollen</value>
   </data>
   <data name="SchemaHierarchy_Assemblies" xml:space="preserve">
-    <value>Assemblies</value>
+    <value>Assemblys</value>
   </data>
   <data name="SchemaHierarchy_AssemblyFiles" xml:space="preserve">
-    <value>Assembly Files</value>
+    <value>Assemblydateien</value>
   </data>
   <data name="SchemaHierarchy_AsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>Asymmetrische Schlüssel</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAsymmetricKeys" xml:space="preserve">
-    <value>Asymmetric Keys</value>
+    <value>Asymmetrische Schlüssel</value>
   </data>
   <data name="SchemaHierarchy_DataCompressionOptions" xml:space="preserve">
-    <value>Data Compression Options</value>
+    <value>Optionen für die Datenkomprimierung</value>
   </data>
   <data name="SchemaHierarchy_Certificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>Zertifikate</value>
   </data>
   <data name="SchemaHierarchy_FileTables" xml:space="preserve">
     <value>FileTables</value>
   </data>
   <data name="SchemaHierarchy_DatabaseCertificates" xml:space="preserve">
-    <value>Certificates</value>
+    <value>Zertifikate</value>
   </data>
   <data name="SchemaHierarchy_CheckConstraints" xml:space="preserve">
-    <value>Check Constraints</value>
+    <value>CHECK-Einschränkungen</value>
   </data>
   <data name="SchemaHierarchy_Columns" xml:space="preserve">
-    <value>Columns</value>
+    <value>Spalten</value>
   </data>
   <data name="SchemaHierarchy_Constraints" xml:space="preserve">
-    <value>Constraints</value>
+    <value>Einschränkungen</value>
   </data>
   <data name="SchemaHierarchy_Contracts" xml:space="preserve">
-    <value>Contracts</value>
+    <value>Verträge</value>
   </data>
   <data name="SchemaHierarchy_Credentials" xml:space="preserve">
-    <value>Credentials</value>
+    <value>Anmeldeinformationen</value>
   </data>
   <data name="SchemaHierarchy_ErrorMessages" xml:space="preserve">
-    <value>Error Messages</value>
+    <value>Fehlermeldungen</value>
   </data>
   <data name="SchemaHierarchy_ServerRoleMembership" xml:space="preserve">
-    <value>Server Role Membership</value>
+    <value>Serverrollenmitgliedschaft</value>
   </data>
   <data name="SchemaHierarchy_DatabaseOptions" xml:space="preserve">
-    <value>Database Options</value>
+    <value>Datenbankoptionen</value>
   </data>
   <data name="SchemaHierarchy_DatabaseRoles" xml:space="preserve">
-    <value>Database Roles</value>
+    <value>Datenbankrollen</value>
   </data>
   <data name="SchemaHierarchy_RoleMemberships" xml:space="preserve">
-    <value>Role Memberships</value>
+    <value>Rollenmitgliedschaften</value>
   </data>
   <data name="SchemaHierarchy_DatabaseTriggers" xml:space="preserve">
-    <value>Database Triggers</value>
+    <value>Datenbanktrigger</value>
   </data>
   <data name="SchemaHierarchy_DefaultConstraints" xml:space="preserve">
-    <value>Default Constraints</value>
+    <value>DEFAULT-Einschränkungen</value>
   </data>
   <data name="SchemaHierarchy_Defaults" xml:space="preserve">
-    <value>Defaults</value>
+    <value>Standardwerte</value>
   </data>
   <data name="SchemaHierarchy_Sequences" xml:space="preserve">
-    <value>Sequences</value>
+    <value>Sequenzen</value>
   </data>
   <data name="SchemaHierarchy_Endpoints" xml:space="preserve">
-    <value>Endpoints</value>
+    <value>Endpunkte</value>
   </data>
   <data name="SchemaHierarchy_EventNotifications" xml:space="preserve">
-    <value>Event Notifications</value>
+    <value>Ereignisbenachrichtigungen</value>
   </data>
   <data name="SchemaHierarchy_ServerEventNotifications" xml:space="preserve">
-    <value>Server Event Notifications</value>
+    <value>Serverbenachrichtigungsereignisse</value>
   </data>
   <data name="SchemaHierarchy_ExtendedProperties" xml:space="preserve">
-    <value>Extended Properties</value>
+    <value>Erweiterte Eigenschaften</value>
   </data>
   <data name="SchemaHierarchy_FileGroups" xml:space="preserve">
-    <value>Filegroups</value>
+    <value>Dateigruppen</value>
   </data>
   <data name="SchemaHierarchy_ForeignKeys" xml:space="preserve">
-    <value>Foreign Keys</value>
+    <value>Fremdschlüssel</value>
   </data>
   <data name="SchemaHierarchy_FullTextCatalogs" xml:space="preserve">
-    <value>Full-Text Catalogs</value>
+    <value>Volltextkataloge</value>
   </data>
   <data name="SchemaHierarchy_FullTextIndexes" xml:space="preserve">
-    <value>Full-Text Indexes</value>
+    <value>Volltextindizes</value>
   </data>
   <data name="SchemaHierarchy_Functions" xml:space="preserve">
-    <value>Functions</value>
+    <value>Funktionen</value>
   </data>
   <data name="SchemaHierarchy_Indexes" xml:space="preserve">
-    <value>Indexes</value>
+    <value>Indizes</value>
   </data>
   <data name="SchemaHierarchy_InlineFunctions" xml:space="preserve">
-    <value>Inline Functions</value>
+    <value>Inlinefunktionen</value>
   </data>
   <data name="SchemaHierarchy_Keys" xml:space="preserve">
-    <value>Keys</value>
+    <value>Schlüssel</value>
   </data>
   <data name="SchemaHierarchy_LinkedServers" xml:space="preserve">
-    <value>Linked Servers</value>
+    <value>Verbindungsserver</value>
   </data>
   <data name="SchemaHierarchy_Logins" xml:space="preserve">
-    <value>Logins</value>
+    <value>Anmeldungen</value>
   </data>
   <data name="SchemaHierarchy_MasterKey" xml:space="preserve">
-    <value>Master Key</value>
+    <value>Hauptschlüssel</value>
   </data>
   <data name="SchemaHierarchy_MasterKeys" xml:space="preserve">
-    <value>Master Keys</value>
+    <value>Hauptschlüssel</value>
   </data>
   <data name="SchemaHierarchy_MessageTypes" xml:space="preserve">
-    <value>Message Types</value>
+    <value>Nachrichtentypen</value>
   </data>
   <data name="SchemaHierarchy_MultiSelectFunctions" xml:space="preserve">
-    <value>Table-Valued Functions</value>
+    <value>Tabellenwertfunktionen</value>
   </data>
   <data name="SchemaHierarchy_Parameters" xml:space="preserve">
-    <value>Parameters</value>
+    <value>Parameter</value>
   </data>
   <data name="SchemaHierarchy_PartitionFunctions" xml:space="preserve">
-    <value>Partition Functions</value>
+    <value>Partitionsfunktionen</value>
   </data>
   <data name="SchemaHierarchy_PartitionSchemes" xml:space="preserve">
-    <value>Partition Schemes</value>
+    <value>Partitionsschemas</value>
   </data>
   <data name="SchemaHierarchy_Permissions" xml:space="preserve">
-    <value>Permissions</value>
+    <value>Berechtigungen</value>
   </data>
   <data name="SchemaHierarchy_PrimaryKeys" xml:space="preserve">
-    <value>Primary Keys</value>
+    <value>Primärschlüssel</value>
   </data>
   <data name="SchemaHierarchy_Programmability" xml:space="preserve">
-    <value>Programmability</value>
+    <value>Programmierung</value>
   </data>
   <data name="SchemaHierarchy_Queues" xml:space="preserve">
-    <value>Queues</value>
+    <value>Warteschlangen</value>
   </data>
   <data name="SchemaHierarchy_RemoteServiceBindings" xml:space="preserve">
-    <value>Remote Service Bindings</value>
+    <value>Remotedienstbindungen</value>
   </data>
   <data name="SchemaHierarchy_ReturnedColumns" xml:space="preserve">
-    <value>Returned Columns</value>
+    <value>Zurückgegebene Spalten</value>
   </data>
   <data name="SchemaHierarchy_Roles" xml:space="preserve">
-    <value>Roles</value>
+    <value>Rollen</value>
   </data>
   <data name="SchemaHierarchy_Routes" xml:space="preserve">
-    <value>Routes</value>
+    <value>Routen</value>
   </data>
   <data name="SchemaHierarchy_Rules" xml:space="preserve">
-    <value>Rules</value>
+    <value>Regeln</value>
   </data>
   <data name="SchemaHierarchy_Schemas" xml:space="preserve">
     <value>Schemas</value>
   </data>
   <data name="SchemaHierarchy_Security" xml:space="preserve">
-    <value>Security</value>
+    <value>Sicherheit</value>
   </data>
   <data name="SchemaHierarchy_ServerObjects" xml:space="preserve">
-    <value>Server Objects</value>
+    <value>Serverobjekte</value>
   </data>
   <data name="SchemaHierarchy_Management" xml:space="preserve">
-    <value>Management</value>
+    <value>Verwaltung</value>
   </data>
   <data name="SchemaHierarchy_ServerTriggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>Trigger</value>
   </data>
   <data name="SchemaHierarchy_ServiceBroker" xml:space="preserve">
     <value>Service Broker</value>
   </data>
   <data name="SchemaHierarchy_Services" xml:space="preserve">
-    <value>Services</value>
+    <value>Dienste</value>
   </data>
   <data name="SchemaHierarchy_Signatures" xml:space="preserve">
-    <value>Signatures</value>
+    <value>Signaturen</value>
   </data>
   <data name="SchemaHierarchy_LogFiles" xml:space="preserve">
-    <value>Log Files</value>
+    <value>Protokolldateien</value>
   </data>
   <data name="SchemaHierarchy_Statistics" xml:space="preserve">
-    <value>Statistics</value>
+    <value>Statistik</value>
   </data>
   <data name="SchemaHierarchy_Storage" xml:space="preserve">
-    <value>Storage</value>
+    <value>Speicher</value>
   </data>
   <data name="SchemaHierarchy_StoredProcedures" xml:space="preserve">
-    <value>Stored Procedures</value>
+    <value>Gespeicherte Prozeduren</value>
   </data>
   <data name="SchemaHierarchy_SymmetricKeys" xml:space="preserve">
-    <value>Symmetric Keys</value>
+    <value>Symmetrische Schlüssel</value>
   </data>
   <data name="SchemaHierarchy_Synonyms" xml:space="preserve">
-    <value>Synonyms</value>
+    <value>Synonyme</value>
   </data>
   <data name="SchemaHierarchy_Tables" xml:space="preserve">
-    <value>Tables</value>
+    <value>Tabellen</value>
   </data>
   <data name="SchemaHierarchy_Triggers" xml:space="preserve">
-    <value>Triggers</value>
+    <value>Trigger</value>
   </data>
   <data name="SchemaHierarchy_Types" xml:space="preserve">
-    <value>Types</value>
+    <value>Typen</value>
   </data>
   <data name="SchemaHierarchy_UniqueKeys" xml:space="preserve">
-    <value>Unique Keys</value>
+    <value>Eindeutige Schlüssel</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedDataTypes" xml:space="preserve">
-    <value>User-Defined Data Types</value>
+    <value>Benutzerdefinierte Datentypen</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTypes" xml:space="preserve">
-    <value>User-Defined Types (CLR)</value>
+    <value>Benutzerdefinierte Typen (CLR)</value>
   </data>
   <data name="SchemaHierarchy_Users" xml:space="preserve">
-    <value>Users</value>
+    <value>Benutzer</value>
   </data>
   <data name="SchemaHierarchy_Views" xml:space="preserve">
-    <value>Views</value>
+    <value>Sichten</value>
   </data>
   <data name="SchemaHierarchy_XmlIndexes" xml:space="preserve">
-    <value>XML Indexes</value>
+    <value>XML-Indizes</value>
   </data>
   <data name="SchemaHierarchy_XMLSchemaCollections" xml:space="preserve">
-    <value>XML Schema Collections</value>
+    <value>XML-Schemasammlungen</value>
   </data>
   <data name="SchemaHierarchy_UserDefinedTableTypes" xml:space="preserve">
-    <value>User-Defined Table Types</value>
+    <value>Benutzerdefinierte Tabellentypen</value>
   </data>
   <data name="SchemaHierarchy_FilegroupFiles" xml:space="preserve">
-    <value>Files</value>
+    <value>Dateien</value>
   </data>
   <data name="MissingCaption" xml:space="preserve">
-    <value>Missing Caption</value>
+    <value>Fehlende Beschriftung</value>
   </data>
   <data name="SchemaHierarchy_BrokerPriorities" xml:space="preserve">
-    <value>Broker Priorities</value>
+    <value>Brokerprioritäten</value>
   </data>
   <data name="SchemaHierarchy_CryptographicProviders" xml:space="preserve">
-    <value>Cryptographic Providers</value>
+    <value>Kryptografieanbieter</value>
   </data>
   <data name="SchemaHierarchy_DatabaseAuditSpecifications" xml:space="preserve">
-    <value>Database Audit Specifications</value>
+    <value>Spezifikationen für Datenbanküberwachung</value>
   </data>
   <data name="SchemaHierarchy_DatabaseEncryptionKeys" xml:space="preserve">
-    <value>Database Encryption Keys</value>
+    <value>Datenbankverschlüsselungsschlüssel</value>
   </data>
   <data name="SchemaHierarchy_EventSessions" xml:space="preserve">
-    <value>Event Sessions</value>
+    <value>Ereignissitzungen</value>
   </data>
   <data name="SchemaHierarchy_FullTextStopLists" xml:space="preserve">
-    <value>Full Text Stoplists</value>
+    <value>Volltextstopplisten</value>
   </data>
   <data name="SchemaHierarchy_ResourcePools" xml:space="preserve">
-    <value>Resource Pools</value>
+    <value>Ressourcenpools</value>
   </data>
   <data name="SchemaHierarchy_ServerAudits" xml:space="preserve">
-    <value>Audits</value>
+    <value>Überwachungen</value>
   </data>
   <data name="SchemaHierarchy_ServerAuditSpecifications" xml:space="preserve">
-    <value>Server Audit Specifications</value>
+    <value>Spezifikationen für Serverüberwachungen</value>
   </data>
   <data name="SchemaHierarchy_SpatialIndexes" xml:space="preserve">
-    <value>Spatial Indexes</value>
+    <value>Räumliche Indizes</value>
   </data>
   <data name="SchemaHierarchy_WorkloadGroups" xml:space="preserve">
-    <value>Workload Groups</value>
+    <value>Arbeitsauslastungsgruppen</value>
   </data>
   <data name="SchemaHierarchy_SqlFiles" xml:space="preserve">
-    <value>SQL Files</value>
+    <value>SQL-Dateien</value>
   </data>
   <data name="SchemaHierarchy_ServerFunctions" xml:space="preserve">
-    <value>Server Functions</value>
+    <value>Serverfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SqlType" xml:space="preserve">
-    <value>SQL Type</value>
+    <value>SQL-Typ</value>
   </data>
   <data name="SchemaHierarchy_ServerOptions" xml:space="preserve">
-    <value>Server Options</value>
+    <value>Serveroptionen</value>
   </data>
   <data name="SchemaHierarchy_DatabaseDiagrams" xml:space="preserve">
-    <value>Database Diagrams</value>
+    <value>Datenbankdiagramme</value>
   </data>
   <data name="SchemaHierarchy_SystemTables" xml:space="preserve">
-    <value>System Tables</value>
+    <value>Systemtabellen</value>
   </data>
   <data name="SchemaHierarchy_Databases" xml:space="preserve">
-    <value>Databases</value>
+    <value>Datenbanken</value>
   </data>
   <data name="SchemaHierarchy_SystemContracts" xml:space="preserve">
-    <value>System Contracts</value>
+    <value>Systemverträge</value>
   </data>
   <data name="SchemaHierarchy_SystemDatabases" xml:space="preserve">
-    <value>System Databases</value>
+    <value>Systemdatenbanken</value>
   </data>
   <data name="SchemaHierarchy_SystemMessageTypes" xml:space="preserve">
-    <value>System Message Types</value>
+    <value>Systemnachrichtentypen</value>
   </data>
   <data name="SchemaHierarchy_SystemQueues" xml:space="preserve">
-    <value>System Queues</value>
+    <value>Systemwarteschlangen</value>
   </data>
   <data name="SchemaHierarchy_SystemServices" xml:space="preserve">
-    <value>System Services</value>
+    <value>Systemdienste</value>
   </data>
   <data name="SchemaHierarchy_SystemStoredProcedures" xml:space="preserve">
-    <value>System Stored Procedures</value>
+    <value>Gespeicherte Systemprozeduren</value>
   </data>
   <data name="SchemaHierarchy_SystemViews" xml:space="preserve">
-    <value>System Views</value>
+    <value>Systemsichten</value>
   </data>
   <data name="SchemaHierarchy_DataTierApplications" xml:space="preserve">
-    <value>Data-tier Applications</value>
+    <value>Datenschichtanwendungen</value>
   </data>
   <data name="SchemaHierarchy_ExtendedStoredProcedures" xml:space="preserve">
-    <value>Extended Stored Procedures</value>
+    <value>Erweiterte gespeicherte Prozeduren</value>
   </data>
   <data name="SchemaHierarchy_SystemAggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>Aggregatfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemApproximateNumerics" xml:space="preserve">
-    <value>Approximate Numerics</value>
+    <value>Ungefähre numerische Werte</value>
   </data>
   <data name="SchemaHierarchy_SystemBinaryStrings" xml:space="preserve">
-    <value>Binary Strings</value>
+    <value>Binäre Zeichenfolgen</value>
   </data>
   <data name="SchemaHierarchy_SystemCharacterStrings" xml:space="preserve">
-    <value>Character Strings</value>
+    <value>Zeichenfolgen</value>
   </data>
   <data name="SchemaHierarchy_SystemCLRDataTypes" xml:space="preserve">
-    <value>CLR Data Types</value>
+    <value>CLR-Datentypen</value>
   </data>
   <data name="SchemaHierarchy_SystemConfigurationFunctions" xml:space="preserve">
-    <value>Configuration Functions</value>
+    <value>Konfigurationsfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemCursorFunctions" xml:space="preserve">
-    <value>Cursor Functions</value>
+    <value>Cursorfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemDataTypes" xml:space="preserve">
-    <value>System Data Types</value>
+    <value>Systemdatentypen</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTime" xml:space="preserve">
-    <value>Date and Time</value>
+    <value>Datum und Uhrzeit</value>
   </data>
   <data name="SchemaHierarchy_SystemDateAndTimeFunctions" xml:space="preserve">
-    <value>Date and Time Functions</value>
+    <value>Datums- und Zeitfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemExactNumerics" xml:space="preserve">
-    <value>Exact Numerics</value>
+    <value>Exakte numerische Werte</value>
   </data>
   <data name="SchemaHierarchy_SystemFunctions" xml:space="preserve">
-    <value>System Functions</value>
+    <value>Systemfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemHierarchyIdFunctions" xml:space="preserve">
-    <value>Hierarchy Id Functions</value>
+    <value>Hierarchie-ID-Funktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemMathematicalFunctions" xml:space="preserve">
-    <value>Mathematical Functions</value>
+    <value>Mathematische Funktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemMetadataFunctions" xml:space="preserve">
-    <value>Metadata Functions</value>
+    <value>Metadatenfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherDataTypes" xml:space="preserve">
-    <value>Other Data Types</value>
+    <value>Weitere Datentypen</value>
   </data>
   <data name="SchemaHierarchy_SystemOtherFunctions" xml:space="preserve">
-    <value>Other Functions</value>
+    <value>Weitere Funktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemRowsetFunctions" xml:space="preserve">
-    <value>Rowset Functions</value>
+    <value>Rowsetfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemSecurityFunctions" xml:space="preserve">
-    <value>Security Functions</value>
+    <value>Sicherheitsfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemSpatialDataTypes" xml:space="preserve">
-    <value>Spatial Data Types</value>
+    <value>Räumliche Datentypen</value>
   </data>
   <data name="SchemaHierarchy_SystemStringFunctions" xml:space="preserve">
-    <value>String Functions</value>
+    <value>Zeichenfolgenfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemSystemStatisticalFunctions" xml:space="preserve">
-    <value>System Statistical Functions</value>
+    <value>Statistische Systemfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemTextAndImageFunctions" xml:space="preserve">
-    <value>Text and Image Functions</value>
+    <value>Text- und Bildfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemUnicodeCharacterStrings" xml:space="preserve">
-    <value>Unicode Character Strings</value>
+    <value>Unicode-Zeichenfolgen</value>
   </data>
   <data name="SchemaHierarchy_AggregateFunctions" xml:space="preserve">
-    <value>Aggregate Functions</value>
+    <value>Aggregatfunktionen</value>
   </data>
   <data name="SchemaHierarchy_ScalarValuedFunctions" xml:space="preserve">
-    <value>Scalar-valued Functions</value>
+    <value>Skalarwertfunktionen</value>
   </data>
   <data name="SchemaHierarchy_TableValuedFunctions" xml:space="preserve">
-    <value>Table-valued Functions</value>
+    <value>Tabellenwertfunktionen</value>
   </data>
   <data name="SchemaHierarchy_SystemExtendedStoredProcedures" xml:space="preserve">
-    <value>System Extended Stored Procedures</value>
+    <value>Erweiterte gespeicherte Systemprozeduren</value>
   </data>
   <data name="SchemaHierarchy_BuiltInType" xml:space="preserve">
-    <value>Built-in Types</value>
+    <value>Integrierte Typen</value>
   </data>
   <data name="SchemaHierarchy_BuiltInServerRole" xml:space="preserve">
-    <value>Built-in Server Roles</value>
+    <value>Integrierte Serverrollen</value>
   </data>
   <data name="SchemaHierarchy_UserWithPassword" xml:space="preserve">
-    <value>User with Password</value>
+    <value>Benutzer mit Kennwort</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyList" xml:space="preserve">
-    <value>Search Property List</value>
+    <value>Sucheigenschaftenliste</value>
   </data>
   <data name="SchemaHierarchy_SecurityPolicies" xml:space="preserve">
-    <value>Security Policies</value>
+    <value>Sicherheitsrichtlinien</value>
   </data>
   <data name="SchemaHierarchy_SecurityPredicates" xml:space="preserve">
-    <value>Security Predicates</value>
+    <value>Sicherheitsprädikate</value>
   </data>
   <data name="SchemaHierarchy_ServerRole" xml:space="preserve">
-    <value>Server Role</value>
+    <value>Serverrolle</value>
   </data>
   <data name="SchemaHierarchy_SearchPropertyLists" xml:space="preserve">
-    <value>Search Property Lists</value>
+    <value>Sucheigenschaftenlisten</value>
   </data>
   <data name="SchemaHierarchy_ColumnStoreIndexes" xml:space="preserve">
-    <value>Column Store Indexes</value>
+    <value>Spaltenspeicherindizes</value>
   </data>
   <data name="SchemaHierarchy_TableTypeIndexes" xml:space="preserve">
-    <value>Table Type Indexes</value>
+    <value>Tabellentypindizes</value>
   </data>
   <data name="SchemaHierarchy_SelectiveXmlIndexes" xml:space="preserve">
-    <value>Selective XML Indexes</value>
+    <value>Selektive XML-Indizes</value>
   </data>
   <data name="SchemaHierarchy_XmlNamespaces" xml:space="preserve">
-    <value>XML Namespaces</value>
+    <value>XML-Namespaces</value>
   </data>
   <data name="SchemaHierarchy_XmlTypedPromotedPaths" xml:space="preserve">
-    <value>XML Typed Promoted Paths</value>
+    <value>XML-typisierte höher gestufte Pfade</value>
   </data>
   <data name="SchemaHierarchy_SqlTypedPromotedPaths" xml:space="preserve">
-    <value>T-SQL Typed Promoted Paths</value>
+    <value>T-SQL-typisierte höher gestufte Pfade</value>
   </data>
   <data name="SchemaHierarchy_DatabaseScopedCredentials" xml:space="preserve">
-    <value>Database Scoped Credentials</value>
+    <value>Datenbankweit gültige Anmeldeinformationen</value>
   </data>
   <data name="SchemaHierarchy_ExternalDataSources" xml:space="preserve">
-    <value>External Data Sources</value>
+    <value>Externe Datenquellen</value>
   </data>
   <data name="SchemaHierarchy_ExternalFileFormats" xml:space="preserve">
-    <value>External File Formats</value>
+    <value>Externe Dateiformate</value>
   </data>
   <data name="SchemaHierarchy_ExternalResources" xml:space="preserve">
-    <value>External Resources</value>
+    <value>Externe Ressourcen</value>
   </data>
   <data name="SchemaHierarchy_ExternalTables" xml:space="preserve">
-    <value>External Tables</value>
+    <value>Externe Tabellen</value>
   </data>
   <data name="SchemaHierarchy_AlwaysEncryptedKeys" xml:space="preserve">
-    <value>Always Encrypted Keys</value>
+    <value>Always Encrypted-Schlüssel</value>
   </data>
   <data name="SchemaHierarchy_ColumnMasterKeys" xml:space="preserve">
-    <value>Column Master Keys</value>
+    <value>Spaltenhauptschlüssel</value>
   </data>
   <data name="SchemaHierarchy_ColumnEncryptionKeys" xml:space="preserve">
-    <value>Column Encryption Keys</value>
+    <value>Spaltenverschlüsselungsschlüssel</value>
   </data>
   <data name="SchemaHierarchy_Server" xml:space="preserve">
     <value>Server</value>
@@ -607,28 +607,28 @@
     <value>{0} ({1}, {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterNoDefaultLabel" xml:space="preserve">
-    <value>No default</value>
+    <value>Kein Standardwert</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputLabel" xml:space="preserve">
-    <value>Input</value>
+    <value>Eingabe</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputLabel" xml:space="preserve">
-    <value>Input/Output</value>
+    <value>Eingabe/Ausgabe</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputReadOnlyLabel" xml:space="preserve">
-    <value>Input/ReadOnly</value>
+    <value>Eingabe/schreibgeschützt</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterInputOutputReadOnlyLabel" xml:space="preserve">
-    <value>Input/Output/ReadOnly</value>
+    <value>Eingabe/Ausgabe/schreibgeschützt</value>
   </data>
   <data name="SchemaHierarchy_SubroutineParameterDefaultLabel" xml:space="preserve">
-    <value>Default</value>
+    <value>Standardwert</value>
   </data>
   <data name="SchemaHierarchy_NullColumn_Label" xml:space="preserve">
-    <value>null</value>
+    <value>NULL</value>
   </data>
   <data name="SchemaHierarchy_NotNullColumn_Label" xml:space="preserve">
-    <value>not null</value>
+    <value>Nicht NULL</value>
   </data>
   <data name="SchemaHierarchy_UDDTLabelWithType" xml:space="preserve">
     <value>{0} ({1}, {2})</value>
@@ -637,120 +637,120 @@
     <value>{0} ({1})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithType" xml:space="preserve">
-    <value>{0} ({1}Computed, {2}, {3})</value>
+    <value>{0} ({1}Berechnet, {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_ComputedColumnLabelWithoutType" xml:space="preserve">
-    <value>{0} ({1}Computed)</value>
+    <value>{0} ({1}Berechnet)</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithoutType" xml:space="preserve">
-    <value>{0} (Column Set, {1})</value>
+    <value>{0} (Spaltensatz, {1})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithType" xml:space="preserve">
-    <value>{0} (Column Set, {1}{2}, {3})</value>
+    <value>{0} (Spaltensatz, {1} {2}, {3})</value>
   </data>
   <data name="SchemaHierarchy_ColumnSetLabelWithTypeAndKeyString" xml:space="preserve">
-    <value>{0} (Column Set, {1}, {2}, {3})</value>
+    <value>{0} (Spaltensatz, {1}, {2}, {3})</value>
   </data>
   <data name="UniqueIndex_LabelPart" xml:space="preserve">
-    <value>Unique</value>
+    <value>Eindeutig</value>
   </data>
   <data name="NonUniqueIndex_LabelPart" xml:space="preserve">
-    <value>Non-Unique</value>
+    <value>Nicht eindeutig</value>
   </data>
   <data name="ClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Clustered</value>
+    <value>Gruppiert</value>
   </data>
   <data name="NonClusteredIndex_LabelPart" xml:space="preserve">
-    <value>Non-Clustered</value>
+    <value>Nicht gruppiert</value>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
-    <value>History</value>
+    <value>Verlauf</value>
   </data>
   <data name="SystemVersioned_LabelPart" xml:space="preserve">
-    <value>System-Versioned</value>
+    <value>Systemversionsverwaltung</value>
   </data>
   <data name="DatabaseNotAccessible" xml:space="preserve">
-    <value>The database {0} is not accessible.</value>
+    <value>Auf die Datenbank "{0}" kann nicht zugegriffen werden.</value>
   </data>
   <data name="External_LabelPart" xml:space="preserve">
-    <value>External</value>
+    <value>Extern</value>
   </data>
   <data name="FileTable_LabelPart" xml:space="preserve">
-    <value>File Table</value>
+    <value>Dateitabelle</value>
   </data>
   <data name="UpdatableLedger_LabelPart" xml:space="preserve">
-    <value>Updatable Ledger</value>
+    <value>Aktualisierbarer Ledger</value>
   </data>
   <data name="AppendOnlyLedger_LabelPart" xml:space="preserve">
-    <value>Append-Only Ledger</value>
+    <value>Ledger nur zum Anfügen</value>
   </data>
   <data name="Ledger_LabelPart" xml:space="preserve">
     <value>Ledger</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerTables" xml:space="preserve">
-    <value>Dropped Ledger Tables</value>
+    <value>Verworfene Ledgertabellen</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerViews" xml:space="preserve">
-    <value>Dropped Ledger Views</value>
+    <value>Verworfene Ledgeransichten</value>
   </data>
   <data name="SchemaHierarchy_DroppedLedgerColumns" xml:space="preserve">
-    <value>Dropped Ledger Columns</value>
+    <value>Verworfene Ledgerspalten</value>
   </data>
   <data name="SchemaHierarchy_BuiltInSchema" xml:space="preserve">
-    <value>Built-in Schemas</value>
+    <value>Integrierte Schemas</value>
   </data>
   <data name="FilterName" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="FilterNameDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the name or part of a name.</value>
+    <value>Objekte werden basierend auf ihrem Namen oder einem Teil ihres Namens ein- oder ausgeschlossen.</value>
   </data>
   <data name="FilterSchema" xml:space="preserve">
     <value>Schema</value>
   </data>
   <data name="FilterSchemaDescription" xml:space="preserve">
-    <value> Include or exclude objects based on the schema or part of a schema name.</value>
+    <value> Objekte werden basierend auf ihrem Schemanamen oder einem Teil ihres Schemanamens ein- oder ausgeschlossen.</value>
   </data>
   <data name="FilterOwner" xml:space="preserve">
-    <value>Owner</value>
+    <value>Besitzer</value>
   </data>
   <data name="FilterOwnerDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the owner or part of an owner name.</value>
+    <value>Objekte basierend auf dem Besitzer oder Teil eines Besitzernamens einschließen oder ausschließen.</value>
   </data>
   <data name="FilterDurabilityType" xml:space="preserve">
-    <value>Durability Type</value>
+    <value>Dauerhaftigkeitstyp</value>
   </data>
   <data name="FilterDurabilityTypeDescription" xml:space="preserve">
-    <value>Include or exclude objects based on the durability type.</value>
+    <value>Objekte werden basierend auf dem Dauerhaftigkeitstyp ein- oder ausgeschlossen.</value>
   </data>
   <data name="FilterIsMemoryOptimized" xml:space="preserve">
-    <value>Is Memory Optimized</value>
+    <value>Ist speicheroptimiert</value>
   </data>
   <data name="FilterIsMemoryOptimizedDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is memory optimized.</value>
+    <value>Schließen Sie Objekte abhängig davon, ob sie speicheroptimiert sind, ein oder aus.</value>
   </data>
   <data name="FilterCreateDate" xml:space="preserve">
-    <value>Create Date</value>
+    <value>Erstellungsdatum</value>
   </data>
   <data name="FilterCreateDateDescription" xml:space="preserve">
-    <value>Include or exclude objects based on their creation date.</value>
+    <value>Objekte werden basierend auf ihrem Namen oder Erstellungsdatum ein- oder ausgeschlossen.</value>
   </data>
   <data name="FilterIsNativelyCompiled" xml:space="preserve">
-    <value>Is Natively Compiled</value>
+    <value>Wird systemintern kompiliert</value>
   </data>
   <data name="FilterIsNativelyCompiledDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the object is natively compiled.</value>
+    <value>Schließen Sie Objekte abhängig davon, ob sie systemintern kompiliert sind, ein oder aus.</value>
   </data>
   <data name="FilterInPrimaryKey" xml:space="preserve">
-    <value>In Primary Key</value>
+    <value>Im Primärschlüssel</value>
   </data>
   <data name="FilterInPrimaryKeyDescription" xml:space="preserve">
-    <value>Include or exclude objects based on whether the column is in a primary key.</value>
+    <value>Schließt Objekte basierend darauf ein oder aus, ob sich die Spalte in einem Primärschlüssel befindet.</value>
   </data>
   <data name="FilterDurabilitySchemaOnly" xml:space="preserve">
-    <value>Schema Only</value>
+    <value>Nur Schema</value>
   </data>
   <data name="FilterDurabilitySchemaAndData" xml:space="preserve">
-    <value>Schema and Data</value>
+    <value>Schema und Daten</value>
   </data>
 </root>
