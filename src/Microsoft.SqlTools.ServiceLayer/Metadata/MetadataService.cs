@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                             return;
                         }
 
-                        var scripts = await SmoScripterFactory.GenerateAllServerTableScripts(sqlConn);
+                        var scripts = await SmoScripterHelpers.GenerateAllServerTableScripts(sqlConn);
                         if (scripts != null)
                         {
                             try

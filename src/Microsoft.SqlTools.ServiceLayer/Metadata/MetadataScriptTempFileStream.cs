@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
     /// </summary>
     public static class MetadataScriptTempFileStream
     {
-        private const short NumOfDaysSinceLastWrite = 30;
+        private const short ScriptFileExpirationInDays = 30;
 
         /// <summary>
         /// This method writes the passed in scripts to a temporary file.
@@ -86,10 +86,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         }
 
         /// <summary>
-        /// Checks to see if the temporary file containing the scripts for a server needs to be updated.
+        /// Determines if the script file for a server is too old.
         /// </summary>
         /// <param name="serverName">The name of the file associated with the given server name.</param>
-        /// <returns>Flag indicating that the script file is valid.</returns>
+        /// <returns>True: The file was created within the expiration period; False: The script file needs to be created
+        /// or updated because it is too old.</returns>
         public static bool IsScriptTempFileUpdateNeeded(string serverName)
         {
             var tempFileName = $"{serverName}.tmp";
@@ -103,13 +104,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
                 }
                 else
                 {
+                    /**
+                     * Generated scripts don't need to be super up to date, so 30 days was chosen as the amount of time
+                     * before the scripts are re-generated. This expiration date may change in the future,
+                     * but for now this is what we're going with.
+                     */
                     var lastWriteTime = File.GetLastWriteTime(tempFilePath);
-                    return (DateTime.Now - lastWriteTime).TotalDays < NumOfDaysSinceLastWrite;
+                    return (DateTime.Now - lastWriteTime).TotalDays < ScriptFileExpirationInDays;
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warning($"Unable to determine if the script file is older than 30 days. Error: {ex.Message}");
+                Logger.Warning($"Unable to determine if the script file is older than {ScriptFileExpirationInDays} days. Error: {ex.Message}");
                 throw;
             }
         }

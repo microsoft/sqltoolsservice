@@ -58,8 +58,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 testTableSchema, testTableName);
             using (var sqlCommand = new SqlCommand(sql, sqlConn))
             {
-                sqlCommand.ExecuteNonQuery(); 
-            }            
+                sqlCommand.ExecuteNonQuery();
+            }
         }
 
         private void DeleteTestTable(SqlConnection sqlConn, string testTableSchema, string testTableName)
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         public async Task GetTableInfoReturnsValidResults()
         {
             this.testTableName += new Random().Next(1000000, 9999999).ToString();
-                   
+
             var result = GetLiveAutoCompleteTestObjects();
             var sqlConn = ConnectionService.OpenSqlConnection(result.ConnectionInfo);
 
@@ -212,25 +212,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
         private void DeleteServerContextualizationTempFile(string serverName)
         {
             var tempFileName = $"{serverName}.tmp";
-
-            try
+            var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+            if (File.Exists(tempFilePath))
             {
-                var tempFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
-                if (File.Exists(tempFilePath))
-                {
-                    File.Delete(tempFilePath);
-                }
-            }
-            catch
-            {
-                throw;
+                File.Delete(tempFilePath);
             }
         }
 
         [Test]
         public async Task GetViewInfoReturnsValidResults()
-        {           
-            var result = GetLiveAutoCompleteTestObjects();         
+        {
+            var result = GetLiveAutoCompleteTestObjects();
             var requestContext = new Mock<RequestContext<TableMetadataResult>>();
             requestContext.Setup(x => x.SendResult(It.IsAny<TableMetadataResult>())).Returns(Task.FromResult(new object()));
 
@@ -263,7 +255,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                             AS
                             RETURN SELECT 1 AS AccessResult
                             GO";
-            
+
             List<ObjectMetadata> expectedMetadataList = new List<ObjectMetadata>
             {
                 new ObjectMetadata
@@ -351,7 +343,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Metadata
                 return result.Metadata == null;
             }
 
-            if(expectedMetadataList.Count != result.Metadata.Length)
+            if (expectedMetadataList.Count != result.Metadata.Length)
             {
                 return false;
             }

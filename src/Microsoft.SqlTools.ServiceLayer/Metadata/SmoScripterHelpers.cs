@@ -11,40 +11,41 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-
+using System;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.Metadata
 {
-    internal static class SmoScripterFactory
+    internal static class SmoScripterHelpers
     {
-        public static async Task<IEnumerable<string>> GenerateAllServerTableScripts(DbConnection connection)
+        public static async Task<IEnumerable<string>?> GenerateAllServerTableScripts(DbConnection connection)
         {
-            var serverConnection = SmoScripterFactory.GetServerConnection(connection);
+            var serverConnection = SmoScripterHelpers.GetServerConnection(connection);
             if (serverConnection == null)
             {
                 return null;
             }
 
             Server server = new Server(serverConnection);
-            var scripts = await SmoScripterFactory.GenerateTableScripts(server);
+            var scripts = await SmoScripterHelpers.GenerateTableScripts(server);
 
             return scripts;
         }
 
-        private static ServerConnection GetServerConnection(DbConnection connection)
+        private static ServerConnection? GetServerConnection(DbConnection connection)
         {
             // Get a connection to the database for SMO purposes
-            SqlConnection sqlConnection = connection as SqlConnection ?? SmoScripterFactory.TryFindingReliableSqlConnection(connection as ReliableSqlConnection);
+            var sqlConnection = connection as SqlConnection ?? SmoScripterHelpers.TryFindingReliableSqlConnection(connection as ReliableSqlConnection);
             if (sqlConnection == null)
             {
                 return null;
             }
 
-            var serverConnection = SmoScripterFactory.ConnectToServerWithSmo(sqlConnection);
+            var serverConnection = SmoScripterHelpers.ConnectToServerWithSmo(sqlConnection);
             return serverConnection;
         }
 
-        private static SqlConnection TryFindingReliableSqlConnection(ReliableSqlConnection reliableSqlConnection)
+        private static SqlConnection? TryFindingReliableSqlConnection(ReliableSqlConnection reliableSqlConnection)
         {
             // It's not actually a SqlConnection, so let's try a reliable SQL connection
             if (reliableSqlConnection == null)
@@ -69,7 +70,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
         private static async Task<IEnumerable<string>> GenerateTableScripts(Server server)
         {
-            var urns = SmoScripterFactory.GetAllServerTableAndViewUrns(server);
+            var urns = SmoScripterHelpers.GetAllServerTableAndViewUrns(server);
 
             var scriptingOptions = new ScriptingOptions
             {
@@ -174,14 +175,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
 
             foreach (Database db in server.Databases)
             {
-                foreach (SqlServer.Management.Smo.Table t in db.Tables)
+                try
                 {
-                    urnCollection.Add(t.Urn);
+                    foreach (SqlServer.Management.Smo.Table t in db.Tables)
+                    {
+                        urnCollection.Add(t.Urn);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning($"Unable to get table URNs. Error: {ex.Message}");
                 }
 
-                foreach (SqlServer.Management.Smo.View v in db.Views)
+                try
                 {
-                    urnCollection.Add(v.Urn);
+                    foreach (SqlServer.Management.Smo.View v in db.Views)
+                    {
+                        urnCollection.Add(v.Urn);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning($"Unable to get view URNs. Error: {ex.Message}");
                 }
             }
 

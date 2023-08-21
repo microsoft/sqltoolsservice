@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata.Contracts
     public class GetServerContextualizationResult
     {
         /// <summary>
-        /// An array containing generated create scripts for database objects like tables and views,
+        /// An array containing the generated server context.
         /// </summary>
         public string[] Context { get; set; }
     }
